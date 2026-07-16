@@ -26,18 +26,36 @@ def _write_csv(frame: pd.DataFrame, path: Path) -> None:
     frame.to_csv(path, index=False, encoding="utf-8-sig", lineterminator="\n")
 
 
+def _provider_id(function_name: str) -> str:
+    if function_name == "stock_zh_a_spot_em":
+        return "eastmoney"
+    if function_name == "stock_zh_a_spot":
+        return "sina"
+    if "stock_info_sh" in function_name:
+        return "sse"
+    if "stock_info_sz" in function_name:
+        return "szse"
+    if "stock_info_bj" in function_name:
+        return "bse"
+    if "trade_date" in function_name:
+        return "sina"
+    return "public_source"
+
+
 def _source_entry(call: Any, adapter_version: str, retrieved_at: str, raw_hash: str | None = None) -> dict[str, Any]:
-    provider_id = "eastmoney" if "spot_em" in call.function else "exchange_or_sina_public_source"
+    warnings = list(call.warnings)
+    if getattr(call, "volume_unit", "NOT_APPLICABLE") != "NOT_APPLICABLE":
+        warnings.append(f"volume_unit={call.volume_unit}")
     return {
         "adapter_id": "akshare",
         "adapter_version": adapter_version,
         "adapter_function": call.function,
-        "provider_id": provider_id,
+        "provider_id": _provider_id(call.function),
         "retrieved_at": retrieved_at,
         "source_as_of_date": None,
         "raw_hash_sha256": raw_hash,
         "retries": call.retries,
-        "warnings": call.warnings,
+        "warnings": warnings,
     }
 
 
@@ -106,6 +124,7 @@ def _write_summary(
     run_id: str,
     as_of_date: str,
     generated_at: str,
+    source_function: str,
     universe_quality: DatasetQuality,
     snapshot_quality: DatasetQuality,
     warnings: list[str],
@@ -116,6 +135,7 @@ def _write_summary(
         f"- Run ID: `{run_id}`",
         f"- As-of date: `{as_of_date}`",
         f"- Generated at: `{generated_at}`",
+        f"- Market-wide source: `{source_function}`",
         f"- Universe QA: `{universe_quality.qa_status}` / `{universe_quality.publication_status}`",
         f"- Snapshot QA: `{snapshot_quality.qa_status}` / `{snapshot_quality.publication_status}`",
         "- Promotion state: `CANDIDATE_ONLY`",
@@ -160,7 +180,8 @@ def main() -> int:
 
     candidate_dir = root / "outputs/candidate"
     raw_dir = root / "datasets/raw" / as_of.isoformat() / run_id
-    raw_spot_path = raw_dir / "AKSHARE_STOCK_ZH_A_SPOT_EM.csv"
+    safe_function = bundle.spot.function.upper().replace(":", "_")
+    raw_spot_path = raw_dir / f"AKSHARE_{safe_function}.csv"
     universe_path = candidate_dir / "A_SHARE_UNIVERSE.csv"
     snapshot_path = candidate_dir / "DAILY_MARKET_SNAPSHOT.csv"
     _write_csv(bundle.spot.data, raw_spot_path)
@@ -195,9 +216,19 @@ def main() -> int:
         sources=universe_sources,
         limitations=[
             "Industry and listing-date enrichment depends on optional free exchange endpoints.",
-            "Suspension status is inferred from the market-wide spot response.",
+            "Suspension status is inferred from the selected market-wide spot response.",
             "FMDL-2, not this data layer, owns investability exclusions.",
         ],
+    )
+    volume_limitation = (
+        "AKShare/Eastmoney 成交量 is converted from lots to shares using 100 shares per lot."
+        if bundle.spot.volume_unit == "LOTS"
+        else "AKShare/Sina 成交量 is supplied in shares and is preserved without a lot multiplier."
+    )
+    valuation_limitation = (
+        "pe_ttm temporarily maps the free-source dynamic PE field; valuation semantics are hardened in FMDL-3."
+        if bundle.spot.function == "stock_zh_a_spot_em"
+        else "Sina fallback does not provide market-cap or valuation fields in this interface; those fields remain null and are hardened in FMDL-3."
     )
     snapshot_manifest = _manifest(
         dataset_id="daily_market_snapshot",
@@ -210,8 +241,8 @@ def main() -> int:
         quality=snapshot_quality,
         sources=[_source_entry(bundle.spot, bundle.adapter_version, generated_at, raw_hash)],
         limitations=[
-            "AKShare/Eastmoney 成交量 is converted from lots to shares using 100 shares per lot.",
-            "pe_ttm temporarily maps the free-source dynamic PE field; valuation semantics are hardened in FMDL-3.",
+            volume_limitation,
+            valuation_limitation,
             "Candidate data is not a stable Investment OS current output until FMDL-1F promotion.",
         ],
     )
@@ -223,6 +254,9 @@ def main() -> int:
         "as_of_date": as_of.isoformat(),
         "generated_at": generated_at,
         "adapter_version": bundle.adapter_version,
+        "market_wide_source_function": bundle.spot.function,
+        "market_wide_provider": _provider_id(bundle.spot.function),
+        "market_wide_volume_unit": bundle.spot.volume_unit,
         "universe": _quality_payload(universe_quality),
         "snapshot": _quality_payload(snapshot_quality),
         "source_warnings": normalized.warnings,
@@ -237,6 +271,7 @@ def main() -> int:
         run_id=run_id,
         as_of_date=as_of.isoformat(),
         generated_at=generated_at,
+        source_function=bundle.spot.function,
         universe_quality=universe_quality,
         snapshot_quality=snapshot_quality,
         warnings=normalized.warnings,
@@ -248,6 +283,7 @@ def main() -> int:
     print(json.dumps({
         "run_id": run_id,
         "as_of_date": as_of.isoformat(),
+        "market_wide_source_function": bundle.spot.function,
         "universe_rows": len(normalized.universe),
         "snapshot_rows": len(normalized.snapshot),
         "universe_qa": universe_quality.qa_status,
