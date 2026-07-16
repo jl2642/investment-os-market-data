@@ -5,10 +5,11 @@
 - Phase: `FMDL-1B/C — A-share Universe Builder + Daily Market Snapshot`
 - Acceptance state: `ACCEPTED_WITH_CONTROLLED_WARNINGS`
 - Main implementation commit: `7b97e16506236619a51186da663563105f6fc924`
-- Real candidate data commit: `2648f093e41508553e9bd9e480c2638be1178fad`
-- Run ID: `FMDL1BC_20260716T165141+0800`
+- Registered-lineage fix commit: `456297a38643eddf01609e6f8b1c22885186ea62`
+- Final real candidate data commit: `08d950bbf8ee8aec88eedbdba384aaf6ea3ecde7`
+- Run ID: `FMDL1BC_20260716T165927+0800`
 - As-of date: `2026-07-16`
-- Generated at: `2026-07-16T16:51:41+08:00`
+- Generated at: `2026-07-16T16:59:27+08:00`
 - AKShare version: `1.18.64`
 - Cost policy: `FREE_OR_FREE_TIER_ONLY`
 
@@ -23,8 +24,9 @@ The GitHub-hosted production runner completed all of the following successfully:
 5. Schema and quality-gate evaluation.
 6. Manifest and hash generation.
 7. Commit of real candidate data and raw evidence to the main branch.
+8. Exact reconciliation of runtime provider IDs with the frozen source registry.
 
-The Eastmoney market-wide endpoint disconnected the GitHub Azure runner. The explicit free fallback `akshare.stock_zh_a_spot` / Sina completed successfully. This fallback is recorded in source lineage and is not a silent substitution.
+The Eastmoney market-wide endpoint disconnected the GitHub Azure runner. The explicit registered fallback `akshare.stock_zh_a_spot` / `sina_public` completed successfully. The fallback, volume unit and upstream failure are preserved in the manifest and run report rather than silently substituted.
 
 ## Accepted datasets
 
@@ -40,9 +42,9 @@ The Eastmoney market-wide endpoint disconnected the GitHub Azure runner. The exp
 - Hard failures: `0`
 - QA: `PASS_WITH_WARNINGS`
 - Candidate status: `DEGRADED`
-- SHA-256: `6fca3a0202ce7de044fa681546ea956dd95fef5e65e374f752f5078a524b5cd2`
+- SHA-256: `094595f4c7760a6a85cb214b35625d6e7f26a3eeba2716ecded8c999c7a621d1`
 
-Controlled warning: free exchange enrichment provides industry coverage of approximately `58.26%`, below the soft target of `90%`. This does not affect security identity or market coverage and remains a hardening item for later data enrichment.
+Controlled warning: free exchange enrichment provides industry coverage of approximately `58.26%`, below the soft target of `90%`. This does not affect security identity or full-market coverage and remains a later enrichment item.
 
 ### Daily market snapshot
 
@@ -57,13 +59,23 @@ Controlled warning: free exchange enrichment provides industry coverage of appro
 - Hard failures: `0`
 - QA: `PASS_WITH_WARNINGS`
 - Candidate status: `DEGRADED`
-- SHA-256: `88deb6aeecdc52e524cfffa4d6ab1e107cdb3ab0331e915d9fd5cc261030a718`
+- SHA-256: `4a35ded77b277ec2927ee6e8ee207757e896186b9db48fd2ee86b20aa33c8ba9`
 
 Controlled warnings:
 
-- Sina fallback does not provide market-cap or valuation fields through this bulk interface; FMDL-3 owns those fields.
-- One extreme-return row remains a soft event-review warning and does not break price/return reconciliation.
+- The Sina fallback bulk interface does not provide market-cap or valuation fields; FMDL-3 owns those fields.
+- One extreme-return row remains a soft event-review warning and does not break return reconciliation.
 - Three source rows encoded with zero prices were deterministically classified as suspended rather than treated as -100% traded returns: `002677.SZ`, `301234.SZ`, `920685.BJ`.
+
+## Registered sources
+
+The final runtime lineage uses exact registered provider IDs:
+
+- `sina_public`
+- `sse_public`
+- `szse_public`
+- `bse_public`
+- `eastmoney_public` remains registered as the degraded preferred bulk route.
 
 ## Accepted deliverables
 
@@ -76,12 +88,12 @@ outputs/candidate/A_SHARE_UNIVERSE_QUALITY.json
 outputs/candidate/DAILY_MARKET_SNAPSHOT_QUALITY.json
 outputs/candidate/FMDL_1BC_RUN_REPORT.json
 outputs/candidate/FMDL_1BC_RUN_REPORT.md
-datasets/raw/2026-07-16/FMDL1BC_20260716T165141+0800/
+datasets/raw/2026-07-16/FMDL1BC_20260716T165927+0800/
 ```
 
 ## Phase boundary
 
-FMDL-1B/C is accepted because real A-share universe and daily snapshot datasets were produced on GitHub-hosted infrastructure and all hard gates passed.
+FMDL-1B/C is accepted because real A-share universe and daily snapshot datasets were produced on GitHub-hosted infrastructure and every hard gate passed.
 
 This acceptance does **not** promote the candidate files to `outputs/current/`, establish a scheduled daily operating release, or make Investment OS consume the files. Those controls remain with:
 
