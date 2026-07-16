@@ -1,0 +1,57 @@
+{
+  "manifest_version": "1.0.0",
+  "dataset_id": "daily_market_snapshot",
+  "dataset_version": "daily_market_snapshot-2026-07-16-FMDL1BC_20260716T165927+0800",
+  "schema_id": "daily_market_snapshot.schema.json",
+  "schema_version": "1.0.0",
+  "run_id": "FMDL1BC_20260716T165927+0800",
+  "as_of_date": "2026-07-16",
+  "generated_at": "2026-07-16T16:59:27+08:00",
+  "business_timezone": "Asia/Shanghai",
+  "publication_status": "PUBLISHED",
+  "qa_status": "PASS_WITH_WARNINGS",
+  "sources": [
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.18.64",
+      "adapter_function": "stock_zh_a_spot",
+      "provider_id": "sina_public",
+      "retrieved_at": "2026-07-16T16:59:27+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": "93dfbcff15dbff26e145c13a948f274b06040ed4e2a81c95a9fef428917c57f4",
+      "retries": 0,
+      "warnings": [
+        "primary_provider_unavailable: stock_zh_a_spot_em",
+        "attempt_1: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+        "optional_source_unavailable",
+        "volume_unit=SHARES"
+      ]
+    }
+  ],
+  "row_count": 5529,
+  "column_count": 21,
+  "file": {
+    "path": "outputs/current/DAILY_MARKET_SNAPSHOT.csv",
+    "size_bytes": 1166248,
+    "sha256": "4a35ded77b277ec2927ee6e8ee207757e896186b9db48fd2ee86b20aa33c8ba9"
+  },
+  "quality": {
+    "hard_failures": [],
+    "soft_warnings": [
+      "market_cap_fill_ratio",
+      "valuation_fill_ratio",
+      "maximum_unexplained_absolute_return_pct"
+    ],
+    "gate_results_path": "outputs/current/DAILY_MARKET_SNAPSHOT_QUALITY.json"
+  },
+  "lineage": {
+    "parent_dataset_version": null,
+    "last_known_good_dataset_version": null
+  },
+  "known_limitations": [
+    "AKShare/Sina 成交量 is supplied in shares and is preserved without a lot multiplier.",
+    "Sina fallback does not provide market-cap or valuation fields in this interface; those fields remain null and are hardened in FMDL-3.",
+    "Stable market data is not consumed by Investment OS until FMDL-1F."
+  ],
+  "notes": "Initial stable publication by FMDL-1D last-known-good controls."
+}

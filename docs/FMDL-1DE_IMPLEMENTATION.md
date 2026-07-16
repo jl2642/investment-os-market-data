@@ -123,6 +123,10 @@ FMDL-1D/E completion means the market-data repository can maintain a stable A-sh
 
 ## 11. Main-branch production acceptance
 
-- State: `PENDING_REAL_MAIN_RUN`
-- Trigger: this committed implementation record intentionally activates the installed main-branch production workflow.
-- Promotion rule: update this state only after `outputs/current/CURRENT_RELEASE.json` and `outputs/status/LAST_SUCCESS.json` are committed by `github-actions[bot]`.
+- State: `ACCEPTED_WITH_CONTROLLED_WARNINGS_AND_SCHEDULE_OBSERVATION`
+- Stable run: `FMDL1BC_20260716T165927+0800`
+- Stable as-of date: `2026-07-16`
+- Initial Current publication: atomic Git-tree bootstrap from the already accepted main-branch B/C blobs.
+- Scheduled production workflow: active at `17:30 Asia/Shanghai` on confirmed trading weekdays.
+- First naturally scheduled main-branch bot write: operating observation item; not a development blocker.
+- Detailed evidence: `docs/FMDL-1DE_ACCEPTANCE.md`.
