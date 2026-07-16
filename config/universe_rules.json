@@ -1,0 +1,47 @@
+{
+  "contract_version": "1.0.0",
+  "dataset_id": "a_share_universe",
+  "schema_id": "a_share_universe.schema.json",
+  "market_scope": {
+    "country": "CN",
+    "currency": "CNY",
+    "security_type": "COMMON_STOCK",
+    "include_exchanges": ["SH", "SZ", "BJ"],
+    "include_boards": [
+      "SH_MAIN",
+      "STAR",
+      "SZ_MAIN",
+      "CHINEXT",
+      "BSE"
+    ],
+    "exclude_security_types": [
+      "B_SHARE",
+      "ETF",
+      "LOF",
+      "CEF",
+      "REIT",
+      "BOND",
+      "CONVERTIBLE_BOND",
+      "WARRANT",
+      "PREFERRED_STOCK"
+    ]
+  },
+  "data_layer_policy": {
+    "retain_st_and_risk_warning_securities": true,
+    "retain_suspended_securities": true,
+    "retain_recent_ipos": true,
+    "retain_non_active_rows_when_source_reports_them": true,
+    "hide_screening_exclusions": false,
+    "screening_exclusions_owned_by": "FMDL-2"
+  },
+  "canonical_symbol_suffix": {
+    "SH": ".SH",
+    "SZ": ".SZ",
+    "BJ": ".BJ"
+  },
+  "controlled_vocabularies": {
+    "listing_status": ["ACTIVE", "SUSPENDED", "DELISTING", "DELISTED", "UNKNOWN"],
+    "record_quality": ["VALID", "PARTIAL", "STALE", "SUSPECT", "INVALID"]
+  },
+  "natural_key": ["as_of_date", "symbol"]
+}
