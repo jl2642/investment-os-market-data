@@ -93,6 +93,7 @@ def normalize_a_share_bundle(
     as_of_text = as_of_date.isoformat()
     source_primary = f"akshare.{bundle.spot.function}"
     volume_multiplier = 100.0 if bundle.spot.volume_unit == "LOTS" else 1.0
+    zero_price_symbols: list[str] = []
 
     for code in all_codes:
         spot_row = spot_map.get(code)
@@ -100,13 +101,21 @@ def normalize_a_share_bundle(
         raw_name = None if spot_row is None else clean_scalar(spot_row.get("名称"))
         name = str(raw_name or master.get("name") or "").strip() or code
         exchange, board = exchange_and_board(code)
-        close = None if spot_row is None else safe_float(spot_row.get("最新价"))
-        prev_close = None if spot_row is None else safe_float(spot_row.get("昨收"))
+        raw_close = None if spot_row is None else safe_float(spot_row.get("最新价"))
+        raw_prev_close = None if spot_row is None else safe_float(spot_row.get("昨收"))
+        valid_trade = raw_close is not None and raw_close > 0
+        close = raw_close if valid_trade else None
+        prev_close = raw_prev_close if raw_prev_close is not None and raw_prev_close > 0 else None
         source_volume = None if spot_row is None else safe_float(spot_row.get("成交量"))
         turnover = None if spot_row is None else safe_float(spot_row.get("成交额"))
-        is_suspended = spot_row is None or close is None
+        is_suspended = not valid_trade
+        if spot_row is not None and raw_close is not None and raw_close <= 0:
+            zero_price_symbols.append(canonical_symbol(code))
+
         record_quality = "VALID"
         if master.get("list_date") is None or master.get("industry_name") is None:
+            record_quality = "PARTIAL"
+        if is_suspended:
             record_quality = "PARTIAL"
         if board == "UNKNOWN":
             record_quality = "SUSPECT"
@@ -137,17 +146,17 @@ def normalize_a_share_bundle(
         universe_row["row_hash"] = stable_row_hash(universe_row)
         universe_rows.append(universe_row)
 
-        data_status = "TRADED" if close is not None else ("SUSPENDED" if code in masters else "NO_DATA")
+        data_status = "TRADED" if valid_trade else ("SUSPENDED" if spot_row is not None or code in masters else "NO_DATA")
         snapshot_row: dict[str, Any] = {
             "as_of_date": as_of_text,
             "symbol": canonical_symbol(code),
-            "open": None if spot_row is None else safe_float(spot_row.get("今开")),
-            "high": None if spot_row is None else safe_float(spot_row.get("最高")),
-            "low": None if spot_row is None else safe_float(spot_row.get("最低")),
+            "open": None if not valid_trade else safe_float(spot_row.get("今开")),
+            "high": None if not valid_trade else safe_float(spot_row.get("最高")),
+            "low": None if not valid_trade else safe_float(spot_row.get("最低")),
             "close": close,
             "prev_close": prev_close,
-            "pct_change": None if spot_row is None else safe_float(spot_row.get("涨跌幅")),
-            "amplitude_pct": None if spot_row is None else safe_float(spot_row.get("振幅")),
+            "pct_change": None if not valid_trade else safe_float(spot_row.get("涨跌幅")),
+            "amplitude_pct": None if not valid_trade else safe_float(spot_row.get("振幅")),
             "volume_shares": None if source_volume is None else source_volume * volume_multiplier,
             "turnover_cny": turnover,
             "turnover_rate_pct": None if spot_row is None else safe_float(spot_row.get("换手率")),
@@ -158,7 +167,7 @@ def normalize_a_share_bundle(
             "data_status": data_status,
             "source_primary": source_primary,
             "source_timestamp": source_timestamp,
-            "record_quality": "VALID" if close is not None and prev_close is not None else "PARTIAL",
+            "record_quality": "VALID" if valid_trade and prev_close is not None else "PARTIAL",
         }
         snapshot_row["row_hash"] = stable_row_hash(snapshot_row)
         snapshot_rows.append(snapshot_row)
@@ -169,4 +178,8 @@ def normalize_a_share_bundle(
     warnings.extend(bundle.trade_calendar.warnings)
     if bundle.spot.volume_unit == "SHARES":
         warnings.append("volume_unit_source=SHARES; no lot multiplier applied")
+    if zero_price_symbols:
+        warnings.append(
+            "source_zero_price_rows_classified_as_suspended=" + ",".join(zero_price_symbols)
+        )
     return NormalizedBundle(universe=universe, snapshot=snapshot, warnings=warnings)
