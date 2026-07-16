@@ -8,12 +8,14 @@ from pathlib import Path
 import shutil
 from typing import Any
 
+from jsonschema import Draft202012Validator, FormatChecker
 import pandas as pd
 
 from pipeline.common import file_sha256, write_json
 from pipeline.event_flags import build_market_event_flags
 
 
+CONTRACT_ROOT = Path(__file__).resolve().parents[1]
 CANDIDATE_FILES = [
     "A_SHARE_UNIVERSE.csv",
     "DAILY_MARKET_SNAPSHOT.csv",
@@ -39,6 +41,15 @@ class PublicationResult:
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def validate_control_payload(payload: dict[str, Any], schema_name: str) -> None:
+    schema = _load_json(CONTRACT_ROOT / "schemas" / schema_name)
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    errors = sorted(validator.iter_errors(payload), key=lambda item: list(item.path))
+    if errors:
+        details = "; ".join(f"path={list(item.path)} {item.message}" for item in errors[:10])
+        raise RuntimeError(f"{schema_name} validation failed: {details}")
 
 
 def _copy_file(source: Path, target: Path) -> None:
@@ -129,6 +140,8 @@ def quarantine_candidate(
     quarantine_dir = root / "outputs/quarantine" / run_id
     quarantine_dir.mkdir(parents=True, exist_ok=True)
     for name in CANDIDATE_FILES:
+        if name.endswith(".csv"):
+            continue
         source = candidate_dir / name
         if source.exists():
             _copy_file(source, quarantine_dir / name)
@@ -139,6 +152,7 @@ def quarantine_candidate(
         "reason": reason,
         "hard_failures": hard_failures or [],
         "current_preserved": True,
+        "full_candidate_evidence": "WORKFLOW_ARTIFACT",
     }
     write_json(quarantine_dir / "FAILURE_REPORT.json", payload)
     return PublicationResult(
@@ -161,18 +175,30 @@ def publish_candidate(*, root: Path, generated_at: str) -> PublicationResult:
     hard_failures = list(report["universe"]["hard_failures"]) + list(report["snapshot"]["hard_failures"])
     soft_warnings = list(report["universe"]["soft_warnings"]) + list(report["snapshot"]["soft_warnings"])
     if hard_failures:
-        return quarantine_candidate(
+        result = quarantine_candidate(
             root=root,
             run_id=report["run_id"],
             as_of_date=report["as_of_date"],
             reason="HARD_QUALITY_GATE_FAILURE",
             hard_failures=hard_failures,
         )
+        status_payload = {
+            "run_id": report["run_id"],
+            "as_of_date": report["as_of_date"],
+            "generated_at": generated_at,
+            "status": "QUARANTINED",
+            "action": "QUARANTINED",
+            "current_preserved": True,
+            "hard_failures": hard_failures,
+            "soft_warnings": sorted(set(soft_warnings)),
+            "reason": "HARD_QUALITY_GATE_FAILURE",
+        }
+        validate_control_payload(status_payload, "operating_status.schema.json")
+        write_json(status_dir / "LAST_RUN.json", status_payload)
+        return result
 
     previous = _load_previous_release(current_dir)
-    previous_versions = {}
-    if previous:
-        previous_versions = previous.get("dataset_versions", {})
+    previous_versions = previous.get("dataset_versions", {}) if previous else {}
 
     snapshot = pd.read_csv(candidate_dir / "DAILY_MARKET_SNAPSHOT.csv")
     event_flags = build_market_event_flags(snapshot)
@@ -251,6 +277,7 @@ def publish_candidate(*, root: Path, generated_at: str) -> PublicationResult:
         "previous_release_run_id": None if previous is None else previous.get("run_id"),
         "authority_boundary": "DATA_EVIDENCE_ONLY_NO_INVESTMENT_DECISION",
     }
+    validate_control_payload(release, "current_release.schema.json")
     write_json(stage_dir / "CURRENT_RELEASE.json", release)
 
     current_dir.mkdir(parents=True, exist_ok=True)
@@ -272,6 +299,7 @@ def publish_candidate(*, root: Path, generated_at: str) -> PublicationResult:
         "soft_warnings": release["soft_warnings"],
         "current_release_path": "outputs/current/CURRENT_RELEASE.json",
     }
+    validate_control_payload(status_payload, "operating_status.schema.json")
     write_json(status_dir / "LAST_RUN.json", status_payload)
     write_json(status_dir / "LAST_SUCCESS.json", status_payload)
 
@@ -305,6 +333,7 @@ def write_failure_status(
         "error": error,
         "current_preserved": True,
     }
+    validate_control_payload(payload, "operating_status.schema.json")
     write_json(root / "outputs/status/LAST_RUN.json", payload)
     quarantine_dir = root / "outputs/quarantine" / run_id
     quarantine_dir.mkdir(parents=True, exist_ok=True)
