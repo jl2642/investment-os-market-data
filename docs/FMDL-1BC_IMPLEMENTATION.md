@@ -51,3 +51,5 @@ Raw market-wide evidence is retained under `datasets/raw/<date>/<run_id>/` for t
 ## Acceptance
 
 FMDL-1B/C can be accepted only after GitHub-hosted execution produces real files and both datasets have no hard quality failures. Soft warnings, especially industry or listing-date coverage from optional free endpoints, must remain visible.
+
+The validation pull request exists only to expose the GitHub-hosted execution result; it does not relax any acceptance gate.
