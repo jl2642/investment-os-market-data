@@ -1,0 +1,36 @@
+{
+  "contract_version": "1.0.0",
+  "business_timezone": "Asia/Shanghai",
+  "jobs": [
+    {
+      "job_id": "a_share_daily_market_mvp",
+      "status": "PLANNED_FOR_FMDL_1E",
+      "business_time": "17:30",
+      "business_days": ["MON", "TUE", "WED", "THU", "FRI"],
+      "github_cron_utc": "30 9 * * 1-5",
+      "requires_confirmed_trading_day": true,
+      "non_trading_day_behavior": "NO_OP_NON_TRADING_DAY",
+      "manual_dispatch_required": true,
+      "maximum_source_attempts": 3,
+      "retry_backoff_seconds": [15, 60, 180]
+    },
+    {
+      "job_id": "contract_validation",
+      "status": "PLANNED_FOR_FMDL_1E",
+      "trigger": ["PUSH", "PULL_REQUEST", "WORKFLOW_DISPATCH"],
+      "path_filters": ["config/**", "schemas/**", "docs/**", "scripts/**", "pipeline/**", "ingestion/**"]
+    }
+  ],
+  "retention": {
+    "current_releases": 1,
+    "accepted_archives": "IMMUTABLE",
+    "failed_run_evidence_days_during_mvp": 30,
+    "raw_capture_policy": "retain_when_technically_and_legally_feasible"
+  },
+  "free_tier_controls": {
+    "runner": "ubuntu-latest",
+    "avoid_full_history_daily_downloads": true,
+    "minute_level_schedules_forbidden": true,
+    "paid_runner_forbidden": true
+  }
+}
