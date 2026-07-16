@@ -1,36 +1,44 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "business_timezone": "Asia/Shanghai",
   "jobs": [
     {
       "job_id": "a_share_daily_market_mvp",
-      "status": "PLANNED_FOR_FMDL_1E",
+      "status": "ACTIVE_PRODUCTION_MVP",
       "business_time": "17:30",
       "business_days": ["MON", "TUE", "WED", "THU", "FRI"],
       "github_cron_utc": "30 9 * * 1-5",
       "requires_confirmed_trading_day": true,
       "non_trading_day_behavior": "NO_OP_NON_TRADING_DAY",
+      "same_date_behavior": "NO_OP_ALREADY_CURRENT",
       "manual_dispatch_required": true,
-      "maximum_source_attempts": 3,
-      "retry_backoff_seconds": [15, 60, 180]
+      "manual_dispatch_enabled": true,
+      "manual_force_run_enabled": true,
+      "maximum_source_attempts": 4,
+      "retry_backoff_seconds": [3, 6, 12, 24],
+      "failure_behavior": "RETAIN_LAST_KNOWN_GOOD_AND_FAIL_WORKFLOW",
+      "publication_rule": "HARD_GATES_PASS; SOFT_WARNINGS_VISIBLE"
     },
     {
       "job_id": "contract_validation",
-      "status": "PLANNED_FOR_FMDL_1E",
+      "status": "ACTIVE",
       "trigger": ["PUSH", "PULL_REQUEST", "WORKFLOW_DISPATCH"],
-      "path_filters": ["config/**", "schemas/**", "docs/**", "scripts/**", "pipeline/**", "ingestion/**"]
+      "path_filters": ["config/**", "schemas/**", "docs/**", "scripts/**", "pipeline/**", "ingestion/**", "tests/**"]
     }
   ],
   "retention": {
     "current_releases": 1,
-    "accepted_archives": "IMMUTABLE",
+    "accepted_archive_metadata": "IMMUTABLE_IN_GIT_HISTORY",
+    "accepted_full_csv_history": "GIT_COMMIT_HISTORY_NOT_DUPLICATED_IN_ARCHIVE_DIRECTORY",
     "failed_run_evidence_days_during_mvp": 30,
-    "raw_capture_policy": "retain_when_technically_and_legally_feasible"
+    "workflow_artifact_days": 14,
+    "raw_capture_policy": "WORKFLOW_ARTIFACT; FIRST_ACCEPTANCE_RUN_MAY_BE_COMMITTED"
   },
   "free_tier_controls": {
     "runner": "ubuntu-latest",
     "avoid_full_history_daily_downloads": true,
     "minute_level_schedules_forbidden": true,
-    "paid_runner_forbidden": true
+    "paid_runner_forbidden": true,
+    "paid_api_forbidden": true
   }
 }

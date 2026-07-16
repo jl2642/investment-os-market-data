@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "current_release.schema.json",
+  "title": "FMDL Current Release",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "release_version",
+    "run_id",
+    "as_of_date",
+    "published_at",
+    "status",
+    "qa_status",
+    "hard_failures",
+    "soft_warnings",
+    "market_wide_provider",
+    "market_wide_source_function",
+    "dataset_versions",
+    "current_files",
+    "archive_metadata_path",
+    "previous_release_run_id",
+    "authority_boundary"
+  ],
+  "properties": {
+    "release_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "run_id": {"type": "string", "minLength": 1},
+    "as_of_date": {"type": "string", "format": "date"},
+    "published_at": {"type": "string", "format": "date-time"},
+    "status": {"type": "string", "enum": ["PUBLISHED", "PUBLISHED_WITH_WARNINGS"]},
+    "qa_status": {"type": "string", "enum": ["PASS", "PASS_WITH_WARNINGS"]},
+    "hard_failures": {"type": "array", "maxItems": 0},
+    "soft_warnings": {"type": "array", "items": {"type": "string"}},
+    "market_wide_provider": {"type": "string", "minLength": 1},
+    "market_wide_source_function": {"type": "string", "minLength": 1},
+    "dataset_versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["a_share_universe", "daily_market_snapshot"],
+      "properties": {
+        "a_share_universe": {"type": "string", "minLength": 1},
+        "daily_market_snapshot": {"type": "string", "minLength": 1}
+      }
+    },
+    "current_files": {
+      "type": "object",
+      "required": ["a_share_universe", "daily_market_snapshot", "market_event_flags"],
+      "additionalProperties": false,
+      "properties": {
+        "a_share_universe": {"$ref": "#/$defs/file"},
+        "daily_market_snapshot": {"$ref": "#/$defs/file"},
+        "market_event_flags": {"$ref": "#/$defs/eventFile"}
+      }
+    },
+    "archive_metadata_path": {"type": "string", "minLength": 1},
+    "previous_release_run_id": {"type": ["string", "null"]},
+    "authority_boundary": {"type": "string", "const": "DATA_EVIDENCE_ONLY_NO_INVESTMENT_DECISION"}
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "eventFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "row_count"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "row_count": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
