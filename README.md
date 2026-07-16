@@ -16,11 +16,12 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 
 ## Latest real candidate run
 
-- Run ID: `FMDL1BC_20260716T165141+0800`
+- Run ID: `FMDL1BC_20260716T165927+0800`
 - As-of date: `2026-07-16`
 - Universe rows: `5,529`
 - Snapshot rows: `5,529`
 - Hard quality failures: `0`
+- Market-wide provider: `sina_public` explicit free fallback
 - Status: `ACCEPTED_WITH_CONTROLLED_WARNINGS`
 - Current publication boundary: candidate data only; stable `outputs/current/` promotion remains FMDL-1F
 
