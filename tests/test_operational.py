@@ -5,7 +5,7 @@ import pandas as pd
 
 from pipeline.common import file_sha256
 from pipeline.event_flags import build_market_event_flags
-from pipeline.publish import publish_candidate
+from pipeline.publish import publish_candidate, validate_control_payload
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -17,11 +17,7 @@ def _candidate(root: Path, *, hard_failures: list[str] | None = None) -> None:
     candidate = root / "outputs/candidate"
     candidate.mkdir(parents=True, exist_ok=True)
     universe = pd.DataFrame([
-        {
-            "as_of_date": "2026-07-16",
-            "symbol": "600000.SH",
-            "name": "浦发银行",
-        }
+        {"as_of_date": "2026-07-16", "symbol": "600000.SH", "name": "浦发银行"}
     ])
     snapshot = pd.DataFrame([
         {
@@ -69,7 +65,11 @@ def _candidate(root: Path, *, hard_failures: list[str] | None = None) -> None:
                 "run_id": "TEST_RUN",
                 "as_of_date": "2026-07-16",
                 "publication_status": "DEGRADED",
-                "file": {"sha256": file_sha256(csv_path), "path": str(csv_path), "size_bytes": csv_path.stat().st_size},
+                "file": {
+                    "sha256": file_sha256(csv_path),
+                    "path": str(csv_path),
+                    "size_bytes": csv_path.stat().st_size,
+                },
                 "row_count": len(pd.read_csv(csv_path)),
                 "quality": {"gate_results_path": "candidate"},
                 "lineage": {"parent_dataset_version": None, "last_known_good_dataset_version": None},
@@ -86,7 +86,11 @@ def test_event_flags_are_reviewable_and_non_destructive() -> None:
         {"as_of_date": "2026-07-16", "symbol": "C", "data_status": "TRADED", "pct_change": 1.0, "turnover_cny": 0.0},
     ])
     flags = build_market_event_flags(snapshot)
-    assert set(flags["event_type"]) == {"EXTREME_RETURN_REVIEW", "SUSPENDED_SECURITY", "ZERO_TURNOVER_REVIEW"}
+    assert set(flags["event_type"]) == {
+        "EXTREME_RETURN_REVIEW",
+        "SUSPENDED_SECURITY",
+        "ZERO_TURNOVER_REVIEW",
+    }
     assert len(snapshot) == 3
 
 
@@ -95,9 +99,11 @@ def test_publish_promotes_current_and_writes_lkg(tmp_path: Path) -> None:
     result = publish_candidate(root=tmp_path, generated_at="2026-07-16T17:30:00+08:00")
     assert result.action == "PROMOTED_CURRENT"
     release = json.loads((tmp_path / "outputs/current/CURRENT_RELEASE.json").read_text(encoding="utf-8"))
+    validate_control_payload(release, "current_release.schema.json")
     assert release["run_id"] == "TEST_RUN"
     assert release["status"] == "PUBLISHED_WITH_WARNINGS"
-    assert (tmp_path / "outputs/status/LAST_SUCCESS.json").exists()
+    status = json.loads((tmp_path / "outputs/status/LAST_SUCCESS.json").read_text(encoding="utf-8"))
+    validate_control_payload(status, "operating_status.schema.json")
     flags = pd.read_csv(tmp_path / "outputs/current/MARKET_EVENT_FLAGS.csv")
     assert "SUSPENDED_SECURITY" in set(flags["event_type"])
 
@@ -112,3 +118,7 @@ def test_hard_failure_quarantines_and_preserves_current(tmp_path: Path) -> None:
     assert result.action == "QUARANTINED"
     assert marker.read_text(encoding="utf-8") == "last-known-good"
     assert (tmp_path / "outputs/quarantine/TEST_RUN/FAILURE_REPORT.json").exists()
+    status = json.loads((tmp_path / "outputs/status/LAST_RUN.json").read_text(encoding="utf-8"))
+    validate_control_payload(status, "operating_status.schema.json")
+    assert status["status"] == "QUARANTINED"
+    assert status["current_preserved"] is True
