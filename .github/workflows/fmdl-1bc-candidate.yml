@@ -1,0 +1,62 @@
+name: FMDL 1B-C Candidate Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - requirements.txt
+      - ingestion/**
+      - pipeline/**
+      - tests/**
+      - config/**
+      - schemas/**
+      - scripts/validate_contracts.py
+      - docs/FMDL-1BC_IMPLEMENTATION.md
+      - .github/workflows/fmdl-1bc-candidate.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-1bc-candidate
+  cancel-in-progress: false
+
+jobs:
+  build-real-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Validate frozen contracts
+        run: python scripts/validate_contracts.py
+
+      - name: Run deterministic tests
+        run: pytest -q
+
+      - name: Build real A-share candidate data
+        run: python pipeline/build_candidate.py
+
+      - name: Commit candidate evidence
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/candidate datasets/raw
+          if git diff --cached --quiet; then
+            echo "No candidate changes to commit"
+          else
+            git commit -m "data: FMDL-1B/C real candidate [skip ci]"
+            git push
+          fi
