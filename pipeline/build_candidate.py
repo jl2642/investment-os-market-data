@@ -28,18 +28,18 @@ def _write_csv(frame: pd.DataFrame, path: Path) -> None:
 
 def _provider_id(function_name: str) -> str:
     if function_name == "stock_zh_a_spot_em":
-        return "eastmoney"
+        return "eastmoney_public"
     if function_name == "stock_zh_a_spot":
-        return "sina"
+        return "sina_public"
     if "stock_info_sh" in function_name:
-        return "sse"
+        return "sse_public"
     if "stock_info_sz" in function_name:
-        return "szse"
+        return "szse_public"
     if "stock_info_bj" in function_name:
-        return "bse"
+        return "bse_public"
     if "trade_date" in function_name:
-        return "sina"
-    return "public_source"
+        return "sina_public"
+    raise ValueError(f"Unregistered source function: {function_name}")
 
 
 def _source_entry(call: Any, adapter_version: str, retrieved_at: str, raw_hash: str | None = None) -> dict[str, Any]:
