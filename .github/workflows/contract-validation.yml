@@ -1,0 +1,37 @@
+name: FMDL Contract Validation
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "config/**"
+      - "schemas/**"
+      - "docs/**"
+      - "scripts/validate_contracts.py"
+      - ".github/workflows/contract-validation.yml"
+      - "README.md"
+  pull_request:
+    paths:
+      - "config/**"
+      - "schemas/**"
+      - "docs/**"
+      - "scripts/validate_contracts.py"
+      - ".github/workflows/contract-validation.yml"
+      - "README.md"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate FMDL contracts
+        run: python scripts/validate_contracts.py
