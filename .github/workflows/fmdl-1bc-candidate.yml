@@ -1,25 +1,16 @@
-name: FMDL 1B-C Candidate Build
+name: FMDL 1B-C Candidate Validation
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - requirements.txt
-      - ingestion/**
-      - pipeline/**
-      - tests/**
-      - config/**
-      - schemas/**
-      - scripts/validate_contracts.py
-      - docs/FMDL-1BC_IMPLEMENTATION.md
-      - .github/workflows/fmdl-1bc-candidate.yml
   pull_request:
     branches: [main]
     paths:
       - requirements.txt
       - ingestion/**
-      - pipeline/**
+      - pipeline/build_candidate.py
+      - pipeline/normalize.py
+      - pipeline/quality.py
+      - pipeline/common.py
       - tests/**
       - config/**
       - schemas/**
@@ -28,7 +19,7 @@ on:
       - .github/workflows/fmdl-1bc-candidate.yml
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: fmdl-1bc-candidate-${{ github.ref }}
@@ -68,27 +59,14 @@ jobs:
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           exit $status
 
-      - name: Upload diagnostic evidence
+      - name: Upload candidate evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fmdl-1bc-diagnostics
+          name: fmdl-1bc-candidate-evidence
           path: |
             diagnostics/
             outputs/candidate/
+            datasets/raw/
           if-no-files-found: warn
           retention-days: 7
-
-      - name: Commit candidate evidence
-        if: github.event_name == 'push' && steps.candidate_build.outcome == 'success'
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/candidate datasets/raw
-          if git diff --cached --quiet; then
-            echo "No candidate changes to commit"
-          else
-            git commit -m "data: FMDL-1B/C real candidate [skip ci]"
-            git push
-          fi
