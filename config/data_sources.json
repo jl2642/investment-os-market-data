@@ -2,11 +2,13 @@
   "contract_version": "1.0.0",
   "cost_policy": "FREE_OR_FREE_TIER_ONLY",
   "default_timezone": "Asia/Shanghai",
+  "last_verified_real_run": "2026-07-16",
   "adapters": [
     {
       "adapter_id": "akshare",
       "adapter_type": "python_library",
-      "status": "APPROVED_FOR_MVP_TESTING",
+      "status": "ACTIVE_PRIMARY",
+      "verified_version": "1.18.64",
       "authentication": "none_expected_for_selected_interfaces",
       "paid_usage_allowed": false,
       "datasets": [
@@ -15,38 +17,49 @@
         "trading_calendar"
       ],
       "exact_functions": {
-        "a_share_universe": null,
-        "daily_market_snapshot": null,
-        "trading_calendar": null
+        "market_wide_primary": "stock_zh_a_spot_em",
+        "market_wide_fallback": "stock_zh_a_spot",
+        "shanghai_main_master": "stock_info_sh_name_code:主板A股",
+        "shanghai_star_master": "stock_info_sh_name_code:科创板",
+        "shenzhen_a_master": "stock_info_sz_name_code:A股列表",
+        "beijing_master": "stock_info_bj_name_code",
+        "trading_calendar": "tool_trade_date_hist_sina"
       },
-      "promotion_requirement": "Populate exact function names, observed fields and successful sample date in FMDL-1B/C"
+      "observed_result": {
+        "sample_date": "2026-07-16",
+        "market_wide_rows": 5529,
+        "primary_on_github_hosted_runner": "DEGRADED_CONNECTION_RESET",
+        "fallback_on_github_hosted_runner": "SUCCESS"
+      }
     }
   ],
   "provider_classes": [
     {
       "provider_id": "eastmoney_public",
-      "status": "APPROVED_FOR_MVP_TESTING",
-      "intended_role": "broad A-share market snapshot"
+      "status": "DEGRADED",
+      "intended_role": "broad A-share market snapshot primary",
+      "observed_note": "AKShare route disconnected the GitHub Azure runner during the 2026-07-16 real run"
     },
     {
       "provider_id": "sse_public",
-      "status": "EXPERIMENTAL",
-      "intended_role": "Shanghai identity and calendar cross-check"
+      "status": "ACTIVE_PRIMARY",
+      "intended_role": "Shanghai identity and listing-date enrichment"
     },
     {
       "provider_id": "szse_public",
-      "status": "EXPERIMENTAL",
-      "intended_role": "Shenzhen identity and calendar cross-check"
+      "status": "ACTIVE_PRIMARY",
+      "intended_role": "Shenzhen identity, listing-date and industry enrichment"
     },
     {
       "provider_id": "bse_public",
-      "status": "EXPERIMENTAL",
-      "intended_role": "Beijing identity and calendar cross-check"
+      "status": "ACTIVE_PRIMARY",
+      "intended_role": "Beijing identity, listing-date and industry enrichment"
     },
     {
       "provider_id": "sina_public",
-      "status": "EXPERIMENTAL",
-      "intended_role": "limited fallback or cross-check"
+      "status": "ACTIVE_FALLBACK",
+      "intended_role": "market-wide price and volume fallback plus trading calendar",
+      "observed_note": "Produced 5529 real rows on the GitHub-hosted 2026-07-16 run"
     }
   ],
   "fallback_policy": {
@@ -54,6 +67,7 @@
     "same_schema_and_quality_gates_required": true,
     "automatic_value_averaging": false,
     "retain_last_known_good_on_failure": true,
-    "relabel_stale_data_as_current": false
+    "relabel_stale_data_as_current": false,
+    "fallback_must_be_explicit_in_manifest": true
   }
 }
