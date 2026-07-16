@@ -19,7 +19,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.common import iso_shanghai, now_shanghai, write_json  # noqa: E402
-from pipeline.publish import publish_candidate, write_failure_status  # noqa: E402
+from pipeline.publish import publish_candidate, validate_control_payload, write_failure_status  # noqa: E402
 
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
 
@@ -54,6 +54,7 @@ def _write_noop(root: Path, *, generated_at: str, as_of_date: str, reason: str) 
         "action": reason,
         "current_preserved": True,
     }
+    validate_control_payload(payload, "operating_status.schema.json")
     write_json(root / "outputs/status/LAST_RUN.json", payload)
 
 
