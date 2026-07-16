@@ -58,10 +58,29 @@ jobs:
         run: pytest -q
 
       - name: Build real A-share candidate data
-        run: python pipeline/build_candidate.py
+        id: candidate_build
+        shell: bash
+        run: |
+          set +e
+          mkdir -p diagnostics
+          python pipeline/build_candidate.py 2>&1 | tee diagnostics/FMDL_1BC_ACTION_LOG.txt
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit $status
+
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl-1bc-diagnostics
+          path: |
+            diagnostics/
+            outputs/candidate/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Commit candidate evidence
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && steps.candidate_build.outcome == 'success'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
