@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "operating_status.schema.json",
+  "title": "FMDL Operating Status",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["run_id", "as_of_date", "generated_at", "status", "action", "current_preserved"],
+  "properties": {
+    "run_id": {"type": "string", "minLength": 1},
+    "as_of_date": {"type": "string", "format": "date"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "status": {
+      "type": "string",
+      "enum": ["PUBLISHED", "PUBLISHED_WITH_WARNINGS", "FAILED", "NO_OP", "QUARANTINED"]
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "PROMOTED_CURRENT",
+        "RETAIN_LAST_KNOWN_GOOD",
+        "NO_OP_NON_TRADING_DAY",
+        "NO_OP_ALREADY_CURRENT",
+        "QUARANTINED"
+      ]
+    },
+    "current_preserved": {"type": "boolean"},
+    "hard_failures": {"type": "array", "items": {"type": "string"}},
+    "soft_warnings": {"type": "array", "items": {"type": "string"}},
+    "reason": {"type": "string"},
+    "error": {"type": "string"},
+    "current_release_path": {"type": "string"}
+  }
+}
