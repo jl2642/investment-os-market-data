@@ -1,72 +1,90 @@
-# Source Registry v1.0.0
+# Source Registry v1.1.0
 
 ## 1. Policy
 
-The project uses only free or free-tier data sources. A source is not trusted merely because a library returns a table. Each adapter must record the actual upstream route, retrieval time and observed fields.
+The project uses only free or free-tier data sources. A source is not trusted merely because a library returns a table. Each adapter records the actual upstream route, retrieval time, observed fields, retries, fallback use and raw evidence hash where retained.
 
 The registry distinguishes:
 
 - **adapter**: code invoked by this repository;
 - **upstream provider**: the public site or exchange endpoint ultimately supplying the data;
-- **dataset capability**: fields and markets expected from the route;
-- **operating status**: whether the route is approved, degraded, disabled or experimental.
+- **dataset capability**: fields and markets observed from the route;
+- **operating status**: whether the route is active, fallback, degraded, disabled or experimental.
 
-## 2. Approved initial adapter
+## 2. Active adapter
 
 ### AKShare
 
 - Registry ID: `akshare`
 - Cost: free/open-source
-- Role: primary Python adapter for FMDL-1 MVP
-- Status: `APPROVED_FOR_MVP_TESTING`
-- Authentication: none expected for selected public interfaces
-- Permitted datasets:
-  - A-share security list
-  - A-share daily spot/close snapshot
-  - Trading calendar where stable
-  - Selected valuation and market-cap fields where supplied
-- Restrictions:
-  - No assumption of commercial SLA
-  - Upstream field names and routes may change
-  - Every interface must be wrapped behind a local adapter
-  - Direct library output cannot be published without normalization and QA
+- Role: Python adapter for the FMDL-1 MVP
+- Operating status: `ACTIVE_PRIMARY`
+- Verified version: `1.18.64`
+- Authentication: none for the selected interfaces
+- Real-run sample date: `2026-07-16`
+- Real-run market-wide rows: `5,529`
 
-AKShare is an adapter family, not a single source of truth. The runtime manifest must record the exact function name and, where known, the underlying provider route.
+AKShare remains an adapter family rather than a single source of truth. Runtime manifests must record the exact function and upstream provider class.
 
-## 3. Upstream provider classes
+## 3. Verified functions
 
-The initial adapter may expose data sourced from public market-information routes such as exchange pages or major public finance portals. These are registered as provider classes rather than guaranteed endpoints until verified in FMDL-1B/C.
+| Dataset role | AKShare function | Provider class | Status | Observed result |
+|---|---|---|---|---|
+| Market-wide primary | `stock_zh_a_spot_em` | `eastmoney_public` | DEGRADED | GitHub Azure runner connection was closed by upstream |
+| Market-wide fallback | `stock_zh_a_spot` | `sina_public` | ACTIVE_FALLBACK | 5,529 rows successfully retrieved |
+| Shanghai main-board master | `stock_info_sh_name_code("主板A股")` | `sse_public` | ACTIVE_PRIMARY | Successful |
+| STAR Market master | `stock_info_sh_name_code("科创板")` | `sse_public` | ACTIVE_PRIMARY | Successful |
+| Shenzhen A-share master | `stock_info_sz_name_code("A股列表")` | `szse_public` | ACTIVE_PRIMARY | Successful after one transient retry |
+| Beijing Stock Exchange master | `stock_info_bj_name_code()` | `bse_public` | ACTIVE_PRIMARY | Successful |
+| Trading calendar | `tool_trade_date_hist_sina()` | `sina_public` | ACTIVE_FALLBACK | Successful |
 
-| Provider ID | Intended role | Initial status |
-|---|---|---|
-| `sse_public` | Shanghai security identity/calendar cross-check | EXPERIMENTAL |
-| `szse_public` | Shenzhen security identity/calendar cross-check | EXPERIMENTAL |
-| `bse_public` | Beijing security identity/calendar cross-check | EXPERIMENTAL |
-| `eastmoney_public` | Broad A-share market snapshot fields | APPROVED_FOR_MVP_TESTING |
-| `sina_public` | Limited fallback/cross-check where adapter support exists | EXPERIMENTAL |
+## 4. Observed field capability
 
-No provider class becomes an active fallback until its adapter and field mapping are tested.
+### `stock_zh_a_spot_em` / Eastmoney primary
 
-## 4. Source priority by dataset
+Expected bulk fields include identity, OHLC, prior close, return, volume, turnover, turnover rate, market capitalization, dynamic PE and PB. This route remains registered because it provides the richest free market-wide schema, but it is currently degraded on GitHub-hosted Azure runners.
 
-### a_share_universe
+### `stock_zh_a_spot` / Sina fallback
 
-1. Primary AKShare universe interface selected in FMDL-1B.
-2. Exchange/public cross-check for counts and symbol identity where feasible.
-3. Previous last-known-good universe only as a stale reference, never silently relabelled current.
+Observed bulk fields include:
 
-### daily_market_snapshot
+- exchange-prefixed code and name;
+- latest price, price change and percentage change;
+- previous close, open, high and low;
+- volume in shares and turnover amount;
+- source timestamp.
 
-1. Primary AKShare all-A-share spot/close interface selected in FMDL-1C.
-2. Secondary public interface only after field-level reconciliation is implemented.
-3. Previous last-known-good snapshot may remain the current accepted release when a new run fails, but its original `as_of_date` and stale status remain unchanged.
+Observed limitations:
 
-### trading_calendar
+- no market-cap fields in this bulk interface;
+- no PE/PB fields in this bulk interface;
+- source can encode suspended securities with zero prices, which the canonical normalizer classifies as suspended rather than traded;
+- repeated excessive calls may cause temporary provider throttling, so the workflow uses bounded calls and one daily operating cadence.
 
-1. Stable exchange or AKShare calendar interface.
-2. Weekday heuristic is never sufficient by itself to declare a Chinese trading day.
+### Exchange masters
 
-## 5. Source status values
+The exchange master routes provide canonical identity and listing dates. Shenzhen and Beijing also provide industry fields; Shanghai master routes used here do not supply industry, which explains the controlled universe industry-coverage warning.
+
+## 5. Source priority by dataset
+
+### `a_share_universe`
+
+1. Market-wide identity from the successful registered bulk route.
+2. SSE, SZSE and BSE masters for exchange identity and listing-date enrichment.
+3. Previous last-known-good universe only as a stale comparison and rollback reference.
+
+### `daily_market_snapshot`
+
+1. `stock_zh_a_spot_em` / `eastmoney_public` when the route passes the same schema and hard quality gates.
+2. `stock_zh_a_spot` / `sina_public` as the explicit active fallback.
+3. Previous last-known-good snapshot remains current when all new candidates fail, preserving its original `as_of_date`.
+
+### `trading_calendar`
+
+1. `tool_trade_date_hist_sina()` through AKShare.
+2. Weekday fallback may support conservative candidate construction but cannot independently promote a dataset to a stable operating release without explicit warning.
+
+## 6. Source status values
 
 - `APPROVED_FOR_MVP_TESTING`
 - `ACTIVE_PRIMARY`
@@ -76,29 +94,28 @@ No provider class becomes an active fallback until its adapter and field mapping
 - `EXPERIMENTAL`
 - `RETIRED`
 
-Promotion from testing to active requires a successful real-data run and documented field mapping.
-
-## 6. Failure and fallback rules
+## 7. Failure and fallback rules
 
 - Retry only transient network or server failures with bounded exponential backoff.
-- Do not retry schema or semantic failures as if they were network failures.
-- A fallback dataset must pass the same canonical schema and QA gates as the primary.
+- Do not retry schema or semantic failures as network failures.
+- A fallback dataset must pass the same canonical schema and quality gates as the primary.
+- Provider fallback must be explicit in the manifest and run report.
+- Provider IDs written to manifests must exactly match this registry.
 - Mixing fields from multiple sources requires field-level provenance.
-- Conflicting source values are not averaged automatically.
+- Conflicting values are never averaged automatically.
 - If no candidate passes, quarantine the run and retain the last-known-good output.
 
-## 7. Source evidence required in each manifest
+## 8. Source evidence required in each manifest
 
 - adapter name and version;
-- exact adapter function/endpoint identifier;
-- upstream provider ID when known;
-- retrieval start/end timestamps;
-- source-reported trading/as-of date;
-- raw row/column counts;
-- response or raw-file hash where retained;
-- warnings, retries and fallback use.
+- exact adapter function;
+- registered upstream provider ID;
+- retrieval timestamp;
+- source-reported trading/as-of date where available;
+- raw evidence hash where retained;
+- warnings, retries, fallback use and volume-unit semantics.
 
-## 8. Prohibited practices
+## 9. Prohibited practices
 
 - Paid API calls or unapproved trial-credit consumption.
 - Browser-session cookies or personal credentials committed to the repository.
@@ -107,12 +124,6 @@ Promotion from testing to active requires a successful real-data run and documen
 - Treating a stale prior snapshot as current.
 - Publishing a source result without schema and quality validation.
 
-## 9. FMDL-1B/C promotion requirement
+## 10. Current conclusion
 
-The production adapter selection must update this registry with:
-
-- exact AKShare function names;
-- observed column mappings;
-- upstream source class;
-- successful sample date;
-- limitations and fallback status.
+FMDL-1B/C has verified that free GitHub-hosted full-market acquisition is operational through the registered Sina fallback. Eastmoney remains the richer preferred route but is degraded in the current runner environment. FMDL-1D/E will implement persistent last-known-good promotion and scheduled operating controls around these verified routes.
