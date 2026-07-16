@@ -1,8 +1,8 @@
 # FMDL-1B/C Candidate Data Report
 
-- Run ID: `FMDL1BC_20260716T165141+0800`
+- Run ID: `FMDL1BC_20260716T165927+0800`
 - As-of date: `2026-07-16`
-- Generated at: `2026-07-16T16:51:41+08:00`
+- Generated at: `2026-07-16T16:59:27+08:00`
 - Market-wide source: `stock_zh_a_spot`
 - Universe QA: `PASS_WITH_WARNINGS` / `DEGRADED`
 - Snapshot QA: `PASS_WITH_WARNINGS` / `DEGRADED`
