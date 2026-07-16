@@ -4,18 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+import re
 from typing import Any
 
 import pandas as pd
 
 from ingestion.akshare.client import AkshareBundle
-from pipeline.common import (
-    canonical_symbol,
-    clean_scalar,
-    exchange_and_board,
-    safe_float,
-    stable_row_hash,
-)
+from pipeline.common import canonical_symbol, clean_scalar, exchange_and_board, safe_float, stable_row_hash
 
 
 @dataclass
@@ -26,8 +21,9 @@ class NormalizedBundle:
 
 
 def _normalized_code(value: Any) -> str:
-    text = str(clean_scalar(value) or "").strip().split(".")[0]
-    return text.zfill(6) if text else ""
+    text = str(clean_scalar(value) or "").strip()
+    match = re.search(r"([0-9]{6})$", text)
+    return match.group(1) if match else ""
 
 
 def _date_text(value: Any) -> str | None:
@@ -53,38 +49,23 @@ def _master_rows(bundle: AkshareBundle) -> tuple[dict[str, dict[str, Any]], list
         }
 
     for call in (bundle.sh_main, bundle.sh_star):
-        frame = call.data
-        if frame.empty:
+        if call.data.empty:
             warnings.extend(call.warnings)
             continue
-        for _, row in frame.iterrows():
+        for _, row in call.data.iterrows():
             add(row.get("证券代码"), row.get("证券简称"), row.get("上市日期"), None, call.function)
 
-    frame = bundle.sz_a.data
-    if frame.empty:
+    if bundle.sz_a.data.empty:
         warnings.extend(bundle.sz_a.warnings)
     else:
-        for _, row in frame.iterrows():
-            add(
-                row.get("A股代码"),
-                row.get("A股简称"),
-                row.get("A股上市日期"),
-                row.get("所属行业"),
-                bundle.sz_a.function,
-            )
+        for _, row in bundle.sz_a.data.iterrows():
+            add(row.get("A股代码"), row.get("A股简称"), row.get("A股上市日期"), row.get("所属行业"), bundle.sz_a.function)
 
-    frame = bundle.bj_a.data
-    if frame.empty:
+    if bundle.bj_a.data.empty:
         warnings.extend(bundle.bj_a.warnings)
     else:
-        for _, row in frame.iterrows():
-            add(
-                row.get("证券代码"),
-                row.get("证券简称"),
-                row.get("上市日期"),
-                row.get("所属行业"),
-                bundle.bj_a.function,
-            )
+        for _, row in bundle.bj_a.data.iterrows():
+            add(row.get("证券代码"), row.get("证券简称"), row.get("上市日期"), row.get("所属行业"), bundle.bj_a.function)
     return records, warnings
 
 
@@ -98,7 +79,7 @@ def normalize_a_share_bundle(
     required_columns = {"代码", "名称", "最新价", "昨收", "涨跌幅", "成交量", "成交额"}
     missing = sorted(required_columns.difference(spot.columns))
     if missing:
-        raise ValueError(f"stock_zh_a_spot_em missing required columns: {missing}")
+        raise ValueError(f"{bundle.spot.function} missing required columns: {missing}")
 
     spot["代码"] = spot["代码"].map(_normalized_code)
     spot = spot.loc[spot["代码"].str.fullmatch(r"[0-9]{6}", na=False)].copy()
@@ -110,6 +91,8 @@ def normalize_a_share_bundle(
     universe_rows: list[dict[str, Any]] = []
     snapshot_rows: list[dict[str, Any]] = []
     as_of_text = as_of_date.isoformat()
+    source_primary = f"akshare.{bundle.spot.function}"
+    volume_multiplier = 100.0 if bundle.spot.volume_unit == "LOTS" else 1.0
 
     for code in all_codes:
         spot_row = spot_map.get(code)
@@ -119,10 +102,9 @@ def normalize_a_share_bundle(
         exchange, board = exchange_and_board(code)
         close = None if spot_row is None else safe_float(spot_row.get("最新价"))
         prev_close = None if spot_row is None else safe_float(spot_row.get("昨收"))
-        volume_lots = None if spot_row is None else safe_float(spot_row.get("成交量"))
+        source_volume = None if spot_row is None else safe_float(spot_row.get("成交量"))
         turnover = None if spot_row is None else safe_float(spot_row.get("成交额"))
         is_suspended = spot_row is None or close is None
-        is_st = "ST" in name.upper()
         record_quality = "VALID"
         if master.get("list_date") is None or master.get("industry_name") is None:
             record_quality = "PARTIAL"
@@ -142,13 +124,13 @@ def normalize_a_share_bundle(
             "list_date": master.get("list_date"),
             "delist_date": None,
             "listing_status": "SUSPENDED" if is_suspended else "ACTIVE",
-            "is_st": bool(is_st),
+            "is_st": "ST" in name.upper(),
             "is_suspended": bool(is_suspended),
             "industry_code": None,
             "industry_name": master.get("industry_name"),
             "industry_source": master.get("industry_source"),
             "lot_size": 100,
-            "source_primary": "akshare.stock_zh_a_spot_em",
+            "source_primary": source_primary,
             "source_timestamp": source_timestamp,
             "record_quality": record_quality,
         }
@@ -166,7 +148,7 @@ def normalize_a_share_bundle(
             "prev_close": prev_close,
             "pct_change": None if spot_row is None else safe_float(spot_row.get("涨跌幅")),
             "amplitude_pct": None if spot_row is None else safe_float(spot_row.get("振幅")),
-            "volume_shares": None if volume_lots is None else volume_lots * 100.0,
+            "volume_shares": None if source_volume is None else source_volume * volume_multiplier,
             "turnover_cny": turnover,
             "turnover_rate_pct": None if spot_row is None else safe_float(spot_row.get("换手率")),
             "market_cap_cny": None if spot_row is None else safe_float(spot_row.get("总市值")),
@@ -174,7 +156,7 @@ def normalize_a_share_bundle(
             "pe_ttm": None if spot_row is None else safe_float(spot_row.get("市盈率-动态")),
             "pb": None if spot_row is None else safe_float(spot_row.get("市净率")),
             "data_status": data_status,
-            "source_primary": "akshare.stock_zh_a_spot_em",
+            "source_primary": source_primary,
             "source_timestamp": source_timestamp,
             "record_quality": "VALID" if close is not None and prev_close is not None else "PARTIAL",
         }
@@ -185,4 +167,6 @@ def normalize_a_share_bundle(
     snapshot = pd.DataFrame(snapshot_rows).sort_values("symbol").reset_index(drop=True)
     warnings.extend(bundle.spot.warnings)
     warnings.extend(bundle.trade_calendar.warnings)
+    if bundle.spot.volume_unit == "SHARES":
+        warnings.append("volume_unit_source=SHARES; no lot multiplier applied")
     return NormalizedBundle(universe=universe, snapshot=snapshot, warnings=warnings)
