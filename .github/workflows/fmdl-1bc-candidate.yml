@@ -14,12 +14,24 @@ on:
       - scripts/validate_contracts.py
       - docs/FMDL-1BC_IMPLEMENTATION.md
       - .github/workflows/fmdl-1bc-candidate.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - requirements.txt
+      - ingestion/**
+      - pipeline/**
+      - tests/**
+      - config/**
+      - schemas/**
+      - scripts/validate_contracts.py
+      - docs/FMDL-1BC_IMPLEMENTATION.md
+      - .github/workflows/fmdl-1bc-candidate.yml
 
 permissions:
   contents: write
 
 concurrency:
-  group: fmdl-1bc-candidate
+  group: fmdl-1bc-candidate-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -49,6 +61,7 @@ jobs:
         run: python pipeline/build_candidate.py
 
       - name: Commit candidate evidence
+        if: github.event_name == 'push'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
