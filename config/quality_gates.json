@@ -1,0 +1,38 @@
+{
+  "contract_version": "1.0.0",
+  "common": {
+    "schema_valid": {"severity": "HARD", "required": true},
+    "manifest_present": {"severity": "HARD", "required": true},
+    "hash_match": {"severity": "HARD", "required": true},
+    "as_of_consistent": {"severity": "HARD", "required": true},
+    "invalid_row_count_max": {"severity": "HARD", "value": 0},
+    "duplicate_natural_key_max": {"severity": "HARD", "value": 0}
+  },
+  "a_share_universe": {
+    "minimum_row_count": {"severity": "HARD", "value": 4000},
+    "minimum_lkg_row_ratio": {"severity": "HARD", "value": 0.97},
+    "symbol_valid_ratio": {"severity": "HARD", "value": 1.0},
+    "required_identity_fill_ratio": {"severity": "HARD", "value": 0.995},
+    "industry_fill_ratio": {"severity": "SOFT", "value": 0.90},
+    "listing_date_fill_ratio": {"severity": "SOFT", "value": 0.95},
+    "maximum_daily_name_change_ratio": {"severity": "SOFT", "value": 0.01},
+    "maximum_status_shift_ratio": {"severity": "SOFT", "value": 0.03}
+  },
+  "daily_market_snapshot": {
+    "minimum_active_universe_coverage": {"severity": "HARD", "value": 0.95},
+    "minimum_positive_close_ratio_for_traded_rows": {"severity": "HARD", "value": 1.0},
+    "maximum_negative_volume_rows": {"severity": "HARD", "value": 0},
+    "maximum_negative_turnover_rows": {"severity": "HARD", "value": 0},
+    "return_reconciliation_tolerance_percentage_points": {"severity": "HARD", "value": 0.05},
+    "market_cap_fill_ratio": {"severity": "SOFT", "value": 0.90},
+    "valuation_fill_ratio": {"severity": "SOFT", "value": 0.70},
+    "maximum_unexplained_absolute_return_pct": {"severity": "SOFT", "value": 35.0},
+    "maximum_zero_turnover_ratio": {"severity": "SOFT", "value": 0.15}
+  },
+  "publication": {
+    "hard_gate_failure_action": "QUARANTINE_AND_RETAIN_LKG",
+    "soft_gate_failure_action": "PUBLISH_DEGRADED_ONLY_IF_CORE_SEMANTICS_VALID",
+    "atomic_current_update_required": true,
+    "archive_before_current_update": true
+  }
+}
