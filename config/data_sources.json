@@ -1,0 +1,59 @@
+{
+  "contract_version": "1.0.0",
+  "cost_policy": "FREE_OR_FREE_TIER_ONLY",
+  "default_timezone": "Asia/Shanghai",
+  "adapters": [
+    {
+      "adapter_id": "akshare",
+      "adapter_type": "python_library",
+      "status": "APPROVED_FOR_MVP_TESTING",
+      "authentication": "none_expected_for_selected_interfaces",
+      "paid_usage_allowed": false,
+      "datasets": [
+        "a_share_universe",
+        "daily_market_snapshot",
+        "trading_calendar"
+      ],
+      "exact_functions": {
+        "a_share_universe": null,
+        "daily_market_snapshot": null,
+        "trading_calendar": null
+      },
+      "promotion_requirement": "Populate exact function names, observed fields and successful sample date in FMDL-1B/C"
+    }
+  ],
+  "provider_classes": [
+    {
+      "provider_id": "eastmoney_public",
+      "status": "APPROVED_FOR_MVP_TESTING",
+      "intended_role": "broad A-share market snapshot"
+    },
+    {
+      "provider_id": "sse_public",
+      "status": "EXPERIMENTAL",
+      "intended_role": "Shanghai identity and calendar cross-check"
+    },
+    {
+      "provider_id": "szse_public",
+      "status": "EXPERIMENTAL",
+      "intended_role": "Shenzhen identity and calendar cross-check"
+    },
+    {
+      "provider_id": "bse_public",
+      "status": "EXPERIMENTAL",
+      "intended_role": "Beijing identity and calendar cross-check"
+    },
+    {
+      "provider_id": "sina_public",
+      "status": "EXPERIMENTAL",
+      "intended_role": "limited fallback or cross-check"
+    }
+  ],
+  "fallback_policy": {
+    "allow_only_registered_sources": true,
+    "same_schema_and_quality_gates_required": true,
+    "automatic_value_averaging": false,
+    "retain_last_known_good_on_failure": true,
+    "relabel_stale_data_as_current": false
+  }
+}
