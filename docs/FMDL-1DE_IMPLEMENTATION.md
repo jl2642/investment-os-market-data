@@ -120,3 +120,9 @@ FMDL-1D/E is accepted only after a GitHub-hosted run demonstrates:
 ## 10. Phase boundary
 
 FMDL-1D/E completion means the market-data repository can maintain a stable A-share current release automatically. FMDL-1F must still define the exact consumption bundle and update the 股票投资助手 CURRENT package before the full FMDL-1 phase is accepted.
+
+## 11. Main-branch production acceptance
+
+- State: `PENDING_REAL_MAIN_RUN`
+- Trigger: this committed implementation record intentionally activates the installed main-branch production workflow.
+- Promotion rule: update this state only after `outputs/current/CURRENT_RELEASE.json` and `outputs/status/LAST_SUCCESS.json` are committed by `github-actions[bot]`.
