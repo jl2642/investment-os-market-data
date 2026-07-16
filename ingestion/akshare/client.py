@@ -17,6 +17,7 @@ class SourceCall:
     data: pd.DataFrame
     warnings: list[str] = field(default_factory=list)
     retries: int = 0
+    volume_unit: str = "NOT_APPLICABLE"
 
 
 @dataclass
@@ -37,6 +38,7 @@ def _call_with_retry(
     attempts: int = 3,
     base_sleep_seconds: float = 2.0,
     optional: bool = False,
+    volume_unit: str = "NOT_APPLICABLE",
 ) -> SourceCall:
     warnings: list[str] = []
     last_error: Exception | None = None
@@ -52,6 +54,7 @@ def _call_with_retry(
                 data=data,
                 warnings=warnings,
                 retries=attempt,
+                volume_unit=volume_unit,
             )
         except Exception as exc:
             last_error = exc
@@ -65,6 +68,7 @@ def _call_with_retry(
             data=pd.DataFrame(),
             warnings=warnings,
             retries=max(0, attempts - 1),
+            volume_unit=volume_unit,
         )
     raise RuntimeError(
         f"Required source {function_name} failed after {attempts} attempts: {last_error}"
@@ -78,16 +82,49 @@ def _adapter_version() -> str:
         return "unknown"
 
 
-def fetch_a_share_bundle() -> AkshareBundle:
-    """Fetch the required market-wide table and optional exchange masters."""
+def _fetch_market_wide_spot() -> SourceCall:
+    """Use Eastmoney first and Sina as a free provider fallback.
 
-    spot = _call_with_retry(
+    GitHub-hosted runners may be rejected by one public provider. The fallback is
+    explicit and lineage-preserving; it is not silent data substitution.
+    """
+
+    eastmoney = _call_with_retry(
         "stock_zh_a_spot_em",
         ak.stock_zh_a_spot_em,
-        attempts=4,
-        base_sleep_seconds=3.0,
-        optional=False,
+        attempts=1,
+        optional=True,
+        volume_unit="LOTS",
     )
+    if not eastmoney.data.empty:
+        return eastmoney
+
+    sina = _call_with_retry(
+        "stock_zh_a_spot",
+        ak.stock_zh_a_spot,
+        attempts=2,
+        base_sleep_seconds=5.0,
+        optional=True,
+        volume_unit="SHARES",
+    )
+    if not sina.data.empty:
+        sina.warnings = [
+            "primary_provider_unavailable: stock_zh_a_spot_em",
+            *eastmoney.warnings,
+            *sina.warnings,
+        ]
+        return sina
+
+    combined = [*eastmoney.warnings, *sina.warnings]
+    raise RuntimeError(
+        "All free market-wide spot providers failed: " + " | ".join(combined)
+    )
+
+
+def fetch_a_share_bundle() -> AkshareBundle:
+    """Fetch the market-wide table and optional exchange masters."""
+
+    spot = _fetch_market_wide_spot()
     sh_main = _call_with_retry(
         "stock_info_sh_name_code:主板A股",
         lambda: ak.stock_info_sh_name_code(symbol="主板A股"),
