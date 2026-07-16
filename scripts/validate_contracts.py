@@ -22,6 +22,7 @@ REQUIRED_FILES = [
     "docs/QUALITY_GATES.md",
     "docs/UPDATE_CADENCE.md",
     "docs/INVESTMENT_OS_INTERFACE.md",
+    "docs/FMDL-1A-R_ACCEPTANCE.md",
     "config/data_sources.json",
     "config/universe_rules.json",
     "config/quality_gates.json",
@@ -29,6 +30,8 @@ REQUIRED_FILES = [
     "schemas/a_share_universe.schema.json",
     "schemas/daily_market_snapshot.schema.json",
     "schemas/dataset_manifest.schema.json",
+    "scripts/validate_contracts.py",
+    ".github/workflows/contract-validation.yml",
 ]
 
 JSON_FILES = [
