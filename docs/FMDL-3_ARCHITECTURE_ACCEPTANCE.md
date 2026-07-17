@@ -2,24 +2,41 @@
 
 ## Acceptance state
 
-`ACCEPTED_PENDING_MAIN_ARCHITECTURE_PUBLICATION`
+`FMDL3_ARCHITECTURE_ACCEPTED`
 
-The FMDL-3 architecture, point-in-time policy, phased execution plan, machine-readable program contract, JSON Schema, regression tests and publication workflow have passed GitHub-hosted validation.
+The FMDL-3 architecture, point-in-time policy, phased execution plan, machine-readable program contract, JSON Schema, regression tests, main-branch publication and Last-known-good pointer have all passed. The architecture phase is formally complete and FMDL-3A is authorized.
 
-This acceptance freezes the engineering boundary and authorizes FMDL-3A. It does not claim that any financial source has been selected, that full-market financial coverage exists, or that financial and valuation data are already operating. Those claims require real source benchmarking and execution in FMDL-3A through FMDL-3E.
+This acceptance freezes the engineering boundary. It does not claim that any financial source has been selected, that full-market financial coverage exists, or that financial and valuation data are already operating. Those claims require real source benchmarking and execution in FMDL-3A through FMDL-3E.
+
+## Canonical main-branch publication
+
+- Merge commit: `0dbe643190da09dd1f7d4fc39a88dea61b29663c`
+- Data publication commit: `dc8dc452040c4f0596e09326dbc938e7a446fc55`
+- Architecture release: `FMDL3_ARCH_20260717T223136+0800`
+- Published at: `2026-07-17T22:31:36+08:00`
+- Status: `FMDL3_ARCHITECTURE_ACCEPTED`
+- Architecture state: `FROZEN_FOR_FMDL3A_EXECUTION`
+- Validation status: `PASS`
+- Hard failures: `0`
+- Authority: `DATA_AND_RESEARCH_EVIDENCE_ONLY`
+- Trade authority: `NONE`
+
+Canonical paths:
+
+- `outputs/architecture/current/FMDL3_ARCHITECTURE_RELEASE.json`
+- `outputs/architecture/current/FMDL3_ARCHITECTURE_VALIDATION.json`
+- `outputs/architecture/archive/FMDL3_ARCH_20260717T223136+0800/`
+- `outputs/status/FMDL3_ARCHITECTURE_LAST_SUCCESS.json`
 
 ## Accepted evidence
 
-- Workflow run: `29588007161` — `SUCCESS`
+- Initial accepted workflow run: `29588007161` — `SUCCESS`
+- Accepted Head revalidation run: `29588217734` — `SUCCESS`
 - Candidate artifact: `8409825884`
 - Artifact digest: `sha256:a3d92f538d3f16738ca099c85447b98211a5d2306165eac86d51cc49890b3f39`
-- Validation run: `FMDL3_ARCH_20260717T222708+0800`
-- Generated at: `2026-07-17T22:27:08+08:00`
-- Validation status: `PASS`
-- Hard failures: `0`
-- Architecture state: `FROZEN_FOR_FMDL3A_EXECUTION`
-- Authority: `DATA_AND_RESEARCH_EVIDENCE_ONLY`
-- Trade authority: `NONE`
+- Candidate validation run: `FMDL3_ARCH_20260717T222708+0800`
+- Main validation run: `FMDL3_ARCH_20260717T223135+0800`
+- Machine checks: `14 / 14 PASS`
 
 ## Machine checks
 
