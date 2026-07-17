@@ -45,28 +45,19 @@ jobs:
     steps:
       - name: Checkout selected ref
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-
       - name: Validate contracts and regression suite
         run: |
           python scripts/validate_investment_os_interface.py
-          pytest -q \
-            tests/test_fmdl2a_contract.py \
-            tests/test_fmdl2b2_full_backfill.py \
-            tests/test_fmdl2b2_aggregate_policy.py \
-            tests/test_fmdl2b3_factor_engine.py \
-            tests/test_fmdl2b4_incremental_refresh.py
+          pytest -q tests/test_fmdl2a_contract.py tests/test_fmdl2b2_full_backfill.py tests/test_fmdl2b2_aggregate_policy.py tests/test_fmdl2b3_factor_engine.py tests/test_fmdl2b4_incremental_refresh.py
 
   operate:
-    if: github.event_name != 'pull_request'
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -75,26 +66,20 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-
-      - name: Refresh FMDL-1 Current for branch acceptance or explicit dispatch
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.refresh_fmdl1_current == true)
+      - name: Refresh FMDL-1 Current for acceptance or explicit dispatch
+        if: github.event_name == 'pull_request' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.refresh_fmdl1_current == true)
         run: python pipeline/run_daily.py --trigger manual
-
       - name: Enforce latest completed-session Current
         run: python -m scripts.validate_fmdl2b4_freshness
-
       - name: Run incremental history and factor operating chain
         run: python -m scripts.run_fmdl2b4_operating
-
       - name: Upload B4 operating evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -111,17 +96,13 @@ jobs:
             outputs/factors/current/
           if-no-files-found: warn
           retention-days: 14
-
       - name: Commit accepted operating state
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            outputs/current outputs/status outputs/archive \
-            outputs/history/current outputs/history/archive outputs/history/refresh_candidate \
-            outputs/factors/current outputs/factors/archive outputs/factors/refresh_candidate \
-            datasets/history/incremental datasets/history/repair
+          git add outputs/current outputs/status outputs/archive outputs/history/current outputs/history/archive outputs/history/refresh_candidate outputs/factors/current outputs/factors/archive outputs/factors/refresh_candidate datasets/history/incremental datasets/history/repair
           if git diff --cached --quiet; then
             echo "No accepted operating-state changes to commit"
           else
