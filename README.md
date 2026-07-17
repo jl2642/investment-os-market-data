@@ -134,14 +134,18 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Quality and independent validation: `PASS / PASS`
 - Cross-sleeve method: `70% within-sleeve rank percentile + 30% raw sleeve score + capped confirmation bonus`
 - Stable path: `outputs/screens/current/`
+- Stability status: `ACCEPTED_FMDL2D_OPERATIONAL_STABILITY`
 - Authority: research-priority queue only; no factor-alpha claim, live candidate-pool promotion or trade authority
 
-### FMDL-2D accepted stability candidate
+### FMDL-2D final FMDL-2 Current
 
-- Run: `FMDL2D_20260717T215113+0800`
-- Workflow: `29585053689` — success
-- Candidate artifact: `8408829195`
+- Final release: `FMDL2D_20260717T220406+0800`
+- Published at: `2026-07-17T22:04:09+08:00`
 - As-of date: `2026-07-17`
+- Status: `FMDL2_FINAL_ACCEPTED_WITH_CONTROLLED_LIMITATIONS`
+- Acceptance state: `ACCEPTED_OPERATIONAL_STABILITY_WITH_LIMITED_COHORT_REPLAY_NO_ALPHA_CLAIM`
+- Accepted evidence workflow: `29585053689` — success
+- Candidate artifact: `8408829195`
 - Replay window: six sessions from `2026-07-10` through `2026-07-17`
 - Same-date screening universe / sleeves / Longlist / funnel replay: `PASS / PASS / PASS / PASS`
 - Historical factor anchor: `143,728 / 143,728` matching cells (`100%`)
@@ -152,10 +156,10 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Average primary-sleeve retention: `99.50%`
 - Maximum board share / HHI: `38.0% / 0.2830`
 - Current Priority-A structural-fragility share: `30.0%`
-- Candidate status / independent validation: `PASS_WITH_CONTROLLED_LIMITATIONS / PASS`
+- Independent validation: `PASS`
 - Hard failures / controlled warnings: `0 / 0`
-- Candidate path: `outputs/stability/candidate/`
-- Stable Current path after merge publication: `outputs/stability/current/`
+- Stable path: `outputs/stability/current/`
+- Last-success pointer: `outputs/status/FMDL2D_LAST_SUCCESS.json`
 - Authority: operational research stability only; no alpha claim, candidate-pool promotion or trade authority
 
 ## System boundary
