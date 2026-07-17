@@ -11,7 +11,8 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Completed subphase: **FMDL-2A — Factor Contract & Historical Source Benchmark**
 - Completed subphase: **FMDL-2B-1 — Historical Store Architecture & Full-Market Pilot**
 - Completed subphase: **FMDL-2B-2 — Full-Universe Sharded Initial Backfill**
-- Next production batch: **FMDL-2B-3 — Basic Factor Engine**
+- Completed subphase: **FMDL-2B-3 — Basic Factor Engine**
+- Next production batch: **FMDL-2B-4 — Incremental Update, Refresh & Final Acceptance**
 - Cost policy: **free and free-tier resources only**
 - Execution model: GitHub Actions + open-source/public data adapters
 - Trading model: research and decision support only; no broker connection and no automatic order execution
@@ -66,6 +67,21 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Status: `ACCEPTED_WITH_CONTROLLED_FOUR_SYMBOL_QUARANTINE`
 - Authority: historical evidence only; no factor rank, alpha claim or trade authority
 
+### FMDL-2B-3 full-market basic-factor candidate
+
+- Run ID: `FMDL2B3_20260717T162732+0800`
+- As-of date: `2026-07-16`
+- Factor contract: `1.0.0`
+- Factors: `26`
+- Universe and wide rows: `5,529`
+- Symbol-factor detail rows: `143,754`
+- Valid / Partial / Suspect / Blocked: `5,361 / 164 / 0 / 4`
+- Available factor values: `142,625` (`99.2146%`)
+- Hard failures: `0`
+- Status: `ACCEPTED_WITH_CONTROLLED_PARTIAL_AND_FOUR_SYMBOL_QUARANTINE`
+- Stable candidate path: `outputs/factors/candidate/`
+- Authority: research priority only; no factor-alpha claim, candidate-pool promotion or trade authority
+
 ## System boundary
 
 This repository owns market-data acquisition, normalization, quality control, versioning, history storage, factor-data preparation and publication. It does not own investment recommendations, position sizing, portfolio migration or order execution. Those remain with Investment OS and the user-confirmation gate.
@@ -75,13 +91,14 @@ This repository owns market-data acquisition, normalization, quality control, ve
 1. `config/` — machine-readable source, universe, schedule, factor, history-store and quality rules.
 2. `schemas/` — canonical dataset, history-row, manifest, release and operating-state schemas.
 3. `ingestion/` — source adapters and explicit provider fallbacks.
-4. `pipeline/` and `scripts/` — normalization, QA, benchmark, history ingestion, LKG and quarantine logic.
+4. `pipeline/` and `scripts/` — normalization, QA, benchmark, history ingestion, factor computation, LKG and quarantine logic.
 5. `datasets/` — dated raw evidence, immutable history bases, daily deltas and refresh overlays.
 6. `outputs/current/` — stable current market-data release.
 7. `outputs/history/` — historical-store candidate, Current, status, validation and quarantine evidence.
-8. `outputs/investment_os/` — machine-validated consumer pointer.
-9. `outputs/benchmark/` — source and pilot evidence.
-10. `.github/workflows/` — validation, production, benchmark and controlled recovery automation.
+8. `outputs/factors/` — basic-factor candidates, status, quality, manifests and later LKG publication.
+9. `outputs/investment_os/` — machine-validated consumer pointer.
+10. `outputs/benchmark/` — source and pilot evidence.
+11. `.github/workflows/` — validation, production, benchmark and controlled recovery automation.
 
 ## Canonical documents
 
@@ -106,6 +123,8 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `docs/FMDL-2B1_ACCEPTANCE.md`
 - `docs/FMDL-2B2_FULL_BACKFILL_IMPLEMENTATION.md`
 - `docs/FMDL-2B2_ACCEPTANCE.md`
+- `docs/FMDL-2B3_BASIC_FACTOR_ENGINE.md`
+- `docs/FMDL-2B3_ACCEPTANCE.md`
 
 ## Core datasets and controls
 
@@ -124,6 +143,10 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `fmdl2_full_backfill_plan`
 - `historical_candidate_validation`
 - `historical_quarantine_retry`
+- `fmdl2_basic_factor_table`
+- `fmdl2_basic_factor_detail`
+- `fmdl2_basic_factor_status`
+- `fmdl2_basic_factor_manifest`
 
 Every published dataset carries a schema version, source timestamp, generation timestamp, QA state, row count, hash and last-known-good lineage. Failed candidate updates are quarantined and must never replace a valid current snapshot. Missing history or factor inputs remain missing and never become neutral scores or zeros.
 
@@ -140,8 +163,8 @@ Every published dataset carries a schema version, source timestamp, generation t
   - FMDL-2B Historical Store & Basic Factor Engine 🚧
     - FMDL-2B-1 Historical Store Architecture & Full-Market Pilot ✅
     - FMDL-2B-2 Full-Universe Sharded Initial Backfill ✅
-    - FMDL-2B-3 Basic Factor Engine ⏭️
-    - FMDL-2B-4 Incremental Update & Final Acceptance
+    - FMDL-2B-3 Basic Factor Engine ✅
+    - FMDL-2B-4 Incremental Update, Refresh & Final Acceptance ⏭️
   - FMDL-2C Screening Sleeves & Funnel
   - FMDL-2D Replay, Stability & Final Acceptance
 - FMDL-3 Financial & Valuation Data Hardening
