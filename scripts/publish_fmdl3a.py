@@ -52,6 +52,21 @@ def main() -> int:
     if decision.get("trade_authority") != "NONE":
         raise SystemExit("trade authority must remain NONE")
 
+    required_candidate_files = [
+        "FMDL3A_SOURCE_DECISION.json",
+        "FMDL3A_SOURCE_SUMMARY.csv",
+        "FMDL3A_COVERAGE_MAP.csv",
+        "FMDL3A_POINT_IN_TIME_EVIDENCE.csv",
+        "FMDL3A_SUPPORT_QUARANTINE_MAP.csv",
+        "FMDL3A_CAPITALIZATION_EVIDENCE.csv",
+        "FMDL3_SOURCE_INDEX.csv",
+        "FMDL3A_VALIDATION.json",
+        "FMDL3A_MANIFEST.json",
+    ]
+    missing = [name for name in required_candidate_files if not (candidate_root / name).exists()]
+    if missing:
+        raise SystemExit(f"accepted candidate missing required files: {missing}")
+
     release_id = decision["run_id"]
     archive_release = archive_root / release_id
     if archive_release.exists():
@@ -67,7 +82,7 @@ def main() -> int:
     shutil.copy2(candidate_root / "FMDL3_SOURCE_INDEX.csv", source_index_current / "FMDL3_SOURCE_INDEX.csv")
 
     release = {
-        "release_version": "1.0.0",
+        "release_version": "1.1.0",
         "release_id": release_id,
         "published_at": published_at,
         "program_id": "FMDL-3A",
@@ -76,12 +91,16 @@ def main() -> int:
         "source_decision_path": "outputs/financials/benchmark/current/FMDL3A_SOURCE_DECISION.json",
         "source_summary_path": "outputs/financials/benchmark/current/FMDL3A_SOURCE_SUMMARY.csv",
         "coverage_map_path": "outputs/financials/benchmark/current/FMDL3A_COVERAGE_MAP.csv",
+        "support_quarantine_map_path": "outputs/financials/benchmark/current/FMDL3A_SUPPORT_QUARANTINE_MAP.csv",
+        "capitalization_evidence_path": "outputs/financials/benchmark/current/FMDL3A_CAPITALIZATION_EVIDENCE.csv",
         "point_in_time_evidence_path": "outputs/financials/benchmark/current/FMDL3A_POINT_IN_TIME_EVIDENCE.csv",
         "source_index_path": "outputs/financials/source_index/current/FMDL3_SOURCE_INDEX.csv",
         "validation_path": "outputs/financials/benchmark/current/FMDL3A_VALIDATION.json",
         "archive_path": str(archive_release.relative_to(ROOT)),
         "measured_metrics": decision["measured_metrics"],
+        "frozen_numeric_gates": decision["frozen_numeric_gates"],
         "frozen_point_in_time_contract": decision["frozen_point_in_time_contract"],
+        "valuation_semantics": decision["valuation_semantics"],
         "controlled_limitations": decision["controlled_limitations"],
         "authority": decision["authority"],
         "trade_authority": decision["trade_authority"],
@@ -98,13 +117,15 @@ def main() -> int:
         write_json(root / "FMDL3A_MANIFEST.json", manifest)
 
     last_success = {
-        "pointer_version": "1.0.0",
+        "pointer_version": "1.1.0",
         "program_id": "FMDL-3A",
         "release_id": release_id,
         "published_at": published_at,
         "status": release["status"],
         "current_release_path": "outputs/financials/benchmark/current/FMDL3A_RELEASE.json",
         "source_index_path": release["source_index_path"],
+        "support_quarantine_map_path": release["support_quarantine_map_path"],
+        "capitalization_evidence_path": release["capitalization_evidence_path"],
         "validation_path": release["validation_path"],
         "next_phase": "FMDL-3B",
         "authority": decision["authority"],
