@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from scripts.run_fmdl2d_stability_v2 import (
+from scripts.run_fmdl2d_stability_v3 import (
     concentration,
     fragility_review,
     rank_transition,
@@ -65,6 +65,47 @@ def test_semantic_hash_ignores_row_order_and_excluded_hashes():
     )
     assert semantic_frame_hash(left, sort_by=["symbol"], exclude={"row_hash"}) == semantic_frame_hash(
         right, sort_by=["symbol"], exclude={"row_hash"}
+    )
+
+
+def test_longlist_semantic_hash_uses_rank_symbol_and_canonical_row_hash():
+    generated = pd.DataFrame(
+        [
+            {
+                "overall_rank": 1,
+                "symbol": "600000.SH",
+                "aggregate_score": 0.9000000000000001,
+                "longlist_row_hash": "a" * 64,
+            },
+            {
+                "overall_rank": 2,
+                "symbol": "000001.SZ",
+                "aggregate_score": 0.8,
+                "longlist_row_hash": "b" * 64,
+            },
+        ]
+    )
+    csv_roundtrip = generated.copy()
+    csv_roundtrip["aggregate_score"] = [0.9, 0.8000000000000002]
+    assert semantic_frame_hash(
+        generated,
+        sort_by=["overall_rank", "symbol"],
+        exclude={"longlist_row_hash"},
+    ) == semantic_frame_hash(
+        csv_roundtrip,
+        sort_by=["overall_rank", "symbol"],
+        exclude={"longlist_row_hash"},
+    )
+    changed = csv_roundtrip.copy()
+    changed.loc[1, "longlist_row_hash"] = "c" * 64
+    assert semantic_frame_hash(
+        generated,
+        sort_by=["overall_rank", "symbol"],
+        exclude={"longlist_row_hash"},
+    ) != semantic_frame_hash(
+        changed,
+        sort_by=["overall_rank", "symbol"],
+        exclude={"longlist_row_hash"},
     )
 
 
