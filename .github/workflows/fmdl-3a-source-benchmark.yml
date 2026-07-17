@@ -9,7 +9,9 @@ on:
       - "docs/FMDL-3A_SOURCE_BENCHMARK.md"
       - "docs/FMDL-3A_POINT_IN_TIME_CONTRACT.md"
       - "scripts/run_fmdl3a_benchmark.py"
+      - "scripts/run_fmdl3a_benchmark_v2.py"
       - "scripts/validate_fmdl3a_candidate.py"
+      - "scripts/validate_fmdl3a_candidate_v2.py"
       - "scripts/publish_fmdl3a.py"
       - "tests/test_fmdl3a_contract.py"
       - ".github/workflows/fmdl-3a-source-benchmark.yml"
@@ -21,7 +23,9 @@ on:
       - "docs/FMDL-3A_SOURCE_BENCHMARK.md"
       - "docs/FMDL-3A_POINT_IN_TIME_CONTRACT.md"
       - "scripts/run_fmdl3a_benchmark.py"
+      - "scripts/run_fmdl3a_benchmark_v2.py"
       - "scripts/validate_fmdl3a_candidate.py"
+      - "scripts/validate_fmdl3a_candidate_v2.py"
       - "scripts/publish_fmdl3a.py"
       - "tests/test_fmdl3a_contract.py"
       - ".github/workflows/fmdl-3a-source-benchmark.yml"
@@ -52,14 +56,14 @@ jobs:
         run: |
           python scripts/validate_investment_os_interface.py
           pytest -q tests/test_fmdl3a_contract.py
-      - name: Run real source benchmark
+      - name: Run real composite source benchmark
         id: benchmark
         continue-on-error: true
-        run: python -m scripts.run_fmdl3a_benchmark --workers 3
-      - name: Validate benchmark candidate
+        run: python -m scripts.run_fmdl3a_benchmark_v2 --workers 3
+      - name: Validate benchmark candidate independently
         id: validate
         continue-on-error: true
-        run: python -m scripts.validate_fmdl3a_candidate
+        run: python -m scripts.validate_fmdl3a_candidate_v2
       - name: Upload benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -69,7 +73,14 @@ jobs:
           if-no-files-found: error
           retention-days: 30
       - name: Enforce FMDL-3A acceptance
-        run: test "${{ steps.validate.outcome }}" = "success"
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("outputs/financials/benchmark/candidate/FMDL3A_VALIDATION.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          assert payload["status"] == "PASS", payload
+          PY
       - name: Publish FMDL-3A on main
         if: github.event_name != 'pull_request'
         run: |
