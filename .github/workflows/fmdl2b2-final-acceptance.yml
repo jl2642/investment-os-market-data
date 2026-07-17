@@ -1,11 +1,6 @@
 name: FMDL 2B-2 Final Candidate Acceptance
 
 on:
-  pull_request:
-    branches: [main]
-    types: [synchronize]
-    paths:
-      - triggers/FMDL2B2_ACCEPTANCE.md
   workflow_dispatch:
 
 permissions:
@@ -20,10 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout candidate branch
+      - name: Checkout selected ref
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
