@@ -113,12 +113,12 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Stable path: `outputs/factors/current/`
 - Authority: research priority only; no candidate-pool promotion or trade authority
 
-### FMDL-2C screening candidate accepted for Current publication
+### FMDL-2C screening Current
 
-- Run: `FMDL2C_20260717T205335+0800`
-- Workflow: `29581863050` — success
+- Release: `FMDL2C_20260717T210036+0800`
 - As-of date: `2026-07-17`
 - Input factor Current: `FMDL2B4_FACTOR_20260717T174336+0800`
+- Publication status: `PUBLISHED`
 - Universe / named rows: `5,528 / 5,528`
 - Core investable / watch eligible: `5,001 / 16`
 - Review only / excluded: `139 / 372`
@@ -129,10 +129,10 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Primary Longlist sleeves — defensive / trend / breakout / recovery: `30 / 29 / 22 / 19`
 - Named Longlist rows: `100 / 100`
 - Hard failures: `0`
-- Candidate quality and independent validation: `PASS / PASS`
+- Quality and independent validation: `PASS / PASS`
 - Cross-sleeve method: `70% within-sleeve rank percentile + 30% raw sleeve score + capped confirmation bonus`
-- Candidate path: `outputs/screens/candidate/`
-- Stable Current path after merge publication: `outputs/screens/current/`
+- Stable path: `outputs/screens/current/`
+- Stability state: `PENDING_FMDL2D_REPLAY_AND_ECONOMIC_STABILITY`
 - Authority: research-priority queue only; no factor-alpha claim, live candidate-pool promotion or trade authority
 
 ## System boundary
