@@ -2,11 +2,31 @@
 
 ## Acceptance state
 
-`ACCEPTED_PENDING_MAIN_CURRENT_PUBLICATION`
+`ACCEPTED_WITH_CONTROLLED_FOUR_SYMBOL_QUARANTINE_AND_TWO_FULL_SERIES_REPAIRS`
 
-FMDL-2B-4 has passed real next-session operation, independent history/factor validation and same-date replay acceptance on GitHub-hosted runners. The implementation is approved for merge and main-branch Current publication. Final status becomes `ACCEPTED` after the merge-triggered main workflow persists the accepted history Current, factor Current, FMDL-1 Current and Investment OS interface.
+FMDL-2B-4 has passed real next-session operation, independent history/factor validation, same-date replay and main-branch Current publication on GitHub-hosted runners. FMDL-2B is formally complete.
 
 The phase remains market-data and research-evidence infrastructure only. It creates no screening sleeve, Longlist, factor-alpha claim, portfolio change or trade authority.
+
+## Canonical main-branch publication
+
+- Merge commit: `89d26d0a17ac0b997300665a2ab950a3b441f48b`
+- FMDL-1 Current: `FMDL1BC_20260717T174015+0800`
+- History Current: `FMDL2B4_20260717T174137+0800`
+- Factor Current: `FMDL2B4_FACTOR_20260717T174336+0800`
+- As-of date: `2026-07-17`
+- History publication: `PUBLISHED_WITH_WARNINGS`
+- Factor publication: `PUBLISHED_WITH_WARNINGS`
+- Investment OS interface: `ACTIVE`, bound to the same FMDL-1 Current
+- Trade authority: `NONE`
+
+Canonical paths:
+
+- `outputs/current/`
+- `outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json`
+- `outputs/history/current/`
+- `outputs/factors/current/`
+- `outputs/status/FMDL2B4_LAST_SUCCESS.json`
 
 ## Real operating evidence
 
@@ -15,8 +35,8 @@ The phase remains market-data and research-evidence infrastructure only. It crea
 - GitHub Actions workflow run: `29570328833` — `SUCCESS`
 - Operating artifact: `8402901468`
 - Artifact digest: `sha256:3fd11084d8b60f74ffe607c0b79ae7373025bca0754abd709fe6a7d028ee59cd`
-- History release: `FMDL2B4_20260717T173535+0800`
-- Factor release: `FMDL2B4_FACTOR_20260717T173703+0800`
+- Evidence history release: `FMDL2B4_20260717T173535+0800`
+- Evidence factor release: `FMDL2B4_FACTOR_20260717T173703+0800`
 - As-of date: `2026-07-17`
 - Independent candidate validation: `PASS`
 
@@ -32,7 +52,7 @@ The phase remains market-data and research-evidence infrastructure only. It crea
 
 ## FMDL-1 Current transition
 
-The real run refreshed the accepted A-share Current from:
+The accepted A-share Current moved from:
 
 - `2026-07-16`, `5,529` Universe symbols;
 
@@ -40,13 +60,9 @@ to:
 
 - `2026-07-17`, `5,528` Universe symbols.
 
-The latest accepted FMDL-1 run used for B4 acceptance is:
-
-`FMDL1BC_20260717T174015+0800`
-
 The one-symbol Universe reduction is retained as the accepted current-universe result. B4 does not silently force the prior 5,529-symbol identity onto a newer Current release.
 
-## History refresh result
+## History Current result
 
 | Metric | Result |
 |---|---:|
@@ -81,7 +97,7 @@ The `2026-07-17` snapshot contained impossible current-session OHLC observations
 
 The engine did not append those rows, fill zero prices, copy the close into open/high/low or relax the OHLC gate. Both symbols were routed to the accepted Sina full-history source and successfully rebuilt as controlled full-series repairs.
 
-The repair series were independently revalidated before entering the composite candidate.
+The repair series were independently revalidated before entering the composite Current.
 
 ## Four continuing quarantines
 
@@ -148,7 +164,7 @@ All three now have explicit implementation controls. The daily FMDL-1 workflow a
 - FMDL-1 daily production is schedule/manual only;
 - ordinary code pushes no longer launch a competing daily production run;
 - B4 pull requests run deterministic validation only;
-- B4 main-branch merge performs the initial production publication;
+- B4 main-branch implementation merge performs controlled production publication;
 - ongoing B4 operation runs after the normal FMDL-1 daily window;
 - superseded B4 runs are cancelled;
 - failed B4 runs preserve both history and factor LKG releases.
@@ -165,7 +181,7 @@ All three now have explicit implementation controls. The daily FMDL-1 workflow a
 
 ## Final FMDL-2B judgment
 
-Subject to successful main Current persistence, FMDL-2B is complete:
+FMDL-2B is complete:
 
 - FMDL-2B-1 proved the historical-store architecture;
 - FMDL-2B-2 built the accepted immutable full-market base;
