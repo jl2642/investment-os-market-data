@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fmdl2_basic_factor_manifest.schema.json",
+  "title": "FMDL-2B-3 Basic Factor Manifest",
+  "type": "object",
+  "required": [
+    "manifest_version",
+    "run_id",
+    "generated_at",
+    "as_of_date",
+    "history_release_id",
+    "factor_contract_version",
+    "factor_count",
+    "universe_symbols",
+    "artifacts",
+    "aggregate_sha256",
+    "status",
+    "authority"
+  ],
+  "properties": {
+    "manifest_version": {"type": "string"},
+    "run_id": {"type": "string", "pattern": "^FMDL2B3_"},
+    "generated_at": {"type": "string"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "history_release_id": {"type": "string", "pattern": "^FMDL2B2_"},
+    "factor_contract_version": {"type": "string"},
+    "factor_count": {"type": "integer", "const": 26},
+    "universe_symbols": {"type": "integer", "minimum": 1},
+    "artifacts": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["dataset_id", "path", "sha256", "row_count", "bytes"],
+        "properties": {
+          "dataset_id": {"type": "string"},
+          "path": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "row_count": {"type": "integer", "minimum": 1},
+          "bytes": {"type": "integer", "minimum": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "aggregate_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["CANDIDATE_GENERATED", "CANDIDATE_REJECTED"]},
+    "authority": {"const": "RESEARCH_PRIORITY_ONLY_NO_TRADE_AUTHORITY"}
+  },
+  "additionalProperties": true
+}
