@@ -14,6 +14,10 @@ def base_row():
     row = {
         "as_of_date": "2026-07-17",
         "symbol": "600000.SH",
+        "name": "浦发银行",
+        "exchange": "SH",
+        "listing_status": "ACTIVE",
+        "industry_name": "银行",
         "board": "SH_MAIN",
         "is_st": False,
         "is_suspended": False,
@@ -122,6 +126,7 @@ def test_longlist_uses_within_sleeve_normalization_and_bonus():
     )
     result = build_longlist(detail, screen, CONFIG)
     assert len(result) == 1
+    assert result.iloc[0]["name"] == "浦发银行"
     assert result.iloc[0]["normalized_primary_score"] == 0.94
     assert result.iloc[0]["aggregate_score"] == 0.96
     assert result.iloc[0]["primary_sleeve"] == "TREND_PERSISTENCE"
