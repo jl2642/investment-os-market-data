@@ -107,15 +107,18 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 
 ## FMDL-3 accepted architecture Current
 
-- Architecture release: `FMDL3_ARCH_20260717T223136+0800`
-- Published at: `2026-07-17T22:31:36+08:00`
+- Architecture release: `FMDL3_ARCH_20260717T223535+0800`
+- Published at: `2026-07-17T22:35:35+08:00`
 - Status: `FMDL3_ARCHITECTURE_ACCEPTED`
 - Architecture state: `FROZEN_FOR_FMDL3A_EXECUTION`
 - Initial accepted workflow: `29588007161` — success
 - Accepted Head revalidation: `29588217734` — success
 - Candidate artifact: `8409825884`
 - Artifact digest: `sha256:a3d92f538d3f16738ca099c85447b98211a5d2306165eac86d51cc49890b3f39`
-- Main validation run: `FMDL3_ARCH_20260717T223135+0800`
+- Final main validation run: `FMDL3_ARCH_20260717T223534+0800`
+- Merge commit: `0dbe643190da09dd1f7d4fc39a88dea61b29663c`
+- Publication-loop governance commit: `8c96a02502c27650a1caca3faf3fe2e8fc3938e8`
+- Final data publication commit: `2f11291fe3aba35e81ef28add4bbedd61003f847`
 - Machine checks: `14 / 14 PASS`
 - Hard failures: `0`
 - Stable path: `outputs/architecture/current/`
