@@ -8,10 +8,10 @@ FMDL-2B-1 validates the canonical Parquet storage design, deterministic cross-bo
 
 ## Release evidence
 
-- Pilot run: `FMDL2B1_PILOT_20260717T114620+0800`
-- GitHub Actions run: `29553180074` — `SUCCESS`
-- Artifact ID: `8396614610`
-- Artifact digest: `sha256:97d0b3868557d909ced1f091768ee98bc98576f6437f2ea9f388bb1123f6a76d`
+- Pilot run: `FMDL2B1_PILOT_20260717T120653+0800`
+- GitHub Actions run: `29554012101` — `SUCCESS`
+- Artifact ID: `8396909723`
+- Artifact digest: `sha256:56e75c4ff672fa053c2b8c784394514373a8972164c70bc430de0c02ae8105fa`
 - Accepted FMDL-1 Current: `FMDL1BC_20260716T165927+0800`
 - As-of date: `2026-07-16`
 - AKShare version: `1.18.64`
@@ -25,11 +25,11 @@ FMDL-2B-1 validates the canonical Parquet storage design, deterministic cross-bo
 - Tencent restricted fallback series: `0`
 - Quarantined: `1`
 - Normalized history rows: `109,602`
-- Six Zstandard Parquet shards: `5.993 MiB`
-- Projected 5,529-symbol initial store: `110.45 MiB`
-- Runtime: `9.25 minutes`
-- Median symbol latency: `1.6045 seconds`
-- Estimated sequential full backfill: `147.85 minutes`
+- Six Zstandard Parquet shards: `5.9936 MiB`
+- Projected 5,529-symbol initial store: `110.4627 MiB`
+- Runtime: `9.2937 minutes`
+- Median symbol latency: `1.596 seconds`
+- Estimated sequential full backfill: `147.07 minutes`
 - Future rows: `0`
 - Duplicate dates after normalization: `0`
 - Impossible OHLC rows: `0`
@@ -88,6 +88,7 @@ The initial three-way parallel design is expected to reduce elapsed backfill tim
 - per-symbol retry and quarantine evidence;
 - compression and projected repository-size assessment;
 - runtime below the frozen pilot limit;
+- final-code rerun with superseded workflow runs cancelled;
 - no trade, candidate-pool or factor-ranking authority introduced.
 
 ## Non-claims
