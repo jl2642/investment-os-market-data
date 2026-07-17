@@ -6,6 +6,7 @@ on:
     paths:
       - "config/fmdl2d_replay_stability.json"
       - "scripts/run_fmdl2d_stability.py"
+      - "scripts/run_fmdl2d_stability_v2.py"
       - "scripts/validate_fmdl2d_candidate.py"
       - "scripts/publish_fmdl2d.py"
       - "tests/test_fmdl2d_stability.py"
@@ -17,6 +18,7 @@ on:
     paths:
       - "config/fmdl2d_replay_stability.json"
       - "scripts/run_fmdl2d_stability.py"
+      - "scripts/run_fmdl2d_stability_v2.py"
       - "scripts/validate_fmdl2d_candidate.py"
       - "scripts/publish_fmdl2d.py"
       - "tests/test_fmdl2d_stability.py"
@@ -70,8 +72,26 @@ jobs:
         run: |
           test "$(cat fmdl2d_interface.exit)" = "0"
           test "$(cat fmdl2d_pytest.exit)" = "0"
-      - name: Run six-session full-market replay
-        run: python -m scripts.run_fmdl2d_stability
+      - name: Capture six-session full-market replay
+        run: |
+          set +e
+          python -m scripts.run_fmdl2d_stability_v2 > fmdl2d_replay.log 2>&1
+          replay_status=$?
+          printf '%s\n' "$replay_status" > fmdl2d_replay.exit
+          cat fmdl2d_replay.log
+          exit 0
+      - name: Upload replay diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2d-replay-diagnostics
+          path: |
+            fmdl2d_replay.log
+            fmdl2d_replay.exit
+            outputs/stability/candidate/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Enforce replay gate
+        run: test "$(cat fmdl2d_replay.exit)" = "0"
       - name: Independent final-acceptance validation
         run: python -m scripts.validate_fmdl2d_candidate
       - name: Upload FMDL-2D evidence
