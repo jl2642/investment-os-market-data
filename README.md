@@ -10,7 +10,8 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Active phase: **FMDL-2 — A-share Factor & Screening Funnel**
 - Completed subphase: **FMDL-2A — Factor Contract & Historical Source Benchmark**
 - Completed subphase: **FMDL-2B-1 — Historical Store Architecture & Full-Market Pilot**
-- Next production batch: **FMDL-2B-2 — Full-Universe Sharded Initial Backfill**
+- Completed subphase: **FMDL-2B-2 — Full-Universe Sharded Initial Backfill**
+- Next production batch: **FMDL-2B-3 — Basic Factor Engine**
 - Cost policy: **free and free-tier resources only**
 - Execution model: GitHub Actions + open-source/public data adapters
 - Trading model: research and decision support only; no broker connection and no automatic order execution
@@ -28,7 +29,7 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Stable path: `outputs/current/`
 - Investment OS interface: `outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json`
 
-## Accepted historical route and pilot
+## Accepted historical route and releases
 
 ### FMDL-2A source route
 
@@ -45,11 +46,25 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Usable: `299/300` (`99.67%`)
 - Normalized rows: `109,602`
 - Six Zstandard Parquet pilot shards: `5.9936 MiB`
-- Projected full-store size: `110.4627 MiB`
 - Pilot runtime: `9.2937 minutes`
 - Frozen full-backfill design: `24` logical shards, approximately `231` symbols each, initial maximum parallelism `3`
-- Readiness: `AUTHORIZED_FOR_FMDL_2B_2_IMPLEMENTATION`
-- Authority: historical data evidence only; no factor rank, alpha claim or trade authority
+
+### FMDL-2B-2 full-market historical candidate
+
+- Release: `FMDL2B2_29556547410_1`
+- As-of date: `2026-07-16`
+- Universe attempted: `5,529`
+- Usable historical series: `5,525` (`99.9277%`)
+- Controlled quarantine: `4`
+- History rows: `2,494,405`
+- Parquet base store: `131.6084 MiB`
+- Logical shards: `24`
+- Accepted future rows: `0`
+- Accepted duplicate symbol-date pairs: `0`
+- Accepted impossible-OHLC rows: `0`
+- Independent validation run: `29563720516` — success
+- Status: `ACCEPTED_WITH_CONTROLLED_FOUR_SYMBOL_QUARANTINE`
+- Authority: historical evidence only; no factor rank, alpha claim or trade authority
 
 ## System boundary
 
@@ -63,10 +78,10 @@ This repository owns market-data acquisition, normalization, quality control, ve
 4. `pipeline/` and `scripts/` — normalization, QA, benchmark, history ingestion, LKG and quarantine logic.
 5. `datasets/` — dated raw evidence, immutable history bases, daily deltas and refresh overlays.
 6. `outputs/current/` — stable current market-data release.
-7. `outputs/history/` — historical-store candidate, Current, status and quarantine evidence.
+7. `outputs/history/` — historical-store candidate, Current, status, validation and quarantine evidence.
 8. `outputs/investment_os/` — machine-validated consumer pointer.
 9. `outputs/benchmark/` — source and pilot evidence.
-10. `.github/workflows/` — validation, production, benchmark and pilot automation.
+10. `.github/workflows/` — validation, production, benchmark and controlled recovery automation.
 
 ## Canonical documents
 
@@ -89,6 +104,8 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `docs/FMDL-2B_ENGINEERING_REQUIREMENTS.md`
 - `docs/FMDL-2B1_HISTORY_STORE_PILOT.md`
 - `docs/FMDL-2B1_ACCEPTANCE.md`
+- `docs/FMDL-2B2_FULL_BACKFILL_IMPLEMENTATION.md`
+- `docs/FMDL-2B2_ACCEPTANCE.md`
 
 ## Core datasets and controls
 
@@ -105,6 +122,8 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `a_share_daily_history`
 - `fmdl2_history_store`
 - `fmdl2_full_backfill_plan`
+- `historical_candidate_validation`
+- `historical_quarantine_retry`
 
 Every published dataset carries a schema version, source timestamp, generation timestamp, QA state, row count, hash and last-known-good lineage. Failed candidate updates are quarantined and must never replace a valid current snapshot. Missing history or factor inputs remain missing and never become neutral scores or zeros.
 
@@ -120,8 +139,8 @@ Every published dataset carries a schema version, source timestamp, generation t
   - FMDL-2A Factor Contract & Historical Source Benchmark ✅
   - FMDL-2B Historical Store & Basic Factor Engine 🚧
     - FMDL-2B-1 Historical Store Architecture & Full-Market Pilot ✅
-    - FMDL-2B-2 Full-Universe Sharded Initial Backfill ⏭️
-    - FMDL-2B-3 Basic Factor Engine
+    - FMDL-2B-2 Full-Universe Sharded Initial Backfill ✅
+    - FMDL-2B-3 Basic Factor Engine ⏭️
     - FMDL-2B-4 Incremental Update & Final Acceptance
   - FMDL-2C Screening Sleeves & Funnel
   - FMDL-2D Replay, Stability & Final Acceptance
