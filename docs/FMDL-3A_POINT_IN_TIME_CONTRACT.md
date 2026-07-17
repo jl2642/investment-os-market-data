@@ -2,11 +2,21 @@
 
 ## 1. Contract status
 
-This contract is source-benchmark specific and inherits the FMDL-3 architecture policy.
+`ACCEPTED_FOR_FMDL3B_EXECUTION`
 
-It freezes a daily-resolution availability model for FMDL-3B. It does not authorize intraday financial-factor use.
+This contract inherits the FMDL-3 architecture policy and freezes daily-resolution financial availability, revision handling and share-capital effectiveness for FMDL-3B.
 
-## 2. Required temporal fields
+Accepted evidence:
+
+- candidate run: `FMDL3A_20260718T004613+0800`;
+- workflow: `29597406995` — success;
+- official filing-to-period PIT match: `100%`;
+- future financial availability: `0`;
+- future-effective share-count use: `0`.
+
+It does not authorize intraday financial-factor use or trade authority.
+
+## 2. Required financial temporal fields
 
 Every financial fact intended for point-in-time use must preserve:
 
@@ -21,17 +31,21 @@ Every financial fact intended for point-in-time use must preserve:
 - `effective_from`;
 - `superseded_at`.
 
-Unknown timestamps remain null. They are not reconstructed from report-period labels.
+Unknown timestamps remain null. They are never reconstructed from report-period labels.
 
-## 3. Daily availability rule
+## 3. Daily financial availability
 
 ### 3.1 Official filing metadata exists
 
-For an official filing announced on calendar date `D`:
+For a CNINFO official filing announced on calendar date `D`:
 
-- retain the raw platform timestamp when provided;
-- for daily-resolution research, set `available_from` to the next verified A-share trading session at `09:30:00+08:00`;
-- the rule is deliberately conservative and uniform across evening, date-only and ambiguous timestamp records.
+1. retain the raw platform date or timestamp;
+2. retain the official filing title and source link;
+3. identify the report period from the full periodic-report identity;
+4. at daily research resolution, set `available_from` to the next verified A-share trading session at `09:30:00+08:00`;
+5. never use the record before `available_from`.
+
+The rule is deliberately conservative and uniform across evening, date-only and ambiguous timestamp records.
 
 ### 3.2 Official metadata is unavailable
 
@@ -41,24 +55,24 @@ A third-party announcement record may be retained as:
 
 It may support investigation and recovery but is not decision-grade until reconciled with an official filing identity.
 
-### 3.3 Report period
+### 3.3 Report-period prohibition
 
-`report_period_end` is an accounting-period key only.
+`report_period_end` is an accounting key, not an availability date.
 
 The following are prohibited:
 
 - assigning availability to the report-period end;
-- assigning availability to an expected publication date;
-- assigning availability from the first date seen at the data provider;
+- assigning availability to an expected publication deadline;
+- assigning availability from the first date seen at a provider;
 - using a later revised value in an earlier as-of replay.
 
 ## 4. Trading calendar
 
-The benchmark uses an explicit A-share trading calendar.
+The accepted route uses the explicit Sina A-share trading calendar through AKShare.
 
-A weekend-only approximation is not accepted for decision-grade publication. If the calendar route fails, the benchmark must fail the point-in-time gate.
+A weekend-only approximation is not decision-grade. If the trading-calendar route fails, the financial PIT candidate must fail and Last-known-good must remain unchanged.
 
-## 5. Revision sequence
+## 5. Revision sequence and restatements
 
 For each issuer, report period and filing family:
 
@@ -66,26 +80,80 @@ For each issuer, report period and filing family:
 2. assign `revision_sequence = 1` to the first public version;
 3. assign increasing sequence numbers to corrections, revised reports and updated full reports;
 4. set the prior version's `superseded_at` to the later version's `available_from`;
-5. retain every version and source link.
+5. retain every version, source link and original value;
+6. prohibit silent overwrite.
 
-Keywords such as `更正`, `修订`, `更新后` and `补充` are revision signals, not sufficient proof by themselves. FMDL-3B must reconcile title, period, issuer and source document identity.
+Keywords such as `更正`, `修订`, `更新后` and `补充` are revision signals, not proof by themselves. FMDL-3B must reconcile issuer, report period, title, source document and changed facts.
 
-## 6. Statement-provider timestamps
+## 6. Structured-provider timestamps
 
-Structured providers may expose `NOTICE_DATE`, `UPDATE_DATE`, `更新日期` or similar fields.
+Provider fields such as `NOTICE_DATE`, `UPDATE_DATE` or `更新日期` are retained for:
 
-These fields are retained and benchmarked, but they do not outrank official filing metadata. They may be used for:
-
-- retrieval monitoring;
-- provider freshness checks;
+- provider freshness monitoring;
 - conflict detection;
-- fallback investigation.
+- retrieval diagnostics;
+- degraded recovery.
 
-They may not replace the official `available_from` rule without a separately accepted source-contract revision.
+They do not outrank CNINFO official filing metadata and cannot replace `available_from` without a separately accepted contract revision.
 
-## 7. Point-in-time eligibility
+## 7. Share-capital point-in-time rule
 
-At requested as-of timestamp `T`, a version is eligible only when:
+Current capitalization uses an accepted FMDL-1 close and an effective share-count record.
+
+For price as-of date `P`:
+
+1. retrieve share-capital history with original source identity;
+2. parse `变更日期` as the share-count effective date;
+3. retain only rows where `share_effective_date <= P`;
+4. require positive `总股本` and positive `已上市流通A股`;
+5. select the latest eligible row;
+6. prohibit later share counts from entering the calculation.
+
+Derived values:
+
+- `total_market_cap_cny = accepted_close × effective_total_shares`;
+- `float_market_cap_cny = accepted_close × effective_float_A_shares`.
+
+Every derived row must preserve:
+
+- price as-of date and source ID;
+- accepted price row hash;
+- share effective date and source ID;
+- total and floating A-share counts;
+- formula identity;
+- derivation timestamp;
+- QA state.
+
+The accepted stress candidate produced `11 / 11` supported-universe capitalization rows and zero future-effective share use.
+
+## 8. Valuation-ratio rule
+
+Provider PE, PB and related ratios are support-only evidence.
+
+Decision-grade ratios must be recomputed in FMDL-3D using:
+
+- the accepted market numerator as of `T`;
+- only financial denominator versions eligible at `T`;
+- explicit denominator status and sector profile.
+
+Negative, zero, stale, missing or economically invalid denominators must produce a `NOT_MEANINGFUL` or blocked status. They may not produce a synthetic ratio or neutral score.
+
+## 9. BSE controlled quarantine
+
+The tested free structured statement routes did not provide an accepted BSE three-statement bundle.
+
+For BSE issuers:
+
+- CNINFO official periodic-report identity and link are retained;
+- financial statement values remain quarantined;
+- no financial factor or valuation denominator may be generated from missing structured facts;
+- FMDL-3B must build and validate official-document extraction before promotion from quarantine.
+
+Quarantine is an explicit state, not missing-value imputation and not exclusion from the source registry.
+
+## 10. Point-in-time eligibility
+
+At requested as-of timestamp `T`, a financial version is eligible only when:
 
 - `available_from <= T`;
 - `effective_from <= T`;
@@ -93,12 +161,17 @@ At requested as-of timestamp `T`, a version is eligible only when:
 - source lineage exists;
 - record quality is not invalid, failed or quarantined.
 
-## 8. Zero-tolerance failures
+A share-count version is eligible only when its effective date is not later than the market-price as-of date.
+
+## 11. Zero-tolerance failures
 
 - report period used as announcement date;
-- availability before the announcement;
+- availability before the official announcement;
 - silent overwrite of a prior revision;
-- a missing source identity in a decision-grade row;
+- future-effective share count used for current capitalization;
+- missing source identity in a decision-grade row;
 - unresolved provider conflict in published Current;
 - fallback metadata presented as official;
+- provider PE/PB presented as decision-grade without PIT recomputation;
+- quarantined BSE facts used in factors or valuation;
 - any trade authority.
