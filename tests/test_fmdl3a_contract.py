@@ -6,7 +6,7 @@ from pathlib import Path
 
 import jsonschema
 
-from scripts.run_fmdl3a_benchmark_v3 import clean_title, next_trading_open, parse_period
+from scripts.run_fmdl3a_benchmark_v5 import clean_title, next_trading_open, parse_period
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -39,6 +39,7 @@ def test_required_source_routes_present() -> None:
         "EASTMONEY_STATEMENTS",
         "EASTMONEY_BSE_PERIODIC_STATEMENTS",
         "SINA_STATEMENTS",
+        "EASTMONEY_INDIVIDUAL_INFO",
         "XUEQIU_CURRENT_VALUATION",
         "EASTMONEY_CURRENT_VALUATION",
         "EASTMONEY_HISTORICAL_VALUATION",
@@ -57,10 +58,19 @@ def test_support_and_quarantine_gates() -> None:
     assert policy["minimum_supported_universe_statement_bundle_success_ratio"] >= 0.95
     assert policy["maximum_full_sample_statement_quarantine_ratio"] >= expected_bse_ratio
     assert policy["maximum_full_sample_statement_quarantine_ratio"] <= 0.16
+    assert policy["minimum_supported_universe_current_capitalization_coverage"] >= 0.95
     assert policy["require_all_symbols_supported_or_quarantined"] is True
     assert policy["require_bse_official_document_source"] is True
     assert policy["require_each_profile_supported_or_quarantined"] is True
     assert policy["require_each_board_supported_or_quarantined"] is True
+
+
+def test_recomputed_valuation_semantics() -> None:
+    semantics = load_json("config/fmdl3a_benchmark.json")["valuation_semantics"]
+    assert semantics["provider_pe_pb_role"] == "SUPPORT_ONLY_NOT_DECISION_GRADE"
+    assert semantics["decision_grade_pe_pb_rule"] == "RECOMPUTE_IN_FMDL3D_USING_POINT_IN_TIME_FINANCIAL_DENOMINATORS"
+    assert semantics["negative_or_invalid_denominator_rule"] == "PUBLISH_NOT_MEANINGFUL_STATUS_NOT_SYNTHETIC_RATIO"
+    assert {"LATEST_PRICE", "TOTAL_MARKET_CAP", "FLOAT_MARKET_CAP", "TOTAL_SHARES", "FLOAT_SHARES"} <= set(semantics["current_market_numerators"])
 
 
 def test_point_in_time_policy_is_conservative() -> None:
