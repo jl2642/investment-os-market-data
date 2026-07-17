@@ -1,0 +1,49 @@
+{
+  "manifest_version": "1.0.0",
+  "release_id": "FMDL2B4_20260717T174137+0800",
+  "generated_at": "2026-07-17T17:41:37+08:00",
+  "as_of_date": "2026-07-17",
+  "previous_release_id": "FMDL2B4_BOOTSTRAP_FMDL2B2_29556547410_1",
+  "previous_as_of_date": "2026-07-16",
+  "base_release_id": "FMDL2B2_29556547410_1",
+  "base_manifest_path": "outputs/history/candidate/HISTORICAL_STORE_MANIFEST.json",
+  "base_manifest_sha256": "8c37ed8bb4fd4d87764ab2463db255e9832010d9e62cf663067cce98a7172bf8",
+  "logical_shards": 24,
+  "delta_files": [
+    {
+      "kind": "DAILY_DELTA",
+      "path": "datasets/history/incremental/FMDL2B4_20260717T174137+0800/daily_delta.parquet",
+      "sha256": "12286b23d7b525febca3a86343db546cd0d89b71f89feba10716d685bf77c935",
+      "bytes": 365826,
+      "row_count": 5518,
+      "symbol_count": 5518,
+      "symbol_set_sha256": "9cb67771c25c31ddb70736182804893e249a7335ca01c5568cb55e52259d430a",
+      "as_of_date": "2026-07-17"
+    }
+  ],
+  "repair_files": [
+    {
+      "kind": "FULL_SERIES_REPAIR",
+      "path": "datasets/history/repair/FMDL2B4_20260717T174137+0800/full_series_repairs.parquet",
+      "sha256": "1ca0b060c7888eacaaa29f9ed2548480b814e1b6efa1d853caf8e53519d8848e",
+      "bytes": 66383,
+      "row_count": 917,
+      "symbol_count": 2,
+      "symbol_set_sha256": "c09b2dc6c9e335b11140f7d30a2e3e42e451476813bd20cc649242f2c0b08c67",
+      "as_of_date": "2026-07-17"
+    }
+  ],
+  "status_path": "outputs/history/current/HISTORY_CURRENT_STATUS.csv",
+  "status_sha256": "1ab6dee4cfe643e782e7be8c33e0ac6239fd65d98edb0ba7c02dfaba4ff52d3a",
+  "continuity_diagnostics_path": "outputs/history/current/HISTORY_CONTINUITY_DIAGNOSTICS.csv",
+  "continuity_diagnostics_sha256": "244674d22f98abb88b3c4952c195f206f0d5ad985859490bf53af0f6cae47672",
+  "component_aggregate_sha256": "4d57a88b10e5dcce5c5810646e06cfa272760c0a7ba76c43fd369df1e3517c38",
+  "status": "PUBLISHED_CURRENT",
+  "authority": "HISTORICAL_AND_FACTOR_EVIDENCE_ONLY_NO_TRADE_AUTHORITY",
+  "quality_path": "outputs/history/current/HISTORY_REFRESH_QUALITY.json",
+  "quality_sha256": "dcaf1bb1166cd6ffa245f98d6c1a93aafb97384eb452ae9898e99f96d305b2cd",
+  "component_hash_finalization": {
+    "status": "PASS",
+    "current_run_components_rehashed": 2
+  }
+}
