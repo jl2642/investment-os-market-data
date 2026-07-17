@@ -9,6 +9,7 @@ on:
       - docs/FMDL-2A_FACTOR_CONTRACT.md
       - docs/FMDL-2A_BENCHMARK_PLAN.md
       - scripts/benchmark_historical_sources.py
+      - scripts/benchmark_historical_sources_v2.py
       - tests/test_fmdl2a_contract.py
       - .github/workflows/fmdl-2a-benchmark.yml
   pull_request:
@@ -18,6 +19,7 @@ on:
       - docs/FMDL-2A_FACTOR_CONTRACT.md
       - docs/FMDL-2A_BENCHMARK_PLAN.md
       - scripts/benchmark_historical_sources.py
+      - scripts/benchmark_historical_sources_v2.py
       - tests/test_fmdl2a_contract.py
       - .github/workflows/fmdl-2a-benchmark.yml
 
@@ -51,16 +53,17 @@ jobs:
       - name: Run deterministic contract tests
         run: pytest -q tests/test_fmdl2a_contract.py
 
-      - name: Run real free-source benchmark
+      - name: Run retry-aware real free-source benchmark
         id: benchmark
         shell: bash
         run: |
           set +e
           mkdir -p diagnostics
-          python scripts/benchmark_historical_sources.py \
+          python scripts/benchmark_historical_sources_v2.py \
             --timeout-seconds 15 \
             --pause-seconds 0.15 \
             --fallback-scale-size 40 \
+            --scale-attempts 2 \
             2>&1 | tee diagnostics/FMDL2A_BENCHMARK_LOG.txt
           status=${PIPESTATUS[0]}
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
