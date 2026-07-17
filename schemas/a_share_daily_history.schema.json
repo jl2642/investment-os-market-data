@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "a_share_daily_history.schema.json",
+  "title": "A-share canonical daily history row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "trade_date", "symbol", "open", "high", "low", "close",
+    "volume_shares", "turnover_cny", "provider_id", "source_function",
+    "adjustment_mode", "retrieved_at", "record_quality", "row_hash"
+  ],
+  "properties": {
+    "trade_date": {"type": "string", "format": "date"},
+    "symbol": {"type": "string", "pattern": "^[0-9]{6}\\.(SH|SZ|BJ)$"},
+    "open": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "high": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "low": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "close": {"type": "number", "exclusiveMinimum": 0},
+    "volume_shares": {"type": ["number", "null"], "minimum": 0},
+    "turnover_cny": {"type": ["number", "null"], "minimum": 0},
+    "provider_id": {"type": "string", "enum": ["sina_daily", "tencent_hist"]},
+    "source_function": {"type": "string", "enum": ["stock_zh_a_daily", "stock_zh_a_hist_tx"]},
+    "adjustment_mode": {"type": "string", "const": "qfq"},
+    "retrieved_at": {"type": "string", "format": "date-time"},
+    "record_quality": {"type": "string", "enum": ["VALID", "PARTIAL_FALLBACK_PRICE_AMOUNT"]},
+    "row_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}
