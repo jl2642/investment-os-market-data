@@ -9,7 +9,7 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Completed phase: **FMDL-1 — A-share Full-Market Data MVP**
 - Completed phase: **FMDL-2 — A-share Factor & Screening Funnel**
 - Active phase: **FMDL-3 — Financial & Valuation Data Hardening**
-- Accepted engineering gate: **FMDL-3 Overall Architecture & Phased Plan**
+- Completed engineering gate: **FMDL-3 Overall Architecture & Phased Plan**
 - Next execution phase: **FMDL-3A — Source Benchmark, Point-in-Time Contract & Coverage Map**
 - Cost policy: **free and free-tier resources only**
 - Execution model: GitHub Actions + open-source/public data adapters
@@ -105,16 +105,21 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Stable path: `outputs/stability/current/`
 - Authority: operational research stability only; no alpha claim, candidate-pool promotion or trade authority
 
-## FMDL-3 architecture acceptance
+## FMDL-3 accepted architecture Current
 
-- Validation run: `FMDL3_ARCH_20260717T222708+0800`
-- Workflow: `29588007161` — success
+- Architecture release: `FMDL3_ARCH_20260717T223136+0800`
+- Published at: `2026-07-17T22:31:36+08:00`
+- Status: `FMDL3_ARCHITECTURE_ACCEPTED`
+- Architecture state: `FROZEN_FOR_FMDL3A_EXECUTION`
+- Initial accepted workflow: `29588007161` — success
+- Accepted Head revalidation: `29588217734` — success
 - Candidate artifact: `8409825884`
 - Artifact digest: `sha256:a3d92f538d3f16738ca099c85447b98211a5d2306165eac86d51cc49890b3f39`
-- Architecture state: `FROZEN_FOR_FMDL3A_EXECUTION`
+- Main validation run: `FMDL3_ARCH_20260717T223135+0800`
 - Machine checks: `14 / 14 PASS`
 - Hard failures: `0`
-- Main publication state: `PENDING_PR_MERGE`
+- Stable path: `outputs/architecture/current/`
+- Last-success pointer: `outputs/status/FMDL3_ARCHITECTURE_LAST_SUCCESS.json`
 - Contract: `config/fmdl3_program_contract.json`
 - Architecture: `docs/FMDL-3_ARCHITECTURE.md`
 - Point-in-time policy: `docs/FMDL-3_POINT_IN_TIME_POLICY.md`
@@ -177,7 +182,7 @@ This repository owns market-data acquisition, normalization, quality control, ve
 8. `outputs/factors/current/` — market-behaviour factor Current.
 9. `outputs/screens/current/` — research-priority screening Current.
 10. `outputs/stability/current/` — final FMDL-2 replay and stability acceptance.
-11. `outputs/architecture/current/` — accepted FMDL-3 architecture state after main publication.
+11. `outputs/architecture/current/` — accepted FMDL-3 architecture Current.
 12. `outputs/financials/`, `outputs/financial_factors/`, `outputs/valuation/`, `outputs/shareholder_returns/` — planned FMDL-3 data families.
 13. `outputs/fmdl3/current/` — planned FMDL-3 Final Current.
 14. `outputs/status/` — last-run and last-success operating states.
@@ -232,7 +237,7 @@ This repository owns market-data acquisition, normalization, quality control, ve
   - FMDL-2C Screening Sleeves & Funnel ✅
   - FMDL-2D Replay, Stability & Final Acceptance ✅
 - FMDL-3 Financial & Valuation Data Hardening 🚧
-  - FMDL-3 Overall Architecture & Phased Plan ✅ candidate accepted, main publication pending
+  - FMDL-3 Overall Architecture & Phased Plan ✅
   - FMDL-3A Source Benchmark, Point-in-Time Contract & Coverage Map ⏭️
   - FMDL-3B Financial Statement Store & Normalization
   - FMDL-3C Financial Quality, Growth & Balance-Sheet Factors
