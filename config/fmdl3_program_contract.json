@@ -1,0 +1,222 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3",
+  "program_name": "Financial & Valuation Data Hardening",
+  "architecture_state": "FROZEN_FOR_FMDL3A_EXECUTION",
+  "business_timezone": "Asia/Shanghai",
+  "cost_policy": "FREE_AND_FREE_TIER_ONLY",
+  "scope": {
+    "owned_domains": [
+      "FINANCIAL_SOURCE_INDEX",
+      "POINT_IN_TIME_FINANCIAL_FACTS",
+      "NORMALIZED_FINANCIAL_STATEMENTS",
+      "COMPARABILITY_AND_RESTATEMENT_LINEAGE",
+      "FINANCIAL_QUALITY_GROWTH_AND_BALANCE_SHEET_FACTORS",
+      "VALUATION_AND_CAPITALIZATION",
+      "DIVIDEND_BUYBACK_AND_SHAREHOLDER_RETURN_EVIDENCE",
+      "SECTOR_SPECIFIC_FINANCIAL_METRICS",
+      "CURRENT_LAST_KNOWN_GOOD_AND_REPLAY_CONTROLS"
+    ],
+    "excluded_domains": [
+      "FINAL_COMPANY_RESEARCH_CONCLUSION",
+      "INVESTMENT_RECOMMENDATION",
+      "TARGET_PRICE",
+      "LIVE_CANDIDATE_POOL_PROMOTION",
+      "POSITION_SIZING",
+      "PORTFOLIO_MIGRATION",
+      "BROKER_EXECUTION",
+      "TRADE_AUTHORITY"
+    ]
+  },
+  "point_in_time_contract": {
+    "required_temporal_fields": [
+      "report_period_start",
+      "report_period_end",
+      "fiscal_period_type",
+      "announcement_date",
+      "announcement_timestamp",
+      "available_from",
+      "source_retrieved_at",
+      "revision_sequence",
+      "effective_from",
+      "superseded_at"
+    ],
+    "as_of_rule": "A record is eligible only when available_from is not later than the requested as_of_timestamp and the record version is effective at that timestamp.",
+    "restatement_rule": "A later restatement creates a new version and never silently overwrites the value visible at an earlier as-of timestamp.",
+    "date_fallback_rule": "Missing announcement timestamps may use the verified announcement date with an explicit conservative market-availability convention; period labels alone may never determine availability.",
+    "zero_tolerance_failures": [
+      "FUTURE_INFORMATION_IN_POINT_IN_TIME_OUTPUT",
+      "SILENT_RESTATEMENT_OVERWRITE",
+      "REPORT_PERIOD_USED_AS_AVAILABILITY_DATE",
+      "MISSING_SOURCE_ID_IN_DECISION_GRADE_ROW",
+      "UNRESOLVED_PROVIDER_CONFLICT_IN_PUBLISHED_CURRENT"
+    ]
+  },
+  "source_policy": {
+    "source_rank_order": [
+      "ISSUER_OR_EXCHANGE_PRIMARY_FILING",
+      "REGULATORY_OR_EXCHANGE_STRUCTURED_DISCLOSURE",
+      "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER",
+      "MARKET_DATA_PROVIDER_FOR_MARKET_NUMERATORS",
+      "OCR_OR_NARRATIVE_EXTRACTION_LAST_RESORT"
+    ],
+    "required_lineage_fields": [
+      "source_id",
+      "source_name",
+      "source_type",
+      "source_location",
+      "source_document_date",
+      "source_retrieved_at",
+      "evidence_label",
+      "confidence",
+      "provider_field_name",
+      "canonical_field_id"
+    ],
+    "conflict_policy": "Conflicts are retained and classified. Published Current requires an explicit resolution rule, preferred source, or controlled exclusion.",
+    "missing_policy": "Missing values remain missing and are never filled with zero, median, peer values, or neutral scores.",
+    "raw_preservation_policy": "Raw labels, units, currencies and source values must remain traceable even when normalized values are published."
+  },
+  "sector_profiles": [
+    {
+      "profile_id": "GENERAL_NON_FINANCIAL",
+      "statement_model": "STANDARD_THREE_STATEMENT",
+      "valuation_family": ["PE", "PB", "PS", "EV_METRICS_WHEN_SUPPORTED"],
+      "status": "REQUIRED"
+    },
+    {
+      "profile_id": "BANK",
+      "statement_model": "BANK_SPECIALIZED",
+      "valuation_family": ["PB", "PE_WHEN_MEANINGFUL", "DIVIDEND"],
+      "status": "REQUIRED"
+    },
+    {
+      "profile_id": "INSURANCE",
+      "statement_model": "INSURANCE_SPECIALIZED",
+      "valuation_family": ["PB", "PE_WHEN_MEANINGFUL", "DIVIDEND"],
+      "status": "REQUIRED"
+    },
+    {
+      "profile_id": "SECURITIES_AND_BROKERAGE",
+      "statement_model": "SECURITIES_SPECIALIZED",
+      "valuation_family": ["PB", "PE_WHEN_MEANINGFUL", "DIVIDEND"],
+      "status": "REQUIRED"
+    },
+    {
+      "profile_id": "PRE_PROFIT_OR_NEGATIVE_EARNINGS",
+      "statement_model": "BASE_PROFILE_PLUS_DENOMINATOR_RESTRICTIONS",
+      "valuation_family": ["PB_WHEN_MEANINGFUL", "PS_WHEN_MEANINGFUL", "EV_METRICS_WHEN_SUPPORTED"],
+      "status": "REQUIRED"
+    }
+  ],
+  "canonical_datasets": [
+    {
+      "dataset_id": "fmdl3_source_index",
+      "phase_owner": "FMDL-3A",
+      "grain": "one row per source document or structured source extraction",
+      "current_path": "outputs/financials/source_index/current/",
+      "required": true
+    },
+    {
+      "dataset_id": "fmdl3_financial_fact_raw",
+      "phase_owner": "FMDL-3B",
+      "grain": "one row per issuer, source, period, original line item and revision",
+      "current_path": "outputs/financials/raw_facts/current/",
+      "required": true
+    },
+    {
+      "dataset_id": "fmdl3_financial_statement_normalized_long",
+      "phase_owner": "FMDL-3B",
+      "grain": "one row per issuer, canonical line item, period, basis and revision",
+      "current_path": "outputs/financials/statements/current/",
+      "required": true
+    },
+    {
+      "dataset_id": "fmdl3_comparability_bridge",
+      "phase_owner": "FMDL-3B",
+      "grain": "one row per affected issuer series and disclosure-basis transition",
+      "current_path": "outputs/financials/comparability/current/",
+      "required": true
+    },
+    {
+      "dataset_id": "fmdl3_financial_factor_detail",
+      "phase_owner": "FMDL-3C",
+      "grain": "one row per issuer, factor, as-of timestamp and factor version",
+      "current_path": "outputs/financial_factors/current/",
+      "required": true
+    },
+    {
+      "dataset_id": "fmdl3_valuation_snapshot",
+      "phase_owner": "FMDL-3D",
+      "grain": "one row per issuer and market as-of timestamp",
+      "current_path": "outputs/valuation/current/",
+      "required": true
+    },
+    {
+      "dataset_id": "fmdl3_shareholder_return_event",
+      "phase_owner": "FMDL-3D",
+      "grain": "one row per dividend, buyback, issuance or other shareholder-return event",
+      "current_path": "outputs/shareholder_returns/current/",
+      "required": true
+    },
+    {
+      "dataset_id": "fmdl3_final_release",
+      "phase_owner": "FMDL-3E",
+      "grain": "one row-level release pointer and manifest set per accepted FMDL-3 Current",
+      "current_path": "outputs/fmdl3/current/",
+      "required": true
+    }
+  ],
+  "phase_sequence": [
+    {
+      "phase_id": "FMDL-3A",
+      "name": "Source Benchmark, Point-in-Time Contract & Coverage Map",
+      "entry_gate": "FMDL3_ARCHITECTURE_ACCEPTED",
+      "exit_gate": "SOURCE_ROUTE_AND_NUMERIC_COVERAGE_GATES_FROZEN"
+    },
+    {
+      "phase_id": "FMDL-3B",
+      "name": "Financial Statement Store & Normalization",
+      "entry_gate": "FMDL3A_ACCEPTED",
+      "exit_gate": "POINT_IN_TIME_STATEMENT_STORE_ACCEPTED"
+    },
+    {
+      "phase_id": "FMDL-3C",
+      "name": "Financial Quality, Growth & Balance-Sheet Factors",
+      "entry_gate": "FMDL3B_ACCEPTED",
+      "exit_gate": "FINANCIAL_FACTOR_CURRENT_ACCEPTED"
+    },
+    {
+      "phase_id": "FMDL-3D",
+      "name": "Valuation, Capitalization, Dividend & Shareholder-Return Layer",
+      "entry_gate": "FMDL3C_ACCEPTED",
+      "exit_gate": "VALUATION_AND_SHAREHOLDER_RETURN_CURRENT_ACCEPTED"
+    },
+    {
+      "phase_id": "FMDL-3E",
+      "name": "Incremental Refresh, Replay & Final Acceptance",
+      "entry_gate": "FMDL3D_ACCEPTED",
+      "exit_gate": "FMDL3_FINAL_ACCEPTED"
+    }
+  ],
+  "global_hard_gates": [
+    "ZERO_POINT_IN_TIME_LEAKAGE",
+    "ZERO_SILENT_RESTATEMENT_OVERWRITE",
+    "ZERO_INVALID_RATIO_DENOMINATOR_PUBLISHED_AS_VALID",
+    "ZERO_NEUTRAL_FILL_FOR_MISSING_FINANCIAL_DATA",
+    "ZERO_DECISION_GRADE_ROWS_WITHOUT_SOURCE_LINEAGE",
+    "ZERO_FAILED_OR_QUARANTINED_RELEASE_REPLACING_CURRENT",
+    "ZERO_TRADE_AUTHORITY"
+  ],
+  "publication_contract": {
+    "archive_is_immutable": true,
+    "current_requires_manifest": true,
+    "last_known_good_required": true,
+    "candidate_cannot_replace_current_on_failure": true,
+    "point_in_time_replay_required_before_final_acceptance": true,
+    "current_root": "outputs/fmdl3/current/",
+    "status_pointer": "outputs/status/FMDL3_LAST_SUCCESS.json"
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_phase": "FMDL-3A"
+}
