@@ -2,8 +2,9 @@ name: FMDL 2B-2 Full-Universe Historical Backfill
 
 on:
   workflow_dispatch:
-  push:
-    branches: [fmdl-2b2-full-backfill]
+  pull_request:
+    branches: [main]
+    types: [synchronize]
     paths:
       - triggers/FMDL2B2_RUN.md
 
@@ -12,6 +13,7 @@ permissions:
 
 env:
   RELEASE_ID: FMDL2B2_${{ github.run_id }}_${{ github.run_attempt }}
+  TARGET_REF: ${{ github.head_ref || github.ref_name }}
 
 concurrency:
   group: fmdl-2b2-full-backfill
@@ -25,7 +27,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ env.TARGET_REF }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -54,7 +56,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ env.TARGET_REF }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -88,7 +90,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ env.TARGET_REF }}
           fetch-depth: 0
 
       - name: Set up Python
@@ -123,10 +125,19 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Commit accepted candidate to the dedicated branch
+      - name: Retire the one-shot trigger and commit accepted candidate
         run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/fmdl-2b2-full-backfill.yml')
+          text = path.read_text(encoding='utf-8')
+          start = text.index('on:\n')
+          end = text.index('\n\npermissions:')
+          path.write_text(text[:start] + 'on:\n  workflow_dispatch:\n' + text[end:], encoding='utf-8')
+          PY
+          rm -f triggers/FMDL2B2_RUN.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add datasets/history/base/$RELEASE_ID outputs/history/candidate
+          git add .github/workflows/fmdl-2b2-full-backfill.yml triggers/FMDL2B2_RUN.md datasets/history/base/$RELEASE_ID outputs/history/candidate
           git commit -m "data: FMDL-2B-2 full-universe historical candidate [skip ci]"
-          git push origin HEAD:${{ github.ref_name }}
+          git push origin HEAD:${{ env.TARGET_REF }}
