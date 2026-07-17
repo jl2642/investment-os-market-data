@@ -1,0 +1,76 @@
+name: FMDL 2D Replay Stability and Final Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl2d_replay_stability.json"
+      - "scripts/run_fmdl2d_stability.py"
+      - "scripts/validate_fmdl2d_candidate.py"
+      - "scripts/publish_fmdl2d.py"
+      - "tests/test_fmdl2d_stability.py"
+      - "docs/FMDL-2D_REPLAY_STABILITY.md"
+      - "docs/FMDL-2D_ROADMAP_REVIEW.md"
+      - ".github/workflows/fmdl-2d-replay-stability.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl2d_replay_stability.json"
+      - "scripts/run_fmdl2d_stability.py"
+      - "scripts/validate_fmdl2d_candidate.py"
+      - "scripts/publish_fmdl2d.py"
+      - "tests/test_fmdl2d_stability.py"
+      - "docs/FMDL-2D_REPLAY_STABILITY.md"
+      - "docs/FMDL-2D_ROADMAP_REVIEW.md"
+      - ".github/workflows/fmdl-2d-replay-stability.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-2d-replay-stability-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  replay-stability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Regression tests
+        run: |
+          python scripts/validate_investment_os_interface.py
+          pytest -q tests/test_fmdl2b3_factor_engine.py tests/test_fmdl2b4_incremental_refresh.py tests/test_fmdl2c_screening_funnel.py tests/test_fmdl2d_stability.py
+      - name: Run six-session full-market replay
+        run: python -m scripts.run_fmdl2d_stability
+      - name: Independent final-acceptance validation
+        run: python -m scripts.validate_fmdl2d_candidate
+      - name: Upload FMDL-2D evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2d-replay-stability-candidate
+          path: outputs/stability/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish final FMDL-2 acceptance on main
+        if: github.event_name != 'pull_request'
+        run: |
+          python -m scripts.publish_fmdl2d
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/stability/candidate outputs/stability/current outputs/status/FMDL2D_LAST_SUCCESS.json outputs/screens/current/SCREENING_CURRENT_RELEASE.json
+          if git diff --cached --quiet; then
+            echo "No FMDL-2D state changes to commit"
+          else
+            git commit -m "data: FMDL-2 final replay and stability acceptance [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
