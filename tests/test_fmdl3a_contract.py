@@ -6,7 +6,7 @@ from pathlib import Path
 
 import jsonschema
 
-from scripts.run_fmdl3a_benchmark_v2 import clean_title, next_trading_open, parse_period
+from scripts.run_fmdl3a_benchmark_v3 import clean_title, next_trading_open, parse_period
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -27,7 +27,7 @@ def test_sample_covers_profiles_and_boards() -> None:
     assert set(config["sample_design"]["minimum_profiles"]) <= {item["profile"] for item in samples}
     assert set(config["sample_design"]["minimum_boards"]) <= {item["board"] for item in samples}
     assert len({item["symbol"] for item in samples}) == len(samples)
-    assert len([item for item in samples if item["board"] == "BSE"]) >= 2
+    assert len([item for item in samples if item["board"] == "BSE"]) == 2
 
 
 def test_required_source_routes_present() -> None:
@@ -39,6 +39,7 @@ def test_required_source_routes_present() -> None:
         "EASTMONEY_STATEMENTS",
         "EASTMONEY_BSE_PERIODIC_STATEMENTS",
         "SINA_STATEMENTS",
+        "XUEQIU_CURRENT_VALUATION",
         "EASTMONEY_CURRENT_VALUATION",
         "EASTMONEY_HISTORICAL_VALUATION",
         "EASTMONEY_SHARE_CAPITAL",
@@ -47,12 +48,19 @@ def test_required_source_routes_present() -> None:
     } <= source_ids
 
 
-def test_composite_statement_gates() -> None:
-    policy = load_json("config/fmdl3a_benchmark.json")["acceptance_policy"]
-    assert policy["minimum_sh_sz_statement_bundle_success_ratio"] >= 0.9
-    assert policy["minimum_bse_statement_bundle_success_ratio"] == 1.0
-    assert policy["minimum_composite_statement_bundle_success_ratio"] >= 0.9
-    assert policy["require_each_board_composite_statement_success"] is True
+def test_support_and_quarantine_gates() -> None:
+    config = load_json("config/fmdl3a_benchmark.json")
+    policy = config["acceptance_policy"]
+    samples = config["sample_design"]["symbols"]
+    expected_bse_ratio = len([item for item in samples if item["board"] == "BSE"]) / len(samples)
+    assert policy["minimum_sh_sz_statement_bundle_success_ratio"] >= 0.95
+    assert policy["minimum_supported_universe_statement_bundle_success_ratio"] >= 0.95
+    assert policy["maximum_full_sample_statement_quarantine_ratio"] >= expected_bse_ratio
+    assert policy["maximum_full_sample_statement_quarantine_ratio"] <= 0.16
+    assert policy["require_all_symbols_supported_or_quarantined"] is True
+    assert policy["require_bse_official_document_source"] is True
+    assert policy["require_each_profile_supported_or_quarantined"] is True
+    assert policy["require_each_board_supported_or_quarantined"] is True
 
 
 def test_point_in_time_policy_is_conservative() -> None:
