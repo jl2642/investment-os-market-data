@@ -70,36 +70,43 @@ jobs:
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Upload aggregation diagnostics and evidence
+      - name: Commit and push accepted data only
+        id: writeback
+        if: steps.aggregate.outputs.exit_code == '0'
+        shell: bash
+        run: |
+          set +e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datasets/history/base/$RELEASE_ID outputs/history/candidate
+          git status --short | tee diagnostics/FMDL2B2_GIT_STATUS.txt
+          git commit -m "data: FMDL-2B-2 full-universe historical candidate [skip ci]" 2>&1 | tee diagnostics/FMDL2B2_GIT_COMMIT_LOG.txt
+          commit_status=${PIPESTATUS[0]}
+          if [ "$commit_status" -ne 0 ]; then
+            echo "exit_code=$commit_status" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git push origin HEAD:${{ env.TARGET_REF }} 2>&1 | tee diagnostics/FMDL2B2_GIT_PUSH_LOG.txt
+          push_status=${PIPESTATUS[0]}
+          echo "exit_code=$push_status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload aggregation and writeback diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fmdl2b2-aggregate-recovery-evidence
+          name: fmdl2b2-final-recovery-evidence
           path: |
-            diagnostics/FMDL2B2_AGGREGATE_LOG.txt
+            diagnostics/
             outputs/history/candidate/
             datasets/history/base/${{ env.RELEASE_ID }}/manifests/
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retire trigger and commit accepted candidate
-        if: steps.aggregate.outputs.exit_code == '0'
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          path = Path('.github/workflows/fmdl-2b2-full-backfill.yml')
-          text = path.read_text(encoding='utf-8')
-          start = text.index('on:\n')
-          end = text.index('\n\npermissions:')
-          path.write_text(text[:start] + 'on:\n  workflow_dispatch:\n' + text[end:], encoding='utf-8')
-          PY
-          rm -f triggers/FMDL2B2_RUN.md
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/workflows/fmdl-2b2-full-backfill.yml triggers/FMDL2B2_RUN.md datasets/history/base/$RELEASE_ID outputs/history/candidate
-          git commit -m "data: FMDL-2B-2 full-universe historical candidate [skip ci]"
-          git push origin HEAD:${{ env.TARGET_REF }}
-
       - name: Enforce aggregate result
         if: steps.aggregate.outputs.exit_code != '0'
         run: exit ${{ steps.aggregate.outputs.exit_code }}
+
+      - name: Enforce writeback result
+        if: steps.aggregate.outputs.exit_code == '0' && steps.writeback.outputs.exit_code != '0'
+        run: exit ${{ steps.writeback.outputs.exit_code }}
