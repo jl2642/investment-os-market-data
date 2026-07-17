@@ -10,7 +10,8 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Completed phase: **FMDL-2 — A-share Factor & Screening Funnel**
 - Active phase: **FMDL-3 — Financial & Valuation Data Hardening**
 - Completed engineering gate: **FMDL-3 Overall Architecture & Phased Plan**
-- Next execution phase: **FMDL-3A — Source Benchmark, Point-in-Time Contract & Coverage Map**
+- Completed execution gate: **FMDL-3A — Source Benchmark, Point-in-Time Contract & Coverage Map**
+- Next execution phase: **FMDL-3B — Financial Statement Store & Normalization**
 - Cost policy: **free and free-tier resources only**
 - Execution model: GitHub Actions + open-source/public data adapters
 - Trading model: research and decision support only; no broker connection and no automatic order execution
@@ -111,14 +112,6 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Published at: `2026-07-17T22:35:35+08:00`
 - Status: `FMDL3_ARCHITECTURE_ACCEPTED`
 - Architecture state: `FROZEN_FOR_FMDL3A_EXECUTION`
-- Initial accepted workflow: `29588007161` — success
-- Accepted Head revalidation: `29588217734` — success
-- Candidate artifact: `8409825884`
-- Artifact digest: `sha256:a3d92f538d3f16738ca099c85447b98211a5d2306165eac86d51cc49890b3f39`
-- Final main validation run: `FMDL3_ARCH_20260717T223534+0800`
-- Merge commit: `0dbe643190da09dd1f7d4fc39a88dea61b29663c`
-- Publication-loop governance commit: `8c96a02502c27650a1caca3faf3fe2e8fc3938e8`
-- Final data publication commit: `2f11291fe3aba35e81ef28add4bbedd61003f847`
 - Machine checks: `14 / 14 PASS`
 - Hard failures: `0`
 - Stable path: `outputs/architecture/current/`
@@ -130,9 +123,38 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Acceptance: `docs/FMDL-3_ARCHITECTURE_ACCEPTANCE.md`
 - Authority: `DATA_AND_RESEARCH_EVIDENCE_ONLY`
 - Trade authority: `NONE`
-- Next phase: `FMDL-3A`
 
-The architecture acceptance does not claim that financial sources have been selected or that financial, factor or valuation Current datasets already exist. Those require real execution in FMDL-3A through FMDL-3E.
+## FMDL-3A accepted source benchmark candidate
+
+- Candidate run: `FMDL3A_20260718T004613+0800`
+- Generated at: `2026-07-18T00:51:58+08:00`
+- Workflow: `29597406995` — success
+- Candidate artifact: `8413745443`
+- Artifact digest: `sha256:a4e44f8417d773c6495360703bcdf0b43fd2441353374d432c7b9cea0be16a99`
+- Status: `FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN`
+- Independent validation: `36 / 36 PASS`
+- Hard failures: `0`
+- Supported / quarantined / blocked sample issuers: `11 / 2 / 0`
+- Official disclosure, SH/SZ primary statements, SH/SZ fallback statements and official PIT match: `100% / 100% / 100% / 100%`
+- Supported-universe statement and current-capitalization coverage: `100% / 100%`
+- Full-sample controlled quarantine ratio: `15.3846%`
+- Future financial information / future-effective share counts: `0 / 0`
+- Primary SH/SZ statements: `EASTMONEY_STATEMENTS`
+- SH/SZ fallback statements: `SINA_STATEMENTS`
+- Primary availability and revision identity: `CNINFO_OFFICIAL_DISCLOSURE`
+- BSE status: controlled quarantine pending CNINFO official-document extraction in FMDL-3B
+- Current price: accepted FMDL-1 latest completed-session close
+- Current capitalization: accepted close multiplied by PIT-effective total and floating A-share counts
+- Provider PE/PB: support only; decision-grade ratios are recomputed in FMDL-3D
+- Candidate path: `outputs/financials/benchmark/candidate/`
+- Stable path after main publication: `outputs/financials/benchmark/current/`
+- Source index after main publication: `outputs/financials/source_index/current/`
+- Last-success pointer after main publication: `outputs/status/FMDL3A_LAST_SUCCESS.json`
+- Authority: `DATA_AND_RESEARCH_EVIDENCE_ONLY`
+- Trade authority: `NONE`
+- Next phase: `FMDL-3B`
+
+The accepted source benchmark validates source capability and failure modes on a deterministic 13-issuer stress sample. It is not a full-market statement-coverage claim.
 
 ## FMDL-3 frozen architecture
 
@@ -163,6 +185,7 @@ FMDL-3 separates report period, announcement date, announcement timestamp, marke
 
 - zero point-in-time leakage;
 - zero silent restatement overwrite;
+- zero future-effective share-count use;
 - zero invalid ratio denominator published as valid;
 - zero neutral fill for missing financial data;
 - zero decision-grade rows without source lineage;
@@ -186,11 +209,13 @@ This repository owns market-data acquisition, normalization, quality control, ve
 9. `outputs/screens/current/` — research-priority screening Current.
 10. `outputs/stability/current/` — final FMDL-2 replay and stability acceptance.
 11. `outputs/architecture/current/` — accepted FMDL-3 architecture Current.
-12. `outputs/financials/`, `outputs/financial_factors/`, `outputs/valuation/`, `outputs/shareholder_returns/` — planned FMDL-3 data families.
-13. `outputs/fmdl3/current/` — planned FMDL-3 Final Current.
-14. `outputs/status/` — last-run and last-success operating states.
-15. `outputs/investment_os/` — machine-validated consumer pointers.
-16. `.github/workflows/` — validation, scheduled production and controlled recovery automation.
+12. `outputs/financials/benchmark/current/` — accepted FMDL-3A source benchmark Current after publication.
+13. `outputs/financials/source_index/current/` — accepted FMDL-3 source index after publication.
+14. `outputs/financials/`, `outputs/financial_factors/`, `outputs/valuation/`, `outputs/shareholder_returns/` — FMDL-3 data families.
+15. `outputs/fmdl3/current/` — planned FMDL-3 Final Current.
+16. `outputs/status/` — last-run and last-success operating states.
+17. `outputs/investment_os/` — machine-validated consumer pointers.
+18. `.github/workflows/` — validation, scheduled production and controlled recovery automation.
 
 ## Canonical documents
 
@@ -229,6 +254,9 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `docs/FMDL-3_POINT_IN_TIME_POLICY.md`
 - `docs/FMDL-3_PHASED_PLAN.md`
 - `docs/FMDL-3_ARCHITECTURE_ACCEPTANCE.md`
+- `docs/FMDL-3A_SOURCE_BENCHMARK.md`
+- `docs/FMDL-3A_POINT_IN_TIME_CONTRACT.md`
+- `docs/FMDL-3A_ACCEPTANCE.md`
 
 ## FMDL roadmap
 
@@ -241,8 +269,8 @@ This repository owns market-data acquisition, normalization, quality control, ve
   - FMDL-2D Replay, Stability & Final Acceptance ✅
 - FMDL-3 Financial & Valuation Data Hardening 🚧
   - FMDL-3 Overall Architecture & Phased Plan ✅
-  - FMDL-3A Source Benchmark, Point-in-Time Contract & Coverage Map ⏭️
-  - FMDL-3B Financial Statement Store & Normalization
+  - FMDL-3A Source Benchmark, Point-in-Time Contract & Coverage Map ✅
+  - FMDL-3B Financial Statement Store & Normalization ⏭️
   - FMDL-3C Financial Quality, Growth & Balance-Sheet Factors
   - FMDL-3D Valuation, Capitalization, Dividend & Shareholder-Return Layer
   - FMDL-3E Incremental Refresh, Replay & Final Acceptance
