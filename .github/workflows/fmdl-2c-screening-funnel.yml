@@ -1,0 +1,80 @@
+name: FMDL 2C Screening Sleeves and Funnel
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl2_screening_funnel.json"
+      - "schemas/fmdl2_screening_manifest.schema.json"
+      - "scripts/run_screening_funnel.py"
+      - "scripts/run_screening_funnel_v2.py"
+      - "scripts/validate_fmdl2c_candidate.py"
+      - "scripts/publish_fmdl2c.py"
+      - "tests/test_fmdl2c_screening_funnel.py"
+      - "docs/FMDL-2C_SCREENING_FUNNEL.md"
+      - ".github/workflows/fmdl-2c-screening-funnel.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl2_screening_funnel.json"
+      - "schemas/fmdl2_screening_manifest.schema.json"
+      - "scripts/run_screening_funnel.py"
+      - "scripts/run_screening_funnel_v2.py"
+      - "scripts/validate_fmdl2c_candidate.py"
+      - "scripts/publish_fmdl2c.py"
+      - "tests/test_fmdl2c_screening_funnel.py"
+      - "docs/FMDL-2C_SCREENING_FUNNEL.md"
+      - ".github/workflows/fmdl-2c-screening-funnel.yml"
+  schedule:
+    - cron: "35 10 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-2c-screening-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Contract and regression tests
+        run: |
+          python scripts/validate_investment_os_interface.py
+          pytest -q tests/test_fmdl2b3_factor_engine.py tests/test_fmdl2b4_incremental_refresh.py tests/test_fmdl2c_screening_funnel.py
+      - name: Build real screening candidate
+        run: python -m scripts.run_screening_funnel_v2
+      - name: Independent candidate validation
+        run: python -m scripts.validate_fmdl2c_candidate
+      - name: Upload screening evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2c-screening-candidate
+          path: outputs/screens/candidate/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish and persist main Current
+        if: github.event_name != 'pull_request'
+        run: |
+          python -m scripts.publish_fmdl2c
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/screens/candidate outputs/screens/current outputs/status/FMDL2C_LAST_SUCCESS.json
+          if git diff --cached --quiet; then
+            echo "No screening-state changes to commit"
+          else
+            git commit -m "data: FMDL-2C screening Current [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
