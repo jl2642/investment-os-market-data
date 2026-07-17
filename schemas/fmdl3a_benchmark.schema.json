@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jl2642/investment-os-market-data/schemas/fmdl3a_benchmark.schema.json",
+  "title": "FMDL-3A Source Benchmark Contract",
+  "type": "object",
+  "required": [
+    "benchmark_version",
+    "program_id",
+    "business_timezone",
+    "cost_policy",
+    "availability_policy",
+    "sample_design",
+    "source_candidates",
+    "acceptance_policy",
+    "publication",
+    "authority",
+    "trade_authority",
+    "next_phase"
+  ],
+  "properties": {
+    "benchmark_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "program_id": {
+      "const": "FMDL-3A"
+    },
+    "business_timezone": {
+      "const": "Asia/Shanghai"
+    },
+    "cost_policy": {
+      "const": "FREE_AND_FREE_TIER_ONLY"
+    },
+    "availability_policy": {
+      "type": "object",
+      "required": [
+        "resolution",
+        "date_only_rule",
+        "timestamp_rule",
+        "market_open_time",
+        "calendar_source",
+        "period_end_never_implies_availability"
+      ],
+      "properties": {
+        "resolution": {
+          "const": "DAILY"
+        },
+        "date_only_rule": {
+          "const": "NEXT_TRADING_SESSION_OPEN"
+        },
+        "timestamp_rule": {
+          "const": "NEXT_TRADING_SESSION_OPEN"
+        },
+        "market_open_time": {
+          "type": "string",
+          "pattern": "^\\d{2}:\\d{2}:\\d{2}$"
+        },
+        "calendar_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "period_end_never_implies_availability": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "sample_design": {
+      "type": "object",
+      "required": [
+        "method",
+        "minimum_profiles",
+        "minimum_boards",
+        "symbols"
+      ],
+      "properties": {
+        "method": {
+          "const": "DETERMINISTIC_SECTOR_BOARD_STRESS_SAMPLE"
+        },
+        "minimum_profiles": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "minimum_boards": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "symbols": {
+          "type": "array",
+          "minItems": 10,
+          "items": {
+            "type": "object",
+            "required": [
+              "symbol",
+              "name",
+              "profile",
+              "board",
+              "extended"
+            ],
+            "properties": {
+              "symbol": {
+                "type": "string",
+                "pattern": "^[0-9]{6}\\.(SH|SZ|BJ)$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "profile": {
+                "type": "string",
+                "minLength": 1
+              },
+              "board": {
+                "type": "string",
+                "minLength": 1
+              },
+              "extended": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "source_candidates": {
+      "type": "array",
+      "minItems": 8,
+      "uniqueItems": false,
+      "items": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "family",
+          "rank",
+          "adapter",
+          "benchmark_scope",
+          "intended_role"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rank": {
+            "type": "string",
+            "minLength": 1
+          },
+          "adapter": {
+            "type": "string",
+            "minLength": 1
+          },
+          "benchmark_scope": {
+            "type": "string",
+            "minLength": 1
+          },
+          "intended_role": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "acceptance_policy": {
+      "type": "object",
+      "required": [
+        "minimum_official_disclosure_call_success_ratio",
+        "minimum_statement_bundle_success_ratio",
+        "minimum_statement_fallback_bundle_success_ratio",
+        "minimum_point_in_time_match_ratio",
+        "minimum_current_valuation_sample_coverage",
+        "minimum_extended_source_success_ratio",
+        "require_each_profile_primary_statement_success",
+        "require_trading_calendar",
+        "require_zero_future_availability",
+        "require_zero_missing_source_id",
+        "trade_authority"
+      ],
+      "properties": {
+        "minimum_official_disclosure_call_success_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "minimum_statement_bundle_success_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "minimum_statement_fallback_bundle_success_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "minimum_point_in_time_match_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "minimum_current_valuation_sample_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "minimum_extended_source_success_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "require_each_profile_primary_statement_success": {
+          "const": true
+        },
+        "require_trading_calendar": {
+          "const": true
+        },
+        "require_zero_future_availability": {
+          "const": true
+        },
+        "require_zero_missing_source_id": {
+          "const": true
+        },
+        "trade_authority": {
+          "const": "NONE"
+        }
+      },
+      "additionalProperties": false
+    },
+    "publication": {
+      "type": "object",
+      "required": [
+        "candidate_root",
+        "current_root",
+        "archive_root",
+        "source_index_current_root",
+        "last_success_path",
+        "candidate_cannot_replace_current_on_failure"
+      ],
+      "properties": {
+        "candidate_root": {
+          "type": "string"
+        },
+        "current_root": {
+          "type": "string"
+        },
+        "archive_root": {
+          "type": "string"
+        },
+        "source_index_current_root": {
+          "type": "string"
+        },
+        "last_success_path": {
+          "type": "string"
+        },
+        "candidate_cannot_replace_current_on_failure": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "authority": {
+      "const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"
+    },
+    "trade_authority": {
+      "const": "NONE"
+    },
+    "next_phase": {
+      "const": "FMDL-3B"
+    }
+  },
+  "additionalProperties": true
+}
