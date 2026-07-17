@@ -2,9 +2,17 @@
 
 ## 1. Acceptance state
 
-`ACCEPTED_PENDING_CANONICAL_PACKAGE_BINDING`
+`ACCEPTED`
 
-FMDL-1F closes the gap between the free A-share data repository and 股票投资助手 / Investment OS. The data repository already owns acquisition, normalization, quality gates, Last-known-good publication and daily operation. This phase defines the exact consumer bundle and validates that Investment OS and Public Equity Investing can read it without acquiring trade authority.
+FMDL-1F closes the gap between the free A-share data repository and 股票投资助手 / Investment OS. The repository owns acquisition, normalization, quality gates, Last-known-good publication and daily operation. This phase defines the exact consumer bundle, validates it on GitHub Actions and binds it into 股票投资助手 CURRENT Release 4 without granting trade authority.
+
+Canonical package binding:
+
+- Release sequence: `4`
+- Run ID: `FMDL_1F_INVESTMENT_OS_INTERFACE_20260717_001`
+- Asset architecture: `4.5.3`
+- Runtime schema: `3.4.3`
+- Package SHA-256: `cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511`
 
 ## 2. Canonical consumer pointer
 
@@ -92,7 +100,8 @@ The system now has a free A-share full-market data MVP with:
 - Last-known-good and quarantine protection;
 - weekday scheduled GitHub Actions;
 - stable Current release;
-- machine-validated Investment OS consumer interface.
+- machine-validated Investment OS consumer interface;
+- canonical 股票投资助手 CURRENT package binding.
 
 The first naturally scheduled main-branch update remains an operating observation item. It is not a development blocker because the complete production path has run successfully on GitHub-hosted runners and the stable Current release is already published.
 
