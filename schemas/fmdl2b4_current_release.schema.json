@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fmdl2b4_current_release.schema.json",
+  "title": "FMDL-2B-4 Current Release",
+  "type": "object",
+  "required": ["release_version", "release_id", "as_of_date", "published_at", "status", "manifest_path", "manifest_sha256", "trade_authority"],
+  "properties": {
+    "release_version": {"type": "string"},
+    "release_id": {"type": "string"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "published_at": {"type": "string"},
+    "status": {"enum": ["PUBLISHED", "PUBLISHED_WITH_WARNINGS"]},
+    "manifest_path": {"type": "string"},
+    "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "previous_release_id": {"type": ["string", "null"]},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}

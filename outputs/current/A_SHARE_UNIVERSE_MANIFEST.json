@@ -1,12 +1,12 @@
 {
   "manifest_version": "1.0.0",
   "dataset_id": "a_share_universe",
-  "dataset_version": "a_share_universe-2026-07-16-FMDL1BC_20260716T165927+0800",
+  "dataset_version": "a_share_universe-2026-07-17-FMDL1BC_20260717T174015+0800",
   "schema_id": "a_share_universe.schema.json",
   "schema_version": "1.0.0",
-  "run_id": "FMDL1BC_20260716T165927+0800",
-  "as_of_date": "2026-07-16",
-  "generated_at": "2026-07-16T16:59:27+08:00",
+  "run_id": "FMDL1BC_20260717T174015+0800",
+  "as_of_date": "2026-07-17",
+  "generated_at": "2026-07-17T17:40:15+08:00",
   "business_timezone": "Asia/Shanghai",
   "publication_status": "PUBLISHED",
   "qa_status": "PASS_WITH_WARNINGS",
@@ -16,9 +16,9 @@
       "adapter_version": "1.18.64",
       "adapter_function": "stock_zh_a_spot",
       "provider_id": "sina_public",
-      "retrieved_at": "2026-07-16T16:59:27+08:00",
+      "retrieved_at": "2026-07-17T17:40:15+08:00",
       "source_as_of_date": null,
-      "raw_hash_sha256": "93dfbcff15dbff26e145c13a948f274b06040ed4e2a81c95a9fef428917c57f4",
+      "raw_hash_sha256": "537cda0c4371580ecdca18371186fa029f112511c2bf1f6820f3085bef0e2ddc",
       "retries": 0,
       "warnings": [
         "primary_provider_unavailable: stock_zh_a_spot_em",
@@ -32,7 +32,7 @@
       "adapter_version": "1.18.64",
       "adapter_function": "stock_info_sh_name_code:主板A股",
       "provider_id": "sse_public",
-      "retrieved_at": "2026-07-16T16:59:27+08:00",
+      "retrieved_at": "2026-07-17T17:40:15+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 0,
@@ -43,7 +43,7 @@
       "adapter_version": "1.18.64",
       "adapter_function": "stock_info_sh_name_code:科创板",
       "provider_id": "sse_public",
-      "retrieved_at": "2026-07-16T16:59:27+08:00",
+      "retrieved_at": "2026-07-17T17:40:15+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 0,
@@ -54,7 +54,7 @@
       "adapter_version": "1.18.64",
       "adapter_function": "stock_info_sz_name_code:A股列表",
       "provider_id": "szse_public",
-      "retrieved_at": "2026-07-16T16:59:27+08:00",
+      "retrieved_at": "2026-07-17T17:40:15+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 1,
@@ -67,7 +67,7 @@
       "adapter_version": "1.18.64",
       "adapter_function": "stock_info_bj_name_code",
       "provider_id": "bse_public",
-      "retrieved_at": "2026-07-16T16:59:27+08:00",
+      "retrieved_at": "2026-07-17T17:40:15+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 0,
@@ -78,19 +78,19 @@
       "adapter_version": "1.18.64",
       "adapter_function": "tool_trade_date_hist_sina",
       "provider_id": "sina_public",
-      "retrieved_at": "2026-07-16T16:59:27+08:00",
+      "retrieved_at": "2026-07-17T17:40:15+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 0,
       "warnings": []
     }
   ],
-  "row_count": 5529,
+  "row_count": 5528,
   "column_count": 22,
   "file": {
     "path": "outputs/current/A_SHARE_UNIVERSE.csv",
-    "size_bytes": 1476589,
-    "sha256": "094595f4c7760a6a85cb214b35625d6e7f26a3eeba2716ecded8c999c7a621d1"
+    "size_bytes": 1476295,
+    "sha256": "c02038784bfe16182089351aa8f96bb76ba47b83fdb4ac1c30f90b889cd32b03"
   },
   "quality": {
     "hard_failures": [],
@@ -100,13 +100,13 @@
     "gate_results_path": "outputs/current/A_SHARE_UNIVERSE_QUALITY.json"
   },
   "lineage": {
-    "parent_dataset_version": null,
-    "last_known_good_dataset_version": null
+    "parent_dataset_version": "a_share_universe-2026-07-16-FMDL1BC_20260716T165927+0800",
+    "last_known_good_dataset_version": "a_share_universe-2026-07-16-FMDL1BC_20260716T165927+0800"
   },
   "known_limitations": [
     "Industry and listing-date enrichment depends on optional free exchange endpoints.",
     "Suspension status is inferred from the selected market-wide spot response.",
     "FMDL-2, not this data layer, owns investability exclusions."
   ],
-  "notes": "Initial stable publication by FMDL-1D last-known-good controls."
+  "notes": "Published by FMDL-1D last-known-good controls."
 }

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fmdl2b4_history_manifest.schema.json",
+  "title": "FMDL-2B-4 Composite History Manifest",
+  "type": "object",
+  "required": ["manifest_version", "release_id", "as_of_date", "base_release_id", "base_manifest_path", "base_manifest_sha256", "logical_shards", "delta_files", "repair_files", "status", "authority"],
+  "properties": {
+    "manifest_version": {"type": "string"},
+    "release_id": {"type": "string"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "base_release_id": {"type": "string"},
+    "base_manifest_path": {"type": "string"},
+    "base_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "logical_shards": {"type": "integer", "minimum": 1},
+    "delta_files": {"type": "array"},
+    "repair_files": {"type": "array"},
+    "status": {"enum": ["CANDIDATE_BUILT", "CANDIDATE_PASS", "CANDIDATE_FAIL", "PUBLISHED_CURRENT", "BOOTSTRAP_FROM_ACCEPTED_BASE"]},
+    "authority": {"const": "HISTORICAL_AND_FACTOR_EVIDENCE_ONLY_NO_TRADE_AUTHORITY"}
+  },
+  "additionalProperties": true
+}

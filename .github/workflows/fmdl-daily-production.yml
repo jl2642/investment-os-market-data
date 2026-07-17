@@ -15,18 +15,6 @@ on:
         required: false
         default: false
         type: boolean
-  push:
-    branches: [main]
-    paths:
-      - requirements.txt
-      - ingestion/**
-      - pipeline/**
-      - tests/**
-      - config/**
-      - schemas/**
-      - scripts/**
-      - docs/FMDL-1DE_IMPLEMENTATION.md
-      - .github/workflows/fmdl-daily-production.yml
 
 permissions:
   contents: write
@@ -78,6 +66,11 @@ jobs:
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           exit $status
 
+      - name: Refresh and validate Investment OS interface
+        run: |
+          python -m scripts.refresh_investment_os_interface
+          python scripts/validate_investment_os_interface.py
+
       - name: Write workflow summary
         if: always()
         shell: bash
@@ -100,6 +93,7 @@ jobs:
             diagnostics/
             outputs/status/
             outputs/current/
+            outputs/investment_os/
             outputs/quarantine/
             outputs/archive/
             outputs/candidate/
@@ -113,7 +107,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/current outputs/status outputs/quarantine outputs/archive
+          git add outputs/current outputs/investment_os outputs/status outputs/quarantine outputs/archive
           if git diff --cached --quiet; then
             echo "No production-state changes to commit"
           else
