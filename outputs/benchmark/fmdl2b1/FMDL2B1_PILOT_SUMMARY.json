@@ -1,0 +1,68 @@
+{
+  "pilot_version": "1.0.0",
+  "run_id": "FMDL2B1_PILOT_20260717T120653+0800",
+  "generated_at": "2026-07-17T12:06:53+08:00",
+  "as_of_date": "2026-07-16",
+  "current_run_id": "FMDL1BC_20260716T165927+0800",
+  "akshare_version": "1.18.64",
+  "github_actions_run_id": 29554012101,
+  "artifact_id": 8396909723,
+  "artifact_digest": "sha256:56e75c4ff672fa053c2b8c784394514373a8972164c70bc430de0c02ae8105fa",
+  "sample_size": 300,
+  "sample_sha256": "f22d17f305d9479e90dbe0987f340916a06b81ad89364b4910ffb167ae5f0565",
+  "pilot_decision": "READY_FOR_FULL_MARKET_BACKFILL",
+  "hard_failures": [],
+  "metrics": {
+    "usable_symbols": 299,
+    "usable_ratio": 0.996667,
+    "primary_symbols": 299,
+    "fallback_symbols": 0,
+    "quarantined_symbols": 1,
+    "history_rows": 109602,
+    "parquet_size_mib": 5.9936,
+    "projected_full_store_mib": 110.4627,
+    "runtime_minutes": 9.2937,
+    "median_symbol_latency_seconds": 1.596,
+    "seasoned_usable_symbols": 220,
+    "seasoned_symbols_with_at_least_251_observations": 220,
+    "seasoned_251_ratio": 1.0,
+    "latest_as_of_date_symbols": 297,
+    "controlled_stale_suspended_symbols": 2,
+    "future_rows": 0,
+    "duplicate_dates": 0,
+    "impossible_ohlc_rows": 0,
+    "board_results": {
+      "SH_MAIN": {"attempted": 75, "usable": 75, "usable_ratio": 1.0},
+      "SZ_MAIN": {"attempted": 75, "usable": 75, "usable_ratio": 1.0},
+      "STAR": {"attempted": 50, "usable": 49, "usable_ratio": 0.98},
+      "CHINEXT": {"attempted": 50, "usable": 50, "usable_ratio": 1.0},
+      "BSE": {"attempted": 50, "usable": 50, "usable_ratio": 1.0}
+    }
+  },
+  "quarantine": [
+    {
+      "symbol": "689009.SH",
+      "board": "STAR",
+      "is_suspended": true,
+      "provider_id": "sina_daily",
+      "attempts": 2,
+      "reason": "ALL_ALLOWED_PROVIDERS_FAILED",
+      "source_error": "JSONDecodeError: No value to decode",
+      "treatment": "RETRY_IN_FMDL_2B_2_WITHOUT_ABORTING_OTHER_SYMBOLS"
+    }
+  ],
+  "controlled_stale_suspended": [
+    {"symbol": "920685.BJ", "latest_valid_date": "2026-07-15"},
+    {"symbol": "301234.SZ", "latest_valid_date": "2026-07-07"}
+  ],
+  "recommendation": {
+    "storage_format": "PARQUET",
+    "compression": "zstd",
+    "logical_shards": 24,
+    "expected_symbols_per_shard": 231,
+    "initial_max_workers": 3,
+    "estimated_sequential_full_runtime_minutes": 147.07,
+    "estimated_parallel_elapsed_minutes": 50
+  },
+  "authority": "NO_FACTOR_RANK_NO_ALPHA_CLAIM_NO_TRADE_AUTHORITY"
+}

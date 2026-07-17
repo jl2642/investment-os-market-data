@@ -1,0 +1,85 @@
+{
+  "plan_version": "1.0.0",
+  "status": "AUTHORIZED_FOR_FMDL_2B_2_IMPLEMENTATION",
+  "authority_boundary": "HISTORICAL_DATA_BUILD_ONLY_NO_FACTOR_RANK_NO_TRADE_AUTHORITY",
+  "pilot_evidence": {
+    "run_id": "FMDL2B1_PILOT_20260717T120653+0800",
+    "github_actions_run_id": 29554012101,
+    "artifact_digest": "sha256:56e75c4ff672fa053c2b8c784394514373a8972164c70bc430de0c02ae8105fa",
+    "sample_size": 300,
+    "usable_symbols": 299,
+    "usable_ratio": 0.996667,
+    "history_rows": 109602,
+    "runtime_minutes": 9.2937,
+    "parquet_size_mib": 5.9936,
+    "projected_full_store_mib": 110.4627,
+    "estimated_sequential_full_runtime_minutes": 147.07
+  },
+  "storage": {
+    "format": "PARQUET",
+    "compression": "zstd",
+    "base_release_model": "IMMUTABLE_INITIAL_SHARDS",
+    "daily_update_model": "IMMUTABLE_DAILY_DELTAS",
+    "corporate_action_model": "SYMBOL_LEVEL_REFRESH_OVERLAY",
+    "base_path": "datasets/history/base/<release_id>",
+    "daily_delta_path": "datasets/history/incremental/YYYY/MM",
+    "refresh_overlay_path": "datasets/history/refresh/<refresh_id>",
+    "quarantine_path": "datasets/history/quarantine/<run_id>",
+    "candidate_path": "outputs/history/candidate",
+    "current_path": "outputs/history/current"
+  },
+  "sharding": {
+    "logical_shards": 24,
+    "assignment": "SHA256_CANONICAL_SYMBOL_MOD_24",
+    "expected_symbols_per_shard": 231,
+    "independent_checkpoint": true,
+    "idempotent_rerun": true,
+    "retry_scope": "NON_USABLE_SYMBOLS_ONLY"
+  },
+  "execution": {
+    "initial_max_parallel_shards": 3,
+    "per_shard_symbols_processed_sequentially": true,
+    "primary_attempts_per_symbol": 2,
+    "primary_backoff_seconds": [1.5],
+    "restricted_fallback_attempts": 1,
+    "estimated_parallel_elapsed_minutes": 50,
+    "estimated_total_runner_minutes": 150,
+    "workflow_timeout_minutes": 90,
+    "fail_fast": false
+  },
+  "quality_gates": {
+    "minimum_market_usable_ratio": 0.97,
+    "hard_minimum_market_usable_ratio": 0.95,
+    "minimum_board_usable_ratio": 0.90,
+    "future_rows": 0,
+    "duplicate_dates_after_normalization": 0,
+    "impossible_ohlc_rows": 0,
+    "seasoned_listing_minimum_observations": 251,
+    "seasoned_listing_target_ratio": 0.99,
+    "provider_lineage_complete_ratio": 1.0,
+    "series_hash_complete_ratio": 1.0
+  },
+  "provider_rules": {
+    "primary": "sina_daily",
+    "restricted_fallback": "tencent_hist",
+    "fallback_boards": ["SH_MAIN", "SZ_MAIN"],
+    "fallback_missing_capabilities": ["HISTORICAL_VOLUME"],
+    "silent_provider_stitching": "FORBIDDEN",
+    "unapproved_board_fallback": "FORBIDDEN"
+  },
+  "publication": {
+    "full_market_candidate_required_before_current": true,
+    "all_shard_manifests_required": true,
+    "aggregate_manifest_and_hash_required": true,
+    "last_known_good_protection": true,
+    "partial_shard_success_cannot_replace_current": true
+  },
+  "prohibited_actions": [
+    "PROMOTE_INCOMPLETE_SHARD_SET",
+    "FILL_MISSING_WITH_ZERO",
+    "SILENTLY_MIX_PROVIDER_SERIES",
+    "CLAIM_FACTOR_ALPHA",
+    "CREATE_CANDIDATE_BUY_PERMISSION",
+    "CHANGE_SIMULATION_OR_REAL_HOLDINGS"
+  ]
+}
