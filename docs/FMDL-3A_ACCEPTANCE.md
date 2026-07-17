@@ -4,22 +4,52 @@
 
 `FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN`
 
-FMDL-3A has completed real source benchmarking, point-in-time contract validation, coverage mapping, source-route selection, rejected-route registration and independent acceptance on GitHub-hosted infrastructure.
+FMDL-3A has completed real source benchmarking, point-in-time contract validation, coverage mapping, source-route selection, rejected-route registration, independent acceptance and main-branch Current publication.
 
 This acceptance authorizes FMDL-3B. It does not claim that a full-market normalized statement store, financial-factor Current, valuation Current, investment conclusion or trade permission already exists.
 
-## Accepted candidate evidence
+## Canonical main-branch publication
 
-- workflow run: `29597406995` — `SUCCESS`;
-- candidate run: `FMDL3A_20260718T004613+0800`;
-- generated at: `2026-07-18T00:51:58+08:00`;
-- candidate artifact: `8413745443`;
-- artifact digest: `sha256:a4e44f8417d773c6495360703bcdf0b43fd2441353374d432c7b9cea0be16a99`;
+- PR: `#12` — merged;
+- merge commit: `4da395fb37bd81d0965080113746c14635474843`;
+- explicit publication-trigger commit: `3326a8a2818dfa229f15d7ba7cace80e9c4009b8`;
+- data publication commit: `605a56114a430bec5eea2db6434ca627196d9cde`;
+- release: `FMDL3A_20260718T011233+0800`;
+- published at: `2026-07-18T01:18:09+08:00`;
+- status: `FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN`;
 - independent validation: `36 / 36 PASS`;
 - hard failures: `0`;
 - authority: `DATA_AND_RESEARCH_EVIDENCE_ONLY`;
 - trade authority: `NONE`;
 - next phase: `FMDL-3B`.
+
+Canonical paths:
+
+- `outputs/financials/benchmark/current/FMDL3A_RELEASE.json`;
+- `outputs/financials/benchmark/current/FMDL3A_SOURCE_DECISION.json`;
+- `outputs/financials/benchmark/current/FMDL3A_SOURCE_SUMMARY.csv`;
+- `outputs/financials/benchmark/current/FMDL3A_COVERAGE_MAP.csv`;
+- `outputs/financials/benchmark/current/FMDL3A_POINT_IN_TIME_EVIDENCE.csv`;
+- `outputs/financials/benchmark/current/FMDL3A_SUPPORT_QUARANTINE_MAP.csv`;
+- `outputs/financials/benchmark/current/FMDL3A_CAPITALIZATION_EVIDENCE.csv`;
+- `outputs/financials/benchmark/current/FMDL3A_VALIDATION.json`;
+- `outputs/financials/source_index/current/FMDL3_SOURCE_INDEX.csv`;
+- `outputs/financials/benchmark/archive/FMDL3A_20260718T011233+0800/`;
+- `outputs/status/FMDL3A_LAST_SUCCESS.json`.
+
+## Accepted candidate evidence
+
+The final accepted PR Head was independently validated before merge:
+
+- final Head: `6af7f6b771767cafc1e58bccabecca2296409227`;
+- workflow run: `29598273173` — `SUCCESS`;
+- candidate run: `FMDL3A_20260718T005942+0800`;
+- candidate artifact: `8414047335`;
+- artifact digest: `sha256:3794a420a1d757215c208085e83feb469f5765f74d20efc3224a26c43f7426e9`;
+- independent validation: `36 / 36 PASS`;
+- hard failures: `0`.
+
+The main-branch publication then reran the same accepted contract and produced the canonical release above.
 
 ## Accepted measured metrics
 
@@ -93,25 +123,6 @@ Rejected routes remain in the source index for auditability and future re-benchm
 4. Provider PE/PB is not decision-grade.
 5. Financial PIT resolution is daily, not intraday.
 6. The 13-issuer sample validates route capability and failure modes; it is not a full-market coverage claim.
-
-## Canonical candidate files
-
-- `FMDL3A_BENCHMARK_ROWS.csv`;
-- `FMDL3A_SOURCE_SUMMARY.csv`;
-- `FMDL3A_COVERAGE_MAP.csv`;
-- `FMDL3A_POINT_IN_TIME_EVIDENCE.csv`;
-- `FMDL3A_SUPPORT_QUARANTINE_MAP.csv`;
-- `FMDL3A_CAPITALIZATION_EVIDENCE.csv`;
-- `FMDL3_SOURCE_INDEX.csv`;
-- `FMDL3A_SOURCE_DECISION.json`;
-- `FMDL3A_VALIDATION.json`;
-- `FMDL3A_MANIFEST.json`.
-
-After main publication:
-
-- `outputs/financials/benchmark/current/`;
-- `outputs/financials/source_index/current/`;
-- `outputs/status/FMDL3A_LAST_SUCCESS.json`.
 
 ## FMDL-3B authorization
 
