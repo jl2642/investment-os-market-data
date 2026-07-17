@@ -1,0 +1,64 @@
+name: FMDL 2B-3 Basic Factor Engine
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl2_factor_engine.json"
+      - "config/fmdl2_factor_registry.json"
+      - "schemas/fmdl2_basic_factor_manifest.schema.json"
+      - "scripts/run_basic_factor_engine.py"
+      - "scripts/validate_fmdl2b3_candidate.py"
+      - "tests/test_fmdl2b3_factor_engine.py"
+      - "docs/FMDL-2B3_BASIC_FACTOR_ENGINE.md"
+      - ".github/workflows/fmdl-2b3-basic-factor-engine.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fmdl-2b3-basic-factor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-validate-factor-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout selected ref
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Validate upstream interface and frozen contracts
+        run: |
+          python scripts/validate_investment_os_interface.py
+          pytest -q \
+            tests/test_fmdl2a_contract.py \
+            tests/test_fmdl2b2_full_backfill.py \
+            tests/test_fmdl2b2_aggregate_policy.py \
+            tests/test_fmdl2b3_factor_engine.py
+
+      - name: Build full-market basic-factor candidate
+        run: python -m scripts.run_basic_factor_engine
+
+      - name: Independently validate factor candidate
+        run: python -m scripts.validate_fmdl2b3_candidate
+
+      - name: Upload candidate and validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2b3-basic-factor-candidate
+          path: |
+            outputs/factors/candidate/
+            diagnostics/FMDL2B3_CANDIDATE_VALIDATION.json
+          if-no-files-found: error
+          retention-days: 14
