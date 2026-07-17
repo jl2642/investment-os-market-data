@@ -1,0 +1,148 @@
+{
+  "contract_version": "1.0.0",
+  "program": "FMDL-2C",
+  "authority_boundary": "RESEARCH_PRIORITY_ONLY_NO_TRADE_AUTHORITY",
+  "percentile_basis": "board_neutral_percentile",
+  "inputs": {
+    "factor_release": "outputs/factors/current/FACTOR_CURRENT_RELEASE.json",
+    "factor_manifest": "outputs/factors/current/BASIC_FACTOR_MANIFEST.json",
+    "factor_table": "outputs/factors/current/BASIC_FACTOR_TABLE.parquet",
+    "factor_quality": "outputs/factors/current/BASIC_FACTOR_QUALITY.json"
+  },
+  "investability": {
+    "excluded_factor_record_quality": ["SUSPECT", "BLOCKED"],
+    "core_confidence_grades": ["A", "B"],
+    "watch_confidence_grades": ["C"],
+    "exclude_suspended": true,
+    "st_route": "REVIEW_ONLY",
+    "minimum_history_coverage_ratio_250_core": 0.80,
+    "minimum_history_coverage_ratio_250_watch": 0.60,
+    "minimum_active_trade_ratio_60d_hard": 0.85,
+    "minimum_active_trade_ratio_60d_core": 0.90,
+    "maximum_suspension_days_20_hard": 5,
+    "maximum_suspension_days_20_core": 2,
+    "maximum_zero_turnover_days_20_hard": 2,
+    "maximum_zero_turnover_days_20_core": 1,
+    "maximum_event_flags_core": 2,
+    "minimum_avg_turnover_cny_20d": {
+      "SH_MAIN": 30000000,
+      "SZ_MAIN": 30000000,
+      "STAR": 30000000,
+      "CHINEXT": 30000000,
+      "BSE": 10000000,
+      "DEFAULT": 30000000
+    }
+  },
+  "sleeves": {
+    "TREND_PERSISTENCE": {
+      "route": "CORE",
+      "description": "Persistent medium-term trend with broad participation and controlled risk.",
+      "minimum_score": 0.68,
+      "maximum_candidates": 40,
+      "weights": {
+        "return_60d": 0.15,
+        "return_120d": 0.20,
+        "momentum_250_20d": 0.20,
+        "distance_52w_high": 0.15,
+        "trend_consistency_60d": 0.15,
+        "positive_month_ratio_12m": 0.15
+      },
+      "minimum_percentiles": {
+        "return_60d": 0.55,
+        "return_120d": 0.55,
+        "distance_52w_high": 0.55,
+        "volatility_60d": 0.20,
+        "max_drawdown_120d": 0.20
+      },
+      "raw_conditions": {}
+    },
+    "LIQUID_BREAKOUT": {
+      "route": "CORE",
+      "description": "Short-term acceleration near the annual high with liquid trading and confirmed participation.",
+      "minimum_score": 0.68,
+      "maximum_candidates": 40,
+      "weights": {
+        "return_20d": 0.25,
+        "return_60d": 0.15,
+        "distance_52w_high": 0.20,
+        "trend_consistency_60d": 0.15,
+        "avg_turnover_cny_20d": 0.15,
+        "active_trade_ratio_60d": 0.10
+      },
+      "minimum_percentiles": {
+        "return_20d": 0.65,
+        "distance_52w_high": 0.70,
+        "avg_turnover_cny_20d": 0.50
+      },
+      "raw_conditions": {
+        "volume_ratio_20_60d": {"minimum": 1.10, "maximum": 3.00}
+      }
+    },
+    "DEFENSIVE_STABILITY": {
+      "route": "CORE",
+      "description": "Low realized risk, resilient drawdown behavior and stable trading activity.",
+      "minimum_score": 0.68,
+      "maximum_candidates": 40,
+      "weights": {
+        "volatility_20d": 0.15,
+        "volatility_60d": 0.20,
+        "downside_volatility_60d": 0.15,
+        "max_drawdown_120d": 0.20,
+        "worst_day_120d": 0.10,
+        "turnover_stability_60d": 0.10,
+        "active_trade_ratio_60d": 0.10
+      },
+      "minimum_percentiles": {
+        "volatility_60d": 0.65,
+        "downside_volatility_60d": 0.60,
+        "max_drawdown_120d": 0.60,
+        "return_60d": 0.40
+      },
+      "raw_conditions": {}
+    },
+    "RECOVERY_WATCH": {
+      "route": "WATCH",
+      "description": "Early recovery after weak longer-horizon performance; watchlist only until deeper evidence exists.",
+      "minimum_score": 0.62,
+      "maximum_candidates": 30,
+      "weights": {
+        "return_20d": 0.30,
+        "return_60d": 0.20,
+        "trend_consistency_60d": 0.20,
+        "avg_turnover_cny_20d": 0.15,
+        "active_trade_ratio_60d": 0.15
+      },
+      "minimum_percentiles": {
+        "return_20d": 0.65,
+        "return_60d": 0.55
+      },
+      "maximum_any_percentiles": {
+        "return_250d": 0.45,
+        "momentum_250_20d": 0.45
+      },
+      "raw_conditions": {
+        "volume_ratio_20_60d": {"minimum": 1.05, "maximum": 3.00}
+      }
+    }
+  },
+  "funnel": {
+    "longlist_maximum": 100,
+    "cross_sleeve_bonus_per_extra_sleeve": 0.02,
+    "cross_sleeve_bonus_maximum": 0.06,
+    "priority_bucket_counts": {
+      "A_IMMEDIATE_RESEARCH": 20,
+      "B_WATCH_OR_TRIGGER": 40,
+      "C_SCREEN_FLAG_ONLY": 40
+    },
+    "next_workflow": "PUBLIC_EQUITY_INVESTING_IDEA_GENERATION"
+  },
+  "missing_value_policy": "PRESERVE_NULL_NEVER_FILL_ZERO_OR_NEUTRAL_SCORE",
+  "prohibited_actions": [
+    "CLAIM_FACTOR_ALPHA",
+    "PROMOTE_TO_LIVE_INVESTMENT_OS_CANDIDATE_POOL",
+    "CHANGE_SIMULATION_PORTFOLIO",
+    "CHANGE_REAL_PORTFOLIO",
+    "CREATE_TRADE_PERMISSION",
+    "AUTOMATIC_BROKER_EXECUTION"
+  ]
+}
