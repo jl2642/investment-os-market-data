@@ -27,18 +27,6 @@ on:
       - scripts/**
       - docs/FMDL-1DE_IMPLEMENTATION.md
       - .github/workflows/fmdl-daily-production.yml
-  pull_request:
-    branches: [main]
-    paths:
-      - requirements.txt
-      - ingestion/**
-      - pipeline/**
-      - tests/**
-      - config/**
-      - schemas/**
-      - scripts/**
-      - docs/FMDL-1DE_IMPLEMENTATION.md
-      - .github/workflows/fmdl-daily-production.yml
 
 permissions:
   contents: write
@@ -120,7 +108,7 @@ jobs:
           retention-days: 14
 
       - name: Commit production state
-        if: always() && github.event_name != 'pull_request'
+        if: always()
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
