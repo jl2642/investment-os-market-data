@@ -3,7 +3,7 @@
   "$id": "https://github.com/jl2642/investment-os-market-data/schemas/fmdl3a_benchmark.schema.json",
   "title": "FMDL-3A Source Benchmark Contract",
   "type": "object",
-  "required": ["benchmark_version", "program_id", "business_timezone", "cost_policy", "benchmark_window", "availability_policy", "sample_design", "source_candidates", "acceptance_policy", "publication", "authority", "trade_authority", "next_phase"],
+  "required": ["benchmark_version", "program_id", "business_timezone", "cost_policy", "benchmark_window", "availability_policy", "valuation_semantics", "sample_design", "source_candidates", "acceptance_policy", "publication", "authority", "trade_authority", "next_phase"],
   "properties": {
     "benchmark_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
     "program_id": {"const": "FMDL-3A"},
@@ -33,6 +33,17 @@
       },
       "additionalProperties": false
     },
+    "valuation_semantics": {
+      "type": "object",
+      "required": ["current_market_numerators", "provider_pe_pb_role", "decision_grade_pe_pb_rule", "negative_or_invalid_denominator_rule"],
+      "properties": {
+        "current_market_numerators": {"type": "array", "minItems": 5, "uniqueItems": true, "items": {"type": "string"}},
+        "provider_pe_pb_role": {"const": "SUPPORT_ONLY_NOT_DECISION_GRADE"},
+        "decision_grade_pe_pb_rule": {"const": "RECOMPUTE_IN_FMDL3D_USING_POINT_IN_TIME_FINANCIAL_DENOMINATORS"},
+        "negative_or_invalid_denominator_rule": {"const": "PUBLISH_NOT_MEANINGFUL_STATUS_NOT_SYNTHETIC_RATIO"}
+      },
+      "additionalProperties": false
+    },
     "sample_design": {
       "type": "object",
       "required": ["method", "minimum_profiles", "minimum_boards", "symbols"],
@@ -59,7 +70,7 @@
       "additionalProperties": false
     },
     "source_candidates": {
-      "type": "array", "minItems": 11,
+      "type": "array", "minItems": 12,
       "items": {
         "type": "object",
         "required": ["source_id", "family", "rank", "adapter", "benchmark_scope", "intended_role"],
@@ -76,7 +87,7 @@
     },
     "acceptance_policy": {
       "type": "object",
-      "required": ["minimum_official_disclosure_call_success_ratio", "minimum_sh_sz_statement_bundle_success_ratio", "minimum_statement_fallback_bundle_success_ratio", "minimum_supported_universe_statement_bundle_success_ratio", "maximum_full_sample_statement_quarantine_ratio", "minimum_point_in_time_match_ratio", "minimum_current_valuation_sample_coverage", "minimum_extended_source_success_ratio", "require_all_symbols_supported_or_quarantined", "require_bse_official_document_source", "require_each_profile_supported_or_quarantined", "require_each_board_supported_or_quarantined", "require_trading_calendar", "require_zero_future_availability", "require_zero_missing_source_id", "trade_authority"],
+      "required": ["minimum_official_disclosure_call_success_ratio", "minimum_sh_sz_statement_bundle_success_ratio", "minimum_statement_fallback_bundle_success_ratio", "minimum_supported_universe_statement_bundle_success_ratio", "maximum_full_sample_statement_quarantine_ratio", "minimum_point_in_time_match_ratio", "minimum_supported_universe_current_capitalization_coverage", "minimum_extended_source_success_ratio", "require_all_symbols_supported_or_quarantined", "require_bse_official_document_source", "require_each_profile_supported_or_quarantined", "require_each_board_supported_or_quarantined", "require_trading_calendar", "require_zero_future_availability", "require_zero_missing_source_id", "trade_authority"],
       "properties": {
         "minimum_official_disclosure_call_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
         "minimum_sh_sz_statement_bundle_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
@@ -84,7 +95,7 @@
         "minimum_supported_universe_statement_bundle_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
         "maximum_full_sample_statement_quarantine_ratio": {"type": "number", "minimum": 0, "maximum": 1},
         "minimum_point_in_time_match_ratio": {"type": "number", "minimum": 0, "maximum": 1},
-        "minimum_current_valuation_sample_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "minimum_supported_universe_current_capitalization_coverage": {"type": "number", "minimum": 0, "maximum": 1},
         "minimum_extended_source_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
         "require_all_symbols_supported_or_quarantined": {"const": true},
         "require_bse_official_document_source": {"const": true},
