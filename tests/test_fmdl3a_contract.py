@@ -6,7 +6,7 @@ from pathlib import Path
 
 import jsonschema
 
-from scripts.run_fmdl3a_benchmark_v5 import clean_title, next_trading_open, parse_period
+from scripts.run_fmdl3a_benchmark_v6 import clean_title, next_trading_open, parse_period
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -39,6 +39,9 @@ def test_required_source_routes_present() -> None:
         "EASTMONEY_STATEMENTS",
         "EASTMONEY_BSE_PERIODIC_STATEMENTS",
         "SINA_STATEMENTS",
+        "FMDL1_ACCEPTED_CURRENT_PRICE",
+        "EASTMONEY_EFFECTIVE_SHARE_CAPITAL",
+        "COMPOSITE_CURRENT_CAPITALIZATION",
         "EASTMONEY_INDIVIDUAL_INFO",
         "XUEQIU_CURRENT_VALUATION",
         "EASTMONEY_CURRENT_VALUATION",
@@ -63,14 +66,17 @@ def test_support_and_quarantine_gates() -> None:
     assert policy["require_bse_official_document_source"] is True
     assert policy["require_each_profile_supported_or_quarantined"] is True
     assert policy["require_each_board_supported_or_quarantined"] is True
+    assert policy["require_zero_future_effective_share_count"] is True
 
 
-def test_recomputed_valuation_semantics() -> None:
+def test_recomputed_valuation_and_capitalization_semantics() -> None:
     semantics = load_json("config/fmdl3a_benchmark.json")["valuation_semantics"]
+    assert semantics["current_capitalization_rule"] == "FMDL1_ACCEPTED_CLOSE_MULTIPLIED_BY_LATEST_EFFECTIVE_SHARE_COUNT_NOT_LATER_THAN_PRICE_AS_OF_DATE"
     assert semantics["provider_pe_pb_role"] == "SUPPORT_ONLY_NOT_DECISION_GRADE"
     assert semantics["decision_grade_pe_pb_rule"] == "RECOMPUTE_IN_FMDL3D_USING_POINT_IN_TIME_FINANCIAL_DENOMINATORS"
     assert semantics["negative_or_invalid_denominator_rule"] == "PUBLISH_NOT_MEANINGFUL_STATUS_NOT_SYNTHETIC_RATIO"
-    assert {"LATEST_PRICE", "TOTAL_MARKET_CAP", "FLOAT_MARKET_CAP", "TOTAL_SHARES", "FLOAT_SHARES"} <= set(semantics["current_market_numerators"])
+    assert {"LATEST_COMPLETED_SESSION_CLOSE", "TOTAL_MARKET_CAP", "FLOAT_MARKET_CAP", "TOTAL_SHARES", "FLOAT_A_SHARES"} <= set(semantics["current_market_numerators"])
+    assert (ROOT / "outputs/current/DAILY_MARKET_SNAPSHOT.csv").exists()
 
 
 def test_point_in_time_policy_is_conservative() -> None:
