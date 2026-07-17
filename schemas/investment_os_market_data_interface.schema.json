@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "investment_os_market_data_interface.schema.json",
+  "title": "Investment OS Market Data Interface",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "interface_version",
+    "interface_id",
+    "status",
+    "repository",
+    "generated_at",
+    "authority_boundary",
+    "current_release",
+    "datasets",
+    "consumer_contract",
+    "downstream_handoff"
+  ],
+  "properties": {
+    "interface_version": {"type": "string", "const": "1.0.0"},
+    "interface_id": {"type": "string", "const": "FMDL_A_SHARE_MARKET_DATA_INTERFACE"},
+    "status": {"enum": ["ACTIVE", "DEGRADED", "BLOCKED"]},
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["full_name", "branch"],
+      "properties": {
+        "full_name": {"type": "string", "const": "jl2642/investment-os-market-data"},
+        "branch": {"type": "string", "const": "main"}
+      }
+    },
+    "generated_at": {"type": "string", "format": "date-time"},
+    "authority_boundary": {"type": "string", "const": "DATA_EVIDENCE_ONLY_NO_INVESTMENT_DECISION"},
+    "current_release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "run_id", "as_of_date", "status", "qa_status", "provider", "hard_failure_count"],
+      "properties": {
+        "path": {"type": "string", "const": "outputs/current/CURRENT_RELEASE.json"},
+        "run_id": {"type": "string", "minLength": 1},
+        "as_of_date": {"type": "string", "format": "date"},
+        "status": {"enum": ["PUBLISHED", "PUBLISHED_WITH_WARNINGS"]},
+        "qa_status": {"enum": ["PASS", "PASS_WITH_WARNINGS"]},
+        "provider": {"type": "string", "minLength": 1},
+        "hard_failure_count": {"type": "integer", "const": 0},
+        "soft_warnings": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "datasets": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dataset_id", "path", "sha256", "row_count", "required_for", "freshness_policy"],
+        "properties": {
+          "dataset_id": {"enum": ["a_share_universe", "daily_market_snapshot", "market_event_flags"]},
+          "path": {"type": "string", "minLength": 1},
+          "manifest_path": {"type": ["string", "null"]},
+          "quality_path": {"type": ["string", "null"]},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "row_count": {"type": "integer", "minimum": 0},
+          "required_for": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "freshness_policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["maximum_age_calendar_days", "requires_latest_completed_session", "stale_behavior"],
+            "properties": {
+              "maximum_age_calendar_days": {"type": "integer", "minimum": 0},
+              "requires_latest_completed_session": {"type": "boolean"},
+              "stale_behavior": {"enum": ["BLOCK", "LABEL_AND_RESTRICT", "REVIEW_ONLY"]}
+            }
+          }
+        }
+      }
+    },
+    "consumer_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed_consumers", "required_prechecks", "blocking_conditions", "prohibited_actions"],
+      "properties": {
+        "allowed_consumers": {"type": "array", "items": {"enum": ["INVESTMENT_OS", "PUBLIC_EQUITY_INVESTING"]}},
+        "required_prechecks": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "blocking_conditions": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "prohibited_actions": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      }
+    },
+    "downstream_handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fmdl2_input", "public_equity_route", "investment_os_reentry", "trade_authority"],
+      "properties": {
+        "fmdl2_input": {"type": "string", "minLength": 1},
+        "public_equity_route": {"type": "string", "minLength": 1},
+        "investment_os_reentry": {"type": "string", "minLength": 1},
+        "trade_authority": {"type": "string", "const": "NONE"}
+      }
+    }
+  }
+}
