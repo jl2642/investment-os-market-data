@@ -14,6 +14,7 @@ on:
       - "scripts/publish_fmdl2b4.py"
       - "scripts/run_fmdl2b4_operating.py"
       - "scripts/validate_fmdl2b4_freshness.py"
+      - "scripts/validate_fmdl2b4_replay.py"
       - "scripts/refresh_investment_os_interface.py"
       - "tests/test_fmdl2b4_incremental_refresh.py"
       - "tests/test_fmdl2b4_snapshot_identity.py"
@@ -30,7 +31,7 @@ on:
         type: boolean
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: fmdl-2b4-refresh-${{ github.ref }}
@@ -69,12 +70,12 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  operate:
+  operate-and-replay:
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout source branch for one-shot acceptance persistence
+      - name: Checkout PR source branch
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
@@ -95,13 +96,24 @@ jobs:
           python scripts/validate_investment_os_interface.py
       - name: Enforce latest completed-session Current
         run: python -m scripts.validate_fmdl2b4_freshness
-      - name: Run incremental history and factor operating chain
+      - name: Run first incremental history and factor operation
         run: python -m scripts.run_fmdl2b4_operating
-      - name: Upload B4 operating evidence
+      - name: Re-run same date and validate deterministic no-op
+        shell: bash
+        run: |
+          before_history=$(sha256sum outputs/history/current/HISTORY_CURRENT_RELEASE.json | awk '{print $1}')
+          before_factor=$(sha256sum outputs/factors/current/FACTOR_CURRENT_RELEASE.json | awk '{print $1}')
+          python -m scripts.run_fmdl2b4_operating
+          after_history=$(sha256sum outputs/history/current/HISTORY_CURRENT_RELEASE.json | awk '{print $1}')
+          after_factor=$(sha256sum outputs/factors/current/FACTOR_CURRENT_RELEASE.json | awk '{print $1}')
+          test "$before_history" = "$after_history"
+          test "$before_factor" = "$after_factor"
+          python -m scripts.validate_fmdl2b4_replay
+      - name: Upload B4 operating and replay evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fmdl2b4-operating-evidence
+          name: fmdl2b4-operating-replay-evidence
           path: |
             diagnostics/FMDL2B4_*.json
             diagnostics/SCRIPTS_RUN_*_STDOUT.txt
@@ -114,17 +126,3 @@ jobs:
             outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json
           if-no-files-found: warn
           retention-days: 14
-      - name: Persist accepted operating state to source branch
-        shell: bash
-        run: |
-          target="${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/current outputs/status outputs/archive outputs/investment_os outputs/history/current outputs/history/archive outputs/history/refresh_candidate outputs/factors/current outputs/factors/archive outputs/factors/refresh_candidate datasets/history/incremental datasets/history/repair
-          if git diff --cached --quiet; then
-            echo "No accepted operating-state changes to commit"
-          else
-            git commit -m "data: FMDL-2B-4 incremental history and factor Current [skip ci]"
-            git pull --rebase origin "$target"
-            git push origin HEAD:"$target"
-          fi
