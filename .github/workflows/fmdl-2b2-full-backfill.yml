@@ -1,0 +1,132 @@
+name: FMDL 2B-2 Full-Universe Historical Backfill
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [fmdl-2b2-full-backfill]
+    paths:
+      - triggers/FMDL2B2_RUN.md
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_ID: FMDL2B2_${{ github.run_id }}_${{ github.run_attempt }}
+
+concurrency:
+  group: fmdl-2b2-full-backfill
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Validate FMDL-1 interface and FMDL-2B contracts
+        run: |
+          python scripts/validate_investment_os_interface.py
+          pytest -q tests/test_fmdl2a_contract.py tests/test_fmdl2b1_history_pilot.py tests/test_fmdl2b2_full_backfill.py
+
+  shard:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Run shard ${{ matrix.shard }}
+        run: |
+          python -m scripts.run_full_backfill_shard \
+            --shard-id "${{ matrix.shard }}" \
+            --release-id "$RELEASE_ID"
+
+      - name: Upload shard artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2b2-shard-${{ matrix.shard }}
+          path: outputs/backfill/fmdl2b2/shard_*/
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+  aggregate:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Download all shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: fmdl2b2-shard-*
+          path: incoming/fmdl2b2
+          merge-multiple: false
+
+      - name: Aggregate and enforce full-market gates
+        run: |
+          python -m scripts.aggregate_full_backfill \
+            --incoming incoming/fmdl2b2 \
+            --release-id "$RELEASE_ID"
+
+      - name: Upload aggregate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2b2-full-market-candidate
+          path: |
+            outputs/history/candidate/
+            datasets/history/base/${{ env.RELEASE_ID }}/manifests/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Commit accepted candidate to the dedicated branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datasets/history/base/$RELEASE_ID outputs/history/candidate
+          git commit -m "data: FMDL-2B-2 full-universe historical candidate [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
