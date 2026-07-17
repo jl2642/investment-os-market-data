@@ -1,0 +1,65 @@
+{
+  "contract_version": "1.0.0",
+  "program": "FMDL-2B-4",
+  "authority_boundary": "MARKET_DATA_AND_RESEARCH_EVIDENCE_ONLY_NO_TRADE_AUTHORITY",
+  "daily_fast_path": {
+    "source_dataset": "daily_market_snapshot",
+    "accepted_source_primary": ["sina_public"],
+    "maximum_missing_completed_sessions": 0,
+    "continuity_relative_tolerance": 0.003,
+    "continuity_absolute_cny_tolerance": 0.02,
+    "minimum_market_append_ratio": 0.97,
+    "snapshot_adjustment_mode": "qfq_current_session_equivalent",
+    "snapshot_record_quality": "VALIDATED_INCREMENTAL"
+  },
+  "targeted_repair": {
+    "enabled": true,
+    "repair_existing_quarantines": true,
+    "repair_new_universe_symbols": true,
+    "repair_continuity_breaks": true,
+    "maximum_automatic_repairs_per_run": 50,
+    "provider_route": "config/fmdl2_historical_source_routes.json",
+    "full_series_replacement": true
+  },
+  "composite_store": {
+    "base_manifest": "outputs/history/candidate/HISTORICAL_STORE_MANIFEST.json",
+    "current_path": "outputs/history/current",
+    "candidate_path": "outputs/history/refresh_candidate",
+    "incremental_path": "datasets/history/incremental",
+    "repair_path": "datasets/history/repair",
+    "maximum_delta_files_before_compaction": 20,
+    "compaction_format": "PARQUET_ZSTD",
+    "deduplication_key": ["symbol", "trade_date"],
+    "deduplication_precedence": ["REPAIR", "LATEST_INCREMENTAL", "BASE"]
+  },
+  "factor_publication": {
+    "candidate_path": "outputs/factors/candidate",
+    "current_path": "outputs/factors/current",
+    "archive_path": "outputs/factors/archive",
+    "require_history_candidate_pass": true,
+    "require_factor_candidate_pass": true,
+    "last_known_good_on_failure": true
+  },
+  "freshness": {
+    "history_and_factor_as_of_must_equal_current_snapshot": true,
+    "maximum_current_snapshot_age_calendar_days": 3,
+    "scheduled_refresh_business_time": "18:15",
+    "scheduled_refresh_cron_utc": "15 10 * * 1-5"
+  },
+  "recovery": {
+    "multi_session_gap_behavior": "BLOCK_AND_REQUIRE_MANUAL_FULL_REBASE",
+    "failed_fast_path_behavior": "PRESERVE_HISTORY_AND_FACTOR_LKG",
+    "manual_full_rebase_workflow": "fmdl-2b4-full-rebase.yml"
+  },
+  "prohibited_actions": [
+    "APPEND_UNVALIDATED_RAW_PRICE_AS_QFQ",
+    "SILENTLY_IGNORE_CORPORATE_ACTION_DISCONTINUITY",
+    "SILENTLY_MIX_PROVIDER_SERIES",
+    "FILL_MISSING_HISTORY_OR_FACTORS_WITH_ZERO",
+    "PROMOTE_FAILED_CANDIDATE",
+    "CLAIM_FACTOR_ALPHA",
+    "CHANGE_CANDIDATE_POOL",
+    "CHANGE_SIMULATION_OR_REAL_PORTFOLIO",
+    "CREATE_TRADE_PERMISSION"
+  ]
+}
