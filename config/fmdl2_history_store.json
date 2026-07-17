@@ -1,0 +1,67 @@
+{
+  "contract_version": "1.0.0",
+  "program": "FMDL-2B",
+  "authority_boundary": "MARKET_DATA_AND_RESEARCH_EVIDENCE_ONLY_NO_TRADE_AUTHORITY",
+  "canonical_store": {
+    "format": "PARQUET",
+    "compression": "zstd",
+    "partition_key": "stable_symbol_hash",
+    "base_path": "datasets/history/base",
+    "incremental_path": "datasets/history/incremental",
+    "quarantine_path": "datasets/history/quarantine",
+    "candidate_output_path": "outputs/history/candidate",
+    "current_output_path": "outputs/history/current"
+  },
+  "history_policy": {
+    "adjustment_mode": "qfq",
+    "retrieval_calendar_days": 700,
+    "target_valid_sessions": 251,
+    "seasoned_listing_calendar_days": 400,
+    "missing_value_policy": "PRESERVE_NULL_NEVER_FILL_ZERO",
+    "future_data_policy": "FORBIDDEN",
+    "provider_series_mixing": "FORBIDDEN"
+  },
+  "provider_route": {
+    "primary_provider_id": "sina_daily",
+    "primary_function": "stock_zh_a_daily",
+    "primary_attempts": 2,
+    "per_attempt_timeout_seconds": 15,
+    "backoff_seconds": [1.5],
+    "restricted_fallback_provider_id": "tencent_hist",
+    "restricted_fallback_function": "stock_zh_a_hist_tx",
+    "restricted_fallback_boards": ["SH_MAIN", "SZ_MAIN"],
+    "restricted_fallback_capabilities": ["QFQ_OHLC", "HISTORICAL_AMOUNT"],
+    "restricted_fallback_missing_capabilities": ["HISTORICAL_VOLUME"]
+  },
+  "pilot": {
+    "sample_size": 300,
+    "board_quotas": {
+      "SH_MAIN": 75,
+      "SZ_MAIN": 75,
+      "STAR": 50,
+      "CHINEXT": 50,
+      "BSE": 50
+    },
+    "shard_size": 50,
+    "max_workers": 1,
+    "pause_seconds": 0.10,
+    "artifact_retention_days": 14
+  },
+  "pilot_acceptance_gates": {
+    "minimum_usable_symbol_ratio": 0.95,
+    "minimum_board_usable_ratio": 0.90,
+    "maximum_future_rows": 0,
+    "maximum_duplicate_dates_after_normalization": 0,
+    "maximum_impossible_ohlc_rows": 0,
+    "maximum_runtime_minutes": 35,
+    "maximum_projected_full_store_mib": 512
+  },
+  "prohibited_actions": [
+    "FILL_MISSING_VALUES_WITH_ZERO",
+    "SILENTLY_MIX_PROVIDER_SERIES",
+    "USE_TENCENT_VOLUME",
+    "PROMOTE_PILOT_AS_FULL_MARKET_STORE",
+    "CLAIM_FACTOR_ALPHA",
+    "CREATE_TRADE_PERMISSION"
+  ]
+}
