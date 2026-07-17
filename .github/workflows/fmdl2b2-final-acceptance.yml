@@ -1,0 +1,47 @@
+name: FMDL 2B-2 Final Candidate Acceptance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fmdl-2b2-final-acceptance
+  cancel-in-progress: true
+
+jobs:
+  validate-and-retry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout selected ref
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Validate contracts and aggregate policy
+        run: |
+          python scripts/validate_investment_os_interface.py
+          pytest -q tests/test_fmdl2b2_full_backfill.py tests/test_fmdl2b2_aggregate_policy.py
+
+      - name: Independently validate committed candidate
+        run: python -m scripts.validate_fmdl2b2_candidate
+
+      - name: Retry only four quarantined symbols
+        run: python -m scripts.retry_fmdl2b2_quarantine
+
+      - name: Upload final acceptance evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2b2-final-acceptance-evidence
+          path: diagnostics/FMDL2B2_*.json
+          if-no-files-found: error
+          retention-days: 14
