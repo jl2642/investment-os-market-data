@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from scripts.run_fmdl2d_stability import (
+from scripts.run_fmdl2d_stability_v2 import (
     concentration,
     fragility_review,
     rank_transition,
