@@ -45,7 +45,7 @@ def _write_status(payload: dict[str, Any], success: bool = False) -> None:
 
 def operate(root: Path = ROOT) -> dict[str, Any]:
     try:
-        _run("scripts.run_incremental_history_refresh")
+        _run("scripts.run_incremental_history_refresh_v2")
         history_report = read_json(HISTORY_REPORT)
         if history_report.get("status") == "NO_OP_ALREADY_CURRENT":
             result = {
