@@ -8,6 +8,7 @@ on:
       - config/fmdl2_factor_registry.json
       - docs/FMDL-2A_FACTOR_CONTRACT.md
       - docs/FMDL-2A_BENCHMARK_PLAN.md
+      - scripts/__init__.py
       - scripts/benchmark_historical_sources.py
       - scripts/benchmark_historical_sources_v2.py
       - tests/test_fmdl2a_contract.py
@@ -18,6 +19,7 @@ on:
       - config/fmdl2_factor_registry.json
       - docs/FMDL-2A_FACTOR_CONTRACT.md
       - docs/FMDL-2A_BENCHMARK_PLAN.md
+      - scripts/__init__.py
       - scripts/benchmark_historical_sources.py
       - scripts/benchmark_historical_sources_v2.py
       - tests/test_fmdl2a_contract.py
@@ -59,7 +61,7 @@ jobs:
         run: |
           set +e
           mkdir -p diagnostics
-          python scripts/benchmark_historical_sources_v2.py \
+          python -m scripts.benchmark_historical_sources_v2 \
             --timeout-seconds 15 \
             --pause-seconds 0.15 \
             --fallback-scale-size 40 \
