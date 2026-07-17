@@ -1,0 +1,131 @@
+name: FMDL 3A Source Benchmark and PIT Coverage
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl3a_benchmark.json"
+      - "schemas/fmdl3a_benchmark.schema.json"
+      - "docs/FMDL-3A_SOURCE_BENCHMARK.md"
+      - "docs/FMDL-3A_POINT_IN_TIME_CONTRACT.md"
+      - "scripts/run_fmdl3a_benchmark.py"
+      - "scripts/run_fmdl3a_benchmark_v2.py"
+      - "scripts/run_fmdl3a_benchmark_v3.py"
+      - "scripts/run_fmdl3a_benchmark_v4.py"
+      - "scripts/run_fmdl3a_benchmark_v5.py"
+      - "scripts/run_fmdl3a_benchmark_v6.py"
+      - "scripts/validate_fmdl3a_candidate.py"
+      - "scripts/validate_fmdl3a_candidate_v2.py"
+      - "scripts/validate_fmdl3a_candidate_v3.py"
+      - "scripts/validate_fmdl3a_candidate_v4.py"
+      - "scripts/validate_fmdl3a_candidate_v5.py"
+      - "scripts/publish_fmdl3a.py"
+      - "tests/test_fmdl3a_contract.py"
+      - ".github/workflows/fmdl-3a-source-benchmark.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3a_benchmark.json"
+      - "schemas/fmdl3a_benchmark.schema.json"
+      - "docs/FMDL-3A_SOURCE_BENCHMARK.md"
+      - "docs/FMDL-3A_POINT_IN_TIME_CONTRACT.md"
+      - "scripts/run_fmdl3a_benchmark.py"
+      - "scripts/run_fmdl3a_benchmark_v2.py"
+      - "scripts/run_fmdl3a_benchmark_v3.py"
+      - "scripts/run_fmdl3a_benchmark_v4.py"
+      - "scripts/run_fmdl3a_benchmark_v5.py"
+      - "scripts/run_fmdl3a_benchmark_v6.py"
+      - "scripts/validate_fmdl3a_candidate.py"
+      - "scripts/validate_fmdl3a_candidate_v2.py"
+      - "scripts/validate_fmdl3a_candidate_v3.py"
+      - "scripts/validate_fmdl3a_candidate_v4.py"
+      - "scripts/validate_fmdl3a_candidate_v5.py"
+      - "scripts/publish_fmdl3a.py"
+      - "tests/test_fmdl3a_contract.py"
+      - ".github/workflows/fmdl-3a-source-benchmark.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-3a-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Contract regression tests
+        id: regression
+        continue-on-error: true
+        run: |
+          mkdir -p outputs/financials/benchmark/diagnostics
+          set -o pipefail
+          {
+            python scripts/validate_investment_os_interface.py
+            pytest -q tests/test_fmdl3a_contract.py
+          } 2>&1 | tee outputs/financials/benchmark/diagnostics/FMDL3A_REGRESSION_LOG.txt
+      - name: Upload regression diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3a-regression-diagnostics
+          path: outputs/financials/benchmark/diagnostics/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Enforce regression gate
+        run: test "${{ steps.regression.outcome }}" = "success"
+      - name: Run real final source benchmark
+        id: benchmark
+        continue-on-error: true
+        run: python -m scripts.run_fmdl3a_benchmark_v6 --workers 3
+      - name: Validate benchmark candidate independently
+        id: validate
+        continue-on-error: true
+        run: python -m scripts.validate_fmdl3a_candidate_v5
+      - name: Upload benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3a-source-benchmark
+          path: outputs/financials/benchmark/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Enforce FMDL-3A acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("outputs/financials/benchmark/candidate/FMDL3A_VALIDATION.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          assert payload["status"] == "PASS", payload
+          PY
+      - name: Publish FMDL-3A on main
+        if: github.event_name != 'pull_request'
+        run: |
+          python -m scripts.publish_fmdl3a
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/financials/benchmark/candidate \
+                  outputs/financials/benchmark/current \
+                  outputs/financials/benchmark/archive \
+                  outputs/financials/source_index/current \
+                  outputs/status/FMDL3A_LAST_SUCCESS.json
+          if git diff --cached --quiet; then
+            echo "No FMDL-3A state changes to commit"
+          else
+            git commit -m "data: publish FMDL-3A source benchmark [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
