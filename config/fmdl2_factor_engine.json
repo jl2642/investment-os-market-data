@@ -1,0 +1,39 @@
+{
+  "engine_version": "1.0.0",
+  "program": "FMDL-2B-3",
+  "authority_boundary": "RESEARCH_PRIORITY_ONLY_NO_TRADE_AUTHORITY",
+  "input_history_statuses": ["READY", "PARTIAL_FALLBACK_PRICE_AMOUNT"],
+  "valid_history_coverage_ratio_250": 0.95,
+  "partial_confidence_coverage_ratio_250": 0.80,
+  "suspect_stale_market_sessions": 5,
+  "minimum_negative_returns_for_downside_volatility": 2,
+  "winsorization": {
+    "lower_quantile": 0.01,
+    "upper_quantile": 0.99
+  },
+  "extreme_move_thresholds": {
+    "ST": 0.05,
+    "SH_MAIN": 0.10,
+    "SZ_MAIN": 0.10,
+    "STAR": 0.20,
+    "CHINEXT": 0.20,
+    "BSE": 0.30,
+    "DEFAULT": 0.10
+  },
+  "publication": {
+    "wide_table": "BASIC_FACTOR_TABLE.parquet",
+    "long_detail": "BASIC_FACTOR_DETAIL.parquet",
+    "symbol_status": "BASIC_FACTOR_STATUS.csv",
+    "quality": "BASIC_FACTOR_QUALITY.json",
+    "manifest": "BASIC_FACTOR_MANIFEST.json"
+  },
+  "missing_value_policy": "PRESERVE_NULL_NEVER_FILL_ZERO_OR_NEUTRAL_PERCENTILE",
+  "prohibited_actions": [
+    "CLAIM_FACTOR_ALPHA",
+    "PROMOTE_TO_LIVE_CANDIDATE_POOL",
+    "CHANGE_SIMULATION_PORTFOLIO",
+    "CHANGE_REAL_PORTFOLIO",
+    "CREATE_TRADE_PERMISSION",
+    "AUTOMATIC_BROKER_EXECUTION"
+  ]
+}
