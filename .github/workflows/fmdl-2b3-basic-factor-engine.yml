@@ -11,15 +11,10 @@ on:
       - "tests/test_fmdl2b3_factor_engine.py"
       - "docs/FMDL-2B3_BASIC_FACTOR_ENGINE.md"
       - ".github/workflows/fmdl-2b3-basic-factor-engine.yml"
-  push:
-    branches:
-      - "fmdl-2b3-basic-factor-engine"
-    paths:
-      - ".github/workflows/fmdl-2b3-basic-factor-engine.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: fmdl-2b3-basic-factor-${{ github.ref }}
@@ -32,8 +27,6 @@ jobs:
     steps:
       - name: Checkout selected ref
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -69,17 +62,3 @@ jobs:
             diagnostics/FMDL2B3_CANDIDATE_VALIDATION.json
           if-no-files-found: error
           retention-days: 14
-
-      - name: Persist accepted candidate on implementation branch
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/factors/candidate
-          if git diff --cached --quiet; then
-            echo "No factor-candidate changes to commit"
-          else
-            git commit -m "data: FMDL-2B-3 full-market factor candidate [skip ci]"
-            git push origin HEAD:fmdl-2b3-basic-factor-engine
-          fi
