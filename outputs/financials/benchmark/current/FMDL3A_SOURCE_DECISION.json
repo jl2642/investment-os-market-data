@@ -1,0 +1,173 @@
+{
+  "decision_version": "1.4.0",
+  "run_id": "FMDL3A_20260718T011233+0800",
+  "generated_at": "2026-07-18T01:18:08+08:00",
+  "program_id": "FMDL-3A",
+  "status": "FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN",
+  "exit_gate": "SOURCE_ROUTE_AND_NUMERIC_COVERAGE_GATES_FROZEN",
+  "measured_metrics": {
+    "sample_symbol_count": 13,
+    "official_disclosure_call_success_ratio": 1.0,
+    "fallback_notice_call_success_ratio": 1.0,
+    "sh_sz_primary_statement_bundle_success_ratio": 1.0,
+    "fallback_statement_bundle_success_ratio": 1.0,
+    "supported_universe_statement_bundle_success_ratio": 1.0,
+    "full_sample_statement_quarantine_ratio": 0.153846,
+    "supported_symbol_count": 11,
+    "quarantined_symbol_count": 2,
+    "blocked_symbol_count": 0,
+    "all_symbols_supported_or_quarantined": true,
+    "bse_official_document_source_ratio": 1.0,
+    "official_point_in_time_match_ratio": 1.0,
+    "future_information_count": 0,
+    "extended_source_success_ratios": {
+      "EASTMONEY_FINANCIAL_INDICATORS": 0.9,
+      "EASTMONEY_HISTORICAL_VALUATION": 0.9,
+      "EASTMONEY_SHARE_CAPITAL": 0.9,
+      "EASTMONEY_DIVIDENDS": 0.8
+    },
+    "buyback_source_success_ratio": 1.0,
+    "supported_universe_current_capitalization_coverage_ratio": 1.0,
+    "future_effective_share_count": 0
+  },
+  "frozen_numeric_gates": {
+    "minimum_official_disclosure_call_success_ratio": 0.95,
+    "minimum_sh_sz_statement_bundle_success_ratio": 0.95,
+    "minimum_statement_fallback_bundle_success_ratio": 0.8,
+    "minimum_supported_universe_statement_bundle_success_ratio": 0.95,
+    "maximum_full_sample_statement_quarantine_ratio": 0.16,
+    "minimum_point_in_time_match_ratio": 0.9,
+    "minimum_supported_universe_current_capitalization_coverage": 0.95,
+    "minimum_extended_source_success_ratio": 0.65,
+    "require_all_symbols_supported_or_quarantined": true,
+    "require_bse_official_document_source": true,
+    "require_each_profile_supported_or_quarantined": true,
+    "require_each_board_supported_or_quarantined": true,
+    "require_trading_calendar": true,
+    "require_zero_future_availability": true,
+    "require_zero_future_effective_share_count": true,
+    "require_zero_missing_source_id": true,
+    "trade_authority": "NONE"
+  },
+  "frozen_point_in_time_contract": {
+    "resolution": "DAILY",
+    "report_period_end_is_not_availability": true,
+    "primary_availability_source": "CNINFO_OFFICIAL_DISCLOSURE",
+    "date_only_rule": "NEXT_TRADING_SESSION_OPEN",
+    "timestamp_rule": "NEXT_TRADING_SESSION_OPEN",
+    "market_open_time": "09:30:00",
+    "calendar_source": "sina_trade_calendar_via_akshare",
+    "restatement_rule": "NEW_REVISION_SEQUENCE; ZERO_SILENT_OVERWRITE",
+    "bse_statement_policy": "CONTROLLED_QUARANTINE_UNTIL_CNINFO_DOCUMENT_EXTRACTION_IN_FMDL3B"
+  },
+  "source_decisions": [
+    {
+      "source_id": "CNINFO_OFFICIAL_DISCLOSURE",
+      "decision": "PRIMARY_ANNOUNCEMENT_REVISION_AND_BSE_DOCUMENT_SOURCE",
+      "success_ratio": 1.0,
+      "point_in_time_match_ratio": 1.0,
+      "bse_official_document_ratio": 1.0
+    },
+    {
+      "source_id": "EASTMONEY_NOTICE_FALLBACK",
+      "decision": "DEGRADED_METADATA_FALLBACK_SH_SZ_ONLY",
+      "success_ratio": 1.0
+    },
+    {
+      "source_id": "EASTMONEY_STATEMENTS",
+      "decision": "PRIMARY_STRUCTURED_THREE_STATEMENT_SOURCE_SH_SZ",
+      "bundle_success_ratio": 1.0
+    },
+    {
+      "source_id": "EASTMONEY_BSE_PERIODIC_STATEMENTS",
+      "decision": "REJECTED_EMPTY_STRUCTURED_ROUTE; BSE_QUARANTINED_FOR_FMDL3B_OFFICIAL_DOCUMENT_EXTRACTION",
+      "measured_bundle_success_ratio": 0.0
+    },
+    {
+      "source_id": "SINA_STATEMENTS",
+      "decision": "FALLBACK_STRUCTURED_THREE_STATEMENT_SOURCE_SH_SZ",
+      "bundle_success_ratio": 1.0
+    },
+    {
+      "source_id": "FMDL1_ACCEPTED_CURRENT_PRICE",
+      "decision": "PRIMARY_LATEST_COMPLETED_SESSION_CLOSE_SOURCE",
+      "supported_universe_coverage_ratio": 1.0
+    },
+    {
+      "source_id": "EASTMONEY_EFFECTIVE_SHARE_CAPITAL",
+      "decision": "PRIMARY_PIT_EFFECTIVE_TOTAL_AND_FLOAT_A_SHARE_SOURCE_SUPPORTED_UNIVERSE",
+      "supported_universe_coverage_ratio": 1.0,
+      "future_effective_share_count": 0
+    },
+    {
+      "source_id": "COMPOSITE_CURRENT_CAPITALIZATION",
+      "decision": "PRIMARY_DERIVED_TOTAL_AND_FLOAT_MARKET_CAP_SOURCE_SUPPORTED_UNIVERSE",
+      "supported_universe_coverage_ratio": 1.0,
+      "calculation_rule": "FMDL1_ACCEPTED_CLOSE_MULTIPLIED_BY_LATEST_EFFECTIVE_SHARE_COUNT_NOT_LATER_THAN_PRICE_AS_OF_DATE"
+    },
+    {
+      "source_id": "EASTMONEY_CURRENT_VALUATION",
+      "decision": "REJECTED_GITHUB_RUNNER_UNSTABLE_ROUTE; EVIDENCE_ONLY",
+      "prior_evidence": "aggregate and split-market endpoints repeatedly disconnected"
+    },
+    {
+      "source_id": "EASTMONEY_FINANCIAL_INDICATORS",
+      "decision": "CROSS_CHECK_AND_FACTOR_SUPPORT_ONLY",
+      "success_ratio": 0.9
+    },
+    {
+      "source_id": "EASTMONEY_HISTORICAL_VALUATION",
+      "decision": "CONDITIONAL_HISTORICAL_VALUATION_SOURCE_SH_SZ",
+      "success_ratio": 0.9
+    },
+    {
+      "source_id": "EASTMONEY_SHARE_CAPITAL",
+      "decision": "PRIMARY_HISTORICAL_SHARE_CAPITAL_SOURCE_SH_SZ; BSE_GAP_VISIBLE",
+      "success_ratio": 0.9
+    },
+    {
+      "source_id": "EASTMONEY_DIVIDENDS",
+      "decision": "PRIMARY_DIVIDEND_EVENT_SOURCE_SH_SZ; BSE_GAP_VISIBLE",
+      "success_ratio": 0.8
+    },
+    {
+      "source_id": "EASTMONEY_BUYBACKS",
+      "decision": "PRIMARY_BUYBACK_EVENT_SOURCE",
+      "success_ratio": 1.0
+    },
+    {
+      "source_id": "EASTMONEY_INDIVIDUAL_INFO",
+      "decision": "REJECTED_GITHUB_RUNNER_NON_JSON_ROUTE; EVIDENCE_ONLY",
+      "prior_evidence": "13/13 failed in run 29596511917"
+    },
+    {
+      "source_id": "XUEQIU_CURRENT_VALUATION",
+      "decision": "REJECTED_GITHUB_RUNNER_RESPONSE_ROUTE; EVIDENCE_ONLY",
+      "prior_evidence": "13/13 failed in run 29595601272"
+    }
+  ],
+  "hard_failures": [],
+  "controlled_limitations": [
+    "BSE_STRUCTURED_THREE_STATEMENT_SOURCE_UNAVAILABLE_IN_TESTED_FREE_ROUTES; TWO_BSE_SAMPLES_CONTROLLED_QUARANTINE",
+    "FMDL3B_MUST_BUILD_CNINFO_OFFICIAL_DOCUMENT_EXTRACTION_FOR_BSE_BEFORE_BSE_FACTOR_ELIGIBILITY",
+    "PUBLIC_REALTIME_VALUATION_ENDPOINTS_REJECTED_ON_GITHUB_RUNNER; CAPITALIZATION_DERIVED_FROM_ACCEPTED_PRICE_AND_PIT_EFFECTIVE_SHARES",
+    "PROVIDER_SUPPLIED_PE_PB_NOT_DECISION_GRADE; FMDL3D_RECOMPUTES_USING_POINT_IN_TIME_DENOMINATORS",
+    "DAILY_POINT_IN_TIME_RESOLUTION_ONLY; NO_INTRADAY_FINANCIAL_FACTOR_AUTHORITY"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_phase": "FMDL-3B",
+  "valuation_semantics": {
+    "current_market_numerators": [
+      "LATEST_COMPLETED_SESSION_CLOSE",
+      "TOTAL_MARKET_CAP",
+      "FLOAT_MARKET_CAP",
+      "TOTAL_SHARES",
+      "FLOAT_A_SHARES"
+    ],
+    "current_capitalization_rule": "FMDL1_ACCEPTED_CLOSE_MULTIPLIED_BY_LATEST_EFFECTIVE_SHARE_COUNT_NOT_LATER_THAN_PRICE_AS_OF_DATE",
+    "provider_pe_pb_role": "SUPPORT_ONLY_NOT_DECISION_GRADE",
+    "decision_grade_pe_pb_rule": "RECOMPUTE_IN_FMDL3D_USING_POINT_IN_TIME_FINANCIAL_DENOMINATORS",
+    "negative_or_invalid_denominator_rule": "PUBLISH_NOT_MEANINGFUL_STATUS_NOT_SYNTHETIC_RATIO"
+  }
+}

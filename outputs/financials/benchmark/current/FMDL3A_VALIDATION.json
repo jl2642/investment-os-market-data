@@ -1,0 +1,249 @@
+{
+  "validation_version": "1.4.0",
+  "run_id": "FMDL3A_20260718T011233+0800",
+  "generated_at": "2026-07-18T01:18:08.738476+08:00",
+  "program_id": "FMDL-3A",
+  "status": "PASS",
+  "checks": [
+    {
+      "check_id": "CONFIG_SCHEMA",
+      "status": "PASS",
+      "detail": "config conforms to schema"
+    },
+    {
+      "check_id": "REQUIRED_OUTPUTS",
+      "status": "PASS",
+      "detail": "missing=[]"
+    },
+    {
+      "check_id": "SOURCE_DECISION_STATUS",
+      "status": "PASS",
+      "detail": "FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN"
+    },
+    {
+      "check_id": "DECISION_HARD_FAILURES",
+      "status": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS",
+      "detail": "rows={'NONE'}; source_index={'NONE'}; support={'NONE'}; capitalization={'NONE'}"
+    },
+    {
+      "check_id": "ZERO_MISSING_SOURCE_ID",
+      "status": "PASS",
+      "detail": "missing=0"
+    },
+    {
+      "check_id": "SUPPORT_MAP_ALL_SAMPLE_SYMBOLS",
+      "status": "PASS",
+      "detail": "missing=[]; extra=[]"
+    },
+    {
+      "check_id": "ALL_SYMBOLS_SUPPORTED_OR_QUARANTINED",
+      "status": "PASS",
+      "detail": "statuses=['QUARANTINED', 'SUPPORTED']"
+    },
+    {
+      "check_id": "SUPPORTED_UNIVERSE_STATEMENT_GATE",
+      "status": "PASS",
+      "detail": "ratio=1.000000"
+    },
+    {
+      "check_id": "STATEMENT_QUARANTINE_CAP",
+      "status": "PASS",
+      "detail": "ratio=0.153846"
+    },
+    {
+      "check_id": "BSE_CONTROLLED_QUARANTINE_WITH_OFFICIAL_DOCUMENTS",
+      "status": "PASS",
+      "detail": [
+        {
+          "symbol": "835185.BJ",
+          "statement_status": "QUARANTINED",
+          "official_document_source_available": true,
+          "status_reason": "BSE_STRUCTURED_STATEMENT_ROUTE_UNAVAILABLE; OFFICIAL_CNINFO_DOCUMENT_EXTRACTION_REQUIRED_IN_FMDL3B"
+        },
+        {
+          "symbol": "430047.BJ",
+          "statement_status": "QUARANTINED",
+          "official_document_source_available": true,
+          "status_reason": "BSE_STRUCTURED_STATEMENT_ROUTE_UNAVAILABLE; OFFICIAL_CNINFO_DOCUMENT_EXTRACTION_REQUIRED_IN_FMDL3B"
+        }
+      ]
+    },
+    {
+      "check_id": "EACH_PROFILE_SUPPORTED_OR_QUARANTINED",
+      "status": "PASS",
+      "detail": "all required profiles represented"
+    },
+    {
+      "check_id": "EACH_BOARD_SUPPORTED_OR_QUARANTINED",
+      "status": "PASS",
+      "detail": "all required boards represented"
+    },
+    {
+      "check_id": "ZERO_POINT_IN_TIME_LEAKAGE",
+      "status": "PASS",
+      "detail": "future_information_count=0"
+    },
+    {
+      "check_id": "AVAILABILITY_AFTER_ANNOUNCEMENT",
+      "status": "PASS",
+      "detail": "violations=0"
+    },
+    {
+      "check_id": "OFFICIAL_PIT_MATCH_GATE",
+      "status": "PASS",
+      "detail": "ratio=1.000000"
+    },
+    {
+      "check_id": "SUPPORTED_UNIVERSE_CURRENT_CAPITALIZATION_GATE",
+      "status": "PASS",
+      "detail": "coverage=1.000000; missing=[]"
+    },
+    {
+      "check_id": "CAPITALIZATION_EVIDENCE_FIELDS",
+      "status": "PASS",
+      "detail": "missing=[]"
+    },
+    {
+      "check_id": "ZERO_FUTURE_EFFECTIVE_SHARE_COUNT",
+      "status": "PASS",
+      "detail": "future=0"
+    },
+    {
+      "check_id": "POSITIVE_CAPITALIZATION_INPUTS_AND_OUTPUTS",
+      "status": "PASS",
+      "detail": "price, shares and market caps are positive"
+    },
+    {
+      "check_id": "CAPITALIZATION_FORMULA_REPLAY",
+      "status": "PASS",
+      "detail": "total=True; float=True"
+    },
+    {
+      "check_id": "RECOMPUTED_VALUATION_SEMANTICS",
+      "status": "PASS",
+      "detail": {
+        "current_market_numerators": [
+          "LATEST_COMPLETED_SESSION_CLOSE",
+          "TOTAL_MARKET_CAP",
+          "FLOAT_MARKET_CAP",
+          "TOTAL_SHARES",
+          "FLOAT_A_SHARES"
+        ],
+        "current_capitalization_rule": "FMDL1_ACCEPTED_CLOSE_MULTIPLIED_BY_LATEST_EFFECTIVE_SHARE_COUNT_NOT_LATER_THAN_PRICE_AS_OF_DATE",
+        "provider_pe_pb_role": "SUPPORT_ONLY_NOT_DECISION_GRADE",
+        "decision_grade_pe_pb_rule": "RECOMPUTE_IN_FMDL3D_USING_POINT_IN_TIME_FINANCIAL_DENOMINATORS",
+        "negative_or_invalid_denominator_rule": "PUBLISH_NOT_MEANINGFUL_STATUS_NOT_SYNTHETIC_RATIO"
+      }
+    },
+    {
+      "check_id": "ROUTE_CNINFO_OFFICIAL_DISCLOSURE",
+      "status": "PASS",
+      "detail": "observed=PRIMARY_ANNOUNCEMENT_REVISION_AND_BSE_DOCUMENT_SOURCE; expected=PRIMARY_ANNOUNCEMENT_REVISION_AND_BSE_DOCUMENT_SOURCE"
+    },
+    {
+      "check_id": "ROUTE_EASTMONEY_STATEMENTS",
+      "status": "PASS",
+      "detail": "observed=PRIMARY_STRUCTURED_THREE_STATEMENT_SOURCE_SH_SZ; expected=PRIMARY_STRUCTURED_THREE_STATEMENT_SOURCE_SH_SZ"
+    },
+    {
+      "check_id": "ROUTE_EASTMONEY_BSE_PERIODIC_STATEMENTS",
+      "status": "PASS",
+      "detail": "observed=REJECTED_EMPTY_STRUCTURED_ROUTE; BSE_QUARANTINED_FOR_FMDL3B_OFFICIAL_DOCUMENT_EXTRACTION; expected=REJECTED_EMPTY_STRUCTURED_ROUTE; BSE_QUARANTINED_FOR_FMDL3B_OFFICIAL_DOCUMENT_EXTRACTION"
+    },
+    {
+      "check_id": "ROUTE_SINA_STATEMENTS",
+      "status": "PASS",
+      "detail": "observed=FALLBACK_STRUCTURED_THREE_STATEMENT_SOURCE_SH_SZ; expected=FALLBACK_STRUCTURED_THREE_STATEMENT_SOURCE_SH_SZ"
+    },
+    {
+      "check_id": "ROUTE_FMDL1_ACCEPTED_CURRENT_PRICE",
+      "status": "PASS",
+      "detail": "observed=PRIMARY_LATEST_COMPLETED_SESSION_CLOSE_SOURCE; expected=PRIMARY_LATEST_COMPLETED_SESSION_CLOSE_SOURCE"
+    },
+    {
+      "check_id": "ROUTE_EASTMONEY_EFFECTIVE_SHARE_CAPITAL",
+      "status": "PASS",
+      "detail": "observed=PRIMARY_PIT_EFFECTIVE_TOTAL_AND_FLOAT_A_SHARE_SOURCE_SUPPORTED_UNIVERSE; expected=PRIMARY_PIT_EFFECTIVE_TOTAL_AND_FLOAT_A_SHARE_SOURCE_SUPPORTED_UNIVERSE"
+    },
+    {
+      "check_id": "ROUTE_COMPOSITE_CURRENT_CAPITALIZATION",
+      "status": "PASS",
+      "detail": "observed=PRIMARY_DERIVED_TOTAL_AND_FLOAT_MARKET_CAP_SOURCE_SUPPORTED_UNIVERSE; expected=PRIMARY_DERIVED_TOTAL_AND_FLOAT_MARKET_CAP_SOURCE_SUPPORTED_UNIVERSE"
+    },
+    {
+      "check_id": "ROUTE_EASTMONEY_INDIVIDUAL_INFO",
+      "status": "PASS",
+      "detail": "observed=REJECTED_GITHUB_RUNNER_NON_JSON_ROUTE; EVIDENCE_ONLY; expected=REJECTED_GITHUB_RUNNER_NON_JSON_ROUTE; EVIDENCE_ONLY"
+    },
+    {
+      "check_id": "ROUTE_XUEQIU_CURRENT_VALUATION",
+      "status": "PASS",
+      "detail": "observed=REJECTED_GITHUB_RUNNER_RESPONSE_ROUTE; EVIDENCE_ONLY; expected=REJECTED_GITHUB_RUNNER_RESPONSE_ROUTE; EVIDENCE_ONLY"
+    },
+    {
+      "check_id": "ROUTE_EASTMONEY_CURRENT_VALUATION",
+      "status": "PASS",
+      "detail": "observed=REJECTED_GITHUB_RUNNER_UNSTABLE_ROUTE; EVIDENCE_ONLY; expected=REJECTED_GITHUB_RUNNER_UNSTABLE_ROUTE; EVIDENCE_ONLY"
+    },
+    {
+      "check_id": "SOURCE_INDEX_COMPLETENESS",
+      "status": "PASS",
+      "detail": "missing=[]"
+    },
+    {
+      "check_id": "MANIFEST_INTEGRITY",
+      "status": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check_id": "COVERAGE_MAP_DIMENSIONS",
+      "status": "PASS",
+      "detail": "observed=['BOARD', 'PROFILE']"
+    },
+    {
+      "check_id": "NUMERIC_GATES_FROZEN",
+      "status": "PASS",
+      "detail": "decision gates equal config acceptance policy"
+    }
+  ],
+  "hard_failures": [],
+  "decision_status": "FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN",
+  "measured_metrics": {
+    "sample_symbol_count": 13,
+    "official_disclosure_call_success_ratio": 1.0,
+    "fallback_notice_call_success_ratio": 1.0,
+    "sh_sz_primary_statement_bundle_success_ratio": 1.0,
+    "fallback_statement_bundle_success_ratio": 1.0,
+    "supported_universe_statement_bundle_success_ratio": 1.0,
+    "full_sample_statement_quarantine_ratio": 0.153846,
+    "supported_symbol_count": 11,
+    "quarantined_symbol_count": 2,
+    "blocked_symbol_count": 0,
+    "all_symbols_supported_or_quarantined": true,
+    "bse_official_document_source_ratio": 1.0,
+    "official_point_in_time_match_ratio": 1.0,
+    "future_information_count": 0,
+    "extended_source_success_ratios": {
+      "EASTMONEY_FINANCIAL_INDICATORS": 0.9,
+      "EASTMONEY_HISTORICAL_VALUATION": 0.9,
+      "EASTMONEY_SHARE_CAPITAL": 0.9,
+      "EASTMONEY_DIVIDENDS": 0.8
+    },
+    "buyback_source_success_ratio": 1.0,
+    "supported_universe_current_capitalization_coverage_ratio": 1.0,
+    "future_effective_share_count": 0
+  },
+  "source_decision_path": "outputs/financials/benchmark/candidate/FMDL3A_SOURCE_DECISION.json",
+  "coverage_map_path": "outputs/financials/benchmark/candidate/FMDL3A_COVERAGE_MAP.csv",
+  "support_quarantine_map_path": "outputs/financials/benchmark/candidate/FMDL3A_SUPPORT_QUARANTINE_MAP.csv",
+  "capitalization_evidence_path": "outputs/financials/benchmark/candidate/FMDL3A_CAPITALIZATION_EVIDENCE.csv",
+  "point_in_time_evidence_path": "outputs/financials/benchmark/candidate/FMDL3A_POINT_IN_TIME_EVIDENCE.csv",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_phase": "FMDL-3B"
+}
