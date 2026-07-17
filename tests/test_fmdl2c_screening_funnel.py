@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from scripts.run_screening_funnel import build_longlist, classify_investability, evaluate_sleeve
+from scripts.run_screening_funnel_v2 import build_longlist, classify_investability, evaluate_sleeve
 
 CONFIG = json.loads(
     (Path(__file__).resolve().parents[1] / "config/fmdl2_screening_funnel.json").read_text()
@@ -122,3 +122,28 @@ def test_longlist_cross_sleeve_bonus_and_rank():
     assert len(result) == 1
     assert result.iloc[0]["aggregate_score"] == 0.82
     assert result.iloc[0]["overall_rank"] == 1
+
+
+def test_unknown_board_is_review_only():
+    row = base_row()
+    row["board"] = "UNKNOWN"
+    status, reasons = classify_investability(pd.Series(row), CONFIG)
+    assert status == "REVIEW_ONLY"
+    assert "UNKNOWN_BOARD_REVIEW_ONLY" in reasons
+
+
+def test_negative_absolute_trend_fails_even_when_percentiles_are_high():
+    row = base_row()
+    row["return_60d"] = -0.10
+    row["return_120d"] = -0.20
+    row["momentum_250_20d"] = -0.15
+    row["investability_status"] = "ELIGIBLE_CORE"
+    row["investability_reason_codes"] = "NONE"
+    row["screen_row_hash"] = "x"
+    result = evaluate_sleeve(
+        pd.DataFrame([row]),
+        "TREND_PERSISTENCE",
+        CONFIG["sleeves"]["TREND_PERSISTENCE"],
+        CONFIG,
+    )
+    assert result.empty
