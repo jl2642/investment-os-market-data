@@ -15,18 +15,6 @@ on:
         required: false
         default: false
         type: boolean
-  push:
-    branches: [main]
-    paths:
-      - requirements.txt
-      - ingestion/**
-      - pipeline/**
-      - tests/**
-      - config/**
-      - schemas/**
-      - scripts/**
-      - docs/FMDL-1DE_IMPLEMENTATION.md
-      - .github/workflows/fmdl-daily-production.yml
 
 permissions:
   contents: write
