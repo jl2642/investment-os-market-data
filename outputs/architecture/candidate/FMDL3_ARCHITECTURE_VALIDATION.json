@@ -1,0 +1,103 @@
+{
+  "validation_version": "1.0.0",
+  "run_id": "FMDL3_ARCH_20260717T223135+0800",
+  "generated_at": "2026-07-17T22:31:35+08:00",
+  "program_id": "FMDL-3",
+  "architecture_state": "FROZEN_FOR_FMDL3A_EXECUTION",
+  "status": "PASS",
+  "checks": [
+    {
+      "check_id": "SCHEMA_VALIDATION",
+      "status": "PASS",
+      "detail": "schema valid"
+    },
+    {
+      "check_id": "PHASE_SEQUENCE",
+      "status": "PASS",
+      "detail": "observed=['FMDL-3A', 'FMDL-3B', 'FMDL-3C', 'FMDL-3D', 'FMDL-3E']"
+    },
+    {
+      "check_id": "SECTOR_PROFILES",
+      "status": "PASS",
+      "detail": "observed=['BANK', 'GENERAL_NON_FINANCIAL', 'INSURANCE', 'PRE_PROFIT_OR_NEGATIVE_EARNINGS', 'SECURITIES_AND_BROKERAGE']"
+    },
+    {
+      "check_id": "TEMPORAL_FIELDS",
+      "status": "PASS",
+      "detail": "observed=['announcement_date', 'announcement_timestamp', 'available_from', 'effective_from', 'fiscal_period_type', 'report_period_end', 'report_period_start', 'revision_sequence', 'source_retrieved_at', 'superseded_at']"
+    },
+    {
+      "check_id": "CANONICAL_DATASETS",
+      "status": "PASS",
+      "detail": "observed=['fmdl3_comparability_bridge', 'fmdl3_final_release', 'fmdl3_financial_fact_raw', 'fmdl3_financial_factor_detail', 'fmdl3_financial_statement_normalized_long', 'fmdl3_shareholder_return_event', 'fmdl3_source_index', 'fmdl3_valuation_snapshot']"
+    },
+    {
+      "check_id": "GLOBAL_HARD_GATES",
+      "status": "PASS",
+      "detail": "observed=['ZERO_DECISION_GRADE_ROWS_WITHOUT_SOURCE_LINEAGE', 'ZERO_FAILED_OR_QUARANTINED_RELEASE_REPLACING_CURRENT', 'ZERO_INVALID_RATIO_DENOMINATOR_PUBLISHED_AS_VALID', 'ZERO_NEUTRAL_FILL_FOR_MISSING_FINANCIAL_DATA', 'ZERO_POINT_IN_TIME_LEAKAGE', 'ZERO_SILENT_RESTATEMENT_OVERWRITE', 'ZERO_TRADE_AUTHORITY']"
+    },
+    {
+      "check_id": "PUBLICATION_LKG",
+      "status": "PASS",
+      "detail": "Last-known-good and fail-closed Current replacement must both be true"
+    },
+    {
+      "check_id": "POINT_IN_TIME_REPLAY",
+      "status": "PASS",
+      "detail": "PIT replay is required before FMDL-3 final acceptance"
+    },
+    {
+      "check_id": "AUTHORITY_BOUNDARY",
+      "status": "PASS",
+      "detail": "authority=DATA_AND_RESEARCH_EVIDENCE_ONLY; trade_authority=NONE"
+    },
+    {
+      "check_id": "NEXT_PHASE",
+      "status": "PASS",
+      "detail": "next_phase=FMDL-3A"
+    },
+    {
+      "check_id": "DOCUMENTS_EXIST",
+      "status": "PASS",
+      "detail": "docs/FMDL-3_ARCHITECTURE.md, docs/FMDL-3_POINT_IN_TIME_POLICY.md, docs/FMDL-3_PHASED_PLAN.md"
+    },
+    {
+      "check_id": "ARCHITECTURE_CONTENT",
+      "status": "PASS",
+      "detail": "required_tokens=['Point-in-time before breadth', 'Canonical dataset stack', 'Sector-profile routing', 'Valuation semantics', 'Handoff to FMDL-4', 'trade authority']"
+    },
+    {
+      "check_id": "PIT_POLICY_CONTENT",
+      "status": "PASS",
+      "detail": "required_tokens=['report_period_end', 'announcement_date', 'available_from', 'revision_sequence', 'zero silent restatement overwrites']"
+    },
+    {
+      "check_id": "PHASED_PLAN_CONTENT",
+      "status": "PASS",
+      "detail": "required_tokens=['FMDL-3A', 'FMDL-3B', 'FMDL-3C', 'FMDL-3D', 'FMDL-3E', 'Full-market first', 'Candidate before Current', 'Failure preserves LKG', 'No hidden manual patch']"
+    }
+  ],
+  "hard_failures": [],
+  "artifacts": {
+    "contract": "config/fmdl3_program_contract.json",
+    "contract_sha256": "60187a43c92ebb529893fec649a6b9aecce09387601a241bdec60d3d989095b2",
+    "schema": "schemas/fmdl3_program_contract.schema.json",
+    "schema_sha256": "51b6f329ccb06a3c61c04c429e5d1cd26b938c30707e2c1e157a4fd8825807cd",
+    "architecture_document": "docs/FMDL-3_ARCHITECTURE.md",
+    "architecture_document_sha256": "501e1f3cc3af8ac0a3cdca697bfd3d1dbd11c66dbed831a92c66abd1a6b97d16",
+    "point_in_time_policy": "docs/FMDL-3_POINT_IN_TIME_POLICY.md",
+    "point_in_time_policy_sha256": "d215d7ba985ed6b82d8c39bca23fcecf97008516f780da36053a0d1e2f47e76e",
+    "phased_plan": "docs/FMDL-3_PHASED_PLAN.md",
+    "phased_plan_sha256": "46761e8d8f4942c9dfad77dc054f2ae8e6f1ff9738607a300c43824c463b3366"
+  },
+  "phase_sequence": [
+    "FMDL-3A",
+    "FMDL-3B",
+    "FMDL-3C",
+    "FMDL-3D",
+    "FMDL-3E"
+  ],
+  "next_phase": "FMDL-3A",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
