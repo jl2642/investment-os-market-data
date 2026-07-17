@@ -2,30 +2,6 @@ name: FMDL 2B-1 Historical Store Pilot
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - config/fmdl2_history_store.json
-      - config/fmdl2_historical_source_routes.json
-      - schemas/a_share_daily_history.schema.json
-      - scripts/run_history_pilot.py
-      - scripts/run_history_pilot_entry.py
-      - tests/test_fmdl2b1_history_pilot.py
-      - docs/FMDL-2B1_HISTORY_STORE_PILOT.md
-      - requirements.txt
-      - .github/workflows/fmdl-2b1-history-pilot.yml
-  push:
-    branches: [main]
-    paths:
-      - config/fmdl2_history_store.json
-      - config/fmdl2_historical_source_routes.json
-      - schemas/a_share_daily_history.schema.json
-      - scripts/run_history_pilot.py
-      - scripts/run_history_pilot_entry.py
-      - tests/test_fmdl2b1_history_pilot.py
-      - docs/FMDL-2B1_HISTORY_STORE_PILOT.md
-      - requirements.txt
-      - .github/workflows/fmdl-2b1-history-pilot.yml
 
 permissions:
   contents: read
