@@ -79,7 +79,7 @@ def test_missing_component_never_neutralized():
     assert result.empty
 
 
-def test_longlist_cross_sleeve_bonus_and_rank():
+def test_longlist_uses_within_sleeve_normalization_and_bonus():
     screen = pd.DataFrame(
         [
             {
@@ -96,7 +96,8 @@ def test_longlist_cross_sleeve_bonus_and_rank():
                 "as_of_date": "2026-07-17",
                 "symbol": "600000.SH",
                 "board": "SH_MAIN",
-                "sleeve_id": "A",
+                "sleeve_id": "TREND_PERSISTENCE",
+                "sleeve_rank": 1,
                 "sleeve_score": 0.8,
                 "investability_status": "ELIGIBLE_CORE",
                 "factor_record_quality": "VALID",
@@ -108,7 +109,8 @@ def test_longlist_cross_sleeve_bonus_and_rank():
                 "as_of_date": "2026-07-17",
                 "symbol": "600000.SH",
                 "board": "SH_MAIN",
-                "sleeve_id": "B",
+                "sleeve_id": "LIQUID_BREAKOUT",
+                "sleeve_rank": 1,
                 "sleeve_score": 0.75,
                 "investability_status": "ELIGIBLE_CORE",
                 "factor_record_quality": "VALID",
@@ -120,7 +122,9 @@ def test_longlist_cross_sleeve_bonus_and_rank():
     )
     result = build_longlist(detail, screen, CONFIG)
     assert len(result) == 1
-    assert result.iloc[0]["aggregate_score"] == 0.82
+    assert result.iloc[0]["normalized_primary_score"] == 0.94
+    assert result.iloc[0]["aggregate_score"] == 0.96
+    assert result.iloc[0]["primary_sleeve"] == "TREND_PERSISTENCE"
     assert result.iloc[0]["overall_rank"] == 1
 
 
