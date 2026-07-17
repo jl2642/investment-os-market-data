@@ -7,6 +7,7 @@ on:
       - "config/fmdl2_incremental_refresh.json"
       - "scripts/fmdl2b4_history.py"
       - "scripts/run_incremental_history_refresh.py"
+      - "scripts/run_incremental_history_refresh_v2.py"
       - "scripts/finalize_b4_history_candidate.py"
       - "scripts/run_b4_factor_refresh.py"
       - "scripts/validate_fmdl2b4_candidate.py"
@@ -14,6 +15,7 @@ on:
       - "scripts/run_fmdl2b4_operating.py"
       - "scripts/validate_fmdl2b4_freshness.py"
       - "tests/test_fmdl2b4_incremental_refresh.py"
+      - "tests/test_fmdl2b4_snapshot_identity.py"
       - "docs/FMDL-2B4_INCREMENTAL_REFRESH.md"
       - ".github/workflows/fmdl-2b4-incremental-refresh.yml"
   push:
@@ -55,7 +57,7 @@ jobs:
       - name: Validate contracts and regression suite
         run: |
           python scripts/validate_investment_os_interface.py
-          pytest -q tests/test_fmdl2a_contract.py tests/test_fmdl2b2_full_backfill.py tests/test_fmdl2b2_aggregate_policy.py tests/test_fmdl2b3_factor_engine.py tests/test_fmdl2b4_incremental_refresh.py
+          pytest -q tests/test_fmdl2a_contract.py tests/test_fmdl2b2_full_backfill.py tests/test_fmdl2b2_aggregate_policy.py tests/test_fmdl2b3_factor_engine.py tests/test_fmdl2b4_incremental_refresh.py tests/test_fmdl2b4_snapshot_identity.py
 
   operate:
     needs: deterministic-validation
