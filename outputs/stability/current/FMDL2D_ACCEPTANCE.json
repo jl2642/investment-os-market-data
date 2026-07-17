@@ -1,0 +1,80 @@
+{
+  "acceptance_version": "1.0.0",
+  "run_id": "FMDL2D_20260717T220406+0800",
+  "generated_at": "2026-07-17T22:04:06+08:00",
+  "as_of_date": "2026-07-17",
+  "replay_dates": [
+    "2026-07-10",
+    "2026-07-13",
+    "2026-07-14",
+    "2026-07-15",
+    "2026-07-16",
+    "2026-07-17"
+  ],
+  "replay_mode": "FIXED_CURRENT_UNIVERSE_COHORT",
+  "screening_release_id": "FMDL2C_20260717T210036+0800",
+  "factor_release_id": "FMDL2B4_FACTOR_20260717T174336+0800",
+  "history_release_id": "FMDL2B4_20260717T174137+0800",
+  "status": "PASS_WITH_CONTROLLED_LIMITATIONS",
+  "acceptance_state": "ACCEPTED_OPERATIONAL_STABILITY_WITH_LIMITED_COHORT_REPLAY_NO_ALPHA_CLAIM",
+  "hard_failures": [],
+  "controlled_warnings": [],
+  "same_date_semantic_replay": {
+    "status": "PASS",
+    "artifact_matches": {
+      "screen": true,
+      "detail": true,
+      "longlist": true,
+      "funnel": true
+    },
+    "replay_hashes": {
+      "screen": "5a0fa252d729cea6f9ffcca8d36e8a27e985551ad969a6f79afe428f92897aed",
+      "detail": "893c1b728dd83785cd8771620fd28972e99d4fe95a736ed51259279070799a55",
+      "longlist": "b53954810efdd107c376d3c421f20556fa2e02e994cd2e43e0c9fda7486d7106",
+      "funnel": "626cc87628894d5dd7fc0033caee4acd0119efc8f7f6b634765c6e8154c9cbc7"
+    },
+    "official_hashes": {
+      "screen": "5a0fa252d729cea6f9ffcca8d36e8a27e985551ad969a6f79afe428f92897aed",
+      "detail": "893c1b728dd83785cd8771620fd28972e99d4fe95a736ed51259279070799a55",
+      "longlist": "b53954810efdd107c376d3c421f20556fa2e02e994cd2e43e0c9fda7486d7106",
+      "funnel": "626cc87628894d5dd7fc0033caee4acd0119efc8f7f6b634765c6e8154c9cbc7"
+    }
+  },
+  "metrics": {
+    "replay_sessions": 6,
+    "minimum_longlist_rows": 100,
+    "average_consecutive_longlist_overlap": 0.766,
+    "minimum_consecutive_longlist_overlap": 0.72,
+    "average_top20_overlap": 0.7,
+    "median_common_rank_spearman": 0.7553236237446763,
+    "average_median_absolute_rank_change": 8.5,
+    "average_primary_sleeve_retention": 0.9949683544303799,
+    "average_priority_bucket_retention": 0.6915153981040056,
+    "maximum_board_share": 0.38,
+    "maximum_board_hhi": 0.283,
+    "minimum_industry_identity_coverage": 0.54,
+    "maximum_longlist_fragile_share": 0.5,
+    "current_priority_a_fragile_share": 0.3
+  },
+  "historical_factor_anchor": {
+    "status": "COMPARED",
+    "anchor_run_id": "FMDL2B3_20260717T162732+0800",
+    "common_symbols": 5528,
+    "factor_cells_compared": 143728,
+    "matching_cells": 143728,
+    "mismatching_cells": 0,
+    "match_ratio": 1.0
+  },
+  "false_positive_review_posture": "EX_ANTE_STRUCTURAL_RISK_ONLY_NO_FUTURE_RETURN_OR_REALIZED_FALSE_POSITIVE_CLAIM",
+  "controlled_limitations": [
+    "FIXED_CURRENT_UNIVERSE_COHORT_NOT_POINT_IN_TIME_SURVIVORSHIP_FREE",
+    "SIX_SESSION_OPERATIONAL_WINDOW_NOT_LONG_HORIZON_BACKTEST",
+    "CURRENT_SECURITY_MASTER_ST_IDENTITY_MAY_NOT_BE_POINT_IN_TIME",
+    "INDUSTRY_IDENTITY_INCOMPLETE_AND_NOT_USED_AS_A_HARD_QUOTA",
+    "NO_FUTURE_RETURN_ALPHA_OR_REALIZED_FALSE_POSITIVE_TEST",
+    "FINANCIAL_QUALITY_VALUATION_AND_ESTIMATES_DEFERRED_TO_FMDL3"
+  ],
+  "authority": "RESEARCH_PRIORITY_ONLY_NO_TRADE_AUTHORITY",
+  "trade_authority": "NONE",
+  "next_phase": "FMDL-3_FINANCIAL_AND_VALUATION_DATA_HARDENING"
+}
