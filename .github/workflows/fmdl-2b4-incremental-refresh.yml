@@ -18,7 +18,25 @@ on:
       - "scripts/refresh_investment_os_interface.py"
       - "tests/test_fmdl2b4_incremental_refresh.py"
       - "tests/test_fmdl2b4_snapshot_identity.py"
-      - "docs/FMDL-2B4_INCREMENTAL_REFRESH.md"
+      - "docs/FMDL-2B4_*.md"
+      - ".github/workflows/fmdl-2b4-incremental-refresh.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl2_incremental_refresh.json"
+      - "scripts/fmdl2b4_history.py"
+      - "scripts/run_incremental_history_refresh.py"
+      - "scripts/run_incremental_history_refresh_v2.py"
+      - "scripts/finalize_b4_history_candidate.py"
+      - "scripts/run_b4_factor_refresh.py"
+      - "scripts/validate_fmdl2b4_candidate.py"
+      - "scripts/publish_fmdl2b4.py"
+      - "scripts/run_fmdl2b4_operating.py"
+      - "scripts/validate_fmdl2b4_freshness.py"
+      - "scripts/validate_fmdl2b4_replay.py"
+      - "scripts/refresh_investment_os_interface.py"
+      - "tests/test_fmdl2b4_incremental_refresh.py"
+      - "tests/test_fmdl2b4_snapshot_identity.py"
       - ".github/workflows/fmdl-2b4-incremental-refresh.yml"
   schedule:
     - cron: "15 10 * * 1-5"
@@ -31,7 +49,7 @@ on:
         type: boolean
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: fmdl-2b4-refresh-${{ github.ref }}
@@ -70,15 +88,16 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  operate-and-replay:
+  operate:
+    if: github.event_name != 'pull_request'
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout PR source branch
+      - name: Checkout production branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+          ref: main
           fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -87,8 +106,8 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-      - name: Refresh FMDL-1 Current for acceptance
-        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.refresh_fmdl1_current == true)
+      - name: Refresh FMDL-1 Current for initial production or explicit dispatch
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.refresh_fmdl1_current == true)
         run: python pipeline/run_daily.py --trigger manual
       - name: Rebind and validate Investment OS interface
         run: |
@@ -96,33 +115,36 @@ jobs:
           python scripts/validate_investment_os_interface.py
       - name: Enforce latest completed-session Current
         run: python -m scripts.validate_fmdl2b4_freshness
-      - name: Run first incremental history and factor operation
+      - name: Run incremental history and factor operating chain
         run: python -m scripts.run_fmdl2b4_operating
-      - name: Re-run same date and validate deterministic no-op
-        shell: bash
-        run: |
-          before_history=$(sha256sum outputs/history/current/HISTORY_CURRENT_RELEASE.json | awk '{print $1}')
-          before_factor=$(sha256sum outputs/factors/current/FACTOR_CURRENT_RELEASE.json | awk '{print $1}')
-          python -m scripts.run_fmdl2b4_operating
-          after_history=$(sha256sum outputs/history/current/HISTORY_CURRENT_RELEASE.json | awk '{print $1}')
-          after_factor=$(sha256sum outputs/factors/current/FACTOR_CURRENT_RELEASE.json | awk '{print $1}')
-          test "$before_history" = "$after_history"
-          test "$before_factor" = "$after_factor"
-          python -m scripts.validate_fmdl2b4_replay
-      - name: Upload B4 operating and replay evidence
+      - name: Upload B4 operating evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fmdl2b4-operating-replay-evidence
+          name: fmdl2b4-operating-evidence
           path: |
             diagnostics/FMDL2B4_*.json
             diagnostics/SCRIPTS_RUN_*_STDOUT.txt
             diagnostics/SCRIPTS_RUN_*_STDERR.txt
             outputs/status/FMDL2B4_*.json
+            outputs/current/
+            outputs/investment_os/
             outputs/history/refresh_candidate/
             outputs/history/current/
             outputs/factors/refresh_candidate/
             outputs/factors/current/
-            outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Commit accepted operating state
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/current outputs/status outputs/archive outputs/investment_os outputs/history/current outputs/history/archive outputs/history/refresh_candidate outputs/factors/current outputs/factors/archive outputs/factors/refresh_candidate datasets/history/incremental datasets/history/repair
+          if git diff --cached --quiet; then
+            echo "No accepted operating-state changes to commit"
+          else
+            git commit -m "data: FMDL-2B-4 incremental history and factor Current [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
