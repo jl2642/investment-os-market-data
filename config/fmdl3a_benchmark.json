@@ -1,5 +1,5 @@
 {
-  "benchmark_version": "1.2.0",
+  "benchmark_version": "1.3.0",
   "program_id": "FMDL-3A",
   "name": "Source Benchmark, Point-in-Time Contract & Coverage Map",
   "business_timezone": "Asia/Shanghai",
@@ -16,6 +16,12 @@
     "market_open_time": "09:30:00",
     "calendar_source": "sina_trade_calendar_via_akshare",
     "period_end_never_implies_availability": true
+  },
+  "valuation_semantics": {
+    "current_market_numerators": ["LATEST_PRICE", "TOTAL_MARKET_CAP", "FLOAT_MARKET_CAP", "TOTAL_SHARES", "FLOAT_SHARES"],
+    "provider_pe_pb_role": "SUPPORT_ONLY_NOT_DECISION_GRADE",
+    "decision_grade_pe_pb_rule": "RECOMPUTE_IN_FMDL3D_USING_POINT_IN_TIME_FINANCIAL_DENOMINATORS",
+    "negative_or_invalid_denominator_rule": "PUBLISH_NOT_MEANINGFUL_STATUS_NOT_SYNTHETIC_RATIO"
   },
   "sample_design": {
     "method": "DETERMINISTIC_SECTOR_BOARD_STRESS_SAMPLE",
@@ -41,13 +47,14 @@
     {"source_id": "CNINFO_OFFICIAL_DISCLOSURE", "family": "DISCLOSURE_METADATA", "rank": "REGULATORY_OR_EXCHANGE_STRUCTURED_DISCLOSURE", "adapter": "akshare.stock_zh_a_disclosure_report_cninfo", "benchmark_scope": "ALL_SAMPLE_SYMBOLS", "intended_role": "PRIMARY_ANNOUNCEMENT_REVISION_AND_BSE_DOCUMENT_SOURCE"},
     {"source_id": "EASTMONEY_NOTICE_FALLBACK", "family": "DISCLOSURE_METADATA", "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER", "adapter": "akshare.stock_individual_notice_report", "benchmark_scope": "SH_SZ_SAMPLE_ONLY", "intended_role": "DEGRADED_DISCLOSURE_METADATA_FALLBACK"},
     {"source_id": "EASTMONEY_STATEMENTS", "family": "FINANCIAL_STATEMENTS", "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER", "adapter": "akshare.stock_*_sheet_by_report_em", "benchmark_scope": "SH_SZ_SAMPLE_ONLY", "intended_role": "PRIMARY_STRUCTURED_THREE_STATEMENT_SOURCE_SH_SZ"},
-    {"source_id": "EASTMONEY_BSE_PERIODIC_STATEMENTS", "family": "FINANCIAL_STATEMENTS", "rank": "REJECTED_PUBLIC_PROVIDER_ROUTE", "adapter": "Eastmoney datacenter RPT_DMSK_FN_* with TRADE_MARKET_CODE=069001017", "benchmark_scope": "BSE_SAMPLE_AND_RECENT_REPORT_PERIODS", "intended_role": "REJECTED_EMPTY_ROUTE_EVIDENCE_ONLY"},
+    {"source_id": "EASTMONEY_BSE_PERIODIC_STATEMENTS", "family": "FINANCIAL_STATEMENTS", "rank": "REJECTED_PUBLIC_PROVIDER_ROUTE", "adapter": "Eastmoney datacenter RPT_DMSK_FN_* with TRADE_MARKET_CODE=069001017", "benchmark_scope": "PRIOR_REAL_RUN_EVIDENCE", "intended_role": "REJECTED_EMPTY_ROUTE_EVIDENCE_ONLY"},
     {"source_id": "SINA_STATEMENTS", "family": "FINANCIAL_STATEMENTS", "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER", "adapter": "akshare.stock_financial_report_sina", "benchmark_scope": "SH_SZ_SAMPLE_ONLY", "intended_role": "FALLBACK_STRUCTURED_THREE_STATEMENT_SOURCE_SH_SZ"},
-    {"source_id": "XUEQIU_CURRENT_VALUATION", "family": "VALUATION_AND_CAPITALIZATION", "rank": "MARKET_DATA_PROVIDER_FOR_MARKET_NUMERATORS", "adapter": "akshare.stock_individual_spot_xq", "benchmark_scope": "ALL_SAMPLE_SYMBOLS", "intended_role": "PRIMARY_CURRENT_MARKET_CAP_PE_PB_SHARE_COUNT_SOURCE"},
-    {"source_id": "EASTMONEY_CURRENT_VALUATION", "family": "VALUATION_AND_CAPITALIZATION", "rank": "REJECTED_GITHUB_RUNNER_ROUTE", "adapter": "akshare.stock_zh_a_spot_em and split exchange endpoints", "benchmark_scope": "PRIOR_RUN_EVIDENCE", "intended_role": "REJECTED_UNSTABLE_ROUTE_EVIDENCE_ONLY"},
+    {"source_id": "EASTMONEY_INDIVIDUAL_INFO", "family": "VALUATION_AND_CAPITALIZATION", "rank": "MARKET_DATA_PROVIDER_FOR_MARKET_NUMERATORS", "adapter": "akshare.stock_individual_info_em", "benchmark_scope": "ALL_SAMPLE_SYMBOLS", "intended_role": "PRIMARY_CURRENT_PRICE_MARKET_CAP_AND_SHARE_COUNT_SOURCE"},
+    {"source_id": "XUEQIU_CURRENT_VALUATION", "family": "VALUATION_AND_CAPITALIZATION", "rank": "REJECTED_GITHUB_RUNNER_ROUTE", "adapter": "akshare.stock_individual_spot_xq", "benchmark_scope": "PRIOR_REAL_RUN_EVIDENCE", "intended_role": "REJECTED_AUTHENTICATION_OR_RESPONSE_ROUTE_EVIDENCE_ONLY"},
+    {"source_id": "EASTMONEY_CURRENT_VALUATION", "family": "VALUATION_AND_CAPITALIZATION", "rank": "REJECTED_GITHUB_RUNNER_ROUTE", "adapter": "akshare.stock_zh_a_spot_em and split exchange endpoints", "benchmark_scope": "PRIOR_REAL_RUN_EVIDENCE", "intended_role": "REJECTED_UNSTABLE_ROUTE_EVIDENCE_ONLY"},
     {"source_id": "EASTMONEY_FINANCIAL_INDICATORS", "family": "FINANCIAL_INDICATORS", "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER", "adapter": "akshare.stock_financial_analysis_indicator_em", "benchmark_scope": "EXTENDED_SAMPLE", "intended_role": "CROSS_CHECK_AND_FACTOR_INPUT_SUPPORT"},
-    {"source_id": "EASTMONEY_HISTORICAL_VALUATION", "family": "VALUATION_AND_CAPITALIZATION", "rank": "MARKET_DATA_PROVIDER_FOR_MARKET_NUMERATORS", "adapter": "akshare.stock_value_em", "benchmark_scope": "EXTENDED_SAMPLE", "intended_role": "CONDITIONAL_HISTORICAL_VALUATION_SERIES_SH_SZ"},
-    {"source_id": "EASTMONEY_SHARE_CAPITAL", "family": "SHARE_CAPITAL", "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER", "adapter": "akshare.stock_zh_a_gbjg_em", "benchmark_scope": "EXTENDED_SAMPLE", "intended_role": "PRIMARY_HISTORICAL_SHARE_COUNT_SOURCE_SH_SZ"},
+    {"source_id": "EASTMONEY_HISTORICAL_VALUATION", "family": "VALUATION_AND_CAPITALIZATION", "rank": "MARKET_DATA_PROVIDER_FOR_MARKET_NUMERATORS", "adapter": "akshare.stock_value_em", "benchmark_scope": "EXTENDED_SAMPLE", "intended_role": "CONDITIONAL_PROVIDER_RATIO_CROSS_CHECK_SH_SZ"},
+    {"source_id": "EASTMONEY_SHARE_CAPITAL", "family": "SHARE_CAPITAL", "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER", "adapter": "akshare.stock_zh_a_gbjg_em", "benchmark_scope": "EXTENDED_SAMPLE", "intended_role": "HISTORICAL_SHARE_COUNT_CROSS_CHECK_SH_SZ"},
     {"source_id": "EASTMONEY_DIVIDENDS", "family": "SHAREHOLDER_RETURN", "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER", "adapter": "akshare.stock_fhps_detail_em", "benchmark_scope": "EXTENDED_SAMPLE", "intended_role": "PRIMARY_DIVIDEND_EVENT_SOURCE_SH_SZ"},
     {"source_id": "EASTMONEY_BUYBACKS", "family": "SHAREHOLDER_RETURN", "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER", "adapter": "akshare.stock_repurchase_em", "benchmark_scope": "FULL_MARKET_SINGLE_CALL", "intended_role": "PRIMARY_BUYBACK_EVENT_SOURCE"}
   ],
@@ -58,7 +65,7 @@
     "minimum_supported_universe_statement_bundle_success_ratio": 0.95,
     "maximum_full_sample_statement_quarantine_ratio": 0.16,
     "minimum_point_in_time_match_ratio": 0.9,
-    "minimum_current_valuation_sample_coverage": 0.9,
+    "minimum_supported_universe_current_capitalization_coverage": 0.95,
     "minimum_extended_source_success_ratio": 0.65,
     "require_all_symbols_supported_or_quarantined": true,
     "require_bse_official_document_source": true,
