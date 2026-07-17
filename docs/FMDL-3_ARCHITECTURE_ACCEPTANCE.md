@@ -11,9 +11,10 @@ This acceptance freezes the engineering boundary. It does not claim that any fin
 ## Canonical main-branch publication
 
 - Merge commit: `0dbe643190da09dd1f7d4fc39a88dea61b29663c`
-- Data publication commit: `dc8dc452040c4f0596e09326dbc938e7a446fc55`
-- Architecture release: `FMDL3_ARCH_20260717T223136+0800`
-- Published at: `2026-07-17T22:31:36+08:00`
+- Publication-loop governance commit: `8c96a02502c27650a1caca3faf3fe2e8fc3938e8`
+- Final data publication commit: `2f11291fe3aba35e81ef28add4bbedd61003f847`
+- Architecture release: `FMDL3_ARCH_20260717T223535+0800`
+- Published at: `2026-07-17T22:35:35+08:00`
 - Status: `FMDL3_ARCHITECTURE_ACCEPTED`
 - Architecture state: `FROZEN_FOR_FMDL3A_EXECUTION`
 - Validation status: `PASS`
@@ -25,8 +26,10 @@ Canonical paths:
 
 - `outputs/architecture/current/FMDL3_ARCHITECTURE_RELEASE.json`
 - `outputs/architecture/current/FMDL3_ARCHITECTURE_VALIDATION.json`
-- `outputs/architecture/archive/FMDL3_ARCH_20260717T223136+0800/`
+- `outputs/architecture/archive/FMDL3_ARCH_20260717T223535+0800/`
 - `outputs/status/FMDL3_ARCHITECTURE_LAST_SUCCESS.json`
+
+The main workflow no longer republishes Architecture Current for README-only changes. Architecture contract, schema, implementation or workflow changes still require validation and publication.
 
 ## Accepted evidence
 
@@ -35,7 +38,7 @@ Canonical paths:
 - Candidate artifact: `8409825884`
 - Artifact digest: `sha256:a3d92f538d3f16738ca099c85447b98211a5d2306165eac86d51cc49890b3f39`
 - Candidate validation run: `FMDL3_ARCH_20260717T222708+0800`
-- Main validation run: `FMDL3_ARCH_20260717T223135+0800`
+- Final main validation run: `FMDL3_ARCH_20260717T223534+0800`
 - Machine checks: `14 / 14 PASS`
 
 ## Machine checks
