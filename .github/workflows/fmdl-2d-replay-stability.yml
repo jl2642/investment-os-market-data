@@ -7,6 +7,7 @@ on:
       - "config/fmdl2d_replay_stability.json"
       - "scripts/run_fmdl2d_stability.py"
       - "scripts/run_fmdl2d_stability_v2.py"
+      - "scripts/run_fmdl2d_stability_v3.py"
       - "scripts/validate_fmdl2d_candidate.py"
       - "scripts/publish_fmdl2d.py"
       - "tests/test_fmdl2d_stability.py"
@@ -19,6 +20,7 @@ on:
       - "config/fmdl2d_replay_stability.json"
       - "scripts/run_fmdl2d_stability.py"
       - "scripts/run_fmdl2d_stability_v2.py"
+      - "scripts/run_fmdl2d_stability_v3.py"
       - "scripts/validate_fmdl2d_candidate.py"
       - "scripts/publish_fmdl2d.py"
       - "tests/test_fmdl2d_stability.py"
@@ -75,7 +77,7 @@ jobs:
       - name: Capture six-session full-market replay
         run: |
           set +e
-          python -m scripts.run_fmdl2d_stability_v2 > fmdl2d_replay.log 2>&1
+          python -m scripts.run_fmdl2d_stability_v3 > fmdl2d_replay.log 2>&1
           replay_status=$?
           printf '%s\n' "$replay_status" > fmdl2d_replay.exit
           cat fmdl2d_replay.log
