@@ -55,13 +55,29 @@ def validate(root: Path = ROOT) -> dict[str, Any]:
     funnel = pd.read_csv(base / "SCREENING_FUNNEL.csv")
     if screen["symbol"].astype(str).duplicated().any():
         failures.append("DUPLICATE_SCREEN_SYMBOL")
+    if "name" not in screen.columns or screen["name"].isna().any():
+        failures.append("SCREEN_SECURITY_NAME_MISSING")
+    elif screen["name"].astype(str).str.strip().eq("").any():
+        failures.append("SCREEN_SECURITY_NAME_EMPTY")
     if not detail.empty and detail.duplicated(["symbol", "sleeve_id"]).any():
         failures.append("DUPLICATE_SYMBOL_SLEEVE")
+    if not detail.empty and (
+        "name" not in detail.columns
+        or detail["name"].isna().any()
+        or detail["name"].astype(str).str.strip().eq("").any()
+    ):
+        failures.append("DETAIL_SECURITY_NAME_MISSING")
     if not longlist.empty and longlist["symbol"].astype(str).duplicated().any():
         failures.append("DUPLICATE_LONGLIST_SYMBOL")
     if len(longlist) > int(config["funnel"]["longlist_maximum"]):
         failures.append("LONGLIST_LIMIT")
     if not longlist.empty:
+        if (
+            "name" not in longlist.columns
+            or longlist["name"].isna().any()
+            or longlist["name"].astype(str).str.strip().eq("").any()
+        ):
+            failures.append("LONGLIST_SECURITY_NAME_MISSING")
         bad_quality = longlist["factor_record_quality"].isin(["SUSPECT", "BLOCKED"])
         if bad_quality.any():
             failures.append("BAD_QUALITY_IN_LONGLIST")
@@ -72,6 +88,9 @@ def validate(root: Path = ROOT) -> dict[str, Any]:
         ranks = longlist["overall_rank"].astype(int).tolist()
         if ranks != list(range(1, len(longlist) + 1)):
             failures.append("NON_CONTIGUOUS_RANKS")
+        expected_method = config["funnel"]["cross_sleeve_comparison"]["method"]
+        if set(longlist["score_basis"].astype(str)) != {expected_method}:
+            failures.append("CROSS_SLEEVE_SCORE_BASIS_MISMATCH")
     expected_stages = [
         "01_UNIVERSE",
         "02_DATA_READY",
@@ -84,9 +103,16 @@ def validate(root: Path = ROOT) -> dict[str, Any]:
     if funnel["stage"].astype(str).tolist() != expected_stages:
         failures.append("FUNNEL_STAGE_MISMATCH")
     sleeve_counts = detail.groupby("sleeve_id").size().to_dict() if not detail.empty else {}
+    primary_counts = (
+        longlist["primary_sleeve"].value_counts().to_dict()
+        if not longlist.empty
+        else {}
+    )
     for sleeve_id, sleeve in config["sleeves"].items():
         if int(sleeve_counts.get(sleeve_id, 0)) > int(sleeve["maximum_candidates"]):
             failures.append(f"SLEEVE_LIMIT_{sleeve_id}")
+        if int(sleeve_counts.get(sleeve_id, 0)) > 0 and int(primary_counts.get(sleeve_id, 0)) == 0:
+            failures.append(f"NO_PRIMARY_REPRESENTATION_{sleeve_id}")
     payload = {
         "validation_version": "1.0.0",
         "status": "PASS" if not failures else "FAIL",
@@ -94,9 +120,12 @@ def validate(root: Path = ROOT) -> dict[str, Any]:
         "hard_failures": failures,
         "metrics": {
             "screen_rows": len(screen),
+            "named_screen_rows": int(screen["name"].notna().sum()) if "name" in screen else 0,
             "detail_rows": len(detail),
             "longlist_rows": len(longlist),
+            "named_longlist_rows": int(longlist["name"].notna().sum()) if "name" in longlist else 0,
             "sleeve_counts": {str(key): int(value) for key, value in sleeve_counts.items()},
+            "primary_sleeve_counts": {str(key): int(value) for key, value in primary_counts.items()},
         },
         "authority": "RESEARCH_PRIORITY_ONLY_NO_TRADE_AUTHORITY",
     }
