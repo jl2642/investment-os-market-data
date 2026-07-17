@@ -2,11 +2,6 @@ name: FMDL 2B-2 Full-Universe Historical Backfill Recovery
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    types: [synchronize]
-    paths:
-      - triggers/FMDL2B2_RUN.md
 
 permissions:
   actions: read
@@ -15,7 +10,7 @@ permissions:
 env:
   SOURCE_RUN_ID: '29556547410'
   RELEASE_ID: FMDL2B2_29556547410_1
-  TARGET_REF: ${{ github.head_ref || github.ref_name }}
+  TARGET_REF: ${{ github.ref_name }}
 
 concurrency:
   group: fmdl-2b2-full-backfill-recovery
