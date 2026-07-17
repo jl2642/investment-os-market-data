@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fmdl2b4_operating_status.schema.json",
+  "title": "FMDL-2B-4 Operating Status",
+  "type": "object",
+  "required": ["status", "history_current_preserved", "factor_current_preserved", "trade_authority"],
+  "properties": {
+    "status": {"enum": ["PUBLISHED", "NO_OP_ALREADY_CURRENT", "FAILED_LKG_PRESERVED"]},
+    "as_of_date": {"type": "string"},
+    "history_release_id": {"type": "string"},
+    "factor_release_id": {"type": "string"},
+    "history_current_preserved": {"type": "boolean"},
+    "factor_current_preserved": {"type": "boolean"},
+    "error": {"type": "string"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
