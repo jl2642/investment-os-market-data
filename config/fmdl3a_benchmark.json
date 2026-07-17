@@ -1,0 +1,235 @@
+{
+  "benchmark_version": "1.0.0",
+  "program_id": "FMDL-3A",
+  "name": "Source Benchmark, Point-in-Time Contract & Coverage Map",
+  "business_timezone": "Asia/Shanghai",
+  "cost_policy": "FREE_AND_FREE_TIER_ONLY",
+  "benchmark_window": {
+    "announcement_start_date": "20240101",
+    "minimum_report_period_end": "2024-03-31"
+  },
+  "availability_policy": {
+    "resolution": "DAILY",
+    "date_only_rule": "NEXT_TRADING_SESSION_OPEN",
+    "timestamp_rule": "NEXT_TRADING_SESSION_OPEN",
+    "market_open_time": "09:30:00",
+    "calendar_source": "sina_trade_calendar_via_akshare",
+    "period_end_never_implies_availability": true
+  },
+  "sample_design": {
+    "method": "DETERMINISTIC_SECTOR_BOARD_STRESS_SAMPLE",
+    "minimum_profiles": [
+      "GENERAL_NON_FINANCIAL",
+      "BANK",
+      "INSURANCE",
+      "SECURITIES_AND_BROKERAGE",
+      "PRE_PROFIT_OR_NEGATIVE_EARNINGS"
+    ],
+    "minimum_boards": [
+      "SH_MAIN",
+      "SZ_MAIN",
+      "CHINEXT",
+      "STAR",
+      "BSE"
+    ],
+    "symbols": [
+      {
+        "symbol": "600519.SH",
+        "name": "贵州茅台",
+        "profile": "GENERAL_NON_FINANCIAL",
+        "board": "SH_MAIN",
+        "extended": true
+      },
+      {
+        "symbol": "605090.SH",
+        "name": "九丰能源",
+        "profile": "GENERAL_NON_FINANCIAL",
+        "board": "SH_MAIN",
+        "extended": true
+      },
+      {
+        "symbol": "000333.SZ",
+        "name": "美的集团",
+        "profile": "GENERAL_NON_FINANCIAL",
+        "board": "SZ_MAIN",
+        "extended": true
+      },
+      {
+        "symbol": "300750.SZ",
+        "name": "宁德时代",
+        "profile": "GENERAL_NON_FINANCIAL",
+        "board": "CHINEXT",
+        "extended": true
+      },
+      {
+        "symbol": "688981.SH",
+        "name": "中芯国际",
+        "profile": "GENERAL_NON_FINANCIAL",
+        "board": "STAR",
+        "extended": true
+      },
+      {
+        "symbol": "835185.BJ",
+        "name": "贝特瑞",
+        "profile": "GENERAL_NON_FINANCIAL",
+        "board": "BSE",
+        "extended": true
+      },
+      {
+        "symbol": "000001.SZ",
+        "name": "平安银行",
+        "profile": "BANK",
+        "board": "SZ_MAIN",
+        "extended": true
+      },
+      {
+        "symbol": "600036.SH",
+        "name": "招商银行",
+        "profile": "BANK",
+        "board": "SH_MAIN",
+        "extended": false
+      },
+      {
+        "symbol": "601318.SH",
+        "name": "中国平安",
+        "profile": "INSURANCE",
+        "board": "SH_MAIN",
+        "extended": true
+      },
+      {
+        "symbol": "600030.SH",
+        "name": "中信证券",
+        "profile": "SECURITIES_AND_BROKERAGE",
+        "board": "SH_MAIN",
+        "extended": true
+      },
+      {
+        "symbol": "000776.SZ",
+        "name": "广发证券",
+        "profile": "SECURITIES_AND_BROKERAGE",
+        "board": "SZ_MAIN",
+        "extended": false
+      },
+      {
+        "symbol": "688256.SH",
+        "name": "寒武纪",
+        "profile": "PRE_PROFIT_OR_NEGATIVE_EARNINGS",
+        "board": "STAR",
+        "extended": true
+      },
+      {
+        "symbol": "430047.BJ",
+        "name": "诺思兰德",
+        "profile": "PRE_PROFIT_OR_NEGATIVE_EARNINGS",
+        "board": "BSE",
+        "extended": false
+      }
+    ]
+  },
+  "source_candidates": [
+    {
+      "source_id": "CNINFO_OFFICIAL_DISCLOSURE",
+      "family": "DISCLOSURE_METADATA",
+      "rank": "REGULATORY_OR_EXCHANGE_STRUCTURED_DISCLOSURE",
+      "adapter": "akshare.stock_zh_a_disclosure_report_cninfo",
+      "benchmark_scope": "ALL_SAMPLE_SYMBOLS",
+      "intended_role": "PRIMARY_ANNOUNCEMENT_AND_REVISION_METADATA"
+    },
+    {
+      "source_id": "EASTMONEY_NOTICE_FALLBACK",
+      "family": "DISCLOSURE_METADATA",
+      "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER",
+      "adapter": "akshare.stock_individual_notice_report",
+      "benchmark_scope": "ALL_SAMPLE_SYMBOLS",
+      "intended_role": "DEGRADED_DISCLOSURE_METADATA_FALLBACK"
+    },
+    {
+      "source_id": "EASTMONEY_STATEMENTS",
+      "family": "FINANCIAL_STATEMENTS",
+      "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER",
+      "adapter": "akshare.stock_*_sheet_by_report_em",
+      "benchmark_scope": "ALL_SAMPLE_SYMBOLS",
+      "intended_role": "PRIMARY_STRUCTURED_THREE_STATEMENT_SOURCE"
+    },
+    {
+      "source_id": "SINA_STATEMENTS",
+      "family": "FINANCIAL_STATEMENTS",
+      "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER",
+      "adapter": "akshare.stock_financial_report_sina",
+      "benchmark_scope": "ALL_SAMPLE_SYMBOLS",
+      "intended_role": "FALLBACK_STRUCTURED_THREE_STATEMENT_SOURCE"
+    },
+    {
+      "source_id": "EASTMONEY_FINANCIAL_INDICATORS",
+      "family": "FINANCIAL_INDICATORS",
+      "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER",
+      "adapter": "akshare.stock_financial_analysis_indicator_em",
+      "benchmark_scope": "EXTENDED_SAMPLE",
+      "intended_role": "CROSS_CHECK_AND_FACTOR_INPUT_SUPPORT"
+    },
+    {
+      "source_id": "EASTMONEY_CURRENT_VALUATION",
+      "family": "VALUATION_AND_CAPITALIZATION",
+      "rank": "MARKET_DATA_PROVIDER_FOR_MARKET_NUMERATORS",
+      "adapter": "akshare.stock_zh_a_spot_em",
+      "benchmark_scope": "FULL_MARKET_SINGLE_CALL",
+      "intended_role": "PRIMARY_CURRENT_MARKET_CAP_PE_PB"
+    },
+    {
+      "source_id": "EASTMONEY_HISTORICAL_VALUATION",
+      "family": "VALUATION_AND_CAPITALIZATION",
+      "rank": "MARKET_DATA_PROVIDER_FOR_MARKET_NUMERATORS",
+      "adapter": "akshare.stock_value_em",
+      "benchmark_scope": "EXTENDED_SAMPLE",
+      "intended_role": "CONDITIONAL_HISTORICAL_VALUATION_SERIES"
+    },
+    {
+      "source_id": "EASTMONEY_SHARE_CAPITAL",
+      "family": "SHARE_CAPITAL",
+      "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER",
+      "adapter": "akshare.stock_zh_a_gbjg_em",
+      "benchmark_scope": "EXTENDED_SAMPLE",
+      "intended_role": "PRIMARY_HISTORICAL_SHARE_COUNT_SOURCE"
+    },
+    {
+      "source_id": "EASTMONEY_DIVIDENDS",
+      "family": "SHAREHOLDER_RETURN",
+      "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER",
+      "adapter": "akshare.stock_fhps_detail_em",
+      "benchmark_scope": "EXTENDED_SAMPLE",
+      "intended_role": "PRIMARY_DIVIDEND_EVENT_SOURCE"
+    },
+    {
+      "source_id": "EASTMONEY_BUYBACKS",
+      "family": "SHAREHOLDER_RETURN",
+      "rank": "AUDITABLE_STANDARDIZED_PUBLIC_PROVIDER",
+      "adapter": "akshare.stock_repurchase_em",
+      "benchmark_scope": "FULL_MARKET_SINGLE_CALL",
+      "intended_role": "PRIMARY_BUYBACK_EVENT_SOURCE"
+    }
+  ],
+  "acceptance_policy": {
+    "minimum_official_disclosure_call_success_ratio": 0.75,
+    "minimum_statement_bundle_success_ratio": 0.75,
+    "minimum_statement_fallback_bundle_success_ratio": 0.6,
+    "minimum_point_in_time_match_ratio": 0.55,
+    "minimum_current_valuation_sample_coverage": 0.9,
+    "minimum_extended_source_success_ratio": 0.65,
+    "require_each_profile_primary_statement_success": true,
+    "require_trading_calendar": true,
+    "require_zero_future_availability": true,
+    "require_zero_missing_source_id": true,
+    "trade_authority": "NONE"
+  },
+  "publication": {
+    "candidate_root": "outputs/financials/benchmark/candidate",
+    "current_root": "outputs/financials/benchmark/current",
+    "archive_root": "outputs/financials/benchmark/archive",
+    "source_index_current_root": "outputs/financials/source_index/current",
+    "last_success_path": "outputs/status/FMDL3A_LAST_SUCCESS.json",
+    "candidate_cannot_replace_current_on_failure": true
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_phase": "FMDL-3B"
+}
