@@ -59,7 +59,7 @@
       "additionalProperties": false
     },
     "source_candidates": {
-      "type": "array", "minItems": 10,
+      "type": "array", "minItems": 11,
       "items": {
         "type": "object",
         "required": ["source_id", "family", "rank", "adapter", "benchmark_scope", "intended_role"],
@@ -76,18 +76,20 @@
     },
     "acceptance_policy": {
       "type": "object",
-      "required": ["minimum_official_disclosure_call_success_ratio", "minimum_sh_sz_statement_bundle_success_ratio", "minimum_bse_statement_bundle_success_ratio", "minimum_composite_statement_bundle_success_ratio", "minimum_statement_fallback_bundle_success_ratio", "minimum_point_in_time_match_ratio", "minimum_current_valuation_sample_coverage", "minimum_extended_source_success_ratio", "require_each_profile_primary_statement_success", "require_each_board_composite_statement_success", "require_trading_calendar", "require_zero_future_availability", "require_zero_missing_source_id", "trade_authority"],
+      "required": ["minimum_official_disclosure_call_success_ratio", "minimum_sh_sz_statement_bundle_success_ratio", "minimum_statement_fallback_bundle_success_ratio", "minimum_supported_universe_statement_bundle_success_ratio", "maximum_full_sample_statement_quarantine_ratio", "minimum_point_in_time_match_ratio", "minimum_current_valuation_sample_coverage", "minimum_extended_source_success_ratio", "require_all_symbols_supported_or_quarantined", "require_bse_official_document_source", "require_each_profile_supported_or_quarantined", "require_each_board_supported_or_quarantined", "require_trading_calendar", "require_zero_future_availability", "require_zero_missing_source_id", "trade_authority"],
       "properties": {
         "minimum_official_disclosure_call_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
         "minimum_sh_sz_statement_bundle_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
-        "minimum_bse_statement_bundle_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
-        "minimum_composite_statement_bundle_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
         "minimum_statement_fallback_bundle_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "minimum_supported_universe_statement_bundle_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "maximum_full_sample_statement_quarantine_ratio": {"type": "number", "minimum": 0, "maximum": 1},
         "minimum_point_in_time_match_ratio": {"type": "number", "minimum": 0, "maximum": 1},
         "minimum_current_valuation_sample_coverage": {"type": "number", "minimum": 0, "maximum": 1},
         "minimum_extended_source_success_ratio": {"type": "number", "minimum": 0, "maximum": 1},
-        "require_each_profile_primary_statement_success": {"const": true},
-        "require_each_board_composite_statement_success": {"const": true},
+        "require_all_symbols_supported_or_quarantined": {"const": true},
+        "require_bse_official_document_source": {"const": true},
+        "require_each_profile_supported_or_quarantined": {"const": true},
+        "require_each_board_supported_or_quarantined": {"const": true},
         "require_trading_calendar": {"const": true},
         "require_zero_future_availability": {"const": true},
         "require_zero_missing_source_id": {"const": true},
