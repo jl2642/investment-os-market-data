@@ -45,10 +45,31 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: python -m pip install --upgrade pip && pip install -r requirements.txt
-      - name: Regression tests
+      - name: Capture regression tests
         run: |
-          python scripts/validate_investment_os_interface.py
-          pytest -q tests/test_fmdl2b3_factor_engine.py tests/test_fmdl2b4_incremental_refresh.py tests/test_fmdl2c_screening_funnel.py tests/test_fmdl2d_stability.py
+          set +e
+          python scripts/validate_investment_os_interface.py > fmdl2d_regression.log 2>&1
+          interface_status=$?
+          pytest -q --tb=short tests/test_fmdl2b3_factor_engine.py tests/test_fmdl2b4_incremental_refresh.py tests/test_fmdl2c_screening_funnel.py tests/test_fmdl2d_stability.py >> fmdl2d_regression.log 2>&1
+          pytest_status=$?
+          printf '%s\n' "$interface_status" > fmdl2d_interface.exit
+          printf '%s\n' "$pytest_status" > fmdl2d_pytest.exit
+          cat fmdl2d_regression.log
+          exit 0
+      - name: Upload regression diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2d-regression-diagnostics
+          path: |
+            fmdl2d_regression.log
+            fmdl2d_interface.exit
+            fmdl2d_pytest.exit
+          if-no-files-found: error
+          retention-days: 7
+      - name: Enforce regression gate
+        run: |
+          test "$(cat fmdl2d_interface.exit)" = "0"
+          test "$(cat fmdl2d_pytest.exit)" = "0"
       - name: Run six-session full-market replay
         run: python -m scripts.run_fmdl2d_stability
       - name: Independent final-acceptance validation
