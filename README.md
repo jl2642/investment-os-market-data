@@ -6,11 +6,12 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 
 - Program: Full-Market Data Layer (FMDL)
 - Completed prerequisite: **FMDL-0 — Public Equity Investing Integration**
-- Active phase: **FMDL-1 — A-share Full-Market Data MVP**
+- Completed phase: **FMDL-1 — A-share Full-Market Data MVP**
 - Completed subphase: **FMDL-1A-R — Production Architecture & Contract Completion**
 - Completed subphase: **FMDL-1B/C — A-share Universe Builder + Daily Market Snapshot**
 - Completed subphase: **FMDL-1D/E — Data Quality Hardening + Scheduled Automation**
-- Next production batch: **FMDL-1F — Investment OS Interface + Final FMDL-1 Acceptance**
+- Completed subphase: **FMDL-1F — Investment OS Interface + Final FMDL-1 Acceptance**
+- Next phase: **FMDL-2 — A-share Factor & Screening Funnel**
 - Cost policy: **free and free-tier resources only**
 - Execution model: GitHub Actions + open-source/public data adapters
 - Trading model: research and decision support only; no broker connection and no automatic order execution
@@ -25,25 +26,26 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Market-wide provider: `sina_public` explicit free fallback
 - Status: `PUBLISHED_WITH_WARNINGS`
 - Event flags: `7`
-- Stable path: `outputs/current/`
-- Investment OS consumption boundary: pending FMDL-1F
+- Stable data path: `outputs/current/`
+- Investment OS consumer pointer: `outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json`
 
 ## System boundary
 
-This repository owns market-data acquisition, normalization, quality control, versioning and publication. It does not own investment recommendations, position sizing, portfolio migration or order execution. Those remain with Investment OS and the user-confirmation gate.
+This repository owns market-data acquisition, normalization, quality control, versioning, publication and the stable consumer pointer. It does not own investment recommendations, position sizing, portfolio migration or order execution. Those remain with Investment OS and the user-confirmation gate.
 
 ## Canonical architecture
 
 1. `config/` — machine-readable source, universe, schedule and quality rules.
-2. `schemas/` — canonical dataset, manifest, release and operating-state schemas.
+2. `schemas/` — canonical dataset, manifest, release, operating-state and consumer-interface schemas.
 3. `ingestion/` — source adapters and explicit provider fallbacks.
 4. `pipeline/` — normalization, QA, event flags, LKG publication and quarantine logic.
 5. `datasets/` — dated raw/processed evidence.
 6. `outputs/candidate/` — pre-publication results.
 7. `outputs/current/` — stable current market-data release.
 8. `outputs/status/` — last run and last successful release state.
-9. `outputs/archive/` and `outputs/quarantine/` — accepted metadata and failed-run evidence.
-10. `.github/workflows/` — validation, candidate testing and scheduled production.
+9. `outputs/investment_os/` — validated stable pointer for Investment OS and Public Equity Investing.
+10. `outputs/archive/` and `outputs/quarantine/` — accepted metadata and failed-run evidence.
+11. `.github/workflows/` — validation, candidate testing, scheduled production and interface validation.
 
 ## Canonical documents
 
@@ -58,6 +60,7 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `docs/FMDL-1BC_ACCEPTANCE.md`
 - `docs/FMDL-1DE_IMPLEMENTATION.md`
 - `docs/FMDL-1DE_ACCEPTANCE.md`
+- `docs/FMDL-1F_INTERFACE_AND_FINAL_ACCEPTANCE.md`
 
 ## Core datasets
 
@@ -68,18 +71,19 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `current_release`
 - `operating_status`
 - `market_event_flags`
+- `investment_os_market_data_interface`
 
 Every published dataset carries a schema version, source timestamp, generation timestamp, QA state, row count, hash and last-known-good lineage. Failed candidate updates are quarantined and must never replace a valid current snapshot.
 
 ## FMDL roadmap
 
 - FMDL-0 Public Equity Investing Integration ✅
-- FMDL-1 A-share Full-Market Data MVP 🚧
+- FMDL-1 A-share Full-Market Data MVP ✅
   - FMDL-1A-R Production Architecture & Contract Completion ✅
   - FMDL-1B/C A-share Universe Builder + Daily Market Snapshot ✅
   - FMDL-1D/E Data Quality Hardening + Scheduled Automation ✅
-  - FMDL-1F Investment OS Interface + Final Acceptance ⏭️
-- FMDL-2 A-share Factor & Screening Funnel
+  - FMDL-1F Investment OS Interface + Final Acceptance ✅
+- FMDL-2 A-share Factor & Screening Funnel ⏭️
 - FMDL-3 Financial & Valuation Data Hardening
 - FMDL-4 Public Equity + Investment OS Integration
 - FMDL-5 Hong Kong Stock Connect Adapter
