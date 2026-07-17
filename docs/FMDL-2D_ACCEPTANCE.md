@@ -2,19 +2,42 @@
 
 ## Acceptance state
 
-`ACCEPTED_PENDING_MAIN_FMDL2_FINAL_PUBLICATION`
+`FMDL2_FINAL_ACCEPTED_WITH_CONTROLLED_LIMITATIONS`
 
-FMDL-2D has passed deterministic regression tests, a real six-session full-market factor-and-screen replay, all frozen stability hard gates and independent candidate validation on GitHub-hosted runners. Merge and main-branch final publication are authorized.
+FMDL-2D has passed deterministic regression tests, a real six-session full-market factor-and-screen replay, all frozen stability hard gates, independent candidate validation and main-branch final publication. FMDL-2 is formally complete.
 
 The accepted state is operational stability evidence with controlled limitations. It is not a factor-alpha claim, long-horizon backtest, investment recommendation, live Investment OS candidate-pool promotion, portfolio instruction or trade permission.
 
-## Accepted run
+## Canonical main-branch publication
+
+- Merge commit: `a18daa663033fada5a0beda00c111066e5bc5f3d`
+- Data publication commit: `224e9a99897484c2e10111104683a3f2051d7e92`
+- Final release: `FMDL2D_20260717T220406+0800`
+- Published at: `2026-07-17T22:04:09+08:00`
+- As-of date: `2026-07-17`
+- Status: `FMDL2_FINAL_ACCEPTED_WITH_CONTROLLED_LIMITATIONS`
+- Acceptance state: `ACCEPTED_OPERATIONAL_STABILITY_WITH_LIMITED_COHORT_REPLAY_NO_ALPHA_CLAIM`
+- Independent validation: `PASS`
+- Hard failures: `0`
+- Controlled warnings: `0`
+- Authority: `RESEARCH_PRIORITY_ONLY_NO_TRADE_AUTHORITY`
+- Trade authority: `NONE`
+
+Canonical paths:
+
+- `outputs/stability/current/`
+- `outputs/stability/current/FMDL2_FINAL_RELEASE.json`
+- `outputs/stability/current/FMDL2D_ACCEPTANCE.json`
+- `outputs/stability/current/FMDL2D_VALIDATION.json`
+- `outputs/status/FMDL2D_LAST_SUCCESS.json`
+- `outputs/screens/current/SCREENING_CURRENT_RELEASE.json`
+
+## Accepted evidence run
 
 - Workflow run: `29585053689` — `SUCCESS`
 - Candidate artifact: `8408829195`
 - Artifact digest: `sha256:f0b68610a2d5ad99b7b7d4d37995b48ba56b231cef81db0c1dd3f7a35b1034ab`
-- FMDL-2D run: `FMDL2D_20260717T215113+0800`
-- As-of date: `2026-07-17`
+- Acceptance candidate: `FMDL2D_20260717T215113+0800`
 - Replay dates: `2026-07-10`, `2026-07-13`, `2026-07-14`, `2026-07-15`, `2026-07-16`, `2026-07-17`
 - Screening Current: `FMDL2C_20260717T210036+0800`
 - Factor Current: `FMDL2B4_FACTOR_20260717T174336+0800`
@@ -139,9 +162,10 @@ FMDL-2 has completed its intended market-behaviour scope:
 - deterministic replay;
 - short-window operational stability and concentration controls;
 - structural rejection-testing queue;
+- stable Final Release and Last-known-good pointer;
 - no trade authority.
 
-Main publication will create `outputs/stability/current/FMDL2_FINAL_RELEASE.json`, update the Screening Current stability pointer and authorize entry into FMDL-3 planning.
+The Screening Current now carries `stability_status = ACCEPTED_FMDL2D_OPERATIONAL_STABILITY` and points to the final FMDL-2 release. Entry into FMDL-3 planning is authorized.
 
 ## Authorized next phase
 
