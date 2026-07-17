@@ -1,0 +1,45 @@
+name: FMDL Investment OS Interface Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - outputs/current/**
+      - outputs/investment_os/**
+      - schemas/investment_os_market_data_interface.schema.json
+      - scripts/validate_investment_os_interface.py
+      - docs/FMDL-1F_INTERFACE_AND_FINAL_ACCEPTANCE.md
+      - .github/workflows/investment-os-interface-validation.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - outputs/current/**
+      - outputs/investment_os/**
+      - schemas/investment_os_market_data_interface.schema.json
+      - scripts/validate_investment_os_interface.py
+      - docs/FMDL-1F_INTERFACE_AND_FINAL_ACCEPTANCE.md
+      - .github/workflows/investment-os-interface-validation.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate-interface:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install validation dependency
+        run: python -m pip install --upgrade pip && pip install 'jsonschema>=4.23,<5'
+
+      - name: Validate Investment OS interface
+        run: python scripts/validate_investment_os_interface.py
