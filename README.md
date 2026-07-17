@@ -39,14 +39,14 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 
 ### FMDL-2B-1 real pilot
 
-- Run: `FMDL2B1_PILOT_20260717T114620+0800`
-- GitHub Actions: `29553180074` — success
+- Final run: `FMDL2B1_PILOT_20260717T120653+0800`
+- GitHub Actions: `29554012101` — success
 - Deterministic stress sample: `300` symbols across all five boards
 - Usable: `299/300` (`99.67%`)
 - Normalized rows: `109,602`
-- Six Zstandard Parquet pilot shards: `5.993 MiB`
-- Projected full-store size: `110.45 MiB`
-- Pilot runtime: `9.25 minutes`
+- Six Zstandard Parquet pilot shards: `5.9936 MiB`
+- Projected full-store size: `110.4627 MiB`
+- Pilot runtime: `9.2937 minutes`
 - Frozen full-backfill design: `24` logical shards, approximately `231` symbols each, initial maximum parallelism `3`
 - Readiness: `AUTHORIZED_FOR_FMDL_2B_2_IMPLEMENTATION`
 - Authority: historical data evidence only; no factor rank, alpha claim or trade authority
