@@ -2,18 +2,37 @@
 
 ## Acceptance state
 
-`ACCEPTED_PENDING_MAIN_SCREENING_CURRENT_PUBLICATION`
+`ACCEPTED_WITH_RESEARCH_ONLY_LONGLIST_AND_FMDL2D_STABILITY_PENDING`
 
-FMDL-2C has passed a real 5,528-security full-market build, deterministic regression tests and independent candidate validation on GitHub-hosted runners. Merge is authorized. Final state becomes accepted after the merge-triggered main workflow publishes the canonical screening Current.
+FMDL-2C has passed a real 5,528-security full-market build, deterministic regression tests, independent candidate validation and main-branch Screening Current publication on GitHub-hosted runners. FMDL-2C is formally complete.
 
 The output is a research-priority queue only. It is not a factor-alpha claim, investment recommendation, live Investment OS candidate-pool promotion, portfolio instruction or trade permission.
+
+## Canonical main-branch publication
+
+- Merge commit: `2fb51b358c820706de795e09e8c1b66f46a25840`
+- Screening Current: `FMDL2C_20260717T210036+0800`
+- As-of date: `2026-07-17`
+- Publication status: `PUBLISHED`
+- Input factor Current: `FMDL2B4_FACTOR_20260717T174336+0800`
+- Quality / independent validation: `PASS / PASS`
+- Hard failures: `0`
+- Stability status: `PENDING_FMDL2D_REPLAY_AND_ECONOMIC_STABILITY`
+- Authority: `RESEARCH_PRIORITY_ONLY_NO_TRADE_AUTHORITY`
+- Trade authority: `NONE`
+
+Canonical paths:
+
+- `outputs/screens/current/`
+- `outputs/screens/current/SCREENING_CURRENT_RELEASE.json`
+- `outputs/status/FMDL2C_LAST_SUCCESS.json`
 
 ## Accepted real run
 
 - Workflow run: `29581863050` — `SUCCESS`
 - Candidate artifact: `8407344370`
 - Artifact digest: `sha256:57bf203865150d6dc546385d8a1631c56ca06dfddad49d723b9be559449bf3f7`
-- Screening run: `FMDL2C_20260717T205335+0800`
+- Acceptance screening run: `FMDL2C_20260717T205335+0800`
 - As-of date: `2026-07-17`
 - Input factor Current: `FMDL2B4_FACTOR_20260717T174336+0800`
 - Screening contract: `1.0.0`
@@ -69,7 +88,7 @@ This preserves within-archetype strength while making different research pathway
 
 ## Investability and identity controls
 
-The accepted candidate contains:
+The accepted Current contains:
 
 - named security-master identity for all `5,528` screening rows;
 - named identity for all `150` sleeve rows;
@@ -113,7 +132,7 @@ Missing factors remain missing and never receive a zero, neutral percentile or n
 2. **Cross-sleeve raw-score distortion.** Raw weighted scores were not directly comparable across archetypes and eliminated standalone recovery names. Final ranking now blends within-sleeve rank percentiles and raw scores.
 3. **Human identity omission.** Initial machine outputs contained symbols but no security names. The final screen binds canonical security-master name, exchange, listing status and available industry identity and independently validates name completeness.
 
-## Canonical outputs after publication
+## Canonical outputs
 
 - `outputs/screens/current/SCREENING_UNIVERSE.parquet`
 - `outputs/screens/current/SCREENING_SLEEVE_DETAIL.parquet`
