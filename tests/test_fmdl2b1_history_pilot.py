@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from scripts.run_history_pilot import canonicalize_history, select_pilot_sample, validate_series
+from scripts.run_history_pilot import canonicalize_history, validate_series
+from scripts.run_history_pilot_entry import select_pilot_sample
 
 ROOT = Path(__file__).resolve().parents[1]
 
