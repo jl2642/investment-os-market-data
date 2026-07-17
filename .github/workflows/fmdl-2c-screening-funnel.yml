@@ -7,6 +7,7 @@ on:
       - "config/fmdl2_screening_funnel.json"
       - "schemas/fmdl2_screening_manifest.schema.json"
       - "scripts/run_screening_funnel.py"
+      - "scripts/run_screening_funnel_v2.py"
       - "scripts/validate_fmdl2c_candidate.py"
       - "scripts/publish_fmdl2c.py"
       - "tests/test_fmdl2c_screening_funnel.py"
@@ -18,6 +19,7 @@ on:
       - "config/fmdl2_screening_funnel.json"
       - "schemas/fmdl2_screening_manifest.schema.json"
       - "scripts/run_screening_funnel.py"
+      - "scripts/run_screening_funnel_v2.py"
       - "scripts/validate_fmdl2c_candidate.py"
       - "scripts/publish_fmdl2c.py"
       - "tests/test_fmdl2c_screening_funnel.py"
@@ -52,7 +54,7 @@ jobs:
           python scripts/validate_investment_os_interface.py
           pytest -q tests/test_fmdl2b3_factor_engine.py tests/test_fmdl2b4_incremental_refresh.py tests/test_fmdl2c_screening_funnel.py
       - name: Build real screening candidate
-        run: python -m scripts.run_screening_funnel
+        run: python -m scripts.run_screening_funnel_v2
       - name: Independent candidate validation
         run: python -m scripts.validate_fmdl2c_candidate
       - name: Upload screening evidence
