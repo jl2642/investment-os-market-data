@@ -7,15 +7,17 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Program: Full-Market Data Layer (FMDL)
 - Completed prerequisite: **FMDL-0 — Public Equity Investing Integration**
 - Completed phase: **FMDL-1 — A-share Full-Market Data MVP**
-- Active phase: **FMDL-2 — A-share Factor & Screening Funnel**
-- Completed subphase: **FMDL-2A — Factor Contract & Historical Source Benchmark**
-- Completed subphase: **FMDL-2B — Historical Store & Basic Factor Engine**
-  - **FMDL-2B-1 — Historical Store Architecture & Full-Market Pilot**
-  - **FMDL-2B-2 — Full-Universe Sharded Initial Backfill**
-  - **FMDL-2B-3 — Basic Factor Engine**
-  - **FMDL-2B-4 — Incremental Update, Refresh & Final Acceptance**
-- Completed subphase: **FMDL-2C — Screening Sleeves & Funnel**
-- Next production phase: **FMDL-2D — Replay, Stability & Final FMDL-2 Acceptance**
+- Completed phase: **FMDL-2 — A-share Factor & Screening Funnel**
+  - **FMDL-2A — Factor Contract & Historical Source Benchmark**
+  - **FMDL-2B — Historical Store & Basic Factor Engine**
+    - **FMDL-2B-1 — Historical Store Architecture & Full-Market Pilot**
+    - **FMDL-2B-2 — Full-Universe Sharded Initial Backfill**
+    - **FMDL-2B-3 — Basic Factor Engine**
+    - **FMDL-2B-4 — Incremental Update, Refresh & Final Acceptance**
+  - **FMDL-2C — Screening Sleeves & Funnel**
+  - **FMDL-2D — Replay, Stability & Final FMDL-2 Acceptance**
+- Next production phase: **FMDL-3 — Financial & Valuation Data Hardening**
+- Next engineering gate: **FMDL-3 Overall Architecture & Phased Plan → FMDL-3A Source Benchmark, Point-in-Time Contract & Coverage Map**
 - Cost policy: **free and free-tier resources only**
 - Execution model: GitHub Actions + open-source/public data adapters
 - Trading model: research and decision support only; no broker connection and no automatic order execution
@@ -33,7 +35,7 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Stable data path: `outputs/current/`
 - Investment OS interface: `outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json`
 
-## Accepted historical, factor and screening releases
+## Accepted historical, factor, screening and stability releases
 
 ### FMDL-2A source route
 
@@ -132,19 +134,40 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Quality and independent validation: `PASS / PASS`
 - Cross-sleeve method: `70% within-sleeve rank percentile + 30% raw sleeve score + capped confirmation bonus`
 - Stable path: `outputs/screens/current/`
-- Stability state: `PENDING_FMDL2D_REPLAY_AND_ECONOMIC_STABILITY`
 - Authority: research-priority queue only; no factor-alpha claim, live candidate-pool promotion or trade authority
+
+### FMDL-2D accepted stability candidate
+
+- Run: `FMDL2D_20260717T215113+0800`
+- Workflow: `29585053689` — success
+- Candidate artifact: `8408829195`
+- As-of date: `2026-07-17`
+- Replay window: six sessions from `2026-07-10` through `2026-07-17`
+- Same-date screening universe / sleeves / Longlist / funnel replay: `PASS / PASS / PASS / PASS`
+- Historical factor anchor: `143,728 / 143,728` matching cells (`100%`)
+- Minimum Longlist rows: `100`
+- Average / minimum consecutive Longlist overlap: `76.6% / 72.0%`
+- Average Top-20 overlap: `70.0%`
+- Median common-name rank Spearman: `0.7553`
+- Average primary-sleeve retention: `99.50%`
+- Maximum board share / HHI: `38.0% / 0.2830`
+- Current Priority-A structural-fragility share: `30.0%`
+- Candidate status / independent validation: `PASS_WITH_CONTROLLED_LIMITATIONS / PASS`
+- Hard failures / controlled warnings: `0 / 0`
+- Candidate path: `outputs/stability/candidate/`
+- Stable Current path after merge publication: `outputs/stability/current/`
+- Authority: operational research stability only; no alpha claim, candidate-pool promotion or trade authority
 
 ## System boundary
 
-This repository owns market-data acquisition, normalization, quality control, versioning, immutable and incremental history storage, factor computation, transparent screening, research-priority ranking and Current publication. It does not own final company research conclusions, investment recommendations, position sizing, portfolio migration or order execution. Those remain with Public Equity Investing, Investment OS and the user-confirmation gate.
+This repository owns market-data acquisition, normalization, quality control, versioning, immutable and incremental history storage, factor computation, transparent screening, research-priority ranking, replay, stability controls and Current publication. It does not own final company research conclusions, investment recommendations, position sizing, portfolio migration or order execution. Those remain with Public Equity Investing, Investment OS and the user-confirmation gate.
 
 ## Canonical architecture
 
-1. `config/` — source, universe, schedule, history, factor, refresh, screening and quality rules.
+1. `config/` — source, universe, schedule, history, factor, refresh, screening, replay and quality rules.
 2. `schemas/` — canonical dataset, history-row, manifest, release, interface and operating-state schemas.
 3. `ingestion/` — source adapters and explicit provider fallbacks.
-4. `pipeline/` and `scripts/` — normalization, QA, history ingestion, incremental refresh, repair, factor computation, screening, LKG and quarantine logic.
+4. `pipeline/` and `scripts/` — normalization, QA, history ingestion, incremental refresh, repair, factor computation, screening, replay, stability, LKG and quarantine logic.
 5. `datasets/history/base/` — immutable accepted historical base.
 6. `datasets/history/incremental/` — validated daily history deltas.
 7. `datasets/history/repair/` — explicit full-series repair overrides.
@@ -152,10 +175,11 @@ This repository owns market-data acquisition, normalization, quality control, ve
 9. `outputs/history/current/` — stable composite history Current.
 10. `outputs/factors/current/` — stable basic-factor Current.
 11. `outputs/screens/current/` — stable research-priority screening Current.
-12. `outputs/status/` — last run and last successful operating states.
-13. `outputs/investment_os/` — machine-validated consumer pointer.
-14. `outputs/benchmark/` — source and pilot evidence.
-15. `.github/workflows/` — validation, scheduled production and controlled recovery automation.
+12. `outputs/stability/current/` — final FMDL-2 replay and stability acceptance.
+13. `outputs/status/` — last run and last successful operating states.
+14. `outputs/investment_os/` — machine-validated consumer pointer.
+15. `outputs/benchmark/` — source and pilot evidence.
+16. `.github/workflows/` — validation, scheduled production and controlled recovery automation.
 
 ## Canonical documents
 
@@ -187,6 +211,9 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `docs/FMDL-2B4_ACCEPTANCE.md`
 - `docs/FMDL-2C_SCREENING_FUNNEL.md`
 - `docs/FMDL-2C_ACCEPTANCE.md`
+- `docs/FMDL-2D_REPLAY_STABILITY.md`
+- `docs/FMDL-2D_ACCEPTANCE.md`
+- `docs/FMDL-2D_ROADMAP_REVIEW.md`
 
 ## Core datasets and controls
 
@@ -208,11 +235,17 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `fmdl2_screening_longlist`
 - `fmdl2_screening_funnel`
 - `fmdl2_screening_current`
+- `fmdl2_replay_longlists`
+- `fmdl2_rank_transitions`
+- `fmdl2_sleeve_transitions`
+- `fmdl2_structural_fragility_review`
+- `fmdl2_final_release`
 - `fmdl2b4_last_run`
 - `fmdl2b4_last_success`
 - `fmdl2c_last_success`
+- `fmdl2d_last_success`
 
-Every published dataset carries a schema version, source timestamp, generation timestamp, QA state, row count, hash and Last-known-good lineage. Failed history, factor or screening candidates cannot replace Current. Missing history or factor inputs remain missing and never become neutral scores or zeros. Screening output is a research-priority queue and never creates trade permission.
+Every published dataset carries a schema version, source timestamp, generation timestamp, QA state, row count, hash and Last-known-good lineage. Failed history, factor, screening or stability candidates cannot replace Current. Missing history or factor inputs remain missing and never become neutral scores or zeros. Screening output is a research-priority queue and never creates trade permission.
 
 ## FMDL roadmap
 
@@ -222,7 +255,7 @@ Every published dataset carries a schema version, source timestamp, generation t
   - FMDL-1B/C A-share Universe Builder + Daily Market Snapshot ✅
   - FMDL-1D/E Data Quality Hardening + Scheduled Automation ✅
   - FMDL-1F Investment OS Interface + Final Acceptance ✅
-- FMDL-2 A-share Factor & Screening Funnel 🚧
+- FMDL-2 A-share Factor & Screening Funnel ✅
   - FMDL-2A Factor Contract & Historical Source Benchmark ✅
   - FMDL-2B Historical Store & Basic Factor Engine ✅
     - FMDL-2B-1 Historical Store Architecture & Full-Market Pilot ✅
@@ -230,9 +263,19 @@ Every published dataset carries a schema version, source timestamp, generation t
     - FMDL-2B-3 Basic Factor Engine ✅
     - FMDL-2B-4 Incremental Update, Refresh & Final Acceptance ✅
   - FMDL-2C Screening Sleeves & Funnel ✅
-  - FMDL-2D Replay, Stability & Final Acceptance ⏭️
-- FMDL-3 Financial & Valuation Data Hardening
-- FMDL-4 Public Equity + Investment OS Integration
+  - FMDL-2D Replay, Stability & Final FMDL-2 Acceptance ✅
+- FMDL-3 Financial & Valuation Data Hardening ⏭️
+  - FMDL-3 Overall Architecture & Phased Plan
+  - FMDL-3A Source Benchmark, Point-in-Time Contract & Coverage Map
+  - FMDL-3B Financial Statement Store & Normalization
+  - FMDL-3C Financial Quality, Growth & Balance-Sheet Factors
+  - FMDL-3D Valuation, Capitalization, Dividend & Shareholder-Return Layer
+  - FMDL-3E Incremental Refresh, Replay & Final Acceptance
+- FMDL-4 Public Equity Investing + Investment OS Integration
+  - FMDL-4A Research Handoff Contract
+  - FMDL-4B Candidate Research & Graduation
+  - FMDL-4C Investment OS Re-entry & Decision-Gate Integration
+  - FMDL-4D Closed-Loop Attribution & Thesis Tracking
 - FMDL-5 Hong Kong Stock Connect Adapter
 - FMDL-6 US Equity Research Benchmark Pool
 - FMDL-7 Operating Acceptance

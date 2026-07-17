@@ -1,0 +1,46 @@
+{
+  "contract_version": "1.0.0",
+  "program": "FMDL-2D",
+  "authority_boundary": "RESEARCH_PRIORITY_ONLY_NO_TRADE_AUTHORITY",
+  "replay": {
+    "sessions": 6,
+    "mode": "FIXED_CURRENT_UNIVERSE_COHORT",
+    "same_date_semantic_match_required": 1.0,
+    "historical_anchor_factor_manifest": "outputs/factors/candidate/BASIC_FACTOR_MANIFEST.json"
+  },
+  "hard_gates": {
+    "minimum_replay_sessions": 6,
+    "minimum_longlist_rows_per_session": 80,
+    "minimum_average_consecutive_longlist_overlap": 0.5,
+    "minimum_single_transition_longlist_overlap": 0.35,
+    "minimum_average_top20_overlap": 0.25,
+    "minimum_median_common_rank_spearman": 0.15,
+    "minimum_average_primary_sleeve_retention": 0.35,
+    "maximum_board_share": 0.65,
+    "maximum_board_hhi": 0.5,
+    "maximum_priority_a_fragile_share": 0.35
+  },
+  "target_ranges": {
+    "average_consecutive_longlist_overlap": 0.65,
+    "average_top20_overlap": 0.45,
+    "median_common_rank_spearman": 0.35,
+    "average_primary_sleeve_retention": 0.5,
+    "maximum_longlist_fragile_share": 0.6,
+    "minimum_industry_identity_coverage": 0.5
+  },
+  "fragility": {
+    "bottom_rank_start": 76,
+    "liquidity_floor_multiple": 1.25,
+    "large_drawdown_threshold": -0.35,
+    "fragile_minimum_flags": 2
+  },
+  "prohibited_actions": [
+    "CLAIM_FACTOR_ALPHA",
+    "CLAIM_REALIZED_FALSE_POSITIVE_RATE",
+    "PROMOTE_TO_LIVE_INVESTMENT_OS_CANDIDATE_POOL",
+    "CHANGE_SIMULATION_PORTFOLIO",
+    "CHANGE_REAL_PORTFOLIO",
+    "CREATE_TRADE_PERMISSION",
+    "AUTOMATIC_BROKER_EXECUTION"
+  ]
+}
