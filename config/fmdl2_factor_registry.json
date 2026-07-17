@@ -1,0 +1,42 @@
+{
+  "contract_version": "1.0.0",
+  "program": "FMDL-2",
+  "authority_boundary": "RESEARCH_PRIORITY_ONLY_NO_TRADE_AUTHORITY",
+  "price_basis": {
+    "return_and_risk": "QFQ_ADJUSTED_CLOSE",
+    "liquidity": "UNADJUSTED_SOURCE_VOLUME_AND_TURNOVER",
+    "missing_value_policy": "PRESERVE_NULL_NEVER_FILL_ZERO",
+    "future_data_policy": "FORBIDDEN"
+  },
+  "factors": [
+    {"factor_id":"return_20d","family":"MOMENTUM","window":20,"minimum_observations":21,"direction":"HIGHER_BETTER","formula":"close_t/close_t_minus_20-1"},
+    {"factor_id":"return_60d","family":"MOMENTUM","window":60,"minimum_observations":61,"direction":"HIGHER_BETTER","formula":"close_t/close_t_minus_60-1"},
+    {"factor_id":"return_120d","family":"MOMENTUM","window":120,"minimum_observations":121,"direction":"HIGHER_BETTER","formula":"close_t/close_t_minus_120-1"},
+    {"factor_id":"return_250d","family":"MOMENTUM","window":250,"minimum_observations":251,"direction":"HIGHER_BETTER","formula":"close_t/close_t_minus_250-1"},
+    {"factor_id":"momentum_250_20d","family":"MOMENTUM","window":250,"minimum_observations":251,"direction":"HIGHER_BETTER","formula":"close_t_minus_20/close_t_minus_250-1"},
+    {"factor_id":"distance_52w_high","family":"MOMENTUM","window":250,"minimum_observations":120,"direction":"HIGHER_BETTER","formula":"close_t/max_close_250-1"},
+    {"factor_id":"trend_consistency_60d","family":"MOMENTUM","window":60,"minimum_observations":41,"direction":"HIGHER_BETTER","formula":"positive_daily_return_count/valid_return_count"},
+    {"factor_id":"positive_month_ratio_12m","family":"MOMENTUM","window":250,"minimum_observations":120,"direction":"HIGHER_BETTER","formula":"positive_20_session_block_count/available_block_count"},
+    {"factor_id":"volatility_20d","family":"RISK","window":20,"minimum_observations":16,"direction":"LOWER_BETTER","formula":"std_daily_return_20*sqrt_252"},
+    {"factor_id":"volatility_60d","family":"RISK","window":60,"minimum_observations":41,"direction":"LOWER_BETTER","formula":"std_daily_return_60*sqrt_252"},
+    {"factor_id":"downside_volatility_60d","family":"RISK","window":60,"minimum_observations":41,"direction":"LOWER_BETTER","formula":"std_negative_daily_return_60*sqrt_252"},
+    {"factor_id":"max_drawdown_120d","family":"RISK","window":120,"minimum_observations":81,"direction":"HIGHER_BETTER","formula":"min(close/running_max_close-1)_120"},
+    {"factor_id":"max_drawdown_250d","family":"RISK","window":250,"minimum_observations":120,"direction":"HIGHER_BETTER","formula":"min(close/running_max_close-1)_250"},
+    {"factor_id":"worst_day_120d","family":"RISK","window":120,"minimum_observations":81,"direction":"HIGHER_BETTER","formula":"min_daily_return_120"},
+    {"factor_id":"extreme_move_days_120d","family":"RISK","window":120,"minimum_observations":81,"direction":"LOWER_BETTER","formula":"count_abs_daily_return_above_board_review_threshold"},
+    {"factor_id":"avg_turnover_cny_20d","family":"LIQUIDITY","window":20,"minimum_observations":16,"direction":"HIGHER_BETTER","formula":"mean_turnover_cny_20"},
+    {"factor_id":"avg_turnover_cny_60d","family":"LIQUIDITY","window":60,"minimum_observations":41,"direction":"HIGHER_BETTER","formula":"mean_turnover_cny_60"},
+    {"factor_id":"median_turnover_cny_60d","family":"LIQUIDITY","window":60,"minimum_observations":41,"direction":"HIGHER_BETTER","formula":"median_turnover_cny_60"},
+    {"factor_id":"turnover_stability_60d","family":"LIQUIDITY","window":60,"minimum_observations":41,"direction":"HIGHER_BETTER","formula":"clip(median_turnover/mean_turnover,0,1)"},
+    {"factor_id":"turnover_cv_60d","family":"LIQUIDITY","window":60,"minimum_observations":41,"direction":"LOWER_BETTER","formula":"std_turnover/mean_turnover"},
+    {"factor_id":"volume_ratio_20_60d","family":"LIQUIDITY","window":60,"minimum_observations":41,"direction":"DIAGNOSTIC","formula":"mean_volume_20/mean_volume_60"},
+    {"factor_id":"active_trade_ratio_60d","family":"TRADING_STABILITY","window":60,"minimum_observations":41,"direction":"HIGHER_BETTER","formula":"positive_close_and_turnover_sessions/expected_sessions"},
+    {"factor_id":"suspension_days_20","family":"TRADING_STABILITY","window":20,"minimum_observations":1,"direction":"LOWER_BETTER","formula":"count_suspended_sessions_20"},
+    {"factor_id":"suspension_days_60","family":"TRADING_STABILITY","window":60,"minimum_observations":1,"direction":"LOWER_BETTER","formula":"count_suspended_sessions_60"},
+    {"factor_id":"zero_turnover_days_20","family":"DATA_RISK","window":20,"minimum_observations":1,"direction":"LOWER_BETTER","formula":"count_traded_label_zero_turnover_20"},
+    {"factor_id":"zero_turnover_days_60","family":"DATA_RISK","window":60,"minimum_observations":1,"direction":"LOWER_BETTER","formula":"count_traded_label_zero_turnover_60"}
+  ],
+  "cross_sectional_outputs": ["broad_market_percentile","board_neutral_percentile","winsorized_zscore","availability_flag","confidence_grade","missing_reason_code"],
+  "deferred_to_fmdl3": ["market_cap","free_float_market_cap","pe","pb","ps","ev_ebitda","fcf_yield","roe","roic","margin_quality","growth","leverage","dividend","buyback","analyst_consensus","financial_sector_specialized_metrics"],
+  "prohibited_actions": ["BUY_PERMISSION","ADD_PERMISSION","SELL_PERMISSION","AUTOMATIC_PORTFOLIO_CHANGE","AUTOMATIC_BROKER_EXECUTION"]
+}
