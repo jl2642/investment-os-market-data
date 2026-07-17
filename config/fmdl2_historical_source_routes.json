@@ -1,0 +1,70 @@
+{
+  "route_version": "1.0.0",
+  "status": "ACTIVE_FOR_FMDL_2B_INITIAL_BACKFILL",
+  "authority_boundary": "TECHNICAL_DATA_ROUTE_ONLY_NO_FACTOR_ALPHA_NO_TRADE_AUTHORITY",
+  "benchmark": {
+    "run_id": "FMDL2A_R2_20260717T101323+0800",
+    "artifact_digest": "sha256:7754a1fecbbc969cc55e48b5eed6a04a744a5ea97058ab4055276e64ffb797dc",
+    "akshare_version": "1.18.64",
+    "current_as_of_date": "2026-07-16",
+    "sample_size": 120,
+    "sample_sha256": "e34b6b5a182ec8e0142aadc84b43efc06158538710b1eb6b204df08fce64c415"
+  },
+  "primary": {
+    "provider_id": "sina_daily",
+    "akshare_function": "stock_zh_a_daily",
+    "adjust": "qfq",
+    "supported_boards": ["SH_MAIN", "SZ_MAIN", "STAR", "CHINEXT", "BSE"],
+    "capabilities": ["QFQ_OHLC", "HISTORICAL_VOLUME", "HISTORICAL_AMOUNT"],
+    "scale_success_ratio": 0.9917,
+    "latest_session_ratio": 0.9916,
+    "retry_policy": {
+      "attempts": 2,
+      "backoff_seconds": [1.5]
+    }
+  },
+  "fallbacks": [
+    {
+      "provider_id": "tencent_hist",
+      "akshare_function": "stock_zh_a_hist_tx",
+      "adjust": "qfq",
+      "supported_boards": ["SH_MAIN", "SZ_MAIN"],
+      "capabilities": ["QFQ_OHLC", "HISTORICAL_AMOUNT"],
+      "missing_capabilities": ["HISTORICAL_VOLUME"],
+      "validation_scope": "40_SYMBOL_FALLBACK_SUBSAMPLE",
+      "rules": [
+        "PRICE_AND_AMOUNT_ONLY",
+        "DO_NOT_SILENTLY_MIX_WITH_SINA_SERIES",
+        "DO_NOT_USE_FOR_VOLUME_FACTORS",
+        "DO_NOT_ROUTE_STAR_CHINEXT_OR_BSE_WITHOUT_SEPARATE_VALIDATION"
+      ]
+    }
+  ],
+  "rejected_or_degraded": [
+    {
+      "provider_id": "eastmoney_hist",
+      "akshare_function": "stock_zh_a_hist",
+      "status": "DEGRADED_ON_GITHUB_RUNNER",
+      "smoke_success_ratio": 0.2667,
+      "reason": "PUBLIC_PROVIDER_CONNECTIONS_FREQUENTLY_CLOSED_ON_GITHUB_HOSTED_RUNNER"
+    }
+  ],
+  "required_fmdl2b_controls": [
+    "PARTITIONED_CACHE",
+    "PER_SYMBOL_RETRY_AND_QUARANTINE",
+    "INITIAL_BACKFILL_THEN_DAILY_INCREMENTAL_APPEND",
+    "PROVIDER_BOARD_AND_ADJUSTMENT_LINEAGE_PER_SYMBOL",
+    "NEW_LISTING_PARTIAL_HISTORY_HANDLING",
+    "HASH_DUPLICATE_DATE_IMPOSSIBLE_OHLC_AND_FRESHNESS_GATES",
+    "FAILED_SYMBOL_ISOLATION_WITHOUT_FULL_MARKET_ABORT",
+    "CORPORATE_ACTION_REPLAY_AND_ADJUSTMENT_REGRESSION",
+    "NO_SILENT_PROVIDER_SERIES_MIXING"
+  ],
+  "prohibited_actions": [
+    "FILL_MISSING_VALUES_WITH_ZERO",
+    "USE_TENCENT_VOLUME",
+    "USE_UNVALIDATED_BOARD_FALLBACK",
+    "CLAIM_FACTOR_ALPHA",
+    "CREATE_TRADE_PERMISSION"
+  ]
+}
