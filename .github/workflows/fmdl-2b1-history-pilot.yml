@@ -9,6 +9,7 @@ on:
       - config/fmdl2_historical_source_routes.json
       - schemas/a_share_daily_history.schema.json
       - scripts/run_history_pilot.py
+      - scripts/run_history_pilot_entry.py
       - tests/test_fmdl2b1_history_pilot.py
       - docs/FMDL-2B1_HISTORY_STORE_PILOT.md
       - requirements.txt
@@ -20,6 +21,7 @@ on:
       - config/fmdl2_historical_source_routes.json
       - schemas/a_share_daily_history.schema.json
       - scripts/run_history_pilot.py
+      - scripts/run_history_pilot_entry.py
       - tests/test_fmdl2b1_history_pilot.py
       - docs/FMDL-2B1_HISTORY_STORE_PILOT.md
       - requirements.txt
@@ -61,7 +63,7 @@ jobs:
         run: |
           set +e
           mkdir -p diagnostics
-          python -m scripts.run_history_pilot 2>&1 | tee diagnostics/FMDL2B1_PILOT_LOG.txt
+          python -m scripts.run_history_pilot_entry 2>&1 | tee diagnostics/FMDL2B1_PILOT_LOG.txt
           status=${PIPESTATUS[0]}
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           exit 0
