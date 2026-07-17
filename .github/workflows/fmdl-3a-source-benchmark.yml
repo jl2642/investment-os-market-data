@@ -12,9 +12,11 @@ on:
       - "scripts/run_fmdl3a_benchmark_v2.py"
       - "scripts/run_fmdl3a_benchmark_v3.py"
       - "scripts/run_fmdl3a_benchmark_v4.py"
+      - "scripts/run_fmdl3a_benchmark_v5.py"
       - "scripts/validate_fmdl3a_candidate.py"
       - "scripts/validate_fmdl3a_candidate_v2.py"
       - "scripts/validate_fmdl3a_candidate_v3.py"
+      - "scripts/validate_fmdl3a_candidate_v4.py"
       - "scripts/publish_fmdl3a.py"
       - "tests/test_fmdl3a_contract.py"
       - ".github/workflows/fmdl-3a-source-benchmark.yml"
@@ -29,9 +31,11 @@ on:
       - "scripts/run_fmdl3a_benchmark_v2.py"
       - "scripts/run_fmdl3a_benchmark_v3.py"
       - "scripts/run_fmdl3a_benchmark_v4.py"
+      - "scripts/run_fmdl3a_benchmark_v5.py"
       - "scripts/validate_fmdl3a_candidate.py"
       - "scripts/validate_fmdl3a_candidate_v2.py"
       - "scripts/validate_fmdl3a_candidate_v3.py"
+      - "scripts/validate_fmdl3a_candidate_v4.py"
       - "scripts/publish_fmdl3a.py"
       - "tests/test_fmdl3a_contract.py"
       - ".github/workflows/fmdl-3a-source-benchmark.yml"
@@ -81,11 +85,11 @@ jobs:
       - name: Run real final source benchmark
         id: benchmark
         continue-on-error: true
-        run: python -m scripts.run_fmdl3a_benchmark_v4 --workers 3
+        run: python -m scripts.run_fmdl3a_benchmark_v5 --workers 3
       - name: Validate benchmark candidate independently
         id: validate
         continue-on-error: true
-        run: python -m scripts.validate_fmdl3a_candidate_v3
+        run: python -m scripts.validate_fmdl3a_candidate_v4
       - name: Upload benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
