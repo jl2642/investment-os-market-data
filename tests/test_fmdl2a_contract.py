@@ -47,3 +47,32 @@ def test_benchmark_sample_is_deterministic_and_board_stratified() -> None:
     assert first["symbol"].tolist() == second["symbol"].tolist()
     assert len(first) == sum(BOARD_QUOTAS.values())
     assert first["board"].value_counts().to_dict() == BOARD_QUOTAS
+
+
+def test_final_benchmark_authorizes_fmdl2b_without_trade_authority() -> None:
+    benchmark = json.loads(
+        (ROOT / "outputs/benchmark/fmdl2a/FMDL2A_HISTORICAL_SOURCE_BENCHMARK.json").read_text(encoding="utf-8")
+    )
+    assert benchmark["recommendation"]["production_readiness"] == "READY_FOR_FMDL_2B"
+    assert benchmark["recommendation"]["primary_provider"] == "sina_daily"
+    assert benchmark["recommendation"]["trade_authority"] == "NONE"
+    assert benchmark["sample"]["scale_size"] == sum(BOARD_QUOTAS.values())
+    primary = next(item for item in benchmark["scale_summary"] if item["provider"] == "sina_daily")
+    assert primary["scale_scope"] == "FULL_SCALE"
+    assert primary["success_ratio"] >= 0.95
+    assert primary["latest_session_ratio"] >= 0.98
+    assert primary["volume_schema_ratio"] >= 0.95
+    assert primary["amount_schema_ratio"] >= 0.95
+
+
+def test_source_routes_are_capability_limited_and_fail_closed() -> None:
+    routes = json.loads((ROOT / "config/fmdl2_historical_source_routes.json").read_text(encoding="utf-8"))
+    assert routes["status"] == "ACTIVE_FOR_FMDL_2B_INITIAL_BACKFILL"
+    assert routes["primary"]["provider_id"] == "sina_daily"
+    assert set(routes["primary"]["supported_boards"]) == set(BOARD_QUOTAS)
+    fallback = routes["fallbacks"][0]
+    assert fallback["provider_id"] == "tencent_hist"
+    assert "HISTORICAL_VOLUME" in fallback["missing_capabilities"]
+    assert "DO_NOT_SILENTLY_MIX_WITH_SINA_SERIES" in fallback["rules"]
+    assert "CLAIM_FACTOR_ALPHA" in routes["prohibited_actions"]
+    assert "CREATE_TRADE_PERMISSION" in routes["prohibited_actions"]

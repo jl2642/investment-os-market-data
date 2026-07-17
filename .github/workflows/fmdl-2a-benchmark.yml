@@ -6,18 +6,34 @@ on:
     branches: [main]
     paths:
       - config/fmdl2_factor_registry.json
+      - config/fmdl2_historical_source_routes.json
       - docs/FMDL-2A_FACTOR_CONTRACT.md
       - docs/FMDL-2A_BENCHMARK_PLAN.md
+      - docs/FMDL-2A_SOURCE_DECISION.md
+      - docs/FMDL-2B_ENGINEERING_REQUIREMENTS.md
+      - docs/FMDL-2A_ACCEPTANCE.md
+      - outputs/benchmark/fmdl2a/FMDL2A_HISTORICAL_SOURCE_BENCHMARK.json
+      - outputs/benchmark/fmdl2a/FMDL2A_HISTORICAL_SOURCE_BENCHMARK.md
+      - scripts/__init__.py
       - scripts/benchmark_historical_sources.py
+      - scripts/benchmark_historical_sources_v2.py
       - tests/test_fmdl2a_contract.py
       - .github/workflows/fmdl-2a-benchmark.yml
   pull_request:
     branches: [main]
     paths:
       - config/fmdl2_factor_registry.json
+      - config/fmdl2_historical_source_routes.json
       - docs/FMDL-2A_FACTOR_CONTRACT.md
       - docs/FMDL-2A_BENCHMARK_PLAN.md
+      - docs/FMDL-2A_SOURCE_DECISION.md
+      - docs/FMDL-2B_ENGINEERING_REQUIREMENTS.md
+      - docs/FMDL-2A_ACCEPTANCE.md
+      - outputs/benchmark/fmdl2a/FMDL2A_HISTORICAL_SOURCE_BENCHMARK.json
+      - outputs/benchmark/fmdl2a/FMDL2A_HISTORICAL_SOURCE_BENCHMARK.md
+      - scripts/__init__.py
       - scripts/benchmark_historical_sources.py
+      - scripts/benchmark_historical_sources_v2.py
       - tests/test_fmdl2a_contract.py
       - .github/workflows/fmdl-2a-benchmark.yml
 
@@ -51,16 +67,17 @@ jobs:
       - name: Run deterministic contract tests
         run: pytest -q tests/test_fmdl2a_contract.py
 
-      - name: Run real free-source benchmark
+      - name: Run retry-aware real free-source benchmark
         id: benchmark
         shell: bash
         run: |
           set +e
           mkdir -p diagnostics
-          python scripts/benchmark_historical_sources.py \
+          python -m scripts.benchmark_historical_sources_v2 \
             --timeout-seconds 15 \
             --pause-seconds 0.15 \
             --fallback-scale-size 40 \
+            --scale-attempts 2 \
             2>&1 | tee diagnostics/FMDL2A_BENCHMARK_LOG.txt
           status=${PIPESTATUS[0]}
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"

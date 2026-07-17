@@ -69,3 +69,7 @@ FMDL-2A is accepted only when:
 - a primary/fallback decision is recorded with limitations;
 - FMDL-2B ingestion, cache and incremental-update requirements are frozen;
 - no claim is made that factor alpha has been demonstrated.
+
+## Validation branch
+
+The `fmdl-2a-validation` pull request runs the benchmark on a GitHub-hosted Linux runner. The benchmark artifact, not the existence of the branch, is the acceptance evidence.

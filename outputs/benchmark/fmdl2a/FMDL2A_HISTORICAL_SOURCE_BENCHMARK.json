@@ -1,0 +1,228 @@
+{
+  "benchmark_version": "2.0.0",
+  "run_id": "FMDL2A_R2_20260717T101323+0800",
+  "generated_at": "2026-07-17T10:13:23+08:00",
+  "current_run_id": "FMDL1BC_20260716T165927+0800",
+  "current_as_of_date": "2026-07-16",
+  "akshare_version": "1.18.64",
+  "request": {
+    "start_date": "20250112",
+    "end_date": "20260716",
+    "adjust": "qfq",
+    "timeout_seconds": 15,
+    "scale_attempts": 2
+  },
+  "installed_candidates": [
+    "eastmoney_hist",
+    "sina_daily",
+    "tencent_hist"
+  ],
+  "sample": {
+    "scale_size": 120,
+    "smoke_size": 15,
+    "board_counts": {
+      "SH_MAIN": 30,
+      "SZ_MAIN": 30,
+      "STAR": 20,
+      "CHINEXT": 20,
+      "BSE": 20
+    },
+    "sample_sha256": "e34b6b5a182ec8e0142aadc84b43efc06158538710b1eb6b204df08fce64c415"
+  },
+  "smoke_summary": [
+    {
+      "provider": "eastmoney_hist",
+      "attempts": 15,
+      "success_count": 4,
+      "success_ratio": 0.2667,
+      "latest_session_ratio": 1.0,
+      "ohlc_schema_ratio": 1.0,
+      "volume_schema_ratio": 1.0,
+      "amount_schema_ratio": 1.0,
+      "median_latency_seconds": 0.8243,
+      "p95_latency_seconds": 0.8711,
+      "median_rows": 363,
+      "seasoned_251_ratio": 1.0,
+      "duplicate_date_rows": 0,
+      "invalid_close_rows": 0,
+      "impossible_ohlc_rows": 0,
+      "board_success_ratio": {
+        "SH_MAIN": 0.0,
+        "SZ_MAIN": 0.0,
+        "STAR": 0.0,
+        "CHINEXT": 0.3333,
+        "BSE": 1.0
+      }
+    },
+    {
+      "provider": "sina_daily",
+      "attempts": 15,
+      "success_count": 15,
+      "success_ratio": 1.0,
+      "latest_session_ratio": 1.0,
+      "ohlc_schema_ratio": 1.0,
+      "volume_schema_ratio": 1.0,
+      "amount_schema_ratio": 1.0,
+      "median_latency_seconds": 1.5746,
+      "p95_latency_seconds": 2.0253,
+      "median_rows": 363,
+      "seasoned_251_ratio": 1.0,
+      "duplicate_date_rows": 0,
+      "invalid_close_rows": 0,
+      "impossible_ohlc_rows": 0,
+      "board_success_ratio": {
+        "SH_MAIN": 1.0,
+        "SZ_MAIN": 1.0,
+        "STAR": 1.0,
+        "CHINEXT": 1.0,
+        "BSE": 1.0
+      }
+    },
+    {
+      "provider": "tencent_hist",
+      "attempts": 15,
+      "success_count": 12,
+      "success_ratio": 0.8,
+      "latest_session_ratio": 1.0,
+      "ohlc_schema_ratio": 1.0,
+      "volume_schema_ratio": 0.0,
+      "amount_schema_ratio": 1.0,
+      "median_latency_seconds": 2.4467,
+      "p95_latency_seconds": 2.9499,
+      "median_rows": 363,
+      "seasoned_251_ratio": 1.0,
+      "duplicate_date_rows": 0,
+      "invalid_close_rows": 0,
+      "impossible_ohlc_rows": 0,
+      "board_success_ratio": {
+        "SH_MAIN": 1.0,
+        "SZ_MAIN": 1.0,
+        "STAR": 1.0,
+        "CHINEXT": 1.0,
+        "BSE": 0.0
+      }
+    }
+  ],
+  "scale_summary": [
+    {
+      "provider": "sina_daily",
+      "attempts": 120,
+      "success_count": 119,
+      "success_ratio": 0.9917,
+      "latest_session_ratio": 0.9916,
+      "ohlc_schema_ratio": 1.0,
+      "volume_schema_ratio": 1.0,
+      "amount_schema_ratio": 1.0,
+      "median_latency_seconds": 1.4144,
+      "p95_latency_seconds": 1.9839,
+      "median_rows": 363,
+      "seasoned_251_ratio": 0.9832,
+      "duplicate_date_rows": 0,
+      "invalid_close_rows": 0,
+      "impossible_ohlc_rows": 0,
+      "board_success_ratio": {
+        "SH_MAIN": 1.0,
+        "SZ_MAIN": 1.0,
+        "STAR": 0.95,
+        "CHINEXT": 1.0,
+        "BSE": 1.0
+      },
+      "scale_scope": "FULL_SCALE",
+      "capabilities": {
+        "qfq_price": true,
+        "historical_volume": true,
+        "historical_amount": true
+      }
+    },
+    {
+      "provider": "tencent_hist",
+      "attempts": 40,
+      "success_count": 40,
+      "success_ratio": 1.0,
+      "latest_session_ratio": 1.0,
+      "ohlc_schema_ratio": 1.0,
+      "volume_schema_ratio": 0.0,
+      "amount_schema_ratio": 1.0,
+      "median_latency_seconds": 2.4439,
+      "p95_latency_seconds": 2.6741,
+      "median_rows": 363,
+      "seasoned_251_ratio": 1.0,
+      "duplicate_date_rows": 0,
+      "invalid_close_rows": 0,
+      "impossible_ohlc_rows": 0,
+      "board_success_ratio": {
+        "SH_MAIN": 1.0,
+        "SZ_MAIN": 1.0,
+        "STAR": null,
+        "CHINEXT": null,
+        "BSE": null
+      },
+      "scale_scope": "FALLBACK_SUBSAMPLE",
+      "capabilities": {
+        "qfq_price": true,
+        "historical_volume": false,
+        "historical_amount": true
+      }
+    }
+  ],
+  "recommendation": {
+    "production_readiness": "READY_FOR_FMDL_2B",
+    "primary_provider": "sina_daily",
+    "primary_scope_requirement": "FULL_120_SYMBOL_CROSS_BOARD_SAMPLE",
+    "fallbacks": [
+      {
+        "provider": "tencent_hist",
+        "capability": "QFQ_PRICE_AND_AMOUNT_ONLY",
+        "sample_scope": "FALLBACK_SUBSAMPLE",
+        "excluded_boards": []
+      }
+    ],
+    "board_routes": {
+      "SH_MAIN": {
+        "primary": "sina_daily",
+        "price_fallback": "tencent_hist"
+      },
+      "SZ_MAIN": {
+        "primary": "sina_daily",
+        "price_fallback": "tencent_hist"
+      },
+      "STAR": {
+        "primary": "sina_daily",
+        "price_fallback": null
+      },
+      "CHINEXT": {
+        "primary": "sina_daily",
+        "price_fallback": null
+      },
+      "BSE": {
+        "primary": "sina_daily",
+        "price_fallback": null
+      }
+    },
+    "reasons": [],
+    "interpretation": {
+      "eastmoney_hist": "Not selected when GitHub runner disconnections keep smoke success below threshold.",
+      "sina_daily": "Preferred full-market route when it passes the full cross-board scale test; retry transient timeouts and JSON failures.",
+      "tencent_hist": "Price/amount fallback only when volume is absent; do not use for BSE unless separately validated."
+    },
+    "required_fmdl2b_controls": [
+      "partitioned historical cache",
+      "two-attempt per-symbol retry with backoff before quarantine",
+      "incremental daily append after initial backfill",
+      "qfq adjusted price plus source-reported liquidity lineage",
+      "provider, board route and adjustment lineage per symbol",
+      "new-listing partial-history handling",
+      "hash, duplicate-date, impossible-OHLC and freshness gates",
+      "failed symbols isolated without failing the entire market",
+      "Sina primary and Tencent price-only fallback must never be silently mixed"
+    ],
+    "trade_authority": "NONE"
+  },
+  "known_limitations": [
+    "Free providers may throttle or reject GitHub-hosted runner IP ranges.",
+    "A 120-symbol benchmark is not the 5,529-symbol initial backfill.",
+    "Tencent fallback was not full-scale and lacks normalized historical volume in this interface.",
+    "Corporate-action correctness still requires FMDL-2B replay and adjustment regression tests.",
+    "Technical source readiness does not demonstrate factor alpha."
+  ]
+}
