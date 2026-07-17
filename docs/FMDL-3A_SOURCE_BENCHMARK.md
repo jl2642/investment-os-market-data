@@ -1,45 +1,27 @@
 # FMDL-3A — Source Benchmark, Point-in-Time Contract & Coverage Map
 
-## 1. Purpose
+## 1. Final state
 
-FMDL-3A converts the accepted FMDL-3 architecture into measured source decisions.
+`FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN`
 
-This phase must not claim that a source is usable because an API name exists. Every proposed route is executed on GitHub-hosted infrastructure against a deterministic cross-sector and cross-board A-share sample. The output freezes:
+FMDL-3A executed real free/free-tier source routes on GitHub-hosted infrastructure. The accepted candidate is:
 
-- primary and fallback routes;
-- measured success and coverage thresholds;
-- announcement-date and revision semantics;
-- runtime and field completeness;
-- sector and board gaps;
-- conditions that block FMDL-3B.
+- run: `FMDL3A_20260718T004613+0800`;
+- generated at: `2026-07-18T00:51:58+08:00`;
+- accepted workflow: `29597406995`;
+- candidate artifact: `8413745443`;
+- artifact digest: `sha256:a4e44f8417d773c6495360703bcdf0b43fd2441353374d432c7b9cea0be16a99`;
+- independent validation: `36 / 36 PASS`;
+- hard failures: `0`;
+- authority: `DATA_AND_RESEARCH_EVIDENCE_ONLY`;
+- trade authority: `NONE`;
+- next phase: `FMDL-3B`.
 
-## 2. Scope
+This acceptance freezes source routes and measured gates. It does not claim that the full-market financial statement store, normalized statements, financial factors or valuation Current already exist.
 
-### In scope
+## 2. Deterministic stress sample
 
-- official filing and announcement metadata;
-- structured balance-sheet, income-statement and cash-flow candidates;
-- financial-indicator cross-check candidates;
-- current and historical valuation candidates;
-- share-capital, dividend and buyback candidates;
-- daily-resolution point-in-time availability;
-- revision and correction identification;
-- numeric acceptance gates and coverage maps.
-
-### Out of scope
-
-- full-market financial statement backfill;
-- final line-item normalization;
-- factor construction;
-- investment conclusions or candidate promotion;
-- simulation or real-portfolio changes;
-- trade authority.
-
-## 3. Deterministic stress sample
-
-The benchmark sample is frozen in `config/fmdl3a_benchmark.json`.
-
-It covers:
+The benchmark used 13 issuers across:
 
 - Shanghai Main Board;
 - Shenzhen Main Board;
@@ -52,116 +34,166 @@ It covers:
 - securities firms;
 - pre-profit or negative-earnings issuers.
 
-The sample includes both mature large issuers and structurally difficult cases. It is not a statistical backtest and must not be presented as full-market coverage. It is a source capability and failure-mode test.
+The sample is a source capability and failure-mode test, not a statistical backtest or full-market coverage claim.
 
-## 4. Candidate source hierarchy
+## 3. Measured results
 
-### 4.1 Filing availability and revisions
+| Gate | Result |
+|---|---:|
+| Official disclosure call success | `100%` |
+| Eastmoney fallback notice success | `100%` |
+| SH/SZ primary three-statement bundle | `100%` |
+| SH/SZ Sina fallback three-statement bundle | `100%` |
+| Supported-universe statement coverage | `100%` |
+| Official filing-to-report-period PIT match | `100%` |
+| Supported-universe current capitalization coverage | `100%` |
+| BSE official document route | `100%` |
+| Future financial availability | `0` |
+| Future-effective share-count use | `0` |
+| Supported / quarantined / blocked symbols | `11 / 2 / 0` |
+| Full-sample quarantine ratio | `15.3846%` |
 
-Primary candidate:
+Supporting source success:
 
-- `CNINFO_OFFICIAL_DISCLOSURE`
-- AKShare adapter: `stock_zh_a_disclosure_report_cninfo`
-- intended role: official announcement date, filing link and revision sequence.
+- Eastmoney financial indicators: `90%` of the extended stress sample;
+- Eastmoney historical valuation: `90%`;
+- Eastmoney share-capital history: `90%`;
+- Eastmoney dividends: `80%`;
+- Eastmoney buybacks: `100%`.
 
-Fallback candidate:
+The lower extended-source ratios are caused by the BSE route gap and remain visible. They are not filled or reclassified as success.
 
-- `EASTMONEY_NOTICE_FALLBACK`
-- AKShare adapter: `stock_individual_notice_report`
-- intended role: degraded metadata continuity only.
+## 4. Frozen source decisions
 
-The fallback may not silently upgrade itself to official evidence.
+### 4.1 Announcement, revision and PIT identity
+
+Primary:
+
+- `CNINFO_OFFICIAL_DISCLOSURE`;
+- role: official announcement identity, filing link, report-period match, correction/revision sequence and BSE source-document route;
+- measured call success: `100%`;
+- official PIT match: `100%`.
+
+Fallback:
+
+- `EASTMONEY_NOTICE_FALLBACK`;
+- role: degraded SH/SZ metadata continuity only;
+- it may not silently upgrade to official evidence.
 
 ### 4.2 Structured financial statements
 
-Primary candidate:
+SH/SZ primary:
 
-- `EASTMONEY_STATEMENTS`
-- three report-period adapters for balance sheet, income statement and cash flow.
+- `EASTMONEY_STATEMENTS`;
+- balance sheet, income statement and cash-flow bundle;
+- bundle success: `11 / 11` supported SH/SZ stress issuers.
 
-Fallback candidate:
+SH/SZ fallback:
 
-- `SINA_STATEMENTS`
-- `stock_financial_report_sina`.
+- `SINA_STATEMENTS`;
+- bundle success: `11 / 11` supported SH/SZ stress issuers.
 
-A statement source is considered bundle-successful only when all three statements return usable report-period data for the issuer.
+BSE:
 
-### 4.3 Financial indicators
+- tested structured Eastmoney and Sina routes did not produce a usable BSE three-statement bundle;
+- `835185.BJ` and `430047.BJ` are therefore `QUARANTINED`, not supported and not deleted;
+- both retain valid CNINFO official periodic-report document routes;
+- FMDL-3B must implement official-document extraction and normalization before any BSE financial-factor eligibility.
 
-- `EASTMONEY_FINANCIAL_INDICATORS`
-- cross-check and factor-support role only;
-- provider-calculated ratios never replace source-reported statement facts.
+### 4.3 Current capitalization and valuation semantics
 
-### 4.4 Valuation and capitalization
+Accepted current-price source:
 
-- `EASTMONEY_CURRENT_VALUATION`: current price, market capitalization, PE and PB snapshot;
-- `EASTMONEY_HISTORICAL_VALUATION`: conditional historical series;
-- `EASTMONEY_SHARE_CAPITAL`: share-count history.
+- `FMDL1_ACCEPTED_CURRENT_PRICE`;
+- source: accepted `outputs/current/DAILY_MARKET_SNAPSHOT.csv`;
+- role: latest completed-session close;
+- supported-universe coverage: `100%`.
 
-Provider PE or other ratios are raw evidence in FMDL-3A. Denominator validity must be recomputed and classified in FMDL-3D.
+Accepted share-count source:
 
-### 4.5 Shareholder return
+- `EASTMONEY_EFFECTIVE_SHARE_CAPITAL`;
+- adapter: `stock_zh_a_gbjg_em`;
+- role: latest positive total shares and listed floating A shares with `share_effective_date <= price_as_of_date`;
+- supported-universe coverage: `100%`;
+- future-effective share rows accepted: `0`.
 
-- `EASTMONEY_DIVIDENDS`;
-- `EASTMONEY_BUYBACKS`.
+Accepted derived capitalization:
 
-These routes provide event evidence, not an investment-quality conclusion.
+- `COMPOSITE_CURRENT_CAPITALIZATION`;
+- `total_market_cap = accepted_close × latest_effective_total_shares`;
+- `float_market_cap = accepted_close × latest_effective_float_A_shares`;
+- formula replay: `100%`;
+- supported-universe coverage: `100%`.
 
-## 5. Point-in-time benchmark
+Decision-grade PE and PB are **not** accepted from a provider in FMDL-3A. FMDL-3D must recompute them using point-in-time earnings and equity denominators. Negative, zero or otherwise invalid denominators must publish a `NOT_MEANINGFUL` status rather than a synthetic ratio.
 
-For each structured statement report period available from the primary statement candidate, the benchmark attempts to identify the corresponding filing metadata.
+### 4.4 Rejected current valuation routes
 
-At daily resolution:
+The following were tested and rejected for GitHub-hosted production:
 
-1. `report_period_end` is never treated as public availability;
-2. the filing announcement date is sourced separately;
-3. the earliest usable time is the next verified A-share trading session at 09:30 Asia/Shanghai;
-4. later corrections or revised reports receive a higher `revision_sequence`;
-5. historical values are never overwritten silently.
+- `EASTMONEY_CURRENT_VALUATION`: aggregate and split-market endpoints repeatedly disconnected;
+- `XUEQIU_CURRENT_VALUATION`: all 13 stress calls returned an unusable response structure or remote disconnect;
+- `EASTMONEY_INDIVIDUAL_INFO`: all 13 stress calls returned non-JSON empty responses.
 
-A source row without an official filing match remains blocked or degraded, even when the statement value itself is available.
+These failures remain evidence in the source index. They are not automatic fallbacks.
 
-## 6. Measured outputs
+### 4.5 Supporting sources
 
-Candidate outputs:
+- `EASTMONEY_FINANCIAL_INDICATORS`: cross-check and factor-input support only;
+- `EASTMONEY_HISTORICAL_VALUATION`: conditional provider-ratio cross-check for SH/SZ;
+- `EASTMONEY_SHARE_CAPITAL`: historical share-count cross-check for SH/SZ;
+- `EASTMONEY_DIVIDENDS`: primary SH/SZ dividend-event source, with BSE gap visible;
+- `EASTMONEY_BUYBACKS`: primary buyback-event source.
 
-- `FMDL3A_BENCHMARK_ROWS.csv`
-- `FMDL3A_SOURCE_SUMMARY.csv`
-- `FMDL3A_COVERAGE_MAP.csv`
-- `FMDL3A_POINT_IN_TIME_EVIDENCE.csv`
-- `FMDL3_SOURCE_INDEX.csv`
-- `FMDL3A_SOURCE_DECISION.json`
-- `FMDL3A_VALIDATION.json`
-- `FMDL3A_MANIFEST.json`
+Provider-calculated financial indicators and valuation ratios never replace source-reported facts or FMDL-computed ratios.
 
-Accepted outputs are published to:
+## 5. Frozen numeric gates
 
-- `outputs/financials/benchmark/current/`
-- `outputs/financials/source_index/current/`
-- `outputs/status/FMDL3A_LAST_SUCCESS.json`
+FMDL-3B inherits these minimum gates:
 
-## 7. Acceptance gates
-
-The benchmark freezes numeric gates only from measured results.
-
-Initial minimum gates are defined in the machine-readable config and include:
-
-- official disclosure route success;
-- primary three-statement bundle success;
-- fallback three-statement bundle success;
-- official filing-to-report-period match rate;
-- current valuation sample coverage;
-- at least one primary statement success in every required sector profile;
-- a valid trading calendar;
-- zero future-information leakage;
+- official disclosure success: `>=95%`;
+- SH/SZ primary statement bundle: `>=95%`;
+- SH/SZ fallback statement bundle: `>=80%`;
+- supported-universe statement coverage: `>=95%`;
+- official PIT match: `>=90%`;
+- supported-universe current capitalization coverage: `>=95%`;
+- full-sample controlled statement quarantine: `<=16%` at this accepted stress-sample baseline;
+- zero uncontrolled blocked sample symbols;
+- zero future financial availability;
+- zero future-effective share-count use;
+- zero missing source identity;
 - zero trade authority.
 
-If a hard gate fails, the candidate remains evidence for remediation and cannot replace Current.
+The `16%` quarantine cap is not permission to quarantine arbitrary issuers. It records the measured `2 / 13` BSE limitation and requires an explicit official-document recovery route.
+
+## 6. Accepted datasets
+
+- `FMDL3A_BENCHMARK_ROWS.csv`;
+- `FMDL3A_SOURCE_SUMMARY.csv`;
+- `FMDL3A_COVERAGE_MAP.csv`;
+- `FMDL3A_POINT_IN_TIME_EVIDENCE.csv`;
+- `FMDL3A_SUPPORT_QUARANTINE_MAP.csv`;
+- `FMDL3A_CAPITALIZATION_EVIDENCE.csv`;
+- `FMDL3_SOURCE_INDEX.csv`;
+- `FMDL3A_SOURCE_DECISION.json`;
+- `FMDL3A_VALIDATION.json`;
+- `FMDL3A_MANIFEST.json`.
+
+After main-branch publication, canonical paths are:
+
+- `outputs/financials/benchmark/current/`;
+- `outputs/financials/source_index/current/`;
+- `outputs/status/FMDL3A_LAST_SUCCESS.json`.
+
+## 7. Controlled limitations
+
+1. Tested free structured sources do not support BSE three-statement normalization at the accepted standard.
+2. BSE remains controlled quarantine until FMDL-3B official CNINFO document extraction is accepted.
+3. Public real-time valuation endpoints were unstable or unusable on GitHub Runner.
+4. Current capitalization is therefore derived from accepted price and PIT-effective shares.
+5. Provider PE/PB is not decision-grade; FMDL-3D recomputes ratios.
+6. Financial availability is daily-resolution only and creates no intraday factor authority.
 
 ## 8. FMDL-3B entry condition
 
-FMDL-3B is authorized only when the final decision status is:
-
-`FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN`
-
-FMDL-3B must then implement the accepted source routes and preserve the source-specific limitations found here.
+FMDL-3B is authorized to build the point-in-time financial statement store and normalization layer using the frozen routes above. It must not bypass the BSE recovery requirement, source lineage, revision retention, missingness rules or Current/LKG publication contract.
