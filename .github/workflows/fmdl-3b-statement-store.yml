@@ -1,0 +1,95 @@
+name: FMDL 3B Financial Statement Store Pilot
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl3b_statement_store.json"
+      - "config/fmdl3b_field_registry.json"
+      - "schemas/fmdl3b_statement_store.schema.json"
+      - "scripts/fmdl3b_core.py"
+      - "scripts/run_fmdl3b_pilot.py"
+      - "scripts/validate_fmdl3b_candidate.py"
+      - "scripts/publish_fmdl3b_pilot.py"
+      - "tests/test_fmdl3b_contract.py"
+      - "docs/FMDL-3B_STATEMENT_STORE.md"
+      - ".github/workflows/fmdl-3b-statement-store.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3b_statement_store.json"
+      - "config/fmdl3b_field_registry.json"
+      - "schemas/fmdl3b_statement_store.schema.json"
+      - "scripts/fmdl3b_core.py"
+      - "scripts/run_fmdl3b_pilot.py"
+      - "scripts/validate_fmdl3b_candidate.py"
+      - "scripts/publish_fmdl3b_pilot.py"
+      - "tests/test_fmdl3b_contract.py"
+      - "docs/FMDL-3B_STATEMENT_STORE.md"
+      - ".github/workflows/fmdl-3b-statement-store.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-3b-pilot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pilot-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Contract and synthetic normalization tests
+        run: |
+          python scripts/validate_investment_os_interface.py
+          pytest -q tests/test_fmdl3b_contract.py
+      - name: Run real cross-sector normalization pilot
+        id: pilot
+        continue-on-error: true
+        run: python -m scripts.run_fmdl3b_pilot --workers 3
+      - name: Independent candidate validation
+        id: validate
+        continue-on-error: true
+        run: python -m scripts.validate_fmdl3b_candidate
+      - name: Upload candidate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3b1-normalization-pilot
+          path: outputs/financials/pilot/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Enforce FMDL-3B-1 acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("outputs/financials/pilot/candidate/FMDL3B1_VALIDATION.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          assert payload["status"] == "PASS", payload
+          PY
+      - name: Publish pilot Current on main
+        if: github.event_name != 'pull_request'
+        run: |
+          python -m scripts.publish_fmdl3b_pilot
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/financials/pilot/candidate outputs/financials/pilot/current outputs/financials/pilot/archive outputs/status/FMDL3B1_LAST_SUCCESS.json
+          if git diff --cached --quiet; then
+            echo "No pilot publication changes"
+          else
+            git commit -m "data: publish FMDL-3B-1 normalization pilot [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
