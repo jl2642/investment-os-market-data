@@ -16,6 +16,10 @@ CONFIG = ROOT / "config/fmdl3b2_matrix.json"
 UNIVERSE = ROOT / "outputs/current/DAILY_MARKET_SNAPSHOT.csv"
 
 
+def true_mask(series: pd.Series) -> pd.Series:
+    return series.astype(str).str.strip().str.lower().isin({"true", "1", "yes"})
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=CONFIG)
@@ -57,15 +61,17 @@ def main() -> int:
     supported_ratio = float((non_bse["statement_status"] == "SUPPORTED").mean()) if len(non_bse) else 1.0
     add("NON_BSE_SUPPORTED_GATE", supported_ratio >= cfg["shard_acceptance_policy"]["minimum_non_bse_statement_bundle_success_ratio"], supported_ratio)
     bse = support[support["board"] == "BSE"]
-    bse_ok = bool(bse["official_document_index_available"].astype(bool).all()) if len(bse) else True
+    bse_ok = bool(true_mask(bse["official_document_index_available"]).all()) if len(bse) else True
     add("BSE_DOCUMENT_INDEX", bse_ok, len(bse))
 
     pit_ratio = float(raw["available_from"].notna().mean()) if len(raw) else 1.0
     future = int((pd.to_datetime(raw["available_from"], errors="coerce", utc=True) < pd.to_datetime(raw["announcement_date"], errors="coerce", utc=True)).sum()) if len(raw) else 0
     add("PIT_GATE", pit_ratio >= cfg["shard_acceptance_policy"]["minimum_official_pit_match_ratio"], pit_ratio)
     add("ZERO_FUTURE_FACTS", future == 0, future)
-    add("ZERO_AMBIGUOUS_MAPPING_GROUPS", len(semantic.ambiguous_source_mapping_groups(raw)) == 0, len(semantic.ambiguous_source_mapping_groups(raw)))
-    add("ZERO_DUPLICATE_EFFECTIVE_INTERVALS", core.duplicate_effective_intervals(normalized) == 0, core.duplicate_effective_intervals(normalized))
+    ambiguities = semantic.ambiguous_source_mapping_groups(raw)
+    add("ZERO_AMBIGUOUS_MAPPING_GROUPS", len(ambiguities) == 0, len(ambiguities))
+    duplicate_intervals = core.duplicate_effective_intervals(normalized)
+    add("ZERO_DUPLICATE_EFFECTIVE_INTERVALS", duplicate_intervals == 0, duplicate_intervals)
 
     source_ids = set(sources["source_id"].dropna())
     missing_sources = set(normalized["source_id"].dropna()) - source_ids
