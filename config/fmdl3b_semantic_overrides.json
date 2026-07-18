@@ -1,0 +1,36 @@
+{
+  "override_version": "1.0.0",
+  "program_id": "FMDL-3B",
+  "purpose": "Override exact aliases whose provider semantics are narrower or broader than the starter taxonomy.",
+  "fields": [
+    {
+      "statement": "cash_flow",
+      "line_item_id": "beginning_cash_balance",
+      "line_item_standard": "Beginning cash balance, cash only",
+      "aliases": ["BEGIN_CASH"],
+      "sign_rule": "POSITIVE_ABS",
+      "profiles": ["ALL"],
+      "reason": "Provider exposes cash separately from cash and cash equivalents; must not collide with BEGIN_CCE."
+    },
+    {
+      "statement": "cash_flow",
+      "line_item_id": "ending_cash_balance",
+      "line_item_standard": "Ending cash balance, cash only",
+      "aliases": ["END_CASH"],
+      "sign_rule": "POSITIVE_ABS",
+      "profiles": ["ALL"],
+      "reason": "Provider exposes cash separately from cash and cash equivalents; must not collide with END_CCE."
+    },
+    {
+      "statement": "cash_flow",
+      "line_item_id": "distribution_profit_interest_cash_paid",
+      "line_item_standard": "Cash paid for dividends, profit distributions and interest",
+      "aliases": ["ASSIGN_DIVIDEND_PORFIT", "分配股利、利润或偿付利息支付的现金"],
+      "sign_rule": "NEGATIVE_ABS",
+      "profiles": ["ALL"],
+      "reason": "The reported line includes interest and cannot be represented as pure dividends paid."
+    }
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
