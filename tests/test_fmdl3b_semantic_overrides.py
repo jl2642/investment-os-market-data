@@ -17,6 +17,36 @@ def test_cash_and_cash_equivalents_are_distinct():
     assert core.map_field("cash_flow", "END_CASH", index)["line_item_id"] == "ending_cash_balance"
 
 
+def test_cash_balance_signs_preserve_reported_values_and_rollforward():
+    index, payload = core.load_registry(ROOT / "config/fmdl3b_field_registry.json")
+    index, payload = semantic.apply_overrides(index, payload)
+
+    for alias in ["BEGIN_CCE", "BEGIN_CASH", "END_CCE", "END_CASH"]:
+        assert core.map_field("cash_flow", alias, index)["sign_rule"] == "AS_REPORTED"
+
+    beginning = core.apply_sign(
+        14_060_550.25,
+        core.map_field("cash_flow", "BEGIN_CCE", index)["sign_rule"],
+    )
+    net_change = -31_375_995.60
+    ending = core.apply_sign(
+        -17_315_445.35,
+        core.map_field("cash_flow", "END_CCE", index)["sign_rule"],
+    )
+
+    assert ending == -17_315_445.35
+    assert beginning + net_change == ending
+
+
+def test_end_cce_balance_is_explicit_rollforward_adjustment():
+    index, payload = core.load_registry(ROOT / "config/fmdl3b_field_registry.json")
+    index, payload = semantic.apply_overrides(index, payload)
+    field = core.map_field("cash_flow", "END_CCE_BALANCE", index)
+    assert field["line_item_id"] == "cash_rollforward_adjustment"
+    assert field["sign_rule"] == "AS_REPORTED"
+    assert core.apply_sign(-734_052.57, field["sign_rule"]) == -734_052.57
+
+
 def test_combined_distribution_line_is_not_pure_dividends():
     index, payload = core.load_registry(ROOT / "config/fmdl3b_field_registry.json")
     index, payload = semantic.apply_overrides(index, payload)
