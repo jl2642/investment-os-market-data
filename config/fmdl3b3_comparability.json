@@ -1,0 +1,56 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3B-3",
+  "name": "Comparability & Restatement Hardening",
+  "business_timezone": "Asia/Shanghai",
+  "entry_status": "FMDL3B2_FULL_UNIVERSE_INITIAL_BUILD_ACCEPTED_WITH_CONTROLLED_QUARANTINE",
+  "entry_pointer": "outputs/status/FMDL3B2_LAST_SUCCESS.json",
+  "input_datasets": {
+    "normalized_shards": "{release_root}/normalized/shard-*.parquet",
+    "revision_shards": "{release_root}/revisions/shard-*.parquet"
+  },
+  "document_policy": {
+    "canonical_document_classes": [
+      "PERIODIC_REPORT_FULL",
+      "PERIODIC_REPORT_CORRECTED_FULL"
+    ],
+    "noncanonical_document_classes": [
+      "PERIODIC_REPORT_CORRECTION_NOTICE",
+      "ANCILLARY_DISCLOSURE",
+      "OTHER_DISCLOSURE",
+      "REVISION_INDICATED_UNCLASSIFIED"
+    ],
+    "provider_current_value_binding": "LATEST_CANONICAL_PERIODIC_DOCUMENT_ONLY",
+    "historical_structured_value_policy": "BLOCK_PRE_RESTATEMENT_NUMERIC_REPLAY_WHEN_PRIOR_STRUCTURED_VALUES_ARE_UNAVAILABLE"
+  },
+  "allowed_restatement_statuses": [
+    "ORIGINAL_ONLY",
+    "RESTATED_OR_CORRECTED",
+    "UNRESOLVED_NO_CANONICAL_PERIODIC_DOCUMENT"
+  ],
+  "allowed_comparison_statuses": [
+    "COMPARABLE_WITH_WARNING",
+    "NOT_COMPARABLE"
+  ],
+  "default_comparison_rule": "ABSENCE_FROM_EXCEPTION_BRIDGE_MEANS_COMPARABLE_UNDER_FROZEN_SAME_FIELD_SAME_FISCAL_PERIOD_RULES",
+  "publication": {
+    "candidate_root": "outputs/financials/comparability/candidate",
+    "release_root": "datasets/financials/comparability/releases",
+    "current_root": "outputs/financials/comparability/current",
+    "archive_root": "outputs/financials/comparability/archive",
+    "last_success_path": "outputs/status/FMDL3B3_LAST_SUCCESS.json",
+    "candidate_cannot_replace_current_on_failure": true,
+    "release_is_immutable": true
+  },
+  "hard_gates": [
+    "ZERO_SILENT_RESTATEMENT_OVERWRITE",
+    "ALL_DISCLOSURES_CLASSIFIED",
+    "ALL_RESTATEMENT_PERIODS_CONTROLLED",
+    "ZERO_DUPLICATE_REVISION_IDS",
+    "ZERO_DUPLICATE_COMPARISON_IDS",
+    "ZERO_TRADE_AUTHORITY"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3B-4_STATEMENT_CURRENT_AND_ACCEPTANCE"
+}

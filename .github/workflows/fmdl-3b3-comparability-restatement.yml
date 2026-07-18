@@ -1,0 +1,90 @@
+name: FMDL 3B-3 Comparability and Restatement Hardening
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl3b3_comparability.json"
+      - "scripts/fmdl3b3_core.py"
+      - "scripts/validate_fmdl3b3_contract.py"
+      - "schemas/fmdl3b3_comparability_v1.schema.json"
+      - "scripts/run_fmdl3b3_comparability.py"
+      - "scripts/validate_fmdl3b3_comparability.py"
+      - "scripts/publish_fmdl3b3_comparability.py"
+      - "tests/test_fmdl3b3_comparability.py"
+      - "docs/FMDL-3B3_COMPARABILITY_RESTATEMENT.md"
+      - ".github/workflows/fmdl-3b3-comparability-restatement.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3b3_comparability.json"
+      - "scripts/fmdl3b3_core.py"
+      - "scripts/validate_fmdl3b3_contract.py"
+      - "schemas/fmdl3b3_comparability_v1.schema.json"
+      - "scripts/run_fmdl3b3_comparability.py"
+      - "scripts/validate_fmdl3b3_comparability.py"
+      - "scripts/publish_fmdl3b3_comparability.py"
+      - "tests/test_fmdl3b3_comparability.py"
+      - "docs/FMDL-3B3_COMPARABILITY_RESTATEMENT.md"
+      - ".github/workflows/fmdl-3b3-comparability-restatement.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-3b3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  harden-comparability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Contract and regression tests
+        run: |
+          python -m scripts.validate_fmdl3b3_contract
+          pytest -q tests/test_fmdl3b3_comparability.py
+      - name: Build full-Universe comparability and revision candidate
+        run: python -m scripts.run_fmdl3b3_comparability
+      - name: Independently validate candidate
+        run: python -m scripts.validate_fmdl3b3_comparability
+      - name: Upload candidate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3b3-comparability-restatement-candidate
+          path: outputs/financials/comparability/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Enforce acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("outputs/financials/comparability/candidate")
+          decision = json.loads((root / "FMDL3B3_DECISION.json").read_text(encoding="utf-8"))
+          validation = json.loads((root / "FMDL3B3_VALIDATION.json").read_text(encoding="utf-8"))
+          assert decision["status"] == "FMDL3B3_COMPARABILITY_AND_RESTATEMENT_HARDENING_ACCEPTED", decision
+          assert validation["status"] == "PASS", validation
+          PY
+      - name: Publish immutable Comparability Current on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python -m scripts.publish_fmdl3b3_comparability
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datasets/financials/comparability/releases outputs/financials/comparability/current outputs/financials/comparability/archive outputs/status/FMDL3B3_LAST_SUCCESS.json
+          if git diff --cached --quiet; then
+            echo "No publication changes"
+          else
+            git commit -m "data: publish FMDL-3B-3 comparability and restatement Current [skip ci]"
+            git push
+          fi
