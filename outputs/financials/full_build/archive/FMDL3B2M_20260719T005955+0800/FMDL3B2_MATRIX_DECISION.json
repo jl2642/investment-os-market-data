@@ -1,0 +1,136 @@
+{
+  "decision_version": "1.1.0",
+  "release_id": "FMDL3B2M_20260719T005955+0800",
+  "generated_at": "2026-07-19T00:59:55+08:00",
+  "program_id": "FMDL-3B-2-MATRIX",
+  "workflow_run_id": "29648747840",
+  "status": "FMDL3B2_FULL_UNIVERSE_INITIAL_BUILD_ACCEPTED_WITH_CONTROLLED_QUARANTINE",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "ALL_32_SHARDS_PRESENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_SHARD_DECISIONS_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_SHARD_VALIDATIONS_PASS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_UNIVERSE_MEMBERSHIP",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NON_BSE_SUPPORTED_GATE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NON_BSE_QUARANTINE_CAP",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PIT_GATE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_AMBIGUITY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_FUTURE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_SOURCELESS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_DUPLICATE_INTERVAL",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_CONFLICTS_CLASSIFIED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NORMALIZED_FILE_SIZE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NORMALIZED_TOTAL_SIZE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "RAW_ARTIFACT_INDEX_COMPLETE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "BSE_OFFICIAL_QUERY_RESOLUTION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CONTROLLED_VALIDATION_EXCLUSIONS_CLASSIFIED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PERFORMED_CHECKS_NO_UNEXPLAINED_FAILURE",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "universe_symbol_count": 5528,
+    "observed_symbol_count": 5528,
+    "shard_count": 32,
+    "accepted_shard_count": 32,
+    "validated_shard_count": 32,
+    "supported_symbol_count": 5187,
+    "quarantined_symbol_count": 341,
+    "non_bse_supported_ratio": 0.9975,
+    "non_bse_quarantine_ratio": 0.0025,
+    "official_pit_match_ratio": 0.9895636265589055,
+    "raw_fact_count": 12613577,
+    "normalized_fact_count": 1885485,
+    "decision_grade_fact_count": 1859654,
+    "fallback_components_invoked": 0,
+    "fallback_components_used": 0,
+    "retry_symbol_count": 13,
+    "ambiguous_mapping_group_count": 0,
+    "future_fact_count": 0,
+    "source_less_decision_grade_fact_count": 0,
+    "duplicate_effective_interval_count": 0,
+    "classified_conflict_count": 0,
+    "unclassified_conflict_count": 0,
+    "performed_validation_check_count": 139011,
+    "performed_validation_failure_count": 0,
+    "qa_flag_count": 348,
+    "duplicate_symbol_count": 0,
+    "missing_symbol_count": 0,
+    "extra_symbol_count": 0,
+    "normalized_release_mib": 98.55722332000732,
+    "maximum_normalized_shard_mib": 3.224945068359375,
+    "raw_artifact_count": 32,
+    "controlled_validation_exclusion_count": 6,
+    "controlled_validation_classification_error_count": 0,
+    "bse_indexed_periodic_report_count": 311,
+    "bse_no_classified_periodic_report_count": 17,
+    "bse_query_unresolved_count": 0
+  },
+  "missing_shards": [],
+  "missing_symbols_sample": [],
+  "extra_symbols_sample": [],
+  "controlled_limitations": [
+    "BSE_STRUCTURED_FACTS_REMAIN_CONTROLLED_QUARANTINE_PENDING_CNINFO_DOCUMENT_EXTRACTION",
+    "RAW_FACTS_RETAINED_AS_90_DAY_IMMUTABLE_WORKFLOW_ARTIFACT_SHARDS_PENDING_DURABLE_RETENTION_ROUTE",
+    "FULL_UNIVERSE_PROFILE_CLASSIFICATION_DEFERRED_TO_SECURITY_MASTER_ENRICHMENT",
+    "FIELD_REGISTRY_REMAINS_CONSERVATIVE_AND_UNMAPPED_PROVIDER_FACTS_ARE_RAW_ONLY",
+    "PROVIDER_INTERNAL_STATEMENT_INCONSISTENCIES_WITH_INDEPENDENT_EVIDENCE_ARE_RETAINED_AS_CONTROLLED_EXCLUSIONS_AND_AFFECTED_FACTS_ARE_NOT_DECISION_GRADE",
+    "BSE_SUCCESSFUL_CNINFO_QUERIES_WITHOUT_CLASSIFIED_PERIODIC_REPORTS_REMAIN_VISIBLE_CONTROLLED_QUARANTINE"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3B-3_COMPARABILITY_AND_RESTATEMENT_HARDENING",
+  "controlled_validation_classification_errors": []
+}
