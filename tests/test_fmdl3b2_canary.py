@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from scripts import fmdl3b_core as core
+from scripts import fmdl3b_semantic_overrides as semantic
 from scripts import run_fmdl3b2_canary as canary
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,4 +31,14 @@ def test_storage_policy_does_not_commit_unbounded_raw_store():
     assert cfg["storage"]["raw_storage_mode"].startswith("IMMUTABLE_WORKFLOW_ARTIFACT")
     assert cfg["storage"]["maximum_git_file_mib"] < 100
     assert cfg["full_build"]["fallback_policy"] == "CALL_ONLY_WHEN_PRIMARY_STATEMENT_COMPONENT_IS_MISSING_OR_FAILED"
+    assert cfg["acceptance_policy"]["maximum_performed_validation_failure_count"] == 0
     assert cfg["trade_authority"] == "NONE"
+
+
+def test_real_eastmoney_fx_field_maps_to_cash_flow_fx_effect():
+    index, payload = core.load_registry(ROOT / "config/fmdl3b_field_registry.json")
+    index, payload = semantic.apply_overrides(index, payload)
+    field = core.map_field("cash_flow", "RATE_CHANGE_EFFECT", index)
+    assert field is not None
+    assert field["line_item_id"] == "fx_cash_effect"
+    assert field["sign_rule"] == "AS_REPORTED"
