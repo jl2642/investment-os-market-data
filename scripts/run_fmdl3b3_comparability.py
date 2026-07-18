@@ -59,7 +59,28 @@ def main() -> int:
         raise SystemExit("expected 32 revision and 32 normalized shards")
 
     revisions = pd.concat([pd.read_parquet(path) for path in revision_paths], ignore_index=True)
-    lineage, period_status = core.build_authoritative_revision_lineage(revisions)
+    lineage, filing_period_status = core.build_authoritative_revision_lineage(revisions)
+    normalized_periods = pd.concat(
+        [pd.read_parquet(path, columns=["symbol", "period_end"]).drop_duplicates() for path in normalized_paths],
+        ignore_index=True,
+    ).drop_duplicates().rename(columns={"period_end": "report_period_end"})
+    all_period_keys = pd.concat(
+        [filing_period_status[["symbol", "report_period_end"]], normalized_periods],
+        ignore_index=True,
+    ).drop_duplicates()
+    period_status = all_period_keys.merge(
+        filing_period_status,
+        on=["symbol", "report_period_end"],
+        how="left",
+        validate="one_to_one",
+    )
+    period_status["canonical_document_count"] = period_status["canonical_document_count"].fillna(0).astype(int)
+    period_status["correction_notice_count"] = period_status["correction_notice_count"].fillna(0).astype(int)
+    missing_canonical = period_status["canonical_document_count"].eq(0)
+    period_status.loc[missing_canonical, "restatement_status"] = "UNRESOLVED_NO_CANONICAL_PERIODIC_DOCUMENT"
+    period_status.loc[missing_canonical, "historical_replay_status"] = "BLOCKED_NO_CANONICAL_PERIODIC_DOCUMENT"
+    period_status["trade_authority"] = "NONE"
+
     fact_exceptions: list[pd.DataFrame] = []
     bridge_exceptions: list[pd.DataFrame] = []
     total_facts = 0
@@ -93,6 +114,7 @@ def main() -> int:
     metrics = {
         "input_revision_row_count": len(revisions),
         "classified_document_count": len(lineage),
+        "normalized_period_key_count": len(normalized_periods),
         "period_status_count": len(period_status),
         "canonical_periodic_document_count": int(lineage["is_canonical_periodic_document"].sum()),
         "noncanonical_document_count": int((~lineage["is_canonical_periodic_document"]).sum()),
@@ -106,12 +128,16 @@ def main() -> int:
         "comparable_with_warning_count": int((bridge["comparison_status"] == "COMPARABLE_WITH_WARNING").sum()) if len(bridge) else 0,
         "not_comparable_count": int((bridge["comparison_status"] == "NOT_COMPARABLE").sum()) if len(bridge) else 0
     }
+    normalized_period_set = set(map(tuple, normalized_periods[["symbol", "report_period_end"]].itertuples(index=False, name=None)))
+    classified_period_set = set(map(tuple, period_status[["symbol", "report_period_end"]].itertuples(index=False, name=None)))
     checks = {
         "ENTRY_RELEASE_ACCEPTED": entry.get("status") == cfg["entry_status"],
         "EXACT_32_INPUT_SHARDS": len(revision_paths) == 32 and len(normalized_paths) == 32,
         "ALL_DOCUMENTS_CLASSIFIED": lineage["document_class"].notna().all(),
         "ZERO_DUPLICATE_REVISION_IDS": not lineage["revision_id"].duplicated().any(),
+        "ALL_NORMALIZED_PERIODS_CLASSIFIED": normalized_period_set.issubset(classified_period_set) and period_status["restatement_status"].notna().all(),
         "ALL_PERIODS_CONTROLLED": set(period_status["restatement_status"]).issubset(set(cfg["allowed_restatement_statuses"])),
+        "ALL_FACT_EXCEPTIONS_EXPLICIT": facts["restatement_status"].notna().all() and facts["historical_replay_status"].notna().all(),
         "ALL_COMPARABILITY_STATUSES_CONTROLLED": set(bridge["comparison_status"]).issubset(set(cfg["allowed_comparison_statuses"])),
         "ZERO_DUPLICATE_COMPARISON_IDS": not bridge["comparison_id"].duplicated().any() if len(bridge) else True,
         "ZERO_TRADE_AUTHORITY": set(lineage["trade_authority"].dropna()).issubset({"NONE"}) and set(period_status["trade_authority"].dropna()).issubset({"NONE"}) and (set(bridge["trade_authority"].dropna()).issubset({"NONE"}) if len(bridge) else True)
