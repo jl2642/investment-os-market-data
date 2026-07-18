@@ -18,7 +18,12 @@ DEFAULT_CANDIDATE = ROOT / "outputs/financials/full_build/matrix/candidate"
 
 
 def load_csv(path: Path) -> pd.DataFrame:
-    return pd.read_csv(path, encoding="utf-8-sig") if path.exists() else pd.DataFrame()
+    if not path.exists() or path.stat().st_size == 0:
+        return pd.DataFrame()
+    try:
+        return pd.read_csv(path, encoding="utf-8-sig")
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
 
 
 def main() -> int:
