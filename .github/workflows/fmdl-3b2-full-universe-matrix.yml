@@ -5,14 +5,20 @@ on:
     branches: [main]
     paths:
       - "config/fmdl3b2_matrix.json"
-      - "schemas/fmdl3b2_matrix.schema.json"
+      - "schemas/fmdl3b2_matrix_v2.schema.json"
       - "scripts/fmdl3b2_matrix_core.py"
+      - "scripts/fmdl3b2_validation_hardening.py"
       - "scripts/run_fmdl3b2_shard.py"
+      - "scripts/run_fmdl3b2_shard_v2.py"
       - "scripts/validate_fmdl3b2_shard.py"
+      - "scripts/validate_fmdl3b2_shard_v2.py"
       - "scripts/aggregate_fmdl3b2_matrix.py"
+      - "scripts/aggregate_fmdl3b2_matrix_v2.py"
       - "scripts/validate_fmdl3b2_matrix.py"
+      - "scripts/validate_fmdl3b2_matrix_v2.py"
       - "scripts/publish_fmdl3b2_matrix.py"
       - "tests/test_fmdl3b2_matrix.py"
+      - "tests/test_fmdl3b2_validation_hardening.py"
       - "docs/FMDL-3B2_MATRIX.md"
       - "docs/FMDL-3B2_MATRIX_ACCEPTANCE.md"
       - ".github/workflows/fmdl-3b2-full-universe-matrix.yml"
@@ -20,14 +26,20 @@ on:
     branches: [main]
     paths:
       - "config/fmdl3b2_matrix.json"
-      - "schemas/fmdl3b2_matrix.schema.json"
+      - "schemas/fmdl3b2_matrix_v2.schema.json"
       - "scripts/fmdl3b2_matrix_core.py"
+      - "scripts/fmdl3b2_validation_hardening.py"
       - "scripts/run_fmdl3b2_shard.py"
+      - "scripts/run_fmdl3b2_shard_v2.py"
       - "scripts/validate_fmdl3b2_shard.py"
+      - "scripts/validate_fmdl3b2_shard_v2.py"
       - "scripts/aggregate_fmdl3b2_matrix.py"
+      - "scripts/aggregate_fmdl3b2_matrix_v2.py"
       - "scripts/validate_fmdl3b2_matrix.py"
+      - "scripts/validate_fmdl3b2_matrix_v2.py"
       - "scripts/publish_fmdl3b2_matrix.py"
       - "tests/test_fmdl3b2_matrix.py"
+      - "tests/test_fmdl3b2_validation_hardening.py"
       - "docs/FMDL-3B2_MATRIX.md"
       - "docs/FMDL-3B2_MATRIX_ACCEPTANCE.md"
       - ".github/workflows/fmdl-3b2-full-universe-matrix.yml"
@@ -55,10 +67,10 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-      - name: Validate contracts and deterministic sharding
+      - name: Validate contracts, deterministic sharding and controlled-exclusion semantics
         run: |
           python scripts/validate_investment_os_interface.py
-          pytest -q tests/test_fmdl3b_contract.py tests/test_fmdl3b_semantic_overrides.py tests/test_fmdl3b2_canary.py tests/test_fmdl3b2_matrix.py
+          pytest -q tests/test_fmdl3b_contract.py tests/test_fmdl3b_semantic_overrides.py tests/test_fmdl3b2_canary.py tests/test_fmdl3b2_matrix.py tests/test_fmdl3b2_validation_hardening.py
 
   shards:
     needs: preflight
@@ -79,14 +91,14 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-      - name: Run real statement shard
+      - name: Run real statement shard with controlled evidence hardening
         id: shard
         continue-on-error: true
-        run: python -m scripts.run_fmdl3b2_shard --shard-id ${{ matrix.shard_id }}
+        run: python -m scripts.run_fmdl3b2_shard_v2 --shard-id ${{ matrix.shard_id }}
       - name: Independently validate shard
         id: validate
         continue-on-error: true
-        run: python -m scripts.validate_fmdl3b2_shard --shard-id ${{ matrix.shard_id }}
+        run: python -m scripts.validate_fmdl3b2_shard_v2 --shard-id ${{ matrix.shard_id }}
       - name: Upload aggregation package
         if: always()
         uses: actions/upload-artifact@v4
@@ -140,11 +152,11 @@ jobs:
       - name: Aggregate full-Universe candidate
         id: aggregate
         continue-on-error: true
-        run: python -m scripts.aggregate_fmdl3b2_matrix --input-root downloaded-shards
+        run: python -m scripts.aggregate_fmdl3b2_matrix_v2 --input-root downloaded-shards
       - name: Independently validate aggregate candidate
         id: validate
         continue-on-error: true
-        run: python -m scripts.validate_fmdl3b2_matrix
+        run: python -m scripts.validate_fmdl3b2_matrix_v2
       - name: Upload matrix candidate evidence
         if: always()
         uses: actions/upload-artifact@v4
