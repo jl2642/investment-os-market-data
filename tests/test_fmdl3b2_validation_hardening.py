@@ -24,6 +24,74 @@ def empty_flags():
     return pd.DataFrame(columns=["flag_id", "severity", "entity", "period", "area", "issue", "impact", "recommended_fix", "source_id", "status"])
 
 
+def test_explicit_end_cce_balance_adjustment_reconciles_real_rollforwards():
+    cases = [
+        ("001359.SZ", "2024-03-31", 171_792_630.45, 714_361_035.19, 8_930_000.00, 895_083_665.64),
+        ("002348.SZ", "2026-03-31", 24_681_928.97, -17_837_925.62, 734_052.57, 7_578_055.92),
+    ]
+    for symbol, period, beginning, net_change, adjustment, ending in cases:
+        values = {
+            "beginning_cash": beginning,
+            "net_change_cash": net_change,
+            "cash_rollforward_adjustment": adjustment,
+            "ending_cash": ending,
+        }
+        normalized = normalized_frame(symbol, period, values)
+        checks = pd.DataFrame([{
+            "area": "cash_flow",
+            "period": period,
+            "test": f"{symbol}: beginning cash + net change = ending cash",
+            "expected_value": ending,
+            "observed_value": beginning + net_change,
+            "variance": beginning + net_change - ending,
+            "result": "FAIL",
+            "source_id": "MULTI_SOURCE",
+            "notes": "",
+        }])
+        normalized, checks, flags, evidence = hardening.harden_statement_validation(
+            normalized,
+            checks,
+            empty_flags(),
+            balance_relative_tolerance=1e-6,
+            cash_relative_tolerance=1e-6,
+        )
+        assert checks.iloc[0]["result"] == "PASS"
+        assert abs(float(checks.iloc[0]["observed_value"]) - ending) <= 1e-6
+        assert abs(float(checks.iloc[0]["variance"])) <= 1e-6
+        assert "EXPLICIT_PROVIDER_END_CCE_BALANCE_RECONCILES_ROLLFORWARD" in checks.iloc[0]["notes"]
+        assert evidence == []
+        assert flags.empty
+        assert normalized.decision_grade_eligible.all()
+
+
+def test_unexplained_cash_rollforward_failure_remains_fail():
+    symbol = "600000.SH"
+    period = "2025-03-31"
+    values = {"beginning_cash": 100.0, "net_change_cash": -20.0, "ending_cash": 70.0}
+    normalized = normalized_frame(symbol, period, values)
+    checks = pd.DataFrame([{
+        "area": "cash_flow",
+        "period": period,
+        "test": f"{symbol}: beginning cash + net change = ending cash",
+        "expected_value": 70.0,
+        "observed_value": 80.0,
+        "variance": 10.0,
+        "result": "FAIL",
+        "source_id": "MULTI_SOURCE",
+        "notes": "",
+    }])
+    normalized, checks, flags, evidence = hardening.harden_statement_validation(
+        normalized,
+        checks,
+        empty_flags(),
+        balance_relative_tolerance=1e-6,
+        cash_relative_tolerance=1e-6,
+    )
+    assert checks.iloc[0]["result"] == "FAIL"
+    assert evidence == []
+    assert flags.empty
+
+
 def test_cash_flow_no_fx_variant_becomes_controlled_and_downgrades_facts():
     symbol = "002211.SZ"
     period = "2024-09-30"

@@ -38,6 +38,15 @@ def test_cash_balance_signs_preserve_reported_values_and_rollforward():
     assert beginning + net_change == ending
 
 
+def test_end_cce_balance_is_explicit_rollforward_adjustment():
+    index, payload = core.load_registry(ROOT / "config/fmdl3b_field_registry.json")
+    index, payload = semantic.apply_overrides(index, payload)
+    field = core.map_field("cash_flow", "END_CCE_BALANCE", index)
+    assert field["line_item_id"] == "cash_rollforward_adjustment"
+    assert field["sign_rule"] == "AS_REPORTED"
+    assert core.apply_sign(-734_052.57, field["sign_rule"]) == -734_052.57
+
+
 def test_combined_distribution_line_is_not_pure_dividends():
     index, payload = core.load_registry(ROOT / "config/fmdl3b_field_registry.json")
     index, payload = semantic.apply_overrides(index, payload)

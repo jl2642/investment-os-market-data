@@ -1,5 +1,5 @@
 {
-  "override_version": "1.2.0",
+  "override_version": "1.3.0",
   "program_id": "FMDL-3B",
   "purpose": "Override exact aliases whose provider semantics are narrower or broader than the starter taxonomy.",
   "fields": [
@@ -38,6 +38,15 @@
       "sign_rule": "AS_REPORTED",
       "profiles": ["ALL"],
       "reason": "Provider exposes cash separately from cash and cash equivalents; the reported sign must be preserved and must not collide with END_CCE."
+    },
+    {
+      "statement": "cash_flow",
+      "line_item_id": "cash_rollforward_adjustment",
+      "line_item_standard": "Explicit cash and cash-equivalents roll-forward adjustment",
+      "aliases": ["END_CCE_BALANCE"],
+      "sign_rule": "AS_REPORTED",
+      "profiles": ["ALL"],
+      "reason": "Eastmoney explicitly reports END_CCE_BALANCE when beginning cash plus net change does not by itself equal ending cash; retain the adjustment as reported and use it only to reconcile the disclosed cash roll-forward."
     },
     {
       "statement": "cash_flow",

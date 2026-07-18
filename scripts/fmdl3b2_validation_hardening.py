@@ -9,6 +9,8 @@ import pandas as pd
 CONTROLLED_RESULT = "CONTROLLED_EXCLUSION"
 CONTROLLED_FLAG_STATUS = "CONTROLLED_PROVIDER_INCONSISTENCY"
 ALLOWED_CHECK_RESULTS = {"PASS", "FAIL", CONTROLLED_RESULT}
+ROLLFORWARD_TEST_SUFFIX = "beginning cash + net change = ending cash"
+ROLLFORWARD_ADJUSTMENT_ITEM = "cash_rollforward_adjustment"
 
 
 def _tolerance(reference: float, relative_tolerance: float) -> float:
@@ -74,6 +76,65 @@ def _downgrade(
     return count
 
 
+def _reconcile_explicit_cash_rollforward_adjustments(
+    normalized: pd.DataFrame,
+    checks: pd.DataFrame,
+    cash_relative_tolerance: float,
+) -> pd.DataFrame:
+    """Use only an explicitly mapped provider adjustment to complete a cash roll-forward.
+
+    Eastmoney can report END_CCE_BALANCE as a separate disclosed adjustment. This function
+    does not infer or manufacture an adjustment: it requires the mapped canonical fact and
+    preserves every source value unchanged. Only the arithmetic check is restated to include
+    the disclosed adjustment.
+    """
+    if normalized.empty or checks.empty:
+        return checks
+
+    failed_indices = checks.index[
+        checks["result"].astype(str).eq("FAIL")
+        & checks["area"].astype(str).eq("cash_flow")
+        & checks["test"].astype(str).str.endswith(ROLLFORWARD_TEST_SUFFIX)
+    ].tolist()
+
+    for index in failed_indices:
+        row = checks.loc[index]
+        symbol = _symbol_from_test(row.get("test"))
+        period = str(row.get("period"))
+        if not symbol:
+            continue
+        group = normalized[
+            normalized["symbol"].astype(str).eq(symbol)
+            & normalized["period_end"].astype(str).eq(period)
+        ]
+        if group.empty:
+            continue
+        values = group.drop_duplicates("line_item_id", keep="first").set_index("line_item_id")["normalized_value"].to_dict()
+        required = {"beginning_cash", "net_change_cash", "ending_cash", ROLLFORWARD_ADJUSTMENT_ITEM}
+        if not required.issubset(values):
+            continue
+
+        expected = float(values["ending_cash"])
+        adjusted_observed = float(
+            values["beginning_cash"]
+            + values["net_change_cash"]
+            + values[ROLLFORWARD_ADJUSTMENT_ITEM]
+        )
+        if not _close(adjusted_observed, expected, cash_relative_tolerance):
+            continue
+
+        checks.loc[index, "observed_value"] = adjusted_observed
+        checks.loc[index, "variance"] = adjusted_observed - expected
+        checks.loc[index, "result"] = "PASS"
+        checks.loc[index, "notes"] = (
+            "EXPLICIT_PROVIDER_END_CCE_BALANCE_RECONCILES_ROLLFORWARD; "
+            "formula=beginning_cash+net_change_cash+cash_rollforward_adjustment=ending_cash; "
+            "adjustment_line_item=cash_rollforward_adjustment; source values retained without rewrite"
+        )
+
+    return checks
+
+
 def _rollforward_passes(checks: pd.DataFrame, symbol: str, period: str) -> bool:
     if checks.empty:
         return False
@@ -95,8 +156,9 @@ def harden_statement_validation(
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, list[dict[str, Any]]]:
     """Convert only independently evidenced provider inconsistencies to controlled exclusions.
 
-    The function never changes source values. It downgrades affected canonical facts from
-    decision-grade eligibility and leaves any unexplained arithmetic failure as FAIL.
+    The function never changes source values. It first recognizes an explicitly reported
+    cash roll-forward adjustment, then downgrades only independently evidenced provider
+    inconsistencies. Any unexplained arithmetic failure remains FAIL.
     """
     normalized = normalized.copy()
     checks = checks.copy()
@@ -105,6 +167,12 @@ def harden_statement_validation(
 
     if checks.empty or normalized.empty:
         return normalized, checks, flags, evidence
+
+    checks = _reconcile_explicit_cash_rollforward_adjustments(
+        normalized,
+        checks,
+        cash_relative_tolerance,
+    )
 
     failed_indices = checks.index[checks["result"].astype(str).eq("FAIL")].tolist()
     for index in failed_indices:
