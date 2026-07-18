@@ -6,12 +6,17 @@ on:
     paths:
       - "config/fmdl3b_statement_store.json"
       - "config/fmdl3b_field_registry.json"
+      - "config/fmdl3b_semantic_overrides.json"
       - "schemas/fmdl3b_statement_store.schema.json"
       - "scripts/fmdl3b_core.py"
+      - "scripts/fmdl3b_semantic_overrides.py"
       - "scripts/run_fmdl3b_pilot.py"
+      - "scripts/run_fmdl3b_pilot_v2.py"
       - "scripts/validate_fmdl3b_candidate.py"
+      - "scripts/validate_fmdl3b_candidate_v2.py"
       - "scripts/publish_fmdl3b_pilot.py"
       - "tests/test_fmdl3b_contract.py"
+      - "tests/test_fmdl3b_semantic_overrides.py"
       - "docs/FMDL-3B_STATEMENT_STORE.md"
       - ".github/workflows/fmdl-3b-statement-store.yml"
   push:
@@ -19,12 +24,17 @@ on:
     paths:
       - "config/fmdl3b_statement_store.json"
       - "config/fmdl3b_field_registry.json"
+      - "config/fmdl3b_semantic_overrides.json"
       - "schemas/fmdl3b_statement_store.schema.json"
       - "scripts/fmdl3b_core.py"
+      - "scripts/fmdl3b_semantic_overrides.py"
       - "scripts/run_fmdl3b_pilot.py"
+      - "scripts/run_fmdl3b_pilot_v2.py"
       - "scripts/validate_fmdl3b_candidate.py"
+      - "scripts/validate_fmdl3b_candidate_v2.py"
       - "scripts/publish_fmdl3b_pilot.py"
       - "tests/test_fmdl3b_contract.py"
+      - "tests/test_fmdl3b_semantic_overrides.py"
       - "docs/FMDL-3B_STATEMENT_STORE.md"
       - ".github/workflows/fmdl-3b-statement-store.yml"
   workflow_dispatch:
@@ -53,15 +63,15 @@ jobs:
       - name: Contract and synthetic normalization tests
         run: |
           python scripts/validate_investment_os_interface.py
-          pytest -q tests/test_fmdl3b_contract.py
+          pytest -q tests/test_fmdl3b_contract.py tests/test_fmdl3b_semantic_overrides.py
       - name: Run real cross-sector normalization pilot
         id: pilot
         continue-on-error: true
-        run: python -m scripts.run_fmdl3b_pilot --workers 3
+        run: python -m scripts.run_fmdl3b_pilot_v2 --workers 3
       - name: Independent candidate validation
         id: validate
         continue-on-error: true
-        run: python -m scripts.validate_fmdl3b_candidate
+        run: python -m scripts.validate_fmdl3b_candidate_v2
       - name: Upload candidate evidence
         if: always()
         uses: actions/upload-artifact@v4
