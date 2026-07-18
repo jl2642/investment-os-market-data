@@ -1,0 +1,47 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3B-4",
+  "name": "Statement Current & Acceptance",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gates": {
+    "fmdl3b2_status": "FMDL3B2_FULL_UNIVERSE_INITIAL_BUILD_ACCEPTED_WITH_CONTROLLED_QUARANTINE",
+    "fmdl3b3_status": "FMDL3B3_COMPARABILITY_AND_RESTATEMENT_HARDENING_ACCEPTED"
+  },
+  "input_pointers": {
+    "statement_base": "outputs/status/FMDL3B2_LAST_SUCCESS.json",
+    "comparability": "outputs/status/FMDL3B3_LAST_SUCCESS.json"
+  },
+  "required_input_files": {
+    "statement_validation": "outputs/financials/full_build/current/FMDL3B2_MATRIX_VALIDATION.json",
+    "comparability_validation": "outputs/financials/comparability/current/FMDL3B3_VALIDATION.json"
+  },
+  "acceptance_policy": {
+    "require_statement_validation_pass": true,
+    "require_comparability_validation_pass": true,
+    "require_exact_32_statement_shards": true,
+    "require_exact_32_revision_shards": true,
+    "require_exact_32_source_index_shards": true,
+    "require_zero_missing_statement_release_files": true,
+    "require_zero_missing_comparability_release_files": true,
+    "require_normalized_fact_replay_match": true,
+    "require_explicit_period_classification": true,
+    "require_all_restatements_replay_controlled": true,
+    "require_all_unresolved_periods_blocked": true,
+    "require_zero_manifest_hash_errors": true,
+    "trade_authority": "NONE"
+  },
+  "publication": {
+    "candidate_root": "outputs/financials/statements/candidate",
+    "current_root": "outputs/financials/statements/current",
+    "release_root": "datasets/financials/statements/releases",
+    "archive_root": "outputs/financials/statements/archive",
+    "last_success_path": "outputs/status/FMDL3B4_LAST_SUCCESS.json",
+    "candidate_cannot_replace_current_on_failure": true,
+    "versioned_release_is_immutable": true
+  },
+  "exit_status": "FMDL3B4_POINT_IN_TIME_STATEMENT_STORE_ACCEPTED",
+  "exit_gate": "POINT_IN_TIME_STATEMENT_STORE_ACCEPTED",
+  "next_gate": "FMDL-3C_FINANCIAL_QUALITY_GROWTH_AND_BALANCE_SHEET_FACTORS",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}

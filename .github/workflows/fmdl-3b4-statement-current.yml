@@ -1,0 +1,94 @@
+name: FMDL 3B-4 Statement Current and Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl3b4_statement_current.json"
+      - "schemas/fmdl3b4_statement_current_v1.schema.json"
+      - "scripts/run_fmdl3b4_statement_current.py"
+      - "scripts/validate_fmdl3b4_statement_current.py"
+      - "scripts/publish_fmdl3b4_statement_current.py"
+      - "scripts/validate_fmdl3b4_contract.py"
+      - "tests/test_fmdl3b4_statement_current.py"
+      - ".github/workflows/fmdl-3b4-statement-current.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3b4_statement_current.json"
+      - "schemas/fmdl3b4_statement_current_v1.schema.json"
+      - "scripts/run_fmdl3b4_statement_current.py"
+      - "scripts/validate_fmdl3b4_statement_current.py"
+      - "scripts/publish_fmdl3b4_statement_current.py"
+      - "scripts/validate_fmdl3b4_contract.py"
+      - "tests/test_fmdl3b4_statement_current.py"
+      - ".github/workflows/fmdl-3b4-statement-current.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: fmdl3b4-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  accept-statement-current:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip pandas pyarrow pytest
+
+      - name: Validate contract and run regression tests
+        run: |
+          python scripts/validate_fmdl3b4_contract.py
+          python -m pytest -q tests/test_fmdl3b4_statement_current.py
+          python -m py_compile scripts/run_fmdl3b4_statement_current.py scripts/validate_fmdl3b4_statement_current.py scripts/publish_fmdl3b4_statement_current.py
+
+      - name: Build canonical Statement Current candidate
+        run: python scripts/run_fmdl3b4_statement_current.py
+
+      - name: Independently validate candidate
+        run: python scripts/validate_fmdl3b4_statement_current.py
+
+      - name: Upload candidate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3b4-statement-current-candidate
+          path: outputs/financials/statements/candidate
+          retention-days: 30
+
+      - name: Enforce acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('outputs/financials/statements/candidate')
+          decision = json.loads((root / 'FMDL3B4_DECISION.json').read_text())
+          validation = json.loads((root / 'FMDL3B4_VALIDATION.json').read_text())
+          assert decision['status'] == 'FMDL3B4_POINT_IN_TIME_STATEMENT_STORE_ACCEPTED'
+          assert decision['hard_failures'] == []
+          assert validation['status'] == 'PASS'
+          assert validation['hard_failures'] == []
+          assert decision['trade_authority'] == 'NONE'
+          PY
+
+      - name: Publish immutable Statement Current on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python scripts/publish_fmdl3b4_statement_current.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datasets/financials/statements outputs/financials/statements outputs/status/FMDL3B4_LAST_SUCCESS.json
+          git commit -m "data: publish FMDL-3B-4 Statement Current [skip ci]"
+          git push

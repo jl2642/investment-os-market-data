@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3b4_statement_current_v1.schema.json",
+  "title": "FMDL-3B-4 Statement Current Release",
+  "type": "object",
+  "required": [
+    "release_version", "release_id", "published_at", "program_id", "status", "exit_gate",
+    "statement_base_release_id", "comparability_release_id", "statement_catalog_path",
+    "statement_validation_path", "comparability_validation_path", "metrics", "authority",
+    "trade_authority", "next_gate"
+  ],
+  "properties": {
+    "release_version": {"const": "1.0.0"},
+    "release_id": {"type": "string", "pattern": "^FMDL3B4_"},
+    "published_at": {"type": "string"},
+    "program_id": {"const": "FMDL-3B-4"},
+    "status": {"const": "FMDL3B4_POINT_IN_TIME_STATEMENT_STORE_ACCEPTED"},
+    "exit_gate": {"const": "POINT_IN_TIME_STATEMENT_STORE_ACCEPTED"},
+    "statement_base_release_id": {"type": "string"},
+    "comparability_release_id": {"type": "string"},
+    "statement_catalog_path": {"type": "string"},
+    "statement_validation_path": {"type": "string"},
+    "comparability_validation_path": {"type": "string"},
+    "metrics": {"type": "object"},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"},
+    "next_gate": {"const": "FMDL-3C_FINANCIAL_QUALITY_GROWTH_AND_BALANCE_SHEET_FACTORS"}
+  },
+  "additionalProperties": true
+}
