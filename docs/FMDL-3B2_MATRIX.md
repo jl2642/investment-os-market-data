@@ -19,7 +19,8 @@ No matrix job may run against an unpublished or failed canary candidate.
 - shard count: `32`;
 - maximum issuers per shard: `200`;
 - workers per shard: `4`;
-- GitHub matrix maximum parallelism: `16`;
+- GitHub matrix maximum parallelism: `8`;
+- aggregate provider-facing issuer concurrency is therefore capped at `32` rather than the untested `64` implied by 16 simultaneous runners;
 - every issuer must appear exactly once;
 - membership and membership hashes must be replayable from configuration and Universe alone.
 
