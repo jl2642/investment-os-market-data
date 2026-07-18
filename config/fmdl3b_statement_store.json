@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "program_id": "FMDL-3B-1",
   "name": "Financial Statement Store and Normalization Pilot",
   "business_timezone": "Asia/Shanghai",
@@ -33,6 +33,7 @@
     "period_basis": "CUMULATIVE_YTD_EXCEPT_FY_ANNUAL",
     "missing_value_policy": "PRESERVE_MISSING_NEVER_ZERO_FILL",
     "unmapped_field_policy": "RAW_FACT_ONLY_WITH_VISIBLE_UNMAPPED_STATUS",
+    "semantic_override_policy": "STARTER_TAXONOMY_ALIASES_MAY_BE_OVERRIDDEN_WHEN_REAL_PROVIDER_FIELDS_PROVE_NARROWER_OR_BROADER_SEMANTICS",
     "conflict_policy": "PRIMARY_WINS_ONLY_WHEN_VALUES_RECONCILE; OTHERWISE_CONTROLLED_EXCLUSION",
     "material_conflict_relative_tolerance": 0.000001,
     "material_conflict_absolute_tolerance": 1.0,
@@ -59,6 +60,7 @@
     "maximum_future_fact_count": 0,
     "maximum_source_less_decision_grade_fact_count": 0,
     "maximum_duplicate_effective_interval_count": 0,
+    "maximum_ambiguous_source_mapping_group_count": 0,
     "require_bse_official_document_index": true,
     "require_raw_fact_store": true,
     "require_normalized_long_store": true,
