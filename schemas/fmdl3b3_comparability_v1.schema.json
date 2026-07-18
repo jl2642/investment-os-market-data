@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3b3_comparability_v1.schema.json",
+  "title": "FMDL-3B-3 Comparability and Restatement Contract",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "program_id",
+    "entry_status",
+    "entry_pointer",
+    "document_policy",
+    "allowed_restatement_statuses",
+    "allowed_comparison_statuses",
+    "publication",
+    "hard_gates",
+    "authority",
+    "trade_authority",
+    "next_gate"
+  ],
+  "properties": {
+    "contract_version": {"const": "1.0.0"},
+    "program_id": {"const": "FMDL-3B-3"},
+    "entry_status": {"const": "FMDL3B2_FULL_UNIVERSE_INITIAL_BUILD_ACCEPTED_WITH_CONTROLLED_QUARANTINE"},
+    "entry_pointer": {"type": "string", "minLength": 1},
+    "document_policy": {
+      "type": "object",
+      "required": ["canonical_document_classes", "noncanonical_document_classes", "provider_current_value_binding", "historical_structured_value_policy"]
+    },
+    "allowed_restatement_statuses": {"type": "array", "minItems": 3, "uniqueItems": true},
+    "allowed_comparison_statuses": {"type": "array", "minItems": 2, "uniqueItems": true},
+    "publication": {
+      "type": "object",
+      "required": ["candidate_root", "release_root", "current_root", "archive_root", "last_success_path", "candidate_cannot_replace_current_on_failure", "release_is_immutable"]
+    },
+    "hard_gates": {"type": "array", "minItems": 6, "uniqueItems": true},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"},
+    "next_gate": {"const": "FMDL-3B-4_STATEMENT_CURRENT_AND_ACCEPTANCE"}
+  },
+  "additionalProperties": true
+}
