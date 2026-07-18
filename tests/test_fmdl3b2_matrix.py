@@ -4,6 +4,8 @@ from pathlib import Path
 import jsonschema
 
 from scripts import fmdl3b2_matrix_core as matrix
+from scripts import validate_fmdl3b2_matrix as matrix_validator
+from scripts import validate_fmdl3b2_matrix_v2 as matrix_validator_v2
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config/fmdl3b2_matrix.json"
@@ -45,6 +47,13 @@ def test_full_universe_sharding_is_exact_deterministic_and_bounded():
 def test_membership_hash_is_order_independent():
     symbols = ["600519.SH", "000333.SZ", "688981.SH"]
     assert matrix.shard_membership_hash(symbols) == matrix.shard_membership_hash(list(reversed(symbols)))
+
+
+def test_matrix_validators_accept_controlled_zero_row_csvs(tmp_path):
+    path = tmp_path / "controlled-empty.csv"
+    path.write_bytes(b"\xef\xbb\xbf\n")
+    assert matrix_validator.load_csv(path).empty
+    assert matrix_validator_v2._load_csv(path).empty
 
 
 def test_storage_separates_raw_artifacts_from_versioned_normalized_release():
