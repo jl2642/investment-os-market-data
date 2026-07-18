@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3B-2-MATRIX",
+  "name": "Full-Universe Initial Financial Statement Matrix",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": "FMDL3B2_CANARY_ACCEPTED_FULL_UNIVERSE_MATRIX_AUTHORIZED",
+  "entry_release_path": "outputs/financials/full_build/canary/current/FMDL3B2_CANARY_RELEASE.json",
+  "universe_source": "outputs/current/DAILY_MARKET_SNAPSHOT.csv",
+  "sharding": {
+    "method": "SHA256_SORTED_ROUND_ROBIN",
+    "shard_count": 32,
+    "maximum_symbols_per_shard": 200,
+    "workers_per_shard": 4,
+    "raw_artifact_retention_days": 90,
+    "matrix_max_parallel": 16
+  },
+  "data_scope": {
+    "minimum_report_period_end": "2024-03-31",
+    "maximum_periods_per_statement": 12,
+    "currency": "CNY",
+    "units": "CNY_ONES",
+    "bse_policy": "CONTROLLED_QUARANTINE_WITH_CNINFO_OFFICIAL_DOCUMENT_INDEX_PENDING_EXTRACTION"
+  },
+  "source_policy": {
+    "official_availability": "CNINFO_OFFICIAL_DISCLOSURE",
+    "primary_statements": "EASTMONEY_STATEMENTS",
+    "fallback_statements": "SINA_STATEMENTS",
+    "fallback_policy": "CALL_ONLY_WHEN_PRIMARY_STATEMENT_COMPONENT_IS_MISSING_OR_FAILED",
+    "trading_calendar": "SINA_TRADING_CALENDAR"
+  },
+  "storage": {
+    "raw": "IMMUTABLE_GITHUB_ACTIONS_ARTIFACT_SHARD",
+    "raw_artifact_name_pattern": "fmdl3b2-raw-shard-{shard_id}",
+    "normalized": "VERSIONED_GIT_PARQUET_SHARDS",
+    "release_root": "datasets/financials/releases",
+    "current_root": "outputs/financials/full_build/current",
+    "archive_root": "outputs/financials/full_build/archive",
+    "last_success_path": "outputs/status/FMDL3B2_LAST_SUCCESS.json",
+    "maximum_git_file_mib": 95,
+    "maximum_total_normalized_mib": 750,
+    "candidate_cannot_replace_current_on_failure": true,
+    "versioned_release_is_immutable": true
+  },
+  "shard_acceptance_policy": {
+    "minimum_non_bse_statement_bundle_success_ratio": 0.9,
+    "minimum_official_pit_match_ratio": 0.9,
+    "maximum_ambiguous_mapping_group_count": 0,
+    "maximum_future_fact_count": 0,
+    "maximum_source_less_decision_grade_fact_count": 0,
+    "maximum_duplicate_effective_interval_count": 0,
+    "maximum_unclassified_conflict_count": 0,
+    "maximum_performed_validation_failure_count": 0,
+    "require_all_symbols_supported_or_quarantined": true,
+    "require_bse_official_document_index": true,
+    "require_manifest_integrity": true,
+    "trade_authority": "NONE"
+  },
+  "aggregate_acceptance_policy": {
+    "require_all_32_shards_present": true,
+    "require_all_shard_validations_pass": true,
+    "require_exact_universe_membership_once": true,
+    "minimum_non_bse_supported_ratio": 0.95,
+    "maximum_non_bse_quarantine_ratio": 0.05,
+    "minimum_official_pit_match_ratio": 0.9,
+    "maximum_ambiguous_mapping_group_count": 0,
+    "maximum_future_fact_count": 0,
+    "maximum_source_less_decision_grade_fact_count": 0,
+    "maximum_duplicate_effective_interval_count": 0,
+    "maximum_unclassified_conflict_count": 0,
+    "maximum_performed_validation_failure_count": 0,
+    "require_bse_official_document_index": true,
+    "require_zero_duplicate_symbols_across_shards": true,
+    "require_normalized_release_hashes": true,
+    "trade_authority": "NONE"
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3B-3_COMPARABILITY_AND_RESTATEMENT_HARDENING"
+}
