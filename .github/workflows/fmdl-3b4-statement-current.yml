@@ -24,6 +24,10 @@ on:
       - ".github/workflows/fmdl-3b4-statement-current.yml"
   workflow_dispatch:
 
+concurrency:
+  group: fmdl3b4-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
