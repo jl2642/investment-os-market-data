@@ -1,0 +1,135 @@
+{
+  "validation_version": "1.1.0",
+  "run_id": "FMDL3B1_20260718T224913+0800",
+  "program_id": "FMDL-3B-1",
+  "status": "PASS",
+  "checks": [
+    {
+      "check_id": "CONFIG_SCHEMA",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "REQUIRED_OUTPUTS",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "DECISION_STATUS",
+      "status": "PASS",
+      "detail": "FMDL3B1_ACCEPTED_NORMALIZATION_PILOT"
+    },
+    {
+      "check_id": "RAW_FACT_STORE_NONEMPTY",
+      "status": "PASS",
+      "detail": 44615
+    },
+    {
+      "check_id": "NORMALIZED_STORE_NONEMPTY",
+      "status": "PASS",
+      "detail": 3880
+    },
+    {
+      "check_id": "SOURCE_INDEX_NONEMPTY",
+      "status": "PASS",
+      "detail": 79
+    },
+    {
+      "check_id": "SOURCE_LINEAGE",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "MINIMUM_DECISION_GRADE_FACTS",
+      "status": "PASS",
+      "detail": 3874
+    },
+    {
+      "check_id": "ZERO_FUTURE_FACTS",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "ZERO_DUPLICATE_EFFECTIVE_INTERVALS",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "ALL_CONFLICTS_CLASSIFIED",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "SUPPORTED_STATEMENT_GATE",
+      "status": "PASS",
+      "detail": 1.0
+    },
+    {
+      "check_id": "BSE_OFFICIAL_DOCUMENT_INDEX",
+      "status": "PASS",
+      "detail": 1.0
+    },
+    {
+      "check_id": "PROFILE_REPRESENTATION",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "STATEMENT_FAMILY_REPRESENTATION",
+      "status": "PASS",
+      "detail": [
+        "balance_sheet",
+        "cash_flow",
+        "income_statement"
+      ]
+    },
+    {
+      "check_id": "REVISION_LEDGER",
+      "status": "PASS",
+      "detail": 159
+    },
+    {
+      "check_id": "ZERO_SOURCELESS_DECISION_GRADE",
+      "status": "PASS",
+      "detail": "checked"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS",
+      "detail": "raw+normalized"
+    },
+    {
+      "check_id": "ZERO_AMBIGUOUS_SOURCE_MAPPING_GROUPS",
+      "status": "PASS",
+      "detail": {
+        "observed": 0,
+        "maximum": 0
+      }
+    }
+  ],
+  "hard_failures": [],
+  "decision_status": "FMDL3B1_ACCEPTED_NORMALIZATION_PILOT",
+  "metrics": {
+    "sample_symbol_count": 13,
+    "supported_symbol_count": 11,
+    "quarantined_symbol_count": 2,
+    "supported_non_bse_statement_bundle_ratio": 1.0,
+    "official_pit_match_ratio": 1.0,
+    "raw_fact_count": 44615,
+    "mapped_normalized_fact_count": 3880,
+    "decision_grade_fact_count": 3874,
+    "unmapped_raw_fact_count": 37870,
+    "classified_conflict_count": 6,
+    "unclassified_conflict_count": 0,
+    "future_fact_count": 0,
+    "source_less_decision_grade_fact_count": 0,
+    "duplicate_effective_interval_count": 0,
+    "validation_check_count": 297,
+    "qa_flag_count": 2,
+    "bse_official_document_index_ratio": 1.0,
+    "ambiguous_source_mapping_group_count": 0
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_phase": "FMDL-3B-2"
+}
