@@ -1,0 +1,84 @@
+{
+  "contract_version": "1.1.0",
+  "program_id": "FMDL-3B-1",
+  "name": "Financial Statement Store and Normalization Pilot",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": "FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN",
+  "scope": {
+    "mode": "DETERMINISTIC_CROSS_SECTOR_PILOT_WITH_FULL_UNIVERSE_PRODUCTION_SCAFFOLD",
+    "sample_source": "config/fmdl3a_benchmark.json",
+    "minimum_report_period_end": "2024-03-31",
+    "maximum_periods_per_statement": 12,
+    "supported_boards": ["SH_MAIN", "SZ_MAIN", "CHINEXT", "STAR"],
+    "controlled_quarantine_boards": ["BSE"],
+    "required_profiles": [
+      "GENERAL_NON_FINANCIAL",
+      "BANK",
+      "INSURANCE",
+      "SECURITIES_AND_BROKERAGE",
+      "PRE_PROFIT_OR_NEGATIVE_EARNINGS"
+    ]
+  },
+  "source_routes": {
+    "official_availability": "CNINFO_OFFICIAL_DISCLOSURE",
+    "primary_statements": "EASTMONEY_STATEMENTS",
+    "fallback_statements": "SINA_STATEMENTS",
+    "bse_policy": "OFFICIAL_DOCUMENT_INDEX_ONLY_CONTROLLED_QUARANTINE",
+    "trading_calendar": "SINA_TRADING_CALENDAR"
+  },
+  "normalization": {
+    "currency": "CNY",
+    "normalized_units": "CNY_ONES",
+    "source_basis": "PROVIDER_STANDARDIZED_REPORTED",
+    "period_basis": "CUMULATIVE_YTD_EXCEPT_FY_ANNUAL",
+    "missing_value_policy": "PRESERVE_MISSING_NEVER_ZERO_FILL",
+    "unmapped_field_policy": "RAW_FACT_ONLY_WITH_VISIBLE_UNMAPPED_STATUS",
+    "semantic_override_policy": "STARTER_TAXONOMY_ALIASES_MAY_BE_OVERRIDDEN_WHEN_REAL_PROVIDER_FIELDS_PROVE_NARROWER_OR_BROADER_SEMANTICS",
+    "conflict_policy": "PRIMARY_WINS_ONLY_WHEN_VALUES_RECONCILE; OTHERWISE_CONTROLLED_EXCLUSION",
+    "material_conflict_relative_tolerance": 0.000001,
+    "material_conflict_absolute_tolerance": 1.0,
+    "balance_sheet_relative_tolerance": 0.0001,
+    "cash_flow_relative_tolerance": 0.0001
+  },
+  "point_in_time": {
+    "resolution": "DAILY",
+    "available_from_rule": "NEXT_TRADING_SESSION_OPEN",
+    "market_open_time": "09:30:00",
+    "report_period_end_never_implies_availability": true,
+    "latest_structured_value_bound_to_latest_official_revision": true,
+    "prior_official_revisions_retained_as_document_only_when_historical_structured_values_are_unavailable": true,
+    "silent_overwrite_prohibited": true
+  },
+  "acceptance_policy": {
+    "minimum_supported_symbol_statement_bundle_ratio": 0.9,
+    "minimum_official_pit_match_ratio": 0.9,
+    "minimum_required_profile_representation_ratio": 1.0,
+    "minimum_statement_family_representation_ratio": 1.0,
+    "minimum_mapped_fact_count": 200,
+    "minimum_decision_grade_fact_count": 200,
+    "maximum_unclassified_conflict_count": 0,
+    "maximum_future_fact_count": 0,
+    "maximum_source_less_decision_grade_fact_count": 0,
+    "maximum_duplicate_effective_interval_count": 0,
+    "maximum_ambiguous_source_mapping_group_count": 0,
+    "require_bse_official_document_index": true,
+    "require_raw_fact_store": true,
+    "require_normalized_long_store": true,
+    "require_revision_ledger": true,
+    "require_comparability_bridge": true,
+    "require_qa_flags": true,
+    "require_validation_checks": true,
+    "trade_authority": "NONE"
+  },
+  "publication": {
+    "candidate_root": "outputs/financials/pilot/candidate",
+    "current_root": "outputs/financials/pilot/current",
+    "archive_root": "outputs/financials/pilot/archive",
+    "last_success_path": "outputs/status/FMDL3B1_LAST_SUCCESS.json",
+    "candidate_cannot_replace_current_on_failure": true,
+    "archive_is_immutable": true
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_phase": "FMDL-3B-2"
+}

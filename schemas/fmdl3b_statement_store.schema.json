@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jl2642/investment-os-market-data/schemas/fmdl3b_statement_store.schema.json",
+  "title": "FMDL-3B-1 Statement Store Contract",
+  "type": "object",
+  "required": ["contract_version","program_id","business_timezone","entry_gate","scope","source_routes","normalization","point_in_time","acceptance_policy","publication","authority","trade_authority","next_phase"],
+  "properties": {
+    "contract_version": {"type":"string","pattern":"^\\d+\\.\\d+\\.\\d+$"},
+    "program_id": {"const":"FMDL-3B-1"},
+    "name": {"type":"string","minLength":1},
+    "business_timezone": {"const":"Asia/Shanghai"},
+    "entry_gate": {"const":"FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN"},
+    "scope": {"type":"object"},
+    "source_routes": {"type":"object"},
+    "normalization": {"type":"object"},
+    "point_in_time": {"type":"object"},
+    "acceptance_policy": {"type":"object"},
+    "publication": {"type":"object"},
+    "authority": {"const":"DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const":"NONE"},
+    "next_phase": {"const":"FMDL-3B-2"}
+  },
+  "additionalProperties": false
+}
