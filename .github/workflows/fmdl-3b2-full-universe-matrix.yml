@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "config/fmdl3b2_matrix.json"
+      - "config/fmdl3b_semantic_overrides.json"
       - "schemas/fmdl3b2_matrix_v2.schema.json"
       - "scripts/fmdl3b2_matrix_core.py"
       - "scripts/fmdl3b2_validation_hardening.py"
@@ -17,6 +18,7 @@ on:
       - "scripts/validate_fmdl3b2_matrix.py"
       - "scripts/validate_fmdl3b2_matrix_v2.py"
       - "scripts/publish_fmdl3b2_matrix.py"
+      - "tests/test_fmdl3b_semantic_overrides.py"
       - "tests/test_fmdl3b2_matrix.py"
       - "tests/test_fmdl3b2_validation_hardening.py"
       - "docs/FMDL-3B2_MATRIX.md"
@@ -26,6 +28,7 @@ on:
     branches: [main]
     paths:
       - "config/fmdl3b2_matrix.json"
+      - "config/fmdl3b_semantic_overrides.json"
       - "schemas/fmdl3b2_matrix_v2.schema.json"
       - "scripts/fmdl3b2_matrix_core.py"
       - "scripts/fmdl3b2_validation_hardening.py"
@@ -38,6 +41,7 @@ on:
       - "scripts/validate_fmdl3b2_matrix.py"
       - "scripts/validate_fmdl3b2_matrix_v2.py"
       - "scripts/publish_fmdl3b2_matrix.py"
+      - "tests/test_fmdl3b_semantic_overrides.py"
       - "tests/test_fmdl3b2_matrix.py"
       - "tests/test_fmdl3b2_validation_hardening.py"
       - "docs/FMDL-3B2_MATRIX.md"
@@ -51,7 +55,7 @@ permissions:
 
 concurrency:
   group: fmdl-3b2-matrix-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   preflight:
@@ -75,7 +79,7 @@ jobs:
   shards:
     needs: preflight
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 75
     strategy:
       fail-fast: false
       max-parallel: 8
