@@ -39,7 +39,7 @@ def main() -> int:
     shutil.copytree(candidate, current)
     published_at = datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds")
     release = {
-        "release_version": "1.0.0",
+        "release_version": "1.1.0",
         "release_id": release_id,
         "published_at": published_at,
         "program_id": "FMDL-3B-1",
@@ -53,11 +53,14 @@ def main() -> int:
         "revision_ledger_path": f"{publication['current_root']}/FMDL3B_REVISION_LEDGER.csv",
         "comparability_bridge_path": f"{publication['current_root']}/FMDL3B_COMPARABILITY_BRIDGE.csv",
         "conflict_log_path": f"{publication['current_root']}/FMDL3B_CONFLICT_LOG.csv",
+        "ambiguous_mapping_groups_path": f"{publication['current_root']}/FMDL3B_AMBIGUOUS_MAPPING_GROUPS.csv",
         "qa_flags_path": f"{publication['current_root']}/FMDL3B_QA_FLAGS.csv",
         "validation_checks_path": f"{publication['current_root']}/FMDL3B_VALIDATION_CHECKS.csv",
         "support_map_path": f"{publication['current_root']}/FMDL3B_SUPPORT_MAP.csv",
+        "coverage_path": f"{publication['current_root']}/FMDL3B_COVERAGE.csv",
         "validation_path": f"{publication['current_root']}/FMDL3B1_VALIDATION.json",
         "metrics": decision["metrics"],
+        "semantic_override_version": decision.get("semantic_override_version"),
         "controlled_limitations": decision["controlled_limitations"],
         "authority": decision["authority"],
         "trade_authority": "NONE",
@@ -68,13 +71,14 @@ def main() -> int:
     dump(
         ROOT / publication["last_success_path"],
         {
-            "pointer_version": "1.0.0",
+            "pointer_version": "1.1.0",
             "program_id": "FMDL-3B-1",
             "release_id": release_id,
             "published_at": published_at,
             "status": release["status"],
             "current_release_path": f"{publication['current_root']}/FMDL3B1_RELEASE.json",
             "validation_path": release["validation_path"],
+            "ambiguous_mapping_groups_path": release["ambiguous_mapping_groups_path"],
             "next_phase": "FMDL-3B-2",
             "authority": release["authority"],
             "trade_authority": "NONE",
