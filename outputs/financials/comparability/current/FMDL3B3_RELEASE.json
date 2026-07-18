@@ -1,0 +1,41 @@
+{
+  "release_version": "1.0.0",
+  "release_id": "FMDL3B3_20260719T015046+0800",
+  "published_at": "2026-07-19T01:50:49+08:00",
+  "program_id": "FMDL-3B-3",
+  "status": "FMDL3B3_COMPARABILITY_AND_RESTATEMENT_HARDENING_ACCEPTED",
+  "exit_gate": "COMPARABILITY_AND_RESTATEMENT_HARDENING_ACCEPTED",
+  "release_root": "datasets/financials/comparability/releases/FMDL3B3_20260719T015046+0800",
+  "current_root": "outputs/financials/comparability/current",
+  "archive_path": "outputs/financials/comparability/archive/FMDL3B3_20260719T015046+0800",
+  "revision_lineage_path": "datasets/financials/comparability/releases/FMDL3B3_20260719T015046+0800/FMDL3B3_REVISION_LINEAGE.parquet",
+  "period_revision_status_path": "datasets/financials/comparability/releases/FMDL3B3_20260719T015046+0800/FMDL3B3_PERIOD_REVISION_STATUS.parquet",
+  "fact_exception_path": "datasets/financials/comparability/releases/FMDL3B3_20260719T015046+0800/FMDL3B3_FACT_COMPARABILITY_EXCEPTIONS.parquet",
+  "comparability_bridge_path": "datasets/financials/comparability/releases/FMDL3B3_20260719T015046+0800/FMDL3B3_COMPARABILITY_BRIDGE.parquet",
+  "metrics": {
+    "input_revision_row_count": 71126,
+    "classified_document_count": 71126,
+    "normalized_period_key_count": 46693,
+    "period_status_count": 55052,
+    "canonical_periodic_document_count": 56371,
+    "noncanonical_document_count": 14755,
+    "original_only_period_count": 51780,
+    "restated_or_corrected_period_count": 2331,
+    "unresolved_no_canonical_period_count": 941,
+    "normalized_fact_count_replayed": 1885485,
+    "fact_exception_count": 84862,
+    "comparison_count_replayed": 1035036,
+    "comparison_exception_count": 75325,
+    "comparable_with_warning_count": 54957,
+    "not_comparable_count": 20368
+  },
+  "controlled_limitations": [
+    "HISTORICAL_STRUCTURED_VALUES_BEFORE_CORRECTION_ARE_NOT_AVAILABLE_FROM_THE_CURRENT_PROVIDER_EXPORT",
+    "PRE_RESTATEMENT_NUMERIC_REPLAY_IS_BLOCKED_WHEN_ONLY_DOCUMENT_LINEAGE_EXISTS",
+    "ABSENCE_FROM_EXCEPTION_TABLES_MEANS_COMPARABLE_UNDER_THE_FROZEN_DEFAULT_RULES",
+    "BSE_AND_OTHER_UNSUPPORTED_STATEMENT_FACTS_REMAIN_CONTROLLED_BY_FMDL3B2_QUARANTINE"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3B-4_STATEMENT_CURRENT_AND_ACCEPTANCE"
+}
