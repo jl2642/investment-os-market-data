@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3b2_matrix_v2.schema.json",
+  "title": "FMDL-3B-2 Hardened Full-Universe Matrix Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "program_id", "name", "business_timezone", "entry_gate", "entry_release_path", "universe_source", "sharding", "data_scope", "source_policy", "storage", "shard_acceptance_policy", "aggregate_acceptance_policy", "authority", "trade_authority", "next_gate"],
+  "properties": {
+    "contract_version": {"const": "1.1.0"},
+    "program_id": {"const": "FMDL-3B-2-MATRIX"},
+    "name": {"type": "string", "minLength": 1},
+    "business_timezone": {"const": "Asia/Shanghai"},
+    "entry_gate": {"const": "FMDL3B2_CANARY_ACCEPTED_FULL_UNIVERSE_MATRIX_AUTHORIZED"},
+    "entry_release_path": {"type": "string", "minLength": 1},
+    "universe_source": {"type": "string", "minLength": 1},
+    "sharding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "shard_count", "maximum_symbols_per_shard", "workers_per_shard", "raw_artifact_retention_days", "matrix_max_parallel"],
+      "properties": {
+        "method": {"const": "SHA256_SORTED_ROUND_ROBIN"},
+        "shard_count": {"const": 32},
+        "maximum_symbols_per_shard": {"type": "integer", "minimum": 173, "maximum": 200},
+        "workers_per_shard": {"const": 4},
+        "raw_artifact_retention_days": {"const": 90},
+        "matrix_max_parallel": {"const": 8}
+      }
+    },
+    "data_scope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["minimum_report_period_end", "maximum_periods_per_statement", "currency", "units", "bse_policy"],
+      "properties": {
+        "minimum_report_period_end": {"type": "string", "format": "date"},
+        "maximum_periods_per_statement": {"type": "integer", "minimum": 4, "maximum": 20},
+        "currency": {"const": "CNY"},
+        "units": {"const": "CNY_ONES"},
+        "bse_policy": {"const": "CONTROLLED_QUARANTINE_WITH_SUCCESSFUL_CNINFO_QUERY_RESOLUTION_PENDING_OFFICIAL_DOCUMENT_EXTRACTION"}
+      }
+    },
+    "source_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["official_availability", "primary_statements", "fallback_statements", "fallback_policy", "trading_calendar"],
+      "properties": {
+        "official_availability": {"const": "CNINFO_OFFICIAL_DISCLOSURE"},
+        "primary_statements": {"const": "EASTMONEY_STATEMENTS"},
+        "fallback_statements": {"const": "SINA_STATEMENTS"},
+        "fallback_policy": {"const": "CALL_ONLY_WHEN_PRIMARY_STATEMENT_COMPONENT_IS_MISSING_OR_FAILED"},
+        "trading_calendar": {"const": "SINA_TRADING_CALENDAR"}
+      }
+    },
+    "storage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["raw", "raw_artifact_name_pattern", "normalized", "release_root", "current_root", "archive_root", "last_success_path", "maximum_git_file_mib", "maximum_total_normalized_mib", "candidate_cannot_replace_current_on_failure", "versioned_release_is_immutable"],
+      "properties": {
+        "raw": {"const": "IMMUTABLE_GITHUB_ACTIONS_ARTIFACT_SHARD"},
+        "raw_artifact_name_pattern": {"const": "fmdl3b2-raw-shard-{shard_id}"},
+        "normalized": {"const": "VERSIONED_GIT_PARQUET_SHARDS"},
+        "release_root": {"type": "string", "minLength": 1},
+        "current_root": {"type": "string", "minLength": 1},
+        "archive_root": {"type": "string", "minLength": 1},
+        "last_success_path": {"type": "string", "minLength": 1},
+        "maximum_git_file_mib": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 100},
+        "maximum_total_normalized_mib": {"type": "number", "exclusiveMinimum": 0, "maximum": 750},
+        "candidate_cannot_replace_current_on_failure": {"const": true},
+        "versioned_release_is_immutable": {"const": true}
+      }
+    },
+    "shard_acceptance_policy": {"$ref": "#/$defs/shardPolicy"},
+    "aggregate_acceptance_policy": {"$ref": "#/$defs/aggregatePolicy"},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"},
+    "next_gate": {"const": "FMDL-3B-3_COMPARABILITY_AND_RESTATEMENT_HARDENING"}
+  },
+  "$defs": {
+    "zeroTolerance": {
+      "type": "object",
+      "properties": {
+        "maximum_ambiguous_mapping_group_count": {"const": 0},
+        "maximum_future_fact_count": {"const": 0},
+        "maximum_source_less_decision_grade_fact_count": {"const": 0},
+        "maximum_duplicate_effective_interval_count": {"const": 0},
+        "maximum_unclassified_conflict_count": {"const": 0},
+        "maximum_performed_validation_failure_count": {"const": 0},
+        "require_controlled_validation_exclusions_classified": {"const": true},
+        "require_affected_controlled_facts_removed_from_decision_grade": {"const": true},
+        "require_bse_official_query_resolution": {"const": true},
+        "trade_authority": {"const": "NONE"}
+      },
+      "required": ["maximum_ambiguous_mapping_group_count", "maximum_future_fact_count", "maximum_source_less_decision_grade_fact_count", "maximum_duplicate_effective_interval_count", "maximum_unclassified_conflict_count", "maximum_performed_validation_failure_count", "require_controlled_validation_exclusions_classified", "require_affected_controlled_facts_removed_from_decision_grade", "require_bse_official_query_resolution", "trade_authority"]
+    },
+    "shardPolicy": {
+      "allOf": [{"$ref": "#/$defs/zeroTolerance"}],
+      "type": "object", "additionalProperties": false,
+      "required": ["minimum_non_bse_statement_bundle_success_ratio", "minimum_official_pit_match_ratio", "maximum_ambiguous_mapping_group_count", "maximum_future_fact_count", "maximum_source_less_decision_grade_fact_count", "maximum_duplicate_effective_interval_count", "maximum_unclassified_conflict_count", "maximum_performed_validation_failure_count", "require_controlled_validation_exclusions_classified", "require_affected_controlled_facts_removed_from_decision_grade", "require_all_symbols_supported_or_quarantined", "require_bse_official_query_resolution", "require_manifest_integrity", "trade_authority"],
+      "properties": {
+        "minimum_non_bse_statement_bundle_success_ratio": {"type": "number", "minimum": 0.9, "maximum": 1},
+        "minimum_official_pit_match_ratio": {"type": "number", "minimum": 0.9, "maximum": 1},
+        "maximum_ambiguous_mapping_group_count": {"const": 0}, "maximum_future_fact_count": {"const": 0}, "maximum_source_less_decision_grade_fact_count": {"const": 0}, "maximum_duplicate_effective_interval_count": {"const": 0}, "maximum_unclassified_conflict_count": {"const": 0}, "maximum_performed_validation_failure_count": {"const": 0},
+        "require_controlled_validation_exclusions_classified": {"const": true}, "require_affected_controlled_facts_removed_from_decision_grade": {"const": true}, "require_all_symbols_supported_or_quarantined": {"const": true}, "require_bse_official_query_resolution": {"const": true}, "require_manifest_integrity": {"const": true}, "trade_authority": {"const": "NONE"}
+      }
+    },
+    "aggregatePolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["require_all_32_shards_present", "require_all_shard_validations_pass", "require_exact_universe_membership_once", "minimum_non_bse_supported_ratio", "maximum_non_bse_quarantine_ratio", "minimum_official_pit_match_ratio", "maximum_ambiguous_mapping_group_count", "maximum_future_fact_count", "maximum_source_less_decision_grade_fact_count", "maximum_duplicate_effective_interval_count", "maximum_unclassified_conflict_count", "maximum_performed_validation_failure_count", "require_controlled_validation_exclusions_classified", "require_affected_controlled_facts_removed_from_decision_grade", "require_bse_official_query_resolution", "require_zero_duplicate_symbols_across_shards", "require_normalized_release_hashes", "trade_authority"],
+      "properties": {
+        "require_all_32_shards_present": {"const": true}, "require_all_shard_validations_pass": {"const": true}, "require_exact_universe_membership_once": {"const": true},
+        "minimum_non_bse_supported_ratio": {"type": "number", "minimum": 0.95, "maximum": 1}, "maximum_non_bse_quarantine_ratio": {"type": "number", "minimum": 0, "maximum": 0.05}, "minimum_official_pit_match_ratio": {"type": "number", "minimum": 0.9, "maximum": 1},
+        "maximum_ambiguous_mapping_group_count": {"const": 0}, "maximum_future_fact_count": {"const": 0}, "maximum_source_less_decision_grade_fact_count": {"const": 0}, "maximum_duplicate_effective_interval_count": {"const": 0}, "maximum_unclassified_conflict_count": {"const": 0}, "maximum_performed_validation_failure_count": {"const": 0},
+        "require_controlled_validation_exclusions_classified": {"const": true}, "require_affected_controlled_facts_removed_from_decision_grade": {"const": true}, "require_bse_official_query_resolution": {"const": true}, "require_zero_duplicate_symbols_across_shards": {"const": true}, "require_normalized_release_hashes": {"const": true}, "trade_authority": {"const": "NONE"}
+      }
+    }
+  }
+}
