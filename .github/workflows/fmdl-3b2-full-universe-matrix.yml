@@ -1,0 +1,178 @@
+name: FMDL 3B-2 Full-Universe Statement Matrix
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl3b2_matrix.json"
+      - "schemas/fmdl3b2_matrix.schema.json"
+      - "scripts/fmdl3b2_matrix_core.py"
+      - "scripts/run_fmdl3b2_shard.py"
+      - "scripts/validate_fmdl3b2_shard.py"
+      - "scripts/aggregate_fmdl3b2_matrix.py"
+      - "scripts/validate_fmdl3b2_matrix.py"
+      - "scripts/publish_fmdl3b2_matrix.py"
+      - "tests/test_fmdl3b2_matrix.py"
+      - "docs/FMDL-3B2_MATRIX.md"
+      - "docs/FMDL-3B2_MATRIX_ACCEPTANCE.md"
+      - ".github/workflows/fmdl-3b2-full-universe-matrix.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3b2_matrix.json"
+      - "schemas/fmdl3b2_matrix.schema.json"
+      - "scripts/fmdl3b2_matrix_core.py"
+      - "scripts/run_fmdl3b2_shard.py"
+      - "scripts/validate_fmdl3b2_shard.py"
+      - "scripts/aggregate_fmdl3b2_matrix.py"
+      - "scripts/validate_fmdl3b2_matrix.py"
+      - "scripts/publish_fmdl3b2_matrix.py"
+      - "tests/test_fmdl3b2_matrix.py"
+      - "docs/FMDL-3B2_MATRIX.md"
+      - "docs/FMDL-3B2_MATRIX_ACCEPTANCE.md"
+      - ".github/workflows/fmdl-3b2-full-universe-matrix.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: fmdl-3b2-matrix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Validate contracts and deterministic sharding
+        run: |
+          python scripts/validate_investment_os_interface.py
+          pytest -q tests/test_fmdl3b_contract.py tests/test_fmdl3b_semantic_overrides.py tests/test_fmdl3b2_canary.py tests/test_fmdl3b2_matrix.py
+
+  shards:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        shard_id: ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Run real statement shard
+        id: shard
+        continue-on-error: true
+        run: python -m scripts.run_fmdl3b2_shard --shard-id ${{ matrix.shard_id }}
+      - name: Independently validate shard
+        id: validate
+        continue-on-error: true
+        run: python -m scripts.validate_fmdl3b2_shard --shard-id ${{ matrix.shard_id }}
+      - name: Upload aggregation package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3b2-shard-${{ matrix.shard_id }}
+          path: |
+            outputs/financials/full_build/matrix/shards/shard-${{ matrix.shard_id }}/
+            !outputs/financials/full_build/matrix/shards/shard-${{ matrix.shard_id }}/SHARD_RAW_FACTS.parquet
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload immutable raw fact shard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3b2-raw-shard-${{ matrix.shard_id }}
+          path: outputs/financials/full_build/matrix/shards/shard-${{ matrix.shard_id }}/SHARD_RAW_FACTS.parquet
+          if-no-files-found: error
+          retention-days: 90
+      - name: Enforce shard acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          shard = "${{ matrix.shard_id }}"
+          path = Path(f"outputs/financials/full_build/matrix/shards/shard-{shard}/SHARD_VALIDATION.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          assert payload["status"] == "PASS", payload
+          PY
+
+  aggregate:
+    needs: shards
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Download validated shard packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: fmdl3b2-shard-*
+          path: downloaded-shards
+          merge-multiple: false
+      - name: Aggregate full-Universe candidate
+        id: aggregate
+        continue-on-error: true
+        run: python -m scripts.aggregate_fmdl3b2_matrix --input-root downloaded-shards
+      - name: Independently validate aggregate candidate
+        id: validate
+        continue-on-error: true
+        run: python -m scripts.validate_fmdl3b2_matrix
+      - name: Upload matrix candidate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3b2-full-universe-matrix-candidate
+          path: outputs/financials/full_build/matrix/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Enforce aggregate acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path("outputs/financials/full_build/matrix/candidate/FMDL3B2_MATRIX_VALIDATION.json").read_text(encoding="utf-8"))
+          assert payload["status"] == "PASS", payload
+          PY
+      - name: Publish immutable Statement Base on main
+        if: github.event_name != 'pull_request'
+        run: |
+          python -m scripts.publish_fmdl3b2_matrix
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config http.postBuffer 524288000
+          git add datasets/financials/releases outputs/financials/full_build/current outputs/financials/full_build/archive outputs/status/FMDL3B2_LAST_SUCCESS.json
+          if git diff --cached --quiet; then
+            echo "No matrix publication changes"
+          else
+            git commit -m "data: publish FMDL-3B-2 full-Universe statement base [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
