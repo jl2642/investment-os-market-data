@@ -1,0 +1,266 @@
+{
+  "validation_version": "1.1.0",
+  "release_id": "FMDL3B2M_20260719T005955+0800",
+  "program_id": "FMDL-3B-2-MATRIX",
+  "status": "PASS",
+  "checks": [
+    {
+      "check_id": "DECISION_STATUS",
+      "status": "PASS",
+      "detail": "FMDL3B2_FULL_UNIVERSE_INITIAL_BUILD_ACCEPTED_WITH_CONTROLLED_QUARANTINE"
+    },
+    {
+      "check_id": "DECISION_HARD_FAILURES",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "ALL_SHARDS_PRESENT",
+      "status": "PASS",
+      "detail": {
+        "missing": [],
+        "extra": []
+      }
+    },
+    {
+      "check_id": "ALL_SHARD_DECISIONS_ACCEPTED",
+      "status": "PASS",
+      "detail": {
+        "FMDL3B2_SHARD_ACCEPTED": 32
+      }
+    },
+    {
+      "check_id": "ALL_SHARD_VALIDATIONS_PASS",
+      "status": "PASS",
+      "detail": {
+        "PASS": 32
+      }
+    },
+    {
+      "check_id": "EXACT_UNIVERSE_MEMBERSHIP_ONCE",
+      "status": "PASS",
+      "detail": {
+        "universe": 5528,
+        "rows": 5528,
+        "missing": 0,
+        "extra": 0,
+        "duplicate_rows": 0
+      }
+    },
+    {
+      "check_id": "DETERMINISTIC_SHARD_MEMBERSHIP_REPLAY",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "ALL_SUPPORT_STATUSES_CONTROLLED",
+      "status": "PASS",
+      "detail": {
+        "SUPPORTED": 5187,
+        "QUARANTINED": 341
+      }
+    },
+    {
+      "check_id": "NON_BSE_SUPPORTED_GATE",
+      "status": "PASS",
+      "detail": 0.9975
+    },
+    {
+      "check_id": "NON_BSE_QUARANTINE_CAP",
+      "status": "PASS",
+      "detail": 0.0025
+    },
+    {
+      "check_id": "PIT_GATE",
+      "status": "PASS",
+      "detail": 0.9895636265589055
+    },
+    {
+      "check_id": "ZERO_AMBIGUOUS_MAPPING_GROUPS",
+      "status": "PASS",
+      "detail": {
+        "decision": 0,
+        "rows": 0
+      }
+    },
+    {
+      "check_id": "ZERO_FUTURE_FACTS",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "ZERO_SOURCELESS_DECISION_GRADE",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "ZERO_DUPLICATE_EFFECTIVE_INTERVALS",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "ALL_CONFLICTS_CLASSIFIED",
+      "status": "PASS",
+      "detail": {
+        "decision": 0,
+        "rows": 0
+      }
+    },
+    {
+      "check_id": "NORMALIZED_SHARD_FILES",
+      "status": "PASS",
+      "detail": 32
+    },
+    {
+      "check_id": "REVISION_SHARD_FILES",
+      "status": "PASS",
+      "detail": 32
+    },
+    {
+      "check_id": "SOURCE_INDEX_SHARD_FILES",
+      "status": "PASS",
+      "detail": 32
+    },
+    {
+      "check_id": "NORMALIZED_PARQUET_READABLE",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "NORMALIZED_ROW_COUNT_REPLAY",
+      "status": "PASS",
+      "detail": {
+        "observed": 1885485,
+        "decision": 1885485
+      }
+    },
+    {
+      "check_id": "NORMALIZED_ZERO_DUPLICATE_INTERVAL_REPLAY",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "REVISION_AND_SOURCE_PARQUET_READABLE",
+      "status": "PASS",
+      "detail": {
+        "errors": [],
+        "revision_rows": 71126,
+        "source_ids": 21128
+      }
+    },
+    {
+      "check_id": "NORMALIZED_FILE_SIZE",
+      "status": "PASS",
+      "detail": 3.224945068359375
+    },
+    {
+      "check_id": "NORMALIZED_TOTAL_SIZE",
+      "status": "PASS",
+      "detail": 98.55722332000732
+    },
+    {
+      "check_id": "RAW_ARTIFACT_INDEX_COMPLETE",
+      "status": "PASS",
+      "detail": {
+        "rows": 32
+      }
+    },
+    {
+      "check_id": "RETRY_LEDGER_SUBSET_OF_QUARANTINE",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "MANIFEST_INTEGRITY",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS",
+      "detail": [
+        "NONE"
+      ]
+    },
+    {
+      "check_id": "BSE_OFFICIAL_QUERY_RESOLUTION",
+      "status": "PASS",
+      "detail": {
+        "bse_rows": 328,
+        "query_unresolved": 0,
+        "document_status": {
+          "INDEXED_CLASSIFIED_PERIODIC_REPORTS": 311,
+          "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY": 17
+        }
+      }
+    },
+    {
+      "check_id": "CONTROLLED_VALIDATION_EXCLUSIONS_CLASSIFIED",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "CONTROLLED_FACTS_REMOVED_FROM_DECISION_GRADE",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "PERFORMED_CHECKS_NO_UNEXPLAINED_FAILURE",
+      "status": "PASS",
+      "detail": {
+        "rows": 0,
+        "decision": 0
+      }
+    }
+  ],
+  "hard_failures": [],
+  "decision_status": "FMDL3B2_FULL_UNIVERSE_INITIAL_BUILD_ACCEPTED_WITH_CONTROLLED_QUARANTINE",
+  "metrics": {
+    "universe_symbol_count": 5528,
+    "observed_symbol_count": 5528,
+    "shard_count": 32,
+    "accepted_shard_count": 32,
+    "validated_shard_count": 32,
+    "supported_symbol_count": 5187,
+    "quarantined_symbol_count": 341,
+    "non_bse_supported_ratio": 0.9975,
+    "non_bse_quarantine_ratio": 0.0025,
+    "official_pit_match_ratio": 0.9895636265589055,
+    "raw_fact_count": 12613577,
+    "normalized_fact_count": 1885485,
+    "decision_grade_fact_count": 1859654,
+    "fallback_components_invoked": 0,
+    "fallback_components_used": 0,
+    "retry_symbol_count": 13,
+    "ambiguous_mapping_group_count": 0,
+    "future_fact_count": 0,
+    "source_less_decision_grade_fact_count": 0,
+    "duplicate_effective_interval_count": 0,
+    "classified_conflict_count": 0,
+    "unclassified_conflict_count": 0,
+    "performed_validation_check_count": 139011,
+    "performed_validation_failure_count": 0,
+    "qa_flag_count": 348,
+    "duplicate_symbol_count": 0,
+    "missing_symbol_count": 0,
+    "extra_symbol_count": 0,
+    "normalized_release_mib": 98.55722332000732,
+    "maximum_normalized_shard_mib": 3.224945068359375,
+    "raw_artifact_count": 32,
+    "controlled_validation_exclusion_count": 6,
+    "controlled_validation_classification_error_count": 0,
+    "bse_indexed_periodic_report_count": 311,
+    "bse_no_classified_periodic_report_count": 17,
+    "bse_query_unresolved_count": 0
+  },
+  "replay": {
+    "normalized_rows": 1885485,
+    "revision_rows": 71126,
+    "source_id_count": 21128,
+    "maximum_normalized_shard_mib": 3.224945068359375,
+    "total_normalized_mib": 98.55722332000732
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3B-3_COMPARABILITY_AND_RESTATEMENT_HARDENING"
+}

@@ -1,0 +1,98 @@
+{
+  "decision_version": "1.0.0",
+  "release_id": "FMDL3B4_20260719T020726+0800",
+  "generated_at": "2026-07-19T02:07:26+08:00",
+  "program_id": "FMDL-3B-4",
+  "status": "FMDL3B4_POINT_IN_TIME_STATEMENT_STORE_ACCEPTED",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "FMDL3B2_ENTRY_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FMDL3B3_ENTRY_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "STATEMENT_VALIDATION_PASS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "COMPARABILITY_VALIDATION_PASS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "STATEMENT_RELEASE_ID_MATCH",
+      "status": "PASS"
+    },
+    {
+      "check_id": "COMPARABILITY_RELEASE_ID_MATCH",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_32_NORMALIZED_SHARDS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_32_REVISION_SHARDS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_32_SOURCE_INDEX_SHARDS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_CATALOG_FILES_EXIST",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NORMALIZED_FACT_REPLAY_MATCH",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PERIOD_CLASSIFICATIONS_EXPLICIT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_RESTATEMENTS_REPLAY_CONTROLLED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_UNRESOLVED_PERIODS_BLOCKED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "statement_base_release_id": "FMDL3B2M_20260719T005955+0800",
+    "comparability_release_id": "FMDL3B3_20260719T015046+0800",
+    "universe_symbol_count": 5528,
+    "supported_symbol_count": 5187,
+    "quarantined_symbol_count": 341,
+    "normalized_fact_count": 1885485,
+    "decision_grade_fact_count": 1859654,
+    "revision_row_count": 71126,
+    "period_status_count": 55052,
+    "restated_or_corrected_period_count": 2331,
+    "unresolved_no_canonical_period_count": 941,
+    "comparison_count_replayed": 1035036,
+    "comparison_exception_count": 75325,
+    "catalog_file_count": 100,
+    "missing_catalog_file_count": 0
+  },
+  "statement_base_release_id": "FMDL3B2M_20260719T005955+0800",
+  "comparability_release_id": "FMDL3B3_20260719T015046+0800",
+  "controlled_limitations": [
+    "HISTORICAL_STRUCTURED_VALUES_BEFORE_CORRECTION_ARE_NOT_AVAILABLE_FROM_THE_CURRENT_PROVIDER_EXPORT",
+    "PRE_RESTATEMENT_NUMERIC_REPLAY_IS_BLOCKED_WHEN_ONLY_DOCUMENT_LINEAGE_EXISTS",
+    "ABSENCE_FROM_EXCEPTION_TABLES_MEANS_COMPARABLE_UNDER_THE_FROZEN_DEFAULT_RULES",
+    "BSE_AND_OTHER_UNSUPPORTED_STATEMENT_FACTS_REMAIN_CONTROLLED_BY_FMDL3B2_QUARANTINE"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3C_FINANCIAL_QUALITY_GROWTH_AND_BALANCE_SHEET_FACTORS"
+}
