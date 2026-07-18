@@ -17,7 +17,7 @@ DEFAULT_CANDIDATE = ROOT / "outputs/financials/full_build/matrix/candidate"
 
 
 def _load_csv(path: Path) -> pd.DataFrame:
-    return pd.read_csv(path, encoding="utf-8-sig") if path.exists() else pd.DataFrame()
+    return base.load_csv(path)
 
 
 def _controlled_facts_downgraded(root: Path, checks: pd.DataFrame) -> tuple[bool, list[str]]:
