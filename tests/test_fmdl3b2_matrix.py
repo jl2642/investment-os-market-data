@@ -75,6 +75,6 @@ def test_workflow_declares_all_32_zero_padded_shards_and_publication():
     text = WORKFLOW.read_text(encoding="utf-8")
     for shard_id in range(32):
         assert f'"{shard_id:02d}"' in text
-    assert "max-parallel: 16" in text
+    assert "max-parallel: 8" in text
     assert "publish_fmdl3b2_matrix" in text
     assert "fmdl3b2-raw-shard-${{ matrix.shard_id }}" in text
