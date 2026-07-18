@@ -1,5 +1,5 @@
 {
-  "override_version": "1.0.0",
+  "override_version": "1.1.0",
   "program_id": "FMDL-3B",
   "purpose": "Override exact aliases whose provider semantics are narrower or broader than the starter taxonomy.",
   "fields": [
@@ -29,6 +29,15 @@
       "sign_rule": "NEGATIVE_ABS",
       "profiles": ["ALL"],
       "reason": "The reported line includes interest and cannot be represented as pure dividends paid."
+    },
+    {
+      "statement": "cash_flow",
+      "line_item_id": "fx_cash_effect",
+      "line_item_standard": "FX effect on cash and cash equivalents",
+      "aliases": ["RATE_CHANGE_EFFECT"],
+      "sign_rule": "AS_REPORTED",
+      "profiles": ["ALL"],
+      "reason": "Real Eastmoney cash-flow field required for CFO plus CFI plus CFF plus FX to reconcile to net change in cash."
     }
   ],
   "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",

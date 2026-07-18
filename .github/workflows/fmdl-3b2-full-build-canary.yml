@@ -1,0 +1,94 @@
+name: FMDL 3B-2 Full-Universe Build Canary
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl3b2_full_build.json"
+      - "config/fmdl3b_semantic_overrides.json"
+      - "scripts/run_fmdl3b2_canary.py"
+      - "scripts/run_fmdl3b2_canary_v2.py"
+      - "scripts/validate_fmdl3b2_canary.py"
+      - "scripts/publish_fmdl3b2_canary.py"
+      - "tests/test_fmdl3b2_canary.py"
+      - "docs/FMDL-3B2_FULL_BUILD.md"
+      - "docs/FMDL-3B2_CANARY_ACCEPTANCE.md"
+      - ".github/workflows/fmdl-3b2-full-build-canary.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3b2_full_build.json"
+      - "config/fmdl3b_semantic_overrides.json"
+      - "scripts/run_fmdl3b2_canary.py"
+      - "scripts/run_fmdl3b2_canary_v2.py"
+      - "scripts/validate_fmdl3b2_canary.py"
+      - "scripts/publish_fmdl3b2_canary.py"
+      - "tests/test_fmdl3b2_canary.py"
+      - "docs/FMDL-3B2_FULL_BUILD.md"
+      - "docs/FMDL-3B2_CANARY_ACCEPTANCE.md"
+      - ".github/workflows/fmdl-3b2-full-build-canary.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-3b2-canary-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Contract and deterministic-selection tests
+        run: |
+          python scripts/validate_investment_os_interface.py
+          pytest -q tests/test_fmdl3b_contract.py tests/test_fmdl3b_semantic_overrides.py tests/test_fmdl3b2_canary.py
+      - name: Run real build canary
+        id: canary
+        continue-on-error: true
+        run: python -m scripts.run_fmdl3b2_canary_v2 --workers 4
+      - name: Independent canary validation
+        id: validate
+        continue-on-error: true
+        run: python -m scripts.validate_fmdl3b2_canary
+      - name: Upload canary evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3b2-full-build-canary
+          path: outputs/financials/full_build/canary/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Enforce canary acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path("outputs/financials/full_build/canary/candidate/FMDL3B2_CANARY_VALIDATION.json").read_text(encoding="utf-8"))
+          assert payload["status"] == "PASS", payload
+          PY
+      - name: Publish canary Current on main
+        if: github.event_name != 'pull_request'
+        run: |
+          python -m scripts.publish_fmdl3b2_canary
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/financials/full_build/canary/candidate outputs/financials/full_build/canary/current outputs/financials/full_build/canary/archive outputs/status/FMDL3B2_CANARY_LAST_SUCCESS.json
+          if git diff --cached --quiet; then
+            echo "No canary publication changes"
+          else
+            git commit -m "data: publish FMDL-3B-2 build canary [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
