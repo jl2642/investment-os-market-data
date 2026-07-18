@@ -1,0 +1,196 @@
+{
+  "validation_version": "1.0.0",
+  "run_id": "FMDL3B2C_20260718T125320+0800",
+  "program_id": "FMDL-3B-2-CANARY",
+  "status": "PASS",
+  "checks": [
+    {
+      "check_id": "DECISION_STATUS",
+      "status": "PASS",
+      "detail": "FMDL3B2_CANARY_ACCEPTED_FULL_UNIVERSE_MATRIX_AUTHORIZED"
+    },
+    {
+      "check_id": "DECISION_HARD_FAILURES",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "CANARY_SYMBOL_COUNT",
+      "status": "PASS",
+      "detail": 32
+    },
+    {
+      "check_id": "SUPPORT_MAP_EXACT_SYMBOLS",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "ALL_SUPPORTED_OR_QUARANTINED",
+      "status": "PASS",
+      "detail": [
+        "QUARANTINED",
+        "SUPPORTED"
+      ]
+    },
+    {
+      "check_id": "NON_BSE_BUNDLE_GATE",
+      "status": "PASS",
+      "detail": 1.0
+    },
+    {
+      "check_id": "PRIMARY_ONLY_SHARE",
+      "status": "PASS",
+      "detail": 1.0
+    },
+    {
+      "check_id": "BSE_OFFICIAL_DOCUMENT_INDEX",
+      "status": "PASS",
+      "detail": 2
+    },
+    {
+      "check_id": "PIT_MATCH_GATE",
+      "status": "PASS",
+      "detail": 0.9643694955696457
+    },
+    {
+      "check_id": "ZERO_FUTURE_FACTS",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "SOURCE_LINEAGE",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "ZERO_SOURCELESS_DECISION_GRADE",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "ZERO_DUPLICATE_EFFECTIVE_INTERVALS",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "ZERO_AMBIGUOUS_MAPPING_GROUPS",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "ALL_CONFLICTS_CLASSIFIED",
+      "status": "PASS",
+      "detail": 0
+    },
+    {
+      "check_id": "STATEMENT_FAMILY_REPRESENTATION",
+      "status": "PASS",
+      "detail": [
+        "balance_sheet",
+        "cash_flow",
+        "income_statement"
+      ]
+    },
+    {
+      "check_id": "REVISION_LEDGER_NONEMPTY",
+      "status": "PASS",
+      "detail": 369
+    },
+    {
+      "check_id": "PERFORMED_CHECKS_NO_FAILURE",
+      "status": "PASS",
+      "detail": {
+        "PASS": 796
+      }
+    },
+    {
+      "check_id": "PARQUET_ROUNDTRIP",
+      "status": "PASS",
+      "detail": {
+        "raw": true,
+        "normalized": true,
+        "revisions": true,
+        "sources": true
+      }
+    },
+    {
+      "check_id": "MAX_FILE_SIZE",
+      "status": "PASS",
+      "detail": 3.388408660888672
+    },
+    {
+      "check_id": "NORMALIZED_STORAGE_PROJECTION",
+      "status": "PASS",
+      "detail": 106.884317779541
+    },
+    {
+      "check_id": "RUNTIME_PROJECTION",
+      "status": "PASS",
+      "detail": 26.705768
+    },
+    {
+      "check_id": "MANIFEST_INTEGRITY",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS",
+      "detail": [
+        "NONE"
+      ]
+    }
+  ],
+  "hard_failures": [],
+  "decision_status": "FMDL3B2_CANARY_ACCEPTED_FULL_UNIVERSE_MATRIX_AUTHORIZED",
+  "metrics": {
+    "universe_symbol_count": 5528,
+    "canary_symbol_count": 32,
+    "supported_symbol_count": 30,
+    "quarantined_symbol_count": 2,
+    "non_bse_statement_bundle_success_ratio": 1.0,
+    "primary_only_share": 1.0,
+    "official_pit_match_ratio": 0.9643694955696457,
+    "raw_fact_count": 74599,
+    "normalized_fact_count": 10156,
+    "decision_grade_fact_count": 9685,
+    "fallback_components_invoked": 0,
+    "fallback_components_used": 0,
+    "classified_conflict_count": 0,
+    "ambiguous_mapping_group_count": 0,
+    "future_fact_count": 0,
+    "source_less_decision_grade_fact_count": 0,
+    "duplicate_effective_interval_count": 0,
+    "performed_validation_check_count": 796,
+    "performed_validation_failure_count": 0,
+    "qa_flag_count": 2
+  },
+  "runtime_storage": {
+    "run_id": "FMDL3B2C_20260718T125320+0800",
+    "universe_symbol_count": 5528,
+    "canary_symbol_count": 32,
+    "processed_non_bse_symbol_count": 30,
+    "elapsed_seconds": 278.2656,
+    "workers": 4,
+    "planned_shard_count": 32,
+    "projected_wall_minutes_per_shard_at_canary_rate": 26.705768,
+    "raw_parquet_bytes": 3553004,
+    "normalized_parquet_bytes": 608229,
+    "revision_parquet_bytes": 38396,
+    "source_index_parquet_bytes": 13296,
+    "maximum_canary_file_mib": 3.388408660888672,
+    "projected_full_universe_raw_mib": 624.3707692464193,
+    "projected_full_universe_normalized_mib": 106.884317779541,
+    "raw_storage_route": "IMMUTABLE_WORKFLOW_ARTIFACT_SHARDS_UNTIL_PROJECTED_SIZE_AND_RETENTION_ROUTE_ACCEPTED",
+    "normalized_storage_route": "GIT_CURRENT_SHARDS_IF_EACH_FILE_BELOW_95_MIB",
+    "parquet_roundtrip": {
+      "raw": true,
+      "normalized": true,
+      "revisions": true,
+      "sources": true
+    }
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3B-2_FULL_UNIVERSE_MATRIX_BUILD"
+}
