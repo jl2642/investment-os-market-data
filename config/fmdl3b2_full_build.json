@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3B-2",
+  "name": "Full-Universe Initial Statement Build",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": "FMDL3B1_ACCEPTED_NORMALIZATION_PILOT",
+  "universe_source": "outputs/current/DAILY_MARKET_SNAPSHOT.csv",
+  "pilot_sample_source": "config/fmdl3a_benchmark.json",
+  "canary": {
+    "symbol_count": 32,
+    "selection_method": "ALL_FMDL3A_STRESS_SYMBOLS_PLUS_SHA256_SORTED_NON_BSE_UNIVERSE",
+    "minimum_report_period_end": "2024-03-31",
+    "maximum_periods_per_statement": 12,
+    "workers": 4
+  },
+  "full_build": {
+    "planned_shard_count": 32,
+    "planned_max_symbols_per_shard": 200,
+    "primary_route": "EASTMONEY_STATEMENTS",
+    "fallback_route": "SINA_STATEMENTS",
+    "fallback_policy": "CALL_ONLY_WHEN_PRIMARY_STATEMENT_COMPONENT_IS_MISSING_OR_FAILED",
+    "official_availability_route": "CNINFO_OFFICIAL_DISCLOSURE",
+    "bse_policy": "CNINFO_OFFICIAL_DOCUMENT_EXTRACTION_REQUIRED_BEFORE_STRUCTURED_ELIGIBILITY",
+    "resume_policy": "IMMUTABLE_ACCEPTED_SHARDS_WITH_MANIFEST_AND_SYMBOL_LEVEL_RETRY_LEDGER"
+  },
+  "storage": {
+    "format": "PARQUET_ZSTD",
+    "raw_storage_mode": "IMMUTABLE_WORKFLOW_ARTIFACT_SHARDS_UNTIL_PROJECTED_SIZE_AND_RETENTION_ROUTE_ACCEPTED",
+    "normalized_storage_mode": "GIT_CURRENT_SHARDS_IF_EACH_FILE_BELOW_95_MIB",
+    "maximum_git_file_mib": 95,
+    "maximum_projected_normalized_store_mib": 750,
+    "maximum_projected_raw_store_mib_for_git": 1000,
+    "csv_role": "COMPACT_INDEX_QUALITY_AND_COVERAGE_ONLY"
+  },
+  "acceptance_policy": {
+    "minimum_canary_symbol_count": 32,
+    "minimum_non_bse_primary_bundle_success_ratio": 0.9,
+    "minimum_official_pit_match_ratio": 0.9,
+    "minimum_primary_only_share": 0.8,
+    "maximum_ambiguous_source_mapping_group_count": 0,
+    "maximum_future_fact_count": 0,
+    "maximum_source_less_decision_grade_fact_count": 0,
+    "maximum_duplicate_effective_interval_count": 0,
+    "maximum_unclassified_conflict_count": 0,
+    "require_all_canary_symbols_supported_or_quarantined": true,
+    "require_parquet_roundtrip": true,
+    "require_runtime_projection": true,
+    "require_storage_projection": true,
+    "require_bse_official_document_index": true,
+    "trade_authority": "NONE"
+  },
+  "publication": {
+    "candidate_root": "outputs/financials/full_build/canary/candidate",
+    "current_root": "outputs/financials/full_build/canary/current",
+    "archive_root": "outputs/financials/full_build/canary/archive",
+    "last_success_path": "outputs/status/FMDL3B2_CANARY_LAST_SUCCESS.json",
+    "candidate_cannot_replace_current_on_failure": true,
+    "archive_is_immutable": true
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3B-2_FULL_UNIVERSE_MATRIX_BUILD"
+}
