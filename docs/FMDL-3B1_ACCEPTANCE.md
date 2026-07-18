@@ -6,18 +6,40 @@
 
 This gate confirms that the point-in-time raw fact, normalized long-form, source lineage, revision, comparability, conflict and QA contracts work on the deterministic 13-issuer stress sample. It authorizes FMDL-3B-2 full-universe engineering. It does **not** mark the full FMDL-3B phase complete.
 
-## Accepted candidate evidence
+## Canonical main-branch publication
 
-- final Head workflow: `29629560553` — success;
-- candidate run: `FMDL3B1_20260718T115212+0800`;
-- generated at: `2026-07-18T11:55:27+08:00`;
-- artifact: `8425032038`;
-- artifact digest: `sha256:aa5e3be8d3b4fb858a245d35e9dbc91a7894204c9f0befcd47b94828e53c8135`;
+- PR: `#13` — merged;
+- merge commit: `6655ebd3143f95d84818bb085afbc931872e5a92`;
+- explicit publication trigger: `703a8406b9d43edc30088ad8c5c3d0771c02899c`;
+- data publication commit: `897a3a4298c3bf5cf8acbb1a68c798d3dccbb960`;
+- release: `FMDL3B1_20260718T120917+0800`;
+- published at: `2026-07-18T12:13:29+08:00`;
+- status: `FMDL3B1_ACCEPTED_NORMALIZATION_PILOT`;
 - independent validation: `19 / 19 PASS`;
 - performed statement tie-out checks: `297 / 297 PASS`;
 - hard failures: `0`;
 - authority: `DATA_AND_RESEARCH_EVIDENCE_ONLY`;
-- trade authority: `NONE`.
+- trade authority: `NONE`;
+- next phase: `FMDL-3B-2`.
+
+Canonical paths:
+
+- `outputs/financials/pilot/current/FMDL3B1_RELEASE.json`;
+- `outputs/financials/pilot/current/`;
+- `outputs/financials/pilot/archive/FMDL3B1_20260718T120917+0800/`;
+- `outputs/status/FMDL3B1_LAST_SUCCESS.json`.
+
+## Final accepted Head evidence
+
+- final Head: `e6d5bbaf9faf5aa6e2eaee2c0e46a6b7548e9c42`;
+- final Head workflow: `29629754261` — success;
+- final Head artifact: `8425096823`;
+- artifact digest: `sha256:cbb76eb457ac8d98c3a01ea991eddd39d724899e24e47fbef8463e184b4d4ac4`;
+- independently inspected semantic-safe candidate run: `FMDL3B1_20260718T115212+0800`;
+- candidate independent validation: `19 / 19 PASS`;
+- candidate statement tie-out checks: `297 / 297 PASS`.
+
+The main publication reran the same contract and produced the canonical release above.
 
 ## Measured results
 
@@ -37,6 +59,8 @@ This gate confirms that the point-in-time raw fact, normalized long-form, source
 - future facts: `0`;
 - source-less decision-grade facts: `0`;
 - duplicate effective intervals: `0`;
+- revision-ledger entries: `159`;
+- source-index rows: `79`;
 - QA flags: `2`, both BSE controlled quarantine.
 
 The pilot's mapped coverage is intentionally narrow relative to the full provider field set. The raw store preserves every extracted numeric provider fact, while only clearly supported aliases enter the normalized model-loading layer. FMDL-3B-2 must expand the registry from observed high-frequency unmapped fields without relaxing exact mapping or lineage controls.
