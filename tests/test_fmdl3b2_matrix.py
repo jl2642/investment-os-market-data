@@ -7,7 +7,7 @@ from scripts import fmdl3b2_matrix_core as matrix
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config/fmdl3b2_matrix.json"
-SCHEMA = ROOT / "schemas/fmdl3b2_matrix.schema.json"
+SCHEMA = ROOT / "schemas/fmdl3b2_matrix_v2.schema.json"
 UNIVERSE = ROOT / "outputs/current/DAILY_MARKET_SNAPSHOT.csv"
 CANARY_RELEASE = ROOT / "outputs/financials/full_build/canary/current/FMDL3B2_CANARY_RELEASE.json"
 WORKFLOW = ROOT / ".github/workflows/fmdl-3b2-full-universe-matrix.yml"
@@ -57,7 +57,7 @@ def test_storage_separates_raw_artifacts_from_versioned_normalized_release():
     assert cfg["storage"]["versioned_release_is_immutable"] is True
 
 
-def test_zero_tolerance_and_no_trade_authority():
+def test_zero_tolerance_controlled_exclusion_and_no_trade_authority():
     cfg = load(CONFIG)
     for policy_name in ["shard_acceptance_policy", "aggregate_acceptance_policy"]:
         policy = cfg[policy_name]
@@ -67,14 +67,21 @@ def test_zero_tolerance_and_no_trade_authority():
         assert policy["maximum_duplicate_effective_interval_count"] == 0
         assert policy["maximum_unclassified_conflict_count"] == 0
         assert policy["maximum_performed_validation_failure_count"] == 0
+        assert policy["require_controlled_validation_exclusions_classified"] is True
+        assert policy["require_affected_controlled_facts_removed_from_decision_grade"] is True
+        assert policy["require_bse_official_query_resolution"] is True
         assert policy["trade_authority"] == "NONE"
     assert cfg["trade_authority"] == "NONE"
 
 
-def test_workflow_declares_all_32_zero_padded_shards_and_publication():
+def test_workflow_declares_all_32_zero_padded_shards_hardened_execution_and_publication():
     text = WORKFLOW.read_text(encoding="utf-8")
     for shard_id in range(32):
         assert f'"{shard_id:02d}"' in text
     assert "max-parallel: 8" in text
+    assert "run_fmdl3b2_shard_v2" in text
+    assert "validate_fmdl3b2_shard_v2" in text
+    assert "aggregate_fmdl3b2_matrix_v2" in text
+    assert "validate_fmdl3b2_matrix_v2" in text
     assert "publish_fmdl3b2_matrix" in text
     assert "fmdl3b2-raw-shard-${{ matrix.shard_id }}" in text
