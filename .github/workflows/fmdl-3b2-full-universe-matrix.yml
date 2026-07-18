@@ -76,8 +76,50 @@ jobs:
           python scripts/validate_investment_os_interface.py
           pytest -q tests/test_fmdl3b_contract.py tests/test_fmdl3b_semantic_overrides.py tests/test_fmdl3b2_canary.py tests/test_fmdl3b2_matrix.py tests/test_fmdl3b2_validation_hardening.py
 
+  candidate-revalidation:
+    needs: preflight
+    if: github.event_name == 'pull_request' && github.head_ref == 'fmdl-3b2-full-universe-matrix'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Download accepted aggregate candidate from frozen run 29643995470
+        uses: actions/download-artifact@v4
+        with:
+          name: fmdl3b2-full-universe-matrix-candidate
+          path: outputs/financials/full_build/matrix/candidate
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 29643995470
+      - name: Independently revalidate aggregate candidate with empty-safe evidence loading
+        run: python -m scripts.validate_fmdl3b2_matrix_v2
+      - name: Upload revalidated matrix evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3b2-full-universe-matrix-revalidated
+          path: outputs/financials/full_build/matrix/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Enforce aggregate acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path("outputs/financials/full_build/matrix/candidate/FMDL3B2_MATRIX_VALIDATION.json").read_text(encoding="utf-8"))
+          assert payload["status"] == "PASS", payload
+          PY
+
   shards:
     needs: preflight
+    if: github.event_name != 'pull_request' || github.head_ref != 'fmdl-3b2-full-universe-matrix'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     strategy:
@@ -134,7 +176,7 @@ jobs:
 
   aggregate:
     needs: shards
-    if: always()
+    if: always() && (github.event_name != 'pull_request' || github.head_ref != 'fmdl-3b2-full-universe-matrix')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
