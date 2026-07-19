@@ -98,6 +98,12 @@ def build_capitalization_snapshot(
                 state = "MISSING_REQUIRED_INPUT"
             else:
                 state = "VALID"
+            total_market_cap = (
+                float(close) * float(total_shares) if valid else None
+            )
+            float_market_cap = (
+                float(close) * float(float_shares) if valid else None
+            )
             row = {
                 "symbol": symbol,
                 "name": item.name,
@@ -109,8 +115,8 @@ def build_capitalization_snapshot(
                 "share_effective_date": str(source.share_effective_date) if pd.notna(source.share_effective_date) else None,
                 "total_shares": float(total_shares) if pd.notna(total_shares) else None,
                 "float_a_shares": float(float_shares) if pd.notna(float_shares) else None,
-                "total_market_cap_cny": float(source.total_market_cap_cny) if valid else None,
-                "float_market_cap_cny": float(source.float_market_cap_cny) if valid else None,
+                "total_market_cap_cny": total_market_cap,
+                "float_market_cap_cny": float_market_cap,
                 "capitalization_state": state,
                 "price_source_id": str(source.price_source_id) if pd.notna(source.price_source_id) else None,
                 "share_source_id": str(source.share_source_id) if pd.notna(source.share_source_id) else None,
