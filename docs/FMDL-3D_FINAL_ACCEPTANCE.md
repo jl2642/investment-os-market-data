@@ -32,6 +32,10 @@ Measured candidate result:
 - future-selected shares, denominators and shareholder events: `0 / 0 / 0`;
 - replay, schema, interface, manifest and unified row-hash errors: `0`.
 
+## Canonical publication trigger
+
+The accepted candidate above is the sole authorized source for the main-branch publication workflow. The workflow must publish immutable Release, Current, Archive and `outputs/status/FMDL3D_LAST_SUCCESS.json` before FMDL-3E-A may bind a baseline.
+
 ## Component roles
 
 - **FMDL-3D-A** — valuation, effective-share and shareholder-event semantics;
