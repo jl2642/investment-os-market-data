@@ -4,7 +4,6 @@ import hashlib
 import json
 from typing import Any
 
-import numpy as np
 import pandas as pd
 
 
@@ -32,52 +31,25 @@ def build_unified_current(
     for frame in [cap, val, shr]:
         frame["symbol"] = frame["symbol"].astype(str)
     cap_fields = [
-        "symbol",
-        "name",
-        "exchange",
-        "board",
-        "price_as_of_date",
-        "close",
-        "total_shares",
-        "float_a_shares",
-        "total_market_cap_cny",
-        "float_market_cap_cny",
-        "capitalization_state",
-        "lineage_id",
+        "symbol", "name", "exchange", "board", "price_as_of_date", "close",
+        "total_shares", "float_a_shares", "total_market_cap_cny",
+        "float_market_cap_cny", "capitalization_state", "lineage_id",
     ]
     val_fields = [
-        "symbol",
-        "sector_profile",
-        "market_as_of_date",
-        "pe_ttm",
-        "pe_ttm_state",
-        "earnings_yield_ttm",
-        "earnings_yield_ttm_state",
-        "pb",
-        "pb_state",
-        "ps_ttm",
-        "ps_ttm_state",
-        "fcf_yield_ttm",
-        "fcf_yield_ttm_state",
-        "ev_sales_ttm",
-        "ev_sales_ttm_state",
-        "ev_operating_income_ttm",
-        "ev_operating_income_ttm_state",
-        "valid_metric_count",
-        "decision_grade_metric_count",
-        "row_hash",
+        "symbol", "sector_profile", "market_as_of_date", "pe_ttm",
+        "pe_ttm_state", "earnings_yield_ttm", "earnings_yield_ttm_state",
+        "pb", "pb_state", "ps_ttm", "ps_ttm_state", "fcf_yield_ttm",
+        "fcf_yield_ttm_state", "ev_sales_ttm", "ev_sales_ttm_state",
+        "ev_operating_income_ttm", "ev_operating_income_ttm_state",
+        "valid_metric_count", "decision_grade_metric_count", "row_hash",
     ]
     shr_fields = [
-        "symbol",
-        "market_as_of_date",
+        "symbol", "market_as_of_date",
         "implemented_cash_dividend_per_share_ttm",
-        "implemented_cash_dividend_total_cny_ttm",
-        "dividend_yield_ttm",
+        "implemented_cash_dividend_total_cny_ttm", "dividend_yield_ttm",
         "completed_buyback_yield_ttm",
-        "completed_issuance_dilution_yield_ttm",
-        "shareholder_yield_ttm",
-        "shareholder_return_state",
-        "complete_shareholder_yield",
+        "completed_issuance_dilution_yield_ttm", "shareholder_yield_ttm",
+        "shareholder_return_state", "complete_shareholder_yield",
         "lineage_ids_json",
     ]
     missing = {
@@ -112,59 +84,31 @@ def build_unified_current(
     out["component_release_ids_json"] = json_text(component_release_ids)
     out["authority"] = "DATA_AND_RESEARCH_EVIDENCE_ONLY"
     out["trade_authority"] = "NONE"
-    row_hashes = []
-    for row in out.to_dict(orient="records"):
-        hash_payload = {
-            key: value
-            for key, value in row.items()
-            if key not in {"row_hash"}
-        }
-        row_hashes.append(stable_hash(hash_payload))
-    out["row_hash"] = row_hashes
-    ordered = [
-        "symbol",
-        "name",
-        "exchange",
-        "board",
-        "sector_profile",
-        "market_as_of_date",
-        "close",
-        "total_shares",
-        "float_a_shares",
-        "total_market_cap_cny",
-        "float_market_cap_cny",
-        "capitalization_state",
-        "pe_ttm",
-        "pe_ttm_state",
-        "earnings_yield_ttm",
-        "earnings_yield_ttm_state",
-        "pb",
-        "pb_state",
-        "ps_ttm",
-        "ps_ttm_state",
-        "fcf_yield_ttm",
-        "fcf_yield_ttm_state",
-        "ev_sales_ttm",
-        "ev_sales_ttm_state",
-        "ev_operating_income_ttm",
-        "ev_operating_income_ttm_state",
-        "valuation_valid_metric_count",
+    published_without_hash = [
+        "symbol", "name", "exchange", "board", "sector_profile",
+        "market_as_of_date", "close", "total_shares", "float_a_shares",
+        "total_market_cap_cny", "float_market_cap_cny", "capitalization_state",
+        "pe_ttm", "pe_ttm_state", "earnings_yield_ttm",
+        "earnings_yield_ttm_state", "pb", "pb_state", "ps_ttm",
+        "ps_ttm_state", "fcf_yield_ttm", "fcf_yield_ttm_state",
+        "ev_sales_ttm", "ev_sales_ttm_state", "ev_operating_income_ttm",
+        "ev_operating_income_ttm_state", "valuation_valid_metric_count",
         "valuation_decision_grade_metric_count",
         "implemented_cash_dividend_per_share_ttm",
-        "implemented_cash_dividend_total_cny_ttm",
-        "dividend_yield_ttm",
+        "implemented_cash_dividend_total_cny_ttm", "dividend_yield_ttm",
         "completed_buyback_yield_ttm",
-        "completed_issuance_dilution_yield_ttm",
-        "shareholder_yield_ttm",
-        "shareholder_return_state",
-        "complete_shareholder_yield",
-        "capitalization_lineage_id",
-        "valuation_row_hash",
-        "shareholder_event_lineage_ids_json",
-        "component_release_ids_json",
-        "row_hash",
-        "authority",
-        "trade_authority",
+        "completed_issuance_dilution_yield_ttm", "shareholder_yield_ttm",
+        "shareholder_return_state", "complete_shareholder_yield",
+        "capitalization_lineage_id", "valuation_row_hash",
+        "shareholder_event_lineage_ids_json", "component_release_ids_json",
+        "authority", "trade_authority",
+    ]
+    out = out[published_without_hash].copy()
+    out["row_hash"] = [
+        stable_hash(row) for row in out.to_dict(orient="records")
+    ]
+    ordered = published_without_hash[:-2] + [
+        "row_hash", "authority", "trade_authority"
     ]
     return out[ordered].sort_values("symbol").reset_index(drop=True)
 
@@ -234,7 +178,9 @@ def cross_layer_numeric_mismatch_count(
     def mismatch(left: pd.Series, right: pd.Series) -> int:
         both_null = left.isna() & right.isna()
         one_null = left.isna() ^ right.isna()
-        numeric = (~left.isna()) & (~right.isna()) & ((left - right).abs() > tolerance)
+        numeric = (~left.isna()) & (~right.isna()) & (
+            (left - right).abs() > tolerance
+        )
         return int((~both_null & (one_null | numeric)).sum())
 
     return {
