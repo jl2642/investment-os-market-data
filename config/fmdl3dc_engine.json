@@ -1,0 +1,85 @@
+{
+  "config_version": "1.0.0",
+  "program_id": "FMDL-3D-C",
+  "program_name": "Point-in-Time Valuation Engine Current",
+  "business_timezone": "Asia/Shanghai",
+  "cost_policy": "FREE_AND_FREE_TIER_ONLY",
+  "entry_gates": {
+    "valuation_contract_pointer": "outputs/status/FMDL3DA_LAST_SUCCESS.json",
+    "valuation_contract_status": "FMDL3DA_VALUATION_AND_SHAREHOLDER_RETURN_CONTRACT_ACCEPTED",
+    "capitalization_pointer": "outputs/status/FMDL3DB_LAST_SUCCESS.json",
+    "capitalization_status": "FMDL3DB_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE_ACCEPTED",
+    "factor_engine_pointer": "outputs/status/FMDL3CB_LAST_SUCCESS.json",
+    "factor_engine_status": "FMDL3CB_FINANCIAL_FACTOR_ENGINE_MVP_ACCEPTED"
+  },
+  "inputs": {
+    "valuation_metric_registry": "config/fmdl3da_valuation_metric_registry.csv",
+    "capitalization_release": "outputs/capitalization/current/FMDL3DB_RELEASE.json",
+    "factor_engine_release": "outputs/financial_factors/engine/current/FMDL3CB_RELEASE.json",
+    "sector_profiles": "outputs/financial_factors/engine/current/FMDL3CB_SECTOR_PROFILES.csv"
+  },
+  "engine": {
+    "valuation_version": "1.0.0",
+    "market_cutoff_time": "15:00:00",
+    "expected_valuation_metric_ids": [
+      "VAL_PE_TTM",
+      "VAL_EARNINGS_YIELD_TTM",
+      "VAL_PB",
+      "VAL_PS_TTM",
+      "VAL_FCF_YIELD_TTM",
+      "VAL_EV_SALES_TTM",
+      "VAL_EV_OPERATING_INCOME_TTM"
+    ],
+    "core_metric_ids": [
+      "VAL_PE_TTM",
+      "VAL_EARNINGS_YIELD_TTM",
+      "VAL_PB",
+      "VAL_PS_TTM",
+      "VAL_FCF_YIELD_TTM"
+    ],
+    "ev_metric_ids": [
+      "VAL_EV_SALES_TTM",
+      "VAL_EV_OPERATING_INCOME_TTM"
+    ],
+    "valid_input_states": ["VALID", "VALID_WITH_WARNING"],
+    "valid_metric_states": ["VALID", "VALID_WITH_WARNING"],
+    "allowed_metric_states": [
+      "VALID",
+      "VALID_WITH_WARNING",
+      "NOT_APPLICABLE_SECTOR",
+      "SECTOR_PROFILE_UNRESOLVED",
+      "CONTROLLED_CAPITALIZATION_QUARANTINE",
+      "MISSING_REQUIRED_INPUT",
+      "FUTURE_DENOMINATOR_BLOCKED",
+      "NON_POSITIVE_EARNINGS",
+      "NON_POSITIVE_BOOK_EQUITY",
+      "NON_POSITIVE_REVENUE",
+      "NON_POSITIVE_OPERATING_INCOME",
+      "INVALID_ENTERPRISE_VALUE",
+      "NON_COMPARABLE_INPUT",
+      "CONFLICTED_INPUT",
+      "QUARANTINED_INPUT",
+      "STALE_INPUT"
+    ],
+    "minimum_capitalization_coverage": 0.99,
+    "minimum_core_resolved_ratio": 0.60,
+    "capitalization_replay_absolute_tolerance_cny": 0.001,
+    "valuation_replay_absolute_tolerance": 1e-12,
+    "missing_value_policy": "REMAIN_NULL_WITH_EXPLICIT_STATE_NEVER_ZERO_FILL",
+    "provider_ratio_authority": "CROSS_CHECK_ONLY_NOT_DECISION_GRADE",
+    "composite_valuation_score_authorized": false,
+    "target_price_authorized": false,
+    "automatic_action_authorized": false
+  },
+  "publication": {
+    "candidate_root": "outputs/valuation/engine/candidate",
+    "current_root": "outputs/valuation/engine/current",
+    "archive_root": "outputs/valuation/engine/archive",
+    "release_root": "datasets/valuation/engine/releases",
+    "last_success": "outputs/status/FMDL3DC_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3DC_VALUATION_ENGINE_CURRENT_ACCEPTED",
+  "next_gate": "FMDL-3D-D_SHAREHOLDER_RETURN_EVENT_CURRENT",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
