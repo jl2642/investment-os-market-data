@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3c_factor_contract_v1.schema.json",
+  "title": "FMDL-3C-A Financial Factor Contract",
+  "type": "object",
+  "required": [
+    "contract_version", "program_id", "architecture_state", "entry_gate", "factor_grain",
+    "input_contract", "temporal_policy", "quality_states", "sector_profiles", "formula_dsl",
+    "factor_dictionary", "derived_input_definitions", "denominator_policy", "factor_families",
+    "deferred_factor_policy", "publication_contract", "acceptance_gates", "exit_status",
+    "next_gate", "authority", "trade_authority"
+  ],
+  "properties": {
+    "contract_version": {"const": "1.0.0"},
+    "program_id": {"const": "FMDL-3C-A"},
+    "architecture_state": {"const": "FROZEN_FOR_FMDL3C_B_EXECUTION"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["pointer_path", "required_status", "required_exit_gate"],
+      "properties": {
+        "required_status": {"const": "FMDL3B4_POINT_IN_TIME_STATEMENT_STORE_ACCEPTED"},
+        "required_exit_gate": {"const": "POINT_IN_TIME_STATEMENT_STORE_ACCEPTED"}
+      }
+    },
+    "quality_states": {"type": "array", "minItems": 10, "uniqueItems": true, "items": {"type": "string"}},
+    "factor_dictionary": {
+      "type": "object",
+      "required": ["path", "factor_count", "required_columns", "authoritative_definition"],
+      "properties": {
+        "path": {"const": "config/fmdl3c_factor_dictionary.csv"},
+        "factor_count": {"const": 29},
+        "required_columns": {"type": "array", "minItems": 15, "uniqueItems": true, "items": {"type": "string"}}
+      }
+    },
+    "derived_input_definitions": {
+      "type": "object", "minProperties": 20,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["construction", "missing_policy"],
+        "properties": {
+          "source_line_item_id": {"type": "string"},
+          "source_token": {"type": "string"},
+          "source_factor_id": {"type": "string"},
+          "construction": {"type": "string"},
+          "missing_policy": {"type": "string"}
+        },
+        "anyOf": [
+          {"required": ["source_line_item_id"]},
+          {"required": ["source_token"]},
+          {"required": ["source_factor_id"]}
+        ]
+      }
+    },
+    "factor_families": {
+      "type": "array", "minItems": 5,
+      "items": {"type": "object", "required": ["family_id", "purpose"]}
+    },
+    "exit_status": {"const": "FMDL3CA_FACTOR_ARCHITECTURE_AND_CONTRACT_ACCEPTED"},
+    "next_gate": {"const": "FMDL-3C-B_FINANCIAL_FACTOR_ENGINE_MVP"},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  }
+}
