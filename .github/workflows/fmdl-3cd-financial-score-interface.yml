@@ -71,11 +71,12 @@ jobs:
 
       - name: Build full-Universe financial score candidate
         run: |
-          mkdir -p outputs/financial_factors/score/candidate
+          rm -rf outputs/financial_factors/score/diagnostics
+          mkdir -p outputs/financial_factors/score/diagnostics
           set +e
-          python scripts/run_fmdl3cd_financial_score.py 2>&1 | tee outputs/financial_factors/score/candidate/FMDL3CD_BUILD_LOG.txt
+          python scripts/run_fmdl3cd_financial_score.py 2>&1 | tee outputs/financial_factors/score/diagnostics/FMDL3CD_BUILD_LOG.txt
           status=${PIPESTATUS[0]}
-          echo "$status" > outputs/financial_factors/score/candidate/FMDL3CD_BUILD_EXIT_CODE.txt
+          echo "$status" > outputs/financial_factors/score/diagnostics/FMDL3CD_BUILD_EXIT_CODE.txt
           exit 0
 
       - name: Upload score build diagnostics
@@ -83,14 +84,16 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fmdl3cd-score-build-diagnostics
-          path: outputs/financial_factors/score/candidate
+          path: |
+            outputs/financial_factors/score/diagnostics
+            outputs/financial_factors/score/candidate
           if-no-files-found: warn
           retention-days: 7
 
       - name: Enforce successful score build
         run: |
-          test -f outputs/financial_factors/score/candidate/FMDL3CD_BUILD_EXIT_CODE.txt
-          test "$(cat outputs/financial_factors/score/candidate/FMDL3CD_BUILD_EXIT_CODE.txt)" = "0"
+          test -f outputs/financial_factors/score/diagnostics/FMDL3CD_BUILD_EXIT_CODE.txt
+          test "$(cat outputs/financial_factors/score/diagnostics/FMDL3CD_BUILD_EXIT_CODE.txt)" = "0"
 
       - name: Independently validate score and interface candidate
         run: python scripts/validate_fmdl3cd_financial_score.py
