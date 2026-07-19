@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_OVERRIDE_PATH = ROOT / "config/fmdl3cb_sector_overrides.csv"
 
 ALLOWED_PROFILES = {
     "GENERAL_NON_FINANCIAL",
@@ -34,13 +36,21 @@ def load_sector_overrides(path: Path) -> dict[str, dict[str, str]]:
     }
 
 
-def infer_sector_profile(
+def resolve_sector_profile(
     frame: pd.DataFrame,
     symbol: str | None = None,
     overrides: dict[str, dict[str, str]] | None = None,
 ) -> tuple[str, str, str]:
-    if symbol and overrides and symbol in overrides:
-        override = overrides[symbol]
+    resolved_symbol = symbol
+    if resolved_symbol is None and "symbol" in frame.columns and len(frame):
+        resolved_symbol = str(frame.iloc[0]["symbol"])
+    active_overrides = (
+        overrides
+        if overrides is not None
+        else load_sector_overrides(DEFAULT_OVERRIDE_PATH)
+    )
+    if resolved_symbol and resolved_symbol in active_overrides:
+        override = active_overrides[resolved_symbol]
         return (
             override["sector_profile"],
             override["source_basis"],
@@ -91,3 +101,7 @@ def infer_sector_profile(
         "STATEMENT_FIELD_SIGNATURE_STRICT_V2",
         "NO_CONTROLLED_PROFILE_SIGNATURE",
     )
+
+
+def infer_sector_profile(frame: pd.DataFrame) -> str:
+    return resolve_sector_profile(frame)[0]
