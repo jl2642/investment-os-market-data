@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "program_id": "FMDL-3D-D",
   "program_name": "Shareholder-Return Event Current",
   "business_timezone": "Asia/Shanghai",
@@ -21,14 +21,15 @@
     "event_registry": "config/fmdl3da_shareholder_event_registry.csv"
   },
   "source": {
-    "dividend_source_id": "EASTMONEY_DIVIDEND_DISTRIBUTION_DETAIL",
-    "dividend_source_adapter": "akshare.stock_fhps_detail_em",
+    "dividend_source_id": "EASTMONEY_DIVIDEND_DISTRIBUTION_BY_REPORT_PERIOD",
+    "dividend_source_adapter": "akshare.stock_fhps_em",
+    "report_period_dates": ["20241231", "20250630", "20251231", "20260630"],
     "share_change_source_id": "EASTMONEY_EFFECTIVE_SHARE_CAPITAL",
     "share_change_source_adapter": "FMDL3DB_EFFECTIVE_SHARE_LEDGER_DERIVATION",
     "max_attempts": 3,
     "initial_backoff_seconds": 1.0,
     "request_timeout_seconds": 30,
-    "history_start_date": "2016-01-01",
+    "history_start_date": "2024-01-01",
     "ttm_days": 365
   },
   "sharding": {
@@ -59,12 +60,12 @@
     "completed_buyback_yield_formula": "sum(completed_share_reduction / prior_total_shares) over ttm",
     "completed_issuance_dilution_yield_formula": "sum(completed_share_increase / prior_total_shares) over ttm",
     "shareholder_yield_formula": "dividend_yield_ttm + completed_buyback_yield_ttm - completed_issuance_dilution_yield_ttm",
-    "complete_shareholder_yield_requires": ["DIVIDEND_SOURCE_ATTEMPT_SUCCESS", "SHARE_LEDGER_AVAILABLE"],
+    "complete_shareholder_yield_requires": ["ALL_REQUIRED_REPORT_PERIOD_CALLS_SUCCESS", "SHARE_LEDGER_AVAILABLE"],
     "partial_components_publishable": true,
     "missing_value_policy": "NULL_WITH_EXPLICIT_STATE_NEVER_ZERO_FILL"
   },
   "quality_gates": {
-    "minimum_dividend_source_attempt_success_ratio": 0.95,
+    "minimum_dividend_source_attempt_success_ratio": 0.99,
     "minimum_current_universe_coverage_ratio": 1.0,
     "maximum_duplicate_event_keys": 0,
     "maximum_future_effective_events": 0,
