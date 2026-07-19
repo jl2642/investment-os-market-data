@@ -1,0 +1,96 @@
+{
+  "decision_version": "1.0.0",
+  "release_id": "FMDL3CB_20260719T121912+0800",
+  "generated_at": "2026-07-19T12:46:10+08:00",
+  "program_id": "FMDL-3C-B",
+  "status": "FMDL3CB_FINANCIAL_FACTOR_ENGINE_MVP_ACCEPTED",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "ENTRY_STATEMENT_CURRENT_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ENTRY_FACTOR_CONTRACT_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_32_INPUT_SHARDS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_FACTOR_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_MVP_REQUIRED_FACTOR_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_UNIVERSE_SYMBOLS_PROFILED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_PROFILES_CONTROLLED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "HISTORY_COMPLETE_BY_PERIOD_FACTOR",
+      "status": "PASS"
+    },
+    {
+      "check_id": "LATEST_CURRENT_COMPLETE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "LATEST_CURRENT_UNIQUE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "QUALITY_STATES_CONTROLLED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "VALID_ROWS_HAVE_VALUES",
+      "status": "PASS"
+    },
+    {
+      "check_id": "INVALID_ROWS_HAVE_NO_VALUES",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "statement_current_release_id": "FMDL3B4_20260719T020726+0800",
+    "factor_contract_release_id": "FMDL3CA_20260719T093115+0800",
+    "universe_symbol_count": 5528,
+    "sector_profile_count": 5528,
+    "factor_count": 29,
+    "mvp_required_factor_count": 23,
+    "diagnostic_factor_count": 6,
+    "factor_period_count": 46693,
+    "derived_input_row_count": 46693,
+    "factor_history_row_count": 1354097,
+    "valid_or_warning_history_row_count": 632252,
+    "latest_factor_current_row_count": 160312,
+    "latest_valid_or_warning_row_count": 111744,
+    "latest_ineligible_row_count": 74533,
+    "general_non_financial_symbol_count": 5102,
+    "bank_symbol_count": 42,
+    "insurance_symbol_count": 5,
+    "securities_symbol_count": 50,
+    "unresolved_sector_symbol_count": 329
+  },
+  "controlled_limitations": [
+    "SECTOR_PROFILES_ARE_INFERRED_FROM_ACCEPTED_STATEMENT_FIELD_SIGNATURES_PENDING_INDUSTRY_MASTER_HARDENING",
+    "RESTATED_PERIOD_FACTORS_ARE_AVAILABLE_ONLY_FROM_THE_LATEST_AUTHORITATIVE_REVISION_TIMESTAMP",
+    "MISSING_DEBT_CASH_GOODWILL_OR_OTHER_COMPONENTS_ARE_NEVER_ZERO_FILLED",
+    "RAW_FACTOR_VALUES_ARE_NOT_WINSORIZED_OR_COMBINED_INTO_A_SCORE"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3C-C_VALIDATION_AND_HARDENING"
+}
