@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3cc_hardened_factor_v1.schema.json",
+  "title": "FMDL-3C-C Hardened Financial Factor Row",
+  "type": "object",
+  "required": [
+    "symbol",
+    "factor_id",
+    "factor_status",
+    "factor_value_raw",
+    "factor_value_winsorized",
+    "robust_zscore",
+    "directional_percentile",
+    "hardening_state",
+    "production_eligibility",
+    "profile_reconciliation_status",
+    "authority",
+    "trade_authority"
+  ],
+  "properties": {
+    "symbol": {"type": "string", "minLength": 6},
+    "factor_id": {"type": "string", "pattern": "^FIN_[A-Z0-9_]+$"},
+    "factor_status": {
+      "enum": ["PRODUCTION_CORE", "DIAGNOSTIC_ONLY", "DEFERRED_HISTORY"]
+    },
+    "factor_value_raw": {"type": ["number", "null"]},
+    "factor_value_winsorized": {"type": ["number", "null"]},
+    "robust_zscore": {"type": ["number", "null"]},
+    "directional_percentile": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "hardening_state": {
+      "enum": [
+        "ACCEPTED",
+        "ACCEPTED_WITH_WARNING",
+        "DIAGNOSTIC_ONLY",
+        "DEFERRED_HISTORY",
+        "RAW_FACTOR_INELIGIBLE",
+        "CONTROLLED_PROFILE_EXCLUSION"
+      ]
+    },
+    "production_eligibility": {"enum": ["ELIGIBLE", "CONDITIONAL", "INELIGIBLE"]},
+    "profile_reconciliation_status": {
+      "enum": [
+        "COARSE_PROFILE_ACCEPTED_FOR_HARDENING",
+        "CONTROLLED_EXCLUSION_PENDING_SECTOR_FACTOR_PACK",
+        "CONTROLLED_EXCLUSION_UNRESOLVED"
+      ]
+    },
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
