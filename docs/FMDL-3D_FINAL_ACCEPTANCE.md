@@ -36,6 +36,8 @@ Measured candidate result:
 
 The accepted candidate above is the sole authorized source for the main-branch publication workflow. The workflow must publish immutable Release, Current, Archive and `outputs/status/FMDL3D_LAST_SUCCESS.json` before FMDL-3E-A may bind a baseline.
 
+The publication event is intentionally re-emitted through a dedicated merge commit so the main-branch workflow runs after the workflow definition itself is already present on the default branch.
+
 ## Component roles
 
 - **FMDL-3D-A** — valuation, effective-share and shareholder-event semantics;
