@@ -1,0 +1,56 @@
+{
+  "manifest_version": "1.0.0",
+  "dataset_id": "daily_market_snapshot",
+  "dataset_version": "daily_market_snapshot-2026-07-17-FMDL1BC_20260717T174015+0800",
+  "schema_id": "daily_market_snapshot.schema.json",
+  "schema_version": "1.0.0",
+  "run_id": "FMDL1BC_20260717T174015+0800",
+  "as_of_date": "2026-07-17",
+  "generated_at": "2026-07-17T17:40:15+08:00",
+  "business_timezone": "Asia/Shanghai",
+  "publication_status": "PUBLISHED",
+  "qa_status": "PASS_WITH_WARNINGS",
+  "sources": [
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.18.64",
+      "adapter_function": "stock_zh_a_spot",
+      "provider_id": "sina_public",
+      "retrieved_at": "2026-07-17T17:40:15+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": "537cda0c4371580ecdca18371186fa029f112511c2bf1f6820f3085bef0e2ddc",
+      "retries": 0,
+      "warnings": [
+        "primary_provider_unavailable: stock_zh_a_spot_em",
+        "attempt_1: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+        "optional_source_unavailable",
+        "volume_unit=SHARES"
+      ]
+    }
+  ],
+  "row_count": 5528,
+  "column_count": 21,
+  "file": {
+    "path": "outputs/current/DAILY_MARKET_SNAPSHOT.csv",
+    "size_bytes": 1169312,
+    "sha256": "ab9cacf47cd8e14631af76d2b267c585863946ea33a04731a9339df2020e4212"
+  },
+  "quality": {
+    "hard_failures": [],
+    "soft_warnings": [
+      "market_cap_fill_ratio",
+      "valuation_fill_ratio"
+    ],
+    "gate_results_path": "outputs/current/DAILY_MARKET_SNAPSHOT_QUALITY.json"
+  },
+  "lineage": {
+    "parent_dataset_version": "daily_market_snapshot-2026-07-16-FMDL1BC_20260716T165927+0800",
+    "last_known_good_dataset_version": "daily_market_snapshot-2026-07-16-FMDL1BC_20260716T165927+0800"
+  },
+  "known_limitations": [
+    "AKShare/Sina 成交量 is supplied in shares and is preserved without a lot multiplier.",
+    "Sina fallback does not provide market-cap or valuation fields in this interface; those fields remain null and are hardened in FMDL-3.",
+    "Candidate data is not a stable Investment OS current output until FMDL-1F promotion."
+  ],
+  "notes": "Published by FMDL-1D last-known-good controls."
+}
