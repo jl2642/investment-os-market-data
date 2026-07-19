@@ -162,7 +162,8 @@ def evaluate_factors_for_period(
     factor_dictionary,
     sector_profile: str,
     factor_version: str = FACTOR_VERSION,
-) -> pd.DataFrame:
+    return_records: bool = False,
+):
     states = json.loads(period_row["input_states_json"])
     available = json.loads(period_row["input_available_from_json"])
     fact_ids = json.loads(period_row["input_fact_ids_json"])
@@ -170,7 +171,7 @@ def evaluate_factors_for_period(
     factors = (
         factor_dictionary.to_dict("records")
         if isinstance(factor_dictionary, pd.DataFrame)
-        else list(factor_dictionary)
+        else factor_dictionary
     )
     for factor in factors:
         factor_id = str(factor["factor_id"])
@@ -292,4 +293,4 @@ def evaluate_factors_for_period(
                 "trade_authority": "NONE",
             }
         )
-    return pd.DataFrame(rows)
+    return rows if return_records else pd.DataFrame(rows)
