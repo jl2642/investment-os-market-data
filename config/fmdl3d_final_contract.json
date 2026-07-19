@@ -1,0 +1,90 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3D-FINAL",
+  "program_name": "Valuation, Capitalization and Shareholder-Return Unified Acceptance",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gates": {
+    "valuation_contract_pointer": {
+      "path": "outputs/status/FMDL3DA_LAST_SUCCESS.json",
+      "required_status": "FMDL3DA_VALUATION_AND_SHAREHOLDER_RETURN_CONTRACT_ACCEPTED"
+    },
+    "capitalization_pointer": {
+      "path": "outputs/status/FMDL3DB_LAST_SUCCESS.json",
+      "required_status": "FMDL3DB_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE_ACCEPTED"
+    },
+    "valuation_pointer": {
+      "path": "outputs/status/FMDL3DC_LAST_SUCCESS.json",
+      "required_status": "FMDL3DC_VALUATION_ENGINE_CURRENT_ACCEPTED"
+    },
+    "shareholder_return_pointer": {
+      "path": "outputs/status/FMDL3DD_LAST_SUCCESS.json",
+      "required_status": "FMDL3DD_SHAREHOLDER_RETURN_EVENT_CURRENT_ACCEPTED"
+    }
+  },
+  "inputs": {
+    "valuation_contract_release": "outputs/valuation/contract/current/FMDL3DA_RELEASE.json",
+    "valuation_contract_validation": "outputs/valuation/contract/current/FMDL3DA_VALIDATION.json",
+    "capitalization_release": "outputs/capitalization/current/FMDL3DB_RELEASE.json",
+    "capitalization_validation": "outputs/capitalization/current/FMDL3DB_VALIDATION.json",
+    "capitalization_current": "outputs/capitalization/current/FMDL3DB_CAPITALIZATION_CURRENT.parquet",
+    "valuation_release": "outputs/valuation/engine/current/FMDL3DC_RELEASE.json",
+    "valuation_validation": "outputs/valuation/engine/current/FMDL3DC_VALIDATION.json",
+    "valuation_current": "outputs/valuation/engine/current/FMDL3DC_VALUATION_CURRENT.parquet",
+    "valuation_detail": "outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet",
+    "shareholder_return_release": "outputs/shareholder_returns/current/FMDL3DD_RELEASE.json",
+    "shareholder_return_validation": "outputs/shareholder_returns/current/FMDL3DD_VALIDATION.json",
+    "shareholder_return_current": "outputs/shareholder_returns/current/FMDL3DD_SHAREHOLDER_RETURN_CURRENT.parquet",
+    "shareholder_return_events": "outputs/shareholder_returns/current/FMDL3DD_EVENT_LEDGER.parquet"
+  },
+  "unified_current": {
+    "required_symbol_alignment": "EXACT_BETWEEN_CAPITALIZATION_VALUATION_AND_SHAREHOLDER_RETURN",
+    "required_market_date_alignment": "EXACT_BETWEEN_B_C_AND_D",
+    "required_universe_count": 5528,
+    "market_cap_replay_tolerance_cny": 0.001,
+    "formula_replay_tolerance": 1e-12,
+    "include_fields": [
+      "capitalization",
+      "valuation",
+      "shareholder_return",
+      "component_states",
+      "component_release_ids",
+      "authority"
+    ]
+  },
+  "quality_gates": {
+    "all_component_validations_pass": true,
+    "all_component_hard_failures_empty": true,
+    "maximum_duplicate_current_keys": 0,
+    "maximum_duplicate_event_keys": 0,
+    "maximum_market_date_mismatches": 0,
+    "maximum_market_cap_replay_errors": 0,
+    "maximum_shareholder_yield_replay_errors": 0,
+    "maximum_future_selected_share_count": 0,
+    "maximum_future_selected_denominator_count": 0,
+    "maximum_future_effective_shareholder_events": 0,
+    "maximum_formula_replay_errors_in_component_validations": 0,
+    "automatic_action_authorized_count": 0
+  },
+  "authority_boundary": {
+    "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+    "trade_authority": "NONE",
+    "valuation_score_authorized": false,
+    "target_price_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "portfolio_action_authorized": false,
+    "order_execution_authorized": false
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl3d/final/candidate",
+    "current_root": "outputs/fmdl3d/final/current",
+    "archive_root": "outputs/fmdl3d/final/archive",
+    "release_root": "datasets/fmdl3d/final/releases",
+    "last_success": "outputs/status/FMDL3D_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3D_VALUATION_CAPITALIZATION_AND_SHAREHOLDER_RETURN_LAYER_ACCEPTED",
+  "next_gate": "FMDL-3E_INCREMENTAL_REFRESH_REPLAY_AND_FINAL_ACCEPTANCE",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}

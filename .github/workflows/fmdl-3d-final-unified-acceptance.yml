@@ -1,0 +1,102 @@
+name: FMDL 3D Final Unified Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl3d_final_contract.json"
+      - "schemas/fmdl3d_unified_current_v1.schema.json"
+      - "schemas/fmdl3d_unified_interface_v1.schema.json"
+      - "scripts/fmdl3d_final_core.py"
+      - "scripts/run_fmdl3d_final_acceptance.py"
+      - "scripts/validate_fmdl3d_final_contract.py"
+      - "scripts/validate_fmdl3d_final.py"
+      - "scripts/publish_fmdl3d_final.py"
+      - "tests/test_fmdl3d_final.py"
+      - "docs/FMDL-3D_FINAL_ACCEPTANCE.md"
+      - ".github/workflows/fmdl-3d-final-unified-acceptance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3d_final_contract.json"
+      - "schemas/fmdl3d_unified_current_v1.schema.json"
+      - "schemas/fmdl3d_unified_interface_v1.schema.json"
+      - "scripts/fmdl3d_final_core.py"
+      - "scripts/run_fmdl3d_final_acceptance.py"
+      - "scripts/validate_fmdl3d_final_contract.py"
+      - "scripts/validate_fmdl3d_final.py"
+      - "scripts/publish_fmdl3d_final.py"
+      - "tests/test_fmdl3d_final.py"
+      - "docs/FMDL-3D_FINAL_ACCEPTANCE.md"
+      - ".github/workflows/fmdl-3d-final-unified-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PYTHONPATH: .
+
+concurrency:
+  group: fmdl-3d-final-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unified-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Validate Final contract and entry gates
+        run: python -m scripts.validate_fmdl3d_final_contract
+      - name: Run deterministic Final tests
+        run: python -m pytest -q tests/test_fmdl3d_final.py
+      - name: Compile Final modules
+        run: python -m py_compile scripts/fmdl3d_final_core.py scripts/run_fmdl3d_final_acceptance.py scripts/validate_fmdl3d_final_contract.py scripts/validate_fmdl3d_final.py scripts/publish_fmdl3d_final.py
+      - name: Build unified FMDL-3D candidate
+        run: python -m scripts.run_fmdl3d_final_acceptance
+      - name: Independently validate unified candidate
+        run: python -m scripts.validate_fmdl3d_final
+      - name: Upload unified acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3d-final-unified-acceptance-candidate
+          path: outputs/fmdl3d/final/candidate/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Enforce Final acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("outputs/fmdl3d/final/candidate")
+          decision = json.loads((root / "FMDL3D_FINAL_DECISION.json").read_text())
+          validation = json.loads((root / "FMDL3D_FINAL_VALIDATION.json").read_text())
+          assert decision["status"] == "FMDL3D_VALUATION_CAPITALIZATION_AND_SHAREHOLDER_RETURN_LAYER_ACCEPTED", decision
+          assert decision["hard_failures"] == [], decision
+          assert validation["status"] == "PASS", validation
+          assert validation["hard_failures"] == [], validation
+          assert decision["trade_authority"] == "NONE"
+          PY
+      - name: Publish immutable FMDL-3D Final on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python -m scripts.publish_fmdl3d_final
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datasets/fmdl3/final/releases outputs/fmdl3d/final/current outputs/fmdl3d/final/archive outputs/status/FMDL3D_LAST_SUCCESS.json
+          if git diff --cached --quiet; then
+            echo "No FMDL-3D Final publication changes"
+          else
+            git commit -m "data: publish FMDL-3D Final unified acceptance [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
