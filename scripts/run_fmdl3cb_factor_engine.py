@@ -87,7 +87,7 @@ def main() -> int:
 
     for shard_id, path in enumerate(normalized_paths):
         normalized = pd.read_parquet(path)
-        shard_history: list[pd.DataFrame] = []
+        shard_history: list[dict] = []
         shard_derived: list[pd.DataFrame] = []
         if len(normalized):
             for symbol, symbol_facts in normalized.groupby("symbol", sort=False):
@@ -119,9 +119,9 @@ def main() -> int:
                     shard_derived.append(derived)
                     period_count += len(derived)
                     for _, period_row in derived.iterrows():
-                        shard_history.append(core.evaluate_factors_for_period(period_row, factor_records, profile, cfg["engine"]["factor_version"]))
+                        shard_history.extend(core.evaluate_factors_for_period(period_row, factor_records, profile, cfg["engine"]["factor_version"], return_records=True))
         derived_frame = pd.concat(shard_derived, ignore_index=True) if shard_derived else pd.DataFrame()
-        history_frame = pd.concat(shard_history, ignore_index=True) if shard_history else pd.DataFrame()
+        history_frame = pd.DataFrame(shard_history) if shard_history else pd.DataFrame()
         derived_frame.to_parquet(derived_root / f"shard-{shard_id:02d}.parquet", index=False, compression="zstd")
         history_frame.to_parquet(history_root / f"shard-{shard_id:02d}.parquet", index=False, compression="zstd")
         derived_count += len(derived_frame)
