@@ -1,0 +1,104 @@
+name: FMDL 3C-C Validation and Hardening
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl3cc_hardening.json"
+      - "config/fmdl3cc_factor_policy.csv"
+      - "schemas/fmdl3cc_hardened_factor_v1.schema.json"
+      - "scripts/fmdl3cc_core.py"
+      - "scripts/run_fmdl3cc_hardening.py"
+      - "scripts/validate_fmdl3cc_hardening.py"
+      - "scripts/validate_fmdl3cc_contract.py"
+      - "scripts/publish_fmdl3cc_hardening.py"
+      - "tests/test_fmdl3cc_hardening.py"
+      - ".github/workflows/fmdl-3cc-validation-hardening.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3cc_hardening.json"
+      - "config/fmdl3cc_factor_policy.csv"
+      - "schemas/fmdl3cc_hardened_factor_v1.schema.json"
+      - "scripts/fmdl3cc_core.py"
+      - "scripts/run_fmdl3cc_hardening.py"
+      - "scripts/validate_fmdl3cc_hardening.py"
+      - "scripts/validate_fmdl3cc_contract.py"
+      - "scripts/publish_fmdl3cc_hardening.py"
+      - "tests/test_fmdl3cc_hardening.py"
+      - ".github/workflows/fmdl-3cc-validation-hardening.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: fmdl-3cc-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  PYTHONPATH: .
+
+jobs:
+  validate-and-harden-financial-factors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip pandas pyarrow numpy pytest jsonschema
+
+      - name: Validate hardening contract
+        run: python scripts/validate_fmdl3cc_contract.py
+
+      - name: Run deterministic hardening tests
+        run: python -m pytest -q tests/test_fmdl3cc_hardening.py
+
+      - name: Compile hardening modules
+        run: python -m py_compile scripts/fmdl3cc_core.py scripts/run_fmdl3cc_hardening.py scripts/validate_fmdl3cc_hardening.py scripts/validate_fmdl3cc_contract.py scripts/publish_fmdl3cc_hardening.py
+
+      - name: Build full-Universe hardened factor candidate
+        run: python scripts/run_fmdl3cc_hardening.py
+
+      - name: Independently validate hardened candidate
+        run: python scripts/validate_fmdl3cc_hardening.py
+
+      - name: Upload hardening candidate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3cc-validation-hardening-candidate
+          path: outputs/financial_factors/hardening/candidate
+          retention-days: 30
+
+      - name: Enforce acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('outputs/financial_factors/hardening/candidate')
+          decision = json.loads((root / 'FMDL3CC_DECISION.json').read_text())
+          validation = json.loads((root / 'FMDL3CC_VALIDATION.json').read_text())
+          assert decision['status'] == 'FMDL3CC_FINANCIAL_FACTOR_VALIDATION_AND_HARDENING_ACCEPTED'
+          assert decision['hard_failures'] == []
+          assert validation['status'] == 'PASS'
+          assert validation['hard_failures'] == []
+          assert decision['trade_authority'] == 'NONE'
+          PY
+
+      - name: Publish immutable hardening Current on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python scripts/publish_fmdl3cc_hardening.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datasets/financial_factors/hardening outputs/financial_factors/hardening outputs/status/FMDL3CC_LAST_SUCCESS.json
+          git commit -m "data: publish FMDL-3C-C factor hardening [skip ci]"
+          git push
