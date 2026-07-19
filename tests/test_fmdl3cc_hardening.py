@@ -144,6 +144,8 @@ def test_coverage_gate_blocks_undercovered_missing_inputs():
 
 
 def test_controlled_sign_transition_counts_for_factor_gate_but_not_row_eligibility():
+    cfg = config()
+    cfg["hardening"]["minimum_peer_group_size"] = 1
     hardened, registry, _, _, _ = harden_factor_current(
         current(
             [1.0, None, None],
@@ -151,7 +153,7 @@ def test_controlled_sign_transition_counts_for_factor_gate_but_not_row_eligibili
         ),
         profiles().iloc[:3],
         policy(minimum=0.60),
-        config(),
+        cfg,
     )
     factor = registry.iloc[0]
     assert factor["factor_gate_status"] == "ACCEPTED_PRODUCTION_CORE"
