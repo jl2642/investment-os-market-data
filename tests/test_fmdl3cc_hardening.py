@@ -128,7 +128,7 @@ def test_diagnostic_and_deferred_factors_never_enter_production():
     assert deferred["production_eligibility"].eq("INELIGIBLE").all()
 
 
-def test_coverage_gate_blocks_undercovered_core_factor():
+def test_coverage_gate_blocks_undercovered_missing_inputs():
     hardened, registry, _, _, _ = harden_factor_current(
         current(
             [1.0, None, None],
@@ -139,7 +139,29 @@ def test_coverage_gate_blocks_undercovered_core_factor():
         config(),
     )
     assert registry.iloc[0]["factor_gate_status"] == "BLOCKED_PRODUCTION_COVERAGE"
+    assert registry.iloc[0]["production_controlled_outcome_count"] == 1
     assert hardened["production_eligibility"].eq("INELIGIBLE").all()
+
+
+def test_controlled_sign_transition_counts_for_factor_gate_but_not_row_eligibility():
+    hardened, registry, _, _, _ = harden_factor_current(
+        current(
+            [1.0, None, None],
+            states=["VALID", "INVALID_SIGN_TRANSITION", "INVALID_SIGN_TRANSITION"],
+        ),
+        profiles().iloc[:3],
+        policy(minimum=0.60),
+        config(),
+    )
+    factor = registry.iloc[0]
+    assert factor["factor_gate_status"] == "ACCEPTED_PRODUCTION_CORE"
+    assert factor["production_valid_or_warning_count"] == 1
+    assert factor["production_controlled_outcome_count"] == 3
+    eligible = hardened[hardened["quality_state"].eq("VALID")]
+    blocked = hardened[hardened["quality_state"].eq("INVALID_SIGN_TRANSITION")]
+    assert eligible["production_eligibility"].eq("ELIGIBLE").all()
+    assert blocked["production_eligibility"].eq("INELIGIBLE").all()
+    assert blocked["factor_value_winsorized"].isna().all()
 
 
 def test_lower_better_percentile_is_reversed():
