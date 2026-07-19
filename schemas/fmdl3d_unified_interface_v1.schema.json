@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3d_unified_interface_v1.schema.json",
+  "title": "FMDL-3D Unified Current Interface",
+  "type": "object",
+  "required": [
+    "interface_version",
+    "interface_id",
+    "status",
+    "market_as_of_date",
+    "component_releases",
+    "datasets",
+    "consumer_contract",
+    "authority_boundary",
+    "trade_authority"
+  ],
+  "properties": {
+    "interface_version": {"const": "1.0.0"},
+    "interface_id": {"const": "FMDL3D_VALUATION_CAPITALIZATION_SHAREHOLDER_RETURN_INTERFACE"},
+    "status": {"const": "ACTIVE_RESEARCH_EVIDENCE_ONLY"},
+    "market_as_of_date": {"type": "string", "format": "date"},
+    "component_releases": {
+      "type": "object",
+      "required": ["FMDL-3D-A", "FMDL-3D-B", "FMDL-3D-C", "FMDL-3D-D"],
+      "additionalProperties": {"type": "string"}
+    },
+    "datasets": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["dataset_id", "path", "purpose"],
+        "properties": {
+          "dataset_id": {"type": "string"},
+          "path": {"type": "string"},
+          "purpose": {"type": "string"}
+        }
+      }
+    },
+    "consumer_contract": {
+      "type": "object",
+      "required": ["allowed_consumers", "required_prechecks", "prohibited_actions"],
+      "properties": {
+        "allowed_consumers": {"type": "array", "items": {"type": "string"}},
+        "required_prechecks": {"type": "array", "items": {"type": "string"}},
+        "prohibited_actions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "authority_boundary": {"const": "VALUATION_CAPITALIZATION_AND_SHAREHOLDER_RETURN_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
