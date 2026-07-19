@@ -282,6 +282,11 @@ def build_symbol_result(
         state = "VALID_WITH_WARNING"
         reason = "SUSPENDED_SECURITY_USING_ACCEPTED_LAST_CLOSE"
 
+    if state not in VALID_CAP_STATES:
+        for row in ledger:
+            row["selected_for_current"] = False
+        selected = []
+
     share = selected[0] if len(selected) == 1 else None
     total_market_cap = None
     float_market_cap = None
