@@ -136,12 +136,23 @@ def main() -> int:
     dividend_events["symbol"] = dividend_events["symbol"].astype(str)
 
     market_as_of_date = str(cap_release["source_release"]["as_of_date"])
+    market_date = pd.Timestamp(market_as_of_date)
     share_events = derive_share_change_events(ledger, cfg, market_as_of_date)
     ledger_groups = {
         str(key): value for key, value in ledger.groupby("symbol", sort=False)
     }
     if len(dividend_events):
         dividend_events = dividend_events.copy()
+        dividend_effective_dates = pd.to_datetime(
+            dividend_events["effective_date"], errors="coerce"
+        )
+        future_dividend_mask = dividend_effective_dates > market_date
+        dividend_events.loc[
+            future_dividend_mask, "event_state"
+        ] = "FUTURE_EVENT_BLOCKED"
+        dividend_events.loc[
+            future_dividend_mask, "shareholder_yield_effective"
+        ] = False
         totals = []
         for row in dividend_events.itertuples(index=False):
             shares = shares_at_date(
@@ -276,7 +287,7 @@ def main() -> int:
     event_dates = pd.to_datetime(events["effective_date"], errors="coerce")
     future_effective = int(
         (
-            (event_dates > pd.Timestamp(market_as_of_date))
+            (event_dates > market_date)
             & events["shareholder_yield_effective"].eq(True)
         ).sum()
     )
