@@ -1,0 +1,87 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3D-D",
+  "program_name": "Shareholder-Return Event Current",
+  "business_timezone": "Asia/Shanghai",
+  "cost_policy": "FREE_AND_FREE_TIER_ONLY",
+  "entry_gates": {
+    "valuation_contract_pointer": "outputs/status/FMDL3DA_LAST_SUCCESS.json",
+    "valuation_contract_status": "FMDL3DA_VALUATION_AND_SHAREHOLDER_RETURN_CONTRACT_ACCEPTED",
+    "capitalization_pointer": "outputs/status/FMDL3DB_LAST_SUCCESS.json",
+    "capitalization_status": "FMDL3DB_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE_ACCEPTED",
+    "valuation_pointer": "outputs/status/FMDL3DC_LAST_SUCCESS.json",
+    "valuation_status": "FMDL3DC_VALUATION_ENGINE_CURRENT_ACCEPTED"
+  },
+  "inputs": {
+    "universe": "outputs/capitalization/current/FMDL3DB_CAPITALIZATION_CURRENT.parquet",
+    "capitalization_release": "outputs/capitalization/current/FMDL3DB_RELEASE.json",
+    "effective_share_ledger": "outputs/capitalization/current/FMDL3DB_EFFECTIVE_SHARE_LEDGER.parquet",
+    "valuation_current": "outputs/valuation/engine/current/FMDL3DC_VALUATION_CURRENT.parquet",
+    "valuation_release": "outputs/valuation/engine/current/FMDL3DC_RELEASE.json",
+    "event_registry": "config/fmdl3da_shareholder_event_registry.csv"
+  },
+  "source": {
+    "dividend_source_id": "EASTMONEY_DIVIDEND_DISTRIBUTION_DETAIL",
+    "dividend_source_adapter": "akshare.stock_fhps_detail_em",
+    "share_change_source_id": "EASTMONEY_EFFECTIVE_SHARE_CAPITAL",
+    "share_change_source_adapter": "FMDL3DB_EFFECTIVE_SHARE_LEDGER_DERIVATION",
+    "max_attempts": 3,
+    "initial_backoff_seconds": 1.0,
+    "request_timeout_seconds": 30,
+    "history_start_date": "2016-01-01",
+    "ttm_days": 365
+  },
+  "sharding": {
+    "shard_count": 16,
+    "algorithm": "SHA256_SYMBOL_MODULO",
+    "max_parallel": 8
+  },
+  "dividend_policy": {
+    "implemented_stage_tokens": ["实施分配", "实施方案", "已实施", "实施完成"],
+    "cash_ratio_basis_shares": 10.0,
+    "implementation_date_priority": ["除权除息日", "股权登记日", "公告日期", "预案公告日"],
+    "future_event_allowed_in_current": false,
+    "proposal_or_approval_counts_as_implemented": false,
+    "zero_or_missing_cash_ratio_counts_as_cash_dividend": false
+  },
+  "share_change_policy": {
+    "minimum_absolute_share_change": 1.0,
+    "buyback_or_cancellation_tokens": ["回购", "注销", "库存股注销"],
+    "private_placement_tokens": ["增发", "非公开发行", "定向发行", "向特定对象发行"],
+    "rights_issue_tokens": ["配股"],
+    "convertible_conversion_tokens": ["转股", "可转债"],
+    "equity_incentive_tokens": ["股权激励", "限制性股票", "股票期权"],
+    "neutral_rescaling_tokens": ["送股", "转增", "拆股", "缩股"],
+    "unclassified_share_changes_enter_shareholder_yield": false
+  },
+  "current_policy": {
+    "dividend_yield_formula": "implemented_cash_dividend_per_share_ttm / accepted_close",
+    "completed_buyback_yield_formula": "sum(completed_share_reduction / prior_total_shares) over ttm",
+    "completed_issuance_dilution_yield_formula": "sum(completed_share_increase / prior_total_shares) over ttm",
+    "shareholder_yield_formula": "dividend_yield_ttm + completed_buyback_yield_ttm - completed_issuance_dilution_yield_ttm",
+    "complete_shareholder_yield_requires": ["DIVIDEND_SOURCE_ATTEMPT_SUCCESS", "SHARE_LEDGER_AVAILABLE"],
+    "partial_components_publishable": true,
+    "missing_value_policy": "NULL_WITH_EXPLICIT_STATE_NEVER_ZERO_FILL"
+  },
+  "quality_gates": {
+    "minimum_dividend_source_attempt_success_ratio": 0.95,
+    "minimum_current_universe_coverage_ratio": 1.0,
+    "maximum_duplicate_event_keys": 0,
+    "maximum_future_effective_events": 0,
+    "maximum_announced_buybacks_treated_completed": 0,
+    "maximum_approved_issuances_treated_effective": 0,
+    "maximum_formula_replay_errors": 0
+  },
+  "publication": {
+    "shard_root": "outputs/shareholder_returns/full_build/shards",
+    "candidate_root": "outputs/shareholder_returns/full_build/candidate",
+    "current_root": "outputs/shareholder_returns/current",
+    "archive_root": "outputs/shareholder_returns/archive",
+    "release_root": "datasets/shareholder_returns/releases",
+    "last_success": "outputs/status/FMDL3DD_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3DD_SHAREHOLDER_RETURN_EVENT_CURRENT_ACCEPTED",
+  "next_gate": "FMDL-3D-FINAL_UNIFIED_ACCEPTANCE_AND_PUBLICATION",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
