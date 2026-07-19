@@ -1,0 +1,162 @@
+{
+  "decision_version": "1.0.0",
+  "release_id": "FMDL3D_FINAL_20260719T233219+0800",
+  "generated_at": "2026-07-19T23:32:19+08:00",
+  "program_id": "FMDL-3D-FINAL",
+  "status": "FMDL3D_VALUATION_CAPITALIZATION_AND_SHAREHOLDER_RETURN_LAYER_ACCEPTED",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "ALL_ENTRY_POINTER_STATUSES_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_POINTERS_MATCH_CURRENT_RELEASES",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_COMPONENT_VALIDATIONS_PASS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_COMPONENT_HARD_FAILURES_EMPTY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "GATE_CHAIN_A_TO_D_FINAL_COHERENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "COMPONENT_SOURCE_BINDINGS_COHERENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_UNIVERSE_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_SYMBOL_SET_ALIGNMENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CURRENT_KEYS_UNIQUE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MARKET_DATE_EXACT_ALIGNMENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CROSS_LAYER_MARKET_CAP_ALIGNED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CAPITALIZATION_FORMULA_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SHAREHOLDER_YIELD_FORMULA_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "VALUATION_DETAIL_KEYS_UNIQUE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SHAREHOLDER_EVENT_KEYS_UNIQUE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FUTURE_INFORMATION_CONTROLS_PASS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "COMPONENT_FORMULA_CONTROLS_PASS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NO_SCORE_TARGET_OR_ACTION_FIELDS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_AUTOMATIC_ACTION_AUTHORITY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "market_as_of_date": "2026-07-17",
+    "universe_symbol_count": 5528,
+    "capitalization_valid_or_warning_count": 5523,
+    "valuation_valid_metric_count": 24436,
+    "valuation_symbol_with_any_valid_metric_count": 5182,
+    "shareholder_yield_complete_count": 5523,
+    "positive_dividend_yield_count": 3612,
+    "positive_buyback_component_count": 951,
+    "positive_dilution_component_count": 1114,
+    "shareholder_event_count": 42140,
+    "valuation_detail_row_count": 38696,
+    "capitalization_replay_error_count": 0,
+    "capitalization_maximum_replay_difference_cny": 0.0,
+    "shareholder_yield_replay_error_count": 0,
+    "shareholder_yield_maximum_replay_difference": 0.0,
+    "cross_layer_numeric_mismatch_count": 0,
+    "duplicate_current_key_count": 0,
+    "duplicate_valuation_detail_key_count": 0,
+    "duplicate_shareholder_event_key_count": 0,
+    "future_selected_share_count": 0,
+    "future_selected_denominator_count": 0,
+    "future_effective_shareholder_event_count": 0,
+    "automatic_action_authorized_count": 0
+  },
+  "component_release_ids": {
+    "FMDL-3D-A": "FMDL3DA_20260719T190213+0800",
+    "FMDL-3D-B": "FMDL3DB_20260719T200447+0800",
+    "FMDL-3D-C": "FMDL3DC_20260719T203920+0800",
+    "FMDL-3D-D": "FMDL3DD_20260719T220650+0800"
+  },
+  "gate_chain": {
+    "A_TO_B": true,
+    "B_TO_C": true,
+    "C_TO_D": true,
+    "D_TO_FINAL": true
+  },
+  "source_binding": {
+    "C_BINDS_A": true,
+    "C_BINDS_B": true,
+    "D_BINDS_A": true,
+    "D_BINDS_B": true,
+    "D_BINDS_C": true
+  },
+  "future_controls": {
+    "B_FUTURE_SELECTED_SHARE_ZERO": true,
+    "B_FUTURE_CURRENT_SHARE_ZERO": true,
+    "C_FUTURE_SELECTED_DENOMINATOR_ZERO": true,
+    "D_FUTURE_EFFECTIVE_EVENT_ZERO": true
+  },
+  "component_formula_controls": {
+    "B_MARKET_CAP_REPLAY_ZERO": true,
+    "C_FORMULA_REPLAY_ZERO": true,
+    "C_DENOMINATOR_SIGN_ERRORS_ZERO": true,
+    "D_FORMULA_REPLAY_ZERO": true
+  },
+  "cross_layer_numeric_mismatches": {
+    "capitalization_vs_valuation_total_market_cap": 0,
+    "capitalization_vs_shareholder_total_market_cap": 0,
+    "capitalization_vs_valuation_float_market_cap": 0
+  },
+  "controlled_limitations": [
+    "FMDL3D_CURRENT_IS_RESEARCH_EVIDENCE_NOT_A_VALUATION_SCORE_OR_INVESTMENT_CONCLUSION",
+    "LATEST_COMPLETED_SESSION_PRICE_IS_USED_NOT_INTRADAY_PRICE",
+    "EV_METRIC_COVERAGE_REMAINS_LIMITED_BY_COMPLETE_DEBT_AND_CASH_INPUTS",
+    "SHAREHOLDER_BUYBACK_AND_DILUTION_COMPONENTS_USE_EFFECTIVE_SHARE_CHANGE_RATIOS",
+    "UNCLASSIFIED_SHARE_CHANGES_DO_NOT_ENTER_SHAREHOLDER_YIELD",
+    "NO_TARGET_PRICE_CANDIDATE_SIMULATION_REAL_ACCOUNT_OR_PORTFOLIO_MUTATION"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3E_INCREMENTAL_REFRESH_REPLAY_AND_FINAL_ACCEPTANCE"
+}

@@ -1,0 +1,61 @@
+{
+  "interface_version": "1.0.0",
+  "interface_id": "FMDL3D_VALUATION_CAPITALIZATION_SHAREHOLDER_RETURN_INTERFACE",
+  "status": "ACTIVE_RESEARCH_EVIDENCE_ONLY",
+  "generated_at": "2026-07-19T23:32:19+08:00",
+  "market_as_of_date": "2026-07-17",
+  "component_releases": {
+    "FMDL-3D-A": "FMDL3DA_20260719T190213+0800",
+    "FMDL-3D-B": "FMDL3DB_20260719T200447+0800",
+    "FMDL-3D-C": "FMDL3DC_20260719T203920+0800",
+    "FMDL-3D-D": "FMDL3DD_20260719T220650+0800"
+  },
+  "datasets": [
+    {
+      "dataset_id": "fmdl3d_unified_current",
+      "path": "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_CURRENT.parquet",
+      "purpose": "One-row-per-symbol capitalization, valuation and shareholder-return research evidence"
+    },
+    {
+      "dataset_id": "capitalization_current",
+      "path": "outputs/capitalization/current/FMDL3DB_CAPITALIZATION_CURRENT.parquet",
+      "purpose": "Effective shares and recomputed market capitalization"
+    },
+    {
+      "dataset_id": "valuation_current",
+      "path": "outputs/valuation/engine/current/FMDL3DC_VALUATION_CURRENT.parquet",
+      "purpose": "Point-in-time valuation metric Current"
+    },
+    {
+      "dataset_id": "shareholder_return_current",
+      "path": "outputs/shareholder_returns/current/FMDL3DD_SHAREHOLDER_RETURN_CURRENT.parquet",
+      "purpose": "Implemented dividend and completed effective-share return evidence"
+    },
+    {
+      "dataset_id": "shareholder_return_event_ledger",
+      "path": "outputs/shareholder_returns/current/FMDL3DD_EVENT_LEDGER.parquet",
+      "purpose": "Canonical event lineage and stage evidence"
+    }
+  ],
+  "consumer_contract": {
+    "allowed_consumers": [
+      "PUBLIC_EQUITY_INVESTING",
+      "INVESTMENT_OS"
+    ],
+    "required_prechecks": [
+      "validate FMDL3D_LAST_SUCCESS and unified interface schemas",
+      "surface component states and controlled nulls",
+      "preserve point-in-time price, shares, denominator and event dates",
+      "apply valuation and shareholder-return evidence only inside later research and portfolio gates"
+    ],
+    "prohibited_actions": [
+      "creating a valuation score or target price from the unified Current",
+      "creating BUY ADD REDUCE SELL permission",
+      "automatic candidate-pool, simulation or real-account mutation",
+      "automatic portfolio action or brokerage execution",
+      "treating missing or inapplicable metrics as zero"
+    ]
+  },
+  "authority_boundary": "VALUATION_CAPITALIZATION_AND_SHAREHOLDER_RETURN_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
