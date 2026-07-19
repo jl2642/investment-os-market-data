@@ -1,0 +1,138 @@
+{
+  "decision_version": "1.0.0",
+  "release_id": "FMDL3DA_20260719T190213+0800",
+  "generated_at": "2026-07-19T19:02:13+08:00",
+  "program_id": "FMDL-3D-A",
+  "status": "FMDL3DA_VALUATION_AND_SHAREHOLDER_RETURN_CONTRACT_ACCEPTED",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "ENTRY_FMDL3CD_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ENTRY_FMDL3A_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ENTRY_FMDL3CB_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PILOT_EXACT_SYMBOL_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PILOT_REQUIRED_PROFILES_PRESENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PILOT_REQUIRED_BOARDS_PRESENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CAPITALIZATION_SUPPORTED_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CAPITALIZATION_QUARANTINE_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_FUTURE_EFFECTIVE_SHARE_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CAPITALIZATION_REPLAYS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "METRIC_REGISTRY_UNIQUE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "METRIC_DETAIL_EXACT_GRID",
+      "status": "PASS"
+    },
+    {
+      "check_id": "METRIC_STATES_CONTROLLED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "VALID_METRICS_HAVE_VALUES",
+      "status": "PASS"
+    },
+    {
+      "check_id": "INVALID_METRICS_HAVE_NO_VALUES",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CORE_PILOT_METRIC_COVERAGE_GATE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PROVIDER_RATIOS_NOT_DECISION_GRADE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NON_POSITIVE_EARNINGS_NEVER_VALID_PE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ANNOUNCED_BUYBACK_NOT_COMPLETED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "COMPLETED_BUYBACK_EFFECTIVE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "APPROVED_ISSUANCE_NOT_EFFECTIVE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "COMPLETED_ISSUANCE_EFFECTIVE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "IMPLEMENTED_DIVIDEND_ONLY_YIELD_EFFECTIVE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NO_COMPOSITE_VALUATION_SCORE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "source_benchmark_release_id": "FMDL3A_20260718T011233+0800",
+    "factor_engine_release_id": "FMDL3CB_20260719T121912+0800",
+    "financial_score_release_id": "FMDL3CD_20260719T150020+0800",
+    "pilot_symbol_count": 13,
+    "supported_capitalization_count": 11,
+    "controlled_capitalization_quarantine_count": 2,
+    "valuation_metric_count": 11,
+    "valuation_metric_detail_row_count": 143,
+    "valid_or_warning_metric_row_count": 72,
+    "decision_grade_metric_row_count": 72,
+    "core_pilot_metric_valid_ratio_supported_symbols": 0.9473684210526315,
+    "event_type_count": 8,
+    "event_contract_sample_count": 8,
+    "future_share_count_error_count": 0,
+    "automatic_action_authorized_count": 0
+  },
+  "controlled_limitations": [
+    "PILOT_ONLY_NOT_FULL_UNIVERSE_CAPITALIZATION_OR_VALUATION_CURRENT",
+    "BSE_PILOT_SYMBOLS_REMAIN_CONTROLLED_CAPITALIZATION_QUARANTINE",
+    "PROVIDER_SUPPLIED_PE_PB_PS_REMAIN_CROSS_CHECK_ONLY",
+    "DIVIDEND_BUYBACK_AND_DILUTION_EVENTS_ARE_CONTRACT_FIXTURES_IN_3D_A_AND_REQUIRE_REAL_EVENT_BUILD_IN_3D_D",
+    "EV_METRICS_REQUIRE_COMPLETE_DEBT_AND_CASH_COMPONENTS_AND_MAY_HAVE_LIMITED_COVERAGE",
+    "NO_COMPOSITE_VALUATION_SCORE_TARGET_PRICE_OR_TRADE_PERMISSION"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3D-B_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE"
+}
