@@ -7,6 +7,12 @@ import numpy as np
 import pandas as pd
 
 VALID_RAW_STATES = {"VALID", "VALID_WITH_WARNING"}
+CONTROLLED_OUTCOME_STATES = {
+    "VALID",
+    "VALID_WITH_WARNING",
+    "INVALID_SIGN_TRANSITION",
+    "INVALID_DENOMINATOR",
+}
 
 
 @dataclass(frozen=True)
@@ -95,7 +101,6 @@ def harden_factor_current(
         policy["percentile_authorized"].astype(str).str.lower().eq("true")
     )
     profile_registry = build_profile_registry(profiles)
-    profile_lookup = profile_registry.set_index("symbol")
     policy_lookup = policy.set_index("factor_id")
 
     hard = hard.merge(
@@ -134,12 +139,23 @@ def harden_factor_current(
         raw_valid = factor_mask & hard["quality_state"].isin(valid_states) & hard[
             "factor_value_raw"
         ].notna()
+        production_profile_mask = hard["sector_profile"].eq(production_profile)
         production_profile_count = int(profile_counts.get(production_profile, 0))
-        production_valid_count = int(
-            (raw_valid & hard["sector_profile"].eq(production_profile)).sum()
+        production_value_count = int((raw_valid & production_profile_mask).sum())
+        production_controlled_count = int(
+            (
+                factor_mask
+                & production_profile_mask
+                & hard["quality_state"].isin(CONTROLLED_OUTCOME_STATES)
+            ).sum()
         )
-        coverage_ratio = (
-            production_valid_count / production_profile_count
+        value_coverage_ratio = (
+            production_value_count / production_profile_count
+            if production_profile_count
+            else 0.0
+        )
+        controlled_coverage_ratio = (
+            production_controlled_count / production_profile_count
             if production_profile_count
             else 0.0
         )
@@ -149,7 +165,7 @@ def harden_factor_current(
             factor_gate_status = "DEFERRED_HISTORY"
         elif factor_status == "DIAGNOSTIC_ONLY":
             factor_gate_status = "ACCEPTED_DIAGNOSTIC_ONLY"
-        elif coverage_ratio >= minimum_coverage:
+        elif controlled_coverage_ratio >= minimum_coverage:
             factor_gate_status = "ACCEPTED_PRODUCTION_CORE"
         else:
             factor_gate_status = "BLOCKED_PRODUCTION_COVERAGE"
@@ -160,8 +176,11 @@ def harden_factor_current(
                 "factor_id": factor_id,
                 "factor_status": factor_status,
                 "production_profile_count": production_profile_count,
-                "production_valid_or_warning_count": production_valid_count,
-                "production_coverage_ratio": coverage_ratio,
+                "production_valid_or_warning_count": production_value_count,
+                "production_controlled_outcome_count": production_controlled_count,
+                "production_value_coverage_ratio": value_coverage_ratio,
+                "production_controlled_coverage_ratio": controlled_coverage_ratio,
+                "production_coverage_ratio": controlled_coverage_ratio,
                 "minimum_coverage_ratio": minimum_coverage,
                 "factor_gate_status": factor_gate_status,
                 "percentile_authorized": bool(
@@ -234,18 +253,21 @@ def harden_factor_current(
             hard.loc[low_tail, "tail_flag"] = "WINSORIZED_LOW"
             hard.loc[high_tail, "tail_flag"] = "WINSORIZED_HIGH"
             if low_tail.any() or high_tail.any():
-                tails = hard.loc[low_tail | high_tail, [
-                    "symbol",
-                    "factor_id",
-                    "factor_value_raw",
-                    "factor_value_winsorized",
-                    "sector_profile",
-                    "quality_state",
-                    "tail_flag",
-                    "period_end",
-                    "as_of_timestamp",
-                    "lineage_id",
-                ]].copy()
+                tails = hard.loc[
+                    low_tail | high_tail,
+                    [
+                        "symbol",
+                        "factor_id",
+                        "factor_value_raw",
+                        "factor_value_winsorized",
+                        "sector_profile",
+                        "quality_state",
+                        "tail_flag",
+                        "period_end",
+                        "as_of_timestamp",
+                        "lineage_id",
+                    ],
+                ].copy()
                 tails["lower_limit"] = lower
                 tails["upper_limit"] = upper
                 tail_rows.append(tails)
@@ -271,9 +293,9 @@ def harden_factor_current(
     hard.loc[diagnostic & ~profile_excluded & raw_eligible, "hardening_state"] = (
         "DIAGNOSTIC_ONLY"
     )
-    hard.loc[diagnostic & ~profile_excluded & raw_eligible, "hardening_reason_codes"] = (
-        "FACTOR_POLICY_DIAGNOSTIC_ONLY"
-    )
+    hard.loc[
+        diagnostic & ~profile_excluded & raw_eligible, "hardening_reason_codes"
+    ] = "FACTOR_POLICY_DIAGNOSTIC_ONLY"
     hard.loc[profile_excluded & ~deferred, "hardening_state"] = (
         "CONTROLLED_PROFILE_EXCLUSION"
     )
@@ -287,22 +309,31 @@ def harden_factor_current(
     )
     hard.loc[warning_rows, "hardening_state"] = "ACCEPTED_WITH_WARNING"
     hard.loc[production_rows & ~warning_rows, "hardening_reason_codes"] = "NONE"
-    hard.loc[production_rows & hard["quality_state"].eq("VALID_WITH_WARNING"), "hardening_reason_codes"] = (
-        "RAW_FACTOR_WARNING"
-    )
-    hard.loc[production_rows & ~hard["tail_flag"].eq("NONE"), "hardening_reason_codes"] = (
-        "TAIL_WINSORIZED"
-    )
+    hard.loc[
+        production_rows & hard["quality_state"].eq("VALID_WITH_WARNING"),
+        "hardening_reason_codes",
+    ] = "RAW_FACTOR_WARNING"
+    hard.loc[
+        production_rows & ~hard["tail_flag"].eq("NONE"),
+        "hardening_reason_codes",
+    ] = "TAIL_WINSORIZED"
     hard.loc[production_rows & ~warning_rows, "production_eligibility"] = "ELIGIBLE"
     hard.loc[warning_rows, "production_eligibility"] = "CONDITIONAL"
 
     non_hardened = ~hard["hardening_state"].isin(
-        ["ACCEPTED", "ACCEPTED_WITH_WARNING", "DIAGNOSTIC_ONLY", "DEFERRED_HISTORY", "CONTROLLED_PROFILE_EXCLUSION"]
+        [
+            "ACCEPTED",
+            "ACCEPTED_WITH_WARNING",
+            "DIAGNOSTIC_ONLY",
+            "DEFERRED_HISTORY",
+            "CONTROLLED_PROFILE_EXCLUSION",
+        ]
     )
     hard.loc[non_hardened, "hardening_state"] = "RAW_FACTOR_INELIGIBLE"
-    hard.loc[non_hardened & hard["hardening_reason_codes"].eq("NONE"), "hardening_reason_codes"] = (
-        "RAW_QUALITY_OR_FACTOR_GATE_FAILED"
-    )
+    hard.loc[
+        non_hardened & hard["hardening_reason_codes"].eq("NONE"),
+        "hardening_reason_codes",
+    ] = "RAW_QUALITY_OR_FACTOR_GATE_FAILED"
     hard.loc[~production_rows, "production_eligibility"] = "INELIGIBLE"
     hard["authority"] = "DATA_AND_RESEARCH_EVIDENCE_ONLY"
     hard["trade_authority"] = "NONE"
