@@ -1,0 +1,15 @@
+{
+  "policy_version": "1.0.0",
+  "purpose": "Permit only binary floating-point serialization noise in capitalization replay; never permit economic or source-value drift.",
+  "capitalization_replay": {
+    "absolute_tolerance_cny": 0.001,
+    "relative_tolerance": 1e-12,
+    "recognized_decision_failure": "CAPITALIZATION_REPLAYS",
+    "recognized_validation_failures": [
+      "TOTAL_MARKET_CAP_REPLAYS",
+      "FLOAT_MARKET_CAP_REPLAYS"
+    ]
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}

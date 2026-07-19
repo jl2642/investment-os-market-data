@@ -1,0 +1,119 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3D-A",
+  "program_name": "Valuation, Capitalization and Shareholder-Return Architecture & Pilot",
+  "business_timezone": "Asia/Shanghai",
+  "cost_policy": "FREE_AND_FREE_TIER_ONLY",
+  "entry_gates": {
+    "financial_score_pointer": "outputs/status/FMDL3CD_LAST_SUCCESS.json",
+    "financial_score_status": "FMDL3CD_FINANCIAL_SCORE_AND_INVESTMENT_OS_INTERFACE_ACCEPTED",
+    "source_benchmark_release": "outputs/financials/benchmark/current/FMDL3A_RELEASE.json",
+    "source_benchmark_status": "FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN",
+    "factor_engine_release": "outputs/financial_factors/engine/current/FMDL3CB_RELEASE.json",
+    "factor_engine_status": "FMDL3CB_FINANCIAL_FACTOR_ENGINE_MVP_ACCEPTED"
+  },
+  "inputs": {
+    "pilot_universe": "config/fmdl3da_pilot_universe.csv",
+    "valuation_metric_registry": "config/fmdl3da_valuation_metric_registry.csv",
+    "shareholder_event_registry": "config/fmdl3da_shareholder_event_registry.csv",
+    "capitalization_evidence": "outputs/financials/benchmark/current/FMDL3A_CAPITALIZATION_EVIDENCE.csv",
+    "support_quarantine_map": "outputs/financials/benchmark/current/FMDL3A_SUPPORT_QUARANTINE_MAP.csv",
+    "market_current": "outputs/current/DAILY_MARKET_SNAPSHOT.csv"
+  },
+  "point_in_time": {
+    "resolution": "DAILY",
+    "market_numerator_rule": "LATEST_COMPLETED_SESSION_CLOSE",
+    "financial_denominator_rule": "LATEST_ACCEPTED_INPUT_VERSION_AVAILABLE_NOT_LATER_THAN_MARKET_CUTOFF",
+    "share_count_rule": "LATEST_POSITIVE_EFFECTIVE_SHARE_COUNT_NOT_LATER_THAN_PRICE_AS_OF_DATE",
+    "announcement_date_without_timestamp_rule": "NEXT_TRADING_SESSION_OPEN",
+    "restatement_rule": "USE_VERSION_EFFECTIVE_AT_AS_OF_TIMESTAMP; NEVER_BACKFILL_LATER_RESTATEMENT_INTO_EARLIER_SNAPSHOT",
+    "historical_valuation_rule": "PRICE_SHARE_COUNT_AND_FINANCIAL_DENOMINATOR_MUST_EACH_BE_POINT_IN_TIME_ALIGNED",
+    "provider_ratio_rule": "PROVIDER_PE_PB_PS_ARE_CROSS_CHECK_ONLY_NOT_DECISION_GRADE"
+  },
+  "capitalization": {
+    "required_fields": [
+      "price_as_of_date",
+      "close",
+      "price_source_id",
+      "share_effective_date",
+      "total_shares",
+      "float_a_shares",
+      "share_source_id"
+    ],
+    "total_market_cap_formula": "close * total_shares",
+    "float_a_market_cap_formula": "close * float_a_shares",
+    "minimum_supported_pilot_coverage": 0.84,
+    "future_effective_share_count_allowed": false,
+    "non_positive_share_count_allowed": false
+  },
+  "valuation": {
+    "valid_input_states": ["VALID", "VALID_WITH_WARNING"],
+    "valid_metric_states": ["VALID", "VALID_WITH_WARNING"],
+    "controlled_metric_states": [
+      "VALID",
+      "VALID_WITH_WARNING",
+      "NOT_APPLICABLE_SECTOR",
+      "CONTROLLED_CAPITALIZATION_QUARANTINE",
+      "MISSING_REQUIRED_INPUT",
+      "FUTURE_DENOMINATOR_BLOCKED",
+      "NON_POSITIVE_EARNINGS",
+      "NON_POSITIVE_BOOK_EQUITY",
+      "NON_POSITIVE_REVENUE",
+      "INVALID_ENTERPRISE_VALUE",
+      "DEFERRED_TO_SHAREHOLDER_RETURN_LAYER"
+    ],
+    "enterprise_value_components": [
+      "total_market_cap_cny",
+      "short_term_debt",
+      "long_term_debt",
+      "bonds_payable",
+      "cash_equivalents"
+    ],
+    "negative_earnings_pe_policy": "NULL_AND_NON_POSITIVE_EARNINGS",
+    "negative_equity_pb_policy": "NULL_AND_NON_POSITIVE_BOOK_EQUITY",
+    "missing_value_policy": "REMAIN_NULL_WITH_EXPLICIT_REASON; NEVER_ZERO_FILL",
+    "composite_valuation_score_authorized": false,
+    "target_price_authorized": false
+  },
+  "shareholder_return": {
+    "event_identity": [
+      "symbol",
+      "event_type",
+      "event_stage",
+      "source_document_id",
+      "announcement_date",
+      "effective_date"
+    ],
+    "completion_evidence_required_for_yield": true,
+    "announced_buyback_counts_as_completed": false,
+    "approved_issuance_counts_as_effective": false,
+    "cash_dividend_basis": "IMPLEMENTED_CASH_DIVIDEND_ONLY",
+    "shareholder_yield_formula": "implemented_cash_dividend_yield + completed_net_buyback_yield - completed_net_issuance_dilution_yield",
+    "partial_component_policy": "PUBLISH_COMPONENTS_AND_COVERAGE; DO_NOT_CLAIM_COMPLETE_SHAREHOLDER_YIELD"
+  },
+  "pilot": {
+    "expected_symbol_count": 13,
+    "expected_supported_capitalization_count": 11,
+    "expected_controlled_quarantine_count": 2,
+    "required_profiles": [
+      "GENERAL_NON_FINANCIAL",
+      "BANK",
+      "INSURANCE",
+      "SECURITIES_AND_BROKERAGE",
+      "PRE_PROFIT_OR_NEGATIVE_EARNINGS"
+    ],
+    "required_boards": ["SH_MAIN", "SZ_MAIN", "CHINEXT", "STAR", "BSE"],
+    "minimum_valid_core_metric_ratio_supported_symbols": 0.60
+  },
+  "publication": {
+    "candidate_root": "outputs/valuation/contract/candidate",
+    "current_root": "outputs/valuation/contract/current",
+    "archive_root": "outputs/valuation/contract/archive",
+    "release_root": "datasets/valuation/contract/releases",
+    "last_success": "outputs/status/FMDL3DA_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3DA_VALUATION_AND_SHAREHOLDER_RETURN_CONTRACT_ACCEPTED",
+  "next_gate": "FMDL-3D-B_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
