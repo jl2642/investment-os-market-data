@@ -1,0 +1,80 @@
+{
+  "program_id": "FMDL-3C-D",
+  "contract_version": "1.0.0",
+  "entry_gate": {
+    "pointer": "outputs/status/FMDL3CC_LAST_SUCCESS.json",
+    "required_status": "FMDL3CC_FINANCIAL_FACTOR_VALIDATION_AND_HARDENING_ACCEPTED"
+  },
+  "inputs": {
+    "hardened_factor_current": "outputs/financial_factors/hardening/current/FMDL3CC_HARDENED_FACTOR_CURRENT.parquet",
+    "factor_registry": "outputs/financial_factors/hardening/current/FMDL3CC_FACTOR_REGISTRY.csv",
+    "profile_reconciliation": "outputs/financial_factors/hardening/current/FMDL3CC_PROFILE_RECONCILIATION.csv",
+    "factor_weights": "config/fmdl3cd_factor_weights.csv",
+    "market_data_interface": "outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json"
+  },
+  "score": {
+    "authorized_profile": "GENERAL_NON_FINANCIAL",
+    "score_scale_min": 0.0,
+    "score_scale_max": 100.0,
+    "minimum_available_family_count": 3,
+    "minimum_available_family_weight": 0.70,
+    "minimum_global_factor_weight_coverage": 0.70,
+    "ranking_minimum_global_factor_weight_coverage": 0.75,
+    "minimum_family_weight_coverage": 0.55,
+    "high_confidence": {
+      "minimum_family_count": 4,
+      "minimum_global_factor_weight_coverage": 0.90,
+      "maximum_conditional_weight_share": 0.10
+    },
+    "medium_confidence": {
+      "minimum_family_count": 3,
+      "minimum_global_factor_weight_coverage": 0.75,
+      "maximum_conditional_weight_share": 0.30
+    },
+    "family_weights": {
+      "PROFITABILITY_RETURNS": 0.30,
+      "GROWTH_MOMENTUM": 0.25,
+      "CASH_EARNINGS_QUALITY": 0.25,
+      "BALANCE_SHEET_EFFICIENCY": 0.20
+    },
+    "family_minimum_factor_count": {
+      "PROFITABILITY_RETURNS": 3,
+      "GROWTH_MOMENTUM": 3,
+      "CASH_EARNINGS_QUALITY": 3,
+      "BALANCE_SHEET_EFFICIENCY": 2
+    },
+    "score_bands": [
+      {"minimum": 85.0, "band": "EXCEPTIONAL_FINANCIAL_QUALITY"},
+      {"minimum": 75.0, "band": "STRONG_FINANCIAL_QUALITY"},
+      {"minimum": 65.0, "band": "ABOVE_AVERAGE_FINANCIAL_QUALITY"},
+      {"minimum": 50.0, "band": "NEUTRAL_FINANCIAL_QUALITY"},
+      {"minimum": 35.0, "band": "WEAK_FINANCIAL_QUALITY"},
+      {"minimum": 0.0, "band": "VERY_WEAK_FINANCIAL_QUALITY"}
+    ]
+  },
+  "investment_os": {
+    "strict_real_account_financial_floor": 85.0,
+    "strict_real_account_required_confidence": "HIGH",
+    "supportive_research_floor": 70.0,
+    "candidate_positive_floor": 80.0,
+    "candidate_supportive_floor": 65.0,
+    "candidate_neutral_floor": 50.0,
+    "simulation_quality_test_floor": 75.0,
+    "automatic_candidate_promotion": false,
+    "automatic_simulation_admission": false,
+    "automatic_real_account_admission": false,
+    "portfolio_action_authorized": false,
+    "order_execution_authorized": false
+  },
+  "publication": {
+    "candidate_root": "outputs/financial_factors/score/candidate",
+    "current_root": "outputs/financial_factors/score/current",
+    "archive_root": "outputs/financial_factors/score/archive",
+    "release_root": "datasets/financial_factors/score/releases",
+    "last_success": "outputs/status/FMDL3CD_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3CD_FINANCIAL_SCORE_AND_INVESTMENT_OS_INTERFACE_ACCEPTED",
+  "next_gate": "FMDL-3D_VALUATION_CAPITALIZATION_AND_DIVIDEND",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
