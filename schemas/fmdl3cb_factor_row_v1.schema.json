@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3cb_factor_row_v1.schema.json",
+  "title": "FMDL-3C-B Financial Factor Row",
+  "type": "object",
+  "required": [
+    "factor_row_id", "symbol", "factor_id", "factor_version", "period_end",
+    "factor_value", "sector_profile", "quality_state", "rank_eligibility",
+    "lineage_id", "authority", "trade_authority"
+  ],
+  "properties": {
+    "factor_row_id": {"type": "string", "minLength": 32},
+    "symbol": {"type": "string", "minLength": 6},
+    "factor_id": {"type": "string", "pattern": "^FIN_[A-Z0-9_]+$"},
+    "factor_version": {"type": "string"},
+    "period_end": {"type": ["string", "null"]},
+    "as_of_timestamp": {"type": ["string", "null"]},
+    "factor_value": {"type": ["number", "null"]},
+    "sector_profile": {
+      "enum": ["GENERAL_NON_FINANCIAL", "BANK", "INSURANCE", "SECURITIES_AND_BROKERAGE", "UNRESOLVED"]
+    },
+    "quality_state": {
+      "enum": [
+        "VALID", "VALID_WITH_WARNING", "NOT_APPLICABLE_SECTOR", "SECTOR_PROFILE_UNRESOLVED",
+        "MISSING_REQUIRED_INPUT", "INVALID_DENOMINATOR", "INVALID_SIGN_TRANSITION",
+        "NON_COMPARABLE_INPUT", "RESTATEMENT_REPLAY_BLOCKED", "STALE_INPUT",
+        "CONFLICTED_INPUT", "QUARANTINED_INPUT"
+      ]
+    },
+    "rank_eligibility": {"enum": ["ELIGIBLE", "CONDITIONAL", "INELIGIBLE"]},
+    "lineage_id": {"type": "string", "minLength": 32},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}

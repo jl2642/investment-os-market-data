@@ -1,0 +1,85 @@
+{
+  "config_version": "1.1.0",
+  "program_id": "FMDL-3C-B",
+  "entry_gates": {
+    "statement_current_pointer": "outputs/status/FMDL3B4_LAST_SUCCESS.json",
+    "statement_current_status": "FMDL3B4_POINT_IN_TIME_STATEMENT_STORE_ACCEPTED",
+    "factor_contract_pointer": "outputs/status/FMDL3CA_LAST_SUCCESS.json",
+    "factor_contract_status": "FMDL3CA_FACTOR_ARCHITECTURE_AND_CONTRACT_ACCEPTED"
+  },
+  "inputs": {
+    "statement_catalog": "outputs/financials/statements/current/FMDL3B4_STATEMENT_CATALOG.csv",
+    "factor_contract": "config/fmdl3c_factor_contract.json",
+    "factor_dictionary": "config/fmdl3c_factor_dictionary.csv",
+    "sector_overrides": "config/fmdl3cb_sector_overrides.csv",
+    "universe": "outputs/current/DAILY_MARKET_SNAPSHOT.csv"
+  },
+  "engine": {
+    "factor_version": "1.0.0",
+    "expected_statement_shards": 32,
+    "expected_factor_count": 29,
+    "expected_mvp_required_factor_count": 23,
+    "profile_count_bounds": {
+      "BANK": {"minimum": 30, "maximum": 60},
+      "INSURANCE": {"minimum": 4, "maximum": 15},
+      "SECURITIES_AND_BROKERAGE": {"minimum": 30, "maximum": 80}
+    },
+    "flow_inputs": {
+      "revenue_ttm": "revenue",
+      "cogs_ttm": "cogs",
+      "operating_income_ttm": "operating_income",
+      "pretax_income_ttm": "pretax_income",
+      "tax_expense_ttm": "tax_expense",
+      "net_income_parent_ttm": "net_income_parent",
+      "cfo_ttm": "cfo",
+      "capex_ttm": "capex"
+    },
+    "balance_inputs": {
+      "total_assets": "total_assets",
+      "parent_equity": "parent_equity",
+      "total_current_assets": "total_current_assets",
+      "total_current_liabilities": "total_current_liabilities",
+      "total_liabilities": "total_liabilities",
+      "cash_equivalents": "cash_equivalents",
+      "short_term_debt": "short_term_debt",
+      "long_term_debt": "long_term_debt",
+      "bonds_payable": "bonds_payable",
+      "goodwill": "goodwill",
+      "accounts_receivable": "accounts_receivable",
+      "inventory": "inventory",
+      "ppne_net": "ppne_net"
+    },
+    "allowed_quality_states": [
+      "VALID",
+      "VALID_WITH_WARNING",
+      "NOT_APPLICABLE_SECTOR",
+      "SECTOR_PROFILE_UNRESOLVED",
+      "MISSING_REQUIRED_INPUT",
+      "INVALID_DENOMINATOR",
+      "INVALID_SIGN_TRANSITION",
+      "NON_COMPARABLE_INPUT",
+      "RESTATEMENT_REPLAY_BLOCKED",
+      "STALE_INPUT",
+      "CONFLICTED_INPUT",
+      "QUARANTINED_INPUT"
+    ],
+    "allowed_sector_profiles": [
+      "GENERAL_NON_FINANCIAL",
+      "BANK",
+      "INSURANCE",
+      "SECURITIES_AND_BROKERAGE",
+      "UNRESOLVED"
+    ]
+  },
+  "publication": {
+    "candidate_root": "outputs/financial_factors/engine/candidate",
+    "release_parent": "datasets/financial_factors/engine/releases",
+    "current_root": "outputs/financial_factors/engine/current",
+    "archive_parent": "outputs/financial_factors/engine/archive",
+    "last_success": "outputs/status/FMDL3CB_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3CB_FINANCIAL_FACTOR_ENGINE_MVP_ACCEPTED",
+  "next_gate": "FMDL-3C-C_VALIDATION_AND_HARDENING",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
