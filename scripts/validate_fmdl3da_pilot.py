@@ -10,6 +10,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config/fmdl3da_contract.json"
+TOLERANCE = ROOT / "config/fmdl3da_numeric_tolerance.json"
 
 
 def load_json(path: Path):
@@ -26,6 +27,9 @@ def clean_record(row: dict) -> dict:
 
 def main() -> int:
     cfg = load_json(CONFIG)
+    tolerance = load_json(TOLERANCE)["capitalization_replay"]
+    replay_rtol = float(tolerance["relative_tolerance"])
+    replay_atol = float(tolerance["absolute_tolerance_cny"])
     root = ROOT / cfg["publication"]["candidate_root"]
     decision = load_json(root / "FMDL3DA_DECISION.json")
     manifest = load_json(root / "FMDL3DA_MANIFEST.json")
@@ -92,6 +96,12 @@ def main() -> int:
     )
     replay_total = supported["close"] * supported["total_shares"]
     replay_float = supported["close"] * supported["float_a_shares"]
+    total_absolute_difference = (
+        replay_total - supported["total_market_cap_cny"]
+    ).abs()
+    float_absolute_difference = (
+        replay_float - supported["float_market_cap_cny"]
+    ).abs()
 
     pe = details[details["metric_id"].eq("VAL_PE_TTM")]
     pb = details[details["metric_id"].eq("VAL_PB")]
@@ -126,14 +136,14 @@ def main() -> int:
         "TOTAL_MARKET_CAP_REPLAYS": np.allclose(
             replay_total,
             supported["total_market_cap_cny"],
-            rtol=0,
-            atol=1e-6,
+            rtol=replay_rtol,
+            atol=replay_atol,
         ),
         "FLOAT_MARKET_CAP_REPLAYS": np.allclose(
             replay_float,
             supported["float_market_cap_cny"],
-            rtol=0,
-            atol=1e-6,
+            rtol=replay_rtol,
+            atol=replay_atol,
         ),
         "PE_VALID_ONLY_POSITIVE": not pe[
             pe["metric_state"].eq("NON_POSITIVE_EARNINGS")
@@ -189,6 +199,14 @@ def main() -> int:
                 details.duplicated(["symbol", "metric_id"]).sum()
             ),
             "future_effective_share_count": int(future_share_count.sum()),
+            "capitalization_replay_absolute_tolerance_cny": replay_atol,
+            "capitalization_replay_relative_tolerance": replay_rtol,
+            "total_market_cap_max_absolute_difference_cny": float(
+                total_absolute_difference.max()
+            ) if len(total_absolute_difference) else 0.0,
+            "float_market_cap_max_absolute_difference_cny": float(
+                float_absolute_difference.max()
+            ) if len(float_absolute_difference) else 0.0,
         },
         "manifest_errors": manifest_errors,
         "schema_errors": schema_errors[:50],
