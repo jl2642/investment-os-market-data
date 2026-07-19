@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3db_effective_share_ledger_v1.schema.json",
+  "title": "FMDL-3D-B Effective Share Count Ledger Row",
+  "type": "object",
+  "required": [
+    "symbol",
+    "source_effective_date",
+    "total_shares",
+    "float_a_shares",
+    "eligibility_state",
+    "selected_for_current",
+    "source_id",
+    "source_adapter",
+    "retrieved_at",
+    "source_row_hash",
+    "authority",
+    "trade_authority"
+  ],
+  "properties": {
+    "symbol": {"type": "string", "pattern": "^[0-9]{6}\\.(SH|SZ|BJ)$"},
+    "name": {"type": ["string", "null"]},
+    "exchange": {"type": ["string", "null"], "enum": ["SH", "SZ", "BJ", null]},
+    "board": {"type": ["string", "null"]},
+    "source_effective_date": {"type": "string", "format": "date"},
+    "price_as_of_date": {"type": ["string", "null"], "format": "date"},
+    "total_shares": {"type": "number", "exclusiveMinimum": 0},
+    "float_a_shares": {"type": "number", "exclusiveMinimum": 0},
+    "limited_a_shares": {"type": ["number", "null"], "minimum": 0},
+    "change_reason": {"type": ["string", "null"]},
+    "eligibility_state": {"enum": ["EFFECTIVE_ELIGIBLE", "FUTURE_EFFECTIVE", "INVALID_SOURCE_ROW"]},
+    "selected_for_current": {"type": "boolean"},
+    "raw_fields_json": {"type": "string"},
+    "source_id": {"const": "EASTMONEY_EFFECTIVE_SHARE_CAPITAL"},
+    "source_adapter": {"const": "akshare.stock_zh_a_gbjg_em"},
+    "retrieved_at": {"type": "string", "format": "date-time"},
+    "source_row_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
