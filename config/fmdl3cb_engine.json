@@ -1,5 +1,5 @@
 {
-  "config_version": "1.0.0",
+  "config_version": "1.1.0",
   "program_id": "FMDL-3C-B",
   "entry_gates": {
     "statement_current_pointer": "outputs/status/FMDL3B4_LAST_SUCCESS.json",
@@ -11,6 +11,7 @@
     "statement_catalog": "outputs/financials/statements/current/FMDL3B4_STATEMENT_CATALOG.csv",
     "factor_contract": "config/fmdl3c_factor_contract.json",
     "factor_dictionary": "config/fmdl3c_factor_dictionary.csv",
+    "sector_overrides": "config/fmdl3cb_sector_overrides.csv",
     "universe": "outputs/current/DAILY_MARKET_SNAPSHOT.csv"
   },
   "engine": {
@@ -18,6 +19,11 @@
     "expected_statement_shards": 32,
     "expected_factor_count": 29,
     "expected_mvp_required_factor_count": 23,
+    "profile_count_bounds": {
+      "BANK": {"minimum": 30, "maximum": 60},
+      "INSURANCE": {"minimum": 4, "maximum": 15},
+      "SECURITIES_AND_BROKERAGE": {"minimum": 30, "maximum": 80}
+    },
     "flow_inputs": {
       "revenue_ttm": "revenue",
       "cogs_ttm": "cogs",
