@@ -1,0 +1,54 @@
+{
+  "config_version": "1.0.0",
+  "program_id": "FMDL-3C-C",
+  "entry_gate": {
+    "pointer": "outputs/status/FMDL3CB_LAST_SUCCESS.json",
+    "required_status": "FMDL3CB_FINANCIAL_FACTOR_ENGINE_MVP_ACCEPTED"
+  },
+  "inputs": {
+    "factor_current": "outputs/financial_factors/engine/current/FMDL3CB_LATEST_FACTOR_CURRENT.parquet",
+    "sector_profiles": "outputs/financial_factors/engine/current/FMDL3CB_SECTOR_PROFILES.csv",
+    "factor_policy": "config/fmdl3cc_factor_policy.csv"
+  },
+  "hardening": {
+    "valid_raw_quality_states": ["VALID", "VALID_WITH_WARNING"],
+    "production_profile": "GENERAL_NON_FINANCIAL",
+    "minimum_production_coverage_ratio": 0.60,
+    "minimum_peer_group_size": 100,
+    "winsor_lower_quantile": 0.01,
+    "winsor_upper_quantile": 0.99,
+    "robust_zscore_clip": 5.0,
+    "production_factor_status": "PRODUCTION_CORE",
+    "diagnostic_factor_status": "DIAGNOSTIC_ONLY",
+    "deferred_factor_status": "DEFERRED_HISTORY",
+    "allowed_factor_statuses": [
+      "PRODUCTION_CORE",
+      "DIAGNOSTIC_ONLY",
+      "DEFERRED_HISTORY"
+    ],
+    "allowed_hardening_states": [
+      "ACCEPTED",
+      "ACCEPTED_WITH_WARNING",
+      "DIAGNOSTIC_ONLY",
+      "DEFERRED_HISTORY",
+      "RAW_FACTOR_INELIGIBLE",
+      "CONTROLLED_PROFILE_EXCLUSION"
+    ],
+    "allowed_production_eligibility": [
+      "ELIGIBLE",
+      "CONDITIONAL",
+      "INELIGIBLE"
+    ]
+  },
+  "publication": {
+    "candidate_root": "outputs/financial_factors/hardening/candidate",
+    "release_parent": "datasets/financial_factors/hardening/releases",
+    "current_root": "outputs/financial_factors/hardening/current",
+    "archive_parent": "outputs/financial_factors/hardening/archive",
+    "last_success": "outputs/status/FMDL3CC_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3CC_FINANCIAL_FACTOR_VALIDATION_AND_HARDENING_ACCEPTED",
+  "next_gate": "FMDL-3C-D_FINANCIAL_SCORE_AND_INVESTMENT_OS_INTERFACE",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
