@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3ea_delta_event_v1.schema.json",
+  "title": "FMDL-3E Delta Event",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "detected_at",
+    "source_id",
+    "source_release_id",
+    "effective_time",
+    "affected_symbols",
+    "affected_periods",
+    "recompute_targets",
+    "full_rebuild_required",
+    "event_state",
+    "authority",
+    "trade_authority"
+  ],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 8},
+    "event_type": {
+      "enum": [
+        "MARKET_SESSION_ADVANCE",
+        "UNIVERSE_MEMBERSHIP_CHANGE",
+        "SECURITY_STATUS_CHANGE",
+        "FINANCIAL_DISCLOSURE_NEW",
+        "FINANCIAL_DISCLOSURE_CORRECTION",
+        "FINANCIAL_RESTATEMENT",
+        "EFFECTIVE_SHARE_COUNT_CHANGE",
+        "DIVIDEND_IMPLEMENTED",
+        "BUYBACK_COMPLETED",
+        "SHARE_CANCELLATION_EFFECTIVE",
+        "ISSUANCE_COMPLETED",
+        "SOURCE_RECOVERY",
+        "SOURCE_SCHEMA_CHANGE",
+        "SOURCE_ROUTE_CHANGE",
+        "BASELINE_INTEGRITY_FAILURE",
+        "OPERATOR_FULL_REBUILD_REQUEST"
+      ]
+    },
+    "detected_at": {"type": "string"},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_release_id": {"type": "string", "minLength": 1},
+    "effective_time": {"type": "string"},
+    "affected_symbols": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "affected_periods": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "recompute_targets": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "full_rebuild_required": {"type": "boolean"},
+    "requires_pit_replay": {"type": "boolean"},
+    "event_state": {
+      "enum": ["DETECTED", "VALIDATED", "APPLIED", "REJECTED", "SUPERSEDED"]
+    },
+    "source_payload_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "baseline_id": {"type": ["string", "null"]},
+    "reason_codes": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}

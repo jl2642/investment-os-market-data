@@ -1,0 +1,104 @@
+name: FMDL 3E-A Incremental Contract and Baseline
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl3ea_incremental_refresh_contract.json"
+      - "config/fmdl3ea_delta_event_catalog.csv"
+      - "schemas/fmdl3ea_baseline_manifest_v1.schema.json"
+      - "schemas/fmdl3ea_delta_event_v1.schema.json"
+      - "scripts/fmdl3ea_core.py"
+      - "scripts/run_fmdl3ea_baseline_freeze.py"
+      - "scripts/validate_fmdl3ea_contract.py"
+      - "scripts/validate_fmdl3ea_baseline.py"
+      - "scripts/publish_fmdl3ea_baseline.py"
+      - "tests/test_fmdl3ea_contract.py"
+      - "docs/FMDL-3EA_INCREMENTAL_REFRESH_CONTRACT.md"
+      - ".github/workflows/fmdl-3ea-incremental-contract-baseline.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3ea_incremental_refresh_contract.json"
+      - "config/fmdl3ea_delta_event_catalog.csv"
+      - "schemas/fmdl3ea_baseline_manifest_v1.schema.json"
+      - "schemas/fmdl3ea_delta_event_v1.schema.json"
+      - "scripts/fmdl3ea_core.py"
+      - "scripts/run_fmdl3ea_baseline_freeze.py"
+      - "scripts/validate_fmdl3ea_contract.py"
+      - "scripts/validate_fmdl3ea_baseline.py"
+      - "scripts/publish_fmdl3ea_baseline.py"
+      - "tests/test_fmdl3ea_contract.py"
+      - "docs/FMDL-3EA_INCREMENTAL_REFRESH_CONTRACT.md"
+      - ".github/workflows/fmdl-3ea-incremental-contract-baseline.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PYTHONPATH: .
+
+concurrency:
+  group: fmdl-3ea-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-and-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Validate incremental contract and FMDL-3D entry gate
+        run: python -m scripts.validate_fmdl3ea_contract
+      - name: Run deterministic contract tests
+        run: python -m pytest -q tests/test_fmdl3ea_contract.py
+      - name: Compile modules
+        run: python -m py_compile scripts/fmdl3ea_core.py scripts/run_fmdl3ea_baseline_freeze.py scripts/validate_fmdl3ea_contract.py scripts/validate_fmdl3ea_baseline.py scripts/publish_fmdl3ea_baseline.py
+      - name: Freeze FMDL-3D Baseline-0 candidate
+        run: python -m scripts.run_fmdl3ea_baseline_freeze
+      - name: Independently validate baseline and policies
+        run: python -m scripts.validate_fmdl3ea_baseline
+      - name: Upload baseline evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3ea-incremental-contract-baseline-candidate
+          path: outputs/fmdl3e/contract/candidate/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Enforce FMDL-3E-A acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("outputs/fmdl3e/contract/candidate")
+          decision = json.loads((root / "FMDL3EA_DECISION.json").read_text())
+          validation = json.loads((root / "FMDL3EA_VALIDATION.json").read_text())
+          assert decision["status"] == "FMDL3EA_INCREMENTAL_REFRESH_CONTRACT_ACCEPTED", decision
+          assert decision["hard_failures"] == [], decision
+          assert validation["status"] == "PASS", validation
+          assert validation["hard_failures"] == [], validation
+          assert decision["trade_authority"] == "NONE"
+          PY
+      - name: Publish immutable FMDL-3E-A on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python -m scripts.publish_fmdl3ea_baseline
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datasets/fmdl3e/contract/releases outputs/fmdl3e/contract/current outputs/fmdl3e/contract/archive outputs/status/FMDL3EA_LAST_SUCCESS.json
+          if git diff --cached --quiet; then
+            echo "No FMDL-3E-A publication changes"
+          else
+            git commit -m "data: publish FMDL-3E-A incremental baseline [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
