@@ -120,6 +120,13 @@ def main() -> int:
         ROOT / cfg["inputs"]["factor_weights"], encoding="utf-8-sig"
     )
     validate_weight_table(weights, cfg)
+    source_policy_overlap = [
+        column
+        for column in weights.columns
+        if column != "factor_id" and column in hardened.columns
+    ]
+    if source_policy_overlap:
+        hardened = hardened.drop(columns=source_policy_overlap)
 
     candidate = ROOT / cfg["publication"]["candidate_root"]
     if candidate.exists():
