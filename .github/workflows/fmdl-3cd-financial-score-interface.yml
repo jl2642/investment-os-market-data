@@ -70,7 +70,27 @@ jobs:
         run: python -m py_compile scripts/fmdl3cd_core.py scripts/run_fmdl3cd_financial_score.py scripts/validate_fmdl3cd_financial_score.py scripts/validate_fmdl3cd_contract.py scripts/publish_fmdl3cd_financial_score.py
 
       - name: Build full-Universe financial score candidate
-        run: python scripts/run_fmdl3cd_financial_score.py
+        run: |
+          mkdir -p outputs/financial_factors/score/candidate
+          set +e
+          python scripts/run_fmdl3cd_financial_score.py 2>&1 | tee outputs/financial_factors/score/candidate/FMDL3CD_BUILD_LOG.txt
+          status=${PIPESTATUS[0]}
+          echo "$status" > outputs/financial_factors/score/candidate/FMDL3CD_BUILD_EXIT_CODE.txt
+          exit 0
+
+      - name: Upload score build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3cd-score-build-diagnostics
+          path: outputs/financial_factors/score/candidate
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Enforce successful score build
+        run: |
+          test -f outputs/financial_factors/score/candidate/FMDL3CD_BUILD_EXIT_CODE.txt
+          test "$(cat outputs/financial_factors/score/candidate/FMDL3CD_BUILD_EXIT_CODE.txt)" = "0"
 
       - name: Independently validate score and interface candidate
         run: python scripts/validate_fmdl3cd_financial_score.py
