@@ -6,6 +6,32 @@ FMDL-3D Final closes the valuation, capitalization and shareholder-return data l
 
 The Final stage does not add a new investment score. It proves that all four component layers refer to the same Universe, market date, component releases and authority boundary, and that the combined data can be independently replayed.
 
+## Accepted candidate
+
+- PR: `#26`;
+- accepted head: `19a513879ea80776fe58c8b034fdcfb1bf3bbbf5`;
+- accepted workflow: `29690612237`;
+- artifact: `8443447842`;
+- artifact digest: `sha256:b73c752f9a59d3cf02709cba2131b3175c41ab0895c7d00b8746b849f629d591`;
+- candidate status: `FMDL3D_VALUATION_CAPITALIZATION_AND_SHAREHOLDER_RETURN_LAYER_ACCEPTED`;
+- independent validation: `PASS`;
+- hard failures: `0`;
+- trade authority: `NONE`.
+
+Measured candidate result:
+
+- market as-of date: `2026-07-17`;
+- Universe / unified Current: `5,528 / 5,528`;
+- valid capitalization: `5,523` symbols;
+- valid valuation metrics: `24,436` rows across `5,182` symbols;
+- complete shareholder yield: `5,523` symbols;
+- positive dividend / buyback / dilution components: `3,612 / 951 / 1,114` symbols;
+- valuation detail / shareholder events: `38,696 / 42,140` rows;
+- cross-layer numeric mismatches: `0`;
+- duplicate unified, valuation-detail and event keys: `0 / 0 / 0`;
+- future-selected shares, denominators and shareholder events: `0 / 0 / 0`;
+- replay, schema, interface, manifest and unified row-hash errors: `0`.
+
 ## Component roles
 
 - **FMDL-3D-A** — valuation, effective-share and shareholder-event semantics;
