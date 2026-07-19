@@ -4,13 +4,16 @@ on:
   pull_request:
     paths:
       - "config/fmdl3cb_engine.json"
+      - "config/fmdl3cb_sector_overrides.csv"
       - "schemas/fmdl3cb_factor_row_v1.schema.json"
       - "scripts/fmdl3cb_common.py"
       - "scripts/fmdl3cb_inputs.py"
       - "scripts/fmdl3cb_formula.py"
+      - "scripts/fmdl3cb_profiles.py"
       - "scripts/fmdl3cb_core.py"
       - "scripts/run_fmdl3cb_factor_engine.py"
       - "scripts/validate_fmdl3cb_factor_engine.py"
+      - "scripts/validate_fmdl3cb_sector_profiles.py"
       - "scripts/validate_fmdl3cb_engine_contract.py"
       - "scripts/publish_fmdl3cb_factor_engine.py"
       - "tests/test_fmdl3cb_factor_engine.py"
@@ -19,13 +22,16 @@ on:
     branches: [main]
     paths:
       - "config/fmdl3cb_engine.json"
+      - "config/fmdl3cb_sector_overrides.csv"
       - "schemas/fmdl3cb_factor_row_v1.schema.json"
       - "scripts/fmdl3cb_common.py"
       - "scripts/fmdl3cb_inputs.py"
       - "scripts/fmdl3cb_formula.py"
+      - "scripts/fmdl3cb_profiles.py"
       - "scripts/fmdl3cb_core.py"
       - "scripts/run_fmdl3cb_factor_engine.py"
       - "scripts/validate_fmdl3cb_factor_engine.py"
+      - "scripts/validate_fmdl3cb_sector_profiles.py"
       - "scripts/validate_fmdl3cb_engine_contract.py"
       - "scripts/publish_fmdl3cb_factor_engine.py"
       - "tests/test_fmdl3cb_factor_engine.py"
@@ -67,10 +73,13 @@ jobs:
         run: python -m pytest -q tests/test_fmdl3cb_factor_engine.py
 
       - name: Compile engine modules
-        run: python -m py_compile scripts/fmdl3cb_common.py scripts/fmdl3cb_inputs.py scripts/fmdl3cb_formula.py scripts/fmdl3cb_core.py scripts/run_fmdl3cb_factor_engine.py scripts/validate_fmdl3cb_factor_engine.py scripts/publish_fmdl3cb_factor_engine.py
+        run: python -m py_compile scripts/fmdl3cb_common.py scripts/fmdl3cb_inputs.py scripts/fmdl3cb_formula.py scripts/fmdl3cb_profiles.py scripts/fmdl3cb_core.py scripts/run_fmdl3cb_factor_engine.py scripts/validate_fmdl3cb_factor_engine.py scripts/validate_fmdl3cb_sector_profiles.py scripts/publish_fmdl3cb_factor_engine.py
 
       - name: Build full-Universe financial factor candidate
         run: python scripts/run_fmdl3cb_factor_engine.py
+
+      - name: Validate sector-profile plausibility and overrides
+        run: python scripts/validate_fmdl3cb_sector_profiles.py
 
       - name: Independently validate factor candidate
         run: python scripts/validate_fmdl3cb_factor_engine.py
