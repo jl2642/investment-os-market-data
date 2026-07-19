@@ -159,7 +159,7 @@ def denominator_state(
 
 def evaluate_factors_for_period(
     period_row: pd.Series,
-    factor_dictionary: pd.DataFrame,
+    factor_dictionary,
     sector_profile: str,
     factor_version: str = FACTOR_VERSION,
 ) -> pd.DataFrame:
@@ -167,7 +167,12 @@ def evaluate_factors_for_period(
     available = json.loads(period_row["input_available_from_json"])
     fact_ids = json.loads(period_row["input_fact_ids_json"])
     rows: list[dict[str, Any]] = []
-    for _, factor in factor_dictionary.iterrows():
+    factors = (
+        factor_dictionary.to_dict("records")
+        if isinstance(factor_dictionary, pd.DataFrame)
+        else list(factor_dictionary)
+    )
+    for factor in factors:
         factor_id = str(factor["factor_id"])
         required = str(factor["required_inputs"]).split("|")
         applicable = set(str(factor["applicable_sector_profiles"]).split("|"))
