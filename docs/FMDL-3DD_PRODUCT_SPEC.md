@@ -16,7 +16,9 @@ It does not create an investment score, target price, portfolio action or trade 
 
 ### Cash dividends
 
-`akshare.stock_fhps_detail_em` / Eastmoney dividend-distribution detail is called once per Universe symbol through 16 deterministic shards. Retries and source-attempt state are preserved. Only implemented cash distributions with a positive cash ratio enter dividend yield.
+`akshare.stock_fhps_em` / Eastmoney report-period dividend distribution data is queried for the four bounded annual and interim report periods needed to cover the current TTM window. Each deterministic shard filters the full-market response to its own symbols. This replaces thousands of per-symbol calls while preserving one source-attempt state per Universe symbol and one report-period call ledger per shard.
+
+Only implemented cash distributions with a positive cash ratio enter dividend yield. A proposal announcement date is not an implementation date. Implementation requires an implemented progress state or a genuine registration/ex-dividend date.
 
 ### Buyback and dilution evidence
 
@@ -29,7 +31,7 @@ FMDL-3D-B effective-share ledger rows are converted into canonical completed sha
 - completed issuance dilution yield TTM = sum of verified completed share increases / prior total shares;
 - shareholder yield TTM = dividend yield + completed buyback yield - completed issuance dilution yield.
 
-The buyback and dilution components are effective-share-count yields, not unverified announcement cash values.
+The buyback and dilution components are effective-share-count yields, not unverified announcement cash values. Implemented cash totals use the effective share count at each dividend event date rather than the current share count.
 
 ## Event-stage safety
 
@@ -44,7 +46,7 @@ The buyback and dilution components are effective-share-count yields, not unveri
 
 - `FMDL3DD_EVENT_LEDGER.parquet`;
 - `FMDL3DD_SHAREHOLDER_RETURN_CURRENT.parquet`;
-- dividend source attempt ledger;
+- dividend symbol-attempt and report-period-attempt ledgers;
 - coverage, event coverage and quarantine tables;
 - decision, validation and manifest;
 - immutable Release, Current, Archive and Last-success pointer.
