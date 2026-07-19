@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3da_capitalization_snapshot_v1.schema.json",
+  "title": "FMDL-3D-A Capitalization Snapshot",
+  "type": "object",
+  "required": [
+    "symbol",
+    "sector_profile",
+    "market_as_of_date",
+    "capitalization_state",
+    "authority",
+    "trade_authority"
+  ],
+  "properties": {
+    "symbol": {"type": "string", "minLength": 6},
+    "sector_profile": {"type": "string"},
+    "board": {"type": "string"},
+    "market_as_of_date": {"type": ["string", "null"], "format": "date"},
+    "close": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "share_effective_date": {"type": ["string", "null"], "format": "date"},
+    "total_shares": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "float_a_shares": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "total_market_cap_cny": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "float_market_cap_cny": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "capitalization_state": {
+      "enum": ["VALID", "VALID_WITH_WARNING", "CONTROLLED_QUARANTINE", "MISSING_REQUIRED_INPUT", "FUTURE_EFFECTIVE_SHARE_BLOCKED"]
+    },
+    "price_source_id": {"type": ["string", "null"]},
+    "share_source_id": {"type": ["string", "null"]},
+    "lineage_id": {"type": "string"},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
