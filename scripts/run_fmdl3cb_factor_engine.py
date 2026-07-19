@@ -59,7 +59,15 @@ def main() -> int:
     if len(period_paths) != 1 or len(bridge_paths) != 1:
         raise SystemExit("expected one comparability period-status and one bridge asset")
     period_status = pd.read_parquet(period_paths[0])
+    period_status["symbol"] = period_status["symbol"].astype(str)
+    period_groups = {symbol: frame for symbol, frame in period_status.groupby("symbol", sort=False)}
     comparison_bridge = pd.read_parquet(bridge_paths[0])
+    if len(comparison_bridge):
+        comparison_bridge["symbol"] = comparison_bridge["symbol"].astype(str)
+        bridge_groups = {symbol: frame for symbol, frame in comparison_bridge.groupby("symbol", sort=False)}
+    else:
+        bridge_groups = {}
+    factor_records = dictionary.to_dict("records")
 
     candidate = ROOT / cfg["publication"]["candidate_root"]
     if candidate.exists():
@@ -85,8 +93,8 @@ def main() -> int:
             for symbol, symbol_facts in normalized.groupby("symbol", sort=False):
                 symbol = str(symbol)
                 profile = core.infer_sector_profile(symbol_facts)
-                status = period_status[period_status["symbol"].astype(str).eq(symbol)]
-                symbol_bridge = comparison_bridge[comparison_bridge["symbol"].astype(str).eq(symbol)] if len(comparison_bridge) else comparison_bridge
+                status = period_groups.get(symbol, period_status.iloc[0:0])
+                symbol_bridge = bridge_groups.get(symbol, comparison_bridge.iloc[0:0])
                 derived = core.build_period_inputs(
                     symbol_facts,
                     status,
@@ -111,7 +119,7 @@ def main() -> int:
                     shard_derived.append(derived)
                     period_count += len(derived)
                     for _, period_row in derived.iterrows():
-                        shard_history.append(core.evaluate_factors_for_period(period_row, dictionary, profile, cfg["engine"]["factor_version"]))
+                        shard_history.append(core.evaluate_factors_for_period(period_row, factor_records, profile, cfg["engine"]["factor_version"]))
         derived_frame = pd.concat(shard_derived, ignore_index=True) if shard_derived else pd.DataFrame()
         history_frame = pd.concat(shard_history, ignore_index=True) if shard_history else pd.DataFrame()
         derived_frame.to_parquet(derived_root / f"shard-{shard_id:02d}.parquet", index=False, compression="zstd")
