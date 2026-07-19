@@ -64,10 +64,23 @@ def test_ttm_and_average_balance_are_pit_constructed():
     assert available["revenue_ttm"].startswith("2025-04-30")
 
 
-def test_sector_profile_is_not_silently_generalized():
-    bank = pd.DataFrame([fact("600000.SH", "net_interest_income", "2024-12-31", 10, "FY", "2025-03-31T09:30:00+08:00")])
+def test_sector_profile_requires_strict_financial_signature():
+    bank = pd.DataFrame([
+        fact("600000.SH", "net_interest_income", "2024-12-31", 10, "FY", "2025-03-31T09:30:00+08:00"),
+        fact("600000.SH", "loans_advances", "2024-12-31", 100, "FY", "2025-03-31T09:30:00+08:00"),
+    ])
+    industrial_with_loans = pd.DataFrame([
+        fact("000333.SZ", "revenue", "2024-12-31", 100, "FY", "2025-03-31T09:30:00+08:00"),
+        fact("000333.SZ", "cogs", "2024-12-31", 60, "FY", "2025-03-31T09:30:00+08:00"),
+        fact("000333.SZ", "loans_advances", "2024-12-31", 2, "FY", "2025-03-31T09:30:00+08:00"),
+    ])
+    insurer_override = pd.DataFrame([
+        fact("601318.SH", "revenue", "2024-12-31", 100, "FY", "2025-03-31T09:30:00+08:00")
+    ])
     unknown = pd.DataFrame([fact("430000.BJ", "unmapped", "2024-12-31", 10, "FY", "2025-03-31T09:30:00+08:00")])
     assert infer_sector_profile(bank) == "BANK"
+    assert infer_sector_profile(industrial_with_loans) == "GENERAL_NON_FINANCIAL"
+    assert infer_sector_profile(insurer_override) == "INSURANCE"
     assert infer_sector_profile(unknown) == "UNRESOLVED"
 
 
