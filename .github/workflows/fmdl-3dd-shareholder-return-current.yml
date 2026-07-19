@@ -111,7 +111,6 @@ jobs:
 
   aggregate:
     needs: shards
-    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -129,19 +128,46 @@ jobs:
           path: downloaded-shards
           merge-multiple: false
       - name: Aggregate full-Universe shareholder-return candidate
-        continue-on-error: true
-        run: python -m scripts.aggregate_fmdl3dd --input-root downloaded-shards
+        run: |
+          rm -rf outputs/shareholder_returns/full_build/diagnostics
+          mkdir -p outputs/shareholder_returns/full_build/diagnostics
+          set +e
+          python -m scripts.aggregate_fmdl3dd --input-root downloaded-shards 2>&1 | tee outputs/shareholder_returns/full_build/diagnostics/FMDL3DD_AGGREGATE_LOG.txt
+          status=${PIPESTATUS[0]}
+          echo "$status" > outputs/shareholder_returns/full_build/diagnostics/FMDL3DD_AGGREGATE_EXIT_CODE.txt
+          exit 0
       - name: Independently validate aggregate candidate
-        continue-on-error: true
-        run: python -m scripts.validate_fmdl3dd_candidate
+        run: |
+          set +e
+          if test -f outputs/shareholder_returns/full_build/candidate/FMDL3DD_DECISION.json; then
+            python -m scripts.validate_fmdl3dd_candidate 2>&1 | tee outputs/shareholder_returns/full_build/diagnostics/FMDL3DD_VALIDATION_LOG.txt
+            status=${PIPESTATUS[0]}
+          else
+            echo "Candidate decision missing after aggregate" | tee outputs/shareholder_returns/full_build/diagnostics/FMDL3DD_VALIDATION_LOG.txt
+            status=99
+          fi
+          echo "$status" > outputs/shareholder_returns/full_build/diagnostics/FMDL3DD_VALIDATION_EXIT_CODE.txt
+          exit 0
+      - name: Upload aggregate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3dd-aggregate-diagnostics
+          path: outputs/shareholder_returns/full_build/diagnostics/
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload full-market candidate
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: fmdl3dd-shareholder-return-current-candidate
           path: outputs/shareholder_returns/full_build/candidate/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
+      - name: Enforce aggregate execution
+        run: |
+          test "$(cat outputs/shareholder_returns/full_build/diagnostics/FMDL3DD_AGGREGATE_EXIT_CODE.txt)" = "0"
+          test "$(cat outputs/shareholder_returns/full_build/diagnostics/FMDL3DD_VALIDATION_EXIT_CODE.txt)" = "0"
       - name: Enforce aggregate acceptance
         run: |
           python - <<'PY'
