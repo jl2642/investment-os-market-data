@@ -1,0 +1,75 @@
+{
+  "interface_version": "1.0.0",
+  "interface_id": "FMDL_FINANCIAL_SCORE_INVESTMENT_OS_INTERFACE",
+  "status": "ACTIVE_RESEARCH_ONLY",
+  "generated_at": "2026-07-19T15:02:03+08:00",
+  "source_release_id": "FMDL3CC_20260719T142647+0800",
+  "market_data_interface_id": "FMDL_A_SHARE_MARKET_DATA_INTERFACE",
+  "market_data_run_id": "FMDL1BC_20260717T174015+0800",
+  "datasets": [
+    {
+      "dataset_id": "financial_score_current",
+      "path": "outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet",
+      "required_for": [
+        "PUBLIC_EQUITY_RESEARCH_PRIORITY",
+        "INVESTMENT_OS_RESEARCH_SCORE",
+        "CANDIDATE_POOL_FINANCIAL_EVIDENCE"
+      ]
+    },
+    {
+      "dataset_id": "financial_family_scores",
+      "path": "outputs/financial_factors/score/current/FMDL3CD_FAMILY_SCORES.parquet",
+      "required_for": [
+        "FINANCIAL_SCORE_EXPLANATION",
+        "MISSING_FAMILY_REVIEW"
+      ]
+    },
+    {
+      "dataset_id": "financial_factor_contributions",
+      "path": "outputs/financial_factors/score/current/FMDL3CD_FACTOR_CONTRIBUTIONS.parquet",
+      "required_for": [
+        "SCORE_REPLAY",
+        "FACTOR_CONTRIBUTION_EXPLANATION"
+      ]
+    },
+    {
+      "dataset_id": "investment_os_financial_evidence",
+      "path": "outputs/financial_factors/score/current/FMDL3CD_INVESTMENT_OS_EVIDENCE.parquet",
+      "required_for": [
+        "CANDIDATE_POOL_EVIDENCE",
+        "SIMULATION_LAB_EVIDENCE",
+        "REAL_ACCOUNT_FINANCIAL_REVIEW"
+      ]
+    }
+  ],
+  "role_separation": {
+    "candidate_pool": "Broad discovery and observation universe; the financial score changes research priority only and cannot automatically promote or remove a candidate.",
+    "simulation_lab": "Strategy experiment and error-exposure environment; lower-score or lower-confidence names may remain for controlled experiments and are not treated as real-account previews.",
+    "real_account": "Strict steady-compounding capital allocation; financial evidence is only one gate and cannot replace owner quality, valuation, ETF alternative, track record, portfolio fit, pre-trade memo or user confirmation."
+  },
+  "consumer_contract": {
+    "allowed_consumers": [
+      "INVESTMENT_OS",
+      "PUBLIC_EQUITY_INVESTING"
+    ],
+    "required_prechecks": [
+      "validate interface and release schemas",
+      "validate FMDL-3C-C source release and hashes",
+      "use only SCORE_ACCEPTED rows with controlled confidence",
+      "surface family coverage, warning weight and all controlled exclusions",
+      "retain candidate, simulation and real-account role separation"
+    ],
+    "prohibited_actions": [
+      "creating BUY ADD REDUCE SELL permission from the financial score",
+      "automatic candidate-pool promotion or deletion",
+      "automatic simulation admission or graduation",
+      "automatic real-account admission",
+      "treating the financial score as owner quality, valuation or portfolio fit",
+      "using financial-sector or unresolved-profile exclusions as zero scores",
+      "automatic brokerage execution"
+    ]
+  },
+  "downstream_reentry": "FINANCIAL_RESEARCH_EVIDENCE -> PUBLIC_EQUITY_RESEARCH -> OWNER_QUALITY -> INVESTMENT_ATTRACTIVENESS -> ETF_ALTERNATIVE -> CANDIDATE_RACE -> SIMULATION_OR_SHADOW_TRACK -> PORTFOLIO_FIT -> CAPITAL_MIGRATION -> PRE_TRADE_MEMO -> USER_CONFIRMATION",
+  "authority_boundary": "FINANCIAL_RESEARCH_EVIDENCE_ONLY_NO_PORTFOLIO_ACTION",
+  "trade_authority": "NONE"
+}

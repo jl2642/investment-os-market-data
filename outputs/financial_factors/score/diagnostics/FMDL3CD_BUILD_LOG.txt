@@ -1,0 +1,109 @@
+{
+  "decision_version": "1.0.0",
+  "release_id": "FMDL3CD_20260719T150020+0800",
+  "generated_at": "2026-07-19T15:02:03+08:00",
+  "program_id": "FMDL-3C-D",
+  "status": "FMDL3CD_FINANCIAL_SCORE_AND_INVESTMENT_OS_INTERFACE_ACCEPTED",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "ENTRY_FMDL3CC_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SOURCE_RELEASE_ALIGNED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "WEIGHTED_FACTORS_ACCEPTED_CORE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "WEIGHT_TABLE_EXACT_18",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FAMILY_WEIGHTS_SUM_ONE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "GLOBAL_FACTOR_WEIGHTS_SUM_ONE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SCORE_CURRENT_EXACT_UNIVERSE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FAMILY_ROWS_EXACT_UNIVERSE_X4",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CONTRIBUTION_ROWS_EXACT_UNIVERSE_X18",
+      "status": "PASS"
+    },
+    {
+      "check_id": "INTERFACE_EVIDENCE_EXACT_UNIVERSE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SCORES_BOUNDED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FAMILY_SCORES_BOUNDED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SCORE_CONTRIBUTIONS_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "RANKING_ROWS_GENERAL_NON_FINANCIAL_ONLY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "STRICT_REAL_FLOOR_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_AUTOMATIC_ACTION_AUTHORITY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "source_hardening_release_id": "FMDL3CC_20260719T142647+0800",
+    "universe_symbol_count": 5528,
+    "financial_score_row_count": 5528,
+    "family_score_row_count": 22112,
+    "factor_contribution_row_count": 99504,
+    "interface_evidence_row_count": 5528,
+    "weighted_factor_count": 18,
+    "score_available_symbol_count": 4984,
+    "ranking_eligible_symbol_count": 4452,
+    "high_confidence_symbol_count": 2844,
+    "medium_confidence_symbol_count": 1608,
+    "low_confidence_symbol_count": 532,
+    "score_unavailable_symbol_count": 544,
+    "strict_real_account_financial_floor_met_count": 6,
+    "positive_candidate_evidence_count": 40,
+    "supportive_candidate_evidence_count": 798,
+    "score_contribution_replay_error_count": 0,
+    "automatic_action_authorized_count": 0
+  },
+  "controlled_limitations": [
+    "SCORE_IS_CROSS_SECTIONAL_GENERAL_NON_FINANCIAL_NOT_INDUSTRY_NEUTRAL",
+    "BANK_INSURANCE_AND_BROKERAGE_SCORE_PACKS_NOT_YET_AVAILABLE",
+    "TWO_THREE_YEAR_CAGR_FACTORS_REMAIN_DEFERRED",
+    "NINE_DIAGNOSTIC_FACTORS_DO_NOT_ENTER_THE_SCORE",
+    "MISSING_FACTORS_ARE_REWEIGHTED_ONLY_AFTER_MINIMUM_COVERAGE_GATES",
+    "FINANCIAL_SCORE_IS_NOT_OWNER_QUALITY_VALUATION_PORTFOLIO_FIT_OR_TRADE_PERMISSION"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3D_VALUATION_CAPITALIZATION_AND_DIVIDEND"
+}
