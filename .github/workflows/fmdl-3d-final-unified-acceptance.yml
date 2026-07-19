@@ -87,7 +87,7 @@ jobs:
           assert validation["hard_failures"] == [], validation
           assert decision["trade_authority"] == "NONE"
           PY
-      - name: Publish immutable FMDL-3D Final on main
+      - name: Publish immutable FMDL-3D Final to review branch
         if: github.event_name == 'pull_request' && github.head_ref == 'fmdl-3d-final-direct-publish'
         run: |
           python -m scripts.publish_fmdl3d_final
@@ -98,6 +98,5 @@ jobs:
             echo "No FMDL-3D Final publication changes"
           else
             git commit -m "data: publish FMDL-3D Final unified acceptance [skip ci]"
-            git pull --rebase origin main
-            git push origin HEAD:main
+            git push --force origin HEAD:fmdl-3d-final-direct-publish
           fi
