@@ -66,7 +66,27 @@ jobs:
         run: python -m py_compile scripts/fmdl3cc_core.py scripts/run_fmdl3cc_hardening.py scripts/validate_fmdl3cc_hardening.py scripts/validate_fmdl3cc_contract.py scripts/publish_fmdl3cc_hardening.py
 
       - name: Build full-Universe hardened factor candidate
-        run: python scripts/run_fmdl3cc_hardening.py
+        id: build
+        continue-on-error: true
+        run: |
+          mkdir -p outputs/financial_factors/hardening/candidate
+          set +e
+          python scripts/run_fmdl3cc_hardening.py 2>&1 | tee outputs/financial_factors/hardening/candidate/FMDL3CC_BUILD_LOG.txt
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
+
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3cc-build-diagnostics
+          path: outputs/financial_factors/hardening/candidate
+          retention-days: 7
+
+      - name: Enforce successful build
+        if: steps.build.outcome == 'failure'
+        run: exit 1
 
       - name: Independently validate hardened candidate
         run: python scripts/validate_fmdl3cc_hardening.py
