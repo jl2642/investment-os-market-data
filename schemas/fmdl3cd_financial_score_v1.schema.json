@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3cd_financial_score_v1.schema.json",
+  "title": "FMDL-3C-D Financial Score Row",
+  "type": "object",
+  "required": [
+    "symbol",
+    "sector_profile",
+    "financial_score",
+    "score_band",
+    "score_confidence",
+    "score_confidence_numeric",
+    "available_family_count",
+    "available_family_weight",
+    "global_factor_weight_coverage",
+    "conditional_weight_share",
+    "ranking_eligible",
+    "score_state",
+    "source_hardening_release_id",
+    "authority",
+    "trade_authority"
+  ],
+  "properties": {
+    "symbol": {"type": "string", "minLength": 6},
+    "sector_profile": {"type": "string"},
+    "financial_score": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "score_band": {
+      "enum": [
+        "EXCEPTIONAL_FINANCIAL_QUALITY",
+        "STRONG_FINANCIAL_QUALITY",
+        "ABOVE_AVERAGE_FINANCIAL_QUALITY",
+        "NEUTRAL_FINANCIAL_QUALITY",
+        "WEAK_FINANCIAL_QUALITY",
+        "VERY_WEAK_FINANCIAL_QUALITY",
+        "UNAVAILABLE"
+      ]
+    },
+    "score_confidence": {"enum": ["HIGH", "MEDIUM", "LOW", "UNAVAILABLE"]},
+    "score_confidence_numeric": {"type": "number", "minimum": 0, "maximum": 100},
+    "available_family_count": {"type": "integer", "minimum": 0, "maximum": 4},
+    "available_family_weight": {"type": "number", "minimum": 0, "maximum": 1},
+    "global_factor_weight_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+    "conditional_weight_share": {"type": "number", "minimum": 0, "maximum": 1},
+    "ranking_eligible": {"type": "boolean"},
+    "score_state": {
+      "enum": [
+        "SCORE_ACCEPTED",
+        "SCORE_ACCEPTED_WITH_LIMITED_CONFIDENCE",
+        "INSUFFICIENT_FACTOR_COVERAGE",
+        "INSUFFICIENT_FAMILY_COVERAGE",
+        "CONTROLLED_PROFILE_EXCLUSION"
+      ]
+    },
+    "source_hardening_release_id": {"type": "string"},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}

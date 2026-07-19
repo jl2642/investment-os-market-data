@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3cd_investment_os_interface_v1.schema.json",
+  "title": "FMDL-3C-D Financial Score Investment OS Interface",
+  "type": "object",
+  "required": [
+    "interface_version",
+    "interface_id",
+    "status",
+    "source_release_id",
+    "datasets",
+    "role_separation",
+    "consumer_contract",
+    "authority_boundary",
+    "trade_authority"
+  ],
+  "properties": {
+    "interface_version": {"const": "1.0.0"},
+    "interface_id": {"const": "FMDL_FINANCIAL_SCORE_INVESTMENT_OS_INTERFACE"},
+    "status": {"const": "ACTIVE_RESEARCH_ONLY"},
+    "source_release_id": {"type": "string"},
+    "datasets": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["dataset_id", "path", "required_for"],
+        "properties": {
+          "dataset_id": {"type": "string"},
+          "path": {"type": "string"},
+          "required_for": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    },
+    "role_separation": {
+      "type": "object",
+      "required": ["candidate_pool", "simulation_lab", "real_account"],
+      "properties": {
+        "candidate_pool": {"type": "string"},
+        "simulation_lab": {"type": "string"},
+        "real_account": {"type": "string"}
+      }
+    },
+    "consumer_contract": {
+      "type": "object",
+      "required": ["allowed_consumers", "required_prechecks", "prohibited_actions"],
+      "properties": {
+        "allowed_consumers": {"type": "array", "items": {"type": "string"}},
+        "required_prechecks": {"type": "array", "items": {"type": "string"}},
+        "prohibited_actions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "authority_boundary": {"const": "FINANCIAL_RESEARCH_EVIDENCE_ONLY_NO_PORTFOLIO_ACTION"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}

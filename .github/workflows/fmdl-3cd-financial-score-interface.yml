@@ -1,0 +1,133 @@
+name: FMDL 3C-D Financial Score and Investment OS Interface
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl3cd_score.json"
+      - "config/fmdl3cd_factor_weights.csv"
+      - "schemas/fmdl3cd_financial_score_v1.schema.json"
+      - "schemas/fmdl3cd_investment_os_interface_v1.schema.json"
+      - "scripts/fmdl3cd_core.py"
+      - "scripts/run_fmdl3cd_financial_score.py"
+      - "scripts/validate_fmdl3cd_financial_score.py"
+      - "scripts/validate_fmdl3cd_contract.py"
+      - "scripts/publish_fmdl3cd_financial_score.py"
+      - "tests/test_fmdl3cd_financial_score.py"
+      - "docs/FMDL-3CD_FINANCIAL_SCORE_INTERFACE.md"
+      - ".github/workflows/fmdl-3cd-financial-score-interface.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3cd_score.json"
+      - "config/fmdl3cd_factor_weights.csv"
+      - "schemas/fmdl3cd_financial_score_v1.schema.json"
+      - "schemas/fmdl3cd_investment_os_interface_v1.schema.json"
+      - "scripts/fmdl3cd_core.py"
+      - "scripts/run_fmdl3cd_financial_score.py"
+      - "scripts/validate_fmdl3cd_financial_score.py"
+      - "scripts/validate_fmdl3cd_contract.py"
+      - "scripts/publish_fmdl3cd_financial_score.py"
+      - "tests/test_fmdl3cd_financial_score.py"
+      - "docs/FMDL-3CD_FINANCIAL_SCORE_INTERFACE.md"
+      - ".github/workflows/fmdl-3cd-financial-score-interface.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: fmdl-3cd-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  PYTHONPATH: .
+
+jobs:
+  build-and-validate-financial-score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip pandas pyarrow numpy pytest jsonschema
+
+      - name: Validate score contract
+        run: python scripts/validate_fmdl3cd_contract.py
+
+      - name: Run deterministic score tests
+        run: python -m pytest -q tests/test_fmdl3cd_financial_score.py
+
+      - name: Compile score modules
+        run: python -m py_compile scripts/fmdl3cd_core.py scripts/run_fmdl3cd_financial_score.py scripts/validate_fmdl3cd_financial_score.py scripts/validate_fmdl3cd_contract.py scripts/publish_fmdl3cd_financial_score.py
+
+      - name: Build full-Universe financial score candidate
+        run: |
+          rm -rf outputs/financial_factors/score/diagnostics
+          mkdir -p outputs/financial_factors/score/diagnostics
+          set +e
+          python scripts/run_fmdl3cd_financial_score.py 2>&1 | tee outputs/financial_factors/score/diagnostics/FMDL3CD_BUILD_LOG.txt
+          status=${PIPESTATUS[0]}
+          echo "$status" > outputs/financial_factors/score/diagnostics/FMDL3CD_BUILD_EXIT_CODE.txt
+          exit 0
+
+      - name: Upload score build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3cd-score-build-diagnostics
+          path: |
+            outputs/financial_factors/score/diagnostics
+            outputs/financial_factors/score/candidate
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Enforce successful score build
+        run: |
+          test -f outputs/financial_factors/score/diagnostics/FMDL3CD_BUILD_EXIT_CODE.txt
+          test "$(cat outputs/financial_factors/score/diagnostics/FMDL3CD_BUILD_EXIT_CODE.txt)" = "0"
+
+      - name: Independently validate score and interface candidate
+        run: python scripts/validate_fmdl3cd_financial_score.py
+
+      - name: Upload score candidate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3cd-financial-score-interface-candidate
+          path: outputs/financial_factors/score/candidate
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Enforce acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('outputs/financial_factors/score/candidate')
+          decision = json.loads((root / 'FMDL3CD_DECISION.json').read_text())
+          validation = json.loads((root / 'FMDL3CD_VALIDATION.json').read_text())
+          assert decision['status'] == 'FMDL3CD_FINANCIAL_SCORE_AND_INVESTMENT_OS_INTERFACE_ACCEPTED'
+          assert decision['hard_failures'] == []
+          assert validation['status'] == 'PASS'
+          assert validation['hard_failures'] == []
+          assert decision['trade_authority'] == 'NONE'
+          PY
+
+      - name: Publish immutable score Current on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python scripts/publish_fmdl3cd_financial_score.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datasets/financial_factors/score outputs/financial_factors/score outputs/status/FMDL3CD_LAST_SUCCESS.json
+          git commit -m "data: publish FMDL-3C-D financial score interface [skip ci]"
+          git push
