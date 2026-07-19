@@ -1,0 +1,152 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3E-A",
+  "program_name": "Incremental Refresh Contract and Baseline Freeze",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL3D_LAST_SUCCESS.json",
+    "required_status": "FMDL3D_VALUATION_CAPITALIZATION_AND_SHAREHOLDER_RETURN_LAYER_ACCEPTED",
+    "required_next_gate": "FMDL-3E_INCREMENTAL_REFRESH_REPLAY_AND_FINAL_ACCEPTANCE"
+  },
+  "inputs": {
+    "final_release": "outputs/fmdl3d/final/current/FMDL3D_FINAL_RELEASE.json",
+    "final_decision": "outputs/fmdl3d/final/current/FMDL3D_FINAL_DECISION.json",
+    "final_validation": "outputs/fmdl3d/final/current/FMDL3D_FINAL_VALIDATION.json",
+    "unified_current": "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_CURRENT.parquet",
+    "unified_interface": "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_CURRENT_INTERFACE.json",
+    "unified_release_index": "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_RELEASE_INDEX.json",
+    "component_release_matrix": "outputs/fmdl3d/final/current/FMDL3D_COMPONENT_RELEASE_MATRIX.csv",
+    "component_source_snapshot": "outputs/fmdl3d/final/current/FMDL3D_COMPONENT_SOURCE_SNAPSHOT.json",
+    "delta_event_catalog": "config/fmdl3ea_delta_event_catalog.csv"
+  },
+  "baseline": {
+    "baseline_label": "FMDL3D_CANONICAL_BASELINE_0",
+    "required_universe_symbol_count": 5528,
+    "required_component_stages": [
+      "FMDL-3D-A",
+      "FMDL-3D-B",
+      "FMDL-3D-C",
+      "FMDL-3D-D"
+    ],
+    "required_source_files": [
+      "outputs/status/FMDL3D_LAST_SUCCESS.json",
+      "outputs/fmdl3d/final/current/FMDL3D_FINAL_RELEASE.json",
+      "outputs/fmdl3d/final/current/FMDL3D_FINAL_DECISION.json",
+      "outputs/fmdl3d/final/current/FMDL3D_FINAL_VALIDATION.json",
+      "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_CURRENT.parquet",
+      "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_CURRENT_INTERFACE.json",
+      "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_RELEASE_INDEX.json",
+      "outputs/fmdl3d/final/current/FMDL3D_COMPONENT_RELEASE_MATRIX.csv",
+      "outputs/fmdl3d/final/current/FMDL3D_COMPONENT_SOURCE_SNAPSHOT.json",
+      "outputs/status/FMDL3DA_LAST_SUCCESS.json",
+      "outputs/status/FMDL3DB_LAST_SUCCESS.json",
+      "outputs/status/FMDL3DC_LAST_SUCCESS.json",
+      "outputs/status/FMDL3DD_LAST_SUCCESS.json",
+      "outputs/valuation/contract/current/FMDL3DA_RELEASE.json",
+      "outputs/capitalization/current/FMDL3DB_RELEASE.json",
+      "outputs/valuation/engine/current/FMDL3DC_RELEASE.json",
+      "outputs/shareholder_returns/current/FMDL3DD_RELEASE.json"
+    ],
+    "required_unified_columns": [
+      "symbol",
+      "market_as_of_date",
+      "row_hash",
+      "component_release_ids_json",
+      "authority",
+      "trade_authority"
+    ],
+    "immutable_after_publication": true
+  },
+  "watermarks": {
+    "market": {
+      "field": "market_as_of_date",
+      "advance_rule": "STRICTLY_LATER_COMPLETED_SESSION_ONLY"
+    },
+    "universe": {
+      "field": "symbol_set_sha256",
+      "advance_rule": "NEW_ACCEPTED_UNIVERSE_RELEASE_ONLY"
+    },
+    "financial": {
+      "field": "accepted_financial_source_release_id",
+      "advance_rule": "NEW_DISCLOSURE_OR_ACCEPTED_REVISION_AVAILABLE_FROM_ONLY"
+    },
+    "capitalization": {
+      "field": "FMDL-3D-B_release_id",
+      "advance_rule": "NEW_EFFECTIVE_SHARE_RECORD_OR_NEW_MARKET_DATE"
+    },
+    "valuation": {
+      "field": "FMDL-3D-C_release_id",
+      "advance_rule": "NEW_MARKET_DATE_OR_NEW_PIT_ELIGIBLE_DENOMINATOR"
+    },
+    "shareholder_return": {
+      "field": "FMDL-3D-D_release_id",
+      "advance_rule": "NEW_IMPLEMENTED_OR_COMPLETED_EFFECTIVE_EVENT_ONLY"
+    }
+  },
+  "incremental_scope": {
+    "maximum_affected_symbol_ratio": 0.2,
+    "maximum_restatement_symbol_ratio": 0.1,
+    "maximum_affected_periods_per_symbol": 12,
+    "unchanged_symbol_row_hash_must_remain_identical": true,
+    "affected_scope_must_be_explicit": true,
+    "silent_full_universe_rewrite_allowed": false
+  },
+  "full_rebuild_triggers": [
+    "CONTRACT_OR_SCHEMA_VERSION_CHANGE",
+    "SOURCE_ROUTE_OR_CANONICAL_PROVIDER_CHANGE",
+    "BASELINE_FILE_HASH_MISMATCH",
+    "MISSING_OR_REJECTED_COMPONENT_LAST_SUCCESS",
+    "UNIVERSE_IDENTITY_CHANGE_EXCEEDS_INCREMENTAL_THRESHOLD",
+    "FINANCIAL_RESTATEMENT_SCOPE_EXCEEDS_INCREMENTAL_THRESHOLD",
+    "POINT_IN_TIME_POLICY_CHANGE",
+    "HISTORICAL_BACKFILL_POLICY_CHANGE",
+    "OPERATOR_AUTHORIZED_FULL_REBUILD"
+  ],
+  "promotion_policy": {
+    "candidate_before_current": true,
+    "all_required_shards_complete": true,
+    "independent_validation_required": true,
+    "hard_failures_must_be_empty": true,
+    "source_and_output_hashes_required": true,
+    "exact_expected_universe_required": true,
+    "future_information_error_count_must_be_zero": true,
+    "automatic_partial_promotion_allowed": false,
+    "last_success_update_after_current_and_release_written": true,
+    "atomic_pointer_promotion_required": true
+  },
+  "rollback_policy": {
+    "last_known_good_preserved_until_promotion": true,
+    "failed_candidate_must_not_modify_current": true,
+    "failed_candidate_must_not_modify_last_success": true,
+    "release_and_archive_immutable": true,
+    "rollback_target_must_be_previously_accepted_release": true,
+    "rollback_changes_pointer_only": true,
+    "candidate_artifacts_retained_for_diagnosis": true
+  },
+  "idempotence_policy": {
+    "same_inputs_same_contract_same_outputs": true,
+    "duplicate_delta_event_ids_prohibited": true,
+    "repeated_event_application_prohibited": true,
+    "semantic_output_hash_must_match_on_replay": true
+  },
+  "authority_boundary": {
+    "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+    "trade_authority": "NONE",
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "portfolio_action_authorized": false,
+    "order_execution_authorized": false
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl3e/contract/candidate",
+    "current_root": "outputs/fmdl3e/contract/current",
+    "archive_root": "outputs/fmdl3e/contract/archive",
+    "release_root": "datasets/fmdl3e/contract/releases",
+    "last_success": "outputs/status/FMDL3EA_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3EA_INCREMENTAL_REFRESH_CONTRACT_ACCEPTED",
+  "next_gate": "FMDL-3E-BC_MARKET_AND_FINANCIAL_INCREMENTAL_REFRESH",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}

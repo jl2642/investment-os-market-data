@@ -1,0 +1,45 @@
+{
+  "interface_version": "1.0.0",
+  "interface_id": "FMDL3E_INCREMENTAL_REFRESH_BASELINE_INTERFACE",
+  "status": "ACTIVE_CONTRACT_ONLY",
+  "baseline_id": "3e962b6c3e2b669dc62f2b3a90dff32c5a624386aab9ead21eb2803b415403a3",
+  "source_fmdl3d_release_id": "FMDL3D_FINAL_20260719T233219+0800",
+  "market_as_of_date": "2026-07-17",
+  "datasets": [
+    {
+      "dataset_id": "baseline_manifest",
+      "path": "outputs/fmdl3e/contract/current/FMDL3EA_BASELINE_MANIFEST.json",
+      "purpose": "Frozen source hashes, release bindings and watermarks"
+    },
+    {
+      "dataset_id": "baseline_symbol_hashes",
+      "path": "outputs/fmdl3e/contract/current/FMDL3EA_BASELINE_SYMBOL_HASHES.parquet",
+      "purpose": "Per-symbol semantic baseline for incremental diff and unchanged-row proof"
+    },
+    {
+      "dataset_id": "delta_event_catalog",
+      "path": "outputs/fmdl3e/contract/current/FMDL3EA_DELTA_EVENT_CATALOG.csv",
+      "purpose": "Allowed incremental event taxonomy and affected-scope routing"
+    }
+  ],
+  "required_runtime_sequence": [
+    "detect source delta",
+    "validate event against delta-event schema and catalog",
+    "derive explicit affected symbols and periods",
+    "choose incremental or full rebuild from frozen policy",
+    "build isolated candidate",
+    "independently validate and replay",
+    "publish immutable release and current atomically",
+    "update last-success only after successful publication"
+  ],
+  "prohibited_actions": [
+    "silent full-universe rewrite under an incremental label",
+    "partial candidate promotion",
+    "overwriting Current or Last-success after a failed run",
+    "mutating immutable Release or Archive",
+    "automatic candidate-pool, simulation, real-account or portfolio action",
+    "automatic brokerage execution"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}

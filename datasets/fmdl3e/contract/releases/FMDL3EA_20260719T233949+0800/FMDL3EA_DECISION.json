@@ -1,0 +1,119 @@
+{
+  "decision_version": "1.0.0",
+  "release_id": "FMDL3EA_20260719T233949+0800",
+  "generated_at": "2026-07-19T23:39:49+08:00",
+  "program_id": "FMDL-3E-A",
+  "status": "FMDL3EA_INCREMENTAL_REFRESH_CONTRACT_ACCEPTED",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "ENTRY_POINTER_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ENTRY_NEXT_GATE_ALIGNED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "POINTER_RELEASE_ALIGNED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FINAL_RELEASE_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FINAL_DECISION_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FINAL_VALIDATION_PASS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_COMPONENT_STAGE_SET",
+      "status": "PASS"
+    },
+    {
+      "check_id": "RELEASE_INDEX_COMPONENTS_ALIGNED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "COMPONENT_MATRIX_EXACT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_BASELINE_UNIVERSE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "BASELINE_SYMBOL_KEYS_UNIQUE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "BASELINE_ROW_HASHES_PRESENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SOURCE_FILE_INVENTORY_COMPLETE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "DELTA_CATALOG_VALID",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PROMOTION_POLICY_FAIL_CLOSED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ROLLBACK_POLICY_PRESERVES_LAST_GOOD",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FULL_REBUILD_TRIGGERS_PRESENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NO_AUTOMATIC_ACTION_AUTHORITY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "source_fmdl3d_release_id": "FMDL3D_FINAL_20260719T233219+0800",
+    "market_as_of_date": "2026-07-17",
+    "baseline_symbol_count": 5528,
+    "baseline_component_count": 4,
+    "baseline_source_file_count": 17,
+    "baseline_source_bytes": 1729192,
+    "delta_event_type_count": 16,
+    "incremental_allowed_event_type_count": 12,
+    "full_rebuild_event_type_count": 4,
+    "duplicate_baseline_symbol_count": 0,
+    "missing_baseline_row_hash_count": 0,
+    "catalog_error_count": 0,
+    "automatic_action_authorized_count": 0
+  },
+  "baseline_id": "3e962b6c3e2b669dc62f2b3a90dff32c5a624386aab9ead21eb2803b415403a3",
+  "symbol_set_sha256": "e5057c5917c3df088c2b88ed5b69bd942c0c70ba736e207e838dc8076785fd80",
+  "row_hash_set_sha256": "edbea2f7c11c91e311265341a9aa495d98fdebbbca706b25135c1ca13a817f9b",
+  "component_release_ids": {
+    "FMDL-3D-A": "FMDL3DA_20260719T190213+0800",
+    "FMDL-3D-B": "FMDL3DB_20260719T200447+0800",
+    "FMDL-3D-C": "FMDL3DC_20260719T203920+0800",
+    "FMDL-3D-D": "FMDL3DD_20260719T220650+0800"
+  },
+  "controlled_limitations": [
+    "CONTRACT_AND_BASELINE_ONLY_NO_NEW_MARKET_OR_FINANCIAL_REFRESH_IN_3E_A",
+    "INCREMENTAL_THRESHOLDS_REQUIRE_REAL_RUN_VALIDATION_IN_3E_BC",
+    "FAILURE_RECOVERY_IDEMPOTENCE_AND_ROLLBACK_REQUIRE_FAULT_INJECTION_IN_3E_DE",
+    "NO_INVESTMENT_SCORE_TARGET_PRICE_PORTFOLIO_ACTION_OR_TRADE_PERMISSION"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3E-BC_MARKET_AND_FINANCIAL_INCREMENTAL_REFRESH"
+}
