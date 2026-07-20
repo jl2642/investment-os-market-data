@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3E-FINAL",
+  "program_name": "Unified Operational Acceptance and Canonical Closure",
+  "business_timezone": "Asia/Shanghai",
+  "entry_chain": {
+    "fmdl3d_pointer": "outputs/status/FMDL3D_LAST_SUCCESS.json",
+    "fmdl3d_release": "outputs/fmdl3d/final/current/FMDL3D_FINAL_RELEASE.json",
+    "fmdl3ea_pointer": "outputs/status/FMDL3EA_LAST_SUCCESS.json",
+    "fmdl3ea_release": "outputs/fmdl3e/contract/current/FMDL3EA_RELEASE.json",
+    "fmdl3ebc_pointer": "outputs/status/FMDL3EBC_LAST_SUCCESS.json",
+    "fmdl3ebc_release": "outputs/fmdl3e/incremental/current/FMDL3EBC_RELEASE.json",
+    "fmdl3ede_pointer": "outputs/status/FMDL3E_LAST_SUCCESS.json",
+    "fmdl3ede_release": "outputs/fmdl3e/final/current/FMDL3E_RELEASE.json",
+    "fmdl3ede_decision": "outputs/fmdl3e/final/current/FMDL3E_DECISION.json",
+    "fmdl3ede_validation": "outputs/fmdl3e/final/current/FMDL3E_VALIDATION.json"
+  },
+  "required_statuses": {
+    "fmdl3d": "FMDL3D_VALUATION_CAPITALIZATION_AND_SHAREHOLDER_RETURN_LAYER_ACCEPTED",
+    "fmdl3ea": "FMDL3EA_INCREMENTAL_REFRESH_CONTRACT_ACCEPTED",
+    "fmdl3ebc": "FMDL3EBC_MARKET_AND_FINANCIAL_INCREMENTAL_REFRESH_ACCEPTED",
+    "fmdl3ede": "FMDL3E_INCREMENTAL_PROPAGATION_RESILIENCE_AND_REPLAY_ACCEPTED"
+  },
+  "inputs": {
+    "propagated_unified_current": "outputs/fmdl3e/final/current/FMDL3E_PROPAGATED_UNIFIED_CURRENT.parquet",
+    "full_rebuild_reference": "outputs/fmdl3e/final/current/FMDL3E_FULL_REBUILD_REFERENCE.parquet",
+    "resilience_report": "outputs/fmdl3e/final/current/FMDL3E_RESILIENCE_REPORT.json",
+    "fmdl1_current_release": "outputs/current/CURRENT_RELEASE.json"
+  },
+  "operational_entrypoints": {
+    "market_financial_refresh_workflow": ".github/workflows/fmdl-3ebc-market-financial-incremental.yml",
+    "propagation_resilience_workflow": ".github/workflows/fmdl-3ede-propagation-resilience.yml",
+    "canonical_cycle_workflow": ".github/workflows/fmdl-3efinal-operational-closure.yml",
+    "market_financial_runner": "scripts/run_fmdl3ebc_incremental.py",
+    "market_replay_runner": "scripts/run_fmdl3ebc_replay_closure.py",
+    "propagation_runner": "scripts/run_fmdl3ede_acceptance.py",
+    "final_runner": "scripts/run_fmdl3efinal_acceptance.py",
+    "cycle_runner": "scripts/run_fmdl3efinal_cycle.py"
+  },
+  "acceptance": {
+    "required_universe_symbol_count": 5528,
+    "maximum_duplicate_symbol_count": 0,
+    "maximum_full_rebuild_mismatch_count": 0,
+    "maximum_idempotence_mismatch_count": 0,
+    "maximum_source_hash_error_count": 0,
+    "maximum_manifest_error_count": 0,
+    "require_independent_validation_pass": true,
+    "require_failure_injection_rejected": true,
+    "require_non_null_lkg_preserved": true,
+    "require_zero_trade_authority": true,
+    "accepted_legacy_entry_next_gates": [
+      "FMDL-4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION",
+      "FMDL-3E-FINAL_UNIFIED_OPERATIONAL_ACCEPTANCE_AND_CANONICAL_CLOSURE"
+    ]
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl3e/operational/candidate",
+    "current_root": "outputs/fmdl3e/operational/current",
+    "archive_root": "outputs/fmdl3e/operational/archive",
+    "release_root": "datasets/fmdl3e/operational/releases",
+    "last_success": "outputs/status/FMDL3EFINAL_LAST_SUCCESS.json",
+    "canonical_last_success": "outputs/status/FMDL3E_CANONICAL_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3E_UNIFIED_OPERATIONAL_ACCEPTANCE_AND_CANONICAL_CLOSURE_ACCEPTED",
+  "next_gate": "FMDL-4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
