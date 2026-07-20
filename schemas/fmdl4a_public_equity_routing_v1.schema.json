@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl4a_public_equity_routing_v1.schema.json",
+  "title": "FMDL-4A Public Equity Routing Contract",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "status",
+    "source_release_ids",
+    "default_lead_skill",
+    "priority_routes",
+    "allowed_follow_on_skills",
+    "research_object_creation_phase",
+    "state_mutation_phase",
+    "prohibited_actions",
+    "authority",
+    "trade_authority"
+  ],
+  "properties": {
+    "contract_version": {"const": "1.0.0"},
+    "status": {"const": "ACTIVE_RESEARCH_ROUTING_ONLY"},
+    "source_release_ids": {"type": "object"},
+    "default_lead_skill": {"const": "idea-generation"},
+    "priority_routes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": {"type": "string"}
+      }
+    },
+    "allowed_follow_on_skills": {"type": "array", "items": {"type": "string"}},
+    "research_object_creation_phase": {"const": "FMDL-4B"},
+    "state_mutation_phase": {"const": "FMDL-4C"},
+    "prohibited_actions": {
+      "type": "array",
+      "contains": {"const": "AUTOMATIC_REAL_ACCOUNT_ACTION"}
+    },
+    "authority": {"const": "RESEARCH_ROUTING_ONLY_NO_INVESTMENT_STATE_MUTATION"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
