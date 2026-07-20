@@ -1,0 +1,160 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-4C",
+  "program_name": "Investment OS Re-entry and State Mutation Controls",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL4B_LAST_SUCCESS.json",
+    "release_path": "outputs/fmdl4b/research/current/FMDL4B_RELEASE.json",
+    "decision_path": "outputs/fmdl4b/research/current/FMDL4B_DECISION.json",
+    "validation_path": "outputs/fmdl4b/research/current/FMDL4B_VALIDATION.json",
+    "graduation_decisions_path": "outputs/fmdl4b/research/current/FMDL4B_GRADUATION_DECISIONS.csv",
+    "research_objects_path": "outputs/fmdl4b/research/current/FMDL4B_PUBLIC_EQUITY_RESEARCH_OBJECTS.csv",
+    "required_status": "FMDL4B_CANDIDATE_RESEARCH_AND_GRADUATION_ACCEPTED",
+    "required_next_gate": "FMDL-4C_INVESTMENT_OS_REENTRY_AND_STATE_MUTATION_CONTROLS",
+    "required_graduated_count": 6
+  },
+  "composition_inputs": {
+    "fmdl4a_release_path": "outputs/fmdl4a/adapter/current/FMDL4A_RELEASE.json",
+    "external_canonical_base": {
+      "package_name": "股票投资助手_CURRENT.zip",
+      "release_sequence": 4,
+      "run_id": "FMDL_1F_INVESTMENT_OS_INTERFACE_20260717_001",
+      "asset_architecture_version": "4.5.3",
+      "runtime_schema_version": "3.4.3",
+      "package_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
+      "status": "ACTIVE_CANONICAL",
+      "byte_access_posture": "METADATA_BOUND_EXTERNAL_BASE_BYTES_NOT_READABLE_IN_GITHUB_CI"
+    },
+    "release5_adapter_release_id": "FMDL4A_20260717_b71d8020aa77",
+    "release5_adapter_sequence": 5,
+    "release6_composition_sequence": 6,
+    "release6_asset_architecture_version": "4.7.0",
+    "release6_runtime_schema_version": "3.6.0",
+    "composition_mode": "IMMUTABLE_BASE_PLUS_VERSIONED_ADDITIVE_STATE_OVERLAYS"
+  },
+  "reentry_routes": {
+    "600900.SH": {
+      "name": "长江电力",
+      "queue_state": "CANDIDATE_POOL_REENTRY_REVIEW_READY",
+      "route_class": "DEFENSIVE_INFRASTRUCTURE_QUALITY",
+      "priority": 1,
+      "required_follow_on": "initiating-coverage",
+      "open_gates": ["ENTRY_VALUATION", "PORTFOLIO_FIT", "DIVIDEND_COVERAGE"]
+    },
+    "300308.SZ": {
+      "name": "中际旭创",
+      "queue_state": "SHADOW_TRACK_REENTRY_REVIEW_READY",
+      "route_class": "HIGH_GROWTH_EXPECTATIONS_GATED",
+      "priority": 2,
+      "required_follow_on": "scenario-sensitivity-generator",
+      "open_gates": ["ENTRY_VALUATION", "DOWNSIDE_SCENARIO", "CUSTOMER_CONCENTRATION", "MARGIN_DURABILITY"]
+    },
+    "000938.SZ": {
+      "name": "紫光股份",
+      "queue_state": "CANDIDATE_POOL_REENTRY_REVIEW_READY",
+      "route_class": "AI_INFRASTRUCTURE_CASH_GATE",
+      "priority": 3,
+      "required_follow_on": "initiating-coverage",
+      "open_gates": ["CASH_CONVERSION", "SEGMENT_ATTRIBUTION", "MINORITY_INTEREST_ECONOMICS"]
+    },
+    "000333.SZ": {
+      "name": "美的集团",
+      "queue_state": "CANDIDATE_POOL_REENTRY_REVIEW_READY",
+      "route_class": "QUALITY_COMPOUNDER_PORTFOLIO_FIT",
+      "priority": 4,
+      "required_follow_on": "initiating-coverage",
+      "open_gates": ["CORE_EARNINGS_CONFIRMATION", "PORTFOLIO_FIT", "ENTRY_VALUATION"]
+    },
+    "002396.SZ": {
+      "name": "星网锐捷",
+      "queue_state": "SHADOW_TRACK_REENTRY_REVIEW_READY",
+      "route_class": "AI_NETWORK_QUALITY_OF_EARNINGS_GATE",
+      "priority": 5,
+      "required_follow_on": "earnings-deep-dive",
+      "open_gates": ["RECURRING_EARNINGS", "CASH_CONVERSION", "MINORITY_INTERESTS", "NON_RECURRING_GAIN_SHARE"]
+    },
+    "600018.SH": {
+      "name": "上港集团",
+      "queue_state": "CANDIDATE_POOL_REENTRY_REVIEW_READY",
+      "route_class": "STRATEGIC_INFRASTRUCTURE_PAYOUT_GATE",
+      "priority": 6,
+      "required_follow_on": "initiating-coverage",
+      "open_gates": ["CORE_PROFIT_ATTRIBUTION", "DIVIDEND_PAYOUT", "PORTFOLIO_FIT"]
+    }
+  },
+  "state_domains": {
+    "overlay_reentry_queue": "FMDL4C_REENTRY_REVIEW_QUEUE",
+    "candidate_pool": "CANDIDATE_POOL",
+    "simulation": "SIMULATION_LAB",
+    "real_account": "REAL_ACCOUNT"
+  },
+  "mutation_policy": {
+    "overlay_reentry_queue_mutation_authorized": true,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "trade_register_mutation_authorized": false,
+    "order_generation_authorized": false,
+    "trade_authority": "NONE",
+    "actual_candidate_pool_action": "NONE_PENDING_BASE_CONTENT_RECONCILIATION",
+    "actual_simulation_action": "NONE_PENDING_ROLE_SPECIFIC_GATES",
+    "actual_real_account_action": "NONE_PENDING_RCM_PORTFOLIO_FIT_AND_USER_CONFIRMATION"
+  },
+  "real_account_gate_sequence": [
+    "BASE_STATE_RECONCILIATION",
+    "RESEARCH_CASE_READY",
+    "RCM_GATE",
+    "PORTFOLIO_FIT",
+    "ETF_ALTERNATIVE",
+    "CAPITAL_MIGRATION",
+    "PRE_TRADE_MEMO",
+    "USER_CONFIRMATION"
+  ],
+  "acceptance": {
+    "required_reentry_transition_count": 6,
+    "required_candidate_review_count": 4,
+    "required_shadow_track_count": 2,
+    "maximum_candidate_pool_mutation_count": 0,
+    "maximum_simulation_mutation_count": 0,
+    "maximum_real_account_mutation_count": 0,
+    "maximum_order_generation_count": 0,
+    "maximum_trade_authority_error_count": 0,
+    "maximum_unbound_research_object_count": 0,
+    "require_versioned_diff": true,
+    "require_rollback_proof": true,
+    "require_lkg_preservation": true,
+    "require_independent_validation": true,
+    "require_same_input_idempotence": true
+  },
+  "overlay": {
+    "namespace": "FMDL4C_STATE_OVERLAY",
+    "package_name": "股票投资助手_RELEASE6_FMDL4C_STATE_OVERLAY.zip",
+    "candidate_root": "outputs/fmdl4c/reentry/candidate",
+    "current_root": "outputs/fmdl4c/reentry/current",
+    "archive_root": "outputs/fmdl4c/reentry/archive",
+    "release_root": "datasets/fmdl4c/reentry/releases",
+    "last_success": "outputs/status/FMDL4C_LAST_SUCCESS.json"
+  },
+  "controlled_limitations": [
+    {
+      "limitation_id": "EXTERNAL_RELEASE4_BASE_BYTES_NOT_READABLE",
+      "status": "OPEN_CONTROLLED",
+      "description": "Release 4 remains metadata-bound and immutable. FMDL-4C cannot reconcile existing symbol membership inside candidate, simulation or real-account files without readable base ZIP bytes."
+    },
+    {
+      "limitation_id": "REENTRY_QUEUE_IS_NOT_CANDIDATE_POOL_ADMISSION",
+      "status": "PERMANENT_BOUNDARY",
+      "description": "The six accepted transitions create a new versioned re-entry review queue only. They do not admit a symbol to the existing candidate pool, simulation or real account."
+    },
+    {
+      "limitation_id": "PRICE_PORTFOLIO_AND_RCM_GATES_NOT_CLOSED",
+      "status": "OPEN_DOWNSTREAM",
+      "description": "Current entry price, portfolio fit, RCM, ETF alternative, capital migration and user-confirmation gates remain downstream requirements."
+    }
+  ],
+  "exit_status": "FMDL4C_INVESTMENT_OS_REENTRY_AND_STATE_CONTROLS_ACCEPTED",
+  "next_gate": "FMDL-4D_THESIS_ATTRIBUTION_AND_FEEDBACK_LOOP",
+  "authority": "INVESTMENT_OS_REENTRY_GOVERNANCE_AND_VERSIONED_OVERLAY_STATE_ONLY",
+  "trade_authority": "NONE"
+}

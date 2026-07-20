@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl4c_state_transition_v1.schema.json",
+  "title": "FMDL-4C Investment OS State Transition",
+  "type": "object",
+  "required": [
+    "transition_id", "symbol", "name", "state_domain", "from_state", "to_state",
+    "reason_codes", "evidence_ids", "research_id", "research_version", "gate_results",
+    "approval_state", "applied", "transition_scope", "rollback_token", "from_state_hash",
+    "to_state_hash", "semantic_hash", "created_at", "authority", "trade_authority"
+  ],
+  "properties": {
+    "transition_id": {"type": "string", "pattern": "^FMDL4C-TR-[0-9]{6}\\.(SH|SZ|BJ)-[a-f0-9]{16}$"},
+    "symbol": {"type": "string", "pattern": "^[0-9]{6}\\.(SH|SZ|BJ)$"},
+    "name": {"type": "string", "minLength": 1},
+    "state_domain": {"const": "FMDL4C_REENTRY_REVIEW_QUEUE"},
+    "from_state": {"const": "NOT_PRESENT_IN_FMDL4C_OVERLAY"},
+    "to_state": {"enum": ["CANDIDATE_POOL_REENTRY_REVIEW_READY", "SHADOW_TRACK_REENTRY_REVIEW_READY"]},
+    "reason_codes": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+    "evidence_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "research_id": {"type": "string", "pattern": "^FMDL4B-RSCH-"},
+    "research_version": {"type": "string"},
+    "gate_results": {"type": "object"},
+    "approval_state": {"const": "ACCEPTED_TO_REENTRY_REVIEW_QUEUE_ONLY"},
+    "applied": {"const": true},
+    "transition_scope": {"const": "ADDITIVE_OVERLAY_REENTRY_QUEUE_ONLY"},
+    "rollback_token": {"type": "string", "pattern": "^ROLLBACK-FMDL4C-"},
+    "from_state_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "to_state_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "semantic_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "created_at": {"type": "string"},
+    "authority": {"const": "INVESTMENT_OS_REENTRY_GOVERNANCE_AND_VERSIONED_OVERLAY_STATE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": false
+}
