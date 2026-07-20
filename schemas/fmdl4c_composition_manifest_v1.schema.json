@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl4c_composition_manifest_v1.schema.json",
+  "title": "FMDL-4C Release 6 Composition Manifest",
+  "type": "object",
+  "required": [
+    "manifest_version", "composition_sequence", "composition_status", "composition_mode",
+    "base_package", "release5_adapter", "release4b_research", "release6_state_overlay",
+    "files", "aggregate_sha256", "candidate_pool_mutation_count", "simulation_mutation_count",
+    "real_account_mutation_count", "trade_authority"
+  ],
+  "properties": {
+    "manifest_version": {"const": "1.0.0"},
+    "composition_sequence": {"const": 6},
+    "composition_status": {"const": "RELEASE6_COMPOSED_CANONICAL_STATE_CANDIDATE"},
+    "composition_mode": {"const": "IMMUTABLE_BASE_PLUS_VERSIONED_ADDITIVE_STATE_OVERLAYS"},
+    "base_package": {"type": "object"},
+    "release5_adapter": {"type": "object"},
+    "release4b_research": {"type": "object"},
+    "release6_state_overlay": {"type": "object"},
+    "files": {"type": "array", "minItems": 8},
+    "aggregate_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "candidate_pool_mutation_count": {"const": 0},
+    "simulation_mutation_count": {"const": 0},
+    "real_account_mutation_count": {"const": 0},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
