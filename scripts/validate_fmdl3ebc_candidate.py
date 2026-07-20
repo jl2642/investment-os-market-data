@@ -51,10 +51,12 @@ def main() -> int:
     target = pd.Timestamp(decision["metrics"]["refreshed_market_as_of_date"], tz="Asia/Shanghai").tz_convert("UTC")
     if len(versions):
         available = pd.to_datetime(versions["available_from"], errors="coerce", utc=True)
-        future_count += int((available > target).sum())
+        selected = versions["pit_eligible_at_target"].astype(bool)
+        future_count += int((selected & available.gt(target)).sum())
     if len(facts):
         available = pd.to_datetime(facts["refreshed_available_from"], errors="coerce", utc=True)
-        future_count += int((available > target).sum())
+        selected = facts["pit_eligible_at_target"].astype(bool)
+        future_count += int((selected & available.gt(target)).sum())
     if future_count:
         errors.append(f"FUTURE_INFORMATION:{future_count}")
     recomputed = {
@@ -71,10 +73,7 @@ def main() -> int:
         "AFFECTED_SCOPE", "TRADE_AUTHORITY", "FINANCIAL_EVENT_COUNT",
         "FIRST_DISCLOSURE", "REVISION_CASE", "OLD_VERSION", "FUTURE_INFORMATION", "SEMANTIC_HASH"
     ]
-    checks = [
-        {"check_id": name, "status": "FAIL" if any(error.startswith(name) for error in errors) else "PASS"}
-        for name in check_prefixes
-    ]
+    checks = [{"check_id": name, "status": "FAIL" if any(error.startswith(name) for error in errors) else "PASS"} for name in check_prefixes]
     validation = {
         "validation_version": "1.0.0",
         "release_id": decision["release_id"],
