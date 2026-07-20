@@ -1,0 +1,136 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-4A",
+  "program_name": "Research Handoff Contract and Canonical State-Package Adapter",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL4_ARCHITECTURE_LAST_SUCCESS.json",
+    "release_path": "outputs/fmdl4/architecture/current/FMDL4_ARCHITECTURE_RELEASE.json",
+    "contract_path": "outputs/fmdl4/architecture/current/FMDL4_ARCHITECTURE_CONTRACT.json",
+    "required_status": "FMDL4_ARCHITECTURE_ACCEPTED",
+    "required_next_gate": "FMDL-4A_RESEARCH_HANDOFF_AND_CANONICAL_STATE_PACKAGE_ADAPTER"
+  },
+  "external_canonical_base": {
+    "package_name": "股票投资助手_CURRENT.zip",
+    "pointer_name": "股票投资助手_CURRENT_POINTER.md",
+    "status": "ACTIVE_CANONICAL",
+    "release_sequence": 4,
+    "run_id": "FMDL_1F_INVESTMENT_OS_INTERFACE_20260717_001",
+    "asset_architecture_version": "4.5.3",
+    "runtime_schema_version": "3.4.3",
+    "package_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
+    "operating_phase": "CONTROLLED_OBSERVATION_60_SESSIONS",
+    "project_sources_required": false,
+    "byte_access_posture": "FILE_LIBRARY_POINTER_AND_PRIOR_INTERNAL_MANIFEST_ATTESTED_EXTERNAL_BASE"
+  },
+  "inputs": {
+    "fmdl2_final_release": "outputs/stability/current/FMDL2_FINAL_RELEASE.json",
+    "screening_release": "outputs/screens/current/SCREENING_CURRENT_RELEASE.json",
+    "screening_longlist": "outputs/screens/current/SCREENING_LONGLIST.csv",
+    "financial_interface": "outputs/financial_factors/score/current/FMDL3CD_INVESTMENT_OS_INTERFACE.json",
+    "financial_release": "outputs/financial_factors/score/current/FMDL3CD_RELEASE.json",
+    "financial_score": "outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet",
+    "fmdl3e_release": "outputs/fmdl3e/operational/current/FMDL3EFINAL_RELEASE.json",
+    "fmdl3e_unified_current": "outputs/fmdl3e/operational/current/FMDL3EFINAL_UNIFIED_CURRENT.parquet"
+  },
+  "adapter": {
+    "mode": "SHA_PINNED_READ_ONLY_ADDITIVE_OVERLAY",
+    "candidate_release_sequence": 5,
+    "candidate_asset_architecture_version": "4.6.0",
+    "candidate_runtime_schema_version": "3.5.0",
+    "base_state_mutation_authorized": false,
+    "existing_path_replacement_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "overlay_namespace": "FMDL4A_ADAPTER",
+    "overlay_package_name": "股票投资助手_RELEASE5_FMDL4A_ADAPTER_OVERLAY.zip"
+  },
+  "evidence_envelope": {
+    "required_universe_symbol_count": 5528,
+    "required_longlist_symbol_count": 100,
+    "required_source_release_families": ["FMDL-2", "FMDL-3C-D", "FMDL-3E-FINAL"],
+    "quality_states": ["DECISION_GRADE", "RESEARCH_USABLE_WITH_LIMITATIONS", "REVIEW_ONLY"],
+    "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+    "trade_authority": "NONE"
+  },
+  "public_equity_routing": {
+    "default_lead_skill": "idea-generation",
+    "priority_routes": {
+      "A_IMMEDIATE_RESEARCH": ["idea-generation", "company-tearsheet"],
+      "B_NEAR_TERM_RESEARCH": ["idea-generation", "company-tearsheet"],
+      "C_OBSERVE": ["idea-generation"],
+      "DEFAULT": ["idea-generation"]
+    },
+    "allowed_follow_on_skills": [
+      "company-tearsheet",
+      "initiating-coverage",
+      "earnings-preview",
+      "earnings-deep-dive",
+      "scenario-sensitivity-generator",
+      "thesis-tracker",
+      "portfolio-risk-management",
+      "memo-builder",
+      "meeting-prep",
+      "deck-report-qc"
+    ],
+    "research_object_creation_phase": "FMDL-4B",
+    "state_mutation_phase": "FMDL-4C"
+  },
+  "overlay_layout": {
+    "CORE_STATIC": [
+      "FMDL4A_RESEARCH_HANDOFF_CONTRACT.json",
+      "FMDL4A_PUBLIC_EQUITY_ROUTING_CONTRACT.json",
+      "FMDL4A_AUTHORITY_FIREWALL.json"
+    ],
+    "EVIDENCE": [
+      "FMDL4A_EVIDENCE_ENVELOPE_CURRENT.parquet",
+      "FMDL4A_RESEARCH_PRIORITY_REGISTRY.csv",
+      "FMDL4A_SOURCE_RELEASE_REGISTRY.json",
+      "FMDL4A_LIMITATION_REGISTER.json"
+    ],
+    "STATE_CURRENT": [
+      "FMDL4A_BINDING_STATE.json"
+    ]
+  },
+  "acceptance": {
+    "maximum_duplicate_symbol_count": 0,
+    "maximum_missing_envelope_symbol_count": 0,
+    "maximum_unknown_longlist_symbol_count": 0,
+    "maximum_source_release_binding_error_count": 0,
+    "maximum_trade_authority_error_count": 0,
+    "maximum_base_state_mutation_count": 0,
+    "maximum_existing_path_replacement_count": 0,
+    "require_overlay_manifest": true,
+    "require_independent_validation": true,
+    "require_same_input_idempotence": true
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl4a/adapter/candidate",
+    "current_root": "outputs/fmdl4a/adapter/current",
+    "archive_root": "outputs/fmdl4a/adapter/archive",
+    "release_root": "datasets/fmdl4a/adapter/releases",
+    "last_success": "outputs/status/FMDL4A_LAST_SUCCESS.json"
+  },
+  "controlled_limitations": [
+    {
+      "limitation_id": "EXTERNAL_BASE_ZIP_BYTES_NOT_DIRECTLY_READABLE_BY_GITHUB_CI",
+      "status": "OPEN_CONTROLLED",
+      "description": "The Release-4 base remains external and SHA-pinned. FMDL-4A publishes a non-mutating additive overlay and does not claim to have repacked or rewritten the base ZIP."
+    },
+    {
+      "limitation_id": "RESEARCH_OBJECTS_NOT_YET_CREATED",
+      "status": "EXPECTED_PHASE_BOUNDARY",
+      "description": "FMDL-4A creates routing and evidence envelopes. Company research objects and graduation decisions belong to FMDL-4B."
+    },
+    {
+      "limitation_id": "NO_INVESTMENT_STATE_MUTATION",
+      "status": "PERMANENT_FMDL4A_BOUNDARY",
+      "description": "Candidate, simulation and real-account states remain unchanged in FMDL-4A."
+    }
+  ],
+  "exit_status": "FMDL4A_RESEARCH_HANDOFF_AND_CANONICAL_ADAPTER_ACCEPTED",
+  "next_gate": "FMDL-4B_CANDIDATE_RESEARCH_AND_GRADUATION",
+  "authority": "RESEARCH_HANDOFF_AND_READ_ONLY_PACKAGE_ADAPTER_ONLY",
+  "trade_authority": "NONE"
+}
