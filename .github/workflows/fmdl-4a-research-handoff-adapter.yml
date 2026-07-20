@@ -1,0 +1,83 @@
+name: FMDL 4A Research Handoff and Canonical Adapter
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl4a_research_handoff_adapter.json"
+      - "schemas/fmdl4a_*.schema.json"
+      - "docs/FMDL-4A_*.md"
+      - "scripts/fmdl4a_core.py"
+      - "scripts/run_fmdl4a_adapter.py"
+      - "scripts/validate_fmdl4a_candidate.py"
+      - "scripts/publish_fmdl4a_adapter.py"
+      - "tests/test_fmdl4a_adapter.py"
+      - ".github/workflows/fmdl-4a-research-handoff-adapter.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl4a_research_handoff_adapter.json"
+      - "schemas/fmdl4a_*.schema.json"
+      - "docs/FMDL-4A_*.md"
+      - "scripts/fmdl4a_core.py"
+      - "scripts/run_fmdl4a_adapter.py"
+      - "scripts/validate_fmdl4a_candidate.py"
+      - "scripts/publish_fmdl4a_adapter.py"
+      - "tests/test_fmdl4a_adapter.py"
+      - ".github/workflows/fmdl-4a-research-handoff-adapter.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-4a-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  research-handoff-adapter-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Unit and compile checks
+        run: |
+          pytest -q tests/test_fmdl4a_adapter.py
+          python -m py_compile scripts/fmdl4a_core.py scripts/run_fmdl4a_adapter.py scripts/validate_fmdl4a_candidate.py scripts/publish_fmdl4a_adapter.py
+      - name: Build full-universe Evidence Envelope and Release 5 adapter candidate
+        run: python -m scripts.run_fmdl4a_adapter
+      - name: Independently validate handoff and adapter candidate
+        run: python -m scripts.validate_fmdl4a_candidate
+      - name: Upload FMDL-4A acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl4a-research-handoff-adapter-candidate
+          path: outputs/fmdl4a/adapter/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish immutable Release Current Archive and Last-success
+        if: github.event_name != 'pull_request'
+        run: python -m scripts.publish_fmdl4a_adapter
+      - name: Commit accepted FMDL-4A operating state
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/status outputs/fmdl4a/adapter/current outputs/fmdl4a/adapter/archive outputs/fmdl4a/adapter/candidate datasets/fmdl4a/adapter/releases
+          if git diff --cached --quiet; then
+            echo "No accepted FMDL-4A state changes to commit"
+          else
+            git commit -m "data: publish FMDL-4A research handoff and adapter [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
