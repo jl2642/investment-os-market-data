@@ -1,0 +1,90 @@
+{
+  "adapter_mode": "SHA_PINNED_READ_ONLY_ADDITIVE_OVERLAY",
+  "archive_path": "outputs/fmdl4a/adapter/archive/FMDL4A_20260717_b71d8020aa77",
+  "authority": "RESEARCH_HANDOFF_AND_READ_ONLY_PACKAGE_ADAPTER_ONLY",
+  "binding_state_path": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/STATE_CURRENT/FMDL4A_BINDING_STATE.json",
+  "candidate_asset_architecture_version": "4.6.0",
+  "candidate_release_sequence": 5,
+  "candidate_runtime_schema_version": "3.5.0",
+  "controlled_limitations": [
+    {
+      "description": "The Release-4 base remains external and SHA-pinned. FMDL-4A publishes a non-mutating additive overlay and does not claim to have repacked or rewritten the base ZIP.",
+      "limitation_id": "EXTERNAL_BASE_ZIP_BYTES_NOT_DIRECTLY_READABLE_BY_GITHUB_CI",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "FMDL-4A creates routing and evidence envelopes. Company research objects and graduation decisions belong to FMDL-4B.",
+      "limitation_id": "RESEARCH_OBJECTS_NOT_YET_CREATED",
+      "status": "EXPECTED_PHASE_BOUNDARY"
+    },
+    {
+      "description": "Candidate, simulation and real-account states remain unchanged in FMDL-4A.",
+      "limitation_id": "NO_INVESTMENT_STATE_MUTATION",
+      "status": "PERMANENT_FMDL4A_BOUNDARY"
+    }
+  ],
+  "current_root": "outputs/fmdl4a/adapter/current",
+  "decision_path": "outputs/fmdl4a/adapter/current/FMDL4A_DECISION.json",
+  "evidence_envelope_path": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/EVIDENCE/FMDL4A_EVIDENCE_ENVELOPE_CURRENT.parquet",
+  "exit_gate": "RESEARCH_HANDOFF_AND_CANONICAL_ADAPTER_ACCEPTED",
+  "external_canonical_base": {
+    "asset_architecture_version": "4.5.3",
+    "byte_access_posture": "FILE_LIBRARY_POINTER_AND_PRIOR_INTERNAL_MANIFEST_ATTESTED_EXTERNAL_BASE",
+    "operating_phase": "CONTROLLED_OBSERVATION_60_SESSIONS",
+    "package_name": "股票投资助手_CURRENT.zip",
+    "package_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
+    "pointer_name": "股票投资助手_CURRENT_POINTER.md",
+    "project_sources_required": false,
+    "release_sequence": 4,
+    "run_id": "FMDL_1F_INVESTMENT_OS_INTERFACE_20260717_001",
+    "runtime_schema_version": "3.4.3",
+    "status": "ACTIVE_CANONICAL"
+  },
+  "metrics": {
+    "base_state_mutation_count": 0,
+    "decision_grade_count": 2842,
+    "duplicate_financial_symbol_count": 0,
+    "duplicate_longlist_symbol_count": 0,
+    "duplicate_unified_symbol_count": 0,
+    "elapsed_seconds": 3.6084,
+    "envelope_shape_error_count": 0,
+    "existing_path_replacement_count": 0,
+    "financial_symbol_count": 5528,
+    "longlist_symbol_count": 100,
+    "missing_financial_symbol_count": 0,
+    "overlay_file_count": 9,
+    "research_usable_with_limitations_count": 2686,
+    "review_only_count": 0,
+    "trade_authority_error_count": 0,
+    "universe_symbol_count": 5528,
+    "unknown_longlist_symbol_count": 0
+  },
+  "next_gate": "FMDL-4B_CANDIDATE_RESEARCH_AND_GRADUATION",
+  "overlay_manifest_path": "outputs/fmdl4a/adapter/current/FMDL4A_RELEASE5_OVERLAY_MANIFEST.json",
+  "overlay_package_path": "outputs/fmdl4a/adapter/current/FMDL4A_RELEASE5_ADAPTER_OVERLAY.zip",
+  "program_id": "FMDL-4A",
+  "published_at": "2026-07-20T13:37:51+08:00",
+  "release_id": "FMDL4A_20260717_b71d8020aa77",
+  "release_root": "datasets/fmdl4a/adapter/releases/FMDL4A_20260717_b71d8020aa77",
+  "release_version": "1.0.0",
+  "research_priority_registry_path": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/EVIDENCE/FMDL4A_RESEARCH_PRIORITY_REGISTRY.csv",
+  "semantic_hashes": {
+    "evidence_envelope": "2089497095f29fe1f2719c2935a80f3361451471a153ef44e1b123f1d524e83a",
+    "overlay_zip": "d84a119308aa295b30d286947fb97a8d1c68856e16ecad7b87862147f8769409",
+    "release5_adapter_composition": "b71d8020aa7719f620f17f324c3209cff4d2eeeef20fa29d743048007953fb8d",
+    "research_priority_registry": "bd6012ac91d7295dbcd06e608a9643f0f7bf8fea06e3f06e11afdab8b0068b8b"
+  },
+  "source_release_ids": {
+    "FMDL-2": "FMDL2D_20260717T220406+0800",
+    "FMDL-3C-D": "FMDL3CD_20260719T150020+0800",
+    "FMDL-3E-FINAL": "FMDL3E_FINAL_20260720T121735+0800",
+    "architecture_release_id": "FMDL4_ARCH_20260720T130426+0800",
+    "fmdl3cd_source_hardening_release_id": "FMDL3CC_20260719T142647+0800",
+    "fmdl3e_baseline_id": "3e962b6c3e2b669dc62f2b3a90dff32c5a624386aab9ead21eb2803b415403a3",
+    "screening_release_id": "FMDL2C_20260717T210036+0800"
+  },
+  "state_mutation_status": "NO_INVESTMENT_STATE_MUTATION",
+  "status": "FMDL4A_RESEARCH_HANDOFF_AND_CANONICAL_ADAPTER_ACCEPTED",
+  "trade_authority": "NONE",
+  "validation_path": "outputs/fmdl4a/adapter/current/FMDL4A_VALIDATION.json"
+}
