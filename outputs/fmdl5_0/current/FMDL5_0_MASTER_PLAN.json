@@ -1,0 +1,121 @@
+{
+  "program_id": "FMDL-5-0",
+  "plan_version": "1.0.0",
+  "status": "ARCHITECTURE_CANDIDATE",
+  "authority": "CROSS_MARKET_ADAPTER_ARCHITECTURE_AND_MASTER_PLAN_ONLY",
+  "trade_authority": "NONE",
+  "base_release": {
+    "release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+    "release_sequence": 8,
+    "status": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ACCEPTED"
+  },
+  "design_principles": [
+    "REUSE_A_SHARE_INVESTMENT_OS_CORE",
+    "MARKET_SPECIFIC_ADAPTERS_ONLY",
+    "POINT_IN_TIME_AND_SOURCE_LINEAGE_REQUIRED",
+    "OFFICIAL_PRIMARY_SOURCES_FIRST",
+    "FREE_SOURCE_FALLBACKS_MUST_BE_EXPLICIT",
+    "NO_RAW_SCORE_AUTO_PROMOTION",
+    "NO_CROSS_DOMAIN_STATE_MUTATION",
+    "NO_AUTOMATIC_TRADING",
+    "CURRENT_IMMUTABLE_ARCHIVE_LKG_REQUIRED",
+    "NO_UNBOUNDED_SUBPHASE_SPLITTING"
+  ],
+  "shared_cross_market_contracts": [
+    "MARKET_UNIVERSE_CONTRACT",
+    "SECURITY_MASTER_CONTRACT",
+    "TRADING_CALENDAR_CONTRACT",
+    "CURRENCY_AND_FX_CONTRACT",
+    "PRICE_AND_CORPORATE_ACTION_CONTRACT",
+    "FINANCIAL_STATEMENT_ADAPTER_CONTRACT",
+    "ACCOUNTING_TAXONOMY_CONTRACT",
+    "MARKET_FACTOR_EXTENSION_CONTRACT",
+    "RESEARCH_ROUTER_EXTENSION_CONTRACT",
+    "PORTFOLIO_EXPOSURE_AND_DUPLICATION_CONTRACT",
+    "RELEASE_AND_ROLLBACK_CONTRACT"
+  ],
+  "fmdl5": {
+    "market": "HK_STOCK_CONNECT_SOUTHBOUND",
+    "formal_subphases": [
+      "FMDL-5A_MARKET_CONTRACT_AND_UNIVERSE_BOUNDARY",
+      "FMDL-5B_HK_SECURITY_MASTER_AND_MARKET_SEMANTICS",
+      "FMDL-5C_PRICE_VOLUME_CORPORATE_ACTION_AND_FX_STORE",
+      "FMDL-5D_HKEX_DISCLOSURE_AND_FINANCIAL_NORMALIZATION",
+      "FMDL-5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER",
+      "FMDL-5F_PUBLIC_EQUITY_RESEARCH_ADAPTER",
+      "FMDL-5G_INVESTMENT_OS_INTEGRATION",
+      "FMDL-5-FINAL_OPERATIONAL_ACCEPTANCE"
+    ],
+    "formal_subphase_count": 8,
+    "maximum_total_rounds_including_repairs": 10,
+    "universe_authority": "HKEX_SOUTHBOUND_ELIGIBLE_SECURITIES_EFFECTIVE_DATED",
+    "universe_states": ["BUY_AND_SELL_ELIGIBLE", "SELL_ONLY", "REMOVED", "SUSPENDED", "DATA_INCOMPLETE"],
+    "primary_sources": ["HKEX_STOCK_CONNECT", "HKEXNEWS_ISSUER_DISCLOSURES"],
+    "special_semantics": [
+      "FIVE_DIGIT_SECURITY_CODE",
+      "BOARD_LOT",
+      "HKD_AND_RMB_COUNTERS",
+      "A_H_MAPPING",
+      "DUAL_PRIMARY_OR_SECONDARY_LISTING",
+      "WVR_AND_VIE",
+      "RIGHTS_ISSUE_PLACEMENT_CONSOLIDATION",
+      "SOUTHBOUND_TRADING_CALENDAR"
+    ],
+    "acceptance_targets": {
+      "universe_coverage": "ALL_ACTIVE_SOUTHBOUND_BUY_AND_SELL_ELIGIBLE_SECURITIES",
+      "screening_longlist_target": 100,
+      "formal_research_object_target_range": [15, 20],
+      "graduated_or_shadow_case_target_range": [5, 8],
+      "required_case_types": ["A_H", "HIGH_DIVIDEND", "WVR_OR_INTERNET", "CORPORATE_ACTION"]
+    }
+  },
+  "fmdl6": {
+    "market": "US_LISTED_PUBLIC_EQUITIES",
+    "formal_subphases": [
+      "FMDL-6A_US_UNIVERSE_AND_SECURITY_CONTRACT",
+      "FMDL-6B_TICKER_CIK_AND_ENTITY_IDENTITY",
+      "FMDL-6C_US_PRICE_AND_CORPORATE_ACTION_STORE",
+      "FMDL-6D_SEC_FINANCIAL_STORE",
+      "FMDL-6E_US_FINANCIAL_AND_KPI_NORMALIZATION",
+      "FMDL-6F_US_FACTOR_ENGINE",
+      "FMDL-6G_US_SCREENING_FUNNEL",
+      "FMDL-6H_PUBLIC_EQUITY_RESEARCH_AND_VALUATION_ADAPTER",
+      "FMDL-6I_INVESTMENT_OS_CROSS_MARKET_INTEGRATION",
+      "FMDL-6-FINAL_OPERATIONAL_ACCEPTANCE"
+    ],
+    "formal_subphase_count": 10,
+    "maximum_total_rounds_including_repairs": 13,
+    "initial_investable_universe_target_range": [1000, 1500],
+    "primary_sources": ["SEC_DATA_SEC_GOV", "SEC_EDGAR_BULK_ARCHIVES"],
+    "special_semantics": [
+      "TICKER_CIK_ENTITY_MAPPING",
+      "MULTIPLE_SHARE_CLASSES",
+      "ADR_UNDERLYING_MAPPING",
+      "US_GAAP_AND_IFRS_FPI",
+      "NON_GAAP_AND_SBC_NORMALIZATION",
+      "RESTATEMENT_AND_AMENDMENT",
+      "FISCAL_YEAR_VARIANCE",
+      "DELISTING_SPINOFF_AND_SPAC_SUCCESSOR"
+    ],
+    "acceptance_targets": {
+      "screening_longlist_target": 150,
+      "formal_research_cohort_target": 30,
+      "formal_research_object_target": 10,
+      "benchmark_graduation_target_range": [3, 5]
+    }
+  },
+  "phase_split_policy": {
+    "one_subphase_requires": ["CONTRACT", "IMPLEMENTATION", "TESTS", "CI", "ACCEPTANCE_DECISION", "MAIN_PUBLICATION"],
+    "repair_round_allowed_only_for": ["FAILED_ACCEPTANCE_GATE", "UPSTREAM_SOURCE_BREAK", "MATERIAL_SCHEMA_DEFECT"],
+    "repair_round_forbidden_for": ["COSMETIC_RENAMING", "UNBOUNDED_ANALYSIS", "UNSCOPED_FEATURE_EXPANSION"],
+    "subphase_split_requires_written_change_control": true
+  },
+  "shared_state_boundaries": {
+    "research_graduation_is_not_candidate_admission": true,
+    "candidate_admission_is_not_simulation_admission": true,
+    "simulation_admission_is_not_real_account_admission": true,
+    "real_account_action_requires_user_confirmation": true,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "FMDL-5A_MARKET_CONTRACT_AND_UNIVERSE_BOUNDARY"
+}
