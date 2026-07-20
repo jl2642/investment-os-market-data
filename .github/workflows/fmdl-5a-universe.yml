@@ -57,16 +57,17 @@ jobs:
           assert d['candidate_pool_mutation_count']==d['simulation_mutation_count']==d['real_account_mutation_count']==d['order_generation_count']==0
           PY
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: fmdl5a-universe-candidate
           path: outputs/fmdl5a/candidate
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
       - name: Publish Current Immutable Archive and Last-success
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
         run: python scripts/publish_fmdl5a.py --repo-root . --candidate outputs/fmdl5a/candidate
       - name: Commit accepted FMDL-5A state
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
