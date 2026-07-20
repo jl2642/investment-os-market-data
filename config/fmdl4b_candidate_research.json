@@ -1,0 +1,96 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-4B",
+  "program_name": "Candidate Research and Graduation",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL4A_LAST_SUCCESS.json",
+    "release_path": "outputs/fmdl4a/adapter/current/FMDL4A_RELEASE.json",
+    "required_status": "FMDL4A_RESEARCH_HANDOFF_AND_CANONICAL_ADAPTER_ACCEPTED",
+    "required_next_gate": "FMDL-4B_CANDIDATE_RESEARCH_AND_GRADUATION"
+  },
+  "inputs": {
+    "research_priority_registry": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/EVIDENCE/FMDL4A_RESEARCH_PRIORITY_REGISTRY.csv",
+    "evidence_envelope_jsonl": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/EVIDENCE/FMDL4A_EVIDENCE_ENVELOPE_CURRENT.jsonl",
+    "source_release_registry": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/EVIDENCE/FMDL4A_SOURCE_RELEASE_REGISTRY.json",
+    "routing_contract": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/CORE_STATIC/FMDL4A_PUBLIC_EQUITY_ROUTING_CONTRACT.json",
+    "binding_state": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/STATE_CURRENT/FMDL4A_BINDING_STATE.json"
+  },
+  "research_cohort": {
+    "active_priority": "A_IMMEDIATE_RESEARCH",
+    "required_active_cohort_count": 20,
+    "required_total_registry_count": 100,
+    "minimum_public_source_count": 2,
+    "required_current_source_year": 2026
+  },
+  "stage_model": {
+    "all_stages": ["OBSERVE", "SCREENED", "DEEP_DIVE", "INVESTMENT_CASE_READY", "DEFERRED", "REJECTED"],
+    "decision_to_stage": {
+      "GRADUATED": "INVESTMENT_CASE_READY",
+      "DEFERRED": "DEFERRED",
+      "REJECTED": "REJECTED"
+    },
+    "non_active_default_decision": "DEFERRED",
+    "non_active_default_stage": "SCREENED",
+    "non_active_reason_code": "NOT_IN_CURRENT_ACTIVE_RESEARCH_COHORT"
+  },
+  "graduation_policy": {
+    "allowed_decisions": ["GRADUATED", "DEFERRED", "REJECTED"],
+    "minimum_graduated_count": 5,
+    "graduated_meaning": "RESEARCH_CASE_READY_ONLY_NOT_CANDIDATE_POOL_ADMISSION_NOT_TRADE_READY",
+    "raw_score_only_decision_prohibited": true,
+    "required_pm_fields": ["why_now", "variant_perception", "first_rejection", "what_would_make_investable", "prove_kill_checks", "next_workflow"],
+    "required_research_fields": ["business_model", "competitive_position", "owner_quality", "earnings_drivers", "catalysts", "risks", "public_sources"]
+  },
+  "state_boundary": {
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "trade_register_mutation_authorized": false,
+    "position_thesis_mutation_authorized": false,
+    "order_generation_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "maximum_duplicate_registry_symbol_count": 0,
+    "maximum_duplicate_research_object_symbol_count": 0,
+    "maximum_missing_active_profile_count": 0,
+    "maximum_unknown_profile_symbol_count": 0,
+    "maximum_missing_evidence_binding_count": 0,
+    "maximum_source_requirement_error_count": 0,
+    "maximum_raw_score_only_decision_count": 0,
+    "maximum_state_mutation_count": 0,
+    "maximum_trade_authority_error_count": 0,
+    "require_all_100_decisions": true,
+    "require_same_input_idempotence": true,
+    "require_independent_validation": true
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl4b/research/candidate",
+    "current_root": "outputs/fmdl4b/research/current",
+    "archive_root": "outputs/fmdl4b/research/archive",
+    "release_root": "datasets/fmdl4b/research/releases",
+    "last_success": "outputs/status/FMDL4B_LAST_SUCCESS.json"
+  },
+  "controlled_limitations": [
+    {
+      "limitation_id": "ACTIVE_RESEARCH_COHORT_LIMITED_TO_TOP_20",
+      "status": "OPEN_CONTROLLED",
+      "description": "FMDL-4B creates formal Research Objects for the 20 A-priority names; the remaining 80 retain traceable deferred stages and are not mechanically rejected."
+    },
+    {
+      "limitation_id": "PUBLIC_DISCLOSURE_BASELINE_NOT_FULL_INITIATING_COVERAGE",
+      "status": "OPEN_CONTROLLED",
+      "description": "The 20 Research Objects use current public disclosure baselines and FMDL evidence; full forecasts, valuation scenarios and complete initiating coverage remain downstream work."
+    },
+    {
+      "limitation_id": "GRADUATED_IS_RESEARCH_CASE_READY_ONLY",
+      "status": "PERMANENT_BOUNDARY",
+      "description": "Graduation does not admit a name to the candidate pool, simulation or real account and grants no trade authority."
+    }
+  ],
+  "exit_status": "FMDL4B_CANDIDATE_RESEARCH_AND_GRADUATION_ACCEPTED",
+  "next_gate": "FMDL-4C_INVESTMENT_OS_REENTRY_AND_STATE_MUTATION_CONTROLS",
+  "authority": "PUBLIC_EQUITY_RESEARCH_AND_GRADUATION_ONLY",
+  "trade_authority": "NONE"
+}

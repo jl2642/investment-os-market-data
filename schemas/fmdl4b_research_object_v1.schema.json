@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl4b_research_object_v1.schema.json",
+  "title": "FMDL-4B Public Equity Research Object",
+  "type": "object",
+  "required": [
+    "research_id", "symbol", "name", "as_of", "research_version", "research_stage", "graduation_decision",
+    "business_model", "competitive_position", "owner_quality", "earnings_drivers", "valuation_scenarios",
+    "catalysts", "risks", "variant_perception", "why_now", "first_rejection", "what_would_make_investable",
+    "prove_kill_checks", "decision_reason_codes", "graduation_condition", "next_workflow", "evidence_ids",
+    "evidence_context", "public_sources", "source_count", "research_status", "state_mutation_authorized",
+    "authority", "trade_authority", "semantic_hash"
+  ],
+  "properties": {
+    "research_id": {"type": "string", "pattern": "^FMDL4B-RSCH-[0-9]{6}\\.(SH|SZ|BJ)-[a-f0-9]{16}$"},
+    "symbol": {"type": "string", "pattern": "^[0-9]{6}\\.(SH|SZ|BJ)$"},
+    "name": {"type": "string", "minLength": 1},
+    "as_of": {"type": "string", "format": "date"},
+    "research_version": {"type": "string"},
+    "research_stage": {"enum": ["SCREENED", "DEEP_DIVE", "INVESTMENT_CASE_READY", "REJECTED"]},
+    "graduation_decision": {"enum": ["GRADUATED", "DEFERRED", "REJECTED"]},
+    "business_model": {"type": "string", "minLength": 20},
+    "competitive_position": {"type": "string", "minLength": 20},
+    "owner_quality": {"type": "string", "minLength": 20},
+    "earnings_drivers": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+    "valuation_scenarios": {"type": "object"},
+    "catalysts": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "risks": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+    "variant_perception": {"type": "string", "minLength": 20},
+    "why_now": {"type": "string", "minLength": 20},
+    "first_rejection": {"type": "string", "minLength": 10},
+    "what_would_make_investable": {"type": "string", "minLength": 10},
+    "prove_kill_checks": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+    "decision_reason_codes": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "graduation_condition": {"type": "string", "minLength": 1},
+    "next_workflow": {"type": "string", "minLength": 1},
+    "evidence_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "evidence_context": {"type": "object"},
+    "public_sources": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["source_id", "title", "source_date", "source_type", "url"],
+        "properties": {
+          "source_id": {"type": "string"},
+          "title": {"type": "string"},
+          "source_date": {"type": "string", "format": "date"},
+          "source_type": {"type": "string"},
+          "url": {"type": "string", "format": "uri"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "source_count": {"type": "integer", "minimum": 2},
+    "research_status": {"const": "SOURCE_BACKED_BASELINE_COMPLETE"},
+    "state_mutation_authorized": {"const": false},
+    "authority": {"const": "PUBLIC_EQUITY_RESEARCH_AND_GRADUATION_ONLY"},
+    "trade_authority": {"const": "NONE"},
+    "semantic_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": true
+}

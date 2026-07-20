@@ -1,0 +1,92 @@
+name: FMDL 4B Candidate Research and Graduation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl4b_candidate_research.json"
+      - "config/fmdl4b_research_profiles.py"
+      - "schemas/fmdl4b_*.schema.json"
+      - "docs/FMDL-4B_*.md"
+      - "scripts/fmdl4b_core.py"
+      - "scripts/run_fmdl4b_research.py"
+      - "scripts/validate_fmdl4b_candidate.py"
+      - "scripts/publish_fmdl4b.py"
+      - "tests/test_fmdl4b_research.py"
+      - ".github/workflows/fmdl-4b-candidate-research.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl4b_candidate_research.json"
+      - "config/fmdl4b_research_profiles.py"
+      - "schemas/fmdl4b_*.schema.json"
+      - "docs/FMDL-4B_*.md"
+      - "scripts/fmdl4b_core.py"
+      - "scripts/run_fmdl4b_research.py"
+      - "scripts/validate_fmdl4b_candidate.py"
+      - "scripts/publish_fmdl4b.py"
+      - "tests/test_fmdl4b_research.py"
+      - ".github/workflows/fmdl-4b-candidate-research.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-4b-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  candidate-research-graduation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Unit tests
+        shell: bash
+        run: |
+          mkdir -p outputs/fmdl4b/research/candidate
+          set +e
+          pytest -vv tests/test_fmdl4b_research.py 2>&1 | tee outputs/fmdl4b/research/candidate/FMDL4B_PYTEST_LOG.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          exit $status
+      - name: Compile checks
+        run: python -m py_compile config/fmdl4b_research_profiles.py scripts/fmdl4b_core.py scripts/run_fmdl4b_research.py scripts/validate_fmdl4b_candidate.py scripts/publish_fmdl4b.py
+      - name: Build 100-name registry and 20 source-backed Research Objects
+        run: python -m scripts.run_fmdl4b_research
+      - name: Independently validate research and graduation candidate
+        run: python -m scripts.validate_fmdl4b_candidate
+      - name: Upload FMDL-4B acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl4b-candidate-research-graduation
+          path: outputs/fmdl4b/research/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish immutable Release Current Archive and Last-success
+        if: github.event_name != 'pull_request'
+        run: python -m scripts.publish_fmdl4b
+      - name: Commit accepted FMDL-4B state
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/status outputs/fmdl4b/research/current outputs/fmdl4b/research/archive outputs/fmdl4b/research/candidate datasets/fmdl4b/research/releases
+          if git diff --cached --quiet; then
+            echo "No accepted FMDL-4B state changes to commit"
+          else
+            git commit -m "data: publish FMDL-4B candidate research and graduation [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
