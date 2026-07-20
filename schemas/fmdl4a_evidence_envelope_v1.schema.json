@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl4a_evidence_envelope_v1.schema.json",
+  "title": "FMDL-4A Evidence Envelope",
+  "type": "object",
+  "required": [
+    "evidence_id",
+    "symbol",
+    "name",
+    "as_of",
+    "source_release_ids",
+    "market_evidence",
+    "financial_evidence",
+    "valuation_evidence",
+    "shareholder_return_evidence",
+    "screening_evidence",
+    "quality_state",
+    "controlled_limitations",
+    "semantic_hash",
+    "authority",
+    "trade_authority"
+  ],
+  "properties": {
+    "evidence_id": {"type": "string", "pattern": "^FMDL4A-EV-[0-9]{6}\\.(SH|SZ|BJ)-[a-f0-9]{16}$"},
+    "symbol": {"type": "string", "pattern": "^[0-9]{6}\\.(SH|SZ|BJ)$"},
+    "name": {"type": "string", "minLength": 1},
+    "as_of": {"type": "string", "format": "date"},
+    "source_release_ids": {
+      "type": "object",
+      "required": ["FMDL-2", "FMDL-3C-D", "FMDL-3E-FINAL"],
+      "properties": {
+        "FMDL-2": {"type": "string"},
+        "FMDL-3C-D": {"type": "string"},
+        "FMDL-3E-FINAL": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "market_evidence": {"type": "object"},
+    "financial_evidence": {"type": "object"},
+    "valuation_evidence": {"type": "object"},
+    "shareholder_return_evidence": {"type": "object"},
+    "screening_evidence": {"type": "object"},
+    "quality_state": {"enum": ["DECISION_GRADE", "RESEARCH_USABLE_WITH_LIMITATIONS", "REVIEW_ONLY"]},
+    "controlled_limitations": {"type": "array", "items": {"type": "string"}},
+    "semantic_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": false
+}

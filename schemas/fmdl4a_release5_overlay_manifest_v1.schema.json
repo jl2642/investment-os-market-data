@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl4a_release5_overlay_manifest_v1.schema.json",
+  "title": "FMDL-4A Release 5 Adapter Overlay Manifest",
+  "type": "object",
+  "required": [
+    "manifest_version",
+    "candidate_release_sequence",
+    "candidate_status",
+    "base_package",
+    "overlay_mode",
+    "overlay_namespace",
+    "files",
+    "base_state_mutation_count",
+    "existing_path_replacement_count",
+    "aggregate_sha256",
+    "authority",
+    "trade_authority"
+  ],
+  "properties": {
+    "manifest_version": {"const": "1.0.0"},
+    "candidate_release_sequence": {"const": 5},
+    "candidate_status": {"const": "RELEASE5_ADAPTER_OVERLAY_CANDIDATE"},
+    "base_package": {
+      "type": "object",
+      "required": ["name", "release_sequence", "run_id", "sha256", "status"],
+      "properties": {
+        "name": {"const": "股票投资助手_CURRENT.zip"},
+        "release_sequence": {"const": 4},
+        "run_id": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "status": {"const": "ACTIVE_CANONICAL"}
+      },
+      "additionalProperties": true
+    },
+    "overlay_mode": {"const": "SHA_PINNED_READ_ONLY_ADDITIVE_OVERLAY"},
+    "overlay_namespace": {"const": "FMDL4A_ADAPTER"},
+    "files": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["package_path", "source_path", "sha256", "bytes", "package_domain"],
+        "properties": {
+          "package_path": {"type": "string", "pattern": "^FMDL4A_ADAPTER/(CORE_STATIC|EVIDENCE|STATE_CURRENT)/"},
+          "source_path": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "bytes": {"type": "integer", "minimum": 1},
+          "package_domain": {"enum": ["CORE_STATIC", "EVIDENCE", "STATE_CURRENT"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "base_state_mutation_count": {"const": 0},
+    "existing_path_replacement_count": {"const": 0},
+    "aggregate_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "authority": {"const": "READ_ONLY_ADDITIVE_PACKAGE_ADAPTER"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
