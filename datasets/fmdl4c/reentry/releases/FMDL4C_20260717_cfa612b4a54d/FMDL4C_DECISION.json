@@ -1,0 +1,142 @@
+{
+  "authority": "INVESTMENT_OS_REENTRY_GOVERNANCE_AND_VERSIONED_OVERLAY_STATE_ONLY",
+  "bindings": {
+    "external_base_release_sequence": 4,
+    "external_base_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
+    "fmdl4a_release_id": "FMDL4A_20260717_b71d8020aa77",
+    "fmdl4b_release_id": "FMDL4B_20260717_bcd28dbae349",
+    "fmdl4b_research_version": "FMDL4B-RV1-20260717",
+    "release6_composition_sequence": 6
+  },
+  "checks": [
+    {
+      "check_id": "ENTRY_GATE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "GRADUATED_INPUT_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ROUTE_COVERAGE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "RESEARCH_BINDING",
+      "status": "PASS"
+    },
+    {
+      "check_id": "STATE_TRANSITION_SCHEMA",
+      "status": "PASS"
+    },
+    {
+      "check_id": "REENTRY_TRANSITION_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CANDIDATE_REVIEW_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SHADOW_TRACK_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "VERSIONED_DIFF",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ROLLBACK_AND_LKG",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_CANDIDATE_POOL_MUTATION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_SIMULATION_MUTATION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_REAL_ACCOUNT_MUTATION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_ORDER_GENERATION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "controlled_limitations": [
+    {
+      "description": "Release 4 remains metadata-bound and immutable. FMDL-4C cannot reconcile existing symbol membership inside candidate, simulation or real-account files without readable base ZIP bytes.",
+      "limitation_id": "EXTERNAL_RELEASE4_BASE_BYTES_NOT_READABLE",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "The six accepted transitions create a new versioned re-entry review queue only. They do not admit a symbol to the existing candidate pool, simulation or real account.",
+      "limitation_id": "REENTRY_QUEUE_IS_NOT_CANDIDATE_POOL_ADMISSION",
+      "status": "PERMANENT_BOUNDARY"
+    },
+    {
+      "description": "Current entry price, portfolio fit, RCM, ETF alternative, capital migration and user-confirmation gates remain downstream requirements.",
+      "limitation_id": "PRICE_PORTFOLIO_AND_RCM_GATES_NOT_CLOSED",
+      "status": "OPEN_DOWNSTREAM"
+    }
+  ],
+  "decision_version": "1.0.0",
+  "generated_at": "2026-07-20T15:03:42+08:00",
+  "hard_failures": [],
+  "metrics": {
+    "candidate_pool_mutation_count": 0,
+    "candidate_pool_reentry_review_count": 4,
+    "elapsed_seconds": 0.0222,
+    "graduated_input_count": 6,
+    "missing_research_binding_count": 0,
+    "order_generation_count": 0,
+    "overlay_applied_transition_count": 6,
+    "overlay_file_count": 12,
+    "real_account_mutation_count": 0,
+    "reentry_transition_count": 6,
+    "route_error_count": 0,
+    "shadow_track_reentry_review_count": 2,
+    "simulation_mutation_count": 0,
+    "total_fmdl4b_decision_count": 100,
+    "trade_authority_error_count": 0,
+    "transition_validation_error_count": 0
+  },
+  "next_gate": "FMDL-4D_THESIS_ATTRIBUTION_AND_FEEDBACK_LOOP",
+  "program_id": "FMDL-4C",
+  "reentry_summary": {
+    "applied_scope": "FMDL4C_REENTRY_REVIEW_QUEUE_ONLY",
+    "candidate_pool_reentry_review_symbols": [
+      "000333.SZ",
+      "000938.SZ",
+      "600018.SH",
+      "600900.SH"
+    ],
+    "real_account_admission_count": 0,
+    "shadow_track_reentry_review_symbols": [
+      "002396.SZ",
+      "300308.SZ"
+    ],
+    "simulation_admission_count": 0
+  },
+  "release_id": "FMDL4C_20260717_cfa612b4a54d",
+  "semantic_hashes": {
+    "candidate_router": "e7735f92a987da312257e255a36a778b3f36892b03669282f3e17eb87eaa96bd",
+    "composition_manifest": "064839c5a5b2d92500e83a3ebbf3353a81f62ae2b822bac2b4692f69ba7a7d00",
+    "overlay_zip": "550e0709eb0e34aade4ebdca485cf2819c877fc79f287d01c7165e60427c86d8",
+    "real_account_router": "6206ca52c15f37e8e06dde4135f3f5b145549eddba0f6d1fb5dfd90d181dcd9f",
+    "reentry_queue": "d43ff019e729ea4ec63fd1d1c3772c8528e910171e71e4fc639d7af94ede6a08",
+    "rollback_and_lkg": "80ae75b6c33a3cf413db9d06eda3b62efaa712092217dbee382de54b17629208",
+    "simulation_router": "61b6d03039e25074793d05331408de9c7dad97d1b55b6b6f143a6d9f1925eff6",
+    "state_transitions": "b1774aec36cee24fdc9336a12313334e5496bc922e2e67e68e0a750caf325205",
+    "versioned_diff": "a9ff2719cb88c7105f7388f8e969e6db5a9f601539826364a4542f41174ba616"
+  },
+  "status": "FMDL4C_INVESTMENT_OS_REENTRY_AND_STATE_CONTROLS_ACCEPTED",
+  "trade_authority": "NONE"
+}

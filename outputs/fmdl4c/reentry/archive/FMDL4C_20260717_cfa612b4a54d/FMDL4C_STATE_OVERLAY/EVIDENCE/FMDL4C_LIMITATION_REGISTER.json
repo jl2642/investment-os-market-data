@@ -1,0 +1,21 @@
+{
+  "limitations": [
+    {
+      "description": "Release 4 remains metadata-bound and immutable. FMDL-4C cannot reconcile existing symbol membership inside candidate, simulation or real-account files without readable base ZIP bytes.",
+      "limitation_id": "EXTERNAL_RELEASE4_BASE_BYTES_NOT_READABLE",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "The six accepted transitions create a new versioned re-entry review queue only. They do not admit a symbol to the existing candidate pool, simulation or real account.",
+      "limitation_id": "REENTRY_QUEUE_IS_NOT_CANDIDATE_POOL_ADMISSION",
+      "status": "PERMANENT_BOUNDARY"
+    },
+    {
+      "description": "Current entry price, portfolio fit, RCM, ETF alternative, capital migration and user-confirmation gates remain downstream requirements.",
+      "limitation_id": "PRICE_PORTFOLIO_AND_RCM_GATES_NOT_CLOSED",
+      "status": "OPEN_DOWNSTREAM"
+    }
+  ],
+  "register_version": "1.0.0",
+  "trade_authority": "NONE"
+}

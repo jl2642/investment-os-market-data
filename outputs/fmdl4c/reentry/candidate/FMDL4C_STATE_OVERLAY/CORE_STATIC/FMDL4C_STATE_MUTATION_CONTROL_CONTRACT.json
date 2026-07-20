@@ -1,0 +1,33 @@
+{
+  "authority": "INVESTMENT_OS_REENTRY_GOVERNANCE_AND_VERSIONED_OVERLAY_STATE_ONLY",
+  "contract_version": "1.0.0",
+  "mutation_policy": {
+    "actual_candidate_pool_action": "NONE_PENDING_BASE_CONTENT_RECONCILIATION",
+    "actual_real_account_action": "NONE_PENDING_RCM_PORTFOLIO_FIT_AND_USER_CONFIRMATION",
+    "actual_simulation_action": "NONE_PENDING_ROLE_SPECIFIC_GATES",
+    "candidate_pool_mutation_authorized": false,
+    "order_generation_authorized": false,
+    "overlay_reentry_queue_mutation_authorized": true,
+    "real_account_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "trade_authority": "NONE",
+    "trade_register_mutation_authorized": false
+  },
+  "real_account_gate_sequence": [
+    "BASE_STATE_RECONCILIATION",
+    "RESEARCH_CASE_READY",
+    "RCM_GATE",
+    "PORTFOLIO_FIT",
+    "ETF_ALTERNATIVE",
+    "CAPITAL_MIGRATION",
+    "PRE_TRADE_MEMO",
+    "USER_CONFIRMATION"
+  ],
+  "state_domains": {
+    "candidate_pool": "CANDIDATE_POOL",
+    "overlay_reentry_queue": "FMDL4C_REENTRY_REVIEW_QUEUE",
+    "real_account": "REAL_ACCOUNT",
+    "simulation": "SIMULATION_LAB"
+  },
+  "trade_authority": "NONE"
+}
