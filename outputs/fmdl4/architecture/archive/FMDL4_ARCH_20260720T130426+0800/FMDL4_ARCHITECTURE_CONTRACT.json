@@ -1,0 +1,384 @@
+{
+  "architecture_state": "FROZEN_FOR_FMDL4A_EXECUTION",
+  "authority": "RESEARCH_ORCHESTRATION_AND_STATE_GOVERNANCE_ONLY",
+  "bound_inputs": {
+    "fmdl1_market_interface": "outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json",
+    "fmdl2_final_pointer": "outputs/status/FMDL2D_LAST_SUCCESS.json",
+    "fmdl2_final_release": "outputs/stability/current/FMDL2_FINAL_RELEASE.json",
+    "fmdl3cd_financial_interface": "outputs/financial_factors/score/current/FMDL3CD_INVESTMENT_OS_INTERFACE.json",
+    "fmdl3cd_financial_interface_pointer": "outputs/status/FMDL3CD_LAST_SUCCESS.json",
+    "fmdl3e_canonical_pointer": "outputs/status/FMDL3E_CANONICAL_LAST_SUCCESS.json",
+    "fmdl3e_operational_release": "outputs/fmdl3e/operational/current/FMDL3EFINAL_RELEASE.json",
+    "fmdl3e_unified_current": "outputs/fmdl3e/operational/current/FMDL3EFINAL_UNIFIED_CURRENT.parquet"
+  },
+  "business_timezone": "Asia/Shanghai",
+  "canonical_objects": [
+    {
+      "grain": "one symbol and one accepted as-of state",
+      "object_id": "FMDL_EVIDENCE_ENVELOPE",
+      "phase_owner": "FMDL-4A",
+      "required_fields": [
+        "symbol",
+        "as_of",
+        "source_release_ids",
+        "market_evidence",
+        "financial_evidence",
+        "valuation_evidence",
+        "shareholder_return_evidence",
+        "quality_state",
+        "controlled_limitations",
+        "semantic_hash"
+      ]
+    },
+    {
+      "grain": "one symbol and one research version",
+      "object_id": "PUBLIC_EQUITY_RESEARCH_OBJECT",
+      "phase_owner": "FMDL-4B",
+      "required_fields": [
+        "symbol",
+        "research_stage",
+        "business_model",
+        "competitive_position",
+        "owner_quality",
+        "earnings_drivers",
+        "valuation_scenarios",
+        "catalysts",
+        "risks",
+        "variant_perception",
+        "prove_kill_checks",
+        "evidence_ids",
+        "research_status"
+      ]
+    },
+    {
+      "grain": "one proposed or accepted state change",
+      "object_id": "INVESTMENT_OS_STATE_TRANSITION",
+      "phase_owner": "FMDL-4C",
+      "required_fields": [
+        "transition_id",
+        "symbol",
+        "state_domain",
+        "from_state",
+        "to_state",
+        "reason_codes",
+        "evidence_ids",
+        "research_version",
+        "gate_results",
+        "approval_state",
+        "created_at"
+      ]
+    },
+    {
+      "grain": "one thesis version or attribution period",
+      "object_id": "THESIS_AND_ATTRIBUTION_RECORD",
+      "phase_owner": "FMDL-4D",
+      "required_fields": [
+        "symbol",
+        "thesis_version",
+        "thesis_status",
+        "catalyst_ids",
+        "prove_kill_results",
+        "return_attribution",
+        "decision_attribution",
+        "lessons",
+        "feedback_proposal"
+      ]
+    }
+  ],
+  "contract_version": "1.0.0",
+  "controlled_limitations": [
+    {
+      "description": "The File Library pointer and package SHA are frozen, but GitHub CI cannot independently inspect the external ZIP until FMDL-4A imports and validates the canonical package content.",
+      "limitation_id": "EXTERNAL_INVESTMENT_OS_PACKAGE_CONTENT_IMPORT_PENDING",
+      "status": "OPEN_UNTIL_FMDL4A"
+    },
+    {
+      "description": "FMDL-2 proves deterministic screening and short-window stability, not realized long-horizon alpha.",
+      "limitation_id": "FMDL2_NO_LONG_HORIZON_ALPHA_PROOF",
+      "status": "OPEN"
+    },
+    {
+      "description": "FMDL-3E operating proof remains based on a real completed-session replay until a post-Baseline completed session is accepted.",
+      "limitation_id": "FMDL3E_LIVE_POST_BASELINE_ADVANCE_PENDING",
+      "status": "OPEN"
+    }
+  ],
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL3EFINAL_LAST_SUCCESS.json",
+    "release_path": "outputs/fmdl3e/operational/current/FMDL3EFINAL_RELEASE.json",
+    "required_next_gate": "FMDL-4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION",
+    "required_status": "FMDL3E_UNIFIED_OPERATIONAL_ACCEPTANCE_AND_CANONICAL_CLOSURE_ACCEPTED"
+  },
+  "exit_status": "FMDL4_ARCHITECTURE_ACCEPTED",
+  "external_investment_os_baseline": {
+    "asset_architecture_version": "4.5.3",
+    "canonical_package": "股票投资助手_CURRENT.zip",
+    "operating_phase": "CONTROLLED_OBSERVATION_60_SESSIONS",
+    "package_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
+    "pointer_file": "股票投资助手_CURRENT_POINTER.md",
+    "project_sources_required": false,
+    "release_sequence": 4,
+    "run_id": "FMDL_1F_INVESTMENT_OS_INTERFACE_20260717_001",
+    "runtime_schema_version": "3.4.3",
+    "status": "ACTIVE_CANONICAL",
+    "verification_posture": "METADATA_POINTER_BOUND_PACKAGE_CONTENT_IMPORT_DEFERRED_TO_FMDL4A"
+  },
+  "global_hard_gates": [
+    "ZERO_RAW_SCORE_TO_PORTFOLIO_ACTION",
+    "ZERO_CANDIDATE_SIMULATION_REAL_ACCOUNT_STATE_CROSSOVER",
+    "ZERO_STATE_MUTATION_WITHOUT_VERSIONED_DIFF",
+    "ZERO_RESEARCH_CONCLUSION_WITHOUT_EVIDENCE_LINEAGE",
+    "ZERO_STALE_OR_QUARANTINED_EVIDENCE_USED_AS_CURRENT",
+    "ZERO_FAILED_PACKAGE_REPLACING_CURRENT",
+    "ZERO_AUTOMATIC_REAL_ACCOUNT_ACTION",
+    "ZERO_ORDER_EXECUTION",
+    "ZERO_TRADE_AUTHORITY"
+  ],
+  "investment_os_package_mapping": {
+    "CORE_STATIC": [
+      "decision rules",
+      "research and graduation contracts",
+      "role separation",
+      "RCM and capital migration",
+      "authority and rollback rules"
+    ],
+    "EVIDENCE": [
+      "immutable FMDL release pointers",
+      "symbol evidence envelopes",
+      "public equity research objects",
+      "source and limitation registers"
+    ],
+    "STATE_CURRENT": [
+      "candidate research stage",
+      "simulation experiment state",
+      "real-account review state",
+      "thesis versions",
+      "accepted transition diffs",
+      "current FMDL bindings"
+    ],
+    "storage_policy": "FILE_LIBRARY_CANONICAL_PACKAGE_AND_GITHUB_RELEASES_PROJECT_SOURCES_NOT_REQUIRED"
+  },
+  "layer_model": [
+    {
+      "layer_id": "EVIDENCE_LAYER",
+      "may_mutate_investment_state": false,
+      "owner": "FMDL",
+      "purpose": "Point-in-time market, factor, financial, valuation and shareholder-return evidence with source and quality lineage."
+    },
+    {
+      "layer_id": "RESEARCH_JUDGMENT_LAYER",
+      "may_mutate_investment_state": false,
+      "owner": "PUBLIC_EQUITY_INVESTING",
+      "purpose": "Investor research, business quality, variant perception, valuation scenarios, catalysts, risks and prove-or-kill conclusions."
+    },
+    {
+      "layer_id": "INVESTMENT_STATE_LAYER",
+      "may_mutate_investment_state": true,
+      "mutation_rule": "ONLY_THROUGH_ACCEPTED_VERSIONED_DIFF_AND_ROLE_SPECIFIC_GATES",
+      "owner": "INVESTMENT_OS",
+      "purpose": "Candidate pool, simulation laboratory, real-account review, thesis state, portfolio fit and accepted state transitions."
+    }
+  ],
+  "next_gate": "FMDL-4A_RESEARCH_HANDOFF_AND_CANONICAL_STATE_PACKAGE_ADAPTER",
+  "phase_sequence": [
+    {
+      "entry_gate": "FMDL4_ARCHITECTURE_ACCEPTED",
+      "exit_gate": "FMDL4A_RESEARCH_HANDOFF_AND_CANONICAL_ADAPTER_ACCEPTED",
+      "name": "Research Handoff Contract and Canonical State-Package Adapter",
+      "phase_id": "FMDL-4A",
+      "required_deliverables": [
+        "evidence envelope schema",
+        "FMDL-to-Investment-OS adapter",
+        "Public Equity routing contract",
+        "Release-5 package candidate",
+        "independent validation"
+      ]
+    },
+    {
+      "entry_gate": "FMDL4A_RESEARCH_HANDOFF_AND_CANONICAL_ADAPTER_ACCEPTED",
+      "exit_gate": "FMDL4B_CANDIDATE_RESEARCH_AND_GRADUATION_ACCEPTED",
+      "name": "Candidate Research and Graduation",
+      "phase_id": "FMDL-4B",
+      "required_deliverables": [
+        "research-stage registry",
+        "prioritized research cohort",
+        "research objects",
+        "graduation/defer/reject decisions",
+        "no raw-score promotion proof"
+      ]
+    },
+    {
+      "entry_gate": "FMDL4B_CANDIDATE_RESEARCH_AND_GRADUATION_ACCEPTED",
+      "exit_gate": "FMDL4C_INVESTMENT_OS_REENTRY_AND_STATE_CONTROLS_ACCEPTED",
+      "name": "Investment OS Re-entry and State Mutation Controls",
+      "phase_id": "FMDL-4C",
+      "required_deliverables": [
+        "candidate/simulation/real-account routers",
+        "state transition schema",
+        "versioned package diff",
+        "rollback and LKG proof",
+        "updated canonical Investment OS package"
+      ]
+    },
+    {
+      "entry_gate": "FMDL4C_INVESTMENT_OS_REENTRY_AND_STATE_CONTROLS_ACCEPTED",
+      "exit_gate": "FMDL4D_THESIS_ATTRIBUTION_AND_FEEDBACK_ACCEPTED",
+      "name": "Thesis Tracking, Attribution and Feedback Loop",
+      "phase_id": "FMDL-4D",
+      "required_deliverables": [
+        "thesis tracker",
+        "catalyst and prove-kill registry",
+        "selection/position/timing attribution",
+        "failure classification",
+        "auditable feedback proposals"
+      ]
+    },
+    {
+      "entry_gate": "FMDL4D_THESIS_ATTRIBUTION_AND_FEEDBACK_ACCEPTED",
+      "exit_gate": "FMDL4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION_ACCEPTED",
+      "name": "Unified Integration and Operational Acceptance",
+      "phase_id": "FMDL-4-FINAL",
+      "required_deliverables": [
+        "end-to-end replay",
+        "same-input idempotence",
+        "state-domain separation",
+        "Current/Archive/LKG publication",
+        "FMDL-5 entry pointer"
+      ]
+    }
+  ],
+  "program_id": "FMDL-4",
+  "program_name": "Public Equity Investing and Investment OS Integration",
+  "public_equity_workflow_map": {
+    "company_tearsheet": [
+      "ISSUER_IDENTITY",
+      "BUSINESS_MIX",
+      "FINANCIAL_SNAPSHOT",
+      "TRADING_CONTEXT"
+    ],
+    "deck_report_qc": [
+      "SOURCE_TIE_OUT",
+      "CIRCULATION_READINESS"
+    ],
+    "earnings_preview_and_deep_dive": [
+      "EXPECTATION_BAR",
+      "REPORTED_RESULTS",
+      "GUIDANCE",
+      "THESIS_IMPLICATIONS"
+    ],
+    "idea_generation": [
+      "SCREEN_TRIAGE",
+      "LONGLIST_PRIORITIZATION",
+      "NEXT_DILIGENCE"
+    ],
+    "initiating_coverage": [
+      "FULL_THESIS",
+      "RISKS",
+      "VALUATION_FRAMEWORK",
+      "INVESTMENT_VIEW"
+    ],
+    "meeting_prep": [
+      "MANAGEMENT_QUESTIONS",
+      "DILIGENCE_GAPS"
+    ],
+    "memo_builder": [
+      "RESEARCH_MEMO",
+      "PRE_TRADE_MEMO",
+      "THESIS_UPDATE"
+    ],
+    "portfolio_risk_management": [
+      "PORTFOLIO_FIT",
+      "POSITION_RISK",
+      "ADD_TRIM_EXIT_PROPOSAL_ONLY"
+    ],
+    "scenario_sensitivity": [
+      "DOWNSIDE_BASE_UPSIDE",
+      "BREAKPOINTS",
+      "ACTION_THRESHOLDS"
+    ],
+    "thesis_tracker": [
+      "CATALYST_IDS",
+      "PROVE_KILL_CHECKS",
+      "REVIEW_CADENCE"
+    ]
+  },
+  "publication_contract": {
+    "archive_is_immutable": true,
+    "archive_root": "outputs/fmdl4/architecture/archive",
+    "candidate_cannot_replace_current_on_failure": true,
+    "candidate_root": "outputs/fmdl4/architecture/candidate",
+    "current_requires_manifest": true,
+    "current_root": "outputs/fmdl4/architecture/current",
+    "last_known_good_required": true,
+    "last_success": "outputs/status/FMDL4_ARCHITECTURE_LAST_SUCCESS.json",
+    "release_root": "datasets/fmdl4/architecture/releases"
+  },
+  "role_separation": {
+    "candidate_pool": {
+      "allowed": [
+        "RESEARCH_PRIORITY_CHANGE",
+        "GRADUATION_PROPOSAL",
+        "DEFER",
+        "REJECT_WITH_REASON"
+      ],
+      "prohibited": [
+        "RAW_SCORE_AUTOMATIC_PROMOTION",
+        "TRADE_PERMISSION"
+      ],
+      "purpose": "Discovery, observation and research prioritization."
+    },
+    "real_account": {
+      "prohibited": [
+        "AUTOMATIC_ADMISSION",
+        "AUTOMATIC_POSITION_CHANGE",
+        "ORDER_EXECUTION"
+      ],
+      "purpose": "User-controlled capital allocation.",
+      "required_chain": [
+        "RESEARCH_CASE_READY",
+        "RCM_GATE",
+        "PORTFOLIO_FIT",
+        "ETF_ALTERNATIVE",
+        "CAPITAL_MIGRATION",
+        "PRE_TRADE_MEMO",
+        "USER_CONFIRMATION"
+      ]
+    },
+    "simulation_lab": {
+      "allowed": [
+        "EXPERIMENT_PROPOSAL",
+        "SHADOW_TRACK",
+        "SIMULATION_ADMISSION_AFTER_EXPERIMENT_GATE"
+      ],
+      "prohibited": [
+        "DIRECT_REAL_ACCOUNT_QUEUE",
+        "AUTOMATIC_REAL_ACCOUNT_MIGRATION"
+      ],
+      "purpose": "Controlled strategy experiment and failure-mode exposure."
+    }
+  },
+  "scope": {
+    "excluded_domains": [
+      "NEW_FULL_MARKET_DATA_COLLECTION",
+      "REBUILD_FMDL1_TO_FMDL3",
+      "UNSUPPORTED_ALPHA_CLAIM",
+      "RAW_SCORE_TO_TRADE_ACTION",
+      "AUTOMATIC_REAL_ACCOUNT_ADMISSION",
+      "AUTOMATIC_ORDER_GENERATION",
+      "BROKER_EXECUTION",
+      "TRADE_AUTHORITY"
+    ],
+    "owned_domains": [
+      "FMDL_RESEARCH_EVIDENCE_ENVELOPE",
+      "PUBLIC_EQUITY_RESEARCH_ROUTING",
+      "CANDIDATE_RESEARCH_AND_GRADUATION",
+      "INVESTMENT_OS_STATE_PACKAGE_ADAPTER",
+      "CANDIDATE_SIMULATION_REAL_ACCOUNT_ROLE_SEPARATION",
+      "THESIS_CATALYST_AND_PROVE_KILL_TRACKING",
+      "PORTFOLIO_ATTRIBUTION_AND_FEEDBACK",
+      "VERSIONED_STATE_DIFF_AND_ROLLBACK",
+      "CORE_STATIC_EVIDENCE_STATE_CURRENT_PACKAGE_UPGRADE"
+    ]
+  },
+  "trade_authority": "NONE"
+}

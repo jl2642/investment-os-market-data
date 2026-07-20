@@ -1,0 +1,136 @@
+{
+  "architecture_state": "FROZEN_FOR_FMDL4A_EXECUTION",
+  "archive_path": "outputs/fmdl4/architecture/archive/FMDL4_ARCH_20260720T130426+0800",
+  "authority": "RESEARCH_ORCHESTRATION_AND_STATE_GOVERNANCE_ONLY",
+  "bindings": {
+    "fmdl1_current_run_id": "FMDL1BC_20260717T174015+0800",
+    "fmdl1_interface_id": "FMDL_A_SHARE_MARKET_DATA_INTERFACE",
+    "fmdl2_release_id": "FMDL2D_20260717T220406+0800",
+    "fmdl3cd_release_id": "FMDL3CD_20260719T150020+0800",
+    "fmdl3cd_source_hardening_release_id": "FMDL3CC_20260719T142647+0800",
+    "fmdl3e_baseline_id": "3e962b6c3e2b669dc62f2b3a90dff32c5a624386aab9ead21eb2803b415403a3",
+    "fmdl3e_release_id": "FMDL3E_FINAL_20260720T121735+0800",
+    "fmdl3e_universe_symbol_count": 5528
+  },
+  "contract_path": "outputs/fmdl4/architecture/current/FMDL4_ARCHITECTURE_CONTRACT.json",
+  "contract_semantic_hash": "4179af7fd8cd2de5cdc3579e4a191ac6a871c26ca8133785a88d0f03cab120b1",
+  "controlled_limitations": [
+    {
+      "description": "The File Library pointer and package SHA are frozen, but GitHub CI cannot independently inspect the external ZIP until FMDL-4A imports and validates the canonical package content.",
+      "limitation_id": "EXTERNAL_INVESTMENT_OS_PACKAGE_CONTENT_IMPORT_PENDING",
+      "status": "OPEN_UNTIL_FMDL4A"
+    },
+    {
+      "description": "FMDL-2 proves deterministic screening and short-window stability, not realized long-horizon alpha.",
+      "limitation_id": "FMDL2_NO_LONG_HORIZON_ALPHA_PROOF",
+      "status": "OPEN"
+    },
+    {
+      "description": "FMDL-3E operating proof remains based on a real completed-session replay until a post-Baseline completed session is accepted.",
+      "limitation_id": "FMDL3E_LIVE_POST_BASELINE_ADVANCE_PENDING",
+      "status": "OPEN"
+    }
+  ],
+  "current_root": "outputs/fmdl4/architecture/current",
+  "decision_path": "outputs/fmdl4/architecture/current/FMDL4_ARCHITECTURE_DECISION.json",
+  "external_investment_os_baseline": {
+    "asset_architecture_version": "4.5.3",
+    "canonical_package": "股票投资助手_CURRENT.zip",
+    "operating_phase": "CONTROLLED_OBSERVATION_60_SESSIONS",
+    "package_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
+    "pointer_file": "股票投资助手_CURRENT_POINTER.md",
+    "project_sources_required": false,
+    "release_sequence": 4,
+    "run_id": "FMDL_1F_INVESTMENT_OS_INTERFACE_20260717_001",
+    "runtime_schema_version": "3.4.3",
+    "status": "ACTIVE_CANONICAL",
+    "verification_posture": "METADATA_POINTER_BOUND_PACKAGE_CONTENT_IMPORT_DEFERRED_TO_FMDL4A"
+  },
+  "independent_validation_path": "outputs/fmdl4/architecture/current/FMDL4_ARCHITECTURE_INDEPENDENT_VALIDATION.json",
+  "metrics": {
+    "bound_input_count": 8,
+    "canonical_object_count": 4,
+    "controlled_limitation_count": 3,
+    "elapsed_seconds": 0.002,
+    "external_investment_os_release_sequence": 4,
+    "global_hard_gate_count": 9,
+    "phase_count": 5,
+    "public_equity_workflow_count": 10
+  },
+  "next_gate": "FMDL-4A_RESEARCH_HANDOFF_AND_CANONICAL_STATE_PACKAGE_ADAPTER",
+  "phase_sequence": [
+    {
+      "entry_gate": "FMDL4_ARCHITECTURE_ACCEPTED",
+      "exit_gate": "FMDL4A_RESEARCH_HANDOFF_AND_CANONICAL_ADAPTER_ACCEPTED",
+      "name": "Research Handoff Contract and Canonical State-Package Adapter",
+      "phase_id": "FMDL-4A",
+      "required_deliverables": [
+        "evidence envelope schema",
+        "FMDL-to-Investment-OS adapter",
+        "Public Equity routing contract",
+        "Release-5 package candidate",
+        "independent validation"
+      ]
+    },
+    {
+      "entry_gate": "FMDL4A_RESEARCH_HANDOFF_AND_CANONICAL_ADAPTER_ACCEPTED",
+      "exit_gate": "FMDL4B_CANDIDATE_RESEARCH_AND_GRADUATION_ACCEPTED",
+      "name": "Candidate Research and Graduation",
+      "phase_id": "FMDL-4B",
+      "required_deliverables": [
+        "research-stage registry",
+        "prioritized research cohort",
+        "research objects",
+        "graduation/defer/reject decisions",
+        "no raw-score promotion proof"
+      ]
+    },
+    {
+      "entry_gate": "FMDL4B_CANDIDATE_RESEARCH_AND_GRADUATION_ACCEPTED",
+      "exit_gate": "FMDL4C_INVESTMENT_OS_REENTRY_AND_STATE_CONTROLS_ACCEPTED",
+      "name": "Investment OS Re-entry and State Mutation Controls",
+      "phase_id": "FMDL-4C",
+      "required_deliverables": [
+        "candidate/simulation/real-account routers",
+        "state transition schema",
+        "versioned package diff",
+        "rollback and LKG proof",
+        "updated canonical Investment OS package"
+      ]
+    },
+    {
+      "entry_gate": "FMDL4C_INVESTMENT_OS_REENTRY_AND_STATE_CONTROLS_ACCEPTED",
+      "exit_gate": "FMDL4D_THESIS_ATTRIBUTION_AND_FEEDBACK_ACCEPTED",
+      "name": "Thesis Tracking, Attribution and Feedback Loop",
+      "phase_id": "FMDL-4D",
+      "required_deliverables": [
+        "thesis tracker",
+        "catalyst and prove-kill registry",
+        "selection/position/timing attribution",
+        "failure classification",
+        "auditable feedback proposals"
+      ]
+    },
+    {
+      "entry_gate": "FMDL4D_THESIS_ATTRIBUTION_AND_FEEDBACK_ACCEPTED",
+      "exit_gate": "FMDL4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION_ACCEPTED",
+      "name": "Unified Integration and Operational Acceptance",
+      "phase_id": "FMDL-4-FINAL",
+      "required_deliverables": [
+        "end-to-end replay",
+        "same-input idempotence",
+        "state-domain separation",
+        "Current/Archive/LKG publication",
+        "FMDL-5 entry pointer"
+      ]
+    }
+  ],
+  "program_id": "FMDL-4",
+  "published_at": "2026-07-20T13:04:27+08:00",
+  "release_id": "FMDL4_ARCH_20260720T130426+0800",
+  "release_root": "datasets/fmdl4/architecture/releases/FMDL4_ARCH_20260720T130426+0800",
+  "release_version": "1.0.0",
+  "status": "FMDL4_ARCHITECTURE_ACCEPTED",
+  "trade_authority": "NONE",
+  "validation_path": "outputs/fmdl4/architecture/current/FMDL4_ARCHITECTURE_VALIDATION.json"
+}
