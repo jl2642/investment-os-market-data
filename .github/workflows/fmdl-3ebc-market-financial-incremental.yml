@@ -73,7 +73,7 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: deterministic-acceptance
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -85,9 +85,7 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-      - name: Refresh FMDL-1 to the latest completed session
-        run: python pipeline/run_daily.py --trigger manual
-      - name: Build eligible live increment or real completed-session replay
+      - name: Build eligible live increment or real completed-session replay from accepted Current
         run: |
           python - <<'PY'
           import json, subprocess, sys
@@ -98,7 +96,7 @@ jobs:
               command=[sys.executable,'-m','scripts.run_fmdl3ebc_incremental','--mode','live']
           else:
               command=[sys.executable,'-m','scripts.run_fmdl3ebc_replay_closure']
-          print({'selected_command': command, 'baseline_date': baseline['market_as_of_date'], 'current_date': current['as_of_date']})
+          print({'selected_command': command, 'baseline_date': baseline['market_as_of_date'], 'current_date': current['as_of_date'], 'source_policy': 'ACCEPTED_CURRENT_ONLY'})
           subprocess.run(command, check=True)
           PY
       - name: Independently validate operational candidate
@@ -108,11 +106,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fmdl3ebc-production-candidate
-          path: |
-            outputs/fmdl3e/incremental/candidate/
-            outputs/current/
-            diagnostics/
-          if-no-files-found: warn
+          path: outputs/fmdl3e/incremental/candidate/
+          if-no-files-found: error
           retention-days: 30
       - name: Enforce FMDL-3E-BC acceptance
         run: |
@@ -131,7 +126,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/current outputs/archive outputs/status outputs/fmdl3e/incremental/current outputs/fmdl3e/incremental/archive outputs/fmdl3e/incremental/candidate datasets/fmdl3e/incremental/releases
+          git add outputs/status outputs/fmdl3e/incremental/current outputs/fmdl3e/incremental/archive outputs/fmdl3e/incremental/candidate datasets/fmdl3e/incremental/releases
           if git diff --cached --quiet; then
             echo "No accepted FMDL-3E-BC state changes to commit"
           else
