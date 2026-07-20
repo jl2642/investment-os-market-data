@@ -3,6 +3,7 @@ name: FMDL 5A Official Source Discovery
 on:
   pull_request:
     paths:
+      - "config/fmdl5a_*.json"
       - "scripts/fmdl5a_discover_official_sources.py"
       - ".github/workflows/fmdl-5a-source-discovery.yml"
   workflow_dispatch:
@@ -20,6 +21,7 @@ jobs:
       - run: python -m py_compile scripts/fmdl5a_discover_official_sources.py
       - run: python scripts/fmdl5a_discover_official_sources.py --output outputs/fmdl5a/source_discovery
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: fmdl5a-source-discovery
           path: outputs/fmdl5a/source_discovery
