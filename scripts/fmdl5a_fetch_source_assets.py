@@ -12,6 +12,13 @@ ASSETS = {
     "sse_page": "https://www.sse.com.cn/services/hkexsc/disclo/eligible/",
     "szse_page": "https://www.szse.cn/szhk/hkbussiness/underlylist/",
     "szse_page_www": "https://www.szse.cn/www/szhk/hkbussiness/underlylist/",
+    "szse_report_new_js": "https://www.szse.cn/modules/report/js/report_new.js",
+    "szse_detail_report_js": "https://www.szse.cn/modules/report/js/detail_report.js",
+    "szse_common_report_js": "https://www.szse.cn/modules/report/js/common_report.js",
+    "szse_report_new_static_js": "https://res.static.szse.cn/www/modules/report/js/report_new.js",
+    "szse_detail_report_static_js": "https://res.static.szse.cn/www/modules/report/js/detail_report.js",
+    "szse_common_report_static_js": "https://res.static.szse.cn/www/modules/report/js/common_report.js",
+    "szse_path_js": "https://www.szse.cn/szsePath.js",
 }
 
 
@@ -22,7 +29,7 @@ def main() -> int:
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=True)
     s = requests.Session()
-    s.headers.update({"User-Agent": "Mozilla/5.0 InvestmentOS-FMDL5A/1.0", "Referer": "https://www.hkex.com.hk/"})
+    s.headers.update({"User-Agent": "Mozilla/5.0 InvestmentOS-FMDL5A/1.0", "Referer": "https://www.szse.cn/"})
     result = {}
     for name, url in ASSETS.items():
         try:
