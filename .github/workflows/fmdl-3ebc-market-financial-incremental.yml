@@ -1,0 +1,123 @@
+name: FMDL 3E-BC Market and Financial Incremental Refresh
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl3ebc_incremental_refresh.json"
+      - "schemas/fmdl3ebc_delta_event_v1.schema.json"
+      - "scripts/fmdl3ebc_core.py"
+      - "scripts/run_fmdl3ebc_incremental.py"
+      - "scripts/validate_fmdl3ebc_candidate.py"
+      - "scripts/publish_fmdl3ebc.py"
+      - "tests/test_fmdl3ebc_incremental.py"
+      - "docs/FMDL-3E-BC_*.md"
+      - ".github/workflows/fmdl-3ebc-market-financial-incremental.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3ebc_incremental_refresh.json"
+      - "schemas/fmdl3ebc_delta_event_v1.schema.json"
+      - "scripts/fmdl3ebc_core.py"
+      - "scripts/run_fmdl3ebc_incremental.py"
+      - "scripts/validate_fmdl3ebc_candidate.py"
+      - "scripts/publish_fmdl3ebc.py"
+      - "tests/test_fmdl3ebc_incremental.py"
+      - "docs/FMDL-3E-BC_*.md"
+      - ".github/workflows/fmdl-3ebc-market-financial-incremental.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-3ebc-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Unit and compile checks
+        run: |
+          pytest -q tests/test_fmdl3ebc_incremental.py
+          python -m py_compile scripts/fmdl3ebc_core.py scripts/run_fmdl3ebc_incremental.py scripts/validate_fmdl3ebc_candidate.py scripts/publish_fmdl3ebc.py
+      - name: Build deterministic candidate
+        run: python -m scripts.run_fmdl3ebc_incremental --mode fixture
+      - name: Independently validate deterministic candidate
+        run: python -m scripts.validate_fmdl3ebc_candidate
+      - name: Upload deterministic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3ebc-deterministic-candidate
+          path: outputs/fmdl3e/incremental/candidate/
+          if-no-files-found: error
+          retention-days: 30
+
+  live-production:
+    if: github.event_name != 'pull_request'
+    needs: deterministic-acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Refresh FMDL-1 to the latest completed session
+        run: python pipeline/run_daily.py --trigger manual
+      - name: Build live market and financial PIT incremental candidate
+        run: python -m scripts.run_fmdl3ebc_incremental --mode live
+      - name: Independently validate live candidate
+        run: python -m scripts.validate_fmdl3ebc_candidate
+      - name: Upload live evidence before enforcement
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3ebc-live-candidate
+          path: |
+            outputs/fmdl3e/incremental/candidate/
+            outputs/current/
+            diagnostics/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Enforce FMDL-3E-BC acceptance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('outputs/fmdl3e/incremental/candidate/FMDL3EBC_DECISION.json').read_text())
+          v=json.loads(Path('outputs/fmdl3e/incremental/candidate/FMDL3EBC_VALIDATION.json').read_text())
+          assert d['status']=='FMDL3EBC_MARKET_AND_FINANCIAL_INCREMENTAL_REFRESH_ACCEPTED' and d['hard_failures']==[]
+          assert v['status']=='PASS' and v['hard_failures']==[]
+          PY
+      - name: Publish immutable Release Current Archive and Last-success
+        run: python -m scripts.publish_fmdl3ebc
+      - name: Commit accepted operating state
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/current outputs/archive outputs/status outputs/fmdl3e/incremental/current outputs/fmdl3e/incremental/archive outputs/fmdl3e/incremental/candidate datasets/fmdl3e/incremental/releases
+          if git diff --cached --quiet; then
+            echo "No accepted FMDL-3E-BC state changes to commit"
+          else
+            git commit -m "data: publish FMDL-3E-B/C incremental acceptance [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
