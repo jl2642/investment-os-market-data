@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl4d_feedback_proposal_v1.schema.json",
+  "title": "FMDL-4D Feedback Proposal",
+  "type": "object",
+  "required": [
+    "proposal_id", "title", "scope_symbols", "proposal", "minimum_evidence",
+    "status", "rule_mutation_applied", "human_approval_required", "regression_required",
+    "authority", "trade_authority"
+  ],
+  "properties": {
+    "proposal_id": {"type": "string", "pattern": "^FMDL4D-FB-[0-9]{3}$"},
+    "title": {"type": "string"},
+    "scope_symbols": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "proposal": {"type": "string", "minLength": 20},
+    "minimum_evidence": {"type": "string", "minLength": 5},
+    "status": {"enum": ["PROPOSED_NOT_APPLIED", "GOVERNANCE_FIREWALL_ACTIVE"]},
+    "rule_mutation_applied": {"const": false},
+    "human_approval_required": {"const": true},
+    "regression_required": {"const": true},
+    "authority": {"const": "THESIS_TRACKING_ATTRIBUTION_AND_FEEDBACK_PROPOSALS_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": false
+}
