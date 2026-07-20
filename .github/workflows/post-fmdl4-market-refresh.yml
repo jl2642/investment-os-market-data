@@ -1,0 +1,49 @@
+name: POST FMDL 4 Market Refresh
+
+on:
+  pull_request:
+    paths:
+      - "config/post_fmdl4_*.json"
+      - "scripts/post_fmdl4_*.py"
+      - "tests/test_post_fmdl4_*.py"
+      - ".github/workflows/post-fmdl4-market-refresh.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/post_fmdl4_*.json"
+      - "scripts/post_fmdl4_*.py"
+      - "tests/test_post_fmdl4_*.py"
+      - ".github/workflows/post-fmdl4-market-refresh.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  market-refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check requests pytest
+      - name: Unit tests
+        run: python -m pytest -q tests/test_post_fmdl4_market_refresh.py
+      - name: Compile checks
+        run: python -m py_compile scripts/post_fmdl4_fetch_market.py
+      - name: Fetch July 20 close and latest fund NAV
+        run: |
+          rm -rf outputs/post_fmdl4/market_refresh_candidate
+          python scripts/post_fmdl4_fetch_market.py \
+            --config config/post_fmdl4_symbol_universe.json \
+            --output outputs/post_fmdl4/market_refresh_candidate
+      - name: Upload market refresh candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-fmdl4-market-refresh-candidate
+          path: outputs/post_fmdl4/market_refresh_candidate
+          if-no-files-found: error
+          retention-days: 30
