@@ -1,0 +1,142 @@
+{
+  "decision_version": "1.1.0",
+  "release_id": "FMDL3EBC_20260720T105314+0800",
+  "generated_at": "2026-07-20T10:53:14+08:00",
+  "program_id": "FMDL-3E-BC",
+  "mode": "real_completed_session_replay",
+  "status": "FMDL3EBC_MARKET_AND_FINANCIAL_INCREMENTAL_REFRESH_ACCEPTED",
+  "market_status": "FMDL3EB_MARKET_INCREMENTAL_REFRESH_ACCEPTED",
+  "financial_status": "FMDL3EC_FINANCIAL_PIT_INCREMENTAL_REFRESH_ACCEPTED",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "ENTRY_POINTER_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ENTRY_NEXT_GATE_ALIGNED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "BASELINE_ID_ALIGNED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "BASELINE_SOURCE_HASHES_UNCHANGED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MARKET_EVENT_CATALOGUED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MARKET_REAL_COMPLETED_SESSION_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MARKET_DATE_STRICTLY_ADVANCED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MARKET_SYMBOL_COVERAGE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MARKET_DUPLICATE_SYMBOL_ZERO",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FROZEN_BASELINE_UNCHANGED_DURING_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FINANCIAL_EVENTS_CATALOGUED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FINANCIAL_EVENT_MINIMUM",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FIRST_DISCLOSURE_CASE_PRESENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "REVISION_CASE_PRESENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FINANCIAL_AFFECTED_SCOPE_WITHIN_THRESHOLD",
+      "status": "PASS"
+    },
+    {
+      "check_id": "OLD_VERSION_PRESERVED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FUTURE_INFORMATION_ZERO",
+      "status": "PASS"
+    },
+    {
+      "check_id": "DUPLICATE_EVENT_ID_ZERO",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXPLICIT_AFFECTED_SCOPE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "mode": "real_completed_session_replay",
+    "market_acceptance_mode": "REAL_COMPLETED_SESSION_REPLAY",
+    "baseline_id": "3e962b6c3e2b669dc62f2b3a90dff32c5a624386aab9ead21eb2803b415403a3",
+    "source_fmdl3d_release_id": "FMDL3D_FINAL_20260719T233219+0800",
+    "baseline_market_as_of_date": "2026-07-17",
+    "refreshed_market_as_of_date": "2026-07-17",
+    "market_replay_from_date": "2026-07-16",
+    "market_replay_to_date": "2026-07-17",
+    "post_frozen_baseline_advance_observed": false,
+    "baseline_symbol_count": 5528,
+    "market_delta_row_count": 5528,
+    "market_symbol_coverage_ratio": 0.999095513748191,
+    "market_changed_close_count": 5482,
+    "market_missing_close_count": 5,
+    "source_hash_error_count": 0,
+    "duplicate_event_id_count": 0,
+    "financial_affected_symbol_ratio": 0.000361794500723589,
+    "statement_release_id": "FMDL3B4_20260719T020726+0800",
+    "financial_event_count": 2,
+    "live_financial_event_count": 0,
+    "historical_replay_event_count": 2,
+    "first_disclosure_case_count": 1,
+    "revision_case_count": 1,
+    "affected_symbol_count": 2,
+    "version_ledger_row_count": 16,
+    "fact_delta_row_count": 2,
+    "numeric_changed_or_added_fact_count": 0,
+    "future_information_count": 0,
+    "fetch_support_row_count": 0,
+    "elapsed_seconds": 7.5759
+  },
+  "semantic_hashes": {
+    "market_delta": "535b90d7ff531930485b41cab2b462ecefdfa8ad842ef627977e873b938e04f7",
+    "financial_events": "1e8812a6201ac76fc5b78bec8b757fec2f143a54445dad5ccf821fca35bd3468",
+    "financial_facts": "bbf42613d4636c4a118b3b04d92232f10b655a03be44443835ec38933afa0391",
+    "financial_versions": "f26403b32cb187f9481121cfb0e87c3107bf3a4479180fad33cd6c0be72358bc",
+    "affected_scope": "f2efcd657dfa50368778ee00849c7ee3c7c0e349df2c370c10ae4aab3479c870"
+  },
+  "controlled_limitations": [
+    "POST_FROZEN_BASELINE_LIVE_MARKET_ADVANCE_NOT_YET_OBSERVED; REAL_COMPLETED_SESSION_REPLAY_USED_FOR_ACCEPTANCE",
+    "NO_POST_BASELINE_LIVE_FINANCIAL_NOTICE_SELECTED; REAL_HISTORICAL_PIT_REVISION_CHAINS_USED_FOR_OPERATIONAL_REPLAY",
+    "PRE_REVISION_STRUCTURED_VALUES_NOT_RETAINED_FOR_SELECTED_REPLAY_CASES; DOCUMENT_VERSION_PIT_REPLAY_REMAINS_AUDITABLE",
+    "FMDL-3E-BC_BUILDS_AND_VALIDATES_DELTA_ASSETS_ONLY; DOWNSTREAM_CURRENT_PROPAGATION_IS_FMDL-3E-DE",
+    "NO_INVESTMENT_SCORE_TARGET_PRICE_PORTFOLIO_ACTION_OR_TRADE_PERMISSION"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3E-DE_PROPAGATION_RESILIENCE_AND_REPLAY"
+}
