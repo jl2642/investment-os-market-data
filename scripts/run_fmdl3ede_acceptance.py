@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import shutil
+import sys
 import time
+import traceback
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -33,6 +35,18 @@ def main() -> int:
         "authority": cfg["authority"],
         "trade_authority": "NONE",
     })
+    def _runtime_failure(exc_type, exc, tb):
+        core.write_json(candidate / "FMDL3E_RUNTIME_FAILURE.json", {
+            "status": "FAIL",
+            "error_type": exc_type.__name__,
+            "error": str(exc),
+            "traceback": "".join(traceback.format_exception(exc_type, exc, tb))[-12000:],
+            "authority": cfg["authority"],
+            "trade_authority": "NONE",
+        })
+        sys.__excepthook__(exc_type, exc, tb)
+
+    sys.excepthook = _runtime_failure
     try:
         pointer = core.read_json(ROOT / cfg["entry_gate"]["pointer_path"])
         incremental_release = core.read_json(ROOT / cfg["entry_gate"]["incremental_release"])
