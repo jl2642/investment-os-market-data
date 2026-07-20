@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl3ebc_delta_event_v1.schema.json",
+  "title": "FMDL-3E-BC Delta Event",
+  "type": "object",
+  "required": [
+    "event_id", "event_type", "domain", "detected_at", "effective_at",
+    "affected_scope", "source_reference", "pit_replay_required",
+    "authority", "trade_authority"
+  ],
+  "properties": {
+    "event_id": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "event_type": {"type": "string"},
+    "domain": {"enum": ["MARKET", "FINANCIAL"]},
+    "detected_at": {"type": "string"},
+    "effective_at": {"type": ["string", "null"]},
+    "symbol": {"type": ["string", "null"]},
+    "period_end": {"type": ["string", "null"]},
+    "affected_scope": {"type": "string"},
+    "source_reference": {"type": "string"},
+    "pit_replay_required": {"type": "boolean"},
+    "live_detected": {"type": "boolean"},
+    "authority": {"const": "DATA_AND_RESEARCH_EVIDENCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
