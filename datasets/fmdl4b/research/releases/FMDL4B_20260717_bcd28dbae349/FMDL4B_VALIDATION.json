@@ -1,0 +1,88 @@
+{
+  "authority": "PUBLIC_EQUITY_RESEARCH_AND_GRADUATION_ONLY",
+  "checks": [
+    {
+      "check_id": "DECISION_AND_COUNTS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "RESEARCH_OBJECT_SCHEMA_AND_BINDING",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PUBLIC_SOURCE_LEDGER",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NO_RAW_SCORE_PROMOTION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SEMANTIC_HASHES_AND_PROFILE_IDENTITY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_STATE_MUTATION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "controlled_limitations": [
+    {
+      "description": "FMDL-4B creates formal Research Objects for the 20 A-priority names; the remaining 80 retain traceable deferred stages and are not mechanically rejected.",
+      "limitation_id": "ACTIVE_RESEARCH_COHORT_LIMITED_TO_TOP_20",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "The 20 Research Objects use current public disclosure baselines and FMDL evidence; full forecasts, valuation scenarios and complete initiating coverage remain downstream work.",
+      "limitation_id": "PUBLIC_DISCLOSURE_BASELINE_NOT_FULL_INITIATING_COVERAGE",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "Graduation does not admit a name to the candidate pool, simulation or real account and grants no trade authority.",
+      "limitation_id": "GRADUATED_IS_RESEARCH_CASE_READY_ONLY",
+      "status": "PERMANENT_BOUNDARY"
+    }
+  ],
+  "graduated_meaning": "RESEARCH_CASE_READY_ONLY_NOT_CANDIDATE_POOL_ADMISSION_NOT_TRADE_READY",
+  "hard_failures": [],
+  "metrics": {
+    "active_cohort_count": 20,
+    "decision_count": 100,
+    "deferred_count": 89,
+    "duplicate_registry_symbol_count": 0,
+    "duplicate_research_object_symbol_count": 0,
+    "elapsed_seconds": 0.1592,
+    "formal_research_object_count": 20,
+    "graduated_count": 6,
+    "independent_graduation_decisions_hash": "4d206e854b61bf9725e9a9ab544590ecaeca84624c537eeb98070f922ebf827f",
+    "independent_research_object_hash": "8ce7366c2d73a2b86ebfd40ad38313a7b41b56a29915c1ab54e6c6e15ddfa2b3",
+    "independent_stage_registry_hash": "401aebb24fde7c48c9a815cbac484aa15cfc66865dfa30346635dfab2fa5b912",
+    "missing_active_profile_count": 0,
+    "missing_evidence_binding_count": 0,
+    "object_row_binding_error_count": 0,
+    "public_source_count": 42,
+    "raw_score_only_decision_count": 0,
+    "rejected_count": 5,
+    "research_object_schema_error_count": 0,
+    "research_object_validation_error_count": 0,
+    "source_ledger_error_count": 0,
+    "source_requirement_error_count": 0,
+    "state_mutation_count": 0,
+    "state_mutation_error_count_independent": 0,
+    "total_registry_count": 100,
+    "trade_authority_error_count": 0,
+    "trade_authority_error_count_independent": 0,
+    "unknown_evidence_binding_count": 0,
+    "unknown_profile_symbol_count": 0
+  },
+  "next_gate": "FMDL-4C_INVESTMENT_OS_REENTRY_AND_STATE_MUTATION_CONTROLS",
+  "program_id": "FMDL-4B",
+  "release_id": "FMDL4B_20260717_bcd28dbae349",
+  "status": "PASS",
+  "trade_authority": "NONE",
+  "validation_version": "1.0.0"
+}

@@ -1,0 +1,130 @@
+{
+  "authority": "PUBLIC_EQUITY_RESEARCH_AND_GRADUATION_ONLY",
+  "bindings": {
+    "fmdl4a_base_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
+    "fmdl4a_candidate_release_sequence": 5,
+    "fmdl4a_evidence_envelope_hash": "2089497095f29fe1f2719c2935a80f3361451471a153ef44e1b123f1d524e83a",
+    "fmdl4a_registry_hash": "bd6012ac91d7295dbcd06e608a9643f0f7bf8fea06e3f06e11afdab8b0068b8b",
+    "fmdl4a_release_id": "FMDL4A_20260717_b71d8020aa77",
+    "source_release_ids": {
+      "FMDL-2": "FMDL2D_20260717T220406+0800",
+      "FMDL-3C-D": "FMDL3CD_20260719T150020+0800",
+      "FMDL-3E-FINAL": "FMDL3E_FINAL_20260720T121735+0800",
+      "architecture_release_id": "FMDL4_ARCH_20260720T130426+0800",
+      "fmdl3cd_source_hardening_release_id": "FMDL3CC_20260719T142647+0800",
+      "fmdl3e_baseline_id": "3e962b6c3e2b669dc62f2b3a90dff32c5a624386aab9ead21eb2803b415403a3",
+      "screening_release_id": "FMDL2C_20260717T210036+0800"
+    }
+  },
+  "checks": [
+    {
+      "check_id": "ENTRY_GATE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "TOTAL_REGISTRY_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ACTIVE_COHORT_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FORMAL_RESEARCH_OBJECT_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_100_DECISIONS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MINIMUM_GRADUATED_COUNT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PROFILE_AND_EVIDENCE_BINDING",
+      "status": "PASS"
+    },
+    {
+      "check_id": "RESEARCH_OBJECT_VALIDATION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PUBLIC_SOURCE_REQUIREMENTS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NO_RAW_SCORE_ONLY_DECISIONS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_STATE_MUTATION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PROFILE_PAYLOAD_IDENTITY",
+      "status": "PASS"
+    }
+  ],
+  "controlled_limitations": [
+    {
+      "description": "FMDL-4B creates formal Research Objects for the 20 A-priority names; the remaining 80 retain traceable deferred stages and are not mechanically rejected.",
+      "limitation_id": "ACTIVE_RESEARCH_COHORT_LIMITED_TO_TOP_20",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "The 20 Research Objects use current public disclosure baselines and FMDL evidence; full forecasts, valuation scenarios and complete initiating coverage remain downstream work.",
+      "limitation_id": "PUBLIC_DISCLOSURE_BASELINE_NOT_FULL_INITIATING_COVERAGE",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "Graduation does not admit a name to the candidate pool, simulation or real account and grants no trade authority.",
+      "limitation_id": "GRADUATED_IS_RESEARCH_CASE_READY_ONLY",
+      "status": "PERMANENT_BOUNDARY"
+    }
+  ],
+  "decision_version": "1.0.0",
+  "generated_at": "2026-07-20T14:29:32+08:00",
+  "graduated_meaning": "RESEARCH_CASE_READY_ONLY_NOT_CANDIDATE_POOL_ADMISSION_NOT_TRADE_READY",
+  "hard_failures": [],
+  "metrics": {
+    "active_cohort_count": 20,
+    "decision_count": 100,
+    "deferred_count": 89,
+    "duplicate_registry_symbol_count": 0,
+    "duplicate_research_object_symbol_count": 0,
+    "elapsed_seconds": 0.1592,
+    "formal_research_object_count": 20,
+    "graduated_count": 6,
+    "missing_active_profile_count": 0,
+    "missing_evidence_binding_count": 0,
+    "public_source_count": 42,
+    "raw_score_only_decision_count": 0,
+    "rejected_count": 5,
+    "research_object_validation_error_count": 0,
+    "source_requirement_error_count": 0,
+    "state_mutation_count": 0,
+    "total_registry_count": 100,
+    "trade_authority_error_count": 0,
+    "unknown_profile_symbol_count": 0
+  },
+  "next_gate": "FMDL-4C_INVESTMENT_OS_REENTRY_AND_STATE_MUTATION_CONTROLS",
+  "program_id": "FMDL-4B",
+  "release_id": "FMDL4B_20260717_bcd28dbae349",
+  "research_version": "FMDL4B-RV1-20260717",
+  "semantic_hashes": {
+    "graduation_decisions": "4d206e854b61bf9725e9a9ab544590ecaeca84624c537eeb98070f922ebf827f",
+    "mutation_proof": "a31c0f83bc64506daf118388c64b879139ec4f806b2f6f5dc2db7317a1ee3fb6",
+    "profile_payload": "f6fca9f3e00df1149a87a379e011cceee756ce4886fe4b38ee66c006cbc40c25",
+    "raw_score_proof": "53374eedc0772ef260fbb7dc33924a9a45731fa59966b2e1b128097757452648",
+    "research_objects": "8ce7366c2d73a2b86ebfd40ad38313a7b41b56a29915c1ab54e6c6e15ddfa2b3",
+    "source_ledger": "e7e1a47817496da88239b8e06c358821a49d70fd0999ffc8cec8b0c0b05f8161",
+    "stage_registry": "401aebb24fde7c48c9a815cbac484aa15cfc66865dfa30346635dfab2fa5b912"
+  },
+  "status": "FMDL4B_CANDIDATE_RESEARCH_AND_GRADUATION_ACCEPTED",
+  "trade_authority": "NONE"
+}
