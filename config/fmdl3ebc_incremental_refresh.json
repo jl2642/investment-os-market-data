@@ -1,0 +1,63 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3E-BC",
+  "program_name": "Market and Financial Point-in-Time Incremental Refresh",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL3EA_LAST_SUCCESS.json",
+    "required_status": "FMDL3EA_INCREMENTAL_REFRESH_CONTRACT_ACCEPTED",
+    "required_next_gate": "FMDL-3E-BC_MARKET_AND_FINANCIAL_INCREMENTAL_REFRESH",
+    "baseline_manifest": "outputs/fmdl3e/contract/current/FMDL3EA_BASELINE_MANIFEST.json",
+    "baseline_symbol_hashes": "outputs/fmdl3e/contract/current/FMDL3EA_BASELINE_SYMBOL_HASHES.parquet",
+    "delta_event_catalog": "outputs/fmdl3e/contract/current/FMDL3EA_DELTA_EVENT_CATALOG.csv"
+  },
+  "market": {
+    "source_release": "outputs/current/CURRENT_RELEASE.json",
+    "source_snapshot": "outputs/current/DAILY_MARKET_SNAPSHOT.csv",
+    "baseline_unified": "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_CURRENT.parquet",
+    "required_source_statuses": ["PUBLISHED", "PUBLISHED_WITH_WARNINGS"],
+    "minimum_symbol_coverage_ratio": 0.99,
+    "allow_full_universe_increment_for_market_session": true,
+    "require_strictly_later_completed_session": true
+  },
+  "financial": {
+    "statement_release": "outputs/financials/statements/current/FMDL3B4_RELEASE.json",
+    "statement_catalog": "outputs/financials/statements/current/FMDL3B4_STATEMENT_CATALOG.csv",
+    "field_registry": "config/fmdl3b_field_registry.json",
+    "statement_store_config": "config/fmdl3b_statement_store.json",
+    "live_notice_categories": ["财务报告", "信息变更"],
+    "maximum_notice_lookback_days": 31,
+    "maximum_live_symbols": 8,
+    "minimum_report_period_end": "2023-01-01",
+    "maximum_periods_per_statement": 16,
+    "minimum_financial_event_count": 2,
+    "require_first_disclosure_case": true,
+    "require_revision_case": true,
+    "allow_real_historical_pit_replay_when_no_post_baseline_case": true,
+    "maximum_affected_symbol_ratio": 0.20
+  },
+  "acceptance": {
+    "maximum_future_information_count": 0,
+    "maximum_duplicate_event_id_count": 0,
+    "maximum_duplicate_market_symbol_count": 0,
+    "maximum_source_hash_error_count": 0,
+    "require_explicit_affected_scope": true,
+    "require_old_version_preservation": true,
+    "require_no_trade_authority": true
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl3e/incremental/candidate",
+    "current_root": "outputs/fmdl3e/incremental/current",
+    "archive_root": "outputs/fmdl3e/incremental/archive",
+    "release_root": "datasets/fmdl3e/incremental/releases",
+    "last_success": "outputs/status/FMDL3EBC_LAST_SUCCESS.json"
+  },
+  "substatus": {
+    "market_exit": "FMDL3EB_MARKET_INCREMENTAL_REFRESH_ACCEPTED",
+    "financial_exit": "FMDL3EC_FINANCIAL_PIT_INCREMENTAL_REFRESH_ACCEPTED"
+  },
+  "exit_status": "FMDL3EBC_MARKET_AND_FINANCIAL_INCREMENTAL_REFRESH_ACCEPTED",
+  "next_gate": "FMDL-3E-DE_PROPAGATION_RESILIENCE_AND_REPLAY",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
