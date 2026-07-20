@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl4_final_release_manifest_v1.schema.json",
+  "title": "FMDL-4 Final Release 8 Unified Integration Manifest",
+  "type": "object",
+  "required": [
+    "manifest_version", "composition_sequence", "composition_status", "composition_mode",
+    "external_base", "component_releases", "files", "aggregate_sha256",
+    "investment_state_mutation_count", "order_generation_count", "trade_authority"
+  ],
+  "properties": {
+    "manifest_version": {"const": "1.0.0"},
+    "composition_sequence": {"const": 8},
+    "composition_status": {"const": "FMDL4_RELEASE8_UNIFIED_INTEGRATION_CANDIDATE"},
+    "composition_mode": {"const": "IMMUTABLE_EXTERNAL_BASE_PLUS_VERSIONED_ADDITIVE_RELEASES"},
+    "external_base": {"type": "object"},
+    "component_releases": {"type": "array", "minItems": 4, "maxItems": 4},
+    "files": {"type": "array", "minItems": 7},
+    "aggregate_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "investment_state_mutation_count": {"const": 0},
+    "order_generation_count": {"const": 0},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
