@@ -1,0 +1,42 @@
+{
+  "program_id": "FMDL-5B-1",
+  "title": "HK Universe Security Identity Contract and Canonical Security Master",
+  "input_release": {
+    "program_id": "FMDL-5A",
+    "release_id": "FMDL5A_20260720_031b3430a7d0",
+    "release_sequence": 10,
+    "universe_path": "outputs/fmdl5a/current/FMDL5A_CANONICAL_UNIVERSE.csv",
+    "expected_count": 644
+  },
+  "identity_rules": {
+    "security_id_format": "HKEX:{stock_code_5d}",
+    "issuer_id_format": "HKISSUER-PROVISIONAL:{stock_code_5d}",
+    "market": "HKEX",
+    "country_of_listing": "HK",
+    "default_trading_currency": "HKD",
+    "issuer_identity_status": "PROVISIONAL_SECURITY_LEVEL_IDENTITY",
+    "semantic_enrichment_status": "PENDING_SEMANTIC_ENRICHMENT"
+  },
+  "allowed_security_types": ["COMMON_EQUITY", "ETF", "REIT", "OTHER_LISTED_SECURITY", "UNKNOWN"],
+  "required_fields": [
+    "security_id", "issuer_id", "stock_code_5d", "ticker_hk", "name_zh", "name_en",
+    "market", "country_of_listing", "trading_currency", "security_type",
+    "identity_status", "semantic_enrichment_status", "shanghai_connect",
+    "shenzhen_connect", "eligibility_status", "source_release_id"
+  ],
+  "governance": {
+    "candidate_pool_mutation": false,
+    "simulation_mutation": false,
+    "real_account_mutation": false,
+    "order_generation": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "expected_rows": 644,
+    "unique_security_id_ratio": 1.0,
+    "unique_stock_code_ratio": 1.0,
+    "required_field_completeness": 1.0,
+    "hard_failure_on_input_release_mismatch": true
+  },
+  "next_gate": "FMDL-5B-2_ISSUER_AND_CROSS_MARKET_SEMANTICS"
+}
