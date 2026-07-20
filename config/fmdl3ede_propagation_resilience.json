@@ -1,0 +1,55 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3E-DE",
+  "program_name": "Downstream Propagation, Deterministic Replay and Resilience Acceptance",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL3EBC_LAST_SUCCESS.json",
+    "required_status": "FMDL3EBC_MARKET_AND_FINANCIAL_INCREMENTAL_REFRESH_ACCEPTED",
+    "required_next_gate": "FMDL-3E-DE_PROPAGATION_RESILIENCE_AND_REPLAY",
+    "incremental_release": "outputs/fmdl3e/incremental/current/FMDL3EBC_RELEASE.json"
+  },
+  "inputs": {
+    "baseline_unified": "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_CURRENT.parquet",
+    "market_delta": "outputs/fmdl3e/incremental/current/FMDL3EB_MARKET_DELTA.parquet",
+    "financial_events": "outputs/fmdl3e/incremental/current/FMDL3EC_FINANCIAL_EVENT_LEDGER.parquet",
+    "financial_fact_delta": "outputs/fmdl3e/incremental/current/FMDL3EC_FINANCIAL_FACT_DELTA.parquet",
+    "financial_version_ledger": "outputs/fmdl3e/incremental/current/FMDL3EC_FINANCIAL_VERSION_LEDGER.parquet",
+    "affected_scope": "outputs/fmdl3e/incremental/current/FMDL3EBC_AFFECTED_SCOPE.csv"
+  },
+  "propagation": {
+    "required_universe_symbol_count": 5528,
+    "required_market_coverage_ratio": 0.99,
+    "price_multiple_fields": ["pe_ttm", "pb", "ps_ttm", "ev_sales_ttm", "ev_operating_income_ttm"],
+    "inverse_price_fields": ["earnings_yield_ttm", "fcf_yield_ttm", "dividend_yield_ttm", "completed_buyback_yield_ttm", "completed_issuance_dilution_yield_ttm"],
+    "shareholder_yield_components": ["dividend_yield_ttm", "completed_buyback_yield_ttm", "completed_issuance_dilution_yield_ttm"],
+    "financial_document_only_change_types": ["PIT_DOCUMENT_VERSION_REPLAY"],
+    "preserve_controlled_nulls": true
+  },
+  "acceptance": {
+    "maximum_full_rebuild_mismatch_count": 0,
+    "maximum_idempotence_mismatch_count": 0,
+    "maximum_duplicate_symbol_count": 0,
+    "maximum_future_information_count": 0,
+    "maximum_source_hash_error_count": 0,
+    "require_failure_injection_rejected": true,
+    "require_rollback_lkg_preserved": true,
+    "require_zero_trade_authority": true
+  },
+  "failure_injection": {
+    "duplicate_market_symbol": true,
+    "future_financial_event": true,
+    "corrupt_semantic_hash": true
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl3e/final/candidate",
+    "current_root": "outputs/fmdl3e/final/current",
+    "archive_root": "outputs/fmdl3e/final/archive",
+    "release_root": "datasets/fmdl3e/final/releases",
+    "last_success": "outputs/status/FMDL3E_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3E_INCREMENTAL_PROPAGATION_RESILIENCE_AND_REPLAY_ACCEPTED",
+  "next_gate": "FMDL-4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}

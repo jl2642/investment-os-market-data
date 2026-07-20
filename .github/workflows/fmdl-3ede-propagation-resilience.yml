@@ -1,0 +1,81 @@
+name: FMDL 3E-D/E Propagation Resilience and Replay
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl3ede_propagation_resilience.json"
+      - "scripts/fmdl3ede_core.py"
+      - "scripts/run_fmdl3ede_acceptance.py"
+      - "scripts/validate_fmdl3ede_candidate.py"
+      - "scripts/publish_fmdl3ede.py"
+      - "tests/test_fmdl3ede_acceptance.py"
+      - "docs/FMDL-3E-DE_*.md"
+      - ".github/workflows/fmdl-3ede-propagation-resilience.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl3ede_propagation_resilience.json"
+      - "scripts/fmdl3ede_core.py"
+      - "scripts/run_fmdl3ede_acceptance.py"
+      - "scripts/validate_fmdl3ede_candidate.py"
+      - "scripts/publish_fmdl3ede.py"
+      - "tests/test_fmdl3ede_acceptance.py"
+      - "docs/FMDL-3E-DE_*.md"
+      - ".github/workflows/fmdl-3ede-propagation-resilience.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-3ede-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Unit and compile checks
+        run: |
+          pytest -q tests/test_fmdl3ede_acceptance.py
+          python -m py_compile scripts/fmdl3ede_core.py scripts/run_fmdl3ede_acceptance.py scripts/validate_fmdl3ede_candidate.py scripts/publish_fmdl3ede.py
+      - name: Build propagation and resilience candidate
+        run: python -m scripts.run_fmdl3ede_acceptance
+      - name: Independently validate candidate
+        run: python -m scripts.validate_fmdl3ede_candidate
+      - name: Upload acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl3ede-acceptance-candidate
+          path: outputs/fmdl3e/final/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish immutable Release Current Archive and Last-success
+        if: github.event_name != 'pull_request'
+        run: python -m scripts.publish_fmdl3ede
+      - name: Commit accepted operating state
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/status outputs/fmdl3e/final/current outputs/fmdl3e/final/archive outputs/fmdl3e/final/candidate datasets/fmdl3e/final/releases
+          if git diff --cached --quiet; then
+            echo "No accepted FMDL-3E-D/E state changes to commit"
+          else
+            git commit -m "data: publish FMDL-3E-D/E final acceptance [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
