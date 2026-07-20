@@ -46,13 +46,20 @@ jobs:
       - name: Schema and independent checks
         run: |
           python - <<'PY'
-          import csv,json,pathlib
+          import json,pathlib
           from jsonschema import validate
+          from jsonschema.exceptions import ValidationError
           p=pathlib.Path('outputs/fmdl5b1/candidate')
           schema=json.load(open('schemas/fmdl5b1_security_master_v1.schema.json'))
           rows=[]
-          for line in open(p/'FMDL5B1_HK_SECURITY_MASTER.ndjson',encoding='utf-8'):
-              row=json.loads(line); validate(row,schema); rows.append(row)
+          for idx,line in enumerate(open(p/'FMDL5B1_HK_SECURITY_MASTER.ndjson',encoding='utf-8'), start=1):
+              row=json.loads(line)
+              try:
+                  validate(row,schema)
+              except ValidationError as exc:
+                  print(json.dumps({'row_number':idx,'row':row,'schema_path':list(exc.schema_path),'message':exc.message},ensure_ascii=False,indent=2))
+                  raise
+              rows.append(row)
           d=json.load(open(p/'FMDL5B1_DECISION.json'))
           assert not d['hard_failures']
           assert len(rows)==644==d['metrics']['security_master_count']
@@ -63,16 +70,17 @@ jobs:
           assert d['trade_authority']=='NONE'
           PY
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: fmdl5b1-security-master-candidate
           path: outputs/fmdl5b1/candidate
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
       - name: Publish Current Immutable Archive and Last-success
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
         run: python scripts/publish_fmdl5b1.py --repo-root . --candidate outputs/fmdl5b1/candidate
       - name: Commit accepted FMDL-5B-1 state
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
