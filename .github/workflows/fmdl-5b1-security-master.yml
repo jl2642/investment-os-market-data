@@ -1,0 +1,82 @@
+name: FMDL 5B-1 HK Security Identity Master
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl5b1_*.json"
+      - "schemas/fmdl5b1_*.json"
+      - "scripts/run_fmdl5b1_security_master.py"
+      - "scripts/publish_fmdl5b1.py"
+      - "tests/test_fmdl5b1_security_master.py"
+      - ".github/workflows/fmdl-5b1-security-master.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl5b1_*.json"
+      - "schemas/fmdl5b1_*.json"
+      - "scripts/run_fmdl5b1_security_master.py"
+      - "scripts/publish_fmdl5b1.py"
+      - "tests/test_fmdl5b1_security_master.py"
+      - ".github/workflows/fmdl-5b1-security-master.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  security-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pytest jsonschema
+      - name: Unit tests
+        run: python -m pytest -q tests/test_fmdl5b1_security_master.py
+      - name: Compile checks
+        run: python -m py_compile scripts/run_fmdl5b1_security_master.py scripts/publish_fmdl5b1.py
+      - name: Build canonical security master
+        run: |
+          rm -rf outputs/fmdl5b1/candidate
+          python scripts/run_fmdl5b1_security_master.py --output outputs/fmdl5b1/candidate
+      - name: Schema and independent checks
+        run: |
+          python - <<'PY'
+          import csv,json,pathlib
+          from jsonschema import validate
+          p=pathlib.Path('outputs/fmdl5b1/candidate')
+          schema=json.load(open('schemas/fmdl5b1_security_master_v1.schema.json'))
+          rows=[]
+          for line in open(p/'FMDL5B1_HK_SECURITY_MASTER.ndjson',encoding='utf-8'):
+              row=json.loads(line); validate(row,schema); rows.append(row)
+          d=json.load(open(p/'FMDL5B1_DECISION.json'))
+          assert not d['hard_failures']
+          assert len(rows)==644==d['metrics']['security_master_count']
+          assert len({r['security_id'] for r in rows})==644
+          assert len({r['stock_code_5d'] for r in rows})==644
+          assert all(r['source_release_id']=='FMDL5A_20260720_031b3430a7d0' for r in rows)
+          assert d['candidate_pool_mutation_count']==d['simulation_mutation_count']==d['real_account_mutation_count']==d['order_generation_count']==0
+          assert d['trade_authority']=='NONE'
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmdl5b1-security-master-candidate
+          path: outputs/fmdl5b1/candidate
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: python scripts/publish_fmdl5b1.py --repo-root . --candidate outputs/fmdl5b1/candidate
+      - name: Commit accepted FMDL-5B-1 state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl5b1/current outputs/fmdl5b1/archive datasets/fmdl5b1/releases outputs/status/FMDL5B1_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-5B-1 HK security master [skip ci]"
+          git push
