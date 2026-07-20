@@ -29,6 +29,8 @@ Acceptance requires:
 - all frozen source hashes remain unchanged;
 - independent validation reproduces every semantic hash.
 
+The first canonical publication establishes the initial FMDL-3E Final Current and Last-success. A post-publication replay is then run against those non-null pointers to prove that failure injection preserves an already-existing LKG, rather than only proving that no state is created when no prior LKG exists.
+
 ## Publication
 
 Successful acceptance publishes:
