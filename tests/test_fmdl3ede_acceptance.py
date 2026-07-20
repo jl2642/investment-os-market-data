@@ -68,3 +68,8 @@ def test_semantic_hash_ignores_order():
     left = pd.DataFrame([{"symbol": "2", "value": 2}, {"symbol": "1", "value": 1}])
     right = left.iloc[::-1].reset_index(drop=True)
     assert core.semantic_frame_hash(left) == core.semantic_frame_hash(right)
+
+
+def test_stable_hash_canonicalizes_non_finite_values():
+    assert core.stable_hash({"value": float("nan")}) == core.stable_hash({"value": None})
+    assert core.stable_hash({"value": float("inf")}) == core.stable_hash({"value": None})
