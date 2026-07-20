@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl5b1_security_master_v1.schema.json",
+  "title": "FMDL-5B-1 HK Security Master Row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["security_id","issuer_id","stock_code_5d","ticker_hk","name_zh","name_en","market","country_of_listing","trading_currency","security_type","identity_status","semantic_enrichment_status","shanghai_connect","shenzhen_connect","eligibility_status","source_release_id"],
+  "properties": {
+    "security_id": {"type":"string","pattern":"^HKEX:[0-9]{5}$"},
+    "issuer_id": {"type":"string","pattern":"^HKISSUER-PROVISIONAL:[0-9]{5}$"},
+    "stock_code_5d": {"type":"string","pattern":"^[0-9]{5}$"},
+    "ticker_hk": {"type":"string","pattern":"^[0-9]{4}\\.HK$"},
+    "name_zh": {"type":"string","minLength":1},
+    "name_en": {"type":"string","minLength":1},
+    "market": {"const":"HKEX"},
+    "country_of_listing": {"const":"HK"},
+    "trading_currency": {"enum":["HKD","RMB","USD","UNKNOWN"]},
+    "security_type": {"enum":["COMMON_EQUITY","ETF","REIT","OTHER_LISTED_SECURITY","UNKNOWN"]},
+    "identity_status": {"const":"PROVISIONAL_SECURITY_LEVEL_IDENTITY"},
+    "semantic_enrichment_status": {"enum":["PENDING_SEMANTIC_ENRICHMENT","NAME_MARKER_CLASSIFIED"]},
+    "shanghai_connect": {"type":"boolean"},
+    "shenzhen_connect": {"type":"boolean"},
+    "eligibility_status": {"type":"string","minLength":1},
+    "source_release_id": {"const":"FMDL5A_20260720_031b3430a7d0"}
+  }
+}
