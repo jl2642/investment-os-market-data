@@ -1,0 +1,83 @@
+name: FMDL 4 Final Unified Integration and Operational Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl4_final_operational_acceptance.json"
+      - "schemas/fmdl4_final_*.schema.json"
+      - "docs/FMDL-4-FINAL_*.md"
+      - "scripts/fmdl4_final_core.py"
+      - "scripts/run_fmdl4_final_acceptance.py"
+      - "scripts/validate_fmdl4_final_candidate.py"
+      - "scripts/publish_fmdl4_final.py"
+      - "tests/test_fmdl4_final_acceptance.py"
+      - ".github/workflows/fmdl-4-final-operational-acceptance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl4_final_operational_acceptance.json"
+      - "schemas/fmdl4_final_*.schema.json"
+      - "docs/FMDL-4-FINAL_*.md"
+      - "scripts/fmdl4_final_core.py"
+      - "scripts/run_fmdl4_final_acceptance.py"
+      - "scripts/validate_fmdl4_final_candidate.py"
+      - "scripts/publish_fmdl4_final.py"
+      - "tests/test_fmdl4_final_acceptance.py"
+      - ".github/workflows/fmdl-4-final-operational-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-4-final-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unified-integration-operational-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Unit tests
+        run: python -m pytest -q tests/test_fmdl4_final_acceptance.py
+      - name: Compile checks
+        run: python -m py_compile scripts/fmdl4_final_core.py scripts/run_fmdl4_final_acceptance.py scripts/validate_fmdl4_final_candidate.py scripts/publish_fmdl4_final.py
+      - name: Run end-to-end unified integration replay and failure injection
+        run: python -m scripts.run_fmdl4_final_acceptance
+      - name: Independently validate Release 8 operational candidate
+        run: python -m scripts.validate_fmdl4_final_candidate
+      - name: Upload FMDL-4-FINAL acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl4-final-unified-operational-acceptance
+          path: outputs/fmdl4/final/candidate/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish immutable Release Current Archive and Last-success
+        if: github.event_name != 'pull_request'
+        run: python -m scripts.publish_fmdl4_final
+      - name: Commit accepted FMDL-4-FINAL state
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/status outputs/fmdl4/final/current outputs/fmdl4/final/archive outputs/fmdl4/final/candidate datasets/fmdl4/final/releases
+          if git diff --cached --quiet; then
+            echo "No accepted FMDL-4-FINAL state changes to commit"
+          else
+            git commit -m "data: publish FMDL-4 final unified operational acceptance [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
