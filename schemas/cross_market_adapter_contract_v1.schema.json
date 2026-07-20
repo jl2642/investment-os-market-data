@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cross_market_adapter_contract_v1.schema.json",
+  "title": "Cross-Market Adapter Master Plan",
+  "type": "object",
+  "required": [
+    "program_id",
+    "plan_version",
+    "authority",
+    "trade_authority",
+    "base_release",
+    "design_principles",
+    "shared_cross_market_contracts",
+    "fmdl5",
+    "fmdl6",
+    "phase_split_policy",
+    "shared_state_boundaries",
+    "next_gate"
+  ],
+  "properties": {
+    "program_id": {"const": "FMDL-5-0"},
+    "plan_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "authority": {"const": "CROSS_MARKET_ADAPTER_ARCHITECTURE_AND_MASTER_PLAN_ONLY"},
+    "trade_authority": {"const": "NONE"},
+    "base_release": {
+      "type": "object",
+      "required": ["release_id", "release_sequence", "status"],
+      "properties": {
+        "release_id": {"const": "INVESTMENT_OS_R8_20260720_501345e84562"},
+        "release_sequence": {"const": 8},
+        "status": {"const": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ACCEPTED"}
+      },
+      "additionalProperties": false
+    },
+    "design_principles": {"type": "array", "minItems": 10, "uniqueItems": true},
+    "shared_cross_market_contracts": {"type": "array", "minItems": 11, "uniqueItems": true},
+    "fmdl5": {
+      "type": "object",
+      "required": ["market", "formal_subphases", "formal_subphase_count", "maximum_total_rounds_including_repairs", "universe_authority", "primary_sources", "acceptance_targets"],
+      "properties": {
+        "market": {"const": "HK_STOCK_CONNECT_SOUTHBOUND"},
+        "formal_subphases": {"type": "array", "minItems": 8, "maxItems": 8, "uniqueItems": true},
+        "formal_subphase_count": {"const": 8},
+        "maximum_total_rounds_including_repairs": {"maximum": 10},
+        "universe_authority": {"const": "HKEX_SOUTHBOUND_ELIGIBLE_SECURITIES_EFFECTIVE_DATED"}
+      }
+    },
+    "fmdl6": {
+      "type": "object",
+      "required": ["market", "formal_subphases", "formal_subphase_count", "maximum_total_rounds_including_repairs", "primary_sources", "acceptance_targets"],
+      "properties": {
+        "market": {"const": "US_LISTED_PUBLIC_EQUITIES"},
+        "formal_subphases": {"type": "array", "minItems": 10, "maxItems": 10, "uniqueItems": true},
+        "formal_subphase_count": {"const": 10},
+        "maximum_total_rounds_including_repairs": {"maximum": 13}
+      }
+    },
+    "phase_split_policy": {
+      "type": "object",
+      "required": ["one_subphase_requires", "repair_round_allowed_only_for", "repair_round_forbidden_for", "subphase_split_requires_written_change_control"]
+    },
+    "shared_state_boundaries": {
+      "type": "object",
+      "required": ["research_graduation_is_not_candidate_admission", "candidate_admission_is_not_simulation_admission", "simulation_admission_is_not_real_account_admission", "real_account_action_requires_user_confirmation", "trade_authority"],
+      "properties": {
+        "trade_authority": {"const": "NONE"}
+      }
+    },
+    "next_gate": {"const": "FMDL-5A_MARKET_CONTRACT_AND_UNIVERSE_BOUNDARY"}
+  }
+}
