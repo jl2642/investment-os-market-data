@@ -22,19 +22,40 @@ def _hash_if_exists(path: Path) -> str | None:
 
 def main() -> int:
     cfg = core.read_json(CONFIG)
-    pointer = core.read_json(ROOT / cfg["entry_gate"]["pointer_path"])
-    incremental_release = core.read_json(ROOT / cfg["entry_gate"]["incremental_release"])
-    baseline = pd.read_parquet(ROOT / cfg["inputs"]["baseline_unified"])
-    market_delta = pd.read_parquet(ROOT / cfg["inputs"]["market_delta"])
-    financial_events = pd.read_parquet(ROOT / cfg["inputs"]["financial_events"])
-    financial_facts = pd.read_parquet(ROOT / cfg["inputs"]["financial_fact_delta"])
-    financial_versions = pd.read_parquet(ROOT / cfg["inputs"]["financial_version_ledger"])
-    scope = pd.read_csv(ROOT / cfg["inputs"]["affected_scope"], encoding="utf-8-sig")
-
     candidate = ROOT / cfg["publication"]["candidate_root"]
     if candidate.exists():
         shutil.rmtree(candidate)
     candidate.mkdir(parents=True)
+    core.write_json(candidate / "FMDL3E_STARTUP.json", {
+        "status": "STARTED",
+        "program_id": "FMDL-3E-DE",
+        "config_path": str(CONFIG.relative_to(ROOT)),
+        "authority": cfg["authority"],
+        "trade_authority": "NONE",
+    })
+    try:
+        pointer = core.read_json(ROOT / cfg["entry_gate"]["pointer_path"])
+        incremental_release = core.read_json(ROOT / cfg["entry_gate"]["incremental_release"])
+        baseline = pd.read_parquet(ROOT / cfg["inputs"]["baseline_unified"])
+        market_delta = pd.read_parquet(ROOT / cfg["inputs"]["market_delta"])
+        financial_events = pd.read_parquet(ROOT / cfg["inputs"]["financial_events"])
+        financial_facts = pd.read_parquet(ROOT / cfg["inputs"]["financial_fact_delta"])
+        financial_versions = pd.read_parquet(ROOT / cfg["inputs"]["financial_version_ledger"])
+        scope = pd.read_csv(ROOT / cfg["inputs"]["affected_scope"], encoding="utf-8-sig")
+    except Exception as exc:
+        core.write_json(candidate / "FMDL3E_STARTUP_FAILURE.json", {
+            "status": "FAIL",
+            "error_type": type(exc).__name__,
+            "error": str(exc),
+            "input_paths": {
+                "pointer": cfg["entry_gate"]["pointer_path"],
+                "incremental_release": cfg["entry_gate"]["incremental_release"],
+                **cfg["inputs"],
+            },
+            "authority": cfg["authority"],
+            "trade_authority": "NONE",
+        })
+        raise
 
     started = time.monotonic()
     generated_at = datetime.now(TZ).isoformat(timespec="seconds")
