@@ -1,0 +1,79 @@
+name: FMDL 5-0 Cross-Market Adapter Master Plan
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl5_0_cross_market_master_plan.json"
+      - "schemas/cross_market_adapter_contract_v1.schema.json"
+      - "scripts/validate_fmdl5_0_plan.py"
+      - "scripts/publish_fmdl5_0_plan.py"
+      - "tests/test_fmdl5_0_plan.py"
+      - "docs/FMDL-5-0_CROSS_MARKET_ADAPTER_ARCHITECTURE_AND_MASTER_PLAN.md"
+      - ".github/workflows/fmdl-5-0-cross-market-master-plan.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl5_0_cross_market_master_plan.json"
+      - "schemas/cross_market_adapter_contract_v1.schema.json"
+      - "scripts/validate_fmdl5_0_plan.py"
+      - "scripts/publish_fmdl5_0_plan.py"
+      - "tests/test_fmdl5_0_plan.py"
+      - "docs/FMDL-5-0_CROSS_MARKET_ADAPTER_ARCHITECTURE_AND_MASTER_PLAN.md"
+      - ".github/workflows/fmdl-5-0-cross-market-master-plan.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  architecture-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check pytest jsonschema
+      - name: Unit tests
+        run: python -m pytest -q tests/test_fmdl5_0_plan.py
+      - name: Compile checks
+        run: python -m py_compile scripts/validate_fmdl5_0_plan.py scripts/publish_fmdl5_0_plan.py
+      - name: JSON schema validation
+        run: |
+          python - <<'PY'
+          import json
+          from jsonschema import Draft202012Validator
+          schema=json.load(open('schemas/cross_market_adapter_contract_v1.schema.json'))
+          plan=json.load(open('config/fmdl5_0_cross_market_master_plan.json'))
+          errors=list(Draft202012Validator(schema).iter_errors(plan))
+          assert not errors, '\n'.join(e.message for e in errors)
+          PY
+      - name: Build architecture decision
+        run: |
+          rm -rf outputs/fmdl5_0/candidate
+          python scripts/validate_fmdl5_0_plan.py
+          python scripts/publish_fmdl5_0_plan.py --decision outputs/fmdl5_0/candidate/FMDL5_0_DECISION.json
+      - name: Upload architecture candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl5-0-cross-market-master-plan-candidate
+          path: outputs/fmdl5_0/candidate
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python scripts/publish_fmdl5_0_plan.py --decision outputs/fmdl5_0/candidate/FMDL5_0_DECISION.json --publish
+      - name: Commit accepted architecture state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl5_0 datasets/fmdl5_0 outputs/status/FMDL5_0_LAST_SUCCESS.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data: publish FMDL-5-0 cross-market master plan [skip ci]"
+          git push
