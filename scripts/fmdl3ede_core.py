@@ -51,8 +51,18 @@ def _clean(value: Any) -> Any:
     return value
 
 
+def _canonical(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(key): _canonical(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_canonical(item) for item in value]
+    if isinstance(value, set):
+        return sorted(_canonical(item) for item in value)
+    return _clean(value)
+
+
 def stable_hash(payload: Any) -> str:
-    text = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=_clean, allow_nan=False)
+    text = json.dumps(_canonical(payload), ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
