@@ -6,6 +6,7 @@ on:
       - "config/fmdl5a_*.json"
       - "scripts/run_fmdl5a_universe.py"
       - "scripts/run_fmdl5a_candidate.py"
+      - "scripts/fmdl5a_robust_sources.py"
       - "scripts/publish_fmdl5a.py"
       - "tests/test_fmdl5a_universe.py"
       - ".github/workflows/fmdl-5a-universe.yml"
@@ -15,6 +16,7 @@ on:
       - "config/fmdl5a_*.json"
       - "scripts/run_fmdl5a_universe.py"
       - "scripts/run_fmdl5a_candidate.py"
+      - "scripts/fmdl5a_robust_sources.py"
       - "scripts/publish_fmdl5a.py"
       - "tests/test_fmdl5a_universe.py"
       - ".github/workflows/fmdl-5a-universe.yml"
@@ -34,11 +36,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install requests pytest
+      - run: python -m pip install requests pytest openpyxl
       - name: Unit tests
         run: python -m pytest -q tests/test_fmdl5a_universe.py
       - name: Compile checks
-        run: python -m py_compile scripts/run_fmdl5a_universe.py scripts/run_fmdl5a_candidate.py scripts/publish_fmdl5a.py
+        run: python -m py_compile scripts/run_fmdl5a_universe.py scripts/run_fmdl5a_candidate.py scripts/fmdl5a_robust_sources.py scripts/publish_fmdl5a.py
       - name: Build official PIT universe
         run: |
           rm -rf outputs/fmdl5a/candidate
