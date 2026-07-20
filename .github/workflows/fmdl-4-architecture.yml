@@ -1,0 +1,83 @@
+name: FMDL 4 Architecture and Phased Plan
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/fmdl4_program_contract.json"
+      - "schemas/fmdl4_program_contract.schema.json"
+      - "docs/FMDL-4_*.md"
+      - "scripts/fmdl4_architecture_core.py"
+      - "scripts/validate_fmdl4_architecture.py"
+      - "scripts/validate_fmdl4_architecture_candidate.py"
+      - "scripts/publish_fmdl4_architecture.py"
+      - "tests/test_fmdl4_architecture.py"
+      - ".github/workflows/fmdl-4-architecture.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl4_program_contract.json"
+      - "schemas/fmdl4_program_contract.schema.json"
+      - "docs/FMDL-4_*.md"
+      - "scripts/fmdl4_architecture_core.py"
+      - "scripts/validate_fmdl4_architecture.py"
+      - "scripts/validate_fmdl4_architecture_candidate.py"
+      - "scripts/publish_fmdl4_architecture.py"
+      - "tests/test_fmdl4_architecture.py"
+      - ".github/workflows/fmdl-4-architecture.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-4-architecture-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  architecture-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Unit and compile checks
+        run: |
+          pytest -q tests/test_fmdl4_architecture.py
+          python -m py_compile scripts/fmdl4_architecture_core.py scripts/validate_fmdl4_architecture.py scripts/validate_fmdl4_architecture_candidate.py scripts/publish_fmdl4_architecture.py
+      - name: Build and validate architecture candidate
+        run: python -m scripts.validate_fmdl4_architecture
+      - name: Independently validate architecture candidate
+        run: python -m scripts.validate_fmdl4_architecture_candidate
+      - name: Upload architecture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl4-architecture-candidate
+          path: outputs/fmdl4/architecture/candidate/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish immutable architecture Release Current Archive and Last-success
+        if: github.event_name != 'pull_request'
+        run: python -m scripts.publish_fmdl4_architecture
+      - name: Commit accepted architecture state
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/status outputs/fmdl4/architecture/current outputs/fmdl4/architecture/archive outputs/fmdl4/architecture/candidate datasets/fmdl4/architecture/releases
+          if git diff --cached --quiet; then
+            echo "No accepted FMDL-4 architecture state changes to commit"
+          else
+            git commit -m "data: publish FMDL-4 architecture and phased plan [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

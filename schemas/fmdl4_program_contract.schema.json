@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl4_program_contract.schema.json",
+  "title": "FMDL-4 Program Architecture Contract",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "program_id",
+    "architecture_state",
+    "entry_gate",
+    "bound_inputs",
+    "external_investment_os_baseline",
+    "scope",
+    "layer_model",
+    "canonical_objects",
+    "public_equity_workflow_map",
+    "role_separation",
+    "investment_os_package_mapping",
+    "phase_sequence",
+    "global_hard_gates",
+    "publication_contract",
+    "controlled_limitations",
+    "exit_status",
+    "next_gate",
+    "authority",
+    "trade_authority"
+  ],
+  "properties": {
+    "contract_version": {"const": "1.0.0"},
+    "program_id": {"const": "FMDL-4"},
+    "architecture_state": {"const": "FROZEN_FOR_FMDL4A_EXECUTION"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["pointer_path", "required_status", "required_next_gate", "release_path"]
+    },
+    "bound_inputs": {
+      "type": "object",
+      "minProperties": 8,
+      "additionalProperties": {"type": "string"}
+    },
+    "external_investment_os_baseline": {
+      "type": "object",
+      "required": ["canonical_package", "status", "release_sequence", "asset_architecture_version", "runtime_schema_version", "package_sha256", "project_sources_required", "verification_posture"],
+      "properties": {
+        "status": {"const": "ACTIVE_CANONICAL"},
+        "release_sequence": {"minimum": 4},
+        "package_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "project_sources_required": {"const": false}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["owned_domains", "excluded_domains"],
+      "properties": {
+        "owned_domains": {"type": "array", "minItems": 8, "uniqueItems": true},
+        "excluded_domains": {"type": "array", "minItems": 6, "uniqueItems": true}
+      }
+    },
+    "layer_model": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["layer_id", "owner", "purpose", "may_mutate_investment_state"]
+      }
+    },
+    "canonical_objects": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["object_id", "phase_owner", "grain", "required_fields"]
+      }
+    },
+    "role_separation": {
+      "type": "object",
+      "required": ["candidate_pool", "simulation_lab", "real_account"]
+    },
+    "investment_os_package_mapping": {
+      "type": "object",
+      "required": ["CORE_STATIC", "EVIDENCE", "STATE_CURRENT", "storage_policy"]
+    },
+    "phase_sequence": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["phase_id", "name", "entry_gate", "exit_gate", "required_deliverables"]
+      }
+    },
+    "global_hard_gates": {
+      "type": "array",
+      "minItems": 9,
+      "uniqueItems": true
+    },
+    "publication_contract": {
+      "type": "object",
+      "required": ["candidate_root", "current_root", "archive_root", "release_root", "last_success", "archive_is_immutable", "current_requires_manifest", "last_known_good_required", "candidate_cannot_replace_current_on_failure"]
+    },
+    "controlled_limitations": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["limitation_id", "status", "description"]
+      }
+    },
+    "exit_status": {"const": "FMDL4_ARCHITECTURE_ACCEPTED"},
+    "next_gate": {"const": "FMDL-4A_RESEARCH_HANDOFF_AND_CANONICAL_STATE_PACKAGE_ADAPTER"},
+    "authority": {"const": "RESEARCH_ORCHESTRATION_AND_STATE_GOVERNANCE_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
