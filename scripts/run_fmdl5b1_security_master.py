@@ -33,14 +33,20 @@ def to_bool(value: str) -> bool:
 
 def build_row(source: dict[str, str]) -> dict[str, object]:
     code = source["stock_code"].zfill(5)
-    security_type, semantic_status = classify_security(source["name_cn"], source["name_en"])
+    name_zh = source["name_cn"].strip()
+    name_en = source["name_en"].strip()
+    display_name = name_zh or name_en
+    display_name_source = "OFFICIAL_CHINESE_NAME" if name_zh else "FALLBACK_FROM_OFFICIAL_ENGLISH_NAME"
+    security_type, semantic_status = classify_security(name_zh, name_en)
     return {
         "security_id": f"HKEX:{code}",
         "issuer_id": f"HKISSUER-PROVISIONAL:{code}",
         "stock_code_5d": code,
         "ticker_hk": f"{code}.HK",
-        "name_zh": source["name_cn"].strip(),
-        "name_en": source["name_en"].strip(),
+        "name_zh": name_zh,
+        "name_en": name_en,
+        "display_name": display_name,
+        "display_name_source": display_name_source,
         "market": "HKEX",
         "country_of_listing": "HK",
         "trading_currency": "HKD",
@@ -71,6 +77,8 @@ def build(output: Path) -> dict[str, object]:
         hard_failures.append("DUPLICATE_STOCK_CODE")
     if any(row["source_release_id"] != INPUT_RELEASE_ID for row in rows):
         hard_failures.append("SOURCE_RELEASE_MISMATCH")
+    if any(not row["display_name"] for row in rows):
+        hard_failures.append("MISSING_DISPLAY_NAME")
 
     fields = list(rows[0].keys()) if rows else []
     csv_path = output / "FMDL5B1_HK_SECURITY_MASTER.csv"
@@ -103,6 +111,8 @@ def build(output: Path) -> dict[str, object]:
             "unique_security_id_count": len({row["security_id"] for row in rows}),
             "unique_stock_code_count": len({row["stock_code_5d"] for row in rows}),
             "security_type_counts": type_counts,
+            "missing_official_chinese_name_count": sum(not row["name_zh"] for row in rows),
+            "display_name_fallback_count": sum(row["display_name_source"] == "FALLBACK_FROM_OFFICIAL_ENGLISH_NAME" for row in rows),
             "pending_semantic_enrichment_count": sum(row["semantic_enrichment_status"] == "PENDING_SEMANTIC_ENRICHMENT" for row in rows),
         },
         "hard_failures": hard_failures,
