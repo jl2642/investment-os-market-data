@@ -20,25 +20,29 @@ KEYWORDS = ("eligible", "underly", "hkexsc", "hkbussiness", "stockconnect", "sou
 
 
 def fetch(session: requests.Session, name: str, url: str, output: Path) -> dict:
-    response = session.get(url, timeout=40)
-    response.raise_for_status()
-    text = response.text
-    (output / f"{name}.html").write_text(text, encoding="utf-8")
-    soup = BeautifulSoup(text, "html.parser")
-    scripts = [urljoin(url, x.get("src")) for x in soup.find_all("script") if x.get("src")]
-    links = [urljoin(url, x.get("href")) for x in soup.find_all("a") if x.get("href")]
-    literal_urls = re.findall(r"https?://[^\"'<>\\s]+", text)
-    relative_candidates = re.findall(r"[\"']([^\"']*(?:api|query|eligible|underly|hkexsc|hkbussiness)[^\"']*)[\"']", text, re.I)
-    candidates = sorted({u for u in scripts + links + literal_urls + [urljoin(url, x) for x in relative_candidates] if any(k in u.lower() for k in KEYWORDS)})
-    return {
-        "name": name,
-        "url": url,
-        "status": response.status_code,
-        "content_type": response.headers.get("content-type"),
-        "content_length": len(response.content),
-        "scripts": scripts,
-        "candidate_urls": candidates,
-    }
+    try:
+        response = session.get(url, timeout=45)
+        text = response.text
+        (output / f"{name}.html").write_text(text, encoding="utf-8")
+        response.raise_for_status()
+        soup = BeautifulSoup(text, "html.parser")
+        scripts = [urljoin(url, x.get("src")) for x in soup.find_all("script") if x.get("src")]
+        links = [urljoin(url, x.get("href")) for x in soup.find_all("a") if x.get("href")]
+        literal_urls = re.findall(r"https?://[^\"'<>\\s]+", text)
+        relative_candidates = re.findall(r"[\"']([^\"']*(?:api|query|eligible|underly|hkexsc|hkbussiness)[^\"']*)[\"']", text, re.I)
+        candidates = sorted({u for u in scripts + links + literal_urls + [urljoin(url, x) for x in relative_candidates] if any(k in u.lower() for k in KEYWORDS)})
+        return {
+            "name": name,
+            "url": url,
+            "ok": true,
+            "status": response.status_code,
+            "content_type": response.headers.get("content-type"),
+            "content_length": len(response.content),
+            "scripts": scripts,
+            "candidate_urls": candidates,
+        }
+    except Exception as exc:
+        return {"name": name, "url": url, "ok": False, "error_type": type(exc).__name__, "error": str(exc)}
 
 
 def main() -> int:
@@ -48,10 +52,10 @@ def main() -> int:
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
     session = requests.Session()
-    session.headers.update({"User-Agent": "InvestmentOS-FMDL5A/1.0 contact=repository-owner"})
+    session.headers.update({"User-Agent": "Mozilla/5.0 InvestmentOS-FMDL5A/1.0"})
     result = {name: fetch(session, name, url, output) for name, url in SOURCES.items()}
     (output / "FMDL5A_SOURCE_DISCOVERY.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({k: {"status": v["status"], "candidates": len(v["candidate_urls"])} for k, v in result.items()}, indent=2))
+    print(json.dumps({k: {"ok": v.get("ok"), "status": v.get("status"), "candidates": len(v.get("candidate_urls", [])), "error": v.get("error")} for k, v in result.items()}, ensure_ascii=False, indent=2))
     return 0
 
 
