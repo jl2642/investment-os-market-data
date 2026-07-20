@@ -45,3 +45,5 @@ When replay mode is used, `post_frozen_baseline_advance_observed=false` is carri
 Next gate:
 
 `FMDL-3E-DE_PROPAGATION_RESILIENCE_AND_REPLAY`
+
+Canonical production publication trigger: `2026-07-20T10:44+08:00`; no contract, dataset or acceptance semantics changed.
