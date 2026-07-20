@@ -1,0 +1,185 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-4-FINAL",
+  "program_name": "Unified Integration and Operational Acceptance",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL4D_LAST_SUCCESS.json",
+    "release_path": "outputs/fmdl4d/thesis/current/FMDL4D_RELEASE.json",
+    "decision_path": "outputs/fmdl4d/thesis/current/FMDL4D_DECISION.json",
+    "validation_path": "outputs/fmdl4d/thesis/current/FMDL4D_VALIDATION.json",
+    "required_status": "FMDL4D_THESIS_ATTRIBUTION_AND_FEEDBACK_ACCEPTED",
+    "required_next_gate": "FMDL-4-FINAL_UNIFIED_INTEGRATION_AND_OPERATIONAL_ACCEPTANCE"
+  },
+  "component_inputs": {
+    "FMDL-4A": {
+      "pointer": "outputs/status/FMDL4A_LAST_SUCCESS.json",
+      "release": "outputs/fmdl4a/adapter/current/FMDL4A_RELEASE.json",
+      "decision": "outputs/fmdl4a/adapter/current/FMDL4A_DECISION.json",
+      "validation": "outputs/fmdl4a/adapter/current/FMDL4A_VALIDATION.json",
+      "expected_release_id": "FMDL4A_20260717_b71d8020aa77",
+      "expected_status": "FMDL4A_RESEARCH_HANDOFF_AND_CANONICAL_ADAPTER_ACCEPTED"
+    },
+    "FMDL-4B": {
+      "pointer": "outputs/status/FMDL4B_LAST_SUCCESS.json",
+      "release": "outputs/fmdl4b/research/current/FMDL4B_RELEASE.json",
+      "decision": "outputs/fmdl4b/research/current/FMDL4B_DECISION.json",
+      "validation": "outputs/fmdl4b/research/current/FMDL4B_VALIDATION.json",
+      "expected_release_id": "FMDL4B_20260717_bcd28dbae349",
+      "expected_status": "FMDL4B_CANDIDATE_RESEARCH_AND_GRADUATION_ACCEPTED"
+    },
+    "FMDL-4C": {
+      "pointer": "outputs/status/FMDL4C_LAST_SUCCESS.json",
+      "release": "outputs/fmdl4c/reentry/current/FMDL4C_RELEASE.json",
+      "decision": "outputs/fmdl4c/reentry/current/FMDL4C_DECISION.json",
+      "validation": "outputs/fmdl4c/reentry/current/FMDL4C_VALIDATION.json",
+      "expected_release_id": "FMDL4C_20260717_cfa612b4a54d",
+      "expected_status": "FMDL4C_INVESTMENT_OS_REENTRY_AND_STATE_CONTROLS_ACCEPTED"
+    },
+    "FMDL-4D": {
+      "pointer": "outputs/status/FMDL4D_LAST_SUCCESS.json",
+      "release": "outputs/fmdl4d/thesis/current/FMDL4D_RELEASE.json",
+      "decision": "outputs/fmdl4d/thesis/current/FMDL4D_DECISION.json",
+      "validation": "outputs/fmdl4d/thesis/current/FMDL4D_VALIDATION.json",
+      "expected_release_id": "FMDL4D_20260717_54fc02bbb7a0",
+      "expected_status": "FMDL4D_THESIS_ATTRIBUTION_AND_FEEDBACK_ACCEPTED"
+    }
+  },
+  "lineage_inputs": {
+    "evidence_envelopes": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/EVIDENCE/FMDL4A_EVIDENCE_ENVELOPE_CURRENT.jsonl",
+    "research_priority_registry": "outputs/fmdl4a/adapter/current/FMDL4A_ADAPTER/EVIDENCE/FMDL4A_RESEARCH_PRIORITY_REGISTRY.csv",
+    "research_objects": "outputs/fmdl4b/research/current/FMDL4B_PUBLIC_EQUITY_RESEARCH_OBJECTS.csv",
+    "graduation_decisions": "outputs/fmdl4b/research/current/FMDL4B_GRADUATION_DECISIONS.csv",
+    "state_transitions": "outputs/fmdl4c/reentry/current/FMDL4C_STATE_OVERLAY/STATE_CURRENT/FMDL4C_STATE_TRANSITIONS.jsonl",
+    "reentry_queue": "outputs/fmdl4c/reentry/current/FMDL4C_STATE_OVERLAY/STATE_CURRENT/FMDL4C_REENTRY_REVIEW_QUEUE.csv",
+    "candidate_router": "outputs/fmdl4c/reentry/current/FMDL4C_STATE_OVERLAY/STATE_CURRENT/FMDL4C_CANDIDATE_ROUTER.csv",
+    "simulation_router": "outputs/fmdl4c/reentry/current/FMDL4C_STATE_OVERLAY/STATE_CURRENT/FMDL4C_SIMULATION_ROUTER.csv",
+    "real_account_router": "outputs/fmdl4c/reentry/current/FMDL4C_STATE_OVERLAY/STATE_CURRENT/FMDL4C_REAL_ACCOUNT_ROUTER.csv",
+    "versioned_diff": "outputs/fmdl4c/reentry/current/FMDL4C_STATE_OVERLAY/STATE_CURRENT/FMDL4C_VERSIONED_DIFF.json",
+    "rollback_proof": "outputs/fmdl4c/reentry/current/FMDL4C_STATE_OVERLAY/STATE_CURRENT/FMDL4C_ROLLBACK_AND_LKG_PROOF.json",
+    "thesis_records": "outputs/fmdl4d/thesis/current/FMDL4D_THESIS_OVERLAY/STATE_CURRENT/FMDL4D_THESIS_RECORDS.jsonl",
+    "catalyst_registry": "outputs/fmdl4d/thesis/current/FMDL4D_THESIS_OVERLAY/STATE_CURRENT/FMDL4D_CATALYST_REGISTRY.csv",
+    "prove_kill_registry": "outputs/fmdl4d/thesis/current/FMDL4D_THESIS_OVERLAY/STATE_CURRENT/FMDL4D_PROVE_KILL_REGISTRY.csv",
+    "attribution_registry": "outputs/fmdl4d/thesis/current/FMDL4D_THESIS_OVERLAY/STATE_CURRENT/FMDL4D_ATTRIBUTION_REGISTRY.csv",
+    "feedback_proposals": "outputs/fmdl4d/thesis/current/FMDL4D_THESIS_OVERLAY/EVIDENCE/FMDL4D_FEEDBACK_PROPOSALS.jsonl"
+  },
+  "external_canonical_base": {
+    "package_name": "股票投资助手_CURRENT.zip",
+    "pointer_name": "股票投资助手_CURRENT_POINTER.md",
+    "release_sequence": 4,
+    "run_id": "FMDL_1F_INVESTMENT_OS_INTERFACE_20260717_001",
+    "asset_architecture_version": "4.5.3",
+    "runtime_schema_version": "3.4.3",
+    "package_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
+    "status": "ACTIVE_CANONICAL",
+    "byte_access_posture": "EXTERNAL_FILE_LIBRARY_BYTES_NOT_READABLE_IN_GITHUB_CI"
+  },
+  "acceptance": {
+    "required_universe_count": 5528,
+    "required_longlist_count": 100,
+    "required_research_object_count": 20,
+    "required_graduated_count": 6,
+    "required_transition_count": 6,
+    "required_thesis_count": 6,
+    "required_catalyst_count": 20,
+    "required_prove_kill_count": 30,
+    "required_feedback_count": 5,
+    "maximum_lineage_error_count": 0,
+    "maximum_state_crossover_count": 0,
+    "maximum_investment_state_mutation_count": 0,
+    "maximum_rule_mutation_count": 0,
+    "maximum_order_generation_count": 0,
+    "maximum_trade_authority_error_count": 0,
+    "required_failure_injection_count": 4,
+    "require_all_failure_injections_rejected": true,
+    "require_lkg_preservation": true,
+    "require_same_input_idempotence": true,
+    "require_independent_validation": true
+  },
+  "failure_injections": [
+    "STALE_EVIDENCE_AS_CURRENT",
+    "MISSING_RESEARCH_LINEAGE",
+    "CROSS_DOMAIN_STATE_MUTATION",
+    "UNAUTHORIZED_REAL_ACCOUNT_OR_ORDER_ACTION"
+  ],
+  "capability_matrix": [
+    ["A_SHARE_MARKET_DATA_COLLECTION", "OPERATIONAL", "5,528-symbol accepted market interface and controlled operating cycle"],
+    ["NORMALIZATION_LINEAGE_AND_PIT", "OPERATIONAL", "Release-bound point-in-time market and financial evidence"],
+    ["FULL_MARKET_SCREENING", "OPERATIONAL", "100-name governed research Longlist from full accepted universe"],
+    ["PUBLIC_EQUITY_RESEARCH_ROUTING", "OPERATIONAL", "Evidence Envelope to specialized research workflow routing"],
+    ["SOURCE_BACKED_COMPANY_RESEARCH", "OPERATIONAL_BOUNDED_COHORT", "20 formal source-backed Research Objects in the accepted active cohort"],
+    ["RESEARCH_GRADUATION", "OPERATIONAL", "Graduated, deferred and rejected decisions without raw-score promotion"],
+    ["CANDIDATE_REENTRY_GOVERNANCE", "OPERATIONAL_OVERLAY_ONLY", "Four candidate re-entry reviews and two Shadow Track reviews; no base-pool mutation"],
+    ["SIMULATION_LAB", "GOVERNANCE_READY_NO_NEW_ADMISSION", "Experiment gates and router exist; no new accepted exposure from FMDL-4"],
+    ["REAL_ACCOUNT_REVIEW", "GOVERNANCE_READY_BASE_RECONCILIATION_PENDING", "RCM, portfolio fit, ETF alternative, capital migration, memo and user confirmation are required"],
+    ["THESIS_CATALYST_PROVE_KILL_TRACKING", "OPERATIONAL", "Six append-only thesis records, twenty catalysts and thirty Prove/Kill checks"],
+    ["RETURN_AND_DECISION_ATTRIBUTION", "FRAMEWORK_READY_NOT_YET_OBSERVABLE", "No accepted new exposure, so no return is fabricated"],
+    ["STRATEGY_FEEDBACK_AND_EVOLUTION", "PROPOSAL_ONLY_HUMAN_APPROVAL", "Feedback firewall requires multiple observations, regression and approval"],
+    ["AUTOMATIC_REAL_ACCOUNT_ACTION", "INTENTIONALLY_DISABLED", "No automatic admission or portfolio action"],
+    ["ORDER_EXECUTION", "INTENTIONALLY_DISABLED", "No broker execution and trade authority remains NONE"],
+    ["FILE_LIBRARY_SINGLE_PACKAGE_CANONICAL", "REFRESH_REQUIRED_POST_FMDL4", "Release 4 base must be byte-imported and merged with Releases 5-8"]
+  ],
+  "file_library_audit": {
+    "audit_date": "2026-07-20",
+    "verification_posture": "CHATGPT_FILE_LIBRARY_SEARCH_POINTER_METADATA_ONLY",
+    "observed_pointer_release_sequences": [2, 3, 4],
+    "canonical_release_sequence": 4,
+    "cleanup_rule": "DO_NOT_DELETE_RELEASE4_UNTIL_RELEASE8_SINGLE_PACKAGE_IS_IMPORTED_VALIDATED_AND_OPENABLE"
+  },
+  "canonical_refresh": {
+    "status": "REQUIRED_POST_FMDL4_FINAL",
+    "required_inputs": [
+      "READABLE_RELEASE4_CANONICAL_ZIP_BYTES",
+      "LATEST_REAL_ACCOUNT_HOLDINGS_AND_TRANSACTION_SNAPSHOT",
+      "LATEST_SIMULATION_POSITIONS_AND_TRANSACTION_LOG",
+      "LATEST_CANDIDATE_POOL_MEMBERSHIP_AND_PRICE_STATE",
+      "LATEST_COMPLETED_MARKET_SESSION"
+    ],
+    "required_outputs": [
+      "股票投资助手_CURRENT.zip_RELEASE8_SINGLE_PACKAGE",
+      "股票投资助手_CURRENT_POINTER.md_RELEASE8",
+      "CORE_STATIC_EVIDENCE_STATE_CURRENT_THREE_PACKAGE_RECONCILIATION",
+      "REAL_ACCOUNT_SIMULATION_CANDIDATE_DIFF_AND_ACCEPTANCE",
+      "FILE_LIBRARY_RETAIN_DELETE_MANIFEST"
+    ],
+    "project_sources_required": false,
+    "automatic_file_library_deletion_authorized": false
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl4/final/candidate",
+    "current_root": "outputs/fmdl4/final/current",
+    "archive_root": "outputs/fmdl4/final/archive",
+    "release_root": "datasets/fmdl4/final/releases",
+    "last_success": "outputs/status/FMDL4_FINAL_LAST_SUCCESS.json",
+    "overlay_namespace": "FMDL4_FINAL_ACCEPTANCE",
+    "overlay_package_name": "FMDL4_RELEASE8_UNIFIED_INTEGRATION_OVERLAY.zip",
+    "composition_sequence": 8
+  },
+  "controlled_limitations": [
+    {
+      "limitation_id": "FILE_LIBRARY_RELEASE4_BYTES_NOT_IMPORTED",
+      "status": "OPEN_CONTROLLED",
+      "description": "GitHub proves the Release 4 plus Releases 5-8 composition but cannot repack the File Library base without readable Release 4 ZIP bytes."
+    },
+    {
+      "limitation_id": "CURRENT_ACCOUNT_AND_SIMULATION_STATE_NOT_RECONCILED_AFTER_RELEASE4",
+      "status": "OPEN_OPERATIONAL",
+      "description": "The latest real-account, simulation and candidate-pool records must be reconciled in the post-FMDL-4 canonical refresh."
+    },
+    {
+      "limitation_id": "NO_LONG_HORIZON_ALPHA_PROOF",
+      "status": "OPEN_EMPIRICAL",
+      "description": "The system is operationally complete for governed research and decision support but does not yet prove persistent long-horizon alpha."
+    },
+    {
+      "limitation_id": "NO_AUTOMATIC_TRADE_AUTHORITY",
+      "status": "PERMANENT_BOUNDARY",
+      "description": "Portfolio actions remain proposals requiring role-specific gates and user confirmation."
+    }
+  ],
+  "exit_status": "FMDL4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION_ACCEPTED",
+  "next_gate": "FMDL-5_HONG_KONG_STOCK_CONNECT_EXTENSION",
+  "recommended_next_operation": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION",
+  "authority": "UNIFIED_INTEGRATION_OPERATIONAL_ACCEPTANCE_ONLY",
+  "trade_authority": "NONE"
+}
