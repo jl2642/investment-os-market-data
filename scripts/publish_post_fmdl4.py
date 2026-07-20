@@ -63,7 +63,13 @@ def build_decision(repo: Path, market_dir: Path) -> dict[str, Any]:
         errors.append("PACKAGE_SHA_MISMATCH")
     if package_identity["deterministic_replay_sha256"] != publication["package_sha256"]:
         errors.append("PACKAGE_REPLAY_MISMATCH")
-    if not all(package_identity["binary_validation"].values()):
+    binary = package_identity["binary_validation"]
+    if not (
+        binary["outer_zip_openable"] is True
+        and binary["nested_zip_openable_count"] == 4
+        and binary["manifest_hash_error_count"] == 0
+        and binary["same_input_replay_match"] is True
+    ):
         errors.append("BINARY_VALIDATION_NOT_PASS")
     if local_validation["status"] != "PASS" or local_validation["hard_failures"]:
         errors.append("LOCAL_VALIDATION_NOT_PASS")
@@ -90,9 +96,9 @@ def build_decision(repo: Path, market_dir: Path) -> dict[str, Any]:
         code = z6(row["code"])
         qty = float(row["quantity_or_shares"])
         price = float(nmap[code]["unit_nav"]) if code in nmap else float(qmap[code]["close"])
-        real_total += qty * price
+        real_total += round(qty * price, 2)
     sim_market = sum(
-        float(row["quantity"]) * float(qmap[z6(row["security_code"])]["close"])
+        round(float(row["quantity"]) * float(qmap[z6(row["security_code"])]["close"]), 2)
         for row in binding["simulation_holdings"]
     )
     sim_total = sim_market + float(binding["simulation_available_cash"])
@@ -101,7 +107,6 @@ def build_decision(repo: Path, market_dir: Path) -> dict[str, Any]:
         for code, threshold in binding["active_memo_price_thresholds"].items()
     )
 
-    expected = publication["metrics"]
     calculated = {
         "quote_count": len(qmap),
         "fund_nav_count": len(nmap),
@@ -118,9 +123,9 @@ def build_decision(repo: Path, market_dir: Path) -> dict[str, Any]:
         "real_total_assets": round(real_total, 2),
         "simulation_total_assets": round(sim_total, 2),
     }
-    for key, value in expected.items():
-        if calculated.get(key) != value:
-            errors.append(f"METRIC:{key}:{calculated.get(key)}!={value}")
+    for key, expected in publication["metrics"].items():
+        if calculated.get(key) != expected:
+            errors.append(f"METRIC:{key}:{calculated.get(key)}!={expected}")
 
     if (
         action_review["real_account"]["immediate_trade_proposal_count"] != 0
@@ -132,26 +137,14 @@ def build_decision(repo: Path, market_dir: Path) -> dict[str, Any]:
 
     checks = {
         "source_release4_binding": "PASS" if not any(x.startswith("SOURCE_") for x in errors) else "FAIL",
-        "committed_evidence_hashes": "PASS"
-        if not any(x.startswith(("MISSING_EVIDENCE", "EVIDENCE_HASH")) for x in errors)
-        else "FAIL",
-        "local_binary_validation": "PASS"
-        if not any(x.startswith(("PACKAGE_", "BINARY_", "LOCAL_")) for x in errors)
-        else "FAIL",
-        "market_replay": "PASS"
-        if not any(x.startswith(("QUOTE_", "FUND_", "SYMBOL_")) for x in errors)
-        else "FAIL",
+        "committed_evidence_hashes": "PASS" if not any(x.startswith(("MISSING_EVIDENCE", "EVIDENCE_HASH")) for x in errors) else "FAIL",
+        "local_binary_validation": "PASS" if not any(x.startswith(("PACKAGE_", "BINARY_", "LOCAL_")) for x in errors) else "FAIL",
+        "market_replay": "PASS" if not any(x.startswith(("QUOTE_", "FUND_", "SYMBOL_")) for x in errors) else "FAIL",
         "state_recalculation": "PASS" if not any(x.startswith("METRIC:") for x in errors) else "FAIL",
-        "zero_mutation_and_trade_authority": "PASS"
-        if not any(
+        "zero_mutation_and_trade_authority": "PASS" if not any(
             x in errors
-            for x in [
-                "TRADE_AUTHORITY_NOT_NONE",
-                "IMMEDIATE_TRADE_PROPOSAL_NOT_ZERO",
-                "CANDIDATE_MUTATION_NOT_ZERO",
-            ]
-        )
-        else "FAIL",
+            for x in ["TRADE_AUTHORITY_NOT_NONE", "IMMEDIATE_TRADE_PROPOSAL_NOT_ZERO", "CANDIDATE_MUTATION_NOT_ZERO"]
+        ) else "FAIL",
     }
     return {
         "program_id": publication["program_id"],
@@ -183,41 +176,38 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def publish(repo: Path, decision: dict[str, Any], output: Path, do_publish: bool) -> None:
     write_json(output / "POST_FMDL4_DECISION.json", decision)
-    write_json(
-        output / "POST_FMDL4_VALIDATION.json",
-        {**decision, "validation_status": "PASS" if not decision["hard_failures"] else "FAIL"},
-    )
-    release = {
-        **decision,
-        "release_sequence": 8,
-        "authority": "CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ONLY",
-    }
+    write_json(output / "POST_FMDL4_VALIDATION.json", {**decision, "validation_status": "PASS" if not decision["hard_failures"] else "FAIL"})
+    release = {**decision, "release_sequence": 8, "authority": "CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ONLY"}
     write_json(output / "POST_FMDL4_RELEASE.json", release)
     if not do_publish:
         return
     release_id = decision["release_id"]
-    current = repo / "outputs/post_fmdl4/current"
-    immutable = repo / f"datasets/post_fmdl4/releases/{release_id}"
-    archive = repo / f"outputs/post_fmdl4/archive/{release_id}"
-    for target in (current, immutable, archive):
+    targets = [
+        repo / "outputs/post_fmdl4/current",
+        repo / f"datasets/post_fmdl4/releases/{release_id}",
+        repo / f"outputs/post_fmdl4/archive/{release_id}",
+    ]
+    for target in targets:
         if target.exists():
             shutil.rmtree(target)
         shutil.copytree(output, target)
-    last = {
-        "program_id": decision["program_id"],
-        "release_id": release_id,
-        "run_id": decision["run_id"],
-        "status": decision["status"],
-        "current_release_path": "outputs/post_fmdl4/current/POST_FMDL4_RELEASE.json",
-        "release_root": f"datasets/post_fmdl4/releases/{release_id}",
-        "archive_path": f"outputs/post_fmdl4/archive/{release_id}",
-        "package_sha256": decision["package_identity"]["sha256"],
-        "file_library_import_status": decision["package_identity"]["file_library_import_status"],
-        "next_program_gate": decision["next_program_gate"],
-        "trade_authority": "NONE",
-        "generated_at": decision["generated_at"],
-    }
-    write_json(repo / "outputs/status/POST_FMDL4_LAST_SUCCESS.json", last)
+    write_json(
+        repo / "outputs/status/POST_FMDL4_LAST_SUCCESS.json",
+        {
+            "program_id": decision["program_id"],
+            "release_id": release_id,
+            "run_id": decision["run_id"],
+            "status": decision["status"],
+            "current_release_path": "outputs/post_fmdl4/current/POST_FMDL4_RELEASE.json",
+            "release_root": f"datasets/post_fmdl4/releases/{release_id}",
+            "archive_path": f"outputs/post_fmdl4/archive/{release_id}",
+            "package_sha256": decision["package_identity"]["sha256"],
+            "file_library_import_status": decision["package_identity"]["file_library_import_status"],
+            "next_program_gate": decision["next_program_gate"],
+            "trade_authority": "NONE",
+            "generated_at": decision["generated_at"],
+        },
+    )
 
 
 def main() -> int:
