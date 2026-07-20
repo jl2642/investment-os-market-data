@@ -5,20 +5,17 @@ import argparse
 import json
 import time
 from pathlib import Path
-from urllib.parse import urlencode
 
 import requests
 
 SSE_URL = "https://query.sse.com.cn/commonQuery.do"
-SZSE_URL = "https://www.szse.cn/api/report/ShowReport"
+SZSE_URL = "https://www.szse.cn/api/report/ShowReport/data"
 
 
 def request_json(session: requests.Session, name: str, url: str, params: dict, output: Path, referer: str) -> dict:
     try:
         response = session.get(url, params=params, headers={"Referer": referer}, timeout=60)
-        raw_path = output / f"{name}.txt"
-        raw_path.write_bytes(response.content)
-        content_type = response.headers.get("content-type", "")
+        (output / f"{name}.txt").write_bytes(response.content)
         parsed = None
         error = None
         try:
@@ -31,7 +28,7 @@ def request_json(session: requests.Session, name: str, url: str, params: dict, o
             "request_url": response.url,
             "status": response.status_code,
             "ok": response.ok,
-            "content_type": content_type,
+            "content_type": response.headers.get("content-type", ""),
             "length": len(response.content),
             "json_parsed": parsed is not None,
             "top_type": type(parsed).__name__ if parsed is not None else None,
@@ -60,16 +57,14 @@ def main() -> int:
         "pageHelp.cacheSize": "1",
         "pageHelp.endPage": "1",
         "keyword": "",
-        "jsonCallBack": "jsonpCallback",
         "_": str(int(time.time() * 1000)),
     }
-    probes.append(request_json(session, "sse_jsonp", SSE_URL, sse_params, output, "https://www.sse.com.cn/services/hkexsc/disclo/eligible/"))
-    sse_params_no_callback = {k: v for k, v in sse_params.items() if k != "jsonCallBack"}
-    probes.append(request_json(session, "sse_json", SSE_URL, sse_params_no_callback, output, "https://www.sse.com.cn/services/hkexsc/disclo/eligible/"))
+    probes.append(request_json(session, "sse_json", SSE_URL, sse_params, output, "https://www.sse.com.cn/services/hkexsc/disclo/eligible/"))
     for tab in ["tab1", "tab2", "", "1"]:
-        params = {"SHOWTYPE": "JSON", "CATALOGID": "SGT_GGTBDQD", "PAGENO": "1", "random": str(time.time())}
+        params = {"SHOWTYPE": "JSON", "CATALOGID": "SGT_GGTBDQD", "PAGENO": "1", "PAGESIZE": "1000", "random": str(time.time())}
         if tab:
             params["TABKEY"] = tab
+            params[f"{tab}PAGESIZE"] = "1000"
         name = "szse_" + (tab or "no_tab")
         probes.append(request_json(session, name, SZSE_URL, params, output, "https://www.szse.cn/szhk/hkbussiness/underlylist/"))
     (output / "FMDL5A_API_PROBE.json").write_text(json.dumps(probes, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
