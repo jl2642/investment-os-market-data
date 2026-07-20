@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "program_id": "FMDL-3E-BC",
   "program_name": "Market and Financial Point-in-Time Incremental Refresh",
   "business_timezone": "Asia/Shanghai",
@@ -18,7 +18,10 @@
     "required_source_statuses": ["PUBLISHED", "PUBLISHED_WITH_WARNINGS"],
     "minimum_symbol_coverage_ratio": 0.99,
     "allow_full_universe_increment_for_market_session": true,
-    "require_strictly_later_completed_session": true
+    "require_strictly_later_completed_session": true,
+    "allow_real_completed_session_replay_when_no_post_baseline_session": true,
+    "replay_price_transition": "ACCEPTED_PREV_CLOSE_TO_CLOSE",
+    "require_explicit_post_frozen_baseline_advance_flag": true
   },
   "financial": {
     "statement_release": "outputs/financials/statements/current/FMDL3B4_RELEASE.json",

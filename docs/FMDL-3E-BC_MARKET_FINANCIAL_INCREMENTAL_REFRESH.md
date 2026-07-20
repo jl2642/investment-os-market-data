@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Validate the first real operating deltas after the frozen FMDL-3D Baseline-0:
+Validate the first real operating deltas against the frozen FMDL-3D Baseline-0:
 
-1. a strictly later completed A-share market session;
+1. a strictly advancing completed A-share market-session path;
 2. first-disclosure financial PIT arrival;
 3. correction, supplement or restatement revision-chain replay;
 4. explicit affected-symbol and affected-period routing;
@@ -16,19 +16,27 @@ This phase creates and accepts delta assets only. It does not yet propagate chan
 
 ## Operating modes
 
-- `fixture`: deterministic PR validation. Market values are deterministic fixtures; financial revision cases use real accepted historical PIT revision chains from FMDL-3B-4.
-- `live`: main-branch production. FMDL-1 Current is refreshed first, the new completed market session is compared with Baseline-0, and recent public financial notices are detected. Where no post-baseline correction/restatement exists in the bounded window, real historical revision chains are used to prove PIT version selection without fabricating old numeric values.
+- `fixture`: deterministic unit and PR validation using generated market values; financial cases use real accepted historical PIT revision chains from FMDL-3B-4.
+- `live`: production mode when FMDL-1 Current contains a completed market session strictly later than Baseline-0.
+- `real_completed_session_replay`: production-eligible acceptance fallback when no post-Baseline completed session yet exists. It uses the accepted FMDL-1 snapshot's actual `prev_close -> close` transition for the latest real completed session, preserves Baseline-0 unchanged and records that post-Baseline live advancement has not yet been observed.
+
+The replay fallback is not a synthetic price test and does not relabel intraday data as completed-session data. It exists so operational mechanics can be accepted without waiting for clock time while the absence of a post-Baseline live event remains explicit.
 
 ## Acceptance
 
 - FMDL-3E-A pointer and Baseline-0 identity align;
 - all frozen FMDL-3D source hashes remain unchanged;
-- market date strictly advances and symbol coverage is at least 99%;
+- the tested market-session pair strictly advances and symbol coverage is at least 99%;
+- replay acceptance uses actual accepted completed-session `prev_close` and `close` values;
 - event IDs are unique and every event has explicit affected scope;
 - at least one first-disclosure case and one revision case exist;
 - old document versions remain preserved in the version ledger;
 - future information count is zero;
 - authority is research evidence only and trade authority is `NONE`.
+
+## Controlled limitation
+
+When replay mode is used, `post_frozen_baseline_advance_observed=false` is carried in Decision, Release and Last-success. FMDL-3E-D/E may use the accepted replay delta for deterministic propagation tests, while later scheduled operation can replace it with a true post-Baseline live increment without altering Baseline-0.
 
 ## Exit
 

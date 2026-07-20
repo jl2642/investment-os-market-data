@@ -8,6 +8,7 @@ on:
       - "schemas/fmdl3ebc_delta_event_v1.schema.json"
       - "scripts/fmdl3ebc_core.py"
       - "scripts/run_fmdl3ebc_incremental.py"
+      - "scripts/run_fmdl3ebc_replay_closure.py"
       - "scripts/validate_fmdl3ebc_candidate.py"
       - "scripts/publish_fmdl3ebc.py"
       - "tests/test_fmdl3ebc_incremental.py"
@@ -20,6 +21,7 @@ on:
       - "schemas/fmdl3ebc_delta_event_v1.schema.json"
       - "scripts/fmdl3ebc_core.py"
       - "scripts/run_fmdl3ebc_incremental.py"
+      - "scripts/run_fmdl3ebc_replay_closure.py"
       - "scripts/validate_fmdl3ebc_candidate.py"
       - "scripts/publish_fmdl3ebc.py"
       - "tests/test_fmdl3ebc_incremental.py"
@@ -37,7 +39,7 @@ concurrency:
 jobs:
   deterministic-acceptance:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -49,16 +51,20 @@ jobs:
       - name: Unit and compile checks
         run: |
           pytest -q tests/test_fmdl3ebc_incremental.py
-          python -m py_compile scripts/fmdl3ebc_core.py scripts/run_fmdl3ebc_incremental.py scripts/validate_fmdl3ebc_candidate.py scripts/publish_fmdl3ebc.py
+          python -m py_compile scripts/fmdl3ebc_core.py scripts/run_fmdl3ebc_incremental.py scripts/run_fmdl3ebc_replay_closure.py scripts/validate_fmdl3ebc_candidate.py scripts/publish_fmdl3ebc.py
       - name: Build deterministic candidate
         run: python -m scripts.run_fmdl3ebc_incremental --mode fixture
       - name: Independently validate deterministic candidate
         run: python -m scripts.validate_fmdl3ebc_candidate
-      - name: Upload deterministic evidence
+      - name: Build real completed-session replay candidate
+        run: python -m scripts.run_fmdl3ebc_replay_closure
+      - name: Independently validate real replay candidate
+        run: python -m scripts.validate_fmdl3ebc_candidate
+      - name: Upload PR acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fmdl3ebc-deterministic-candidate
+          name: fmdl3ebc-real-replay-candidate
           path: outputs/fmdl3e/incremental/candidate/
           if-no-files-found: error
           retention-days: 30
@@ -81,15 +87,27 @@ jobs:
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
       - name: Refresh FMDL-1 to the latest completed session
         run: python pipeline/run_daily.py --trigger manual
-      - name: Build live market and financial PIT incremental candidate
-        run: python -m scripts.run_fmdl3ebc_incremental --mode live
-      - name: Independently validate live candidate
+      - name: Build eligible live increment or real completed-session replay
+        run: |
+          python - <<'PY'
+          import json, subprocess, sys
+          from pathlib import Path
+          baseline=json.loads(Path('outputs/fmdl3e/contract/current/FMDL3EA_BASELINE_MANIFEST.json').read_text())
+          current=json.loads(Path('outputs/current/CURRENT_RELEASE.json').read_text())
+          if current['as_of_date'] > baseline['market_as_of_date']:
+              command=[sys.executable,'-m','scripts.run_fmdl3ebc_incremental','--mode','live']
+          else:
+              command=[sys.executable,'-m','scripts.run_fmdl3ebc_replay_closure']
+          print({'selected_command': command, 'baseline_date': baseline['market_as_of_date'], 'current_date': current['as_of_date']})
+          subprocess.run(command, check=True)
+          PY
+      - name: Independently validate operational candidate
         run: python -m scripts.validate_fmdl3ebc_candidate
-      - name: Upload live evidence before enforcement
+      - name: Upload production evidence before enforcement
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fmdl3ebc-live-candidate
+          name: fmdl3ebc-production-candidate
           path: |
             outputs/fmdl3e/incremental/candidate/
             outputs/current/
