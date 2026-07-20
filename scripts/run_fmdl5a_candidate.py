@@ -6,7 +6,8 @@ import json
 import traceback
 from pathlib import Path
 
-from run_fmdl5a_universe import build
+import run_fmdl5a_universe as universe
+from fmdl5a_robust_sources import configure_retries, fetch_szse_robust
 
 
 def main() -> int:
@@ -15,8 +16,11 @@ def main() -> int:
     args = parser.parse_args()
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
+    universe.fetch_szse = fetch_szse_robust
+    original_session = universe.session
+    universe.session = lambda: configure_retries(original_session())
     try:
-        release = build(output)
+        release = universe.build(output)
         print(json.dumps(release, ensure_ascii=False, indent=2))
         return 0
     except Exception as exc:
