@@ -1,0 +1,113 @@
+{
+  "archive_path": "outputs/fmdl4/final/archive/FMDL4FINAL_20260717_fb7be097e110",
+  "authority": "UNIFIED_INTEGRATION_OPERATIONAL_ACCEPTANCE_ONLY",
+  "canonical_refresh_requirements_path": "outputs/fmdl4/final/current/FMDL4_FINAL_ACCEPTANCE/EVIDENCE/FMDL4_FINAL_CANONICAL_REFRESH_REQUIREMENTS.json",
+  "capability_matrix_path": "outputs/fmdl4/final/current/FMDL4_FINAL_ACCEPTANCE/CORE_STATIC/FMDL4_FINAL_CAPABILITY_MATRIX.json",
+  "capability_summary": {
+    "a_share_core_platform": "OPERATIONALLY_ACCEPTED_GOVERNED_DECISION_SUPPORT",
+    "automatic_trading": "INTENTIONALLY_DISABLED",
+    "file_library_single_package": "REFRESH_REQUIRED",
+    "real_account_simulation_candidate_state": "RECONCILIATION_REQUIRED",
+    "realized_alpha_proof": "NOT_YET_ESTABLISHED"
+  },
+  "component_release_ids": {
+    "FMDL-4A": "FMDL4A_20260717_b71d8020aa77",
+    "FMDL-4B": "FMDL4B_20260717_bcd28dbae349",
+    "FMDL-4C": "FMDL4C_20260717_cfa612b4a54d",
+    "FMDL-4D": "FMDL4D_20260717_54fc02bbb7a0"
+  },
+  "composed_canonical_state": "RELEASE4_EXTERNAL_BASE_PLUS_FMDL4A_RELEASE5_PLUS_FMDL4B_RESEARCH_PLUS_FMDL4C_RELEASE6_PLUS_FMDL4D_RELEASE7_PLUS_FMDL4FINAL_RELEASE8",
+  "composition_mode": "IMMUTABLE_EXTERNAL_BASE_PLUS_VERSIONED_ADDITIVE_RELEASES",
+  "composition_sequence": 8,
+  "controlled_limitations": [
+    {
+      "description": "GitHub proves the Release 4 plus Releases 5-8 composition but cannot repack the File Library base without readable Release 4 ZIP bytes.",
+      "limitation_id": "FILE_LIBRARY_RELEASE4_BYTES_NOT_IMPORTED",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "The latest real-account, simulation and candidate-pool records must be reconciled in the post-FMDL-4 canonical refresh.",
+      "limitation_id": "CURRENT_ACCOUNT_AND_SIMULATION_STATE_NOT_RECONCILED_AFTER_RELEASE4",
+      "status": "OPEN_OPERATIONAL"
+    },
+    {
+      "description": "The system is operationally complete for governed research and decision support but does not yet prove persistent long-horizon alpha.",
+      "limitation_id": "NO_LONG_HORIZON_ALPHA_PROOF",
+      "status": "OPEN_EMPIRICAL"
+    },
+    {
+      "description": "Portfolio actions remain proposals requiring role-specific gates and user confirmation.",
+      "limitation_id": "NO_AUTOMATIC_TRADE_AUTHORITY",
+      "status": "PERMANENT_BOUNDARY"
+    }
+  ],
+  "current_root": "outputs/fmdl4/final/current",
+  "decision_path": "outputs/fmdl4/final/current/FMDL4_FINAL_DECISION.json",
+  "exit_gate": "PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION_ACCEPTED",
+  "external_canonical_base": {
+    "asset_architecture_version": "4.5.3",
+    "byte_access_posture": "EXTERNAL_FILE_LIBRARY_BYTES_NOT_READABLE_IN_GITHUB_CI",
+    "package_name": "股票投资助手_CURRENT.zip",
+    "package_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
+    "pointer_name": "股票投资助手_CURRENT_POINTER.md",
+    "release_sequence": 4,
+    "run_id": "FMDL_1F_INVESTMENT_OS_INTERFACE_20260717_001",
+    "runtime_schema_version": "3.4.3",
+    "status": "ACTIVE_CANONICAL"
+  },
+  "file_library_maintenance_plan_path": "outputs/fmdl4/final/current/FMDL4_FINAL_ACCEPTANCE/EVIDENCE/FMDL4_FINAL_FILE_LIBRARY_MAINTENANCE_PLAN.json",
+  "file_library_single_package_status": "RELEASE4_ACTIVE_RELEASE8_REFRESH_REQUIRED",
+  "lineage_registry_path": "outputs/fmdl4/final/current/FMDL4_FINAL_ACCEPTANCE/STATE_CURRENT/FMDL4_FINAL_CHAIN_REGISTRY.csv",
+  "manifest_path": "outputs/fmdl4/final/current/FMDL4_FINAL_RELEASE8_MANIFEST.json",
+  "metrics": {
+    "attribution_record_count": 6,
+    "catalyst_count": 20,
+    "elapsed_seconds": 0.1679,
+    "failure_injection_count": 4,
+    "failure_injection_rejected_count": 4,
+    "feedback_proposal_count": 5,
+    "graduated_count": 6,
+    "graduation_decision_count": 100,
+    "investment_state_mutation_count": 0,
+    "lineage_error_count": 0,
+    "lineage_record_count": 6,
+    "lkg_preservation_error_count": 0,
+    "longlist_symbol_count": 100,
+    "order_generation_count": 0,
+    "overlay_file_count": 11,
+    "prove_kill_count": 30,
+    "reentry_queue_count": 6,
+    "research_object_count": 20,
+    "rule_mutation_count": 0,
+    "state_crossover_count": 0,
+    "thesis_record_count": 6,
+    "trade_authority_error_count": 0,
+    "transition_count": 6,
+    "universe_symbol_count": 5528
+  },
+  "next_gate": "FMDL-5_HONG_KONG_STOCK_CONNECT_EXTENSION",
+  "operational_state_audit_path": "outputs/fmdl4/final/current/FMDL4_FINAL_ACCEPTANCE/STATE_CURRENT/FMDL4_FINAL_OPERATIONAL_STATE_AUDIT.json",
+  "overlay_package_path": "outputs/fmdl4/final/current/FMDL4_RELEASE8_UNIFIED_INTEGRATION_OVERLAY.zip",
+  "program_id": "FMDL-4-FINAL",
+  "published_at": "2026-07-20T16:13:41+08:00",
+  "real_account_simulation_candidate_reconciliation_status": "REQUIRED_POST_FMDL4_FINAL",
+  "recommended_next_operation": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION",
+  "release_id": "FMDL4FINAL_20260717_fb7be097e110",
+  "release_root": "datasets/fmdl4/final/releases/FMDL4FINAL_20260717_fb7be097e110",
+  "release_version": "1.0.0",
+  "semantic_hashes": {
+    "canonical_refresh_requirements": "340a29ba2dd00009526f8266f49fdecc11f93dfacc5ce577bd4078a4ea2d9535",
+    "capability_matrix": "9a5544b4336c3fca41445010d682a4316c41075e0f0f10d85ee7d77db74091db",
+    "component_registry": "d512f2612ff9174ffe70cd9bae3602624c46b1a98ce01e6bab4a57a95a6b1a35",
+    "failure_injection_results": "fdca5f7d5599cfb4addc2f77f1e373045a040707fdbea25eb9c64c78a75f8986",
+    "file_library_maintenance_plan": "ac0f34b9c16dcc73c0d6a4e0646140fede1d4aee2e4167e315928eace43f795f",
+    "lineage_registry": "0259a55cc3f7713a64847e4d9aa201c32130e7cf5ff2bc8563fdce84e5f6400a",
+    "lkg_preservation": "c04500ec7b96e9199ad604048561a3bc2651af06cc08ec69521ce2d16074e6d2",
+    "operational_state_audit": "e01a0d8bec8b104632ad5db80c3d537db962dbd6d9c2b35297af82ad7a49b5f1",
+    "overlay_zip": "eceb03f61464b926661929f42142ec540a7f28e024dfc2ba8ca798d274b52eed",
+    "release8_manifest": "71a49a65348b8feb8428752374be55821a66c987e930aea918bd4945c478f659"
+  },
+  "status": "FMDL4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION_ACCEPTED",
+  "trade_authority": "NONE",
+  "validation_path": "outputs/fmdl4/final/current/FMDL4_FINAL_VALIDATION.json"
+}

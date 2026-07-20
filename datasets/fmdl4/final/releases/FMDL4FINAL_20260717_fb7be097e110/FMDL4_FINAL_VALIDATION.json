@@ -1,0 +1,96 @@
+{
+  "authority": "UNIFIED_INTEGRATION_OPERATIONAL_ACCEPTANCE_ONLY",
+  "checks": [
+    {
+      "check_id": "DECISION_AND_RELEASE_CHAIN",
+      "status": "PASS"
+    },
+    {
+      "check_id": "END_TO_END_LINEAGE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FAILURE_INJECTION_AND_LKG",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CAPABILITY_AND_CANONICAL_REFRESH_TRUTHFULNESS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MANIFEST_ZIP_AND_IDEMPOTENCE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_MUTATION_AND_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "controlled_limitations": [
+    {
+      "description": "GitHub proves the Release 4 plus Releases 5-8 composition but cannot repack the File Library base without readable Release 4 ZIP bytes.",
+      "limitation_id": "FILE_LIBRARY_RELEASE4_BYTES_NOT_IMPORTED",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "The latest real-account, simulation and candidate-pool records must be reconciled in the post-FMDL-4 canonical refresh.",
+      "limitation_id": "CURRENT_ACCOUNT_AND_SIMULATION_STATE_NOT_RECONCILED_AFTER_RELEASE4",
+      "status": "OPEN_OPERATIONAL"
+    },
+    {
+      "description": "The system is operationally complete for governed research and decision support but does not yet prove persistent long-horizon alpha.",
+      "limitation_id": "NO_LONG_HORIZON_ALPHA_PROOF",
+      "status": "OPEN_EMPIRICAL"
+    },
+    {
+      "description": "Portfolio actions remain proposals requiring role-specific gates and user confirmation.",
+      "limitation_id": "NO_AUTOMATIC_TRADE_AUTHORITY",
+      "status": "PERMANENT_BOUNDARY"
+    }
+  ],
+  "hard_failures": [],
+  "metrics": {
+    "attribution_record_count": 6,
+    "catalyst_count": 20,
+    "component_binding_error_count": 0,
+    "elapsed_seconds": 0.1679,
+    "failure_injection_count": 4,
+    "failure_injection_error_count": 0,
+    "failure_injection_rejected_count": 4,
+    "feedback_proposal_count": 5,
+    "graduated_count": 6,
+    "graduation_decision_count": 100,
+    "idempotence_replay_zip_sha256": "eceb03f61464b926661929f42142ec540a7f28e024dfc2ba8ca798d274b52eed",
+    "independent_lineage_record_count": 6,
+    "independent_overlay_zip_sha256": "eceb03f61464b926661929f42142ec540a7f28e024dfc2ba8ca798d274b52eed",
+    "investment_state_mutation_count": 0,
+    "lineage_error_count": 0,
+    "lineage_record_count": 6,
+    "lineage_shape_error_count": 0,
+    "lkg_preservation_error_count": 0,
+    "longlist_symbol_count": 100,
+    "manifest_error_count": 0,
+    "mutation_error_count": 0,
+    "order_generation_count": 0,
+    "overlay_file_count": 11,
+    "prove_kill_count": 30,
+    "reentry_queue_count": 6,
+    "research_object_count": 20,
+    "rule_mutation_count": 0,
+    "semantic_hash_error_count": 0,
+    "state_crossover_count": 0,
+    "thesis_record_count": 6,
+    "trade_authority_error_count": 0,
+    "trade_authority_error_count_independent": 0,
+    "transition_count": 6,
+    "universe_symbol_count": 5528,
+    "zip_error_count": 0
+  },
+  "next_gate": "FMDL-5_HONG_KONG_STOCK_CONNECT_EXTENSION",
+  "program_id": "FMDL-4-FINAL",
+  "recommended_next_operation": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION",
+  "release_id": "FMDL4FINAL_20260717_fb7be097e110",
+  "status": "PASS",
+  "trade_authority": "NONE",
+  "validation_version": "1.0.0"
+}

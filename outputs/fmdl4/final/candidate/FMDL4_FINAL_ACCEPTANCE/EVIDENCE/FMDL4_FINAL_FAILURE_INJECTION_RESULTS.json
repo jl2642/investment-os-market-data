@@ -1,0 +1,63 @@
+{
+  "results": [
+    {
+      "current_replacement_authorized": false,
+      "expected_error_codes": [
+        "STALE_OR_UNBOUND_EVIDENCE"
+      ],
+      "fixture_id": "STALE_EVIDENCE_AS_CURRENT",
+      "last_known_good_replacement_authorized": false,
+      "observed_error_codes": [
+        "STALE_OR_UNBOUND_EVIDENCE"
+      ],
+      "status": "REJECTED_AS_REQUIRED",
+      "trade_authority": "NONE"
+    },
+    {
+      "current_replacement_authorized": false,
+      "expected_error_codes": [
+        "MISSING_RESEARCH_LINEAGE"
+      ],
+      "fixture_id": "MISSING_RESEARCH_LINEAGE",
+      "last_known_good_replacement_authorized": false,
+      "observed_error_codes": [
+        "MISSING_RESEARCH_LINEAGE"
+      ],
+      "status": "REJECTED_AS_REQUIRED",
+      "trade_authority": "NONE"
+    },
+    {
+      "current_replacement_authorized": false,
+      "expected_error_codes": [
+        "STATE_DOMAIN_CROSSOVER",
+        "UNAUTHORIZED_INVESTMENT_STATE_MUTATION"
+      ],
+      "fixture_id": "CROSS_DOMAIN_STATE_MUTATION",
+      "last_known_good_replacement_authorized": false,
+      "observed_error_codes": [
+        "STATE_DOMAIN_CROSSOVER",
+        "UNAUTHORIZED_INVESTMENT_STATE_MUTATION"
+      ],
+      "status": "REJECTED_AS_REQUIRED",
+      "trade_authority": "NONE"
+    },
+    {
+      "current_replacement_authorized": false,
+      "expected_error_codes": [
+        "UNAUTHORIZED_INVESTMENT_STATE_MUTATION",
+        "UNAUTHORIZED_ORDER_GENERATION",
+        "UNAUTHORIZED_TRADE_AUTHORITY"
+      ],
+      "fixture_id": "UNAUTHORIZED_REAL_ACCOUNT_OR_ORDER_ACTION",
+      "last_known_good_replacement_authorized": false,
+      "observed_error_codes": [
+        "UNAUTHORIZED_INVESTMENT_STATE_MUTATION",
+        "UNAUTHORIZED_ORDER_GENERATION",
+        "UNAUTHORIZED_TRADE_AUTHORITY"
+      ],
+      "status": "REJECTED_AS_REQUIRED",
+      "trade_authority": "NONE"
+    }
+  ],
+  "trade_authority": "NONE"
+}
