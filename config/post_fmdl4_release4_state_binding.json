@@ -1,11 +1,14 @@
 {
-  "binding_version": "1.0.0",
+  "binding_version": "1.1.0",
   "source_package_name": "股票投资助手_CURRENT.zip",
   "source_package_sha256": "cfc25d81c900e11cab594067a8a6220fc7654b9bf2540783d02121da3abda511",
   "source_release_sequence": 4,
   "source_as_of": "2026-07-16_INTRADAY_1107",
   "no_trade_confirmation_after_source_as_of": true,
   "no_trade_confirmation_scope": ["REAL", "SIMULATION"],
+  "real_execution_cash": 120.49,
+  "simulation_available_cash": 219533.98,
+  "simulation_original_capital": 1000000.0,
   "real_holdings": [
     {"holding_name":"南方中证A500ETF","code":"159352","quantity_or_shares":"27700","cost_price_or_cost":"1.366","latest_price_or_nav":"1.314","market_value":"36394.40"},
     {"holding_name":"标普500ETF国泰","code":"159612","quantity_or_shares":"10200","cost_price_or_cost":"1.795","latest_price_or_nav":"2.008","market_value":"20481.60"},
@@ -36,6 +39,14 @@
   "candidate_core_20": [
     ["600941","中国移动","PREPARE_B3_MEMO_COMPARISON"],["000333","美的集团","PREPARE_B3_MEMO_COMPARISON"],["600036","招商银行","PREPARE_B3_MEMO_COMPARISON"],["600900","长江电力","PREPARE_B3_MEMO_COMPARISON"],["600690","海尔智家","PREPARE_B3_MEMO_COMPARISON"],["600519","贵州茅台","PREPARE_B3_MEMO_COMPARISON"],["600276","恒瑞医药","CORE_TRACK_AND_VALIDATE"],["300760","迈瑞医疗","PREPARE_B3_MEMO_COMPARISON"],["601088","中国神华","PREPARE_B3_MEMO_COMPARISON"],["600938","中国海油","CORE_TRACK_AND_VALIDATE"],["601985","中国核电","CORE_TRACK_AND_VALIDATE"],["601899","紫金矿业","CORE_TRACK_AND_VALIDATE"],["600309","万华化学","CORE_TRACK_AND_VALIDATE"],["601318","中国平安","CORE_TRACK_AND_VALIDATE"],["600660","福耀玻璃","CORE_TRACK_AND_VALIDATE"],["600406","国电南瑞","CORE_TRACK_AND_VALIDATE"],["300750","宁德时代","SIMULATION_ONLY_VALIDATION"],["601138","工业富联","SIM_REDUCED_NEGATIVE_ALPHA_OBSERVATION_NO_ADD"],["002475","立讯精密","SIMULATION_ONLY_VALIDATION"],["002371","北方华创","SIMULATION_ONLY_VALIDATION"]
   ],
+  "active_memo_price_thresholds": {
+    "000333": 76.0,
+    "600900": 25.5,
+    "601985": 8.2,
+    "600036": 35.9,
+    "600941": 85.0,
+    "601088": 38.0
+  },
   "cash_policy": "BROKER_CASH_IS_EXECUTION_BALANCE_NOT_STRATEGIC_ASSET_BUCKET",
   "trade_authority": "NONE"
 }
