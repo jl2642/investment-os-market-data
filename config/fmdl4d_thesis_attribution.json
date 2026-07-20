@@ -1,0 +1,138 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-4D",
+  "program_name": "Thesis Tracking, Attribution and Feedback Loop",
+  "business_timezone": "Asia/Shanghai",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL4C_LAST_SUCCESS.json",
+    "release_path": "outputs/fmdl4c/reentry/current/FMDL4C_RELEASE.json",
+    "required_status": "FMDL4C_INVESTMENT_OS_REENTRY_AND_STATE_CONTROLS_ACCEPTED",
+    "required_next_gate": "FMDL-4D_THESIS_ATTRIBUTION_AND_FEEDBACK_LOOP"
+  },
+  "inputs": {
+    "reentry_queue": "outputs/fmdl4c/reentry/current/FMDL4C_STATE_OVERLAY/STATE_CURRENT/FMDL4C_REENTRY_REVIEW_QUEUE.csv",
+    "research_objects": "outputs/fmdl4b/research/current/FMDL4B_PUBLIC_EQUITY_RESEARCH_OBJECTS.csv",
+    "graduation_decisions": "outputs/fmdl4b/research/current/FMDL4B_GRADUATION_DECISIONS.csv"
+  },
+  "tracking": {
+    "thesis_version": "FMDL4D-TV1-20260717",
+    "composition_sequence": 7,
+    "overlay_namespace": "FMDL4D_THESIS_OVERLAY",
+    "overlay_package_name": "FMDL4D_RELEASE7_THESIS_ATTRIBUTION_OVERLAY.zip",
+    "state_domain": "FMDL4D_THESIS_AND_ATTRIBUTION_LEDGER",
+    "maximum_review_days_from_source_as_of": 45,
+    "post_catalyst_update_sla_business_days": 3,
+    "company_thesis_status_by_queue": {
+      "CANDIDATE_POOL_REENTRY_REVIEW_READY": "INTACT_UNTESTED_BASELINE",
+      "SHADOW_TRACK_REENTRY_REVIEW_READY": "WATCH_UNTESTED_EXPECTATIONS_OR_QUALITY_GATE"
+    },
+    "security_thesis_readiness": "NOT_DECISION_GRADE_PENDING_CURRENT_PRICE_AND_SCENARIO",
+    "position_action": "WAIT_FOR_PROOF",
+    "portfolio_role": "UNASSIGNED_NO_EXPOSURE",
+    "exposure_status": "NO_POSITION",
+    "attribution_status": "NOT_YET_OBSERVABLE_NO_POSITION",
+    "threshold_origin": "DRAFT_THRESHOLD_FOR_PM_CONFIRMATION",
+    "threshold_approval_status": "NOT_APPROVED"
+  },
+  "feedback_proposals": [
+    {
+      "proposal_id": "FMDL4D-FB-001",
+      "title": "Security readiness requires current price and scenarios",
+      "scope_symbols": ["600900.SH", "300308.SZ", "000938.SZ", "000333.SZ", "002396.SZ", "600018.SH"],
+      "proposal": "Require a timestamped current price, explicit base/bear/bull valuation scenarios and downside before any security thesis becomes decision-grade.",
+      "minimum_evidence": "CURRENT_PRICE_PLUS_THREE_SCENARIOS_PLUS_DOWNSIDE",
+      "status": "PROPOSED_NOT_APPLIED"
+    },
+    {
+      "proposal_id": "FMDL4D-FB-002",
+      "title": "AI infrastructure requires recurring cash and expectations decomposition",
+      "scope_symbols": ["300308.SZ", "000938.SZ", "002396.SZ"],
+      "proposal": "Before candidate or simulation admission, separate recurring operating earnings and cash conversion from headline growth and explicitly test the expectations embedded in valuation.",
+      "minimum_evidence": "OFFICIAL_SEGMENT_OR_PRODUCT_EVIDENCE_PLUS_CASH_CONVERSION_PLUS_SCENARIO_TEST",
+      "status": "PROPOSED_NOT_APPLIED"
+    },
+    {
+      "proposal_id": "FMDL4D-FB-003",
+      "title": "Infrastructure requires core earnings and payout separation",
+      "scope_symbols": ["600900.SH", "600018.SH"],
+      "proposal": "Separate core infrastructure cash earnings from investment income, hydrology or cyclical effects and verify payout coverage before candidate admission.",
+      "minimum_evidence": "CORE_EARNINGS_BRIDGE_PLUS_CASH_PAYOUT_COVERAGE",
+      "status": "PROPOSED_NOT_APPLIED"
+    },
+    {
+      "proposal_id": "FMDL4D-FB-004",
+      "title": "Quality compounders require core earnings and portfolio fit",
+      "scope_symbols": ["000333.SZ"],
+      "proposal": "Require recurring earnings confirmation, free-cash-flow reconciliation, current valuation and explicit portfolio-role comparison before candidate admission.",
+      "minimum_evidence": "CORE_EARNINGS_PLUS_FCF_PLUS_CURRENT_VALUATION_PLUS_PORTFOLIO_FIT",
+      "status": "PROPOSED_NOT_APPLIED"
+    },
+    {
+      "proposal_id": "FMDL4D-FB-005",
+      "title": "No single-period outcome may change system rules",
+      "scope_symbols": ["ALL"],
+      "proposal": "Any strategy-rule change requires multiple independent observations, explicit failure classification, regression testing and human approval; one stock or one period is insufficient.",
+      "minimum_evidence": "MULTIPLE_INDEPENDENT_OBSERVATIONS_PLUS_REGRESSION_PLUS_HUMAN_APPROVAL",
+      "status": "GOVERNANCE_FIREWALL_ACTIVE"
+    }
+  ],
+  "failure_taxonomy": [
+    "NO_OBSERVATION",
+    "SELECTION_ERROR",
+    "RESEARCH_ERROR",
+    "VALUATION_ERROR",
+    "TIMING_ERROR",
+    "POSITION_SIZING_ERROR",
+    "DATA_QUALITY_ERROR",
+    "EXECUTION_ERROR",
+    "EXOGENOUS_SHOCK",
+    "THESIS_DRIFT"
+  ],
+  "acceptance": {
+    "required_thesis_record_count": 6,
+    "minimum_catalyst_count": 18,
+    "required_prove_kill_count": 30,
+    "required_attribution_record_count": 6,
+    "required_feedback_proposal_count": 5,
+    "maximum_observable_return_count": 0,
+    "maximum_security_decision_grade_count": 0,
+    "maximum_position_action_count": 0,
+    "maximum_rule_mutation_count": 0,
+    "maximum_candidate_pool_mutation_count": 0,
+    "maximum_simulation_mutation_count": 0,
+    "maximum_real_account_mutation_count": 0,
+    "maximum_order_generation_count": 0,
+    "maximum_trade_authority_error_count": 0,
+    "require_append_only_decision_log": true,
+    "require_same_input_idempotence": true,
+    "require_independent_validation": true
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl4d/thesis/candidate",
+    "current_root": "outputs/fmdl4d/thesis/current",
+    "archive_root": "outputs/fmdl4d/thesis/archive",
+    "release_root": "datasets/fmdl4d/thesis/releases",
+    "last_success": "outputs/status/FMDL4D_LAST_SUCCESS.json"
+  },
+  "controlled_limitations": [
+    {
+      "limitation_id": "NO_ACCEPTED_SIMULATION_OR_REAL_ACCOUNT_EXPOSURE",
+      "status": "OPEN_CONTROLLED",
+      "description": "The six names have no accepted simulation or real-account exposure, so return, position and timing attribution are not yet observable."
+    },
+    {
+      "limitation_id": "CURRENT_PRICE_AND_SCENARIO_NOT_BOUND",
+      "status": "OPEN_DOWNSTREAM",
+      "description": "FMDL-4D preserves the accepted 2026-07-17 research baseline but does not infer a current security call without timestamped price and explicit valuation scenarios."
+    },
+    {
+      "limitation_id": "FEEDBACK_PROPOSALS_ARE_NOT_RULE_MUTATIONS",
+      "status": "PERMANENT_BOUNDARY",
+      "description": "Feedback rows are auditable proposals only. No single stock, period or outcome may automatically modify screening, graduation, sizing or trading rules."
+    }
+  ],
+  "exit_status": "FMDL4D_THESIS_ATTRIBUTION_AND_FEEDBACK_ACCEPTED",
+  "next_gate": "FMDL-4-FINAL_UNIFIED_INTEGRATION_AND_OPERATIONAL_ACCEPTANCE",
+  "authority": "THESIS_TRACKING_ATTRIBUTION_AND_FEEDBACK_PROPOSALS_ONLY",
+  "trade_authority": "NONE"
+}
