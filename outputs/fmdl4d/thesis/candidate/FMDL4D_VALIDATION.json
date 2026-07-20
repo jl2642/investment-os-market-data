@@ -1,0 +1,118 @@
+{
+  "authority": "THESIS_TRACKING_ATTRIBUTION_AND_FEEDBACK_PROPOSALS_ONLY",
+  "checks": [
+    {
+      "check_id": "DECISION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "THESIS_RECORDS_AND_LINKS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ATTRIBUTION_NOT_YET_OBSERVABLE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "APPEND_ONLY_DECISION_LOG",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FEEDBACK_AND_GOVERNANCE_FIREWALL",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SEMANTIC_HASHES",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MANIFEST_AND_ZIP",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SAME_INPUT_IDEMPOTENCE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SOURCE_BINDING",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_INVESTMENT_AND_RULE_MUTATION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "controlled_limitations": [
+    {
+      "description": "The six names have no accepted simulation or real-account exposure, so return, position and timing attribution are not yet observable.",
+      "limitation_id": "NO_ACCEPTED_SIMULATION_OR_REAL_ACCOUNT_EXPOSURE",
+      "status": "OPEN_CONTROLLED"
+    },
+    {
+      "description": "FMDL-4D preserves the accepted 2026-07-17 research baseline but does not infer a current security call without timestamped price and explicit valuation scenarios.",
+      "limitation_id": "CURRENT_PRICE_AND_SCENARIO_NOT_BOUND",
+      "status": "OPEN_DOWNSTREAM"
+    },
+    {
+      "description": "Feedback rows are auditable proposals only. No single stock, period or outcome may automatically modify screening, graduation, sizing or trading rules.",
+      "limitation_id": "FEEDBACK_PROPOSALS_ARE_NOT_RULE_MUTATIONS",
+      "status": "PERMANENT_BOUNDARY"
+    }
+  ],
+  "hard_failures": [],
+  "metrics": {
+    "append_only_error_count": 0,
+    "append_only_log_error_count": 0,
+    "attribution_error_count": 0,
+    "attribution_record_count": 6,
+    "binding_error_count": 0,
+    "candidate_pool_mutation_count": 0,
+    "catalyst_count": 20,
+    "decision_log_count": 6,
+    "elapsed_seconds": 0.0278,
+    "feedback_error_count": 0,
+    "feedback_proposal_count": 5,
+    "governance_error_count": 0,
+    "graduated_input_count": 6,
+    "graduated_symbol_mismatch_count": 0,
+    "idempotence_replay_zip_sha256": "ff8e1203cf00603baf5ebcdc85e37ac3787192e28540b2fdbbd19d70188b60f0",
+    "independent_attribution_record_count": 6,
+    "independent_catalyst_count": 20,
+    "independent_overlay_zip_sha256": "ff8e1203cf00603baf5ebcdc85e37ac3787192e28540b2fdbbd19d70188b60f0",
+    "independent_prove_kill_count": 30,
+    "independent_thesis_record_count": 6,
+    "manifest_error_count": 0,
+    "missing_research_binding_count": 0,
+    "mutation_error_count": 0,
+    "observable_return_count": 0,
+    "order_generation_count": 0,
+    "overlay_file_count": 11,
+    "position_action_count": 0,
+    "prove_kill_count": 30,
+    "real_account_mutation_count": 0,
+    "reentry_queue_count": 6,
+    "registry_link_error_count": 0,
+    "row_binding_error_count": 0,
+    "rule_mutation_count": 0,
+    "security_decision_grade_count": 0,
+    "semantic_hash_error_count": 0,
+    "simulation_mutation_count": 0,
+    "thesis_record_count": 6,
+    "thesis_shape_error_count": 0,
+    "thesis_validation_error_count": 0,
+    "total_fmdl4b_decision_count": 100,
+    "trade_authority_error_count": 0,
+    "trade_authority_error_count_independent": 0,
+    "zip_error_count": 0
+  },
+  "next_gate": "FMDL-4-FINAL_UNIFIED_INTEGRATION_AND_OPERATIONAL_ACCEPTANCE",
+  "program_id": "FMDL-4D",
+  "release_id": "FMDL4D_20260717_54fc02bbb7a0",
+  "status": "PASS",
+  "trade_authority": "NONE",
+  "validation_version": "1.0.0"
+}
