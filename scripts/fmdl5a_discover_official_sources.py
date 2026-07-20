@@ -34,7 +34,7 @@ def fetch(session: requests.Session, name: str, url: str, output: Path) -> dict:
         return {
             "name": name,
             "url": url,
-            "ok": true,
+            "ok": True,
             "status": response.status_code,
             "content_type": response.headers.get("content-type"),
             "content_length": len(response.content),
