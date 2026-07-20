@@ -1,0 +1,38 @@
+{
+  "program_id": "FMDL-5A",
+  "contract_version": "1.0.0",
+  "baseline_release_id": "FMDL5_0_20260720_c6d45dec3ade",
+  "market": "HKEX_SOUTHBOUND_STOCK_CONNECT",
+  "canonical_security_id_format": "HKEX:{stock_code_5d}",
+  "official_sources": {
+    "hkex_directory": "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Eligible-Stocks/View-All-Eligible-Securities?sc_lang=en",
+    "shanghai_connect": "https://www.sse.com.cn/services/hkexsc/disclo/eligible/",
+    "shenzhen_connect": "https://www.szse.cn/szhk/hkbussiness/underlylist/"
+  },
+  "canonical_universe_rule": "UNION_OF_SHANGHAI_AND_SHENZHEN_SOUTHBOUND_ELIGIBLE_SECURITIES",
+  "route_dimensions": ["SHANGHAI_CONNECT", "SHENZHEN_CONNECT"],
+  "eligibility_status_enum": [
+    "BUY_AND_SELL_ELIGIBLE",
+    "SELL_ONLY",
+    "SUSPENDED_WITH_ELIGIBILITY_RETAINED",
+    "REMOVED",
+    "UNKNOWN_BLOCKED"
+  ],
+  "required_pit_fields": [
+    "source_publication_date",
+    "source_update_date",
+    "effective_southbound_trading_date",
+    "retrieved_at_utc",
+    "source_sha256"
+  ],
+  "effective_date_rule": "IF_SOURCE_UPDATE_DATE_IS_NOT_A_SOUTHBOUND_TRADING_DAY_APPLY_ON_NEXT_SOUTHBOUND_TRADING_DAY",
+  "duplicate_rule": "ONE_CANONICAL_SECURITY_ROW_WITH_ROUTE_FLAGS",
+  "exclusion_rule": "UNKNOWN_OR_UNVALIDATED_ROWS_ARE_BLOCKED_FROM_CANONICAL_UNIVERSE",
+  "state_mutation_scope": "FMDL5A_HK_STOCK_CONNECT_UNIVERSE_ONLY",
+  "candidate_pool_mutation": false,
+  "simulation_mutation": false,
+  "real_account_mutation": false,
+  "order_generation": false,
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-5B_HK_SECURITY_MASTER_AND_MARKET_SEMANTICS"
+}
