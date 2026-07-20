@@ -144,11 +144,23 @@ def validate_bound_state(root: Path, cfg: dict[str, Any]) -> tuple[list[str], di
     expected_financial = "FMDL3CD_FINANCIAL_SCORE_AND_INVESTMENT_OS_INTERFACE_ACCEPTED"
     if financial_pointer.get("status") != expected_financial:
         errors.append("FMDL3CD_STATUS")
+    financial_release_path = financial_pointer.get("current_release_path")
+    if not financial_release_path or not (root / financial_release_path).exists():
+        errors.append("FMDL3CD_RELEASE_PATH")
+        financial_release: dict[str, Any] = {}
+    else:
+        financial_release = read_json(root / financial_release_path)
+    if financial_release.get("status") != expected_financial:
+        errors.append("FMDL3CD_RELEASE_STATUS")
+    if financial_release.get("release_id") != financial_pointer.get("release_id"):
+        errors.append("FMDL3CD_POINTER_RELEASE_MISMATCH")
     if financial_interface.get("status") != "ACTIVE_RESEARCH_ONLY":
         errors.append("FMDL3CD_INTERFACE_STATUS")
-    if financial_interface.get("source_release_id") != financial_pointer.get("release_id"):
-        errors.append("FMDL3CD_INTERFACE_RELEASE_MISMATCH")
-    if financial_interface.get("trade_authority") != "NONE":
+    if financial_interface.get("source_release_id") != financial_release.get("source_hardening_release_id"):
+        errors.append("FMDL3CD_INTERFACE_SOURCE_RELEASE_MISMATCH")
+    if financial_interface.get("market_data_interface_id") != "FMDL_A_SHARE_MARKET_DATA_INTERFACE":
+        errors.append("FMDL3CD_MARKET_INTERFACE_ID")
+    if financial_pointer.get("trade_authority") != "NONE" or financial_release.get("trade_authority") != "NONE" or financial_interface.get("trade_authority") != "NONE":
         errors.append("FMDL3CD_TRADE_AUTHORITY")
 
     market_interface = read_json(root / paths["fmdl1_market_interface"])
@@ -156,6 +168,8 @@ def validate_bound_state(root: Path, cfg: dict[str, Any]) -> tuple[list[str], di
         errors.append("FMDL1_INTERFACE_STATUS")
     if market_interface.get("downstream_handoff", {}).get("trade_authority") != "NONE":
         errors.append("FMDL1_TRADE_AUTHORITY")
+    if financial_interface.get("market_data_run_id") != market_interface.get("current_release", {}).get("run_id"):
+        errors.append("FMDL3CD_MARKET_RUN_MISMATCH")
 
     canonical_pointer = read_json(root / paths["fmdl3e_canonical_pointer"])
     operational_release = read_json(root / paths["fmdl3e_operational_release"])
@@ -168,7 +182,8 @@ def validate_bound_state(root: Path, cfg: dict[str, Any]) -> tuple[list[str], di
         "fmdl1_interface_id": market_interface.get("interface_id"),
         "fmdl1_current_run_id": market_interface.get("current_release", {}).get("run_id"),
         "fmdl2_release_id": fmdl2_release.get("release_id"),
-        "fmdl3cd_release_id": financial_pointer.get("release_id"),
+        "fmdl3cd_release_id": financial_release.get("release_id"),
+        "fmdl3cd_source_hardening_release_id": financial_release.get("source_hardening_release_id"),
         "fmdl3e_release_id": operational_release.get("release_id"),
         "fmdl3e_baseline_id": operational_release.get("baseline_id"),
         "fmdl3e_universe_symbol_count": operational_release.get("metrics", {}).get("universe_symbol_count"),
