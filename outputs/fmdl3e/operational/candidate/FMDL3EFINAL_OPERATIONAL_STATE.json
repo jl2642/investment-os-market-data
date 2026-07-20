@@ -1,0 +1,87 @@
+{
+  "state_version": "1.0.0",
+  "release_id": "FMDL3E_FINAL_20260720T121735+0800",
+  "generated_at": "2026-07-20T12:17:35+08:00",
+  "program_id": "FMDL-3E-FINAL",
+  "status": "FMDL3E_UNIFIED_OPERATIONAL_ACCEPTANCE_AND_CANONICAL_CLOSURE_ACCEPTED",
+  "canonical_chain": {
+    "FMDL-3D-FINAL": "FMDL3D_FINAL_20260719T233219+0800",
+    "FMDL-3E-A": "FMDL3EA_20260719T233949+0800",
+    "FMDL-3E-BC": "FMDL3EBC_20260720T105314+0800",
+    "FMDL-3E-DE": "FMDL3E_20260720T113317+0800"
+  },
+  "baseline_id": "3e962b6c3e2b669dc62f2b3a90dff32c5a624386aab9ead21eb2803b415403a3",
+  "market_watermark": {
+    "baseline_date": "2026-07-17",
+    "target_date": "2026-07-17",
+    "acceptance_mode": "REAL_COMPLETED_SESSION_REPLAY",
+    "post_frozen_baseline_advance_observed": false
+  },
+  "financial_watermark": {
+    "event_count": 2,
+    "fact_delta_count": 2,
+    "version_count": 16
+  },
+  "operational_policy": {
+    "same_input": "NO_OP_OR_SEMANTICALLY_IDEMPOTENT",
+    "new_completed_market_session": "RUN_FMDL3E_BC_THEN_DE_THEN_FINAL",
+    "failure": "REJECT_CANDIDATE_AND_PRESERVE_CURRENT_AND_LAST_SUCCESS",
+    "manual_recovery": "WORKFLOW_DISPATCH_CAN_FORCE_OPERATIONAL_REFRESH",
+    "scheduler": "WEEKDAYS_19_45_ASIA_SHANGHAI"
+  },
+  "entrypoints": {
+    "market_financial_refresh_workflow": ".github/workflows/fmdl-3ebc-market-financial-incremental.yml",
+    "propagation_resilience_workflow": ".github/workflows/fmdl-3ede-propagation-resilience.yml",
+    "canonical_cycle_workflow": ".github/workflows/fmdl-3efinal-operational-closure.yml",
+    "market_financial_runner": "scripts/run_fmdl3ebc_incremental.py",
+    "market_replay_runner": "scripts/run_fmdl3ebc_replay_closure.py",
+    "propagation_runner": "scripts/run_fmdl3ede_acceptance.py",
+    "final_runner": "scripts/run_fmdl3efinal_acceptance.py",
+    "cycle_runner": "scripts/run_fmdl3efinal_cycle.py"
+  },
+  "unified_current_semantic_hash": "7984a14c2dda14a4db48f920ad89a2c3aba55d5e1437f23c09981ecbcbc5a688",
+  "source_hashes": {
+    "outputs/status/FMDL3D_LAST_SUCCESS.json": "022148f9ccb1d68488731c3d45fb2f3d9f72a13e22fba73f6594a60d42de0ceb",
+    "outputs/fmdl3d/final/current/FMDL3D_FINAL_RELEASE.json": "d53c74336082ff0039be7e1f568a605a0f4faf8f41f3da17d291df7dc7354b66",
+    "outputs/status/FMDL3EA_LAST_SUCCESS.json": "39626b8bb4833c5948e3524fd9a1b3332d1e7308ffb95eaf0bc76dedc1456436",
+    "outputs/fmdl3e/contract/current/FMDL3EA_RELEASE.json": "c21f3dbaa065b337daabda09a51a754f3b9e47049e32f62406f2ad0568e282d5",
+    "outputs/status/FMDL3EBC_LAST_SUCCESS.json": "b1578cc5caab9408bdff53238372ceae544f4c6a6aaa7ef84a8bd5eb87151fad",
+    "outputs/fmdl3e/incremental/current/FMDL3EBC_RELEASE.json": "117456a19b7a2f571cfcbdbc232ae75bcf9f67e6d4e47c7c3268462a94e657b1",
+    "outputs/status/FMDL3E_LAST_SUCCESS.json": "443d5713be10dce2c812d2e5b0a12b818e2c87f7d5be924b44d304eddcbdf76a",
+    "outputs/fmdl3e/final/current/FMDL3E_RELEASE.json": "19dcda9ac6322016594fa29b3c01b575ae8df8431ad4024f16f57d2ee0eafc4a",
+    "outputs/fmdl3e/final/current/FMDL3E_DECISION.json": "a174afee6d7532665413f3d67dca455274a042df8020a615da86e4ce0846306f",
+    "outputs/fmdl3e/final/current/FMDL3E_VALIDATION.json": "c444c32f2c62dd98623cdbc041d50a32e696b70ce29f6d16466b54f148b9ee7a",
+    "outputs/fmdl3e/final/current/FMDL3E_PROPAGATED_UNIFIED_CURRENT.parquet": "22568d8a6ff5f37e8b6298ab9fbe0fb501ae52b7053579db88b004adacea3726",
+    "outputs/fmdl3e/final/current/FMDL3E_FULL_REBUILD_REFERENCE.parquet": "22568d8a6ff5f37e8b6298ab9fbe0fb501ae52b7053579db88b004adacea3726",
+    "outputs/fmdl3e/final/current/FMDL3E_RESILIENCE_REPORT.json": "91c1aed22491791c55863f8edc43c6aee08a33ec0a499442e71e46bacb9afb4d",
+    "outputs/current/CURRENT_RELEASE.json": "893d1eb9d98e297354552f069bcdef89f16fb4f545df18cecfeb61ba73eb082b",
+    ".github/workflows/fmdl-3ebc-market-financial-incremental.yml": "f57bfdb21ee06fdd9431c6d4ea59912b2c9de81ecd83ad000883702dbe1cb584",
+    ".github/workflows/fmdl-3ede-propagation-resilience.yml": "5f5462bfe5e8f2ba6db8cebca67e73fc08595771fd84201249d25b1dbc876ee3",
+    ".github/workflows/fmdl-3efinal-operational-closure.yml": "d5d9807bdc6b642b7b5f942d8d982431bdf859c20f326be1a7cd8a294e9f92c9",
+    "scripts/run_fmdl3ebc_incremental.py": "8d7375bce6b209ce7da386499c3067816a58899c2bddd8e534bb9b93563bfeb7",
+    "scripts/run_fmdl3ebc_replay_closure.py": "da88cf9113155f110b4d57c7b61cbfde18aacf13a73d8ace099a9fe29a5c5c84",
+    "scripts/run_fmdl3ede_acceptance.py": "1925738f239baf0bdab7333bba18f526dded9f6cff52828b442f640fe30523be",
+    "scripts/run_fmdl3efinal_acceptance.py": "3325c86288edd4ad53d6b348a2f01f49d35c1216425ca17bb587d15df5cd7b88",
+    "scripts/run_fmdl3efinal_cycle.py": "6535a0daff7938f07dd637e80823cdafd3dd8a813a7d2501b3cf8921c0eb45bb"
+  },
+  "controlled_limitations": [
+    {
+      "limitation_id": "POST_BASELINE_LIVE_MARKET_ADVANCE_PENDING",
+      "status": "OPEN",
+      "description": "The accepted operating proof uses a real completed-session replay until a completed session later than Baseline-0 is observed."
+    },
+    {
+      "limitation_id": "FINANCIAL_PRE_REVISION_NUMERIC_HISTORY_NOT_RETAINED",
+      "status": "OPEN",
+      "description": "Selected historical financial correction cases prove document-version PIT lineage but do not fabricate unavailable pre-revision structured values."
+    },
+    {
+      "limitation_id": "NO_ALPHA_OR_TRADE_AUTHORITY",
+      "status": "PERMANENT_BOUNDARY",
+      "description": "FMDL-3E is a data and research-evidence operating layer, not an investment recommendation or execution authority."
+    }
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION"
+}

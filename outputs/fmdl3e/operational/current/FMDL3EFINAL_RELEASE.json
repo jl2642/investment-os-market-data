@@ -1,0 +1,66 @@
+{
+  "release_version": "1.0.0",
+  "release_id": "FMDL3E_FINAL_20260720T121735+0800",
+  "published_at": "2026-07-20T12:17:39+08:00",
+  "program_id": "FMDL-3E-FINAL",
+  "status": "FMDL3E_UNIFIED_OPERATIONAL_ACCEPTANCE_AND_CANONICAL_CLOSURE_ACCEPTED",
+  "exit_gate": "UNIFIED_OPERATIONAL_ACCEPTANCE_AND_CANONICAL_CLOSURE_ACCEPTED",
+  "release_root": "datasets/fmdl3e/operational/releases/FMDL3E_FINAL_20260720T121735+0800",
+  "current_root": "outputs/fmdl3e/operational/current",
+  "archive_path": "outputs/fmdl3e/operational/archive/FMDL3E_FINAL_20260720T121735+0800",
+  "canonical_chain": {
+    "FMDL-3D-FINAL": "FMDL3D_FINAL_20260719T233219+0800",
+    "FMDL-3E-A": "FMDL3EA_20260719T233949+0800",
+    "FMDL-3E-BC": "FMDL3EBC_20260720T105314+0800",
+    "FMDL-3E-DE": "FMDL3E_20260720T113317+0800"
+  },
+  "baseline_id": "3e962b6c3e2b669dc62f2b3a90dff32c5a624386aab9ead21eb2803b415403a3",
+  "market_watermark": {
+    "baseline_date": "2026-07-17",
+    "target_date": "2026-07-17",
+    "acceptance_mode": "REAL_COMPLETED_SESSION_REPLAY",
+    "post_frozen_baseline_advance_observed": false
+  },
+  "unified_current_path": "outputs/fmdl3e/operational/current/FMDL3EFINAL_UNIFIED_CURRENT.parquet",
+  "operational_state_path": "outputs/fmdl3e/operational/current/FMDL3EFINAL_OPERATIONAL_STATE.json",
+  "limitation_register_path": "outputs/fmdl3e/operational/current/FMDL3EFINAL_LIMITATION_REGISTER.json",
+  "decision_path": "outputs/fmdl3e/operational/current/FMDL3EFINAL_DECISION.json",
+  "validation_path": "outputs/fmdl3e/operational/current/FMDL3EFINAL_VALIDATION.json",
+  "metrics": {
+    "component_release_count": 4,
+    "universe_symbol_count": 5528,
+    "duplicate_symbol_count": 0,
+    "trade_authority_error_count": 0,
+    "component_lineage_error_count": 0,
+    "full_rebuild_mismatch_count": 0,
+    "source_hash_count": 22,
+    "missing_entrypoint_count": 0,
+    "open_controlled_limitation_count": 2,
+    "elapsed_seconds": 1.0164
+  },
+  "semantic_hashes": {
+    "unified_current": "7984a14c2dda14a4db48f920ad89a2c3aba55d5e1437f23c09981ecbcbc5a688",
+    "full_rebuild_reference": "7984a14c2dda14a4db48f920ad89a2c3aba55d5e1437f23c09981ecbcbc5a688",
+    "operational_state": "88c9a17d6a75b06cc33a9c189b1441d98ae1d9d34fefeb9c591dff17a26e550d"
+  },
+  "controlled_limitations": [
+    {
+      "limitation_id": "POST_BASELINE_LIVE_MARKET_ADVANCE_PENDING",
+      "status": "OPEN",
+      "description": "The accepted operating proof uses a real completed-session replay until a completed session later than Baseline-0 is observed."
+    },
+    {
+      "limitation_id": "FINANCIAL_PRE_REVISION_NUMERIC_HISTORY_NOT_RETAINED",
+      "status": "OPEN",
+      "description": "Selected historical financial correction cases prove document-version PIT lineage but do not fabricate unavailable pre-revision structured values."
+    },
+    {
+      "limitation_id": "NO_ALPHA_OR_TRADE_AUTHORITY",
+      "status": "PERMANENT_BOUNDARY",
+      "description": "FMDL-3E is a data and research-evidence operating layer, not an investment recommendation or execution authority."
+    }
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION"
+}
