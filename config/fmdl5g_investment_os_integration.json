@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-5G",
+  "title": "Hong Kong Investment OS Integration",
+  "business_timezone": "Asia/Hong_Kong",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL5F_LAST_SUCCESS.json",
+    "decision_path": "outputs/fmdl5f/research/current/FMDL5F_DECISION.json",
+    "required_status": "FMDL5F_PUBLIC_EQUITY_RESEARCH_ADAPTER_ACCEPTED",
+    "required_next_gate": "FMDL-5G_INVESTMENT_OS_INTEGRATION"
+  },
+  "canonical_base": {
+    "publication_path": "config/post_fmdl4_release8_publication.json",
+    "required_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+    "required_release_sequence": 8,
+    "required_status": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ACCEPTED",
+    "integration_mode": "READ_ONLY_ADDITIVE_CROSS_MARKET_OVERLAY"
+  },
+  "inputs": {
+    "research_objects": "outputs/fmdl5f/research/current/FMDL5F_RESEARCH_OBJECTS.jsonl",
+    "research_object_index": "outputs/fmdl5f/research/current/FMDL5F_RESEARCH_OBJECT_INDEX.csv",
+    "graduation_registry": "outputs/fmdl5f/research/current/FMDL5F_RESEARCH_OBJECT_INDEX.csv",
+    "full_graduation_registry": "outputs/fmdl5f/research/current/FMDL5F_GRADUATION_REGISTRY.csv",
+    "case_route_coverage": "outputs/fmdl5f/research/current/FMDL5F_CASE_ROUTE_COVERAGE.csv",
+    "fmdl5f_manifest": "outputs/fmdl5f/research/current/FMDL5F_MANIFEST.json"
+  },
+  "transition_policy": {
+    "eligible_research_decisions": ["GRADUATED", "SHADOW_TRACK"],
+    "decision_to_route": {
+      "GRADUATED": "HK_CANDIDATE_REENTRY_REVIEW",
+      "SHADOW_TRACK": "HK_SHADOW_TRACK_REVIEW"
+    },
+    "required_transition_count": 6,
+    "required_reentry_review_count": 4,
+    "required_shadow_track_count": 2,
+    "a_h_case_requires_duplication_review": true,
+    "research_graduation_is_not_candidate_admission": true,
+    "candidate_review_is_not_simulation_admission": true,
+    "simulation_review_is_not_real_account_admission": true
+  },
+  "state_domains": {
+    "overlay_domain": "FMDL5G_HK_RESEARCH_STATE_OVERLAY",
+    "candidate_review_queue": "FMDL5G_HK_CANDIDATE_REENTRY_REVIEW_QUEUE",
+    "shadow_track_queue": "FMDL5G_HK_SHADOW_TRACK_QUEUE",
+    "cross_market_duplication_queue": "FMDL5G_CROSS_MARKET_DUPLICATION_REVIEW_QUEUE",
+    "simulation_router": "FMDL5G_SIMULATION_ROUTER",
+    "real_account_router": "FMDL5G_REAL_ACCOUNT_ROUTER"
+  },
+  "state_boundary": {
+    "canonical_release8_repack_authorized": false,
+    "existing_candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "trade_register_mutation_authorized": false,
+    "order_generation_authorized": false,
+    "position_sizing_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "maximum_duplicate_transition_security_count": 0,
+    "maximum_missing_research_binding_count": 0,
+    "minimum_cross_market_duplication_review_count": 2,
+    "maximum_existing_candidate_pool_mutation_count": 0,
+    "maximum_simulation_mutation_count": 0,
+    "maximum_real_account_mutation_count": 0,
+    "maximum_order_generation_count": 0,
+    "maximum_trade_authority_error_count": 0,
+    "require_same_input_idempotence": true,
+    "require_rollback_proof": true,
+    "require_independent_validation": true
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl5g/integration/candidate",
+    "current_root": "outputs/fmdl5g/integration/current",
+    "archive_root": "outputs/fmdl5g/integration/archive",
+    "release_root": "datasets/fmdl5g/integration/releases",
+    "last_success": "outputs/status/FMDL5G_LAST_SUCCESS.json"
+  },
+  "outputs": [
+    "FMDL5G_STATE_TRANSITIONS.jsonl",
+    "FMDL5G_HK_CANDIDATE_REENTRY_REVIEW_QUEUE.csv",
+    "FMDL5G_HK_SHADOW_TRACK_QUEUE.csv",
+    "FMDL5G_CROSS_MARKET_DUPLICATION_REVIEW.csv",
+    "FMDL5G_STATE_ROUTER.csv",
+    "FMDL5G_SIMULATION_ROUTER.csv",
+    "FMDL5G_REAL_ACCOUNT_ROUTER.csv",
+    "FMDL5G_STATE_DIFF.json",
+    "FMDL5G_ROLLBACK_PROOF.json",
+    "FMDL5G_QUALITY_REPORT.json",
+    "FMDL5G_DECISION.json",
+    "FMDL5G_MANIFEST.json"
+  ],
+  "exit_status": "FMDL5G_INVESTMENT_OS_INTEGRATION_ACCEPTED",
+  "next_gate": "FMDL-5-FINAL_OPERATIONAL_ACCEPTANCE",
+  "authority": "READ_ONLY_HK_RESEARCH_STATE_ROUTING_ONLY",
+  "trade_authority": "NONE"
+}

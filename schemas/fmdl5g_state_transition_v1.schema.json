@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl5g_state_transition_v1.schema.json",
+  "title": "FMDL-5G Hong Kong Research State Transition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transition_id",
+    "security_id",
+    "stock_code_5d",
+    "official_security_name_en",
+    "research_id",
+    "research_object_sha256",
+    "source_research_decision",
+    "target_route",
+    "candidate_pool_mutation_authorized",
+    "simulation_mutation_authorized",
+    "real_account_mutation_authorized",
+    "order_generation_authorized",
+    "trade_authority",
+    "transition_sha256"
+  ],
+  "properties": {
+    "transition_id": {"type": "string", "minLength": 12},
+    "security_id": {"type": "string", "pattern": "^HKEX:[0-9]{5}$"},
+    "stock_code_5d": {"type": "string", "pattern": "^[0-9]{5}$"},
+    "official_security_name_en": {"type": "string", "minLength": 1},
+    "research_id": {"type": "string", "minLength": 12},
+    "research_object_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_research_decision": {"enum": ["GRADUATED", "SHADOW_TRACK"]},
+    "target_route": {"enum": ["HK_CANDIDATE_REENTRY_REVIEW", "HK_SHADOW_TRACK_REVIEW"]},
+    "case_types": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "cross_market_duplication_review_required": {"type": "boolean"},
+    "state_meaning": {"type": "string", "minLength": 1},
+    "candidate_pool_mutation_authorized": {"const": false},
+    "simulation_mutation_authorized": {"const": false},
+    "real_account_mutation_authorized": {"const": false},
+    "order_generation_authorized": {"const": false},
+    "trade_authority": {"const": "NONE"},
+    "transition_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}
