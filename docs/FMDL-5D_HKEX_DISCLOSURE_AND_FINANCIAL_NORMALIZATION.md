@@ -60,33 +60,46 @@ Successful main publication creates immutable Release, Current, Archive and `out
 - no duplicate normalized fact keys;
 - no invalid numeric values published;
 - no decision-grade facts without official filing lineage;
-- no missing, duplicated or out-of-bound shard security result;
+- no missing, duplicated or out-of-bound financial-security shard result;
+- no missing, duplicated, failed or out-of-range HKEXnews month shard;
 - no failed candidate may replace Current or Last-success;
 - no candidate-pool, simulation, real-account or order mutation;
 - `trade_authority = NONE`.
 
 ## 8. FMDL-5D-R1 runtime repair
 
-The first monolithic full-universe candidate run reached the 120-minute workflow limit before acceptance. FMDL-5D-R1 repairs orchestration without weakening the data contract:
+The first monolithic full-universe candidate run reached the 120-minute workflow limit before acceptance. FMDL-5D-R1 repaired the structured-financial side without weakening the data contract:
 
-- official HKEXnews disclosure scanning runs as an independent checkpoint;
-- 613 common-equity structured-financial requests are deterministically partitioned into 12 disjoint shards;
-- every shard persists raw facts, unmapped rows, per-security result metadata and a shard status report;
-- shard failures do not silently disappear and successful shard artifacts remain independently inspectable;
-- aggregation requires all expected shard artifacts, exact full-security coverage and no duplicate or unexpected security IDs;
-- aggregate acceptance retains the original coverage, PIT, lineage and zero-mutation gates;
-- the runtime report is included in the canonical manifest and the successful Last-success pointer records the repair round.
+- 613 common-equity structured-financial requests were deterministically partitioned into 12 disjoint shards;
+- every shard persisted raw facts, unmapped rows, per-security result metadata and a shard status report;
+- all 12 structured-financial shards completed successfully and produced independently inspectable artifacts;
+- aggregation required exact full-security coverage with no duplicate or unexpected security IDs.
 
-The R1 repair changes execution topology only. It does not lower FMDL-5D acceptance thresholds or authorize FMDL-5E before formal publication.
+The R1 run then exposed a separate orchestration defect: the remaining monolithic HKEXnews disclosure scan reached its 60-minute job limit before it could persist an artifact. No aggregate candidate was accepted or published.
 
-## 9. Controlled limitations
+## 9. FMDL-5D-R1.1 targeted repair
+
+FMDL-5D-R1.1 closes the remaining disclosure-runtime defect while retaining every original data-quality threshold:
+
+- the monthly HKEXnews scan range is deterministically partitioned across 12 disjoint disclosure shards;
+- each disclosure shard normally processes only three or four monthly chunks with two internal workers;
+- each shard persists its accepted records, selected month list, completed month list, warnings and status before aggregation;
+- a failed monthly chunk makes that disclosure shard fail closed, while its partial checkpoint remains inspectable;
+- disclosure aggregation requires all 12 shard artifacts, all expected monthly chunks exactly once, no unexpected chunks and zero chunk warnings;
+- the combined disclosure output is written to the canonical R1 input names consumed by PIT matching;
+- structured-financial and disclosure checkpoints are then aggregated together before normalization and independent acceptance;
+- Decision, Manifest, Source Registry, Quality Report and Last-success record `FMDL-5D-R1.1` and the dual-sharded runtime identity.
+
+R1.1 changes execution topology only. It does not lower the 82% structured-statement coverage, 82% official-disclosure coverage, 70% decision-grade coverage, 8,000-fact minimum, PIT, lineage or zero-mutation gates.
+
+## 10. Controlled limitations
 
 - HKEXnews is authoritative for disclosure identity and timing, while structured financial values remain vendor-tier evidence until document-level numeric extraction is separately warranted.
 - Exact mapping intentionally leaves unsupported statement lines in the unmapped catalog.
 - Corporate-action values from FMDL-5C remain separate; issuer-level confirmation is linked through official filing metadata rather than overwritten.
 - FMDL-5D output is research evidence only. Factor computation and screening begin at FMDL-5E.
 
-## 10. Exit gate
+## 11. Exit gate
 
 Expected accepted status:
 
