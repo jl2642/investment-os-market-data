@@ -1,0 +1,36 @@
+name: FMDL 5B-2 Official Semantics Source Discovery
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl5b2_*.json"
+      - "scripts/fmdl5b2_discover_official_semantics.py"
+      - "scripts/fmdl5b2_probe_di_mapping.py"
+      - ".github/workflows/fmdl-5b2-source-discovery.yml"
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install requests beautifulsoup4 pandas openpyxl xlrd
+      - name: Compile
+        run: python -m py_compile scripts/fmdl5b2_discover_official_semantics.py scripts/fmdl5b2_probe_di_mapping.py
+      - name: Discover official semantic sources
+        run: |
+          rm -rf outputs/fmdl5b2/source_discovery
+          python scripts/fmdl5b2_discover_official_semantics.py --output outputs/fmdl5b2/source_discovery
+      - name: Probe official stock-code issuer mapping
+        run: python scripts/fmdl5b2_probe_di_mapping.py --output outputs/fmdl5b2/source_discovery
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl5b2-source-discovery
+          path: outputs/fmdl5b2/source_discovery
+          if-no-files-found: error
+          retention-days: 30
