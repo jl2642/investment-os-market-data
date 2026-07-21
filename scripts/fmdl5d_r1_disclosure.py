@@ -21,11 +21,20 @@ def write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8")
 
 
+def partition_chunks(chunks: list[tuple[date, date]], shard_index: int, shard_count: int) -> list[tuple[date, date]]:
+    if shard_count <= 0:
+        raise ValueError("DISCLOSURE_SHARD_COUNT_MUST_BE_POSITIVE")
+    if shard_index < 0 or shard_index >= shard_count:
+        raise ValueError("DISCLOSURE_SHARD_INDEX_OUT_OF_RANGE")
+    ordered = sorted(chunks, key=lambda item: (item[0], item[1]))
+    return [chunk for position, chunk in enumerate(ordered) if position % shard_count == shard_index]
+
+
 def fetch_one_chunk(start: date, end: date, retrieved_at: str) -> dict[str, Any]:
     session = requests.Session()
     session.headers.update(
         {
-            "User-Agent": "Mozilla/5.0 (compatible; InvestmentOS-FMDL5D-R1/1.0; research-data-pipeline)",
+            "User-Agent": "Mozilla/5.0 (compatible; InvestmentOS-FMDL5D-R1.1/1.0; research-data-pipeline)",
             "Accept-Language": "en-US,en;q=0.9",
         }
     )
@@ -50,7 +59,9 @@ def main() -> int:
     parser.add_argument("--output", required=True)
     parser.add_argument("--contract", default="config/fmdl5d_hkex_disclosure_financial_contract.json")
     parser.add_argument("--start-date", default="")
-    parser.add_argument("--workers", type=int, default=int(os.environ.get("FMDL5D_R1_DISCLOSURE_WORKERS", "4")))
+    parser.add_argument("--workers", type=int, default=int(os.environ.get("FMDL5D_R11_DISCLOSURE_WORKERS", "2")))
+    parser.add_argument("--shard-index", type=int, required=True)
+    parser.add_argument("--shard-count", type=int, required=True)
     args = parser.parse_args()
 
     output = Path(args.output)
@@ -67,12 +78,13 @@ def main() -> int:
     trading_days = sorted(pd.to_datetime(prices["observation_date"], errors="coerce").dropna().dt.date.unique())
     market_max_date = max(trading_days)
     start_date = pd.Timestamp(args.start_date or contract["period_policy"]["default_start_date"]).date()
-    chunks = monthly_chunks(start_date, market_max_date)
+    all_chunks = monthly_chunks(start_date, market_max_date)
+    selected_chunks = partition_chunks(all_chunks, args.shard_index, args.shard_count)
     retrieved_at = now_utc()
 
     completed: list[dict[str, Any]] = []
     with ThreadPoolExecutor(max_workers=max(1, args.workers)) as executor:
-        futures = {executor.submit(fetch_one_chunk, start, end, retrieved_at): (start, end) for start, end in chunks}
+        futures = {executor.submit(fetch_one_chunk, start, end, retrieved_at): (start, end) for start, end in selected_chunks}
         for future in as_completed(futures):
             completed.append(future.result())
 
@@ -104,16 +116,23 @@ def main() -> int:
         deduped[key] = row
     records = sorted(deduped.values(), key=lambda row: row["release_timestamp"])
 
-    write_json(output / "FMDL5D_R1_DISCLOSURES.json", records)
+    prefix = f"FMDL5D_R11_DISCLOSURE_SHARD_{args.shard_index:02d}"
+    write_json(output / f"{prefix}_RECORDS.json", records)
     status = {
-        "program_id": "FMDL-5D-R1",
-        "stage": "HKEX_DISCLOSURE_SCAN",
+        "program_id": "FMDL-5D-R1.1",
+        "stage": "HKEX_DISCLOSURE_SHARD",
         "generated_at_utc": now_utc(),
         "source_release_id": source_decision["release_id"],
-        "start_date": start_date.isoformat(),
-        "end_date": market_max_date.isoformat(),
-        "monthly_chunk_count": len(chunks),
+        "shard_index": args.shard_index,
+        "shard_count": args.shard_count,
+        "global_start_date": start_date.isoformat(),
+        "global_end_date": market_max_date.isoformat(),
+        "global_monthly_chunk_count": len(all_chunks),
+        "selected_chunk_count": len(selected_chunks),
         "completed_chunk_count": len(completed),
+        "selected_chunks": [
+            {"start_date": start.isoformat(), "end_date": end.isoformat()} for start, end in selected_chunks
+        ],
         "warning_count": len(warnings),
         "warnings": warnings,
         "accepted_financial_record_count": len(records),
@@ -121,8 +140,8 @@ def main() -> int:
         "chunk_status": chunk_status,
         "trade_authority": "NONE",
     }
-    write_json(output / "FMDL5D_R1_DISCLOSURE_STATUS.json", status)
-    return 0
+    write_json(output / f"{prefix}_STATUS.json", status)
+    return 2 if warnings or len(completed) != len(selected_chunks) else 0
 
 
 if __name__ == "__main__":
