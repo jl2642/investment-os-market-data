@@ -60,46 +60,40 @@ Successful main publication creates immutable Release, Current, Archive and `out
 - no duplicate normalized fact keys;
 - no invalid numeric values published;
 - no decision-grade facts without official filing lineage;
-- no missing, duplicated or out-of-bound financial-security shard result;
-- no missing, duplicated, failed or out-of-range HKEXnews month shard;
+- no missing, duplicated or out-of-bound structured-financial security result;
+- no missing, duplicated, failed or warning-bearing disclosure month;
 - no failed candidate may replace Current or Last-success;
 - no candidate-pool, simulation, real-account or order mutation;
 - `trade_authority = NONE`.
 
-## 8. FMDL-5D-R1 runtime repair
+## 8. Runtime repair history
 
-The first monolithic full-universe candidate run reached the 120-minute workflow limit before acceptance. FMDL-5D-R1 repaired the structured-financial side without weakening the data contract:
+The first monolithic full-universe candidate run reached the 120-minute workflow limit before acceptance. FMDL-5D-R1 then partitioned 613 common-equity structured-financial requests into 12 deterministic shards, and all 12 shards completed successfully.
 
-- 613 common-equity structured-financial requests were deterministically partitioned into 12 disjoint shards;
-- every shard persisted raw facts, unmapped rows, per-security result metadata and a shard status report;
-- all 12 structured-financial shards completed successfully and produced independently inspectable artifacts;
-- aggregation required exact full-security coverage with no duplicate or unexpected security IDs.
+The remaining monolithic HKEXnews scan reached its 60-minute limit. FMDL-5D-R1.1 partitioned the disclosure range into 12 time shards, but each shard still waited for all assigned monthly futures before writing a checkpoint. Multiple shards therefore reached their 45-minute limits without preserving completed work.
 
-The R1 run then exposed a separate orchestration defect: the remaining monolithic HKEXnews disclosure scan reached its 60-minute job limit before it could persist an artifact. No aggregate candidate was accepted or published.
+FMDL-5D-R1.2 replaces that topology with bounded monthly execution:
 
-## 9. FMDL-5D-R1.1 targeted repair
+- the accepted source release dynamically generates one matrix entry for every disclosure month from the contract start date through the accepted market maximum date;
+- each month runs as an independently rerunnable GitHub Actions job;
+- each monthly job divides its month into seven-day windows and writes an initial status before network collection begins;
+- successful windows immediately persist their own records and refresh the cumulative month status and record files;
+- every network request is constrained by a request timeout, API timeout and monotonic hard deadline;
+- pagination has an explicit page-size policy, page cap and no-progress failure check;
+- a failed window fails only its month job and still uploads the partial checkpoint artifact;
+- aggregation requires every expected month exactly once, successful completion of every weekly window, zero warnings and the accepted source-release identity;
+- disclosure month artifacts are combined only after those runtime checks, then joined to the existing 12 structured-financial shards for PIT matching and canonical acceptance.
 
-FMDL-5D-R1.1 closes the remaining disclosure-runtime defect while retaining every original data-quality threshold:
+R1.2 changes execution topology only. It does not lower coverage, PIT, lineage or zero-mutation thresholds and does not authorize FMDL-5E before formal publication.
 
-- the monthly HKEXnews scan range is deterministically partitioned across 12 disjoint disclosure shards;
-- each disclosure shard normally processes only three or four monthly chunks with two internal workers;
-- each shard persists its accepted records, selected month list, completed month list, warnings and status before aggregation;
-- a failed monthly chunk makes that disclosure shard fail closed, while its partial checkpoint remains inspectable;
-- disclosure aggregation requires all 12 shard artifacts, all expected monthly chunks exactly once, no unexpected chunks and zero chunk warnings;
-- the combined disclosure output is written to the canonical R1 input names consumed by PIT matching;
-- structured-financial and disclosure checkpoints are then aggregated together before normalization and independent acceptance;
-- Decision, Manifest, Source Registry, Quality Report and Last-success record `FMDL-5D-R1.1` and the dual-sharded runtime identity.
-
-R1.1 changes execution topology only. It does not lower the 82% structured-statement coverage, 82% official-disclosure coverage, 70% decision-grade coverage, 8,000-fact minimum, PIT, lineage or zero-mutation gates.
-
-## 10. Controlled limitations
+## 9. Controlled limitations
 
 - HKEXnews is authoritative for disclosure identity and timing, while structured financial values remain vendor-tier evidence until document-level numeric extraction is separately warranted.
 - Exact mapping intentionally leaves unsupported statement lines in the unmapped catalog.
 - Corporate-action values from FMDL-5C remain separate; issuer-level confirmation is linked through official filing metadata rather than overwritten.
 - FMDL-5D output is research evidence only. Factor computation and screening begin at FMDL-5E.
 
-## 11. Exit gate
+## 10. Exit gate
 
 Expected accepted status:
 
