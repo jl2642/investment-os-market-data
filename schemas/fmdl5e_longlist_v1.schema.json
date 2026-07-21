@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl5e_longlist_v1.schema.json",
+  "title": "FMDL-5E Hong Kong research-priority Longlist row",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "as_of_date", "overall_rank", "research_priority", "security_id",
+    "stock_code_5d", "official_security_name_en", "primary_sleeve",
+    "screening_basis", "aggregate_score", "investability_status",
+    "profile", "source_profile", "profile_basis", "next_workflow",
+    "authority", "trade_authority"
+  ],
+  "properties": {
+    "as_of_date": {"type": "string", "format": "date"},
+    "overall_rank": {"type": "integer", "minimum": 1, "maximum": 100},
+    "research_priority": {"enum": ["A_IMMEDIATE_RESEARCH", "B_WATCH_OR_TRIGGER", "C_SCREEN_FLAG_ONLY"]},
+    "security_id": {"type": "string", "pattern": "^HKEX:"},
+    "stock_code_5d": {"type": "string", "pattern": "^[0-9]{5}$"},
+    "official_security_name_en": {"type": "string", "minLength": 1},
+    "primary_sleeve": {
+      "enum": [
+        "QUALITY_COMPOUNDER",
+        "HIGH_DIVIDEND_VALUE",
+        "TREND_LIQUIDITY",
+        "DEFENSIVE_STABILITY",
+        "RECOVERY_WATCH"
+      ]
+    },
+    "screening_basis": {"const": "FORMAL_SLEEVE_ONLY"},
+    "aggregate_score": {"type": "number", "minimum": 0},
+    "investability_status": {"enum": ["ELIGIBLE_CORE", "ELIGIBLE_WATCH"]},
+    "profile": {
+      "enum": [
+        "GENERAL_NON_FINANCIAL",
+        "BANK",
+        "INSURANCE",
+        "SECURITIES_AND_BROKERAGE",
+        "REIT",
+        "CONTROLLED_NON_FINANCIAL"
+      ]
+    },
+    "source_profile": {"type": "string", "minLength": 1},
+    "profile_basis": {
+      "enum": [
+        "CONTROLLED_NON_EQUITY",
+        "NO_DECISION_GRADE_FINANCIAL_CURRENT",
+        "OFFICIAL_NAME_INSURANCE",
+        "OFFICIAL_NAME_SECURITIES",
+        "OFFICIAL_NAME_BANK",
+        "OFFICIAL_NAME_REIT",
+        "DEFAULT_GENERAL_NON_FINANCIAL"
+      ]
+    },
+    "profile_override_applied": {"type": ["boolean", "string"]},
+    "next_workflow": {"const": "FMDL-5F_PUBLIC_EQUITY_RESEARCH_ADAPTER"},
+    "authority": {"const": "HK_FACTOR_AND_RESEARCH_PRIORITY_SCREEN_ONLY"},
+    "trade_authority": {"const": "NONE"}
+  }
+}

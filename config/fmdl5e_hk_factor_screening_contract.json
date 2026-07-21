@@ -1,0 +1,170 @@
+{
+  "contract_version": "1.1.0",
+  "program_id": "FMDL-5E",
+  "repair_round": "FMDL-5E-R1",
+  "title": "Hong Kong Factor and Screening Adapter",
+  "source_release_ids": {
+    "fmdl5c": "FMDL5C_20260721_52f17b755436",
+    "fmdl5d": "FMDL5D_20260721_0aee5654502c"
+  },
+  "release_sequence": 15,
+  "authority": "HK_FACTOR_AND_RESEARCH_PRIORITY_SCREEN_ONLY",
+  "inputs": {
+    "security_overlay": "outputs/fmdl5b2/current/FMDL5B2_SECURITY_SEMANTIC_OVERLAY.csv",
+    "market_decision": "outputs/fmdl5c/current/FMDL5C_DECISION.json",
+    "daily_price_volume": "outputs/fmdl5c/current/FMDL5C_DAILY_PRICE_VOLUME.parquet",
+    "latest_price_snapshot": "outputs/fmdl5c/current/FMDL5C_LATEST_PRICE_SNAPSHOT.csv",
+    "corporate_actions": "outputs/fmdl5c/current/FMDL5C_CORPORATE_ACTIONS.csv",
+    "fx_daily": "outputs/fmdl5c/current/FMDL5C_FX_DAILY.csv",
+    "financial_decision": "outputs/fmdl5d/current/FMDL5D_DECISION.json",
+    "financial_current": "outputs/fmdl5d/current/FMDL5D_ISSUER_FINANCIAL_CURRENT.csv",
+    "normalized_financial_facts": "outputs/fmdl5d/current/FMDL5D_NORMALIZED_FINANCIAL_FACTS.parquet"
+  },
+  "factor_policy": {
+    "return_price_basis": "VENDOR_ADJUSTED_CLOSE_WHEN_AVAILABLE_ELSE_RAW_CLOSE",
+    "turnover_hkd_basis": "PROVIDER_TURNOVER_ELSE_CLOSE_TIMES_VOLUME_CONVERTED_WITH_NON_FUTURE_HKMA_FX",
+    "annualization_sessions": 252,
+    "history_sessions": 250,
+    "percentile_policy": "SEMANTIC_SCREENING_PROFILE_FOR_FINANCIAL_FACTORS_BROAD_UNIVERSE_FOR_MARKET_FACTORS",
+    "profile_policy": "PRESERVE_FMDL5D_SOURCE_PROFILE_AND_DERIVE_AUDITABLE_SCREENING_PROFILE_FROM_OFFICIAL_SECURITY_AND_ISSUER_NAMES",
+    "missing_value_policy": "PRESERVE_NULL_RENORMALIZE_ONLY_AFTER_MINIMUM_COMPONENT_GATE_WITH_EXPLICIT_COVERAGE_PENALTY",
+    "financial_availability_policy": "USE_ONLY_FMDL5D_DECISION_GRADE_CURRENT_AVAILABLE_BY_MARKET_AS_OF",
+    "corporate_action_policy": "TRAILING_365_CALENDAR_DAYS_NO_FUTURE_ACTIONS",
+    "longlist_policy": "FORMAL_SLEEVE_ONLY_NO_BALANCED_FALLBACK"
+  },
+  "profile_policy": {
+    "source_profile_preserved_as": "source_profile",
+    "derived_profile_field": "profile",
+    "basis_field": "profile_basis",
+    "non_equity_profile": "CONTROLLED_NON_FINANCIAL",
+    "no_decision_grade_financial_profile": "CONTROLLED_NON_FINANCIAL",
+    "allowed_profiles": [
+      "GENERAL_NON_FINANCIAL",
+      "BANK",
+      "INSURANCE",
+      "SECURITIES_AND_BROKERAGE",
+      "REIT",
+      "CONTROLLED_NON_FINANCIAL"
+    ],
+    "anchor_expectations": {
+      "00005": "BANK",
+      "00038": "GENERAL_NON_FINANCIAL",
+      "00300": "GENERAL_NON_FINANCIAL",
+      "00966": "INSURANCE",
+      "02318": "INSURANCE",
+      "03908": "SECURITIES_AND_BROKERAGE",
+      "06030": "SECURITIES_AND_BROKERAGE",
+      "06066": "SECURITIES_AND_BROKERAGE"
+    }
+  },
+  "investability": {
+    "allowed_security_types": ["COMMON_EQUITY"],
+    "minimum_history_coverage_core": 0.80,
+    "minimum_history_coverage_watch": 0.60,
+    "minimum_avg_turnover_hkd_20d_core": 5000000,
+    "minimum_avg_turnover_hkd_20d_watch": 1000000,
+    "minimum_active_trade_ratio_60d": 0.85,
+    "maximum_price_age_calendar_days": 7,
+    "core_financial_decision_grade_required": true
+  },
+  "factor_dictionary": [
+    {"factor_id":"return_20d","family":"MARKET_TREND","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"return_60d","family":"MARKET_TREND","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"return_120d","family":"MARKET_TREND","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"return_250d","family":"MARKET_TREND","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"momentum_250_20d","family":"MARKET_TREND","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"distance_52w_high","family":"MARKET_TREND","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"trend_consistency_60d","family":"MARKET_TREND","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"positive_month_ratio_12m","family":"MARKET_TREND","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"volatility_20d","family":"MARKET_RISK","direction":"LOW","percentile_group":"BROAD"},
+    {"factor_id":"volatility_60d","family":"MARKET_RISK","direction":"LOW","percentile_group":"BROAD"},
+    {"factor_id":"downside_volatility_60d","family":"MARKET_RISK","direction":"LOW","percentile_group":"BROAD"},
+    {"factor_id":"max_drawdown_120d","family":"MARKET_RISK","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"worst_day_120d","family":"MARKET_RISK","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"avg_turnover_hkd_20d","family":"LIQUIDITY","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"active_trade_ratio_60d","family":"LIQUIDITY","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"volume_ratio_20_60d","family":"LIQUIDITY","direction":"HIGH","percentile_group":"BROAD"},
+    {"factor_id":"roe","family":"FINANCIAL_QUALITY","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"roa","family":"FINANCIAL_QUALITY","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"gross_margin","family":"FINANCIAL_QUALITY","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"operating_margin","family":"FINANCIAL_QUALITY","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"net_margin","family":"FINANCIAL_QUALITY","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"cash_to_assets","family":"BALANCE_SHEET","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"liabilities_to_assets","family":"BALANCE_SHEET","direction":"LOW","percentile_group":"PROFILE"},
+    {"factor_id":"current_ratio","family":"BALANCE_SHEET","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"revenue_yoy","family":"FINANCIAL_GROWTH","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"net_income_yoy","family":"FINANCIAL_GROWTH","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"earnings_yield","family":"VALUATION","direction":"HIGH","percentile_group":"PROFILE"},
+    {"factor_id":"dividend_yield_365d","family":"SHAREHOLDER_RETURN","direction":"HIGH","percentile_group":"BROAD"}
+  ],
+  "sleeves": {
+    "QUALITY_COMPOUNDER": {
+      "route":"CORE","minimum_score":0.40,"maximum_candidates":90,"minimum_components":4,
+      "weights":{"roe":0.20,"roa":0.10,"operating_margin":0.15,"gross_margin":0.10,"earnings_yield":0.15,"revenue_yoy":0.15,"net_income_yoy":0.15}
+    },
+    "HIGH_DIVIDEND_VALUE": {
+      "route":"CORE","minimum_score":0.38,"maximum_candidates":80,"minimum_components":3,
+      "weights":{"dividend_yield_365d":0.35,"earnings_yield":0.25,"roe":0.15,"liabilities_to_assets":0.10,"volatility_60d":0.15}
+    },
+    "TREND_LIQUIDITY": {
+      "route":"CORE","minimum_score":0.42,"maximum_candidates":90,"minimum_components":6,
+      "weights":{"return_60d":0.18,"return_120d":0.18,"momentum_250_20d":0.14,"distance_52w_high":0.14,"trend_consistency_60d":0.12,"avg_turnover_hkd_20d":0.12,"volatility_60d":0.12}
+    },
+    "DEFENSIVE_STABILITY": {
+      "route":"CORE","minimum_score":0.40,"maximum_candidates":80,"minimum_components":4,
+      "weights":{"volatility_60d":0.25,"downside_volatility_60d":0.15,"max_drawdown_120d":0.20,"dividend_yield_365d":0.15,"avg_turnover_hkd_20d":0.10,"roe":0.15}
+    },
+    "RECOVERY_WATCH": {
+      "route":"WATCH","minimum_score":0.38,"maximum_candidates":60,"minimum_components":5,
+      "weights":{"return_20d":0.25,"return_60d":0.20,"volume_ratio_20_60d":0.15,"trend_consistency_60d":0.15,"avg_turnover_hkd_20d":0.10,"max_drawdown_120d":0.15}
+    }
+  },
+  "funnel": {
+    "longlist_count": 100,
+    "formal_sleeve_only": true,
+    "fallback_policy": "PROHIBITED",
+    "priority_bucket_counts": {"A_IMMEDIATE_RESEARCH":20,"B_WATCH_OR_TRIGGER":40,"C_SCREEN_FLAG_ONLY":40},
+    "cross_sleeve_bonus_per_extra_sleeve": 0.015,
+    "cross_sleeve_bonus_maximum": 0.06,
+    "case_coverage_per_type": 5,
+    "next_workflow": "FMDL-5F_PUBLIC_EQUITY_RESEARCH_ADAPTER"
+  },
+  "acceptance": {
+    "source_security_count": 644,
+    "minimum_equity_security_count": 600,
+    "minimum_market_factor_security_count": 600,
+    "minimum_decision_grade_financial_security_count": 600,
+    "required_longlist_count": 100,
+    "required_priority_bucket_counts": {"A_IMMEDIATE_RESEARCH":20,"B_WATCH_OR_TRIGGER":40,"C_SCREEN_FLAG_ONLY":40},
+    "minimum_distinct_primary_sleeves": 5,
+    "minimum_distinct_formal_sleeve_security_count": 150,
+    "maximum_fallback_longlist_count": 0,
+    "minimum_primary_sleeve_count_each": 10,
+    "maximum_single_primary_sleeve_share": 0.35,
+    "maximum_profile_semantic_mismatch_count": 0,
+    "maximum_profile_anchor_mismatch_count": 0,
+    "maximum_duplicate_security_count": 0,
+    "maximum_future_input_row_count": 0,
+    "maximum_invalid_numeric_factor_count": 0,
+    "candidate_pool_mutation_count": 0,
+    "simulation_mutation_count": 0,
+    "real_account_mutation_count": 0,
+    "order_generation_count": 0,
+    "trade_authority": "NONE"
+  },
+  "outputs": [
+    "FMDL5E_FACTOR_DICTIONARY.json",
+    "FMDL5E_FACTOR_TABLE.parquet",
+    "FMDL5E_FACTOR_DETAIL.parquet",
+    "FMDL5E_SCREENING_UNIVERSE.csv",
+    "FMDL5E_SLEEVE_DETAIL.csv",
+    "FMDL5E_RESEARCH_LONGLIST.csv",
+    "FMDL5E_CASE_COVERAGE.csv",
+    "FMDL5E_FUNNEL_COUNTS.csv",
+    "FMDL5E_SOURCE_REGISTRY.json",
+    "FMDL5E_QUALITY_REPORT.json",
+    "FMDL5E_DECISION.json",
+    "FMDL5E_MANIFEST.json"
+  ],
+  "next_gate": "FMDL-5F_PUBLIC_EQUITY_RESEARCH_ADAPTER"
+}

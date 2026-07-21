@@ -8,13 +8,22 @@ Free, auditable market-data layer for the 股票投资助手 / Investment OS.
 - Completed prerequisite: **FMDL-0 — Public Equity Investing Integration**
 - Completed phase: **FMDL-1 — A-share Full-Market Data MVP**
 - Completed phase: **FMDL-2 — A-share Factor & Screening Funnel**
-- Active phase: **FMDL-3 — Financial & Valuation Data Hardening**
-- Completed engineering gate: **FMDL-3 Overall Architecture & Phased Plan**
-- Completed execution gate: **FMDL-3A — Source Benchmark, Point-in-Time Contract & Coverage Map**
-- Next execution phase: **FMDL-3B — Financial Statement Store & Normalization**
+- Completed phase: **FMDL-3 — Financial & Valuation Data Hardening**
+- Completed phase: **FMDL-4 — Public Equity Investing & Investment OS Integration**
+- Completed Hong Kong gates: **FMDL-5-0 / 5A / 5B / 5C / 5D**
+- Active phase: **FMDL-5E-R1 — Hong Kong Factor & Screening Adapter targeted repair**
+- Next gated phase after formal publication: **FMDL-5F — Public Equity Research Adapter**
 - Cost policy: **free and free-tier resources only**
 - Execution model: GitHub Actions + open-source/public data adapters
 - Trading model: research and decision support only; no broker connection and no automatic order execution
+
+## Active Hong Kong lineage
+
+- FMDL-5C market store: `FMDL5C_20260721_52f17b755436`
+- FMDL-5D disclosure and financial store: `FMDL5D_20260721_0aee5654502c`
+- FMDL-5E-R1 objective: corrected auditable issuer profiles plus a 100-name formal-sleeve-only Hong Kong research Longlist
+- Candidate, simulation, real-account and order mutation: `0`
+- Trade authority: `NONE`
 
 ## Latest stable A-share market-data Current
 
@@ -212,10 +221,13 @@ This repository owns market-data acquisition, normalization, quality control, ve
 12. `outputs/financials/benchmark/current/` — accepted FMDL-3A source benchmark Current after publication.
 13. `outputs/financials/source_index/current/` — accepted FMDL-3 source index after publication.
 14. `outputs/financials/`, `outputs/financial_factors/`, `outputs/valuation/`, `outputs/shareholder_returns/` — FMDL-3 data families.
-15. `outputs/fmdl3/current/` — planned FMDL-3 Final Current.
-16. `outputs/status/` — last-run and last-success operating states.
-17. `outputs/investment_os/` — machine-validated consumer pointers.
-18. `.github/workflows/` — validation, scheduled production and controlled recovery automation.
+15. `outputs/fmdl3/current/` — accepted FMDL-3 Final Current.
+16. `outputs/fmdl5c/current/` — accepted Hong Kong market store.
+17. `outputs/fmdl5d/current/` — accepted Hong Kong disclosure and financial Current.
+18. `outputs/fmdl5e/current/` — Hong Kong factor and screening Current after formal publication.
+19. `outputs/status/` — last-run and last-success operating states.
+20. `outputs/investment_os/` — machine-validated consumer pointers.
+21. `.github/workflows/` — validation, scheduled production and controlled recovery automation.
 
 ## Canonical documents
 
@@ -257,28 +269,25 @@ This repository owns market-data acquisition, normalization, quality control, ve
 - `docs/FMDL-3A_SOURCE_BENCHMARK.md`
 - `docs/FMDL-3A_POINT_IN_TIME_CONTRACT.md`
 - `docs/FMDL-3A_ACCEPTANCE.md`
+- `docs/FMDL-5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER.md`
+- `docs/FMDL-5E_R1_TARGETED_REPAIR.md`
 
 ## FMDL roadmap
 
 - FMDL-0 Public Equity Investing Integration ✅
 - FMDL-1 A-share Full-Market Data MVP ✅
 - FMDL-2 A-share Factor & Screening Funnel ✅
-  - FMDL-2A Factor Contract & Historical Source Benchmark ✅
-  - FMDL-2B Historical Store & Basic Factor Engine ✅
-  - FMDL-2C Screening Sleeves & Funnel ✅
-  - FMDL-2D Replay, Stability & Final Acceptance ✅
-- FMDL-3 Financial & Valuation Data Hardening 🚧
-  - FMDL-3 Overall Architecture & Phased Plan ✅
-  - FMDL-3A Source Benchmark, Point-in-Time Contract & Coverage Map ✅
-  - FMDL-3B Financial Statement Store & Normalization ⏭️
-  - FMDL-3C Financial Quality, Growth & Balance-Sheet Factors
-  - FMDL-3D Valuation, Capitalization, Dividend & Shareholder-Return Layer
-  - FMDL-3E Incremental Refresh, Replay & Final Acceptance
-- FMDL-4 Public Equity Investing + Investment OS Integration
-  - FMDL-4A Research Handoff Contract
-  - FMDL-4B Candidate Research & Graduation
-  - FMDL-4C Investment OS Re-entry & Decision-Gate Integration
-  - FMDL-4D Closed-Loop Attribution & Thesis Tracking
-- FMDL-5 Hong Kong Stock Connect Adapter
+- FMDL-3 Financial & Valuation Data Hardening ✅
+- FMDL-4 Public Equity Investing + Investment OS Integration ✅
+- FMDL-5 Hong Kong Stock Connect Adapter 🚧
+  - FMDL-5-0 Cross-Market Adapter Architecture ✅
+  - FMDL-5A Market Contract & Universe Boundary ✅
+  - FMDL-5B Security Master & Market Semantics ✅
+  - FMDL-5C Price, Volume, Corporate Action & FX Store ✅
+  - FMDL-5D HKEX Disclosure & Financial Normalization ✅
+  - FMDL-5E Hong Kong Factor & Screening Adapter — R1 targeted repair 🚧
+  - FMDL-5F Public Equity Research Adapter ⏭️
+  - FMDL-5G Investment OS Integration
+  - FMDL-5-FINAL Operational Acceptance
 - FMDL-6 US Equity Research Benchmark Pool
 - FMDL-7 Operating Acceptance
