@@ -1,0 +1,73 @@
+{
+  "program_id": "FMDL-5D",
+  "contract_version": "1.0.0",
+  "title": "HKEX Disclosure and Financial Normalization",
+  "authority": "HK_DISCLOSURE_AND_FINANCIAL_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "source_release": {
+    "program_id": "FMDL-5C",
+    "required_status": "FMDL5C_PRICE_VOLUME_CORPORATE_ACTION_AND_FX_STORE_ACCEPTED",
+    "decision_path": "outputs/fmdl5c/current/FMDL5C_DECISION.json",
+    "semantic_overlay_path": "outputs/fmdl5b2/current/FMDL5B2_SECURITY_SEMANTIC_OVERLAY.csv",
+    "price_store_path": "outputs/fmdl5c/current/FMDL5C_DAILY_PRICE_VOLUME.parquet"
+  },
+  "source_routes": [
+    {
+      "source_id": "HKEXNEWS_TITLE_SEARCH",
+      "source_tier": "OFFICIAL_PRIMARY",
+      "purpose": "Official issuer financial disclosure metadata, document identity and point-in-time availability",
+      "base_url": "https://www1.hkexnews.hk/search/titlesearch.xhtml",
+      "api_url": "https://www1.hkexnews.hk/search/titleSearchServlet.do"
+    },
+    {
+      "source_id": "EASTMONEY_HK_FINANCIAL_REPORT",
+      "source_tier": "UNOFFICIAL_FREE_VENDOR_STRUCTURED",
+      "purpose": "Structured Hong Kong balance sheet, income statement and cash-flow values",
+      "adapter": "akshare.stock_financial_hk_report_em"
+    },
+    {
+      "source_id": "EASTMONEY_HK_FINANCIAL_INDICATOR",
+      "source_tier": "UNOFFICIAL_FREE_VENDOR_STRUCTURED",
+      "purpose": "Reporting currency, fiscal year-end and core cross-check indicators",
+      "adapter": "akshare.stock_financial_hk_analysis_indicator_em"
+    }
+  ],
+  "period_policy": {
+    "default_start_date": "2023-01-01",
+    "maximum_periods_per_statement": 8,
+    "availability_rule": "STRICTLY_NEXT_ACCEPTED_HK_TRADING_DATE_OPEN",
+    "revision_policy": "APPEND_ONLY_NO_SILENT_OVERWRITE",
+    "unmatched_structured_value_policy": "AUDIT_ONLY_BLOCKED_NO_OFFICIAL_PIT_MATCH"
+  },
+  "normalization_policy": {
+    "mapping": "EXACT_NORMALIZED_ALIAS_OR_EXPLICIT_SOURCE_CODE_ONLY",
+    "missing_value": "NULL_NEVER_ZERO_OR_NEUTRAL_FILL",
+    "currency": "SOURCE_REPORTED_WITH_UNKNOWN_PRESERVED",
+    "source_lineage": "REQUIRED_FOR_DECISION_GRADE",
+    "fund_treatment": "NOT_APPLICABLE_CONTROLLED_EXCLUSION"
+  },
+  "acceptance": {
+    "expected_security_count": 644,
+    "minimum_equity_count": 600,
+    "minimum_structured_statement_security_ratio": 0.82,
+    "minimum_official_financial_disclosure_security_ratio": 0.82,
+    "minimum_decision_grade_security_ratio": 0.7,
+    "minimum_normalized_fact_count": 8000,
+    "maximum_duplicate_fact_keys": 0,
+    "maximum_future_available_rows": 0,
+    "maximum_invalid_numeric_rows": 0,
+    "maximum_decision_grade_missing_lineage": 0,
+    "candidate_pool_mutation_count": 0,
+    "simulation_mutation_count": 0,
+    "real_account_mutation_count": 0,
+    "order_generation_count": 0,
+    "trade_authority": "NONE"
+  },
+  "publication": {
+    "current_path": "outputs/fmdl5d/current",
+    "archive_root": "outputs/fmdl5d/archive",
+    "immutable_root": "datasets/fmdl5d/releases",
+    "last_success_path": "outputs/status/FMDL5D_LAST_SUCCESS.json",
+    "next_gate": "FMDL-5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER"
+  }
+}

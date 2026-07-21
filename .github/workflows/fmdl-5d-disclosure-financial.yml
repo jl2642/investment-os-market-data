@@ -1,0 +1,276 @@
+name: FMDL 5D HKEX Disclosure and Financial Normalization
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl5d_*.json"
+      - "schemas/fmdl5d_*.json"
+      - "scripts/fmdl5d_core.py"
+      - "scripts/run_fmdl5d_disclosure_financial_store.py"
+      - "scripts/fmdl5d_r1_*.py"
+      - "scripts/fmdl5d_r11_*.py"
+      - "scripts/fmdl5d_r12_*.py"
+      - "scripts/publish_fmdl5d.py"
+      - "tests/test_fmdl5d_*.py"
+      - "docs/FMDL-5D_HKEX_DISCLOSURE_AND_FINANCIAL_NORMALIZATION.md"
+      - ".github/workflows/fmdl-5d-disclosure-financial.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl5d_*.json"
+      - "schemas/fmdl5d_*.json"
+      - "scripts/fmdl5d_core.py"
+      - "scripts/run_fmdl5d_disclosure_financial_store.py"
+      - "scripts/fmdl5d_r1_*.py"
+      - "scripts/fmdl5d_r11_*.py"
+      - "scripts/fmdl5d_r12_*.py"
+      - "scripts/publish_fmdl5d.py"
+      - "tests/test_fmdl5d_*.py"
+      - "docs/FMDL-5D_HKEX_DISCLOSURE_AND_FINANCIAL_NORMALIZATION.md"
+      - ".github/workflows/fmdl-5d-disclosure-financial.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-5d-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FMDL5D_R1_SHARD_COUNT: "12"
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Unit tests
+        run: >-
+          python -m pytest -q
+          tests/test_fmdl5d_disclosure_financial_store.py
+          tests/test_fmdl5d_r1_runtime.py
+          tests/test_fmdl5d_r12_disclosure_runtime.py
+      - name: Compile checks
+        run: >-
+          python -m py_compile
+          scripts/fmdl5d_core.py
+          scripts/run_fmdl5d_disclosure_financial_store.py
+          scripts/fmdl5d_r1_disclosure.py
+          scripts/fmdl5d_r11_prepare_disclosure.py
+          scripts/fmdl5d_r11_finalize_candidate.py
+          scripts/fmdl5d_r12_matrix.py
+          scripts/fmdl5d_r12_month.py
+          scripts/fmdl5d_r12_prepare_disclosure.py
+          scripts/fmdl5d_r12_finalize_candidate.py
+          scripts/fmdl5d_r1_shard.py
+          scripts/fmdl5d_r1_aggregate.py
+          scripts/publish_fmdl5d.py
+
+  prepare-disclosure-months:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      expected_month_count: ${{ steps.matrix.outputs.expected_month_count }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: matrix
+        name: Build deterministic disclosure month matrix
+        run: |
+          rm -rf outputs/fmdl5d/r12/matrix
+          mkdir -p outputs/fmdl5d/r12/matrix
+          python scripts/fmdl5d_r12_matrix.py \
+            --output outputs/fmdl5d/r12/matrix/FMDL5D_R12_DISCLOSURE_MONTH_MATRIX.json \
+            --github-output "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmdl5d-r12-disclosure-matrix
+          path: outputs/fmdl5d/r12/matrix
+          if-no-files-found: error
+          retention-days: 30
+
+  disclosure-months:
+    needs: prepare-disclosure-months
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix: ${{ fromJSON(needs.prepare-disclosure-months.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build bounded monthly HKEXnews checkpoint
+        run: |
+          OUT="outputs/fmdl5d/r12/month-${{ matrix.month_key }}"
+          rm -rf "$OUT"
+          python scripts/fmdl5d_r12_month.py \
+            --output "$OUT" \
+            --month-key "${{ matrix.month_key }}" \
+            --start-date "${{ matrix.start_date }}" \
+            --end-date "${{ matrix.end_date }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl5d-r12-disclosure-${{ matrix.month_key }}
+          path: outputs/fmdl5d/r12/month-${{ matrix.month_key }}
+          if-no-files-found: error
+          retention-days: 30
+
+  structured-financial-shards:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build checkpointed structured-financial shard
+        env:
+          FMDL5D_R1_WORKERS: "8"
+        run: |
+          OUT="outputs/fmdl5d/r1/shard-${{ matrix.shard }}"
+          rm -rf "$OUT"
+          python scripts/fmdl5d_r1_shard.py \
+            --output "$OUT" \
+            --shard-index "${{ matrix.shard }}" \
+            --shard-count "$FMDL5D_R1_SHARD_COUNT"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl5d-r1-shard-${{ matrix.shard }}
+          path: outputs/fmdl5d/r1/shard-${{ matrix.shard }}
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate-and-accept:
+    needs: [quality-gates, prepare-disclosure-months, disclosure-months, structured-financial-shards]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fmdl5d-r12-disclosure-*
+          path: outputs/fmdl5d/r1/input
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fmdl5d-r1-shard-*
+          path: outputs/fmdl5d/r1/input
+          merge-multiple: true
+      - name: Validate and aggregate monthly disclosure checkpoints
+        run: |
+          python scripts/fmdl5d_r12_prepare_disclosure.py \
+            --input outputs/fmdl5d/r1/input \
+            --output outputs/fmdl5d/r1/input
+      - name: Aggregate checkpoints and build candidate
+        run: |
+          rm -rf outputs/fmdl5d/candidate
+          python scripts/fmdl5d_r1_aggregate.py \
+            --input outputs/fmdl5d/r1/input \
+            --output outputs/fmdl5d/candidate \
+            --expected-shards "$FMDL5D_R1_SHARD_COUNT"
+      - name: Finalize R1.2 candidate identity
+        run: python scripts/fmdl5d_r12_finalize_candidate.py --candidate outputs/fmdl5d/candidate
+      - name: Schema and independent acceptance checks
+        run: |
+          python - <<'PY'
+          import csv, json, pathlib
+          import pandas as pd
+          from jsonschema import Draft202012Validator, FormatChecker
+
+          p = pathlib.Path("outputs/fmdl5d/candidate")
+          decision = json.load(open(p / "FMDL5D_DECISION.json", encoding="utf-8"))
+          quality = json.load(open(p / "FMDL5D_QUALITY_REPORT.json", encoding="utf-8"))
+          runtime = json.load(open(p / "FMDL5D_R1_RUNTIME_REPORT.json", encoding="utf-8"))
+          registry = json.load(open(p / "FMDL5D_SOURCE_REGISTRY.json", encoding="utf-8"))
+          manifest = json.load(open(p / "FMDL5D_MANIFEST.json", encoding="utf-8"))
+          facts = pd.read_parquet(p / "FMDL5D_NORMALIZED_FINANCIAL_FACTS.parquet")
+          current = list(csv.DictReader(open(p / "FMDL5D_ISSUER_FINANCIAL_CURRENT.csv", encoding="utf-8-sig")))
+          schema = json.load(open("schemas/fmdl5d_normalized_fact_v1.schema.json", encoding="utf-8"))
+          validator = Draft202012Validator(schema, format_checker=FormatChecker())
+          for row in json.loads(facts.head(1000).to_json(orient="records", date_format="iso")):
+              validator.validate(row)
+
+          disclosure = runtime["disclosure_status"]
+          assert decision["status"] == "FMDL5D_HKEX_DISCLOSURE_AND_FINANCIAL_NORMALIZATION_ACCEPTED_WITH_CONTROLLED_QUARANTINE"
+          assert decision["repair_round"] == "FMDL-5D-R1.2"
+          assert not decision["hard_failures"]
+          assert not runtime["runtime_failures"]
+          assert runtime["completed_shard_count"] == runtime["expected_shard_count"] == 12
+          assert not runtime["missing_security_ids"]
+          assert not runtime["unexpected_security_ids"]
+          assert not runtime["duplicate_result_security_ids"]
+          assert disclosure["program_id"] == "FMDL-5D-R1.2"
+          assert not disclosure["runtime_failures"]
+          assert disclosure["completed_month_count"] == disclosure["expected_month_count"]
+          assert disclosure["warning_count"] == 0
+          assert quality["source_security_count"] == 644
+          assert quality["equity_security_count"] >= 600
+          assert quality["structured_statement_security_ratio"] >= 0.82
+          assert quality["official_financial_disclosure_security_ratio"] >= 0.82
+          assert quality["decision_grade_security_ratio"] >= 0.70
+          assert quality["normalized_fact_count"] >= 8000
+          assert quality["duplicate_fact_key_count"] == 0
+          assert quality["future_available_row_count"] == 0
+          assert quality["invalid_numeric_row_count"] == 0
+          assert quality["decision_grade_missing_lineage_count"] == 0
+          assert len(current) == quality["decision_grade_security_count"]
+          assert registry["source_release_id"] == decision["source_release_id"]
+          assert manifest["release_id"] == decision["release_id"]
+          assert manifest["canonical_sha256"] == decision["canonical_sha256"]
+          assert decision["candidate_pool_mutation_count"] == 0
+          assert decision["simulation_mutation_count"] == 0
+          assert decision["real_account_mutation_count"] == 0
+          assert decision["order_generation_count"] == 0
+          assert decision["trade_authority"] == "NONE"
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl5d-r12-accepted-candidate
+          path: outputs/fmdl5d/candidate
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: python scripts/publish_fmdl5d.py --repo-root . --candidate outputs/fmdl5d/candidate
+      - name: Commit accepted FMDL-5D state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl5d/current outputs/fmdl5d/archive datasets/fmdl5d/releases outputs/status/FMDL5D_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-5D-R1.2 disclosure and financial store [skip ci]"
+          git push

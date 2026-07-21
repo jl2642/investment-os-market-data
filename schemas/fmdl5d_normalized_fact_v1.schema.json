@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl5d_normalized_fact_v1.schema.json",
+  "title": "FMDL-5D normalized financial fact",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "normalized_fact_id", "security_id", "issuer_id", "stock_code_5d",
+    "statement", "field_id", "period_end", "normalized_value",
+    "currency", "source_id", "source_tier", "record_quality",
+    "decision_grade_eligible", "trade_authority"
+  ],
+  "properties": {
+    "normalized_fact_id": {"type": "string", "minLength": 32},
+    "security_id": {"type": "string", "pattern": "^HKEX:"},
+    "issuer_id": {"type": "string", "minLength": 1},
+    "stock_code_5d": {"type": "string", "pattern": "^[0-9]{5}$"},
+    "statement": {"enum": ["balance_sheet", "income_statement", "cash_flow"]},
+    "field_id": {"type": "string", "minLength": 1},
+    "period_end": {"type": "string", "format": "date"},
+    "normalized_value": {"type": "number"},
+    "currency": {"type": "string", "minLength": 1},
+    "available_from": {"type": ["string", "null"]},
+    "official_filing_id": {"type": ["string", "null"]},
+    "official_filing_url": {"type": ["string", "null"]},
+    "source_id": {"const": "EASTMONEY_HK_FINANCIAL_REPORT"},
+    "source_tier": {"const": "UNOFFICIAL_FREE_VENDOR_STRUCTURED"},
+    "record_quality": {"enum": ["VALID_PIT_MATCHED", "BLOCKED_NO_OFFICIAL_PIT_MATCH", "CONFLICTED_AUDIT_ONLY"]},
+    "decision_grade_eligible": {"type": "boolean"},
+    "trade_authority": {"const": "NONE"}
+  }
+}
