@@ -8,6 +8,7 @@ on:
       - "scripts/fmdl5d_core.py"
       - "scripts/run_fmdl5d_disclosure_financial_store.py"
       - "scripts/fmdl5d_r1_*.py"
+      - "scripts/fmdl5d_r11_*.py"
       - "scripts/publish_fmdl5d.py"
       - "tests/test_fmdl5d_*.py"
       - "docs/FMDL-5D_HKEX_DISCLOSURE_AND_FINANCIAL_NORMALIZATION.md"
@@ -20,6 +21,7 @@ on:
       - "scripts/fmdl5d_core.py"
       - "scripts/run_fmdl5d_disclosure_financial_store.py"
       - "scripts/fmdl5d_r1_*.py"
+      - "scripts/fmdl5d_r11_*.py"
       - "scripts/publish_fmdl5d.py"
       - "tests/test_fmdl5d_*.py"
       - "docs/FMDL-5D_HKEX_DISCLOSURE_AND_FINANCIAL_NORMALIZATION.md"
@@ -35,6 +37,7 @@ concurrency:
 
 env:
   FMDL5D_R1_SHARD_COUNT: "12"
+  FMDL5D_R11_DISCLOSURE_SHARD_COUNT: "12"
 
 jobs:
   quality-gates:
@@ -55,14 +58,19 @@ jobs:
           scripts/fmdl5d_core.py
           scripts/run_fmdl5d_disclosure_financial_store.py
           scripts/fmdl5d_r1_disclosure.py
+          scripts/fmdl5d_r11_prepare_disclosure.py
           scripts/fmdl5d_r1_shard.py
           scripts/fmdl5d_r1_aggregate.py
           scripts/publish_fmdl5d.py
 
-  disclosure-scan:
+  disclosure-shards:
     needs: quality-gates
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -70,17 +78,21 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
-      - name: Build official HKEXnews disclosure checkpoint
+      - name: Build checkpointed HKEXnews disclosure shard
         env:
-          FMDL5D_R1_DISCLOSURE_WORKERS: "4"
+          FMDL5D_R11_DISCLOSURE_WORKERS: "2"
         run: |
-          rm -rf outputs/fmdl5d/r1/disclosure
-          python scripts/fmdl5d_r1_disclosure.py --output outputs/fmdl5d/r1/disclosure
+          OUT="outputs/fmdl5d/r11/disclosure-${{ matrix.shard }}"
+          rm -rf "$OUT"
+          python scripts/fmdl5d_r1_disclosure.py \
+            --output "$OUT" \
+            --shard-index "${{ matrix.shard }}" \
+            --shard-count "$FMDL5D_R11_DISCLOSURE_SHARD_COUNT"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: fmdl5d-r1-disclosure
-          path: outputs/fmdl5d/r1/disclosure
+          name: fmdl5d-r1-disclosure-shard-${{ matrix.shard }}
+          path: outputs/fmdl5d/r11/disclosure-${{ matrix.shard }}
           if-no-files-found: error
           retention-days: 30
 
@@ -118,7 +130,7 @@ jobs:
           retention-days: 30
 
   aggregate-and-accept:
-    needs: [quality-gates, disclosure-scan, structured-financial-shards]
+    needs: [quality-gates, disclosure-shards, structured-financial-shards]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -135,6 +147,12 @@ jobs:
           pattern: fmdl5d-r1-*
           path: outputs/fmdl5d/r1/input
           merge-multiple: true
+      - name: Validate and aggregate disclosure checkpoints
+        run: |
+          python scripts/fmdl5d_r11_prepare_disclosure.py \
+            --input outputs/fmdl5d/r1/input \
+            --output outputs/fmdl5d/r1/input \
+            --expected-shards "$FMDL5D_R11_DISCLOSURE_SHARD_COUNT"
       - name: Aggregate checkpoints and build candidate
         run: |
           rm -rf outputs/fmdl5d/candidate
@@ -162,14 +180,19 @@ jobs:
           for row in json.loads(facts.head(1000).to_json(orient="records", date_format="iso")):
               validator.validate(row)
 
+          disclosure = runtime["disclosure_status"]
           assert decision["status"] == "FMDL5D_HKEX_DISCLOSURE_AND_FINANCIAL_NORMALIZATION_ACCEPTED_WITH_CONTROLLED_QUARANTINE"
-          assert decision["repair_round"] == "FMDL-5D-R1"
+          assert decision["repair_round"] == "FMDL-5D-R1.1"
           assert not decision["hard_failures"]
           assert not runtime["runtime_failures"]
           assert runtime["completed_shard_count"] == runtime["expected_shard_count"] == 12
           assert not runtime["missing_security_ids"]
           assert not runtime["unexpected_security_ids"]
           assert not runtime["duplicate_result_security_ids"]
+          assert disclosure["program_id"] == "FMDL-5D-R1.1"
+          assert not disclosure["runtime_failures"]
+          assert disclosure["completed_shard_count"] == disclosure["expected_shard_count"] == 12
+          assert disclosure["completed_monthly_chunk_count"] == disclosure["expected_monthly_chunk_count"]
           assert quality["source_security_count"] == 644
           assert quality["equity_security_count"] >= 600
           assert quality["structured_statement_security_ratio"] >= 0.82
@@ -192,7 +215,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: fmdl5d-r1-accepted-candidate
+          name: fmdl5d-r11-accepted-candidate
           path: outputs/fmdl5d/candidate
           if-no-files-found: warn
           retention-days: 30
@@ -206,5 +229,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add outputs/fmdl5d/current outputs/fmdl5d/archive datasets/fmdl5d/releases outputs/status/FMDL5D_LAST_SUCCESS.json
           git diff --cached --quiet && exit 0
-          git commit -m "data: publish FMDL-5D-R1 disclosure and financial store [skip ci]"
+          git commit -m "data: publish FMDL-5D-R1.1 disclosure and financial store [skip ci]"
           git push
