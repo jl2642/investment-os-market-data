@@ -1,0 +1,33 @@
+name: FMDL 5C Free Market Source Discovery
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl5c_*.json"
+      - "scripts/fmdl5c_discover_free_market_sources.py"
+      - ".github/workflows/fmdl-5c-source-discovery.yml"
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install requests
+      - name: Compile
+        run: python -m py_compile scripts/fmdl5c_discover_free_market_sources.py
+      - name: Discover free price action and official FX sources
+        run: |
+          rm -rf outputs/fmdl5c/source_discovery
+          python scripts/fmdl5c_discover_free_market_sources.py --output outputs/fmdl5c/source_discovery
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl5c-source-discovery
+          path: outputs/fmdl5c/source_discovery
+          if-no-files-found: error
+          retention-days: 30

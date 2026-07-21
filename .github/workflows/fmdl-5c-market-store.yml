@@ -1,0 +1,107 @@
+name: FMDL 5C Price Volume Corporate Action and FX Store
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl5c_*.json"
+      - "schemas/fmdl5c_*.json"
+      - "scripts/run_fmdl5c_market_store.py"
+      - "scripts/fmdl5c_apply_hkex_current_actions.py"
+      - "scripts/publish_fmdl5c.py"
+      - "tests/test_fmdl5c_market_store.py"
+      - "tests/test_fmdl5c_hkex_actions.py"
+      - ".github/workflows/fmdl-5c-market-store.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl5c_*.json"
+      - "schemas/fmdl5c_*.json"
+      - "scripts/run_fmdl5c_market_store.py"
+      - "scripts/fmdl5c_apply_hkex_current_actions.py"
+      - "scripts/publish_fmdl5c.py"
+      - "tests/test_fmdl5c_market_store.py"
+      - "tests/test_fmdl5c_hkex_actions.py"
+      - ".github/workflows/fmdl-5c-market-store.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  market-store:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install requests pandas pyarrow lxml html5lib beautifulsoup4 pytest jsonschema
+      - name: Unit tests
+        run: python -m pytest -q tests/test_fmdl5c_market_store.py tests/test_fmdl5c_hkex_actions.py
+      - name: Compile checks
+        run: python -m py_compile scripts/run_fmdl5c_market_store.py scripts/fmdl5c_apply_hkex_current_actions.py scripts/publish_fmdl5c.py
+      - name: Build full-universe market store
+        env:
+          FMDL5C_WORKERS: "10"
+        run: |
+          rm -rf outputs/fmdl5c/candidate
+          python scripts/run_fmdl5c_market_store.py --output outputs/fmdl5c/candidate
+      - name: Apply official HKEX current corporate actions
+        run: python scripts/fmdl5c_apply_hkex_current_actions.py --candidate outputs/fmdl5c/candidate
+      - name: Schema and independent acceptance checks
+        run: |
+          python - <<'PY'
+          import csv,json,pathlib
+          from jsonschema import Draft202012Validator, FormatChecker
+          p=pathlib.Path('outputs/fmdl5c/candidate')
+          schema=json.load(open('schemas/fmdl5c_latest_price_snapshot_v1.schema.json'))
+          validator=Draft202012Validator(schema, format_checker=FormatChecker())
+          rows=[]
+          for line in open(p/'FMDL5C_LATEST_PRICE_SNAPSHOT.ndjson',encoding='utf-8'):
+              row=json.loads(line); validator.validate(row); rows.append(row)
+          decision=json.load(open(p/'FMDL5C_DECISION.json'))
+          quality=json.load(open(p/'FMDL5C_QUALITY_REPORT.json'))
+          registry=json.load(open(p/'FMDL5C_SOURCE_REGISTRY.json'))
+          manifest=json.load(open(p/'FMDL5C_MANIFEST.json'))
+          fx=list(csv.DictReader(open(p/'FMDL5C_FX_DAILY.csv',encoding='utf-8-sig')))
+          actions=list(csv.DictReader(open(p/'FMDL5C_CORPORATE_ACTIONS.csv',encoding='utf-8-sig')))
+          official=[r for r in actions if r['provider']=='HKEX_NEWLY_LISTED_SECURITIES']
+          assert not decision['hard_failures']
+          assert decision['status']=='FMDL5C_PRICE_VOLUME_CORPORATE_ACTION_AND_FX_STORE_ACCEPTED'
+          assert quality['source_security_count']==644
+          assert len(rows)==quality['latest_snapshot_count']
+          assert quality['latest_price_success_ratio']>=0.95
+          assert quality['historical_price_success_ratio']>=0.90
+          assert quality['duplicate_security_date_count']==0
+          assert quality['invalid_price_count']==0
+          assert quality['invalid_volume_count']==0
+          assert len(fx)>=700
+          assert quality['hkex_official_current_action_count']==len(official)>0
+          assert quality['hkex_current_action_parse_warning']==''
+          assert registry['hkex_current_action_summary']['warning']==''
+          assert manifest['release_id']==decision['release_id']
+          assert decision['candidate_pool_mutation_count']==decision['simulation_mutation_count']==decision['real_account_mutation_count']==decision['order_generation_count']==0
+          assert decision['trade_authority']=='NONE'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl5c-market-store-candidate
+          path: outputs/fmdl5c/candidate
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: python scripts/publish_fmdl5c.py --repo-root . --candidate outputs/fmdl5c/candidate
+      - name: Commit accepted FMDL-5C state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl5c/current outputs/fmdl5c/archive datasets/fmdl5c/releases outputs/status/FMDL5C_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-5C market store [skip ci]"
+          git push

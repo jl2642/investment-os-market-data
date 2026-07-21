@@ -1,0 +1,66 @@
+{
+  "program_id": "FMDL-5C",
+  "title": "HK Price Volume Corporate Action and FX Store",
+  "source_release_id": "FMDL5B2_20260721_752db2c65820",
+  "release_sequence": 13,
+  "authority": "HK_MARKET_DATA_AND_CORPORATE_ACTION_STORE_ONLY",
+  "universe": {
+    "security_count": 644,
+    "security_overlay_path": "outputs/fmdl5b2/current/FMDL5B2_SECURITY_SEMANTIC_OVERLAY.csv"
+  },
+  "history": {
+    "start_date": "2023-01-01",
+    "interval": "1d",
+    "price_adjustment_policy": "STORE_RAW_OHLCV_AND_VENDOR_ADJ_CLOSE_SEPARATELY",
+    "point_in_time_policy": "PRESERVE_OBSERVATION_DATE_PROVIDER_RETRIEVAL_TIME_AND_SOURCE_HASH"
+  },
+  "source_policy": {
+    "price_volume": {
+      "primary": "YAHOO_CHART_FREE_UNOFFICIAL",
+      "fallback": "EASTMONEY_PUSH2HIS_FREE_UNOFFICIAL",
+      "rejected_source": "STOOQ_BROWSER_CHALLENGE_ON_GITHUB_RUNNER",
+      "official_limitation": "HKEX_OFFICIAL_BULK_DAY_END_AND_HISTORICAL_PRICE_FILES_ARE_PAID_DATA_PRODUCTS"
+    },
+    "corporate_actions": {
+      "primary": "YAHOO_CHART_EVENTS_FREE_UNOFFICIAL",
+      "official_corroboration": [
+        "HKEX_NEWLY_LISTED_SECURITIES",
+        "HKEX_FULL_LIST_OF_SECURITIES",
+        "HKEXNEWS_ISSUER_DISCLOSURES_DEFERRED_TO_FMDL5D"
+      ]
+    },
+    "fx": {
+      "primary": "HKMA_ER_EERI_DAILY_OFFICIAL_OPEN_API",
+      "fields": ["usd", "cny"],
+      "unit": "HKD_PER_UNIT_OF_FOREIGN_CURRENCY"
+    }
+  },
+  "acceptance": {
+    "source_security_count": 644,
+    "latest_price_success_ratio_min": 0.95,
+    "historical_price_success_ratio_min": 0.90,
+    "latest_price_max_age_calendar_days": 7,
+    "dual_counter_currency_consistency_required": true,
+    "fx_row_count_min": 700,
+    "fx_latest_max_age_calendar_days": 40,
+    "hard_failure_on_duplicate_security_date": true,
+    "hard_failure_on_negative_price_or_volume": true,
+    "hard_failure_on_unbound_security_id": true,
+    "candidate_pool_mutation_count": 0,
+    "simulation_mutation_count": 0,
+    "real_account_mutation_count": 0,
+    "order_generation_count": 0,
+    "trade_authority": "NONE"
+  },
+  "outputs": [
+    "FMDL5C_DAILY_PRICE_VOLUME.parquet",
+    "FMDL5C_LATEST_PRICE_SNAPSHOT.csv",
+    "FMDL5C_CORPORATE_ACTIONS.csv",
+    "FMDL5C_FX_DAILY.csv",
+    "FMDL5C_SOURCE_REGISTRY.json",
+    "FMDL5C_QUALITY_REPORT.json",
+    "FMDL5C_DECISION.json",
+    "FMDL5C_MANIFEST.json"
+  ],
+  "next_gate": "FMDL-5D_HKEX_DISCLOSURE_AND_FINANCIAL_NORMALIZATION"
+}
