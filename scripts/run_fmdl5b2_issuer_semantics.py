@@ -37,8 +37,7 @@ def stable_id(prefix: str, value: str) -> str:
 
 
 def code5(value: object) -> str:
-    text = str(value or "").strip()
-    text = re.sub(r"\.0$", "", text)
+    text = re.sub(r"\.0$", "", str(value or "").strip())
     return text.zfill(5)
 
 
@@ -46,25 +45,21 @@ def optional_code5(value: object) -> str:
     if value is None or (isinstance(value, float) and pd.isna(value)):
         return ""
     text = str(value).strip()
-    if not text or text.lower() == "nan":
-        return ""
-    return code5(text)
+    return "" if not text or text.lower() == "nan" else code5(text)
 
 
 def parse_int(value: object) -> int | None:
     if value is None or (isinstance(value, float) and pd.isna(value)):
         return None
     text = str(value).replace(",", "").strip()
-    if not text or text.lower() == "nan":
-        return None
-    return int(float(text))
+    return None if not text or text.lower() == "nan" else int(float(text))
 
 
 def normalized_issuer_name(name: str) -> str:
     text = re.sub(r"\s+", " ", name.strip())
     rules = [
         r"\s*-\s*(?:W|B|S|SW)\s*$",
-        r"\s*-\s*H\s+(?:SHARES?|SH)\s*$",
+        r"\s*-\s*(?:H|A|B|DOMESTIC|FOREIGN|OTHER|OTHERS)\s+(?:SHARES?|SH)\s*$",
         r"\s+'[AB]'\s*$",
         r"\s+CLASS\s+[AB]\s+SHARES?\s*$",
     ]
@@ -73,8 +68,7 @@ def normalized_issuer_name(name: str) -> str:
         previous = text
         for pattern in rules:
             text = re.sub(pattern, "", text, flags=re.IGNORECASE).strip()
-    text = re.sub(r"\s+", " ", text)
-    return text
+    return re.sub(r"\s+", " ", text)
 
 
 def official_suffix_flags(name: str) -> dict[str, bool]:
@@ -86,21 +80,21 @@ def official_suffix_flags(name: str) -> dict[str, bool]:
     }
 
 
-def h_share_flag(issuer_name: str) -> bool:
-    upper = issuer_name.upper()
-    return bool(re.search(r"(?:-|\s)H\s+(?:SHARES?|SH)\b", upper))
+def h_share_flag(name: str) -> bool:
+    return bool(re.search(r"(?:-|\s)H\s+(?:SHARES?|SH)\b", name.upper()))
+
+
+def a_share_flag(name: str) -> bool:
+    return bool(re.search(r"(?:-|\s)A\s+SHARES?\b", name.upper()))
 
 
 def security_type(category: str, sub_category: str) -> str:
-    c = category.strip().upper()
-    s = sub_category.strip().upper()
+    c, s = category.strip().upper(), sub_category.strip().upper()
     if "EXCHANGE TRADED" in c or "EXCHANGE TRADED FUND" in s:
         return "ETF"
     if "REAL ESTATE INVESTMENT TRUST" in c:
         return "REIT"
-    if c == "EQUITY":
-        return "COMMON_EQUITY"
-    return "OTHER_LISTED_SECURITY"
+    return "COMMON_EQUITY" if c == "EQUITY" else "OTHER_LISTED_SECURITY"
 
 
 def get_session() -> requests.Session:
@@ -141,8 +135,7 @@ def find_header(frame: pd.DataFrame, marker: str) -> int:
 
 def read_full_list(data: bytes) -> pd.DataFrame:
     raw = pd.read_excel(io.BytesIO(data), header=None)
-    header = find_header(raw, "Stock Code")
-    frame = pd.read_excel(io.BytesIO(data), header=header)
+    frame = pd.read_excel(io.BytesIO(data), header=find_header(raw, "Stock Code"))
     frame["stock_code_5d"] = frame["Stock Code"].map(code5)
     return frame
 
@@ -161,7 +154,7 @@ def read_dual_counter(data: bytes) -> tuple[pd.DataFrame, str]:
     return frame, update_date
 
 
-def parse_di_html(code: str, html: bytes, url: str) -> dict[str, str]:
+def parse_di_html(code: str, html: bytes, url: str) -> dict[str, object]:
     soup = BeautifulSoup(html, "html.parser")
     pairs: set[tuple[str, str]] = set()
     for link in soup.find_all("a"):
@@ -173,32 +166,35 @@ def parse_di_html(code: str, html: bytes, url: str) -> dict[str, str]:
         corpn = str((query.get("corpn") or [""])[0]).strip()
         if sid and corpn:
             pairs.add((sid, corpn))
-    if len(pairs) != 1:
-        excerpt = soup.get_text(" ", strip=True)[:1000]
-        raise ValueError(f"DI_MAPPING_AMBIGUOUS:{code}:{len(pairs)}:{excerpt}")
-    sid, corpn = next(iter(pairs))
+    if not pairs:
+        raise ValueError(f"DI_MAPPING_EMPTY:{code}:{soup.get_text(' ', strip=True)[:800]}")
+    bases = {normalized_issuer_name(name).upper() for _, name in pairs}
+    if len(bases) != 1:
+        raise ValueError(f"DI_MAPPING_MULTIPLE_ECONOMIC_ISSUERS:{code}:{sorted(pairs)}")
+    ordered = sorted(pairs, key=lambda pair: (0 if h_share_flag(pair[1]) else 1, pair[1], pair[0]))
+    sid, corpn = ordered[0]
     return {
         "stock_code_5d": code,
         "di_sid": sid,
         "official_issuer_name_en": corpn,
+        "issuer_base_name_en": normalized_issuer_name(corpn),
+        "di_all_sids": "|".join(sorted(x[0] for x in pairs)),
+        "di_all_issuer_names": "|".join(sorted(x[1] for x in pairs)),
+        "h_share_class_exists": any(h_share_flag(name) for _, name in pairs),
+        "a_share_class_exists": any(a_share_flag(name) for _, name in pairs),
         "source_url": url,
         "response_sha256": sha256_bytes(html),
     }
 
 
-def fetch_di_mapping(code: str) -> dict[str, str]:
+def fetch_di_mapping(code: str) -> dict[str, object]:
     end = date.today().strftime("%d/%m/%Y")
-    url = (
-        f"{DI_URL}?sa1=cl&scsd=03/07/2017&sced={quote(end)}&sc={code}"
-        "&src=MAIN&lang=EN&g_lang=en"
-    )
-    html = request_bytes(url, timeout=90)
-    return parse_di_html(code, html, url)
+    url = f"{DI_URL}?sa1=cl&scsd=03/07/2017&sced={quote(end)}&sc={code}&src=MAIN&lang=EN&g_lang=en"
+    return parse_di_html(code, request_bytes(url, timeout=90), url)
 
 
 def write_csv(path: Path, rows: list[dict[str, object]], fields: list[str] | None = None) -> None:
-    if fields is None:
-        fields = list(rows[0].keys()) if rows else []
+    fields = fields or (list(rows[0].keys()) if rows else [])
     with path.open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields, extrasaction="ignore")
         writer.writeheader()
@@ -206,10 +202,7 @@ def write_csv(path: Path, rows: list[dict[str, object]], fields: list[str] | Non
 
 
 def write_ndjson(path: Path, rows: list[dict[str, object]]) -> None:
-    path.write_text(
-        "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
-        encoding="utf-8",
-    )
+    path.write_text("".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows), encoding="utf-8")
 
 
 def build(output: Path) -> dict[str, object]:
@@ -217,22 +210,20 @@ def build(output: Path) -> dict[str, object]:
     source_bytes = SOURCE_PATH.read_bytes()
     with SOURCE_PATH.open("r", encoding="utf-8-sig", newline="") as handle:
         source_rows = list(csv.DictReader(handle))
-
-    full_bytes = request_bytes(FULL_LIST_URL)
-    dual_bytes = request_bytes(DUAL_COUNTER_URL)
+    full_bytes, dual_bytes = request_bytes(FULL_LIST_URL), request_bytes(DUAL_COUNTER_URL)
     full = read_full_list(full_bytes)
     dual, dual_update_date = read_dual_counter(dual_bytes)
     full_map = {str(row["stock_code_5d"]): row for _, row in full.iterrows()}
     dual_map = {str(row["hkd_code_5d"]): row for _, row in dual.iterrows()}
 
-    equity_codes: list[str] = []
+    equity_codes = []
     for source in source_rows:
         code = code5(source["stock_code_5d"])
         official = full_map.get(code)
         if official is not None and security_type(str(official.get("Category", "")), str(official.get("Sub-Category", ""))) == "COMMON_EQUITY":
             equity_codes.append(code)
 
-    di_results: dict[str, dict[str, str]] = {}
+    di_results: dict[str, dict[str, object]] = {}
     di_errors: dict[str, str] = {}
     with ThreadPoolExecutor(max_workers=6) as executor:
         futures = {executor.submit(fetch_di_mapping, code): code for code in equity_codes}
@@ -268,41 +259,28 @@ def build(output: Path) -> dict[str, object]:
 
         di = di_results.get(code)
         if sec_type == "COMMON_EQUITY" and di:
-            issuer_name = di["official_issuer_name_en"]
-            issuer_base = normalized_issuer_name(issuer_name)
+            issuer_name = str(di["official_issuer_name_en"])
+            issuer_base = str(di["issuer_base_name_en"])
             issuer_id = stable_id("HKEX-ISSUER", issuer_base.upper())
-            issuer_basis = "HKEX_DI_STOCK_CODE_CONFIRMED"
-            issuer_status = "CONFIRMED"
-            di_sid = di["di_sid"]
-            di_response_sha = di["response_sha256"]
+            issuer_basis, issuer_status = "HKEX_DI_STOCK_CODE_CONFIRMED", "CONFIRMED"
+            di_sid, di_response_sha = str(di["di_sid"]), str(di["response_sha256"])
+            di_all_sids, di_all_names = str(di["di_all_sids"]), str(di["di_all_issuer_names"])
+            h_class, a_class = bool(di["h_share_class_exists"]), bool(di["a_share_class_exists"])
         elif sec_type in {"ETF", "REIT"}:
-            issuer_name = official_name
-            issuer_base = official_name
+            issuer_name = issuer_base = official_name
             issuer_id = stable_id("HKEX-FUND", isin or code)
-            issuer_basis = "HKEX_SECURITY_MASTER_ISIN_CONFIRMED"
-            issuer_status = "CONFIRMED"
-            di_sid = ""
-            di_response_sha = ""
+            issuer_basis, issuer_status = "HKEX_SECURITY_MASTER_ISIN_CONFIRMED", "CONFIRMED"
+            di_sid = di_response_sha = di_all_sids = di_all_names = ""
+            h_class = a_class = False
         else:
-            issuer_name = official_name or str(source.get("name_en", ""))
-            issuer_base = issuer_name
+            issuer_name = issuer_base = official_name or str(source.get("name_en", ""))
             issuer_id = stable_id("HKEX-ISSUER-UNRESOLVED", code)
-            issuer_basis = "SECURITY_ANCHORED_UNRESOLVED"
-            issuer_status = "UNRESOLVED"
-            di_sid = ""
-            di_response_sha = ""
-            review_queue.append(
-                {
-                    "security_id": source["security_id"],
-                    "stock_code_5d": code,
-                    "review_type": "ISSUER_IDENTITY_UNRESOLVED",
-                    "evidence_status": "UNRESOLVED",
-                    "detail": di_errors.get(code, "NO_OFFICIAL_ISSUER_MAPPING"),
-                }
-            )
+            issuer_basis, issuer_status = "SECURITY_ANCHORED_UNRESOLVED", "UNRESOLVED"
+            di_sid = di_response_sha = di_all_sids = di_all_names = ""
+            h_class = a_class = False
+            review_queue.append({"security_id": source["security_id"], "stock_code_5d": code, "review_type": "ISSUER_IDENTITY_UNRESOLVED", "evidence_status": "UNRESOLVED", "detail": di_errors.get(code, "NO_OFFICIAL_ISSUER_MAPPING")})
 
         flags = official_suffix_flags(official_name)
-        h_flag = h_share_flag(issuer_name)
         overlay = {
             "security_id": source["security_id"],
             "issuer_id": issuer_id,
@@ -312,6 +290,8 @@ def build(output: Path) -> dict[str, object]:
             "issuer_identity_status": issuer_status,
             "issuer_identity_basis": issuer_basis,
             "hkex_di_sid": di_sid,
+            "hkex_di_all_sids": di_all_sids,
+            "hkex_di_all_issuer_names": di_all_names,
             "category": category,
             "sub_category": sub_category,
             "security_type": sec_type,
@@ -323,7 +303,8 @@ def build(output: Path) -> dict[str, object]:
             "wvr_flag": flags["wvr_flag"],
             "secondary_listing_flag": flags["secondary_listing_flag"],
             "biotech_chapter18a_flag": flags["biotech_chapter18a_flag"],
-            "h_share_flag": h_flag,
+            "h_share_flag": h_class,
+            "a_share_class_exists": a_class,
             "depositary_receipt_flag": 6200 <= int(code) <= 6399,
             "gem_flag": 8000 <= int(code) <= 8999,
             "source_release_id": SOURCE_RELEASE_ID,
@@ -331,86 +312,24 @@ def build(output: Path) -> dict[str, object]:
             "di_response_sha256": di_response_sha,
         }
         overlays.append(overlay)
-        bridge.append(
-            {
-                "security_id": source["security_id"],
-                "issuer_id": issuer_id,
-                "stock_code_5d": code,
-                "mapping_status": issuer_status,
-                "mapping_basis": issuer_basis,
-            }
-        )
+        bridge.append({"security_id": source["security_id"], "issuer_id": issuer_id, "stock_code_5d": code, "mapping_status": issuer_status, "mapping_basis": issuer_basis})
         issuer_members.setdefault(issuer_id, []).append(overlay)
 
-        if h_flag:
-            review_queue.append(
-                {
-                    "security_id": source["security_id"],
-                    "stock_code_5d": code,
-                    "review_type": "MAINLAND_A_SHARE_RELATIONSHIP",
-                    "evidence_status": "REVIEW_REQUIRED",
-                    "detail": "H_SHARE_STATUS_CONFIRMED_BUT_A_SHARE_CODE_NOT_CONFIRMED_IN_FMDL5B2",
-                }
-            )
+        if a_class:
+            review_queue.append({"security_id": source["security_id"], "stock_code_5d": code, "review_type": "MAINLAND_A_SHARE_TICKER_MAPPING", "evidence_status": "REVIEW_REQUIRED", "detail": "HKEX_DI_CONFIRMS_A_SHARE_CLASS_BUT_MAINLAND_TICKER_REQUIRES_SSE_OR_SZSE_EVIDENCE"})
         if flags["secondary_listing_flag"]:
-            review_queue.append(
-                {
-                    "security_id": source["security_id"],
-                    "stock_code_5d": code,
-                    "review_type": "OVERSEAS_PRIMARY_LISTING_RELATIONSHIP",
-                    "evidence_status": "REVIEW_REQUIRED",
-                    "detail": "SECONDARY_LISTING_SUFFIX_CONFIRMED_BUT_OVERSEAS_TICKER_NOT_CONFIRMED",
-                }
-            )
+            review_queue.append({"security_id": source["security_id"], "stock_code_5d": code, "review_type": "OVERSEAS_PRIMARY_LISTING_RELATIONSHIP", "evidence_status": "REVIEW_REQUIRED", "detail": "SECONDARY_LISTING_SUFFIX_CONFIRMED_BUT_OVERSEAS_TICKER_NOT_CONFIRMED"})
         if rmb_counter:
-            relationship_id = stable_id("HKEX-REL", f"DUAL_COUNTER:{code}:{rmb_counter}")
-            relationships.append(
-                {
-                    "relationship_id": relationship_id,
-                    "relationship_type": "HKD_RMB_DUAL_COUNTER",
-                    "issuer_id": issuer_id,
-                    "primary_security_id": source["security_id"],
-                    "primary_market_code": code,
-                    "related_market": "HKEX_RMB_COUNTER",
-                    "related_security_code": rmb_counter,
-                    "evidence_status": "CONFIRMED",
-                    "evidence_source": "HKEX_DUAL_COUNTER_SECURITY_LIST",
-                }
-            )
+            relationships.append({"relationship_id": stable_id("HKEX-REL", f"DUAL_COUNTER:{code}:{rmb_counter}"), "relationship_type": "HKD_RMB_DUAL_COUNTER", "issuer_id": issuer_id, "primary_security_id": source["security_id"], "primary_market_code": code, "related_market": "HKEX_RMB_COUNTER", "related_security_code": rmb_counter, "evidence_status": "CONFIRMED", "evidence_source": "HKEX_DUAL_COUNTER_SECURITY_LIST"})
 
     issuers: list[dict[str, object]] = []
     for issuer_id, members in sorted(issuer_members.items()):
         variants = sorted({str(x["official_issuer_name_en"]) for x in members if x["official_issuer_name_en"]})
-        base_names = sorted({normalized_issuer_name(x) for x in variants})
+        bases = sorted({normalized_issuer_name(x) for x in variants})
         primary = sorted(members, key=lambda x: str(x["stock_code_5d"]))[0]
-        status = "CONFIRMED" if all(x["issuer_identity_status"] == "CONFIRMED" for x in members) else "UNRESOLVED"
-        issuers.append(
-            {
-                "issuer_id": issuer_id,
-                "issuer_name_en": base_names[0] if len(base_names) == 1 else str(primary["official_issuer_name_en"]),
-                "issuer_type": "FUND" if str(primary["security_type"]) in {"ETF", "REIT"} else "CORPORATE",
-                "issuer_status": status,
-                "primary_security_id": primary["security_id"],
-                "member_security_count": len(members),
-                "member_security_ids": "|".join(sorted(str(x["security_id"]) for x in members)),
-                "official_name_variants": "|".join(variants),
-                "identity_basis": str(primary["issuer_identity_basis"]),
-            }
-        )
+        issuers.append({"issuer_id": issuer_id, "issuer_name_en": bases[0] if len(bases) == 1 else str(primary["official_issuer_name_en"]), "issuer_type": "FUND" if str(primary["security_type"]) in {"ETF", "REIT"} else "CORPORATE", "issuer_status": "CONFIRMED" if all(x["issuer_identity_status"] == "CONFIRMED" for x in members) else "UNRESOLVED", "primary_security_id": primary["security_id"], "member_security_count": len(members), "member_security_ids": "|".join(sorted(str(x["security_id"]) for x in members)), "official_name_variants": "|".join(variants), "identity_basis": str(primary["issuer_identity_basis"])})
         if len(members) > 1:
-            relationships.append(
-                {
-                    "relationship_id": stable_id("HKEX-REL", f"HK_SHARE_CLASSES:{issuer_id}"),
-                    "relationship_type": "HK_MULTIPLE_SHARE_CLASSES",
-                    "issuer_id": issuer_id,
-                    "primary_security_id": primary["security_id"],
-                    "primary_market_code": primary["stock_code_5d"],
-                    "related_market": "HKEX",
-                    "related_security_code": "|".join(sorted(str(x["stock_code_5d"]) for x in members if x["security_id"] != primary["security_id"])),
-                    "evidence_status": "CONFIRMED",
-                    "evidence_source": "HKEX_DI_OFFICIAL_ISSUER_NAME_EXACT_NORMALIZATION",
-                }
-            )
+            relationships.append({"relationship_id": stable_id("HKEX-REL", f"HK_SHARE_CLASSES:{issuer_id}"), "relationship_type": "HK_MULTIPLE_SHARE_CLASSES", "issuer_id": issuer_id, "primary_security_id": primary["security_id"], "primary_market_code": primary["stock_code_5d"], "related_market": "HKEX", "related_security_code": "|".join(sorted(str(x["stock_code_5d"]) for x in members if x["security_id"] != primary["security_id"])), "evidence_status": "CONFIRMED", "evidence_source": "HKEX_DI_OFFICIAL_ISSUER_NAME_EXACT_NORMALIZATION"})
 
     overlays.sort(key=lambda row: str(row["stock_code_5d"]))
     bridge.sort(key=lambda row: str(row["stock_code_5d"]))
@@ -442,19 +361,11 @@ def build(output: Path) -> dict[str, object]:
     write_ndjson(output / "FMDL5B2_SECURITY_SEMANTIC_OVERLAY.ndjson", overlays)
     write_csv(output / "FMDL5B2_CROSS_MARKET_RELATIONSHIPS.csv", relationships)
     write_csv(output / "FMDL5B2_REVIEW_QUEUE.csv", review_queue, ["security_id", "stock_code_5d", "review_type", "evidence_status", "detail"])
-    write_csv(output / "FMDL5B2_DI_ISSUER_MAPPING.csv", di_mapping_rows, ["stock_code_5d", "di_sid", "official_issuer_name_en", "source_url", "response_sha256"])
+    write_csv(output / "FMDL5B2_DI_ISSUER_MAPPING.csv", di_mapping_rows, ["stock_code_5d", "di_sid", "official_issuer_name_en", "issuer_base_name_en", "di_all_sids", "di_all_issuer_names", "h_share_class_exists", "a_share_class_exists", "source_url", "response_sha256"])
 
-    canonical_payload = {
-        "issuers": issuers,
-        "bridge": bridge,
-        "overlay": overlays,
-        "relationships": relationships,
-        "review_queue": review_queue,
-    }
-    canonical_bytes = json.dumps(canonical_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    canonical_sha = sha256_bytes(canonical_bytes)
+    canonical_payload = {"issuers": issuers, "bridge": bridge, "overlay": overlays, "relationships": relationships, "review_queue": review_queue}
+    canonical_sha = sha256_bytes(json.dumps(canonical_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"))
     release_id = f"FMDL5B2_{date.today().strftime('%Y%m%d')}_{canonical_sha[:12]}"
-
     source_registry = {
         "program_id": PROGRAM_ID,
         "source_release_id": SOURCE_RELEASE_ID,
@@ -484,6 +395,7 @@ def build(output: Path) -> dict[str, object]:
         "secondary_listing_count": sum(bool(row["secondary_listing_flag"]) for row in overlays),
         "biotech_chapter18a_count": sum(bool(row["biotech_chapter18a_flag"]) for row in overlays),
         "h_share_count": sum(bool(row["h_share_flag"]) for row in overlays),
+        "a_share_class_exists_count": sum(bool(row["a_share_class_exists"]) for row in overlays),
         "multiple_hk_share_class_group_count": sum(row["relationship_type"] == "HK_MULTIPLE_SHARE_CLASSES" for row in relationships),
         "confirmed_relationship_count": sum(row["evidence_status"] == "CONFIRMED" for row in relationships),
         "review_queue_count": len(review_queue),
@@ -504,21 +416,20 @@ def build(output: Path) -> dict[str, object]:
         "order_generation_count": 0,
         "trade_authority": "NONE",
         "limitations": [
-            "A-share ticker relationships require direct mainland-exchange evidence and remain review items unless confirmed.",
+            "HKEX DI may confirm that an A-share class exists without providing the mainland ticker; SSE/SZSE ticker confirmation remains a review item.",
             "US ADR or primary-listing ticker relationships are deferred until FMDL-6 official identifier integration.",
-            "WVR, biotech, secondary-listing and H-share statuses are semantic flags, not investment recommendations.",
+            "WVR, biotech, secondary-listing and H-share statuses are semantic flags, not investment recommendations."
         ],
         "next_gate": "FMDL-5C_PRICE_VOLUME_CORPORATE_ACTION_AND_FX_STORE",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
     }
     (output / "FMDL5B2_DECISION.json").write_text(json.dumps(decision, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    manifest_files: dict[str, dict[str, object]] = {}
+    manifest_files = {}
     for path in sorted(output.iterdir()):
         if path.is_file() and path.name != "FMDL5B2_MANIFEST.json":
             manifest_files[path.name] = {"sha256": sha256_bytes(path.read_bytes()), "size_bytes": path.stat().st_size}
-    manifest = {"program_id": PROGRAM_ID, "release_id": release_id, "canonical_sha256": canonical_sha, "files": manifest_files}
-    (output / "FMDL5B2_MANIFEST.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (output / "FMDL5B2_MANIFEST.json").write_text(json.dumps({"program_id": PROGRAM_ID, "release_id": release_id, "canonical_sha256": canonical_sha, "files": manifest_files}, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return decision
 
 
