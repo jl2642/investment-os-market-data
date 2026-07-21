@@ -1,6 +1,7 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "program_id": "FMDL-5E",
+  "repair_round": "FMDL-5E-R1",
   "title": "Hong Kong Factor and Screening Adapter",
   "source_release_ids": {
     "fmdl5c": "FMDL5C_20260721_52f17b755436",
@@ -24,10 +25,37 @@
     "turnover_hkd_basis": "PROVIDER_TURNOVER_ELSE_CLOSE_TIMES_VOLUME_CONVERTED_WITH_NON_FUTURE_HKMA_FX",
     "annualization_sessions": 252,
     "history_sessions": 250,
-    "percentile_policy": "PROFILE_NEUTRAL_FOR_FINANCIAL_FACTORS_BROAD_UNIVERSE_FOR_MARKET_FACTORS",
+    "percentile_policy": "SEMANTIC_SCREENING_PROFILE_FOR_FINANCIAL_FACTORS_BROAD_UNIVERSE_FOR_MARKET_FACTORS",
+    "profile_policy": "PRESERVE_FMDL5D_SOURCE_PROFILE_AND_DERIVE_AUDITABLE_SCREENING_PROFILE_FROM_OFFICIAL_SECURITY_AND_ISSUER_NAMES",
     "missing_value_policy": "PRESERVE_NULL_RENORMALIZE_ONLY_AFTER_MINIMUM_COMPONENT_GATE_WITH_EXPLICIT_COVERAGE_PENALTY",
     "financial_availability_policy": "USE_ONLY_FMDL5D_DECISION_GRADE_CURRENT_AVAILABLE_BY_MARKET_AS_OF",
-    "corporate_action_policy": "TRAILING_365_CALENDAR_DAYS_NO_FUTURE_ACTIONS"
+    "corporate_action_policy": "TRAILING_365_CALENDAR_DAYS_NO_FUTURE_ACTIONS",
+    "longlist_policy": "FORMAL_SLEEVE_ONLY_NO_BALANCED_FALLBACK"
+  },
+  "profile_policy": {
+    "source_profile_preserved_as": "source_profile",
+    "derived_profile_field": "profile",
+    "basis_field": "profile_basis",
+    "non_equity_profile": "CONTROLLED_NON_FINANCIAL",
+    "no_decision_grade_financial_profile": "CONTROLLED_NON_FINANCIAL",
+    "allowed_profiles": [
+      "GENERAL_NON_FINANCIAL",
+      "BANK",
+      "INSURANCE",
+      "SECURITIES_AND_BROKERAGE",
+      "REIT",
+      "CONTROLLED_NON_FINANCIAL"
+    ],
+    "anchor_expectations": {
+      "00005": "BANK",
+      "00038": "GENERAL_NON_FINANCIAL",
+      "00300": "GENERAL_NON_FINANCIAL",
+      "00966": "INSURANCE",
+      "02318": "INSURANCE",
+      "03908": "SECURITIES_AND_BROKERAGE",
+      "06030": "SECURITIES_AND_BROKERAGE",
+      "06066": "SECURITIES_AND_BROKERAGE"
+    }
   },
   "investability": {
     "allowed_security_types": ["COMMON_EQUITY"],
@@ -71,28 +99,30 @@
   ],
   "sleeves": {
     "QUALITY_COMPOUNDER": {
-      "route":"CORE","minimum_score":0.50,"maximum_candidates":45,"minimum_components":4,
+      "route":"CORE","minimum_score":0.40,"maximum_candidates":90,"minimum_components":4,
       "weights":{"roe":0.20,"roa":0.10,"operating_margin":0.15,"gross_margin":0.10,"earnings_yield":0.15,"revenue_yoy":0.15,"net_income_yoy":0.15}
     },
     "HIGH_DIVIDEND_VALUE": {
-      "route":"CORE","minimum_score":0.48,"maximum_candidates":40,"minimum_components":3,
+      "route":"CORE","minimum_score":0.38,"maximum_candidates":80,"minimum_components":3,
       "weights":{"dividend_yield_365d":0.35,"earnings_yield":0.25,"roe":0.15,"liabilities_to_assets":0.10,"volatility_60d":0.15}
     },
     "TREND_LIQUIDITY": {
-      "route":"CORE","minimum_score":0.52,"maximum_candidates":45,"minimum_components":6,
+      "route":"CORE","minimum_score":0.42,"maximum_candidates":90,"minimum_components":6,
       "weights":{"return_60d":0.18,"return_120d":0.18,"momentum_250_20d":0.14,"distance_52w_high":0.14,"trend_consistency_60d":0.12,"avg_turnover_hkd_20d":0.12,"volatility_60d":0.12}
     },
     "DEFENSIVE_STABILITY": {
-      "route":"CORE","minimum_score":0.50,"maximum_candidates":40,"minimum_components":4,
+      "route":"CORE","minimum_score":0.40,"maximum_candidates":80,"minimum_components":4,
       "weights":{"volatility_60d":0.25,"downside_volatility_60d":0.15,"max_drawdown_120d":0.20,"dividend_yield_365d":0.15,"avg_turnover_hkd_20d":0.10,"roe":0.15}
     },
     "RECOVERY_WATCH": {
-      "route":"WATCH","minimum_score":0.48,"maximum_candidates":30,"minimum_components":5,
+      "route":"WATCH","minimum_score":0.38,"maximum_candidates":60,"minimum_components":5,
       "weights":{"return_20d":0.25,"return_60d":0.20,"volume_ratio_20_60d":0.15,"trend_consistency_60d":0.15,"avg_turnover_hkd_20d":0.10,"max_drawdown_120d":0.15}
     }
   },
   "funnel": {
     "longlist_count": 100,
+    "formal_sleeve_only": true,
+    "fallback_policy": "PROHIBITED",
     "priority_bucket_counts": {"A_IMMEDIATE_RESEARCH":20,"B_WATCH_OR_TRIGGER":40,"C_SCREEN_FLAG_ONLY":40},
     "cross_sleeve_bonus_per_extra_sleeve": 0.015,
     "cross_sleeve_bonus_maximum": 0.06,
@@ -106,7 +136,13 @@
     "minimum_decision_grade_financial_security_count": 600,
     "required_longlist_count": 100,
     "required_priority_bucket_counts": {"A_IMMEDIATE_RESEARCH":20,"B_WATCH_OR_TRIGGER":40,"C_SCREEN_FLAG_ONLY":40},
-    "minimum_distinct_primary_sleeves": 4,
+    "minimum_distinct_primary_sleeves": 5,
+    "minimum_distinct_formal_sleeve_security_count": 150,
+    "maximum_fallback_longlist_count": 0,
+    "minimum_primary_sleeve_count_each": 10,
+    "maximum_single_primary_sleeve_share": 0.35,
+    "maximum_profile_semantic_mismatch_count": 0,
+    "maximum_profile_anchor_mismatch_count": 0,
     "maximum_duplicate_security_count": 0,
     "maximum_future_input_row_count": 0,
     "maximum_invalid_numeric_factor_count": 0,
