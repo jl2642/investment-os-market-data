@@ -2,25 +2,28 @@
 from __future__ import annotations
 
 import argparse
-import csv
 import hashlib
-import io
 import json
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 
 import requests
 
-SAMPLE_TICKERS = ["00005.HK", "00700.HK", "02800.HK", "09988.HK"]
+SAMPLE_CODES = ["00005", "00700", "02800", "09988"]
 HKMA_URL = "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/er-eeri-daily"
 HKEX_NEWLY_LISTED = "https://www.hkex.com.hk/Services/Trading/Securities/Trading-News/Newly-Listed-Securities?sc_lang=en"
 HKEX_FULL_LIST = "https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx"
+EASTMONEY_URL = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
 
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def yahoo_symbol(code5: str) -> str:
+    return f"{int(code5):04d}.HK"
 
 
 def session() -> requests.Session:
@@ -29,6 +32,7 @@ def session() -> requests.Session:
         {
             "User-Agent": "Mozilla/5.0 (compatible; InvestmentOS/5C; +https://github.com/jl2642/investment-os-market-data)",
             "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8",
+            "Referer": "https://quote.eastmoney.com/",
         }
     )
     adapter = requests.adapters.HTTPAdapter(max_retries=3)
@@ -36,11 +40,11 @@ def session() -> requests.Session:
     return s
 
 
-def fetch(s: requests.Session, url: str, timeout: int = 90) -> requests.Response:
+def fetch(s: requests.Session, url: str, timeout: int = 90, params: dict[str, str] | None = None) -> requests.Response:
     last: Exception | None = None
     for attempt in range(5):
         try:
-            response = s.get(url, timeout=(15, timeout), allow_redirects=True)
+            response = s.get(url, params=params, timeout=(15, timeout), allow_redirects=True)
             response.raise_for_status()
             return response
         except Exception as exc:  # noqa: BLE001
@@ -50,11 +54,12 @@ def fetch(s: requests.Session, url: str, timeout: int = 90) -> requests.Response
     raise last
 
 
-def yahoo_probe(s: requests.Session, ticker: str) -> dict[str, object]:
+def yahoo_probe(s: requests.Session, code5: str) -> dict[str, object]:
+    symbol = yahoo_symbol(code5)
     period2 = int(datetime.now(timezone.utc).timestamp()) + 86400
     period1 = period2 - 40 * 86400
     url = (
-        f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(ticker)}"
+        f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol)}"
         f"?period1={period1}&period2={period2}&interval=1d&events=div%2Csplits"
     )
     response = fetch(s, url)
@@ -62,12 +67,13 @@ def yahoo_probe(s: requests.Session, ticker: str) -> dict[str, object]:
     chart = payload.get("chart") or {}
     result = (chart.get("result") or [None])[0]
     if not result:
-        raise ValueError(f"YAHOO_EMPTY_RESULT:{ticker}:{chart.get('error')}")
+        raise ValueError(f"YAHOO_EMPTY_RESULT:{symbol}:{chart.get('error')}")
     timestamps = result.get("timestamp") or []
     quote_rows = (((result.get("indicators") or {}).get("quote") or [{}])[0])
     events = result.get("events") or {}
     return {
-        "ticker": ticker,
+        "code5": code5,
+        "symbol": symbol,
         "url": url,
         "status_code": response.status_code,
         "response_sha256": sha256(response.content),
@@ -81,38 +87,41 @@ def yahoo_probe(s: requests.Session, ticker: str) -> dict[str, object]:
     }
 
 
-def stooq_probe(s: requests.Session, ticker: str) -> dict[str, object]:
-    symbol = ticker.replace(".HK", ".hk").lstrip("0") or "0.hk"
-    end = datetime.now(timezone.utc).date()
-    start = end - timedelta(days=40)
-    url = (
-        "https://stooq.com/q/d/l/"
-        f"?s={quote(symbol)}&d1={start.strftime('%Y%m%d')}&d2={end.strftime('%Y%m%d')}&i=d"
-    )
-    response = fetch(s, url)
-    text = response.text
-    rows = list(csv.DictReader(io.StringIO(text))) if "Date" in text[:100] else []
+def eastmoney_probe(s: requests.Session, code5: str) -> dict[str, object]:
+    params = {
+        "secid": f"116.{code5}",
+        "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+        "fields1": "f1,f2,f3,f4,f5,f6",
+        "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61",
+        "klt": "101",
+        "fqt": "0",
+        "beg": "20260601",
+        "end": "20500000",
+        "lmt": "100",
+    }
+    response = fetch(s, EASTMONEY_URL, params=params)
+    payload = response.json()
+    data = payload.get("data") or {}
+    klines = data.get("klines") or []
     return {
-        "ticker": ticker,
-        "stooq_symbol": symbol,
-        "url": url,
+        "code5": code5,
+        "url": response.url,
         "status_code": response.status_code,
         "response_sha256": sha256(response.content),
-        "row_count": len(rows),
-        "columns": list(rows[0].keys()) if rows else [],
-        "latest_date": rows[-1].get("Date") if rows else None,
-        "preview": rows[-3:] if rows else text[:300],
+        "name": data.get("name"),
+        "code": data.get("code"),
+        "row_count": len(klines),
+        "latest_row": klines[-1] if klines else None,
     }
 
 
 def hkma_probe(s: requests.Session) -> dict[str, object]:
-    url = f"{HKMA_URL}?offset=0"
-    response = fetch(s, url)
+    response = fetch(s, HKMA_URL, params={"offset": "0"})
     payload = response.json()
     result = payload.get("result") or {}
     records = result.get("records") or []
     return {
-        "url": url,
+        "url": response.url,
         "status_code": response.status_code,
         "response_sha256": sha256(response.content),
         "record_count": len(records),
@@ -133,17 +142,17 @@ def main() -> int:
     discovery: dict[str, object] = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "yahoo": {},
-        "stooq": {},
+        "eastmoney": {},
         "official": {},
         "hard_failures": [],
     }
 
-    for ticker in SAMPLE_TICKERS:
-        for provider, fn in (("yahoo", yahoo_probe), ("stooq", stooq_probe)):
+    for code5 in SAMPLE_CODES:
+        for provider, fn in (("yahoo", yahoo_probe), ("eastmoney", eastmoney_probe)):
             try:
-                discovery[provider][ticker] = fn(s, ticker)  # type: ignore[index]
+                discovery[provider][code5] = fn(s, code5)  # type: ignore[index]
             except Exception as exc:  # noqa: BLE001
-                discovery[provider][ticker] = {"error": f"{type(exc).__name__}: {exc}"}  # type: ignore[index]
+                discovery[provider][code5] = {"error": f"{type(exc).__name__}: {exc}"}  # type: ignore[index]
 
     official_sources = {
         "hkma_fx": (HKMA_URL, hkma_probe),
@@ -171,21 +180,22 @@ def main() -> int:
             discovery["official"][key] = {"url": url, "error": f"{type(exc).__name__}: {exc}"}  # type: ignore[index]
             discovery["hard_failures"].append(key)  # type: ignore[union-attr]
 
-    yahoo_success = sum(1 for row in discovery["yahoo"].values() if "error" not in row)  # type: ignore[union-attr]
-    stooq_success = sum(1 for row in discovery["stooq"].values() if row.get("row_count", 0) > 0)  # type: ignore[union-attr]
+    yahoo_success = sum(1 for row in discovery["yahoo"].values() if row.get("close_count", 0) > 0)  # type: ignore[union-attr]
+    eastmoney_success = sum(1 for row in discovery["eastmoney"].values() if row.get("row_count", 0) > 0)  # type: ignore[union-attr]
     discovery["decision"] = {
         "yahoo_sample_success_count": yahoo_success,
-        "stooq_sample_success_count": stooq_success,
+        "eastmoney_sample_success_count": eastmoney_success,
         "hkma_success": "error" not in discovery["official"].get("hkma_fx", {}),  # type: ignore[union-attr]
-        "recommended_price_primary": "YAHOO" if yahoo_success >= 3 else "STOOQ",
-        "recommended_price_fallback": "STOOQ" if stooq_success >= 2 else "NONE",
+        "recommended_price_primary": "YAHOO" if yahoo_success >= 3 else "EASTMONEY",
+        "recommended_price_fallback": "EASTMONEY" if eastmoney_success >= 2 else "NONE",
+        "stooq_rejected_reason": "BROWSER_CHALLENGE_ON_GITHUB_RUNNER",
     }
     (out / "FMDL5C_SOURCE_DISCOVERY.json").write_text(
         json.dumps(discovery, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     print(json.dumps(discovery, ensure_ascii=False, indent=2))
-    if yahoo_success == 0 and stooq_success == 0:
+    if yahoo_success == 0 and eastmoney_success == 0:
         return 2
     if "error" in discovery["official"].get("hkma_fx", {}):  # type: ignore[union-attr]
         return 3
