@@ -43,6 +43,7 @@ def main() -> int:
     copy_tree(candidate, archive)
     last_success = {
         "program_id": "FMDL-5D",
+        "repair_round": decision.get("repair_round"),
         "status": decision["status"],
         "release_id": release_id,
         "release_sequence": decision["release_sequence"],
@@ -53,6 +54,8 @@ def main() -> int:
         "official_financial_disclosure_count": decision["metrics"]["official_financial_disclosure_count"],
         "normalized_fact_count": decision["metrics"]["normalized_fact_count"],
         "decision_grade_security_count": decision["metrics"]["decision_grade_security_count"],
+        "runtime_shard_count": decision["metrics"].get("r1_completed_shard_count"),
+        "runtime_completed_security_count": decision["metrics"].get("r1_completed_security_count"),
         "current_path": str(current.relative_to(root)),
         "immutable_path": str(immutable.relative_to(root)),
         "archive_path": str(archive.relative_to(root)),
@@ -65,7 +68,7 @@ def main() -> int:
     (status_dir / "FMDL5D_LAST_SUCCESS.json").write_text(
         json.dumps(last_success, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    print(json.dumps(last_success, ensure_ascii=False, indent=2, sort_keys=True))
+    print(json.dumps(last_success, ensure_ascii=False, indent=2))
     return 0
 
 
