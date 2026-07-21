@@ -1,54 +1,64 @@
 # FMDL-5E｜Hong Kong Factor & Screening Adapter
 
-## 1. Objective
+## Status
 
-FMDL-5E converts the accepted Hong Kong market store and point-in-time financial evidence into a transparent research-priority factor and screening layer. It reuses the accepted A-share funnel architecture without pretending that A-share thresholds, board structure or liquidity units transfer unchanged to Hong Kong.
+FMDL-5E is currently in targeted repair round `FMDL-5E-R1`.
 
-The phase ends at a governed 100-name Hong Kong research Longlist. It does not create company research conclusions, candidate-pool admission, simulation admission, real-account admission, position sizing, target prices or orders.
+The original candidate established the Hong Kong factor and screening pipeline but failed independent investment-research review because issuer profile semantics were unreliable for a material subset of financial and non-financial companies and because 57 of 100 Longlist names were inserted through `BALANCED_FALLBACK` rather than a formal sleeve.
 
-## 2. Bound source releases
+R1 is therefore the only active implementation path.
 
-- FMDL-5C: `FMDL5C_20260721_52f17b755436`
-- FMDL-5D: `FMDL5D_20260721_0aee5654502c`
-- Security semantics: accepted FMDL-5B-2 Current
-- Market as-of: latest accepted FMDL-5C completed Hong Kong session
+## Inputs
 
-All upstream inputs must remain accepted, hash-bound and `trade_authority = NONE`.
+- FMDL-5B-2 Hong Kong security and issuer semantic overlay;
+- FMDL-5C price, volume, corporate-action and HKMA FX Current;
+- FMDL-5D HKEX disclosure and point-in-time normalized financial Current.
 
-## 3. Factor families
+Accepted source Releases:
 
-The adapter publishes 28 factors across:
+- `FMDL5C_20260721_52f17b755436`
+- `FMDL5D_20260721_0aee5654502c`
 
-1. Market trend and momentum;
-2. Realized risk and drawdown;
-3. Liquidity and active-trading continuity;
-4. Profitability and margins;
-5. Balance-sheet resilience;
-6. Financial growth;
-7. Earnings yield;
-8. Trailing cash-dividend yield.
+## Factor layer
 
-Vendor-adjusted close is used for return continuity where available, with raw close retained upstream. Turnover is expressed in HKD using non-future HKMA FX. Financial ratios are based only on FMDL-5D decision-grade Current rows whose official availability is not later than the market as-of date.
+The adapter computes 28 auditable factors across:
 
-Missing factors remain null. A sleeve may renormalize weights only after a minimum-component gate and applies an explicit coverage penalty; it may never fill a missing factor with zero or a neutral percentile.
+- market trend and momentum;
+- volatility, downside risk and drawdown;
+- liquidity and trading continuity;
+- profitability and margins;
+- balance-sheet strength;
+- revenue and profit growth;
+- earnings yield;
+- trailing cash-dividend yield.
 
-## 4. Percentile policy
+All future inputs are prohibited. Missing values remain null. Financial percentiles use the R1 semantic screening profile, while market factors use broad-universe percentiles.
 
-- Market, risk, liquidity and shareholder-return factors use broad Hong Kong equity percentiles.
-- Financial, balance-sheet, growth and earnings-yield factors use profile-neutral percentiles across general companies, banks, insurers, securities firms and REITs.
-- Funds and ETFs remain controlled non-equity exclusions from issuer-factor screening.
+## R1 semantic profile layer
 
-## 5. Screening sleeves
+R1 preserves the upstream FMDL-5D classification as `source_profile` and derives an auditable `profile` from official HKEX security and issuer names. The derivation basis is stored in `profile_basis`, and all changes are marked in `profile_override_applied`.
 
-- `QUALITY_COMPOUNDER`
-- `HIGH_DIVIDEND_VALUE`
-- `TREND_LIQUIDITY`
-- `DEFENSIVE_STABILITY`
-- `RECOVERY_WATCH`
+This prevents vendor line-item vocabulary from silently classifying industrial companies as banks or treating securities firms as ordinary industrial companies.
 
-The first four are Core research routes. Recovery is a Watch route. Cross-sleeve ranking uses within-sleeve rank percentile, raw sleeve score and a capped multi-sleeve bonus. A transparent balanced fallback is permitted only to complete the 100-name research queue after investability and minimum-factor gates.
+## Screening sleeves
 
-## 6. Hong Kong-specific case coverage
+The five formal sleeves are:
+
+1. `QUALITY_COMPOUNDER`
+2. `HIGH_DIVIDEND_VALUE`
+3. `TREND_LIQUIDITY`
+4. `DEFENSIVE_STABILITY`
+5. `RECOVERY_WATCH`
+
+The Longlist is built only from these formal sleeves. `BALANCED_FALLBACK` is prohibited.
+
+The final research-priority allocation remains:
+
+- 20 `A_IMMEDIATE_RESEARCH`
+- 40 `B_WATCH_OR_TRIGGER`
+- 40 `C_SCREEN_FLAG_ONLY`
+
+## Hong Kong-specific case coverage
 
 A separate case registry surfaces the highest-ranked available examples of:
 
@@ -62,7 +72,7 @@ A separate case registry surfaces the highest-ranked available examples of:
 
 Case coverage is research routing, not score inflation or forced Longlist admission.
 
-## 7. Canonical outputs
+## Canonical outputs
 
 - `FMDL5E_FACTOR_DICTIONARY.json`
 - `FMDL5E_FACTOR_TABLE.parquet`
@@ -79,31 +89,44 @@ Case coverage is research routing, not score inflation or forced Longlist admiss
 
 Successful main publication creates Current, Immutable Release, Archive and `outputs/status/FMDL5E_LAST_SUCCESS.json`.
 
-## 8. Acceptance gates
+## R1 acceptance gates
 
-- exactly 644 source securities and at least 600 common equities;
-- at least 600 equities with sufficient market-factor coverage;
-- at least 600 FMDL-5D decision-grade financial inputs;
-- exactly 100 unique Longlist names;
-- priority buckets exactly 20 / 40 / 40;
-- at least four non-fallback primary sleeves represented;
-- zero future price, action or financial input rows;
-- zero infinite numeric factor values;
-- zero candidate, simulation, real-account or order mutation;
+- exactly 644 source securities;
+- at least 600 common equities;
+- at least 600 securities with sufficient market-factor coverage;
+- at least 600 decision-grade financial inputs;
+- at least 150 distinct formal-sleeve securities before final ranking;
+- exactly 100 unique Longlist securities;
+- all five formal primary sleeves represented;
+- at least 10 Longlist names per primary sleeve;
+- no primary sleeve above 35% of the Longlist;
+- zero fallback Longlist rows;
+- zero profile semantic mismatches;
+- zero profile anchor mismatches;
+- exact 20 / 40 / 40 research-priority buckets;
+- zero future price, action or financial rows;
+- zero infinite factor values;
+- zero candidate-pool, simulation, real-account or order mutation;
 - `trade_authority = NONE`.
 
-## 9. Controlled limitations
+## Controlled limitations
 
 - Free price and structured financial values remain explicitly unofficial vendor-tier evidence; official HKEXnews supplies filing identity and timing.
 - Market capitalization and book-value-per-share are not yet available at a sufficiently reliable Hong Kong-wide level, so P/B and enterprise-value ratios are not fabricated.
 - A/H semantic identity is surfaced as a case route; relative A/H valuation requires a later cross-market price and share-class bridge.
 - Screening is a research-priority mechanism, not a claim of alpha or an investment recommendation.
 
-## 10. Exit
+## Publication boundary
 
-Expected accepted status:
+Only a successful PR candidate may be merged. A successful main run must then publish Current, Immutable Release, Archive and Last-success. FMDL-5F cannot begin before these publication gates are verified.
+
+## Expected exit
 
 `FMDL5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER_ACCEPTED`
+
+Repair identity:
+
+`FMDL-5E-R1`
 
 Next gate:
 
