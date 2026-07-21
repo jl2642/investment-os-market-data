@@ -1,0 +1,101 @@
+name: FMDL 5F Public Equity Research Adapter
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl5f_*.json"
+      - "config/fmdl5f_*.py"
+      - "schemas/fmdl5f_*.json"
+      - "scripts/fmdl5f_*.py"
+      - "scripts/run_fmdl5f_*.py"
+      - "scripts/validate_fmdl5f_*.py"
+      - "scripts/publish_fmdl5f.py"
+      - "tests/test_fmdl5f_*.py"
+      - "docs/FMDL-5F_*.md"
+      - ".github/workflows/fmdl-5f-public-equity-research.yml"
+      - "README.md"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl5f_*.json"
+      - "config/fmdl5f_*.py"
+      - "schemas/fmdl5f_*.json"
+      - "scripts/fmdl5f_*.py"
+      - "scripts/run_fmdl5f_*.py"
+      - "scripts/validate_fmdl5f_*.py"
+      - "scripts/publish_fmdl5f.py"
+      - "tests/test_fmdl5f_*.py"
+      - "docs/FMDL-5F_*.md"
+      - ".github/workflows/fmdl-5f-public-equity-research.yml"
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-5f-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Unit tests
+        run: python -m pytest -q tests/test_fmdl5f_public_equity_research.py
+      - name: Compile checks
+        run: >-
+          python -m py_compile
+          scripts/fmdl5f_core.py
+          scripts/fmdl5f_model.py
+          scripts/run_fmdl5f_public_equity_research.py
+          scripts/validate_fmdl5f_candidate.py
+          scripts/publish_fmdl5f.py
+
+  build-and-accept:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build FMDL-5F Public Equity Research candidate
+        run: |
+          rm -rf outputs/fmdl5f/research/candidate
+          python scripts/run_fmdl5f_public_equity_research.py \
+            --repo-root . \
+            --output outputs/fmdl5f/research/candidate
+      - name: Independent candidate validation and same-input replay
+        run: python scripts/validate_fmdl5f_candidate.py --repo-root . --candidate outputs/fmdl5f/research/candidate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl5f-public-equity-research-candidate
+          path: outputs/fmdl5f/research/candidate
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: python scripts/publish_fmdl5f.py --repo-root . --candidate outputs/fmdl5f/research/candidate
+      - name: Commit accepted FMDL-5F state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl5f/research/current outputs/fmdl5f/research/archive datasets/fmdl5f/research/releases outputs/status/FMDL5F_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-5F Public Equity Research Adapter [skip ci]"
+          git push
