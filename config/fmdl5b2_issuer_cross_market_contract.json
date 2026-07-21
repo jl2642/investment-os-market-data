@@ -1,0 +1,63 @@
+{
+  "program_id": "FMDL-5B-2",
+  "source_release_id": "FMDL5B1_20260720_d31e787a3ccd",
+  "release_sequence": 12,
+  "authority": "HK_ISSUER_AND_CROSS_MARKET_SEMANTICS_ONLY",
+  "scope": {
+    "security_count": 644,
+    "input_path": "outputs/fmdl5b1/current/FMDL5B1_HK_SECURITY_MASTER.csv",
+    "outputs": [
+      "issuer_master",
+      "security_issuer_bridge",
+      "semantic_overlay",
+      "cross_market_relationships",
+      "review_queue",
+      "source_registry",
+      "decision",
+      "manifest"
+    ]
+  },
+  "evidence_policy": {
+    "CONFIRMED": "Direct official exchange list, official issuer filing, official security identifier file, or exact official naming convention.",
+    "REVIEW_REQUIRED": "Deterministic candidate relationship supported by exact normalized identity but not yet confirmed by an official relationship source.",
+    "UNRESOLVED": "No sufficient evidence. No relationship or semantic classification may be inferred.",
+    "prohibited": [
+      "fuzzy-name-only canonical issuer merge",
+      "automatic A/H or ADR relationship from similar names",
+      "automatic candidate-pool admission",
+      "automatic simulation admission",
+      "automatic real-account admission",
+      "order generation"
+    ]
+  },
+  "official_sources": {
+    "hkex_full_list_of_securities": "https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx",
+    "hkex_dual_counter_list": "https://www.hkex.com.hk/-/media/HKEX-Market/Services/Trading/Securities/Securities-Lists/Dual_Counter_Security_List.xlsx",
+    "hkex_isin_assigned": "https://www.hkex.com.hk/-/media/HKEX-Market/Services/Trading/Securities/Securities-Lists/ISINs-assigned-by-HKEX/isinsehk.xls",
+    "hkex_isin_external": "https://www.hkex.com.hk/-/media/HKEX-Market/Services/Trading/Securities/Securities-Lists/ISINs-assigned-by-Other-Numbering-Agencies/isino.xls",
+    "hkex_equity_naming_conventions": "https://www.hkex.com.hk/Products/Securities/Equities?sc_lang=en",
+    "hkexnews": "https://www.hkexnews.hk/"
+  },
+  "semantic_dimensions": [
+    "security_type",
+    "wvr_flag",
+    "secondary_listing_flag",
+    "dual_primary_listing_status",
+    "h_share_status",
+    "depositary_receipt_flag",
+    "stapled_security_flag",
+    "dual_counter_group",
+    "isin",
+    "issuer_identity",
+    "a_share_relationship",
+    "us_listing_relationship"
+  ],
+  "state_firewall": {
+    "candidate_pool_mutation_count": 0,
+    "simulation_mutation_count": 0,
+    "real_account_mutation_count": 0,
+    "order_generation_count": 0,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "FMDL-5C_PRICE_VOLUME_CORPORATE_ACTION_AND_FX_STORE"
+}
