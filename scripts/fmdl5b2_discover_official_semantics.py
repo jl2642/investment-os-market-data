@@ -22,6 +22,8 @@ SOURCES = {
     "hkex_market_equities": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities?sc_lang=en",
     "hkex_market_etp": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Exchange-Traded-Products?sc_lang=en",
     "hkex_market_reit": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Real-Estate-Investment-Trusts?sc_lang=en",
+    "hkex_di_corporation_selector": "https://di.hkex.com.hk/di/NSSelectCorp.aspx?src=MAIN",
+    "hkex_di_corporation_search": "https://di.hkex.com.hk/di/NSSrchCorp.aspx?g_lang=en&lang=EN&src=MAIN",
 }
 
 
@@ -80,6 +82,7 @@ def discover_html(url: str, data: bytes) -> dict[str, object]:
     soup = BeautifulSoup(text, "html.parser")
     links: list[str] = []
     scripts: list[str] = []
+    options: list[dict[str, str]] = []
     for node in soup.find_all(["a", "link"]):
         href = node.get("href")
         if href:
@@ -88,10 +91,15 @@ def discover_html(url: str, data: bytes) -> dict[str, object]:
         src = node.get("src")
         if src:
             scripts.append(urljoin(url, src))
+    for node in soup.find_all("option"):
+        value = str(node.get("value") or "").strip()
+        label = node.get_text(" ", strip=True)
+        if value or label:
+            options.append({"value": value, "label": label})
     patterns = sorted(
         set(
             re.findall(
-                r"https?://[^\"'<>\s]+|/[A-Za-z0-9_?&=./%+-]*(?:api|Api|API|GetData|list|List|security|Security)[A-Za-z0-9_?&=./%+-]*",
+                r"https?://[^\"'<>\s]+|/[A-Za-z0-9_?&=./%+-]*(?:api|Api|API|GetData|list|List|security|Security|corp|Corp)[A-Za-z0-9_?&=./%+-]*",
                 text,
             )
         )
@@ -100,7 +108,8 @@ def discover_html(url: str, data: bytes) -> dict[str, object]:
         "title": soup.title.get_text(" ", strip=True) if soup.title else "",
         "links": sorted(set(links)),
         "scripts": sorted(set(scripts)),
-        "endpoint_candidates": patterns[:500],
+        "options": options[:10000],
+        "endpoint_candidates": patterns[:1000],
     }
 
 
