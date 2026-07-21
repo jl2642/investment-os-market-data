@@ -59,6 +59,7 @@ jobs:
           scripts/run_fmdl5d_disclosure_financial_store.py
           scripts/fmdl5d_r1_disclosure.py
           scripts/fmdl5d_r11_prepare_disclosure.py
+          scripts/fmdl5d_r11_finalize_candidate.py
           scripts/fmdl5d_r1_shard.py
           scripts/fmdl5d_r1_aggregate.py
           scripts/publish_fmdl5d.py
@@ -160,6 +161,8 @@ jobs:
             --input outputs/fmdl5d/r1/input \
             --output outputs/fmdl5d/candidate \
             --expected-shards "$FMDL5D_R1_SHARD_COUNT"
+      - name: Finalize R1.1 candidate identity
+        run: python scripts/fmdl5d_r11_finalize_candidate.py --candidate outputs/fmdl5d/candidate
       - name: Schema and independent acceptance checks
         run: |
           python - <<'PY'
@@ -206,6 +209,7 @@ jobs:
           assert len(current) == quality["decision_grade_security_count"]
           assert registry["source_release_id"] == decision["source_release_id"]
           assert manifest["release_id"] == decision["release_id"]
+          assert manifest["canonical_sha256"] == decision["canonical_sha256"]
           assert decision["candidate_pool_mutation_count"] == 0
           assert decision["simulation_mutation_count"] == 0
           assert decision["real_account_mutation_count"] == 0
