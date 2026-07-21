@@ -5,18 +5,18 @@ on:
     paths:
       - "config/fmdl5b2_*.json"
       - "schemas/fmdl5b2_*.json"
-      - "scripts/run_fmdl5b2_issuer_semantics.py"
+      - "scripts/run_fmdl5b2_*.py"
       - "scripts/publish_fmdl5b2.py"
-      - "tests/test_fmdl5b2_issuer_semantics.py"
+      - "tests/test_fmdl5b2_*.py"
       - ".github/workflows/fmdl-5b2-issuer-semantics.yml"
   push:
     branches: [main]
     paths:
       - "config/fmdl5b2_*.json"
       - "schemas/fmdl5b2_*.json"
-      - "scripts/run_fmdl5b2_issuer_semantics.py"
+      - "scripts/run_fmdl5b2_*.py"
       - "scripts/publish_fmdl5b2.py"
-      - "tests/test_fmdl5b2_issuer_semantics.py"
+      - "tests/test_fmdl5b2_*.py"
       - ".github/workflows/fmdl-5b2-issuer-semantics.yml"
   workflow_dispatch:
 
@@ -36,13 +36,13 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install requests beautifulsoup4 pandas openpyxl pytest jsonschema
       - name: Unit tests
-        run: python -m pytest -q tests/test_fmdl5b2_issuer_semantics.py
+        run: python -m pytest -q tests/test_fmdl5b2_*.py
       - name: Compile checks
-        run: python -m py_compile scripts/run_fmdl5b2_issuer_semantics.py scripts/publish_fmdl5b2.py
+        run: python -m py_compile scripts/run_fmdl5b2_issuer_semantics.py scripts/run_fmdl5b2_candidate.py scripts/publish_fmdl5b2.py
       - name: Build official issuer and semantic layer
         run: |
           rm -rf outputs/fmdl5b2/candidate
-          python scripts/run_fmdl5b2_issuer_semantics.py --output outputs/fmdl5b2/candidate
+          PYTHONPATH=scripts python scripts/run_fmdl5b2_candidate.py --output outputs/fmdl5b2/candidate
       - name: Schema and independent acceptance checks
         run: |
           python - <<'PY'
@@ -65,6 +65,7 @@ jobs:
           assert decision['metrics']['dual_counter_count']>=30
           assert decision['metrics']['wvr_count']>=10
           assert decision['metrics']['etf_count']>=20
+          assert decision['metrics']['unresolved_issuer_count']<=5
           assert all(r['evidence_status']=='CONFIRMED' for r in relations)
           assert decision['candidate_pool_mutation_count']==decision['simulation_mutation_count']==decision['real_account_mutation_count']==decision['order_generation_count']==0
           assert decision['trade_authority']=='NONE'
