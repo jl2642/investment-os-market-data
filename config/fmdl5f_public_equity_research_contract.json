@@ -1,0 +1,99 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-5F",
+  "title": "Hong Kong Public Equity Research Adapter",
+  "business_timezone": "Asia/Hong_Kong",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL5E_LAST_SUCCESS.json",
+    "decision_path": "outputs/fmdl5e/current/FMDL5E_DECISION.json",
+    "required_status": "FMDL5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER_ACCEPTED",
+    "required_repair_round": "FMDL-5E-R1",
+    "required_next_gate": "FMDL-5F_PUBLIC_EQUITY_RESEARCH_ADAPTER"
+  },
+  "source_release_ids": {
+    "fmdl5c": "FMDL5C_20260721_52f17b755436",
+    "fmdl5d": "FMDL5D_20260721_0aee5654502c",
+    "fmdl5e": "FMDL5E_20260721_5fd74c13444b"
+  },
+  "inputs": {
+    "longlist": "outputs/fmdl5e/current/FMDL5E_RESEARCH_LONGLIST.csv",
+    "factor_table": "outputs/fmdl5e/current/FMDL5E_FACTOR_TABLE.parquet",
+    "fmdl5e_manifest": "outputs/fmdl5e/current/FMDL5E_MANIFEST.json",
+    "fmdl5d_decision": "outputs/fmdl5d/current/FMDL5D_DECISION.json",
+    "financial_current": "outputs/fmdl5d/current/FMDL5D_ISSUER_FINANCIAL_CURRENT.csv",
+    "official_disclosures": "outputs/fmdl5d/current/FMDL5D_HKEX_FINANCIAL_DISCLOSURES.csv",
+    "research_profiles": "config/fmdl5f_research_profiles.json"
+  },
+  "research_cohort": {
+    "active_priority": "A_IMMEDIATE_RESEARCH",
+    "required_registry_count": 100,
+    "formal_object_target": 20,
+    "minimum_formal_object_count": 15,
+    "maximum_formal_object_count": 20,
+    "minimum_total_source_references": 3,
+    "minimum_official_source_references": 1,
+    "minimum_official_sources_for_graduation": 2,
+    "minimum_prove_kill_checks": 4
+  },
+  "decision_policy": {
+    "allowed_decisions": ["GRADUATED", "SHADOW_TRACK", "DEFERRED", "REJECTED"],
+    "graduated_or_shadow_target_range": [5, 8],
+    "graduated_meaning": "RESEARCH_CASE_READY_ONLY_NOT_CANDIDATE_ADMISSION_NOT_TRADE_READY",
+    "shadow_meaning": "HIGH_EXPECTATIONS_OR_UNRESOLVED_RISK_MONITORING_ONLY",
+    "non_active_decision": "DEFERRED",
+    "non_active_stage": "SCREENED",
+    "raw_score_only_decision_prohibited": true,
+    "required_case_types": ["A_H", "HIGH_DIVIDEND", "WVR_OR_INTERNET", "CORPORATE_ACTION"]
+  },
+  "source_policy": {
+    "official_domain": "www1.hkexnews.hk",
+    "allowed_official_filing_types": ["ANNUAL_RESULTS", "INTERIM_RESULTS", "FINANCIAL_STATEMENTS", "PROFIT_WARNING"],
+    "preferred_title_tokens": ["RESULT", "FINANCIAL STATEMENT"],
+    "excluded_title_tokens": ["SUSTAINABILITY", "ENVIRONMENTAL", "ESG REPORT", "POLL RESULTS", "GENERAL MEETING", "ZOOM MEETING", "PRESENTATION"],
+    "future_sources_prohibited": true,
+    "internal_accepted_sources_are_evidence_not_public_disclosure": true
+  },
+  "state_boundary": {
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "order_generation_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "maximum_duplicate_registry_security_count": 0,
+    "maximum_duplicate_research_object_security_count": 0,
+    "maximum_missing_active_profile_count": 0,
+    "maximum_missing_evidence_binding_count": 0,
+    "maximum_source_requirement_error_count": 0,
+    "maximum_future_source_count": 0,
+    "maximum_raw_score_only_decision_count": 0,
+    "maximum_required_case_type_missing_count": 0,
+    "maximum_state_mutation_count": 0,
+    "maximum_trade_authority_error_count": 0,
+    "require_same_input_idempotence": true,
+    "require_independent_validation": true
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl5f/research/candidate",
+    "current_root": "outputs/fmdl5f/research/current",
+    "archive_root": "outputs/fmdl5f/research/archive",
+    "release_root": "datasets/fmdl5f/research/releases",
+    "last_success": "outputs/status/FMDL5F_LAST_SUCCESS.json"
+  },
+  "outputs": [
+    "FMDL5F_RESEARCH_PRIORITY_REGISTRY.csv",
+    "FMDL5F_RESEARCH_OBJECTS.jsonl",
+    "FMDL5F_RESEARCH_OBJECT_INDEX.csv",
+    "FMDL5F_SOURCE_LEDGER.csv",
+    "FMDL5F_GRADUATION_REGISTRY.csv",
+    "FMDL5F_CASE_ROUTE_COVERAGE.csv",
+    "FMDL5F_QUALITY_REPORT.json",
+    "FMDL5F_DECISION.json",
+    "FMDL5F_MANIFEST.json"
+  ],
+  "exit_status": "FMDL5F_PUBLIC_EQUITY_RESEARCH_ADAPTER_ACCEPTED",
+  "next_gate": "FMDL-5G_INVESTMENT_OS_INTEGRATION",
+  "authority": "HK_PUBLIC_EQUITY_RESEARCH_ROUTING_AND_GRADUATION_ONLY",
+  "trade_authority": "NONE"
+}
