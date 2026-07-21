@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl5f_research_object_v1.schema.json",
+  "title": "FMDL-5F Hong Kong Public Equity Research Object",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "program_id", "research_id", "as_of_date", "security_id", "stock_code_5d",
+    "official_security_name_en", "official_issuer_name_en", "screening_profile",
+    "source_release_ids", "screening_context", "case_types", "business_model",
+    "competitive_position", "owner_quality", "earnings_drivers", "catalysts", "risks",
+    "variant_perception", "why_now", "first_rejection", "what_would_make_investable",
+    "prove_kill_checks", "public_sources", "evidence_bindings", "research_decision",
+    "research_stage", "decision_basis", "raw_score_only_decision", "graduation_boundary",
+    "candidate_pool_admission", "simulation_admission", "real_account_admission",
+    "order_generation", "next_workflow", "authority", "trade_authority", "object_sha256"
+  ],
+  "properties": {
+    "program_id": {"const": "FMDL-5F"},
+    "research_id": {"type": "string", "pattern": "^HK-RESEARCH-[0-9]{5}-[0-9a-f]{12}$"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "security_id": {"type": "string", "pattern": "^HKEX:[0-9]{5}$"},
+    "stock_code_5d": {"type": "string", "pattern": "^[0-9]{5}$"},
+    "official_security_name_en": {"type": "string", "minLength": 1},
+    "official_issuer_name_en": {"type": "string", "minLength": 1},
+    "screening_profile": {
+      "enum": ["GENERAL_NON_FINANCIAL", "BANK", "INSURANCE", "SECURITIES_AND_BROKERAGE", "CONTROLLED_NON_FINANCIAL"]
+    },
+    "source_release_ids": {
+      "type": "object",
+      "required": ["fmdl5c", "fmdl5d", "fmdl5e"],
+      "properties": {
+        "fmdl5c": {"const": "FMDL5C_20260721_52f17b755436"},
+        "fmdl5d": {"const": "FMDL5D_20260721_0aee5654502c"},
+        "fmdl5e": {"const": "FMDL5E_20260721_5fd74c13444b"}
+      }
+    },
+    "case_types": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"enum": ["A_H", "HIGH_DIVIDEND", "WVR_OR_INTERNET", "CORPORATE_ACTION"]}
+    },
+    "business_model": {"type": "string", "minLength": 20},
+    "competitive_position": {"type": "string", "minLength": 20},
+    "owner_quality": {"type": "string", "minLength": 20},
+    "earnings_drivers": {"type": "array", "minItems": 2, "items": {"type": "string", "minLength": 2}},
+    "catalysts": {"type": "array", "minItems": 2, "items": {"type": "string", "minLength": 2}},
+    "risks": {"type": "array", "minItems": 2, "items": {"type": "string", "minLength": 2}},
+    "variant_perception": {"type": "string", "minLength": 20},
+    "why_now": {"type": "string", "minLength": 20},
+    "first_rejection": {"type": "string", "minLength": 20},
+    "what_would_make_investable": {"type": "string", "minLength": 20},
+    "prove_kill_checks": {"type": "array", "minItems": 4, "uniqueItems": true, "items": {"type": "string", "minLength": 5}},
+    "public_sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["source_type", "source_tier", "source_id", "title", "url", "available_from", "source_record_sha256"],
+        "properties": {
+          "source_tier": {"const": "OFFICIAL_PRIMARY"},
+          "url": {"type": "string", "pattern": "^https://www1\\.hkexnews\\.hk/"},
+          "available_from": {"type": "string", "format": "date-time"},
+          "source_record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "evidence_bindings": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["source_type", "source_id", "source_hash"],
+        "properties": {
+          "source_type": {"enum": ["FMDL5E_ACCEPTED_SCREENING_ROW", "FMDL5E_ACCEPTED_FACTOR_ROW", "FMDL5D_ACCEPTED_FINANCIAL_CURRENT"]},
+          "source_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "research_decision": {"enum": ["GRADUATED", "SHADOW_TRACK", "DEFERRED", "REJECTED"]},
+    "research_stage": {"enum": ["INVESTMENT_CASE_READY", "SHADOW_TRACK", "DEFERRED", "REJECTED"]},
+    "raw_score_only_decision": {"const": false},
+    "candidate_pool_admission": {"const": false},
+    "simulation_admission": {"const": false},
+    "real_account_admission": {"const": false},
+    "order_generation": {"const": false},
+    "next_workflow": {"const": "FMDL-5G_INVESTMENT_OS_INTEGRATION"},
+    "authority": {"const": "HK_PUBLIC_EQUITY_RESEARCH_ROUTING_AND_GRADUATION_ONLY"},
+    "trade_authority": {"const": "NONE"},
+    "object_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}
