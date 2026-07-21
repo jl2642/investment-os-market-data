@@ -43,11 +43,15 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
       - name: Unit tests
-        run: python -m pytest -q tests/test_fmdl5e_hk_factor_screening.py
+        run: >-
+          python -m pytest -q
+          tests/test_fmdl5e_hk_factor_screening.py
+          tests/test_fmdl5e_r1_hardening.py
       - name: Compile checks
         run: >-
           python -m py_compile
           scripts/run_fmdl5e_hk_factor_screening.py
+          scripts/run_fmdl5e_hk_factor_screening_r1.py
           scripts/validate_fmdl5e_candidate.py
           scripts/publish_fmdl5e.py
 
@@ -64,10 +68,10 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
-      - name: Build Hong Kong factor and screening candidate
+      - name: Build FMDL-5E-R1 Hong Kong factor and screening candidate
         run: |
           rm -rf outputs/fmdl5e/candidate
-          python scripts/run_fmdl5e_hk_factor_screening.py \
+          python scripts/run_fmdl5e_hk_factor_screening_r1.py \
             --repo-root . \
             --output outputs/fmdl5e/candidate
       - name: Independent candidate validation
@@ -75,19 +79,19 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: fmdl5e-hk-factor-screening-candidate
+          name: fmdl5e-r1-hk-factor-screening-candidate
           path: outputs/fmdl5e/candidate
           if-no-files-found: warn
           retention-days: 30
       - name: Publish Current Immutable Archive and Last-success
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
         run: python scripts/publish_fmdl5e.py --repo-root . --candidate outputs/fmdl5e/candidate
-      - name: Commit accepted FMDL-5E state
+      - name: Commit accepted FMDL-5E-R1 state
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add outputs/fmdl5e/current outputs/fmdl5e/archive datasets/fmdl5e/releases outputs/status/FMDL5E_LAST_SUCCESS.json
           git diff --cached --quiet && exit 0
-          git commit -m "data: publish FMDL-5E Hong Kong factor and screening adapter [skip ci]"
+          git commit -m "data: publish FMDL-5E-R1 Hong Kong factor and screening adapter [skip ci]"
           git push
