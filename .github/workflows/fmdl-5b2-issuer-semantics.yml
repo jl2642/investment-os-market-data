@@ -1,0 +1,90 @@
+name: FMDL 5B-2 Issuer and Cross-Market Semantics
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl5b2_*.json"
+      - "schemas/fmdl5b2_*.json"
+      - "scripts/run_fmdl5b2_issuer_semantics.py"
+      - "scripts/publish_fmdl5b2.py"
+      - "tests/test_fmdl5b2_issuer_semantics.py"
+      - ".github/workflows/fmdl-5b2-issuer-semantics.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl5b2_*.json"
+      - "schemas/fmdl5b2_*.json"
+      - "scripts/run_fmdl5b2_issuer_semantics.py"
+      - "scripts/publish_fmdl5b2.py"
+      - "tests/test_fmdl5b2_issuer_semantics.py"
+      - ".github/workflows/fmdl-5b2-issuer-semantics.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  issuer-semantics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install requests beautifulsoup4 pandas openpyxl pytest jsonschema
+      - name: Unit tests
+        run: python -m pytest -q tests/test_fmdl5b2_issuer_semantics.py
+      - name: Compile checks
+        run: python -m py_compile scripts/run_fmdl5b2_issuer_semantics.py scripts/publish_fmdl5b2.py
+      - name: Build official issuer and semantic layer
+        run: |
+          rm -rf outputs/fmdl5b2/candidate
+          python scripts/run_fmdl5b2_issuer_semantics.py --output outputs/fmdl5b2/candidate
+      - name: Schema and independent acceptance checks
+        run: |
+          python - <<'PY'
+          import csv,json,pathlib
+          from jsonschema import validate
+          p=pathlib.Path('outputs/fmdl5b2/candidate')
+          schema=json.load(open('schemas/fmdl5b2_semantic_overlay_v1.schema.json'))
+          rows=[]
+          for line in open(p/'FMDL5B2_SECURITY_SEMANTIC_OVERLAY.ndjson',encoding='utf-8'):
+              row=json.loads(line); validate(row,schema); rows.append(row)
+          decision=json.load(open(p/'FMDL5B2_DECISION.json'))
+          issuers=list(csv.DictReader(open(p/'FMDL5B2_ISSUER_MASTER.csv',encoding='utf-8-sig')))
+          bridge=list(csv.DictReader(open(p/'FMDL5B2_SECURITY_ISSUER_BRIDGE.csv',encoding='utf-8-sig')))
+          relations=list(csv.DictReader(open(p/'FMDL5B2_CROSS_MARKET_RELATIONSHIPS.csv',encoding='utf-8-sig')))
+          assert not decision['hard_failures']
+          assert len(rows)==644==len(bridge)==decision['metrics']['semantic_overlay_count']
+          assert len({r['security_id'] for r in rows})==644
+          assert len(issuers)==decision['metrics']['issuer_count']
+          assert decision['metrics']['official_di_issuer_mapping_coverage']>=0.95
+          assert decision['metrics']['dual_counter_count']>=30
+          assert decision['metrics']['wvr_count']>=10
+          assert decision['metrics']['etf_count']>=20
+          assert all(r['evidence_status']=='CONFIRMED' for r in relations)
+          assert decision['candidate_pool_mutation_count']==decision['simulation_mutation_count']==decision['real_account_mutation_count']==decision['order_generation_count']==0
+          assert decision['trade_authority']=='NONE'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl5b2-issuer-semantics-candidate
+          path: outputs/fmdl5b2/candidate
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: python scripts/publish_fmdl5b2.py --repo-root . --candidate outputs/fmdl5b2/candidate
+      - name: Commit accepted FMDL-5B-2 state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl5b2/current outputs/fmdl5b2/archive datasets/fmdl5b2/releases outputs/status/FMDL5B2_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-5B-2 issuer semantics [skip ci]"
+          git push
