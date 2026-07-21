@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl5c_latest_price_snapshot_v1.schema.json",
+  "title": "FMDL-5C HK Latest Price Snapshot Row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "security_id",
+    "stock_code_5d",
+    "provider_ticker",
+    "observation_date",
+    "open",
+    "high",
+    "low",
+    "close",
+    "adj_close",
+    "volume",
+    "turnover",
+    "currency",
+    "provider",
+    "source_tier",
+    "retrieved_at_utc",
+    "source_response_sha256"
+  ],
+  "properties": {
+    "security_id": {"type": "string", "pattern": "^HKEX:[0-9]{5}$"},
+    "stock_code_5d": {"type": "string", "pattern": "^[0-9]{5}$"},
+    "provider_ticker": {"type": "string", "minLength": 4},
+    "observation_date": {"type": "string", "format": "date"},
+    "open": {"type": ["number", "null"], "minimum": 0},
+    "high": {"type": ["number", "null"], "minimum": 0},
+    "low": {"type": ["number", "null"], "minimum": 0},
+    "close": {"type": "number", "exclusiveMinimum": 0},
+    "adj_close": {"type": ["number", "null"], "minimum": 0},
+    "volume": {"type": ["integer", "null"], "minimum": 0},
+    "turnover": {"type": ["number", "null"], "minimum": 0},
+    "currency": {"enum": ["HKD", "CNY", "CNH", "USD"]},
+    "provider": {"enum": ["YAHOO_CHART", "EASTMONEY_PUSH2HIS"]},
+    "source_tier": {"const": "UNOFFICIAL_FREE_VENDOR"},
+    "retrieved_at_utc": {"type": "string", "minLength": 20},
+    "source_response_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}
