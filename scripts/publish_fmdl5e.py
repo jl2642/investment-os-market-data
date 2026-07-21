@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 
 ACCEPTED_STATUS = "FMDL5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER_ACCEPTED"
+REPAIR_ROUND = "FMDL-5E-R1"
 
 
 def copy_tree(source: Path, target: Path) -> None:
@@ -26,6 +27,10 @@ def main() -> int:
     manifest = json.loads((candidate / "FMDL5E_MANIFEST.json").read_text(encoding="utf-8"))
     if decision.get("status") != ACCEPTED_STATUS:
         raise ValueError(f"CANDIDATE_NOT_ACCEPTED:{decision.get('status')}")
+    if decision.get("repair_round") != REPAIR_ROUND:
+        raise ValueError(f"REPAIR_ROUND_MISMATCH:{decision.get('repair_round')}")
+    if manifest.get("repair_round") != REPAIR_ROUND:
+        raise ValueError(f"MANIFEST_REPAIR_ROUND_MISMATCH:{manifest.get('repair_round')}")
     if decision.get("hard_failures"):
         raise ValueError(f"HARD_FAILURES:{decision['hard_failures']}")
     if decision.get("trade_authority") != "NONE":
@@ -34,6 +39,16 @@ def main() -> int:
         if decision.get(key) != 0:
             raise ValueError(f"STATE_MUTATION_VIOLATION:{key}")
 
+    metrics = decision["metrics"]
+    if metrics.get("fallback_longlist_count") != 0:
+        raise ValueError("FALLBACK_LONGLIST_NOT_ZERO")
+    if metrics.get("formal_sleeve_longlist_count") != 100:
+        raise ValueError("FORMAL_SLEEVE_LONGLIST_NOT_COMPLETE")
+    if metrics.get("profile_semantic_mismatch_count") != 0:
+        raise ValueError("PROFILE_SEMANTIC_MISMATCH")
+    if metrics.get("profile_anchor_mismatch_count") != 0:
+        raise ValueError("PROFILE_ANCHOR_MISMATCH")
+
     release_id = decision["release_id"]
     current = root / "outputs/fmdl5e/current"
     immutable = root / f"datasets/fmdl5e/releases/{release_id}"
@@ -41,9 +56,9 @@ def main() -> int:
     copy_tree(candidate, current)
     copy_tree(candidate, immutable)
     copy_tree(candidate, archive)
-    metrics = decision["metrics"]
     last_success = {
         "program_id": "FMDL-5E",
+        "repair_round": REPAIR_ROUND,
         "status": decision["status"],
         "release_id": release_id,
         "release_sequence": decision["release_sequence"],
@@ -55,6 +70,13 @@ def main() -> int:
         "factor_count": metrics["factor_count"],
         "longlist_count": metrics["longlist_count"],
         "priority_bucket_counts": metrics["priority_bucket_counts"],
+        "primary_sleeve_counts": metrics["primary_sleeve_counts"],
+        "distinct_formal_sleeve_security_count": metrics["distinct_formal_sleeve_security_count"],
+        "formal_sleeve_longlist_count": metrics["formal_sleeve_longlist_count"],
+        "fallback_longlist_count": metrics["fallback_longlist_count"],
+        "profile_override_count": metrics["profile_override_count"],
+        "profile_semantic_mismatch_count": metrics["profile_semantic_mismatch_count"],
+        "profile_anchor_mismatch_count": metrics["profile_anchor_mismatch_count"],
         "current_path": str(current.relative_to(root)),
         "immutable_path": str(immutable.relative_to(root)),
         "archive_path": str(archive.relative_to(root)),
