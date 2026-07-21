@@ -47,6 +47,7 @@ Official disclosure metadata does not validate every numeric value in a vendor e
 - `FMDL5D_FAILURES.csv`
 - `FMDL5D_QUALITY_REPORT.json`
 - `FMDL5D_SOURCE_REGISTRY.json`
+- `FMDL5D_R1_RUNTIME_REPORT.json`
 - `FMDL5D_DECISION.json`
 - `FMDL5D_MANIFEST.json`
 
@@ -59,18 +60,33 @@ Successful main publication creates immutable Release, Current, Archive and `out
 - no duplicate normalized fact keys;
 - no invalid numeric values published;
 - no decision-grade facts without official filing lineage;
+- no missing, duplicated or out-of-bound shard security result;
 - no failed candidate may replace Current or Last-success;
 - no candidate-pool, simulation, real-account or order mutation;
 - `trade_authority = NONE`.
 
-## 8. Controlled limitations
+## 8. FMDL-5D-R1 runtime repair
+
+The first monolithic full-universe candidate run reached the 120-minute workflow limit before acceptance. FMDL-5D-R1 repairs orchestration without weakening the data contract:
+
+- official HKEXnews disclosure scanning runs as an independent checkpoint;
+- 613 common-equity structured-financial requests are deterministically partitioned into 12 disjoint shards;
+- every shard persists raw facts, unmapped rows, per-security result metadata and a shard status report;
+- shard failures do not silently disappear and successful shard artifacts remain independently inspectable;
+- aggregation requires all expected shard artifacts, exact full-security coverage and no duplicate or unexpected security IDs;
+- aggregate acceptance retains the original coverage, PIT, lineage and zero-mutation gates;
+- the runtime report is included in the canonical manifest and the successful Last-success pointer records the repair round.
+
+The R1 repair changes execution topology only. It does not lower FMDL-5D acceptance thresholds or authorize FMDL-5E before formal publication.
+
+## 9. Controlled limitations
 
 - HKEXnews is authoritative for disclosure identity and timing, while structured financial values remain vendor-tier evidence until document-level numeric extraction is separately warranted.
 - Exact mapping intentionally leaves unsupported statement lines in the unmapped catalog.
 - Corporate-action values from FMDL-5C remain separate; issuer-level confirmation is linked through official filing metadata rather than overwritten.
 - FMDL-5D output is research evidence only. Factor computation and screening begin at FMDL-5E.
 
-## 9. Exit gate
+## 10. Exit gate
 
 Expected accepted status:
 
