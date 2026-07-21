@@ -1,0 +1,93 @@
+name: FMDL 5E Hong Kong Factor and Screening Adapter
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl5e_*.json"
+      - "schemas/fmdl5e_*.json"
+      - "scripts/run_fmdl5e_*.py"
+      - "scripts/validate_fmdl5e_*.py"
+      - "scripts/publish_fmdl5e.py"
+      - "tests/test_fmdl5e_*.py"
+      - "docs/FMDL-5E_*.md"
+      - ".github/workflows/fmdl-5e-hk-factor-screening.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl5e_*.json"
+      - "schemas/fmdl5e_*.json"
+      - "scripts/run_fmdl5e_*.py"
+      - "scripts/validate_fmdl5e_*.py"
+      - "scripts/publish_fmdl5e.py"
+      - "tests/test_fmdl5e_*.py"
+      - "docs/FMDL-5E_*.md"
+      - ".github/workflows/fmdl-5e-hk-factor-screening.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-5e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Unit tests
+        run: python -m pytest -q tests/test_fmdl5e_hk_factor_screening.py
+      - name: Compile checks
+        run: >-
+          python -m py_compile
+          scripts/run_fmdl5e_hk_factor_screening.py
+          scripts/validate_fmdl5e_candidate.py
+          scripts/publish_fmdl5e.py
+
+  build-and-accept:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build Hong Kong factor and screening candidate
+        run: |
+          rm -rf outputs/fmdl5e/candidate
+          python scripts/run_fmdl5e_hk_factor_screening.py \
+            --repo-root . \
+            --output outputs/fmdl5e/candidate
+      - name: Independent candidate validation
+        run: python scripts/validate_fmdl5e_candidate.py --repo-root . --candidate outputs/fmdl5e/candidate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl5e-hk-factor-screening-candidate
+          path: outputs/fmdl5e/candidate
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: python scripts/publish_fmdl5e.py --repo-root . --candidate outputs/fmdl5e/candidate
+      - name: Commit accepted FMDL-5E state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl5e/current outputs/fmdl5e/archive datasets/fmdl5e/releases outputs/status/FMDL5E_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-5E Hong Kong factor and screening adapter [skip ci]"
+          git push
