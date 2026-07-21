@@ -6,8 +6,10 @@ on:
       - "config/fmdl5c_*.json"
       - "schemas/fmdl5c_*.json"
       - "scripts/run_fmdl5c_market_store.py"
+      - "scripts/fmdl5c_apply_hkex_current_actions.py"
       - "scripts/publish_fmdl5c.py"
       - "tests/test_fmdl5c_market_store.py"
+      - "tests/test_fmdl5c_hkex_actions.py"
       - ".github/workflows/fmdl-5c-market-store.yml"
   push:
     branches: [main]
@@ -15,8 +17,10 @@ on:
       - "config/fmdl5c_*.json"
       - "schemas/fmdl5c_*.json"
       - "scripts/run_fmdl5c_market_store.py"
+      - "scripts/fmdl5c_apply_hkex_current_actions.py"
       - "scripts/publish_fmdl5c.py"
       - "tests/test_fmdl5c_market_store.py"
+      - "tests/test_fmdl5c_hkex_actions.py"
       - ".github/workflows/fmdl-5c-market-store.yml"
   workflow_dispatch:
 
@@ -36,15 +40,17 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install requests pandas pyarrow lxml html5lib beautifulsoup4 pytest jsonschema
       - name: Unit tests
-        run: python -m pytest -q tests/test_fmdl5c_market_store.py
+        run: python -m pytest -q tests/test_fmdl5c_market_store.py tests/test_fmdl5c_hkex_actions.py
       - name: Compile checks
-        run: python -m py_compile scripts/run_fmdl5c_market_store.py scripts/publish_fmdl5c.py
+        run: python -m py_compile scripts/run_fmdl5c_market_store.py scripts/fmdl5c_apply_hkex_current_actions.py scripts/publish_fmdl5c.py
       - name: Build full-universe market store
         env:
           FMDL5C_WORKERS: "10"
         run: |
           rm -rf outputs/fmdl5c/candidate
           python scripts/run_fmdl5c_market_store.py --output outputs/fmdl5c/candidate
+      - name: Apply official HKEX current corporate actions
+        run: python scripts/fmdl5c_apply_hkex_current_actions.py --candidate outputs/fmdl5c/candidate
       - name: Schema and independent acceptance checks
         run: |
           python - <<'PY'
@@ -58,8 +64,11 @@ jobs:
               row=json.loads(line); validator.validate(row); rows.append(row)
           decision=json.load(open(p/'FMDL5C_DECISION.json'))
           quality=json.load(open(p/'FMDL5C_QUALITY_REPORT.json'))
+          registry=json.load(open(p/'FMDL5C_SOURCE_REGISTRY.json'))
           manifest=json.load(open(p/'FMDL5C_MANIFEST.json'))
           fx=list(csv.DictReader(open(p/'FMDL5C_FX_DAILY.csv',encoding='utf-8-sig')))
+          actions=list(csv.DictReader(open(p/'FMDL5C_CORPORATE_ACTIONS.csv',encoding='utf-8-sig')))
+          official=[r for r in actions if r['provider']=='HKEX_NEWLY_LISTED_SECURITIES']
           assert not decision['hard_failures']
           assert decision['status']=='FMDL5C_PRICE_VOLUME_CORPORATE_ACTION_AND_FX_STORE_ACCEPTED'
           assert quality['source_security_count']==644
@@ -70,6 +79,9 @@ jobs:
           assert quality['invalid_price_count']==0
           assert quality['invalid_volume_count']==0
           assert len(fx)>=700
+          assert quality['hkex_official_current_action_count']==len(official)>0
+          assert quality['hkex_current_action_parse_warning']==''
+          assert registry['hkex_current_action_summary']['warning']==''
           assert manifest['release_id']==decision['release_id']
           assert decision['candidate_pool_mutation_count']==decision['simulation_mutation_count']==decision['real_account_mutation_count']==decision['order_generation_count']==0
           assert decision['trade_authority']=='NONE'
