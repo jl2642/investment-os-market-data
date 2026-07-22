@@ -70,10 +70,24 @@ def capture_routes(contract: dict[str, Any], cohort: list[dict[str, Any]], raw_r
             obs['canonical_security_id'] = sec
             observations.append(obs)
             payload_entries[f'market/{sec}/{route}.json'] = payload
-    for series, url in sorted(contract['fx_contract']['ecb_series'].items()):
-        obs, payload = _capture(session, 'ECB_' + series, url, timeout)
-        observations.append(obs)
-        payload_entries[f'fx/ECB_{series}.csv'] = payload
+    fx_contract = contract['fx_contract']
+    end_date = market['backfill_end_date']
+    ecb_jobs: list[tuple[str, str, int, str]] = []
+    for series, template in sorted(fx_contract['ecb_series'].items()):
+        for year in fx_contract['ecb_required_years']:
+            start = f'{year}-01-01'
+            end = end_date if year == int(end_date[:4]) else f'{year}-12-31'
+            route_id = f'ECB_{series}_{year}'
+            ecb_jobs.append((series, route_id, year, template.format(start=start, end=end)))
+    with ThreadPoolExecutor(max_workers=min(6, int(contract['network_policy']['max_parallel_requests']))) as pool:
+        futures = {pool.submit(_capture, session, route_id, url, timeout): (series, route_id, year) for series, route_id, year, url in ecb_jobs}
+        for future in as_completed(futures):
+            series, route_id, year = futures[future]
+            obs, payload = future.result()
+            obs['ecb_series'] = series
+            obs['calendar_year'] = year
+            observations.append(obs)
+            payload_entries[f'fx/ECB_{series}/{year}.csv'] = payload
     obs, payload = _capture(session, 'FRANKFURTER_USD_CNY_HKD', contract['fx_contract']['frankfurter_support'], timeout)
     observations.append(obs)
     payload_entries['fx/FRANKFURTER_USD_CNY_HKD.json'] = payload
