@@ -1,0 +1,178 @@
+{
+  "$id": "https://example.local/schemas/fmdl6c_benchmark_pool_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authority": {
+      "const": "TECHNICAL_BENCHMARK_POOL_ONLY"
+    },
+    "exit_status": {
+      "const": "FMDL6C_24_SECURITY_BENCHMARK_POOL_ACCEPTED"
+    },
+    "next_gate": {
+      "const": "FMDL-6D_MINIMAL_END_TO_END_DATA_CHAIN"
+    },
+    "pool": {
+      "items": {
+        "properties": {
+          "benchmark_only": {
+            "const": true
+          },
+          "canonical_listing_key": {
+            "type": "null"
+          },
+          "cik10": {
+            "pattern": "^[0-9]{10}$",
+            "type": "string"
+          },
+          "instrument_type": {
+            "enum": [
+              "COMMON_STOCK",
+              "ADR",
+              "FOREIGN_PRIVATE_ISSUER_ORDINARY",
+              "EQUITY_REIT_COMMON"
+            ]
+          },
+          "investment_eligible": {
+            "const": false
+          },
+          "listing_history_status": {
+            "const": "CURRENT_SNAPSHOT_ONLY"
+          },
+          "mic": {
+            "enum": [
+              "XNAS",
+              "XNYS",
+              "XASE"
+            ]
+          },
+          "pool_order": {
+            "maximum": 24,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "research_candidate": {
+            "const": false
+          },
+          "trade_authority": {
+            "const": "NONE"
+          }
+        },
+        "required": [
+          "pool_order",
+          "ticker",
+          "directory_symbol",
+          "name",
+          "cik10",
+          "mic",
+          "instrument_type",
+          "issuer_key",
+          "share_class_key",
+          "security_key",
+          "listing_observation_key",
+          "canonical_listing_key",
+          "listing_observed_active_on",
+          "listing_history_status",
+          "reporting_profile",
+          "case_tags",
+          "benchmark_only",
+          "investment_eligible",
+          "research_candidate",
+          "trade_authority"
+        ],
+        "type": "object"
+      },
+      "maxItems": 24,
+      "minItems": 24,
+      "type": "array"
+    },
+    "program_id": {
+      "const": "FMDL-6C"
+    },
+    "publication": {
+      "properties": {
+        "release_sequence": {
+          "const": 22
+        }
+      },
+      "type": "object"
+    },
+    "scope": {
+      "properties": {
+        "candidate_pool_integration_authorized": {
+          "const": false
+        },
+        "factor_or_screening_build_authorized": {
+          "const": false
+        },
+        "financial_fact_normalization_authorized": {
+          "const": false
+        },
+        "full_universe_build_authorized": {
+          "const": false
+        },
+        "historical_warehouse_build_authorized": {
+          "const": false
+        },
+        "mode": {
+          "const": "24_SECURITY_TECHNICAL_BENCHMARK_ONLY"
+        },
+        "order_generation_authorized": {
+          "const": false
+        },
+        "real_account_integration_authorized": {
+          "const": false
+        },
+        "research_longlist_authorized": {
+          "const": false
+        },
+        "security_count": {
+          "const": 24
+        },
+        "simulation_integration_authorized": {
+          "const": false
+        }
+      },
+      "required": [
+        "mode",
+        "security_count",
+        "full_universe_build_authorized",
+        "historical_warehouse_build_authorized",
+        "financial_fact_normalization_authorized",
+        "factor_or_screening_build_authorized",
+        "research_longlist_authorized",
+        "candidate_pool_integration_authorized",
+        "simulation_integration_authorized",
+        "real_account_integration_authorized",
+        "order_generation_authorized"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "const": "POOL_CONTRACT_CANDIDATE"
+    },
+    "trade_authority": {
+      "const": "NONE"
+    }
+  },
+  "required": [
+    "program_id",
+    "contract_version",
+    "status",
+    "authority",
+    "trade_authority",
+    "entry_gate",
+    "source_bindings",
+    "scope",
+    "pool_requirements",
+    "identity_policy",
+    "listing_validation",
+    "pool",
+    "acceptance_gates",
+    "publication",
+    "exit_status",
+    "next_gate"
+  ],
+  "title": "FMDL-6C 24-Security Technical Benchmark Pool",
+  "type": "object"
+}
