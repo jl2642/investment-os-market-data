@@ -1,0 +1,24 @@
+{
+  "activation_condition_for_full_build": "USER_GAINS_A_REAL_US_MARKET_INVESTMENT_CHANNEL_AND_EXPLICITLY_APPROVES_FULL_BUILD",
+  "benchmark_security_target": 24,
+  "candidate_pool_integration_authorized": false,
+  "full_history_backfill_authorized": false,
+  "full_universe_development_authorized": false,
+  "program_id": "FMDL-6",
+  "program_name": "US Equity Interface and Benchmark Pilot",
+  "required_outputs": [
+    "US_MARKET_IDENTITY_AND_SOURCE_CONTRACT",
+    "24_SECURITY_BENCHMARK_POOL",
+    "SMALL_SAMPLE_PRICE_AND_SEC_DISCLOSURE_SMOKE_TEST",
+    "DATA_COVERAGE_COST_AND_FAILURE_BENCHMARK",
+    "FUTURE_FULL_BUILD_DECISION_GATE"
+  ],
+  "required_source_interfaces": [
+    "SEC_EDGAR_COMPANY_FACTS_AND_SUBMISSIONS",
+    "US_EXCHANGE_SYMBOL_DIRECTORY_OR_OFFICIAL_REFERENCE",
+    "FREE_DAILY_MARKET_DATA_ADAPTER",
+    "CORPORATE_ACTION_AND_FX_INTERFACE"
+  ],
+  "scope_mode": "INTERFACE_AND_SMALL_BENCHMARK_ONLY",
+  "simulation_or_real_account_integration_authorized": false
+}
