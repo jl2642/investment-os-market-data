@@ -1,0 +1,69 @@
+name: FMDL 6X1-D Full Build Contract and FMDL-6X2 Handoff
+
+on:
+  pull_request:
+    paths:
+      - 'config/fmdl6x1d_full_build_contract.json'
+      - 'schemas/fmdl6x1d_full_build_contract_v1.schema.json'
+      - 'docs/FMDL-6X1-D*.md'
+      - 'scripts/validate_fmdl6x1d_contract.py'
+      - 'tests/test_fmdl6x1d_contract.py'
+      - '.github/workflows/fmdl-6x1d-full-build-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'config/fmdl6x1d_full_build_contract.json'
+      - 'schemas/fmdl6x1d_full_build_contract_v1.schema.json'
+      - 'docs/FMDL-6X1-D*.md'
+      - 'scripts/validate_fmdl6x1d_contract.py'
+      - 'tests/test_fmdl6x1d_contract.py'
+      - '.github/workflows/fmdl-6x1d-full-build-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x1d-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Contract regression tests
+        run: python -m unittest tests/test_fmdl6x1d_contract.py -v
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_fmdl6x1d_contract.py
+      - name: Validate contract
+        run: python scripts/validate_fmdl6x1d_contract.py validate
+
+  publish-accepted-contract:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Publish accepted Current immutable Release and Last-success
+        run: python scripts/validate_fmdl6x1d_contract.py publish --source-commit "${GITHUB_SHA}"
+      - name: Validate publication
+        run: python scripts/validate_fmdl6x1d_contract.py validate-publication
+      - name: Commit accepted FMDL-6X1-D state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl6x1d/current datasets/fmdl6x1d/releases outputs/status/FMDL6X1D_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X1-D full-build contract [skip ci]"
+          git push

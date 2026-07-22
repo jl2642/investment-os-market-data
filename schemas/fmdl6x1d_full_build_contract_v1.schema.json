@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fmdl6x1d_full_build_contract_v1.schema.json",
+  "title": "FMDL-6X1-D Full Build Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "status",
+    "authority",
+    "trade_authority",
+    "entry_gate",
+    "scope",
+    "full_build_domains",
+    "source_execution_contract",
+    "backfill_contract",
+    "storage_and_sharding",
+    "publication_and_recovery",
+    "quality_gates",
+    "cost_and_runtime_policy",
+    "fmdl6x2_fixed_execution_plan",
+    "fmdl6x2_entry_gates",
+    "handoff_assets_required",
+    "phase_exit",
+    "zero_mutation_proof"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X1-D"},
+    "status": {"enum": ["CONTRACT_CANDIDATE", "ACCEPTED"]},
+    "trade_authority": {"const": "NONE"},
+    "scope": {"type": "object"},
+    "fmdl6x2_fixed_execution_plan": {"type": "array", "minItems": 6, "maxItems": 6},
+    "handoff_assets_required": {"type": "array", "minItems": 7},
+    "phase_exit": {"type": "object"},
+    "zero_mutation_proof": {"type": "object"}
+  },
+  "additionalProperties": true
+}
