@@ -1,0 +1,47 @@
+{
+  "bundle_version": "1.0.0",
+  "captured_at": "2026-07-22T14:45:00Z",
+  "execution_environment": "CHATGPT_WEB_CONTROLLED_OFFICIAL_RETRIEVAL",
+  "files": {
+    "FMDL6X2E_FACTS.csv": {
+      "bytes": 8494,
+      "sha256": "a43b45f7be3db036587633080163a3b3b689502a93fe4f9088e0dfe443cc0de8"
+    },
+    "FMDL6X2E_FILINGS.csv": {
+      "bytes": 2488,
+      "sha256": "9f9478c96bea99f2a320f73be1e674c8156a5b5e1b4b5ff5b00bad4c82366346"
+    }
+  },
+  "github_hosted_probe": {
+    "all_routes_success": false,
+    "captured_at": "2026-07-22T14:38:34Z",
+    "execution_environment": "GITHUB_HOSTED_RUNNER_PROBE",
+    "observations": [
+      {
+        "http_status": 403,
+        "media_type": "text/html",
+        "official_source_url": "https://www.sec.gov/files/company_tickers_exchange.json",
+        "route_id": "SEC_COMPANY_TICKERS_EXCHANGE",
+        "success": false
+      },
+      {
+        "http_status": 403,
+        "media_type": "text/html",
+        "official_source_url": "https://www.sec.gov/Archives/edgar/daily-index/bulkdata/submissions.zip",
+        "route_id": "SEC_SUBMISSIONS_BULK_ZIP",
+        "success": false
+      },
+      {
+        "http_status": 403,
+        "media_type": "text/html",
+        "official_source_url": "https://www.sec.gov/Archives/edgar/daily-index/xbrl/companyfacts.zip",
+        "route_id": "SEC_COMPANYFACTS_BULK_ZIP",
+        "success": false
+      }
+    ]
+  },
+  "hash_scope": "NORMALIZED_OFFICIAL_EXTRACT_FILES_NOT_UPSTREAM_RAW_HTTP_BODY",
+  "phase_id": "FMDL-6X2-E",
+  "source_authority": "SEC_OFFICIAL",
+  "third_party_sec_proxy_used": false
+}
