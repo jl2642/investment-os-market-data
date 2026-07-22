@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["phase_id", "contract_version", "entry_gate", "market_contract", "fx_contract", "storage_contract", "trade_authority", "required_exit_status", "next_gate"],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X2-D"},
+    "trade_authority": {"const": "NONE"},
+    "required_exit_status": {"const": "FMDL6X2D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X2-E_SEC_FILINGS_AND_FINANCIAL_FACTS_STORE"},
+    "market_contract": {
+      "type": "object",
+      "required": ["backfill_start_date", "backfill_end_date", "route_1_template", "route_2_template", "market_data_grade", "universe_size_expected"]
+    },
+    "fx_contract": {"type": "object", "required": ["ecb_series", "derived_pairs", "primary_authority"]},
+    "storage_contract": {"type": "object", "required": ["release_sequence", "current_root", "release_root", "last_success", "last_known_good"]}
+  }
+}
