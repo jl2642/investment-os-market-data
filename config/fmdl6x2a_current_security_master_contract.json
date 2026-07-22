@@ -1,0 +1,135 @@
+{
+  "phase_id": "FMDL-6X2-A",
+  "phase_name": "Current Security Master Production",
+  "contract_version": "1.0.0",
+  "status": "PRODUCTION_CONTRACT_CANDIDATE",
+  "authority": "US_CURRENT_SECURITY_MASTER_PRODUCTION_ONLY",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X1_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-6X1-FINAL",
+    "required_release_id": "FMDL6X1_20260722_2e52bdfe0b87",
+    "required_status": "FMDL6X1_FINAL_ACCEPTED",
+    "required_release_sequence": 29,
+    "required_next_gate": "FMDL-6X2-A_CURRENT_SECURITY_MASTER_PRODUCTION",
+    "required_research_gate": "OPEN_FOR_FMDL6X2_DATA_PRODUCTION",
+    "required_brokerage_gate": "CLOSED_NO_CHANNEL",
+    "required_trade_authority": "NONE"
+  },
+  "scope": {
+    "current_security_master_production_authorized": true,
+    "issuer_resolution_authorized": false,
+    "historical_backfill_authorized": false,
+    "market_history_authorized": false,
+    "sec_fact_store_authorized": false,
+    "factor_or_screening_production_authorized": false,
+    "candidate_pool_integration_authorized": false,
+    "simulation_integration_authorized": false,
+    "real_account_integration_authorized": false,
+    "order_generation_authorized": false
+  },
+  "source_contract": {
+    "official_primary_first": true,
+    "silent_source_substitution_forbidden": true,
+    "raw_snapshot_required": true,
+    "routes": [
+      {
+        "route_id": "NASDAQ_TRADER_NASDAQLISTED",
+        "url": "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
+        "source_authority": "NASDAQ_OFFICIAL",
+        "source_format": "PIPE_TEXT",
+        "target_venue": "XNAS",
+        "required": true,
+        "expected_header": ["Symbol", "Security Name", "Market Category", "Test Issue", "Financial Status", "Round Lot Size", "ETF", "NextShares"]
+      },
+      {
+        "route_id": "NASDAQ_TRADER_OTHERLISTED",
+        "url": "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt",
+        "source_authority": "NASDAQ_OFFICIAL",
+        "source_format": "PIPE_TEXT",
+        "required": true,
+        "expected_header": ["ACT Symbol", "Security Name", "Exchange", "CQS Symbol", "ETF", "Round Lot Size", "Test Issue", "NASDAQ Symbol"]
+      }
+    ],
+    "otherlisted_exchange_map": {
+      "A": {"venue": "XASE", "target": true, "label": "NYSE American"},
+      "N": {"venue": "XNYS", "target": true, "label": "NYSE"},
+      "P": {"venue": "ARCX", "target": false, "label": "NYSE Arca"},
+      "Z": {"venue": "BATS", "target": false, "label": "Cboe BZX"},
+      "V": {"venue": "IEXG", "target": false, "label": "IEX"}
+    },
+    "target_venues": ["XNAS", "XNYS", "XASE"],
+    "footer_prefix": "File Creation Time:"
+  },
+  "record_contract": {
+    "canonical_security_id_issued_in_phase": false,
+    "ticker_or_exchange_may_be_used_as_immutable_identity": false,
+    "provisional_record_id_namespace": "FMDL6X2A_DIRECTORY_OBSERVATION",
+    "identity_resolution_status": "PENDING_FMDL6X2B",
+    "listing_effective_date_confidence": "OBSERVATION_ONLY",
+    "channel_status_default": "CHANNEL_ELIGIBILITY_PENDING",
+    "portfolio_status_default": "PORTFOLIO_ADMISSION_NOT_AUTHORIZED",
+    "target_row_dispositions": ["INCLUDED", "QUARANTINED"],
+    "non_target_row_disposition": "EXCLUDED",
+    "test_issue_retained_with_flag": true,
+    "preliminary_classification_rules": {
+      "ETF_Y": {"instrument_type": "ETF", "research_status": "REFERENCE_ONLY"},
+      "NEXTSHARES_Y": {"instrument_type": "NEXTSHARES", "research_status": "REFERENCE_ONLY"},
+      "TEST_ISSUE_Y": {"instrument_type": "TEST_ISSUE", "research_status": "EXCLUDED"},
+      "DEFAULT": {"instrument_type": "UNRESOLVED_EXCHANGE_LISTED_SECURITY", "research_status": "RESEARCH_REVIEW_REQUIRED"}
+    }
+  },
+  "storage_contract": {
+    "bucket_count": 64,
+    "shard_function": "SHA256_PROVISIONAL_SECURITY_RECORD_ID_MOD_64",
+    "venues": ["XNAS", "XNYS", "XASE"],
+    "all_venue_bucket_combinations_required": true,
+    "deterministic_zip_required": true,
+    "deterministic_gzip_required": true,
+    "candidate_root": "outputs/fmdl6x2a/candidate",
+    "work_root": "outputs/fmdl6x2a/work",
+    "acceptance_root": "outputs/fmdl6x2a/acceptance",
+    "current_root": "outputs/fmdl6x2/current/security_master",
+    "raw_root": "datasets/fmdl6x2/raw/nasdaq_trader",
+    "normalized_root": "datasets/fmdl6x2/normalized/security_master",
+    "release_root": "datasets/fmdl6x2/releases",
+    "archive_root": "outputs/fmdl6x2/archive",
+    "last_success_path": "outputs/status/FMDL6X2A_LAST_SUCCESS.json",
+    "lkg_path": "outputs/status/FMDL6X2_SECURITY_MASTER_LKG.json",
+    "release_sequence": 30
+  },
+  "quality_gates": {
+    "required_source_count": 2,
+    "both_sources_http_2xx": true,
+    "expected_headers_exact": true,
+    "one_footer_per_source": true,
+    "logical_source_row_accounting_percent": 100,
+    "zero_silent_row_drop": true,
+    "zero_duplicate_source_row_ids": true,
+    "zero_duplicate_provisional_security_record_ids": true,
+    "zero_duplicate_active_listing_keys": true,
+    "target_rows_included_or_quarantined": true,
+    "non_target_rows_excluded": true,
+    "all_unresolved_or_malformed_rows_quarantined": true,
+    "all_192_shards_manifested": true,
+    "same_input_replay_byte_identical": true,
+    "current_release_hash_parity": true,
+    "failed_run_preserves_current_and_lkg": true,
+    "zero_investment_state_mutations": true
+  },
+  "network_policy": {
+    "timeout_seconds": 45,
+    "max_attempts": 3,
+    "backoff_seconds": 2,
+    "user_agent": "InvestmentOS-FMDL6X2A/1.0 jl2642@users.noreply.github.com",
+    "max_payload_bytes_per_route": 10000000
+  },
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "required_exit_status": "FMDL6X2A_CURRENT_SECURITY_MASTER_PRODUCTION_ACCEPTED",
+  "next_gate": "FMDL-6X2-B_ISSUER_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES"
+}
