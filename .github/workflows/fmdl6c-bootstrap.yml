@@ -1,0 +1,42 @@
+name: FMDL 6C Bootstrap Materialization
+
+on:
+  push:
+    branches:
+      - fmdl-6c-24-security-benchmark-pool
+    paths:
+      - ".bootstrap/**"
+      - ".github/workflows/fmdl6c-bootstrap.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl6c-bootstrap-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Decode and extract prepared FMDL-6C payload
+        run: |
+          cat .bootstrap/fmdl6c_part_* > /tmp/fmdl6c_payload.b64
+          base64 -d /tmp/fmdl6c_payload.b64 > /tmp/fmdl6c_payload.tar.gz
+          tar -xzf /tmp/fmdl6c_payload.tar.gz -C .
+      - name: Remove one-time bootstrap assets
+        run: |
+          rm -rf .bootstrap
+          rm -f .github/workflows/fmdl6c-bootstrap.yml
+      - name: Commit materialized FMDL-6C implementation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "FMDL-6C: materialize 24-security benchmark pool"
+          git push
