@@ -1,0 +1,133 @@
+{
+  "acceptance_gates": {
+    "all_inherited_quarantine_rows_preserved": true,
+    "all_input_records_have_identity_lineage": true,
+    "all_listings_reference_existing_security": true,
+    "current_and_release_hash_parity_required": true,
+    "duplicate_canonical_listing_ids_allowed": 0,
+    "duplicate_canonical_security_ids_allowed": 0,
+    "duplicate_issuer_master_ids_allowed": 0,
+    "fuzzy_issuer_merges_allowed": 0,
+    "one_output_listing_per_input_security": true,
+    "same_input_replay_required": true,
+    "sec_cik_values_inferred_without_official_evidence_allowed": 0,
+    "trade_authority": "NONE"
+  },
+  "as_of_date": "2026-07-22",
+  "authority": "US_EQUITY_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES_ONLY",
+  "classification_contract": {
+    "adr_without_underlying_depositary_ratio_status": "RESEARCH_REVIEW_REQUIRED",
+    "core_equity_without_sec_profile_status": "RESEARCH_REVIEW_REQUIRED",
+    "explicit_name_rules_may_classify": [
+      "COMMON_EQUITY",
+      "ADR_OR_ADS",
+      "PREFERRED_EQUITY",
+      "WARRANT",
+      "RIGHT",
+      "COMPOSITE_UNIT",
+      "DEBT_SECURITY",
+      "CLOSED_END_FUND",
+      "PTP_MLP_UNIT",
+      "ROYALTY_TRUST_UNIT",
+      "SPAC_COMMON",
+      "REIT_COMMON_OR_BENEFICIAL"
+    ],
+    "name_only_fuzzy_business_model_inference_forbidden": true,
+    "official_etf_flag_has_priority": true,
+    "reference_instruments_excluded_from_issuer_factor_ranking": true,
+    "rule_version": "fmdl6x2b.classification.v1.0.0",
+    "special_profiles_excluded_from_standard_industrial_ranking": true,
+    "test_issue_excluded_but_retained": true
+  },
+  "contract_version": "1.0.0",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X2A_LAST_SUCCESS.json",
+    "required_next_gate": "FMDL-6X2-B_ISSUER_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES",
+    "required_phase_id": "FMDL-6X2-A",
+    "required_release_id": "FMDL6X2A_20260722_3d3768bf5492",
+    "required_release_sequence": 30,
+    "required_status": "FMDL6X2A_CURRENT_SECURITY_MASTER_PRODUCTION_ACCEPTED",
+    "required_trade_authority": "NONE"
+  },
+  "identity_contract": {
+    "canonical_id_status": "PROVISIONAL_DIRECTORY_DERIVED_MERGEABLE",
+    "cross_market_exact_name_groups_require_review": true,
+    "directory_derived_ids_are_mergeable": true,
+    "exact_normalized_directory_name_grouping_authorized": true,
+    "fuzzy_issuer_merge_authorized": false,
+    "identity_merge_policy": "ALIAS_AND_SUPERSESSION_NO_DESTRUCTIVE_REKEY",
+    "identity_model": [
+      "ISSUER",
+      "SHARE_CLASS",
+      "SECURITY",
+      "EFFECTIVE_DATED_LISTING"
+    ],
+    "sec_cik_may_be_inferred_without_official_evidence": false,
+    "sec_identity_completion_claim_forbidden_without_evidence": true,
+    "sec_official_evidence_optional_in_this_phase": true,
+    "ticker_or_exchange_may_be_used_as_immutable_identity": false,
+    "unresolved_or_conflicted_action": "REVIEW_QUEUE_OR_QUARANTINE"
+  },
+  "input_contract": {
+    "accepted_input_status": "FMDL6X2A_CURRENT_SECURITY_MASTER_PRODUCTION_ACCEPTED",
+    "current_security_master_root": "outputs/fmdl6x2/current/security_master",
+    "preserve_inherited_quarantine": true,
+    "required_files": [
+      "FMDL6X2A_DECISION.json",
+      "FMDL6X2A_MANIFEST.json",
+      "FMDL6X2A_QUALITY_REPORT.json",
+      "FMDL6X2A_SECURITY_MASTER_SHARDS.zip",
+      "FMDL6X2A_QUARANTINE.jsonl.gz"
+    ]
+  },
+  "next_gate": "FMDL-6X2-C_HISTORICAL_LISTING_AND_LIFECYCLE_BACKFILL",
+  "phase_id": "FMDL-6X2-B",
+  "phase_name": "Issuer Identity, Classification & Review Queues",
+  "required_exit_status": "FMDL6X2B_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES_ACCEPTED",
+  "review_queue_contract": {
+    "no_silent_queue_drop": true,
+    "required_queues": [
+      "ADR_UNDERLYING_DEPOSITARY_AND_RATIO_QUEUE",
+      "SPECIAL_INSTRUMENT_CLASSIFICATION_QUEUE",
+      "CLASSIFICATION_AMBIGUITY_QUEUE",
+      "SEC_OFFICIAL_IDENTITY_PENDING_QUEUE",
+      "CROSS_MARKET_ISSUER_REVIEW_QUEUE",
+      "INHERITED_SOURCE_SCOPE_QUARANTINE"
+    ]
+  },
+  "scope": {
+    "candidate_pool_integration_authorized": false,
+    "factor_or_screening_production_authorized": false,
+    "historical_listing_backfill_authorized": false,
+    "issuer_identity_classification_and_review_queues_authorized": true,
+    "market_history_production_authorized": false,
+    "order_generation_authorized": false,
+    "real_account_integration_authorized": false,
+    "sec_filings_or_financial_facts_store_authorized": false,
+    "simulation_integration_authorized": false
+  },
+  "status": "PRODUCTION_CONTRACT_CANDIDATE",
+  "storage_contract": {
+    "acceptance_root": "outputs/fmdl6x2b/acceptance",
+    "atomic_promotion_required": true,
+    "bucket_count": 64,
+    "candidate_root": "outputs/fmdl6x2b/candidate",
+    "canonical_serialization": "UTF8_STABLE_SORTED_JSON_AND_DETERMINISTIC_GZIP_ZIP",
+    "current_root": "outputs/fmdl6x2/current/identity",
+    "failed_run_may_replace_current": false,
+    "failed_run_may_replace_lkg": false,
+    "immutable_release_collision": "HARD_FAIL",
+    "last_known_good": "outputs/status/FMDL6X2_IDENTITY_LKG.json",
+    "last_success": "outputs/status/FMDL6X2B_LAST_SUCCESS.json",
+    "normalized_root": "datasets/fmdl6x2/normalized/identity/<release_id>",
+    "release_root": "datasets/fmdl6x2/releases/<release_id>/identity",
+    "release_sequence": 31
+  },
+  "trade_authority": "NONE",
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0
+  }
+}
