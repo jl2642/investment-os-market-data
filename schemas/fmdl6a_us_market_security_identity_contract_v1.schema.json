@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/fmdl6a_us_market_security_identity_contract_v1.schema.json",
+  "title": "FMDL-6A US Market Contract and Security Identity",
+  "type": "object",
+  "required": ["program_id", "contract_version", "status", "authority", "trade_authority", "entry_gate", "scope", "market_contract", "instrument_boundary", "identity_model", "source_authority_and_conflict_policy", "lifecycle_rules", "identity_case_fixtures", "required_record_fields", "acceptance_gates", "publication", "exit_status", "next_gate"],
+  "properties": {
+    "program_id": {"const": "FMDL-6A"},
+    "status": {"const": "CONTRACT_CANDIDATE"},
+    "trade_authority": {"const": "NONE"},
+    "scope": {
+      "type": "object",
+      "properties": {
+        "mode": {"const": "CONTRACT_AND_IDENTITY_ONLY"},
+        "benchmark_security_target_reserved_for_fmdl6c": {"const": 24},
+        "live_security_master_build_authorized": {"const": false},
+        "candidate_pool_integration_authorized": {"const": false},
+        "simulation_integration_authorized": {"const": false},
+        "real_account_integration_authorized": {"const": false},
+        "order_generation_authorized": {"const": false}
+      },
+      "required": ["mode", "benchmark_security_target_reserved_for_fmdl6c", "live_security_master_build_authorized", "candidate_pool_integration_authorized", "simulation_integration_authorized", "real_account_integration_authorized", "order_generation_authorized"]
+    },
+    "market_contract": {
+      "type": "object",
+      "properties": {
+        "current_pilot_venues": {"type": "array", "minItems": 3, "maxItems": 3, "uniqueItems": true},
+        "benchmark_pool_is_not_investable_universe": {"const": true},
+        "effective_dating_required": {"const": true},
+        "point_in_time_membership_required": {"const": true},
+        "otc_fallback_membership_forbidden": {"const": true}
+      },
+      "required": ["current_pilot_venues", "benchmark_pool_is_not_investable_universe", "effective_dating_required", "point_in_time_membership_required", "otc_fallback_membership_forbidden"]
+    },
+    "identity_model": {
+      "type": "object",
+      "properties": {
+        "layers": {"type": "array", "minItems": 4, "maxItems": 4, "uniqueItems": true},
+        "ticker_is_identity": {"const": false},
+        "exchange_is_identity": {"const": false},
+        "one_issuer_may_have_multiple_securities": {"const": true},
+        "one_security_may_have_multiple_effective_dated_listings": {"const": true}
+      },
+      "required": ["layers", "ticker_is_identity", "exchange_is_identity", "one_issuer_may_have_multiple_securities", "one_security_may_have_multiple_effective_dated_listings"]
+    },
+    "lifecycle_rules": {"type": "array", "minItems": 10, "maxItems": 10},
+    "identity_case_fixtures": {"type": "array", "minItems": 12, "maxItems": 12},
+    "exit_status": {"const": "FMDL6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK"}
+  },
+  "additionalProperties": true
+}
