@@ -1,0 +1,83 @@
+{
+  "phase_id": "FMDL-6X2-E",
+  "phase_name": "SEC Filings & Financial Facts Store",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "PRODUCTION_CONTRACT_CANDIDATE",
+  "authority": "SEC_OFFICIAL_FILINGS_AND_FACTS_ONLY",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X2D_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-6X2-D",
+    "required_release_id": "FMDL6X2D_20260722_632e61097490",
+    "required_release_sequence": 33,
+    "required_status": "FMDL6X2D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_ACCEPTED",
+    "required_next_gate": "FMDL-6X2-E_SEC_FILINGS_AND_FINANCIAL_FACTS_STORE",
+    "required_trade_authority": "NONE"
+  },
+  "scope": {
+    "sec_filings_and_financial_facts_authorized": true,
+    "factor_or_screening_production_authorized": false,
+    "candidate_pool_integration_authorized": false,
+    "simulation_integration_authorized": false,
+    "real_account_integration_authorized": false,
+    "order_generation_authorized": false
+  },
+  "source_contract": {
+    "accepted_authority": "SEC_OFFICIAL",
+    "github_hosted_direct_execution": "BLOCKED_BY_REPEATABLE_403",
+    "production_execution_environment": "CHATGPT_WEB_CONTROLLED_OFFICIAL_RETRIEVAL",
+    "third_party_sec_proxy_authorized": false,
+    "silent_source_substitution_forbidden": true,
+    "evidence_bundle_path": "evidence/fmdl6x2e/2026-07-22/FMDL6X2E_SEC_OFFICIAL_EVIDENCE.json",
+    "payload_hash_scope": "NORMALIZED_OFFICIAL_EXTRACT_NOT_UPSTREAM_RAW_HTTP_BODY"
+  },
+  "coverage_contract": {
+    "universe_issuer_count_expected": 7419,
+    "initial_filing_issuer_count": 6,
+    "initial_fact_issuer_count": 3,
+    "historical_target_start_date": "2009-01-01",
+    "full_universe_sec_store_claimed": false,
+    "missing_issuers_action": "BACKFILL_QUEUE",
+    "amendments_and_restated_accessions_must_remain_separate": true,
+    "missing_fact_neutral_fill_forbidden": true
+  },
+  "quality_contract": {
+    "accepted_data_grade": "DECISION_GRADE_OFFICIAL_SEC",
+    "minimum_filings": 6,
+    "minimum_fact_issuers": 3,
+    "minimum_facts": 25,
+    "duplicate_accessions_allowed": 0,
+    "duplicate_fact_keys_allowed": 0,
+    "unmapped_initial_evidence_allowed": 0,
+    "expected_shard_count": 2368,
+    "captured_input_replay_required": true,
+    "current_release_hash_parity_required": true
+  },
+  "storage_contract": {
+    "bucket_count": 64,
+    "filing_year_start": 2009,
+    "filing_year_end": 2026,
+    "candidate_root": "outputs/fmdl6x2e/candidate",
+    "acceptance_root": "outputs/fmdl6x2e/acceptance",
+    "current_root": "outputs/fmdl6x2/current/sec_filings_facts",
+    "release_root": "datasets/fmdl6x2/releases/<release_id>/sec_filings_facts",
+    "normalized_root": "datasets/fmdl6x2/normalized/sec_filings_facts/<release_id>",
+    "raw_root": "datasets/fmdl6x2/raw/sec_official/2026-07-22/<release_id>",
+    "archive_root": "outputs/fmdl6x2/archive",
+    "last_success": "outputs/status/FMDL6X2E_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6X2_SEC_FILINGS_FACTS_LKG.json",
+    "release_sequence": 34,
+    "atomic_promotion_required": true,
+    "failed_run_may_replace_current": false,
+    "failed_run_may_replace_lkg": false
+  },
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "required_exit_status": "FMDL6X2E_SEC_FILINGS_AND_FINANCIAL_FACTS_STORE_ACCEPTED",
+  "next_gate": "FMDL-6X2-FINAL_FULL_STORE_RECONCILIATION_AND_OPERATIONAL_ACCEPTANCE"
+}
