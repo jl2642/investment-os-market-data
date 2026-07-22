@@ -55,7 +55,11 @@ class MarketHistoryTests(unittest.TestCase):
             for route in ('YAHOO_QUERY1_CHART','YAHOO_QUERY2_CHART'):
                 payloads[f'market/{sid}/{route}.json']=yahoo_payload(sym)
                 observations.append({'canonical_security_id':sid,'route_id':route,'success':True,'http_status':200})
-        payloads['fx/ECB_USD_EUR.csv']=ecb_csv(1.1); payloads['fx/ECB_CNY_EUR.csv']=ecb_csv(7.7); payloads['fx/ECB_HKD_EUR.csv']=ecb_csv(8.5); payloads['fx/FRANKFURTER_USD_CNY_HKD.json']=b'{"base":"USD","rates":{"CNY":7.0,"HKD":7.8}}'
+        for series,mult in [('USD_EUR',1.1),('CNY_EUR',7.7),('HKD_EUR',8.5)]:
+            for year in range(2010,2027):
+                payloads[f'fx/ECB_{series}/{year}.csv']=ecb_csv(mult) if year == 2010 else b'TIME_PERIOD,OBS_VALUE\n'
+                observations.append({'route_id':f'ECB_{series}_{year}','ecb_series':series,'calendar_year':year,'success':True,'http_status':200})
+        payloads['fx/FRANKFURTER_USD_CNY_HKD.json']=b'{"base":"USD","rates":{"CNY":7.0,"HKD":7.8}}'
         (self.raw/'FMDL6X2D_RAW_PAYLOADS.zip').write_bytes(deterministic_zip(payloads))
         write_json(self.raw/'FMDL6X2D_ROUTE_OBSERVATIONS.json',{'phase_id':'FMDL-6X2-D','route_observations':observations})
         self.candidate=self.tmp/'outputs/fmdl6x2d/candidate'
@@ -85,7 +89,7 @@ class MarketHistoryTests(unittest.TestCase):
 
     def test_06_build_quality_and_grade(self):
         result=build_candidate(self.tmp,self.raw,self.candidate,'2026-07-22T14:00:00Z','TESTSHA')
-        self.assertEqual(result['quality']['quality_status'],'PASS'); self.assertFalse(result['coverage']['full_universe_market_history_claimed']); self.assertEqual(result['quality']['accepted_dual_route_securities'],64)
+        self.assertEqual(result['quality']['quality_status'],'PASS'); self.assertFalse(result['coverage']['full_universe_market_history_claimed']); self.assertEqual(result['quality']['accepted_dual_route_securities'],64); self.assertEqual(result['quality']['ecb_annual_chunks_observed'],51); self.assertEqual(result['quality']['ecb_annual_chunk_failures'],0)
 
     def test_07_captured_input_replay(self):
         build_candidate(self.tmp,self.raw,self.candidate,'2026-07-22T14:00:00Z','TESTSHA')
