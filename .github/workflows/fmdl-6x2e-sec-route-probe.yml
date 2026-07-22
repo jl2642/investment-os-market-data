@@ -1,0 +1,31 @@
+name: FMDL 6X2-E SEC Official Route Probe
+
+on:
+  pull_request:
+    paths:
+      - "scripts/fmdl6x2e_sec_route_probe.py"
+      - ".github/workflows/fmdl-6x2e-sec-route-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install requests
+      - name: Probe official SEC routes
+        run: python scripts/fmdl6x2e_sec_route_probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x2e-sec-route-probe
+          path: outputs/fmdl6x2e/probe
+          if-no-files-found: error
+          retention-days: 30
