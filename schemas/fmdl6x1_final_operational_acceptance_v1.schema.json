@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x1-final-operational-acceptance-v1.schema.json",
+  "title": "FMDL-6X1 Final Operational Acceptance Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "status",
+    "trade_authority",
+    "input_release_chain",
+    "dual_gate_final_state",
+    "source_and_cost_binding",
+    "failure_injection_scenarios",
+    "fmdl6x2_entry",
+    "scope",
+    "zero_mutation_gate",
+    "publication",
+    "required_exit_status",
+    "next_gate"
+  ],
+  "properties": {
+    "phase_id": {
+      "const": "FMDL-6X1-FINAL"
+    },
+    "status": {
+      "const": "FINAL_ACCEPTANCE_CONTRACT_CANDIDATE"
+    },
+    "trade_authority": {
+      "const": "NONE"
+    },
+    "input_release_chain": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": [
+          "phase_id",
+          "pointer_path",
+          "required_release_id",
+          "required_status",
+          "required_next_gate",
+          "current_asset",
+          "release_asset"
+        ]
+      }
+    },
+    "dual_gate_final_state": {
+      "type": "object",
+      "required": [
+        "research_production_gate",
+        "brokerage_real_account_gate"
+      ],
+      "properties": {
+        "research_production_gate": {
+          "const": "OPEN_FOR_FMDL6X2_DATA_PRODUCTION"
+        },
+        "brokerage_real_account_gate": {
+          "const": "CLOSED_NO_CHANNEL"
+        }
+      }
+    },
+    "failure_injection_scenarios": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "uniqueItems": true
+    },
+    "fmdl6x2_entry": {
+      "type": "object",
+      "required": [
+        "next_gate",
+        "required_final_status",
+        "required_phase_count",
+        "required_phase_sequence",
+        "required_handoff_assets"
+      ],
+      "properties": {
+        "required_phase_count": {
+          "const": 6
+        },
+        "required_final_status": {
+          "const": "FMDL6X1_FINAL_ACCEPTED"
+        },
+        "next_gate": {
+          "const": "FMDL-6X2-A_CURRENT_SECURITY_MASTER_PRODUCTION"
+        }
+      }
+    },
+    "required_exit_status": {
+      "const": "FMDL6X1_FINAL_ACCEPTED"
+    },
+    "next_gate": {
+      "const": "FMDL-6X2-A_CURRENT_SECURITY_MASTER_PRODUCTION"
+    }
+  },
+  "additionalProperties": true
+}
