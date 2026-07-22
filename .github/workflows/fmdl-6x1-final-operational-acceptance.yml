@@ -37,7 +37,18 @@ jobs:
         with:
           python-version: "3.12"
       - name: Contract regression tests
-        run: python -m unittest -v tests/test_fmdl6x1_final.py
+        shell: bash
+        run: |
+          mkdir -p outputs/fmdl6x1/final_diagnostic
+          set -o pipefail
+          python -m unittest -v tests/test_fmdl6x1_final.py 2>&1 | tee outputs/fmdl6x1/final_diagnostic/unit-test.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x1-final-quality-diagnostic
+          path: outputs/fmdl6x1/final_diagnostic/unit-test.log
+          if-no-files-found: warn
+          retention-days: 7
       - name: Compile validator
         run: python -m py_compile scripts/validate_fmdl6x1_final.py tests/test_fmdl6x1_final.py
       - name: Validate frozen final contract
