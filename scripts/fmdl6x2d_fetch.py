@@ -21,7 +21,7 @@ def make_session(contract: dict[str, Any]) -> requests.Session:
     retry = Retry(total=retries, connect=retries, read=retries, status=retries, backoff_factor=float(policy['backoff_seconds']), status_forcelist=(429,500,502,503,504), allowed_methods=frozenset({'GET'}), raise_on_status=False)
     session = requests.Session()
     session.mount('https://', HTTPAdapter(max_retries=retry, pool_connections=32, pool_maxsize=32))
-    session.headers.update({'User-Agent': os.getenv('FMDL_USER_AGENT', 'InvestmentOS-FMDL6X2D/1.0 jl2642@users.noreply.github.com'), 'Accept': 'application/json,text/csv,*/*', 'Accept-Encoding': 'gzip, deflate'})
+    session.headers.update({'User-Agent': os.getenv('FMDL_USER_AGENT', 'InvestmentOS-FMDL6X2D/1.0 jl2642@users.noreply.github.com'), 'Accept': 'application/json,text/csv,application/zip,*/*', 'Accept-Encoding': 'gzip, deflate'})
     return session
 
 
@@ -71,24 +71,10 @@ def capture_routes(contract: dict[str, Any], cohort: list[dict[str, Any]], raw_r
             observations.append(obs)
             payload_entries[f'market/{sec}/{route}.json'] = payload
     fx_contract = contract['fx_contract']
-    end_date = market['backfill_end_date']
-    ecb_jobs: list[tuple[str, str, int, str]] = []
-    for series, template in sorted(fx_contract['ecb_series'].items()):
-        for year in fx_contract['ecb_required_years']:
-            start = f'{year}-01-01'
-            end = end_date if year == int(end_date[:4]) else f'{year}-12-31'
-            route_id = f'ECB_{series}_{year}'
-            ecb_jobs.append((series, route_id, year, template.format(start=start, end=end)))
-    with ThreadPoolExecutor(max_workers=min(6, int(contract['network_policy']['max_parallel_requests']))) as pool:
-        futures = {pool.submit(_capture, session, route_id, url, timeout): (series, route_id, year) for series, route_id, year, url in ecb_jobs}
-        for future in as_completed(futures):
-            series, route_id, year = futures[future]
-            obs, payload = future.result()
-            obs['ecb_series'] = series
-            obs['calendar_year'] = year
-            observations.append(obs)
-            payload_entries[f'fx/ECB_{series}/{year}.csv'] = payload
-    obs, payload = _capture(session, 'FRANKFURTER_USD_CNY_HKD', contract['fx_contract']['frankfurter_support'], timeout)
+    obs, payload = _capture(session, 'ECB_EUROFXREF_HIST_ZIP', fx_contract['ecb_history_zip'], timeout)
+    observations.append(obs)
+    payload_entries['fx/ECB_EUROFXREF_HIST.zip'] = payload
+    obs, payload = _capture(session, 'FRANKFURTER_USD_CNY_HKD', fx_contract['frankfurter_support'], timeout)
     observations.append(obs)
     payload_entries['fx/FRANKFURTER_USD_CNY_HKD.json'] = payload
     observations.sort(key=lambda x: (x.get('canonical_security_id',''), x['route_id']))
