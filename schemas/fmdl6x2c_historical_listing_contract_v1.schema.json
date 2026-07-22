@@ -1,0 +1,83 @@
+{
+  "$id": "fmdl6x2c_historical_listing_contract_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "contract_version": {
+      "const": "1.0.0"
+    },
+    "history_contract": {
+      "properties": {
+        "current_only_survivorship_backfill_forbidden": {
+          "const": true
+        },
+        "effective_date_confidence_grades": {
+          "const": [
+            "OFFICIAL_EFFECTIVE_DATE",
+            "BOUNDED_EVENT_WINDOW",
+            "OBSERVATION_ONLY"
+          ]
+        },
+        "observation_date_may_be_represented_as_exact_effective_date": {
+          "const": false
+        },
+        "target_start_date": {
+          "const": "2005-01-01"
+        },
+        "universal_zero_cost_official_route_confirmed": {
+          "const": false
+        }
+      },
+      "required": [
+        "target_start_date",
+        "effective_date_confidence_grades",
+        "current_only_survivorship_backfill_forbidden",
+        "observation_date_may_be_represented_as_exact_effective_date",
+        "universal_zero_cost_official_route_confirmed"
+      ],
+      "type": "object"
+    },
+    "next_gate": {
+      "const": "FMDL-6X2-D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_STORE"
+    },
+    "phase_id": {
+      "const": "FMDL-6X2-C"
+    },
+    "required_exit_status": {
+      "const": "FMDL6X2C_HISTORICAL_LISTING_AND_LIFECYCLE_BACKFILL_ACCEPTED"
+    },
+    "storage_contract": {
+      "properties": {
+        "bucket_count": {
+          "const": 64
+        },
+        "release_sequence": {
+          "const": 32
+        }
+      },
+      "required": [
+        "bucket_count",
+        "release_sequence"
+      ],
+      "type": "object"
+    },
+    "trade_authority": {
+      "const": "NONE"
+    }
+  },
+  "required": [
+    "contract_version",
+    "phase_id",
+    "entry_gate",
+    "history_contract",
+    "input_contract",
+    "event_contract",
+    "review_queue_contract",
+    "storage_contract",
+    "required_exit_status",
+    "next_gate",
+    "trade_authority",
+    "zero_mutation_gate"
+  ],
+  "type": "object"
+}
