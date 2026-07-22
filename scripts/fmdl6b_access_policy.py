@@ -102,7 +102,6 @@ def controlled_normalize_observations(contract: dict[str, Any], raw: dict[str, A
         "capability_summary": {
             "sec_identity_and_submissions": all(route_id in successful for route_id in SEC_REQUIRED_ROUTES[:2]),
             "sec_companyfacts": SEC_REQUIRED_ROUTES[2] in successful,
-            "sec_official_external_execution_route_required": sec_hosted_runner_blocked,
             "current_security_directory": directory_ok,
             "daily_ohlcv": daily_ok,
             "corporate_actions": corporate_action_ok,
