@@ -1,0 +1,51 @@
+{
+  "decision_grade_claimed_in_fmdl6_0": false,
+  "interfaces": [
+    {
+      "decision_grade_claim_deferred_to": "FMDL-6B",
+      "interface_id": "SEC_EDGAR_IDENTITY_AND_SUBMISSIONS",
+      "primary_source_family": "SEC_DATA_SEC_GOV",
+      "required_endpoints_or_artifacts": [
+        "COMPANY_TICKERS_OR_OFFICIAL_ISSUER_REFERENCE",
+        "SUBMISSIONS_JSON",
+        "FILING_INDEX_AND_PRIMARY_DOCUMENT_METADATA"
+      ]
+    },
+    {
+      "decision_grade_claim_deferred_to": "FMDL-6D_AND_FMDL-6E",
+      "interface_id": "SEC_EDGAR_COMPANY_FACTS_AND_XBRL",
+      "primary_source_family": "SEC_DATA_SEC_GOV",
+      "required_endpoints_or_artifacts": [
+        "COMPANYFACTS_JSON",
+        "COMPANYCONCEPT_OR_XBRL_FACTS_WHEN_REQUIRED",
+        "FILING_ACCESSION_AND_ACCEPTANCE_TIMESTAMP"
+      ]
+    },
+    {
+      "decision_grade_claim_deferred_to": "FMDL-6B",
+      "interface_id": "US_EXCHANGE_SECURITY_DIRECTORY",
+      "primary_source_family": "OFFICIAL_US_EXCHANGE_OR_REGULATORY_REFERENCE",
+      "required_endpoints_or_artifacts": [
+        "LISTED_SYMBOL_DIRECTORY",
+        "EXCHANGE_AND_INSTRUMENT_TYPE",
+        "EFFECTIVE_DATE_OR_RETRIEVAL_TIMESTAMP"
+      ]
+    },
+    {
+      "decision_grade_claim_deferred_to": "FMDL-6B_AND_FMDL-6D",
+      "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
+      "primary_source_family": "FREE_OR_FREE_TIER_MARKET_DATA_WITH_EXPLICIT_FALLBACKS",
+      "required_endpoints_or_artifacts": [
+        "DAILY_OHLCV",
+        "SPLIT_AND_DIVIDEND_EVENTS",
+        "USD_CNY_AND_USD_HKD_FX_INTERFACE"
+      ]
+    }
+  ],
+  "next_source_gate": "FMDL-6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK",
+  "official_primary_sources_first": true,
+  "program_id": "FMDL-6-0",
+  "release_id": "FMDL6_0_20260722_b63e9fb88a33",
+  "status": "INTERFACES_DEFINED_BENCHMARK_PENDING_FMDL6B",
+  "trade_authority": "NONE"
+}
