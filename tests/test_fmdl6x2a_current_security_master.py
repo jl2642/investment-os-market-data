@@ -3,11 +3,13 @@ from __future__ import annotations
 import importlib.util
 import json
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "fmdl6x2a_current_security_master.py"
+sys.path.insert(0, str(MODULE_PATH.parent))
 SPEC = importlib.util.spec_from_file_location("fmdl6x2a", MODULE_PATH)
 mod = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
