@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["phase_id", "contract_version", "entry_gate", "source_contract", "coverage_contract", "quality_contract", "storage_contract", "trade_authority", "required_exit_status", "next_gate"],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X2-E"},
+    "trade_authority": {"const": "NONE"},
+    "required_exit_status": {"const": "FMDL6X2E_SEC_FILINGS_AND_FINANCIAL_FACTS_STORE_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X2-FINAL_FULL_STORE_RECONCILIATION_AND_OPERATIONAL_ACCEPTANCE"},
+    "source_contract": {"type": "object", "required": ["accepted_authority", "production_execution_environment", "third_party_sec_proxy_authorized", "evidence_bundle_path"]},
+    "storage_contract": {"type": "object", "required": ["bucket_count", "release_sequence", "current_root", "last_success", "last_known_good"]}
+  }
+}

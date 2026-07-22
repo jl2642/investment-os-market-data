@@ -1,0 +1,102 @@
+name: FMDL 6X2-E SEC Filings and Financial Facts
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x2e_*.json"
+      - "schemas/fmdl6x2e_*.json"
+      - "scripts/fmdl6x2e_*.py"
+      - "tests/test_fmdl6x2e_*.py"
+      - "docs/FMDL-6X2-E*.md"
+      - "evidence/fmdl6x2e/**"
+      - ".github/workflows/fmdl-6x2e-*.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x2e_*.json"
+      - "schemas/fmdl6x2e_*.json"
+      - "scripts/fmdl6x2e_*.py"
+      - "tests/test_fmdl6x2e_*.py"
+      - "docs/FMDL-6X2-E*.md"
+      - "evidence/fmdl6x2e/**"
+      - ".github/workflows/fmdl-6x2e-*.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Contract and SEC store regression tests
+        run: PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x2e_sec_store.py
+      - name: Compile producer and probe modules
+        run: python -m py_compile scripts/fmdl6x2e_sec_store.py scripts/fmdl6x2e_sec_route_probe.py tests/test_fmdl6x2e_sec_store.py
+      - name: Validate frozen production contract
+        run: PYTHONPATH=scripts python scripts/fmdl6x2e_sec_store.py validate-contract --repo-root .
+      - name: Validate controlled SEC route state
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('evidence/fmdl6x2e/2026-07-22/FMDL6X2E_SEC_OFFICIAL_EVIDENCE.json')
+          v=json.loads(p.read_text())
+          o=v['github_hosted_probe']['observations']
+          assert len(o)==3 and all(x['http_status']==403 and not x['success'] for x in o)
+          assert v['source_authority']=='SEC_OFFICIAL'
+          assert v['third_party_sec_proxy_used'] is False
+          print('controlled SEC 403 evidence gate PASS')
+          PY
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Freeze run timestamp
+        run: echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+      - name: Build SEC filings and facts candidate
+        run: |
+          rm -rf outputs/fmdl6x2e/candidate outputs/fmdl6x2e/candidate_replay outputs/fmdl6x2e/acceptance
+          PYTHONPATH=scripts python scripts/fmdl6x2e_sec_store.py build --repo-root . --candidate outputs/fmdl6x2e/candidate --accepted-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA"
+      - name: Independent captured-input replay
+        run: PYTHONPATH=scripts python scripts/fmdl6x2e_sec_store.py validate-candidate --repo-root . --candidate outputs/fmdl6x2e/candidate --accepted-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA" --acceptance outputs/fmdl6x2e/acceptance/FMDL6X2E_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x2e-sec-filings-facts-candidate
+          path: |
+            outputs/fmdl6x2e/candidate
+            outputs/fmdl6x2e/acceptance
+            evidence/fmdl6x2e/2026-07-22
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release normalized raw and pointers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: PYTHONPATH=scripts python scripts/fmdl6x2e_sec_store.py publish --repo-root . --candidate outputs/fmdl6x2e/candidate --published-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA"
+      - name: Commit accepted FMDL-6X2-E state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A outputs/fmdl6x2/current/sec_filings_facts datasets/fmdl6x2/releases datasets/fmdl6x2/normalized/sec_filings_facts datasets/fmdl6x2/raw/sec_official outputs/status/FMDL6X2E_LAST_SUCCESS.json outputs/status/FMDL6X2_SEC_FILINGS_FACTS_LKG.json
+          if [ -d outputs/fmdl6x2/archive ]; then git add -A outputs/fmdl6x2/archive; fi
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X2-E SEC filings and facts [skip ci]"
+          git push
