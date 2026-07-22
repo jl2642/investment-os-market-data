@@ -1,0 +1,207 @@
+{
+  "all_expected_failures_detected": true,
+  "detected_count": 16,
+  "false_negative_count": 0,
+  "injection_count": 16,
+  "injections": [
+    {
+      "detected_codes": [
+        "CHAIN_MARKET_LINK:UEC",
+        "MARKET_SECURITY_COUNT",
+        "MARKET_SECURITY_KEY_SET",
+        "MARKET_TOTAL_DAILY"
+      ],
+      "expected_codes": [
+        "MARKET_SECURITY_COUNT"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "MISSING_MARKET_SECURITY",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "MARKET_DATES:AAPL",
+        "MARKET_TOTAL_DAILY"
+      ],
+      "expected_codes": [
+        "MARKET_DATES:AAPL"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "DUPLICATE_MARKET_DATE",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "MARKET_OHLC:AAPL"
+      ],
+      "expected_codes": [
+        "MARKET_OHLC:AAPL"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "NULL_MARKET_CLOSE",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "MARKET_VOLUME:AAPL"
+      ],
+      "expected_codes": [
+        "MARKET_VOLUME:AAPL"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "NEGATIVE_MARKET_VOLUME",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "MARKET_SECURITY_KEY_SET"
+      ],
+      "expected_codes": [
+        "MARKET_SECURITY_KEY_SET"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "MARKET_SECURITY_KEY_MISMATCH",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "MARKET_SOURCE_LINEAGE:AAPL"
+      ],
+      "expected_codes": [
+        "MARKET_SOURCE_LINEAGE:AAPL"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "SOURCE_PAYLOAD_HASH_CORRUPTION",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "FX_RATE:USD/CNY"
+      ],
+      "expected_codes": [
+        "FX_RATE:USD/CNY"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "NEGATIVE_FX_RATE",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "FX_DATES:USD/CNY"
+      ],
+      "expected_codes": [
+        "FX_DATES:USD/CNY"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "DUPLICATE_FX_DATE",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "FINANCIAL_ACCESSION"
+      ],
+      "expected_codes": [
+        "FINANCIAL_ACCESSION"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "MISSING_FINANCIAL_ACCESSION",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "CHAIN_FINANCIAL_LINK:AAPL",
+        "FINANCIAL_FACT_KEY_UNIQUE"
+      ],
+      "expected_codes": [
+        "FINANCIAL_FACT_KEY_UNIQUE"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "DUPLICATE_FINANCIAL_FACT_KEY",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "CHAIN_MARKET_LINK:AAPL"
+      ],
+      "expected_codes": [
+        "CHAIN_MARKET_LINK:AAPL"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "CHAIN_MARKET_LINK_BREAK",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "LOOKAHEAD_AUTHORITY"
+      ],
+      "expected_codes": [
+        "LOOKAHEAD_AUTHORITY"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "LOOKAHEAD_AUTHORITY_LEAK",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "MANIFEST_HASH:FMDL6D_MARKET_STORE.json"
+      ],
+      "expected_codes": [
+        "MANIFEST_HASH:FMDL6D_MARKET_STORE.json"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "MANIFEST_HASH_MISMATCH",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "AUTHORITY:FMDL6D_DECISION.json"
+      ],
+      "expected_codes": [
+        "AUTHORITY:FMDL6D_DECISION.json"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "TRADE_AUTHORITY_ESCALATION",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "STATE_MUTATION:CANDIDATE_POOL"
+      ],
+      "expected_codes": [
+        "STATE_MUTATION:CANDIDATE_POOL"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "CANDIDATE_POOL_MUTATION_ATTEMPT",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    },
+    {
+      "detected_codes": [
+        "SOURCE_COUNT"
+      ],
+      "expected_codes": [
+        "SOURCE_COUNT"
+      ],
+      "expected_detected": true,
+      "false_negative": false,
+      "injection_id": "SOURCE_REGISTRY_ROW_LOSS",
+      "mutation_scope": "DEEP_COPY_ONLY"
+    }
+  ],
+  "program_id": "FMDL-6E",
+  "trade_authority": "NONE"
+}
