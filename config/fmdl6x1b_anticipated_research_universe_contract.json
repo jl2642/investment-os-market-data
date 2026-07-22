@@ -1,0 +1,266 @@
+{
+  "phase_id": "FMDL-6X1-B",
+  "phase_name": "Anticipated Research Universe & Instrument Boundary",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "CONTRACT_CANDIDATE",
+  "authority": "US_EQUITY_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY_ONLY",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X1A_LAST_SUCCESS.json",
+    "required_release_id": "FMDL6X1A_20260722_795fcd84ed00",
+    "required_status": "FMDL6X1A_EXISTING_PILOT_AUDIT_AND_DUAL_ACTIVATION_CONTRACT_ACCEPTED",
+    "required_next_gate": "FMDL-6X1-B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY"
+  },
+  "scope": {
+    "mode": "CONTRACT_AND_BOUNDARY_ONLY",
+    "live_security_master_build_authorized": false,
+    "historical_backfill_authorized": false,
+    "source_route_revalidation_authorized": false,
+    "factor_or_screening_production_authorized": false,
+    "candidate_pool_integration_authorized": false,
+    "simulation_integration_authorized": false,
+    "real_account_integration_authorized": false,
+    "order_generation_authorized": false
+  },
+  "venue_boundary": {
+    "included_primary_venues": ["XNYS", "XNAS", "XASE"],
+    "included_listing_scope": "EXCHANGE_LISTED_SECURITIES_OBSERVED_IN_OFFICIAL_CURRENT_OR_HISTORICAL_DIRECTORIES",
+    "otc_included": false,
+    "non_us_local_exchange_listings_included": false,
+    "venue_expansion_requires_change_control": true,
+    "listing_history_required": true,
+    "active_and_inactive_identity_history_required": true
+  },
+  "universe_layers": {
+    "security_master_universe": {
+      "purpose": "CLASSIFY_ALL_TARGET_VENUE_SECURITY_ROWS_AND_PRESERVE_POINT_IN_TIME_IDENTITY_HISTORY",
+      "membership_filter": "VENUE_AND_OFFICIAL_DIRECTORY_MEMBERSHIP_ONLY",
+      "price_market_cap_liquidity_or_profitability_filters_forbidden": true,
+      "excluded_instruments_retained_as_classified_records": true,
+      "delisted_and_acquired_history_retained": true
+    },
+    "issuer_research_universe": {
+      "purpose": "DEFINE_SECURITIES_ELIGIBLE_FOR_ISSUER_LEVEL_FUNDAMENTAL_RESEARCH_OR_CONTROLLED_SPECIAL_PROFILE_RESEARCH",
+      "derived_from_security_master": true,
+      "automatic_portfolio_admission": false,
+      "automatic_candidate_admission": false
+    },
+    "reference_and_hedge_universe": {
+      "purpose": "SEPARATE_NON_ISSUER_INSTRUMENTS_USED_FOR_BENCHMARK_HEDGE_OR_MARKET_CONTEXT",
+      "included_in_core_issuer_factor_ranking": false
+    }
+  },
+  "orthogonal_status_dimensions": {
+    "research_statuses": [
+      "RESEARCH_ELIGIBLE_CORE",
+      "RESEARCH_ELIGIBLE_SPECIAL_PROFILE",
+      "RESEARCH_REVIEW_REQUIRED",
+      "REFERENCE_ONLY",
+      "EXCLUDED",
+      "QUARANTINED"
+    ],
+    "channel_status_default": "CHANNEL_ELIGIBILITY_PENDING",
+    "channel_statuses": [
+      "CHANNEL_ELIGIBILITY_PENDING",
+      "CHANNEL_ELIGIBLE",
+      "CHANNEL_INELIGIBLE",
+      "CHANNEL_RESTRICTION_UNKNOWN"
+    ],
+    "portfolio_status_default": "PORTFOLIO_ADMISSION_NOT_AUTHORIZED",
+    "portfolio_statuses": [
+      "PORTFOLIO_ADMISSION_NOT_AUTHORIZED",
+      "CANDIDATE_REVIEW_REQUIRED",
+      "SIMULATION_REVIEW_REQUIRED",
+      "REAL_ACCOUNT_REVIEW_REQUIRED"
+    ],
+    "listing_lifecycle_statuses": [
+      "ACTIVE_LISTED",
+      "SUSPENDED",
+      "DELISTED",
+      "ACQUIRED_OR_MERGED",
+      "TICKER_CHANGED",
+      "EXCHANGE_TRANSFERRED",
+      "BANKRUPTCY_OR_LIQUIDATION",
+      "DATA_INCOMPLETE",
+      "QUARANTINED"
+    ],
+    "research_and_channel_status_must_not_be_conflated": true
+  },
+  "instrument_classification": {
+    "core_research_eligible": [
+      {
+        "instrument_type": "US_DOMESTIC_COMMON_STOCK",
+        "research_status": "RESEARCH_ELIGIBLE_CORE",
+        "required_profile": "US_GAAP_DOMESTIC_ISSUER",
+        "conditions": ["TARGET_VENUE_LISTED", "COMMON_EQUITY", "SEC_REPORTING_LINEAGE_RESOLVED"]
+      },
+      {
+        "instrument_type": "FOREIGN_PRIVATE_ISSUER_ORDINARY_SHARE",
+        "research_status": "RESEARCH_ELIGIBLE_CORE",
+        "required_profile": "FPI_IFRS_OR_US_GAAP",
+        "conditions": ["TARGET_VENUE_LISTED", "ORDINARY_EQUITY", "FPI_REPORTING_LINEAGE_RESOLVED"]
+      },
+      {
+        "instrument_type": "SPONSORED_EXCHANGE_LISTED_ADR",
+        "research_status": "RESEARCH_ELIGIBLE_CORE",
+        "required_profile": "ADR_WITH_UNDERLYING_AND_RATIO",
+        "conditions": ["TARGET_VENUE_LISTED", "SPONSORED_PROGRAM", "UNDERLYING_ISSUER_LINK_RESOLVED", "ADR_RATIO_RESOLVED"]
+      },
+      {
+        "instrument_type": "EQUITY_REIT_COMMON_STOCK",
+        "research_status": "RESEARCH_ELIGIBLE_CORE",
+        "required_profile": "EQUITY_REIT_FFO_AFFO_NAV",
+        "conditions": ["TARGET_VENUE_LISTED", "COMMON_EQUITY", "EQUITY_REIT_CLASSIFICATION_RESOLVED"]
+      }
+    ],
+    "special_profile_research_eligible": [
+      {
+        "instrument_type": "BDC_COMMON_STOCK",
+        "research_status": "RESEARCH_ELIGIBLE_SPECIAL_PROFILE",
+        "required_profile": "BDC_NAV_NII_CREDIT_QUALITY",
+        "standard_industrial_factor_ranking_allowed": false
+      },
+      {
+        "instrument_type": "PUBLICLY_TRADED_PARTNERSHIP_OR_MLP_COMMON_UNIT",
+        "research_status": "RESEARCH_ELIGIBLE_SPECIAL_PROFILE",
+        "required_profile": "PTP_MLP_DCF_DISTRIBUTION_TAX",
+        "standard_industrial_factor_ranking_allowed": false
+      },
+      {
+        "instrument_type": "ROYALTY_TRUST_OR_PASS_THROUGH_UNIT",
+        "research_status": "RESEARCH_ELIGIBLE_SPECIAL_PROFILE",
+        "required_profile": "RESERVE_DECLINE_DISTRIBUTION_TAX",
+        "standard_industrial_factor_ranking_allowed": false
+      },
+      {
+        "instrument_type": "PRE_BUSINESS_COMBINATION_SPAC_COMMON_SHARE",
+        "research_status": "RESEARCH_ELIGIBLE_SPECIAL_PROFILE",
+        "required_profile": "EVENT_DRIVEN_SPAC_TRUST_REDEMPTION",
+        "standard_industrial_factor_ranking_allowed": false,
+        "candidate_admission_allowed_in_this_phase": false
+      }
+    ],
+    "reference_only": ["ETF", "EXCHANGE_TRADED_NOTE", "CLOSED_END_FUND", "INDEX_OR_MARKET_PROXY"],
+    "explicitly_excluded": [
+      "MUTUAL_FUND",
+      "PREFERRED_STOCK",
+      "DEPOSITARY_PREFERRED",
+      "CORPORATE_BOND",
+      "CONVERTIBLE_DEBT",
+      "WARRANT",
+      "RIGHT",
+      "OPTION",
+      "FUTURE",
+      "STRUCTURED_NOTE",
+      "SPAC_UNIT",
+      "SPAC_WARRANT",
+      "OTC_SECURITY",
+      "UNSPONSORED_OTC_ADR",
+      "CRYPTO_ASSET"
+    ],
+    "quarantine_cases": [
+      "UNKNOWN_OR_AMBIGUOUS_INSTRUMENT_TYPE",
+      "UNRESOLVED_ADR_UNDERLYING",
+      "UNRESOLVED_ADR_RATIO",
+      "CONFLICTING_OFFICIAL_CLASSIFICATION",
+      "STAPLED_OR_COMPOSITE_SECURITY",
+      "MISSING_ISSUER_OR_LISTING_IDENTITY",
+      "SHELL_OR_REVERSE_MERGER_STATUS_UNRESOLVED"
+    ],
+    "unknown_instrument_policy": "QUARANTINE_NOT_DEFAULT_INCLUDE"
+  },
+  "profile_routing": {
+    "US_GAAP_DOMESTIC_ISSUER": {
+      "primary_forms": ["10-K", "10-Q", "8-K"],
+      "standard_factor_engine_allowed_after_fmdl6x3": true
+    },
+    "FPI_IFRS_OR_US_GAAP": {
+      "primary_forms": ["20-F", "40-F", "6-K"],
+      "accounting_standard_field_required": true
+    },
+    "ADR_WITH_UNDERLYING_AND_RATIO": {
+      "depositary_bank_and_ratio_required": true,
+      "underlying_security_or_issuer_link_required": true,
+      "duplicate_exposure_review_required": true
+    },
+    "EQUITY_REIT_FFO_AFFO_NAV": {
+      "ffo_affo_nav_and_same_store_profile_required": true,
+      "industrial_free_cash_flow_ranking_forbidden": true
+    },
+    "BDC_NAV_NII_CREDIT_QUALITY": {
+      "nav_nii_nonaccrual_and_leverage_profile_required": true,
+      "standard_industrial_factor_ranking_forbidden": true
+    },
+    "PTP_MLP_DCF_DISTRIBUTION_TAX": {
+      "dcf_coverage_leverage_and_tax_profile_required": true,
+      "standard_industrial_factor_ranking_forbidden": true
+    },
+    "RESERVE_DECLINE_DISTRIBUTION_TAX": {
+      "reserve_decline_distribution_and_tax_profile_required": true,
+      "standard_industrial_factor_ranking_forbidden": true
+    },
+    "EVENT_DRIVEN_SPAC_TRUST_REDEMPTION": {
+      "trust_value_deadline_redemption_and_sponsor_profile_required": true,
+      "standard_fundamental_factor_ranking_forbidden": true
+    }
+  },
+  "identity_and_duplicate_rules": {
+    "reuse_fmdl6a_identity_model": true,
+    "issuer_share_class_security_listing_layers_required": true,
+    "ticker_is_identity": false,
+    "exchange_is_identity": false,
+    "one_issuer_multiple_share_classes_preserved": true,
+    "one_security_multiple_effective_dated_listings_preserved": true,
+    "adr_is_distinct_security_from_underlying": true,
+    "adr_underlying_cross_link_required": true,
+    "cross_market_same_issuer_group_required": true,
+    "a_h_adr_duplicate_exposure_review_required": true,
+    "issuer_level_research_object_preferred_over_duplicate_listing_objects": true
+  },
+  "point_in_time_and_survivorship_rules": {
+    "membership_effective_from_and_effective_to_required": true,
+    "retrieval_timestamp_required": true,
+    "source_lineage_required": true,
+    "delisted_acquired_and_renamed_securities_retained": true,
+    "current_constituent_only_backfill_forbidden": true,
+    "future_information_in_historical_membership_forbidden": true,
+    "liquidity_price_market_cap_and_financial_filters_deferred_to_fmdl6x3": true
+  },
+  "classification_authority": {
+    "source_priority": [
+      "OFFICIAL_EXCHANGE_OR_REGULATORY_DIRECTORY",
+      "SEC_SUBMISSIONS_AND_FILING_SECURITY_DESCRIPTION",
+      "ISSUER_OR_DEPOSITARY_OFFICIAL_DISCLOSURE",
+      "EXPLICITLY_APPROVED_FALLBACK"
+    ],
+    "silent_source_substitution_forbidden": true,
+    "fallback_may_create_decision_grade_classification": false,
+    "unresolved_conflict_action": "QUARANTINE"
+  },
+  "downstream_handoff_requirements": {
+    "fmdl6x1c_must_revalidate": [
+      "OFFICIAL_VENUE_DIRECTORY_ROUTES",
+      "SEC_IDENTITY_AND_FILING_ROUTES",
+      "ADR_UNDERLYING_AND_RATIO_EVIDENCE_ROUTE",
+      "HISTORICAL_DELISTED_AND_SYMBOL_CHANGE_ROUTE",
+      "REFERENCE_AND_HEDGE_INSTRUMENT_CLASSIFICATION_ROUTE"
+    ],
+    "fmdl6x1d_must_freeze": [
+      "FULL_SECURITY_MASTER_BUILD_SCOPE",
+      "HISTORICAL_MEMBERSHIP_AND_IDENTITY_BACKFILL",
+      "PROFILE_ROUTING_IMPLEMENTATION",
+      "QUARANTINE_AND_MANUAL_REVIEW_QUEUE",
+      "STORAGE_SHARDING_RELEASE_ARCHIVE_AND_LKG"
+    ],
+    "next_gate": "FMDL-6X1-C_SOURCE_COST_AND_EXECUTION_ROUTE_REVALIDATION"
+  },
+  "zero_mutation_proof": {
+    "live_security_rows_created": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "required_exit_status": "FMDL6X1B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY_ACCEPTED"
+}
