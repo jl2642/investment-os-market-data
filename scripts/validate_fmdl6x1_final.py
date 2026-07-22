@@ -152,7 +152,8 @@ def evaluate_model(contract: dict[str, Any], model: dict[str, Any]) -> list[str]
     handoff_sequence = [x.get("phase_id") for x in handoff.get("fixed_execution_plan", [])]
     if handoff_sequence != contract["fmdl6x2_entry"]["required_phase_sequence"]:
         errors.append("HANDOFF_SEQUENCE")
-    if handoff.get("post_final_entry_gate") != contract["next_gate"]:
+    handoff_post_final_gate = handoff.get("post_final_entry_gate") or d.get("phase_exit", {}).get("post_final_entry_gate")
+    if handoff_post_final_gate != contract["next_gate"]:
         errors.append("HANDOFF_POST_FINAL_GATE")
     if handoff.get("fmdl6x2_phase_count") not in (None, 6):
         errors.append("HANDOFF_PHASE_COUNT")
