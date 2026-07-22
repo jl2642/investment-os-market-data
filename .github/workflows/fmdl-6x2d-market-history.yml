@@ -1,0 +1,88 @@
+name: FMDL 6X2-D Market History Corporate Actions and FX
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x2d_*.json"
+      - "schemas/fmdl6x2d_*.json"
+      - "scripts/fmdl6x2d_*.py"
+      - "tests/test_fmdl6x2d_*.py"
+      - "docs/FMDL-6X2-D*.md"
+      - ".github/workflows/fmdl-6x2d-market-history.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x2d_*.json"
+      - "schemas/fmdl6x2d_*.json"
+      - "scripts/fmdl6x2d_*.py"
+      - "tests/test_fmdl6x2d_*.py"
+      - "docs/FMDL-6X2-D*.md"
+      - ".github/workflows/fmdl-6x2d-market-history.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x2d-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python -m pip install requests
+      - name: Contract and market regression tests
+        run: PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x2d_market_history.py
+      - name: Compile producer modules
+        run: python -m py_compile scripts/fmdl6x2d_common.py scripts/fmdl6x2d_fetch.py scripts/fmdl6x2d_market.py scripts/fmdl6x2d_candidate.py scripts/fmdl6x2d_market_history.py tests/test_fmdl6x2d_market_history.py
+      - name: Validate frozen production contract
+        run: PYTHONPATH=scripts python scripts/fmdl6x2d_market_history.py validate-contract --repo-root .
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python -m pip install requests
+      - name: Freeze run timestamp
+        run: echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+      - name: Capture approved routes once
+        run: |
+          rm -rf outputs/fmdl6x2d/raw outputs/fmdl6x2d/candidate outputs/fmdl6x2d/candidate_replay outputs/fmdl6x2d/acceptance
+          PYTHONPATH=scripts python scripts/fmdl6x2d_market_history.py capture --repo-root . --raw outputs/fmdl6x2d/raw
+      - name: Build market reference candidate
+        run: PYTHONPATH=scripts python scripts/fmdl6x2d_market_history.py build --repo-root . --raw outputs/fmdl6x2d/raw --candidate outputs/fmdl6x2d/candidate --accepted-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA"
+      - name: Independent captured-input replay
+        run: PYTHONPATH=scripts python scripts/fmdl6x2d_market_history.py validate-candidate --repo-root . --raw outputs/fmdl6x2d/raw --candidate outputs/fmdl6x2d/candidate --accepted-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA" --acceptance outputs/fmdl6x2d/acceptance/FMDL6X2D_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x2d-market-reference-candidate
+          path: |
+            outputs/fmdl6x2d/raw
+            outputs/fmdl6x2d/candidate
+            outputs/fmdl6x2d/acceptance
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release normalized raw and pointers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: PYTHONPATH=scripts python scripts/fmdl6x2d_market_history.py publish --repo-root . --raw outputs/fmdl6x2d/raw --candidate outputs/fmdl6x2d/candidate --published-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA"
+      - name: Commit accepted FMDL-6X2-D state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A outputs/fmdl6x2/current/market_reference datasets/fmdl6x2/releases datasets/fmdl6x2/normalized/market_reference datasets/fmdl6x2/raw/market_reference outputs/status/FMDL6X2D_LAST_SUCCESS.json outputs/status/FMDL6X2_MARKET_REFERENCE_LKG.json
+          if [ -d outputs/fmdl6x2/archive ]; then git add -A outputs/fmdl6x2/archive; fi
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X2-D market reference [skip ci]"
+          git push
