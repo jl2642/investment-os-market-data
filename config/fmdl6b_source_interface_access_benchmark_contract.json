@@ -1,0 +1,205 @@
+{
+  "program_id": "FMDL-6B",
+  "program_name": "US Source Interface & Access Benchmark",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "BENCHMARK_CONTRACT_CANDIDATE",
+  "authority": "SOURCE_INTERFACE_ACCESS_AND_ROUTE_DECISION_ONLY",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6A_LAST_SUCCESS.json",
+    "required_release_id": "FMDL6A_20260722_99a4726452b1",
+    "required_status": "FMDL6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY_ACCEPTED",
+    "required_next_gate": "FMDL-6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK"
+  },
+  "scope": {
+    "mode": "LIVE_INTERFACE_BENCHMARK_ONLY",
+    "benchmark_security_target_reserved_for_fmdl6c": 24,
+    "live_security_master_build_authorized": false,
+    "full_history_build_authorized": false,
+    "financial_fact_store_build_authorized": false,
+    "factor_or_screening_build_authorized": false,
+    "candidate_pool_integration_authorized": false,
+    "simulation_integration_authorized": false,
+    "real_account_integration_authorized": false,
+    "order_generation_authorized": false
+  },
+  "network_policy": {
+    "timeout_seconds": 25,
+    "max_attempts": 3,
+    "backoff_seconds": 2,
+    "max_total_runtime_seconds": 600,
+    "sec_user_agent_env": "SEC_USER_AGENT",
+    "default_sec_user_agent": "InvestmentOS-FMDL6B/1.0 jl2642@users.noreply.github.com",
+    "official_primary_first": true,
+    "failed_route_may_replace_last_known_good": false,
+    "missing_data_neutral_fill_forbidden": true
+  },
+  "probe_window": {
+    "market_start_date": "2025-01-01",
+    "market_end_date": "2026-07-22",
+    "fx_start_date": "2026-06-01",
+    "reference_ticker": "AAPL",
+    "reference_cik10": "0000320193"
+  },
+  "interfaces": [
+    {
+      "interface_id": "SEC_EDGAR_IDENTITY_AND_SUBMISSIONS",
+      "minimum_route_successes": 2,
+      "required_capabilities": ["CIK_TICKER_EXCHANGE_REFERENCE", "SUBMISSIONS_HISTORY", "ACCESSION_AND_ACCEPTANCE_METADATA"],
+      "routes": [
+        {
+          "route_id": "SEC_COMPANY_TICKERS_EXCHANGE",
+          "source_authority": "SEC_OFFICIAL",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "endpoint": "https://www.sec.gov/files/company_tickers_exchange.json",
+          "required": true,
+          "parser": "SEC_COMPANY_TICKERS_EXCHANGE"
+        },
+        {
+          "route_id": "SEC_SUBMISSIONS_AAPL",
+          "source_authority": "SEC_OFFICIAL",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "endpoint": "https://data.sec.gov/submissions/CIK0000320193.json",
+          "required": true,
+          "parser": "SEC_SUBMISSIONS"
+        }
+      ]
+    },
+    {
+      "interface_id": "SEC_EDGAR_COMPANY_FACTS_AND_XBRL",
+      "minimum_route_successes": 1,
+      "required_capabilities": ["COMPANY_FACTS", "TAXONOMY_AND_UNITS", "ACCESSION_LINEAGE"],
+      "routes": [
+        {
+          "route_id": "SEC_COMPANYFACTS_AAPL",
+          "source_authority": "SEC_OFFICIAL",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "endpoint": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+          "required": true,
+          "parser": "SEC_COMPANYFACTS"
+        }
+      ]
+    },
+    {
+      "interface_id": "US_EXCHANGE_SECURITY_DIRECTORY",
+      "minimum_route_successes": 1,
+      "required_capabilities": ["LISTED_SYMBOL", "EXCHANGE_OR_VENUE", "INSTRUMENT_TYPE_FLAGS", "RETRIEVAL_TIMESTAMP"],
+      "routes": [
+        {
+          "route_id": "NASDAQ_TRADER_NASDAQLISTED",
+          "source_authority": "NASDAQ_OFFICIAL",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "endpoint": "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
+          "required": false,
+          "parser": "NASDAQ_PIPE_DIRECTORY"
+        },
+        {
+          "route_id": "NASDAQ_TRADER_OTHERLISTED",
+          "source_authority": "NASDAQ_OFFICIAL",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "endpoint": "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt",
+          "required": false,
+          "parser": "NASDAQ_PIPE_DIRECTORY"
+        },
+        {
+          "route_id": "SEC_COMPANY_TICKERS_EXCHANGE_SUPPORT",
+          "source_authority": "SEC_OFFICIAL",
+          "official_or_fallback": "OFFICIAL_SUPPORT",
+          "endpoint": "https://www.sec.gov/files/company_tickers_exchange.json",
+          "required": true,
+          "parser": "SEC_COMPANY_TICKERS_EXCHANGE"
+        }
+      ]
+    },
+    {
+      "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
+      "minimum_route_successes": 3,
+      "required_capabilities": ["DAILY_OHLCV", "DIVIDEND_OR_SPLIT_EVENTS", "USD_CNY_AND_USD_HKD_FX", "GITHUB_ACTIONS_ACCESS"],
+      "routes": [
+        {
+          "route_id": "STOOQ_AAPL_DAILY",
+          "source_authority": "STOOQ_FREE",
+          "official_or_fallback": "FREE_FALLBACK",
+          "endpoint": "https://stooq.com/q/d/l/?s=aapl.us&i=d&d1=20250101&d2=20260722",
+          "required": false,
+          "parser": "STOOQ_DAILY_CSV"
+        },
+        {
+          "route_id": "YAHOO_QUERY1_AAPL_CHART_EVENTS",
+          "source_authority": "YAHOO_FREE_UNOFFICIAL",
+          "official_or_fallback": "FREE_FALLBACK",
+          "endpoint": "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits",
+          "required": false,
+          "parser": "YAHOO_CHART_EVENTS"
+        },
+        {
+          "route_id": "YAHOO_QUERY2_AAPL_CHART_EVENTS",
+          "source_authority": "YAHOO_FREE_UNOFFICIAL",
+          "official_or_fallback": "FREE_FALLBACK",
+          "endpoint": "https://query2.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits",
+          "required": false,
+          "parser": "YAHOO_CHART_EVENTS"
+        },
+        {
+          "route_id": "ECB_REFERENCE_FX",
+          "source_authority": "ECB_OFFICIAL",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "endpoint": "https://data-api.ecb.europa.eu/service/data/EXR/D.<CURRENCY>.EUR.SP00.A?startPeriod=<START>&format=csvdata",
+          "required": false,
+          "parser": "ECB_REFERENCE_FX"
+        },
+        {
+          "route_id": "FRANKFURTER_USD_CNY_HKD",
+          "source_authority": "FRANKFURTER_FREE",
+          "official_or_fallback": "FREE_FALLBACK",
+          "endpoint": "https://api.frankfurter.app/latest?from=USD&to=CNY,HKD",
+          "required": false,
+          "parser": "FRANKFURTER_FX"
+        }
+      ]
+    }
+  ],
+  "capability_acceptance": {
+    "required_official_route_ids": ["SEC_COMPANY_TICKERS_EXCHANGE", "SEC_SUBMISSIONS_AAPL", "SEC_COMPANYFACTS_AAPL"],
+    "security_directory_requires": "AT_LEAST_ONE_NASDAQ_DIRECTORY_OR_SEC_SUPPORT_WITH_EXPLICIT_LIMITATION",
+    "daily_market_requires": "AT_LEAST_ONE_STOOQ_OR_YAHOO_PRICE_ROUTE",
+    "corporate_action_requires": "AT_LEAST_ONE_YAHOO_EVENT_ROUTE",
+    "fx_requires": "AT_LEAST_ONE_ECB_OR_FRANKFURTER_ROUTE",
+    "github_actions_compatibility_required": true,
+    "point_in_time_claim_for_market_fallbacks": "NOT_YET_DECISION_GRADE",
+    "decision_grade_financial_claim": "DEFERRED_TO_FMDL6D_AND_FMDL6E"
+  },
+  "failure_taxonomy": [
+    "DNS_OR_CONNECTIVITY",
+    "TLS_OR_CERTIFICATE",
+    "HTTP_4XX_AUTH_OR_BLOCK",
+    "HTTP_429_RATE_LIMIT",
+    "HTTP_5XX_UPSTREAM",
+    "TIMEOUT",
+    "EMPTY_RESPONSE",
+    "SCHEMA_OR_PARSE_DRIFT",
+    "INSUFFICIENT_FIELD_COVERAGE",
+    "INSUFFICIENT_HISTORY",
+    "CORPORATE_ACTION_EVENTS_UNAVAILABLE",
+    "FX_PAIR_UNAVAILABLE",
+    "UNKNOWN_FAILURE"
+  ],
+  "acceptance_gates": {
+    "candidate_pool_mutation_count": 0,
+    "simulation_mutation_count": 0,
+    "real_account_mutation_count": 0,
+    "order_generation_count": 0,
+    "trade_authority": "NONE"
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl6b/candidate",
+    "current_root": "outputs/fmdl6b/current",
+    "archive_root": "outputs/fmdl6b/archive",
+    "release_root": "datasets/fmdl6b/releases",
+    "last_success": "outputs/status/FMDL6B_LAST_SUCCESS.json",
+    "release_sequence": 21
+  },
+  "exit_status": "FMDL6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK_ACCEPTED",
+  "next_gate": "FMDL-6C_24_SECURITY_BENCHMARK_POOL"
+}
