@@ -5,7 +5,7 @@ from typing import Any
 
 from fmdl6x2b_common import ascii_key, normalize_text, record_hash
 
-CLASSIFICATION_RULE_VERSION = 'fmdl6x2b.classification.v1.0.0'
+CLASSIFICATION_RULE_VERSION = 'fmdl6x2b.classification.v1.0.1'
 
 
 def classify(record: dict[str, Any]) -> dict[str, str]:
