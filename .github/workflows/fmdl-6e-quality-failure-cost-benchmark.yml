@@ -1,0 +1,113 @@
+name: FMDL 6E Quality Failure and Cost Benchmark
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6e_*.json"
+      - "schemas/fmdl6e_*.json"
+      - "scripts/fmdl6e_*.py"
+      - "scripts/validate_fmdl6e_*.py"
+      - "scripts/publish_fmdl6e.py"
+      - "tests/test_fmdl6e_*.py"
+      - "docs/FMDL-6E*.md"
+      - ".github/workflows/fmdl-6e-quality-failure-cost-benchmark.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6e_*.json"
+      - "schemas/fmdl6e_*.json"
+      - "scripts/fmdl6e_*.py"
+      - "scripts/validate_fmdl6e_*.py"
+      - "scripts/publish_fmdl6e.py"
+      - "tests/test_fmdl6e_*.py"
+      - "docs/FMDL-6E*.md"
+      - ".github/workflows/fmdl-6e-quality-failure-cost-benchmark.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Schema validation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import jsonschema
+          schema = json.loads(Path('schemas/fmdl6e_quality_failure_cost_contract_v1.schema.json').read_text())
+          contract = json.loads(Path('config/fmdl6e_quality_failure_cost_benchmark_contract.json').read_text())
+          jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(contract)
+          PY
+      - name: Unit, failure-injection and LKG tests
+        run: python -m pytest -q tests/test_fmdl6e_quality_benchmark.py
+      - name: Compile checks
+        run: >-
+          python -m py_compile
+          scripts/fmdl6e_quality_benchmark.py
+          scripts/validate_fmdl6e_candidate.py
+          scripts/publish_fmdl6e.py
+      - name: Validate bounded benchmark contract
+        run: python scripts/fmdl6e_quality_benchmark.py contract --repo-root .
+
+  build-and-accept:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build deterministic FMDL-6E candidate
+        run: |
+          rm -rf outputs/fmdl6e/candidate outputs/fmdl6e/acceptance
+          python scripts/fmdl6e_quality_benchmark.py build \
+            --repo-root . \
+            --candidate outputs/fmdl6e/candidate
+      - name: Independent validation and same-input replay
+        run: |
+          python scripts/validate_fmdl6e_candidate.py \
+            --repo-root . \
+            --candidate outputs/fmdl6e/candidate \
+            --output outputs/fmdl6e/acceptance/FMDL6E_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmdl6e-quality-failure-cost-benchmark-candidate
+          path: |
+            outputs/fmdl6e/candidate
+            outputs/fmdl6e/acceptance/FMDL6E_INDEPENDENT_ACCEPTANCE.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          python scripts/publish_fmdl6e.py \
+            --repo-root . \
+            --candidate outputs/fmdl6e/candidate
+      - name: Commit accepted FMDL-6E state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl6e/current outputs/fmdl6e/archive datasets/fmdl6e/releases outputs/status/FMDL6E_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6E quality failure and cost benchmark [skip ci]"
+          git push
