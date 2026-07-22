@@ -1,0 +1,81 @@
+{
+  "all_expected_failures_detected": true,
+  "detected_count": 5,
+  "false_negative_count": 0,
+  "injection_count": 5,
+  "injections": [
+    {
+      "detected": true,
+      "error_count": 3,
+      "expected_code": "POINTER_EXISTS:FMDL-6C",
+      "injection_id": "MISSING_COMPONENT_POINTER",
+      "mutation_scope": "TEMPORARY_COPY_ONLY"
+    },
+    {
+      "detected": true,
+      "error_count": 1,
+      "expected_code": "POINTER_RELEASE:FMDL-6D",
+      "injection_id": "RELEASE_ID_MISMATCH",
+      "mutation_scope": "TEMPORARY_COPY_ONLY"
+    },
+    {
+      "detected": true,
+      "error_count": 1,
+      "expected_code": "CURRENT_MANIFEST_FILES:FMDL-6E",
+      "injection_id": "MANIFEST_FILE_LOSS",
+      "mutation_scope": "TEMPORARY_COPY_ONLY"
+    },
+    {
+      "detected": true,
+      "error_count": 2,
+      "expected_code": "RELEASE_AUTHORITY:FMDL-6A",
+      "injection_id": "TRADE_AUTHORITY_ESCALATION",
+      "mutation_scope": "TEMPORARY_COPY_ONLY"
+    },
+    {
+      "detected": true,
+      "error_count": 2,
+      "expected_code": "ACTIVATION_GATE_CLOSED",
+      "injection_id": "ACTIVATION_GATE_OPENED",
+      "mutation_scope": "TEMPORARY_COPY_ONLY"
+    }
+  ],
+  "program_id": "FMDL-6-FINAL",
+  "protected_hashes_after": {
+    "outputs/fmdl6_0/current/FMDL6_0_MANIFEST.json": "d2a9ee5550128529c001dfd15789db3eff49bb136c864191267d24ea414b569e",
+    "outputs/fmdl6_0/current/FMDL6_ACTIVATION_GATE.json": "1ced033250da03cf430e8f8df444f77fd9c9ba6889910cc9cdbc355577e1edf9",
+    "outputs/fmdl6_0/current/FMDL6_DEFERRED_BACKLOG.json": "d20af1da892485072eaca15d2e3ff11b8432b725fd1329190c04557908cb801a",
+    "outputs/fmdl6a/current/FMDL6A_MANIFEST.json": "1c3868103bf0769b972ff381e9e97ef314cd260d2d0c749644e6f332f9f62b15",
+    "outputs/fmdl6b/current/FMDL6B_MANIFEST.json": "54ad321316c88c07dad1112427142681b4f8e9bd90332234c272bc13879248ca",
+    "outputs/fmdl6c/current/FMDL6C_MANIFEST.json": "56255d51145192a0baaf7cab5a4443cd104b7fb8927cb7567f722978dbafd286",
+    "outputs/fmdl6d/current/FMDL6D_MANIFEST.json": "435e2f15cca6a9514234819220414d9db67e1ba9c227c9def091f8cab9543004",
+    "outputs/fmdl6e/current/FMDL6E_MANIFEST.json": "994112f7988dfbbcdbfa126bb1e2ab4bb1568ad7e8718def0f57f043e3b07081",
+    "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json": "f7a9c203b93f5ee20527cb7016d120a915b3dc834383b89445018aaa09f60f16",
+    "outputs/status/FMDL6A_LAST_SUCCESS.json": "8070b094432a5b44d3853d7eb34623bff26858a6dad74ba725b632ac190e3763",
+    "outputs/status/FMDL6B_LAST_SUCCESS.json": "115ab5d29f66aa89dabc34d386dc769f66704496652d2aec00a6cf01ba559ccd",
+    "outputs/status/FMDL6C_LAST_SUCCESS.json": "c5fe37654a97bcf042c8242a3f480e881a8912f0bf5d42dc2770aee4627daca7",
+    "outputs/status/FMDL6D_LAST_SUCCESS.json": "95add6cd380ebe49fb33b86f9ecc625dc1f6de30a71450eb8bd17b3cbc74a7d2",
+    "outputs/status/FMDL6E_LAST_SUCCESS.json": "c11e16e42baaf1943668de2e1400c5619a407291358a4fa6504571ac10dcc84e",
+    "outputs/status/FMDL6_0_LAST_SUCCESS.json": "8d2905260441da8c98e91afc709a987b63c20f1f54781eca52e78f794ccc17dc"
+  },
+  "protected_hashes_before": {
+    "outputs/fmdl6_0/current/FMDL6_0_MANIFEST.json": "d2a9ee5550128529c001dfd15789db3eff49bb136c864191267d24ea414b569e",
+    "outputs/fmdl6_0/current/FMDL6_ACTIVATION_GATE.json": "1ced033250da03cf430e8f8df444f77fd9c9ba6889910cc9cdbc355577e1edf9",
+    "outputs/fmdl6_0/current/FMDL6_DEFERRED_BACKLOG.json": "d20af1da892485072eaca15d2e3ff11b8432b725fd1329190c04557908cb801a",
+    "outputs/fmdl6a/current/FMDL6A_MANIFEST.json": "1c3868103bf0769b972ff381e9e97ef314cd260d2d0c749644e6f332f9f62b15",
+    "outputs/fmdl6b/current/FMDL6B_MANIFEST.json": "54ad321316c88c07dad1112427142681b4f8e9bd90332234c272bc13879248ca",
+    "outputs/fmdl6c/current/FMDL6C_MANIFEST.json": "56255d51145192a0baaf7cab5a4443cd104b7fb8927cb7567f722978dbafd286",
+    "outputs/fmdl6d/current/FMDL6D_MANIFEST.json": "435e2f15cca6a9514234819220414d9db67e1ba9c227c9def091f8cab9543004",
+    "outputs/fmdl6e/current/FMDL6E_MANIFEST.json": "994112f7988dfbbcdbfa126bb1e2ab4bb1568ad7e8718def0f57f043e3b07081",
+    "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json": "f7a9c203b93f5ee20527cb7016d120a915b3dc834383b89445018aaa09f60f16",
+    "outputs/status/FMDL6A_LAST_SUCCESS.json": "8070b094432a5b44d3853d7eb34623bff26858a6dad74ba725b632ac190e3763",
+    "outputs/status/FMDL6B_LAST_SUCCESS.json": "115ab5d29f66aa89dabc34d386dc769f66704496652d2aec00a6cf01ba559ccd",
+    "outputs/status/FMDL6C_LAST_SUCCESS.json": "c5fe37654a97bcf042c8242a3f480e881a8912f0bf5d42dc2770aee4627daca7",
+    "outputs/status/FMDL6D_LAST_SUCCESS.json": "95add6cd380ebe49fb33b86f9ecc625dc1f6de30a71450eb8bd17b3cbc74a7d2",
+    "outputs/status/FMDL6E_LAST_SUCCESS.json": "c11e16e42baaf1943668de2e1400c5619a407291358a4fa6504571ac10dcc84e",
+    "outputs/status/FMDL6_0_LAST_SUCCESS.json": "8d2905260441da8c98e91afc709a987b63c20f1f54781eca52e78f794ccc17dc"
+  },
+  "trade_authority": "NONE",
+  "upstream_lkg_unchanged": true,
+  "upstream_write_count": 0
+}
