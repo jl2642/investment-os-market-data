@@ -1,0 +1,26 @@
+name: FMDL 6X1-A R1 Main Publication Closure
+on:
+  pull_request:
+    paths:
+      - 'config/fmdl6x1a_existing_pilot_audit_dual_activation_contract.json'
+      - 'outputs/fmdl6x1a/**'
+      - 'outputs/status/FMDL6X1A_LAST_SUCCESS.json'
+      - 'datasets/fmdl6x1a/releases/**'
+      - 'scripts/validate_fmdl6x1a_publication.py'
+      - 'tests/test_fmdl6x1a_publication.py'
+      - '.github/workflows/fmdl-6x1a-r1-main-publication-closure.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-publication:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/validate_fmdl6x1a_contract.py
+      - run: python scripts/validate_fmdl6x1a_publication.py
+      - run: python -m unittest tests/test_fmdl6x1a_contract.py tests/test_fmdl6x1a_publication.py -v
+      - run: python -m py_compile scripts/validate_fmdl6x1a_contract.py scripts/validate_fmdl6x1a_publication.py
