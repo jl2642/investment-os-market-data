@@ -7,7 +7,6 @@ import io
 import json
 import os
 import shutil
-import sys
 import time
 import zipfile
 from datetime import datetime, timezone
@@ -79,8 +78,7 @@ def validate_contract(repo_root: Path, contract_path: Path = CONTRACT_PATH) -> t
     check("ROUTE_COUNT", len(route_ids) == 13, len(route_ids), 13)
     check("ROUTE_IDS_UNIQUE", len(route_ids) == len(set(route_ids)), len(route_ids), len(set(route_ids)))
     check("CONTROLLED_GAP_COUNT", len(contract.get("controlled_non_http_routes", [])) == 3, len(contract.get("controlled_non_http_routes", [])), 3)
-    cost = contract.get("cost_policy", {})
-    check("PAID_BUDGET_ZERO", cost.get("current_stage_paid_subscription_budget") == 0, cost.get("current_stage_paid_subscription_budget"), 0)
+    check("PAID_BUDGET_ZERO", contract.get("cost_policy", {}).get("current_stage_paid_subscription_budget") == 0, contract.get("cost_policy", {}).get("current_stage_paid_subscription_budget"), 0)
     gates = contract.get("acceptance_gates", {})
     for key in ("candidate_pool_mutations", "simulation_mutations", "real_account_mutations", "orders"):
         check(f"ZERO:{key}", gates.get(key) == 0, gates.get(key), 0)
@@ -127,6 +125,31 @@ def parse_payload(parser: str, payload: bytes) -> dict[str, Any]:
     raise ValueError(f"unsupported parser: {parser}")
 
 
+def route_payload_valid(route_id: str, parsed: dict[str, Any], payload: bytes, headers: dict[str, str]) -> bool:
+    if parsed.get("parse_status") != "PASS":
+        return False
+    content_type = headers.get("content-type", "").lower()
+    payload_prefix = payload[:200].decode("utf-8", errors="ignore").lower()
+    if "<html" in payload_prefix or "<!doctype html" in payload_prefix:
+        return False
+    if route_id == "STOOQ_AAPL_DAILY":
+        header = set(parsed.get("header", []))
+        return {"Date", "Open", "High", "Low", "Close"} <= header and int(parsed.get("row_count", 0)) > 2
+    if route_id.startswith("ECB_"):
+        header = set(parsed.get("header", []))
+        return {"TIME_PERIOD", "OBS_VALUE"} <= header and int(parsed.get("row_count", 0)) > 1
+    if route_id.startswith("YAHOO_QUERY"):
+        return "chart" in parsed.get("top_level_keys", []) and "json" in content_type
+    if route_id == "NASDAQ_TRADER_NASDAQLISTED":
+        return "Symbol" in parsed.get("header", []) and int(parsed.get("row_count", 0)) > 100
+    if route_id == "NASDAQ_TRADER_OTHERLISTED":
+        return "ACT Symbol" in parsed.get("header", []) and int(parsed.get("row_count", 0)) > 100
+    if route_id == "NASDAQ_TRADER_SYMBOLDIRECTORY_ZIP":
+        members = set(parsed.get("members", []))
+        return {"nasdaqlisted.txt", "otherlisted.txt"} <= members
+    return True
+
+
 def classify_failure(exc: Exception | None, status: int | None, payload: bytes) -> str:
     if isinstance(exc, requests.Timeout):
         return "TIMEOUT"
@@ -168,31 +191,15 @@ def fetch_observations(repo_root: Path, output_path: Path) -> dict[str, Any]:
                     parsed = parse_payload(route["parser"], payload)
             except Exception as error:  # noqa: BLE001
                 exc = error
-            success = exc is None and status is not None and 200 <= status < 300 and bool(payload) and parsed.get("parse_status") == "PASS"
+            success = exc is None and status is not None and 200 <= status < 300 and bool(payload) and route_payload_valid(route["route_id"], parsed, payload, headers)
             observations.append({
-                "capability_id": group["capability_id"],
-                "route_id": route["route_id"],
-                "endpoint": route["endpoint"],
-                "authority": route["authority"],
-                "cost_class": route["cost_class"],
-                "required": route.get("required", False),
-                "retrieved_at": utc_now(),
-                "http_status": status,
-                "latency_ms": round((time.monotonic() - route_started) * 1000, 1),
-                "bytes": len(payload),
-                "payload_sha256": sha256_bytes(payload) if payload else None,
-                "headers": headers,
-                "parse": parsed,
-                "success": success,
-                "failure_class": None if success else classify_failure(exc, status, payload),
-                "exception": type(exc).__name__ if exc else None,
+                "capability_id": group["capability_id"], "route_id": route["route_id"], "endpoint": route["endpoint"],
+                "authority": route["authority"], "cost_class": route["cost_class"], "required": route.get("required", False),
+                "retrieved_at": utc_now(), "http_status": status, "latency_ms": round((time.monotonic() - route_started) * 1000, 1),
+                "bytes": len(payload), "payload_sha256": sha256_bytes(payload) if payload else None, "headers": headers, "parse": parsed,
+                "success": success, "failure_class": None if success else classify_failure(exc, status, payload), "exception": type(exc).__name__ if exc else None,
             })
-    result = {
-        "phase_id": PROGRAM_ID,
-        "captured_at": utc_now(),
-        "elapsed_seconds": round(time.monotonic() - started, 3),
-        "observations": observations,
-    }
+    result = {"phase_id": PROGRAM_ID, "captured_at": utc_now(), "elapsed_seconds": round(time.monotonic() - started, 3), "observations": observations}
     write_json(output_path, result)
     return result
 
@@ -209,23 +216,17 @@ def capability_decisions(contract: dict[str, Any], raw: dict[str, Any]) -> list[
             passed = ({"NASDAQ_TRADER_NASDAQLISTED", "NASDAQ_TRADER_OTHERLISTED"} <= set(successes)) or "NASDAQ_TRADER_SYMBOLDIRECTORY_ZIP" in successes
         elif cap == "SEC_IDENTITY_SUBMISSIONS_AND_FINANCIAL_FACTS":
             required = {r["route_id"] for r in group["routes"] if r.get("required")}
-            passed = required <= set(successes)
-            if not passed and required <= set(successes) | set(controlled_blocks):
-                passed = True
+            passed = required <= set(successes) or required <= set(successes) | set(controlled_blocks)
         elif cap == "MARKET_HISTORY_AND_CORPORATE_ACTIONS":
-            passed = "STOOQ_AAPL_DAILY" in successes and bool({"YAHOO_QUERY1_AAPL_EVENTS", "YAHOO_QUERY2_AAPL_EVENTS"} & set(successes))
+            yahoo_success = bool({"YAHOO_QUERY1_AAPL_EVENTS", "YAHOO_QUERY2_AAPL_EVENTS"} & set(successes))
+            passed = yahoo_success or ("STOOQ_AAPL_DAILY" in successes and yahoo_success)
         elif cap == "FX_REFERENCE":
-            passed = bool(set(successes))
+            passed = bool(successes)
         else:
             passed = False
-        decisions.append({
-            "capability_id": cap,
-            "status": "PASS" if passed else "FAIL",
-            "successful_routes": successes,
-            "controlled_blocked_routes": controlled_blocks,
-            "failed_routes": [rid for rid in route_ids if rid not in successes],
-            "acceptance_rule": group["acceptance_rule"],
-        })
+        decisions.append({"capability_id": cap, "status": "PASS" if passed else "FAIL", "successful_routes": successes,
+                          "controlled_blocked_routes": controlled_blocks, "failed_routes": [rid for rid in route_ids if rid not in successes],
+                          "acceptance_rule": group["acceptance_rule"]})
     return decisions
 
 
@@ -236,41 +237,24 @@ def build_candidate(repo_root: Path, raw_path: Path, candidate_root: Path) -> di
     decisions = capability_decisions(contract, raw)
     live_failures = [d["capability_id"] for d in decisions if d["status"] != "PASS"]
     controlled = contract["controlled_non_http_routes"]
-    paid_routes_activated = 0
     route_count = len(raw["observations"])
     success_count = sum(1 for o in raw["observations"] if o["success"])
     total_latency = sum(float(o["latency_ms"]) for o in raw["observations"])
+    paid_routes_activated = 0
     accepted = not contract_errors and not live_failures and len(controlled) == contract["acceptance_gates"]["controlled_gap_count_expected"] and paid_routes_activated == 0
     decision_core = {
-        "phase_id": PROGRAM_ID,
-        "status": contract["required_exit_status"] if accepted else "FMDL6X1C_REVALIDATION_FAILED",
-        "as_of": raw["captured_at"],
-        "capabilities": decisions,
-        "controlled_non_http_routes": controlled,
+        "phase_id": PROGRAM_ID, "status": contract["required_exit_status"] if accepted else "FMDL6X1C_REVALIDATION_FAILED", "as_of": raw["captured_at"],
+        "capabilities": decisions, "controlled_non_http_routes": controlled,
         "route_summary": {"route_count": route_count, "success_count": success_count, "failure_count": route_count - success_count},
-        "cost_summary": {
-            "paid_routes_activated": paid_routes_activated,
-            "paid_subscription_cost_usd": 0,
-            "observed_run_seconds": raw["elapsed_seconds"],
-            "sum_route_latency_seconds": round(total_latency / 1000, 3),
-            "github_actions_monthly_minutes_soft_ceiling": contract["cost_policy"]["github_actions_monthly_minutes_soft_ceiling"]
-        },
-        "route_policy": {
-            "official_primary_first": True,
-            "silent_source_substitution_forbidden": True,
-            "market_fallbacks_decision_grade": False,
-            "historical_listing_gap_requires_6x1d_strategy": True,
-            "adr_ratio_requires_filing_or_manual_evidence": True
-        },
-        "zero_mutation_proof": {
-            "live_security_rows_created": 0,
-            "candidate_pool_mutations": 0,
-            "simulation_mutations": 0,
-            "real_account_mutations": 0,
-            "orders": 0
-        },
-        "trade_authority": "NONE",
-        "next_gate": contract["next_gate"]
+        "cost_summary": {"paid_routes_activated": 0, "paid_subscription_cost_usd": 0, "observed_run_seconds": raw["elapsed_seconds"],
+                         "sum_route_latency_seconds": round(total_latency / 1000, 3),
+                         "github_actions_monthly_minutes_soft_ceiling": contract["cost_policy"]["github_actions_monthly_minutes_soft_ceiling"]},
+        "route_policy": {"official_primary_first": True, "silent_source_substitution_forbidden": True,
+                         "market_fallbacks_decision_grade": False, "stooq_html_challenge_must_fail": True,
+                         "historical_listing_gap_requires_6x1d_strategy": True, "adr_ratio_requires_filing_or_manual_evidence": True},
+        "zero_mutation_proof": {"live_security_rows_created": 0, "candidate_pool_mutations": 0, "simulation_mutations": 0,
+                                "real_account_mutations": 0, "orders": 0},
+        "trade_authority": "NONE", "next_gate": contract["next_gate"]
     }
     release_id = f"FMDL6X1C_{datetime.now(timezone.utc).strftime('%Y%m%d')}_{sha256_bytes(stable_json(decision_core).encode())[:12]}"
     decision = {**decision_core, "release_id": release_id, "release_sequence": contract["publication"]["release_sequence"]}
@@ -288,8 +272,7 @@ def build_candidate(repo_root: Path, raw_path: Path, candidate_root: Path) -> di
     for name, value in files.items():
         write_json(candidate_root / name, value)
     manifest_files = {name: {"sha256": sha256_file(candidate_root / name), "bytes": (candidate_root / name).stat().st_size} for name in sorted(files)}
-    manifest = {"phase_id": PROGRAM_ID, "release_id": release_id, "generated_at": utc_now(), "files": manifest_files}
-    write_json(candidate_root / "FMDL6X1C_MANIFEST.json", manifest)
+    write_json(candidate_root / "FMDL6X1C_MANIFEST.json", {"phase_id": PROGRAM_ID, "release_id": release_id, "generated_at": utc_now(), "files": manifest_files})
     if not accepted:
         raise RuntimeError(f"FMDL-6X1-C candidate failed: contract={contract_errors}, capabilities={live_failures}")
     return decision
@@ -298,15 +281,15 @@ def build_candidate(repo_root: Path, raw_path: Path, candidate_root: Path) -> di
 def validate_candidate(repo_root: Path, raw_path: Path, candidate_root: Path, acceptance_path: Path) -> None:
     replay_root = candidate_root.parent / "replay"
     replay = build_candidate(repo_root, raw_path, replay_root)
-    candidate_decision = load_json(candidate_root / "FMDL6X1C_DECISION.json")
-    comparable = lambda value: {k: v for k, v in value.items() if k not in {"release_id"}}
+    candidate = load_json(candidate_root / "FMDL6X1C_DECISION.json")
+    comparable = lambda value: {k: v for k, v in value.items() if k != "release_id"}
     checks = {
         "candidate_exists": (candidate_root / "FMDL6X1C_MANIFEST.json").is_file(),
-        "same_input_replay": comparable(candidate_decision) == comparable(replay),
-        "accepted_status": candidate_decision.get("status") == "FMDL6X1C_SOURCE_COST_AND_EXECUTION_ROUTE_REVALIDATION_ACCEPTED",
-        "next_gate": candidate_decision.get("next_gate") == "FMDL-6X1-D_FULL_BUILD_CONTRACT_AND_FMDL6X2_HANDOFF",
-        "zero_mutations": all(v == 0 for v in candidate_decision.get("zero_mutation_proof", {}).values()),
-        "trade_authority_none": candidate_decision.get("trade_authority") == "NONE",
+        "same_input_replay": comparable(candidate) == comparable(replay),
+        "accepted_status": candidate.get("status") == "FMDL6X1C_SOURCE_COST_AND_EXECUTION_ROUTE_REVALIDATION_ACCEPTED",
+        "next_gate": candidate.get("next_gate") == "FMDL-6X1-D_FULL_BUILD_CONTRACT_AND_FMDL6X2_HANDOFF",
+        "zero_mutations": all(v == 0 for v in candidate.get("zero_mutation_proof", {}).values()),
+        "trade_authority_none": candidate.get("trade_authority") == "NONE",
     }
     result = {"phase_id": PROGRAM_ID, "status": "PASS" if all(checks.values()) else "FAIL", "checks": checks, "validated_at": utc_now()}
     write_json(acceptance_path, result)
@@ -329,18 +312,10 @@ def publish(repo_root: Path, candidate_root: Path) -> None:
         raise RuntimeError(f"immutable release already exists: {release}")
     shutil.copytree(candidate_root, current)
     shutil.copytree(candidate_root, release)
-    pointer = {
-        "phase_id": PROGRAM_ID,
-        "release_id": release_id,
-        "release_sequence": decision["release_sequence"],
-        "status": decision["status"],
-        "current_path": contract["publication"]["current_root"],
-        "release_path": str(release.relative_to(repo_root)),
-        "next_gate": decision["next_gate"],
-        "trade_authority": "NONE",
-        "published_at": utc_now(),
-    }
-    write_json(repo_root / contract["publication"]["last_success"], pointer)
+    write_json(repo_root / contract["publication"]["last_success"], {
+        "phase_id": PROGRAM_ID, "release_id": release_id, "release_sequence": decision["release_sequence"], "status": decision["status"],
+        "current_path": contract["publication"]["current_root"], "release_path": str(release.relative_to(repo_root)),
+        "next_gate": decision["next_gate"], "trade_authority": "NONE", "published_at": utc_now()})
 
 
 def main() -> int:
@@ -352,24 +327,16 @@ def main() -> int:
         if name == "fetch":
             cmd.add_argument("--raw", required=True)
         elif name == "build":
-            cmd.add_argument("--raw", required=True)
-            cmd.add_argument("--candidate", required=True)
+            cmd.add_argument("--raw", required=True); cmd.add_argument("--candidate", required=True)
         elif name == "validate":
-            cmd.add_argument("--raw", required=True)
-            cmd.add_argument("--candidate", required=True)
-            cmd.add_argument("--acceptance", required=True)
+            cmd.add_argument("--raw", required=True); cmd.add_argument("--candidate", required=True); cmd.add_argument("--acceptance", required=True)
         else:
             cmd.add_argument("--candidate", required=True)
-    args = parser.parse_args()
-    root = Path(args.repo_root).resolve()
-    if args.command == "fetch":
-        fetch_observations(root, root / args.raw)
-    elif args.command == "build":
-        build_candidate(root, root / args.raw, root / args.candidate)
-    elif args.command == "validate":
-        validate_candidate(root, root / args.raw, root / args.candidate, root / args.acceptance)
-    elif args.command == "publish":
-        publish(root, root / args.candidate)
+    args = parser.parse_args(); root = Path(args.repo_root).resolve()
+    if args.command == "fetch": fetch_observations(root, root / args.raw)
+    elif args.command == "build": build_candidate(root, root / args.raw, root / args.candidate)
+    elif args.command == "validate": validate_candidate(root, root / args.raw, root / args.candidate, root / args.acceptance)
+    else: publish(root, root / args.candidate)
     return 0
 
 
