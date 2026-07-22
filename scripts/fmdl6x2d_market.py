@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import csv
+import io
 import json
 import math
 import zipfile
@@ -10,7 +12,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from fmdl6x2d_common import (
-    bucket_hex, deterministic_zip, load_json, parse_ecb_csv, read_zip_jsonl,
+    bucket_hex, deterministic_zip, load_json, read_zip_jsonl,
     sha256_bytes, stable_json,
 )
 
@@ -167,29 +169,39 @@ def reconcile_market(cohort: list[dict[str, Any]], entries: dict[str, bytes], ro
 
 
 def build_fx(entries: dict[str, bytes]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    def series_rows(series: str) -> dict[str, float]:
-        combined: dict[str, float] = {}
-        prefix = f'fx/ECB_{series}/'
-        for name in sorted(entries):
-            if name.startswith(prefix) and name.endswith('.csv'):
-                combined.update(parse_ecb_csv(entries[name]))
-        return combined
-    usd = series_rows('USD_EUR')
-    cny = series_rows('CNY_EUR')
-    hkd = series_rows('HKD_EUR')
-    dates = sorted(set(usd) & set(cny) & set(hkd))
-    rows: list[dict[str, Any]] = []
-    for date in dates:
-        if usd[date] == 0:
-            continue
-        rows.append({'pair':'USD_CNY','date':date,'rate':round(cny[date]/usd[date],10),'source_authority':'ECB_OFFICIAL','derivation':'CNY_PER_EUR_DIVIDED_BY_USD_PER_EUR','input_series':['D.CNY.EUR.SP00.A','D.USD.EUR.SP00.A'],'data_grade':'DECISION_GRADE_REFERENCE_OFFICIAL'})
-        rows.append({'pair':'USD_HKD','date':date,'rate':round(hkd[date]/usd[date],10),'source_authority':'ECB_OFFICIAL','derivation':'HKD_PER_EUR_DIVIDED_BY_USD_PER_EUR','input_series':['D.HKD.EUR.SP00.A','D.USD.EUR.SP00.A'],'data_grade':'DECISION_GRADE_REFERENCE_OFFICIAL'})
+    payload = entries.get('fx/ECB_EUROFXREF_HIST.zip', b'')
+    rates: list[dict[str, Any]] = []
+    if payload:
+        with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+            members = [name for name in archive.namelist() if name.lower().endswith('eurofxref-hist.csv')]
+            if len(members) != 1:
+                raise ValueError('ECB_ARCHIVE_MEMBER_MISSING_OR_AMBIGUOUS')
+            text = archive.read(members[0]).decode('utf-8-sig')
+            reader = csv.DictReader(io.StringIO(text))
+            required = {'Date', 'USD', 'CNY', 'HKD'}
+            if not required.issubset(set(reader.fieldnames or [])):
+                raise ValueError('ECB_ARCHIVE_COLUMNS_MISSING')
+            for row in reader:
+                date = (row.get('Date') or '').strip()
+                if not date or date < '2010-01-01' or date > '2026-07-21':
+                    continue
+                try:
+                    usd = float((row.get('USD') or '').strip())
+                    cny = float((row.get('CNY') or '').strip())
+                    hkd = float((row.get('HKD') or '').strip())
+                except ValueError:
+                    continue
+                if usd == 0:
+                    continue
+                rates.append({'pair':'USD_CNY','date':date,'rate':round(cny/usd,10),'source_authority':'ECB_OFFICIAL','derivation':'CNY_PER_EUR_DIVIDED_BY_USD_PER_EUR','input_archive':'eurofxref-hist.zip','data_grade':'DECISION_GRADE_REFERENCE_OFFICIAL'})
+                rates.append({'pair':'USD_HKD','date':date,'rate':round(hkd/usd,10),'source_authority':'ECB_OFFICIAL','derivation':'HKD_PER_EUR_DIVIDED_BY_USD_PER_EUR','input_archive':'eurofxref-hist.zip','data_grade':'DECISION_GRADE_REFERENCE_OFFICIAL'})
+    rates.sort(key=lambda r: (r['pair'], r['date']))
     support = {'route_present': bool(entries.get('fx/FRANKFURTER_USD_CNY_HKD.json')), 'status':'SUPPORT_ONLY_NOT_USED_FOR_HISTORY'}
     try:
         support['payload'] = json.loads(entries['fx/FRANKFURTER_USD_CNY_HKD.json'].decode('utf-8'))
     except Exception:
         support['payload'] = None
-    return rows, support
+    return rates, support
 
 
 def _jsonl_bytes(rows: list[dict[str, Any]]) -> bytes:
