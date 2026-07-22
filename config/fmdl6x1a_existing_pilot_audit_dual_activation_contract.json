@@ -1,0 +1,101 @@
+{
+  "phase_id": "FMDL-6X1-A",
+  "phase_name": "Existing Pilot Audit & Dual Activation Contract",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "CONTRACT_CANDIDATE",
+  "authority": "US_EQUITY_RESEARCH_PRODUCTION_ACTIVATION_CONTRACT_ONLY",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "required_fmdl6_final_status": "FMDL6_RESUME_READY_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+    "required_program_state": "FMDL_PROGRAM_PHASE_COMPLETE_OPERATING_OBSERVATION"
+  },
+  "investment_os_base": {
+    "package_filename": "股票投资助手_CURRENT.zip",
+    "release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+    "release_sequence": 8,
+    "package_sha256": "479d375da1586419a98bb2821342cf691b0d1358882b66bc1601fd717ab2a9aa",
+    "manifest_file_count": 61,
+    "nested_runtime_package_count": 4,
+    "integrity_status": "PASS",
+    "operating_phase_in_package": "A_SHARE_STABLE_OPERATIONS_OBSERVATION"
+  },
+  "accepted_market_base": {
+    "a_share": "OPERATIONAL",
+    "hong_kong_stock_connect": "OPERATIONAL",
+    "us_equity": "RESUME_READY_PILOT_ONLY"
+  },
+  "user_channel_fact": {
+    "has_current_us_brokerage_channel": false,
+    "channel_status": "NO_CURRENT_CHANNEL",
+    "broker_specific_constraints_available": false
+  },
+  "pilot_audit": {
+    "identity_architecture_reusable": true,
+    "source_interface_evidence_reusable": true,
+    "failure_taxonomy_reusable": true,
+    "restore_logic_reusable": true,
+    "full_universe_present": false,
+    "full_history_present": false,
+    "production_financial_normalization_present": false,
+    "production_factor_screening_present": false,
+    "portfolio_integration_present": false,
+    "conclusion": "PILOT_ACCEPTED_AND_REUSABLE_BUT_NOT_PRODUCTION_COMPLETE"
+  },
+  "dual_activation": {
+    "research_production_gate": {
+      "status": "OPEN_FOR_CONTROLLED_BUILD",
+      "authorized_future_scope": [
+        "ANTICIPATED_RESEARCH_UNIVERSE",
+        "OFFICIAL_SECURITY_MASTER",
+        "HISTORICAL_MARKET_AND_CORPORATE_ACTION_EVIDENCE",
+        "SEC_FILING_AND_FINANCIAL_FACT_NORMALIZATION",
+        "FACTOR_SCREENING_AND_RESEARCH_PRODUCTION",
+        "RESEARCH_ONLY_CROSS_MARKET_DUPLICATION_REVIEW"
+      ],
+      "current_phase_mutation_authority": "CONTRACT_ONLY"
+    },
+    "brokerage_real_account_gate": {
+      "status": "CLOSED_NO_CHANNEL",
+      "required_conditions": [
+        "REAL_US_INVESTMENT_CHANNEL_EXISTS",
+        "TRADABLE_VENUES_AND_INSTRUMENTS_DOCUMENTED",
+        "CURRENCY_FX_FEE_TAX_SETTLEMENT_CONSTRAINTS_DOCUMENTED",
+        "BROKER_SYMBOL_RESTRICTIONS_RECONCILED",
+        "USER_EXPLICITLY_APPROVES_ACCOUNT_INTEGRATION"
+      ]
+    }
+  },
+  "no_channel_rules": {
+    "default_channel_status": "CHANNEL_ELIGIBILITY_PENDING",
+    "research_eligibility_separate_from_channel_eligibility": true,
+    "candidate_admission_authorized": false,
+    "simulation_admission_authorized": false,
+    "real_account_admission_authorized": false,
+    "order_generation_authorized": false
+  },
+  "fixed_execution_plan": {
+    "planned_subphases": [
+      "FMDL-6X1-A_EXISTING_PILOT_AUDIT_AND_DUAL_ACTIVATION_CONTRACT",
+      "FMDL-6X1-B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY",
+      "FMDL-6X1-C_SOURCE_COST_AND_EXECUTION_ROUTE_REVALIDATION",
+      "FMDL-6X1-D_FULL_BUILD_CONTRACT_AND_FMDL6X2_HANDOFF",
+      "FMDL-6X1-FINAL_OPERATIONAL_ACCEPTANCE"
+    ],
+    "planned_round_count": 5,
+    "maximum_targeted_repair_rounds": 2,
+    "repair_allowed_only_for": [
+      "FAILED_ACCEPTANCE_GATE",
+      "MATERIAL_SOURCE_BREAK",
+      "MATERIAL_IDENTITY_OR_SCHEMA_DEFECT"
+    ]
+  },
+  "zero_mutation_proof": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "required_exit_status": "FMDL6X1A_EXISTING_PILOT_AUDIT_AND_DUAL_ACTIVATION_CONTRACT_ACCEPTED",
+  "next_gate": "FMDL-6X1-B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY"
+}
