@@ -1,0 +1,26 @@
+{
+  "program_id": "FMDL-6-FINAL",
+  "program_name": "US Equity Resume-Ready Operational Acceptance",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "OPERATIONAL_ACCEPTANCE_CONTRACT_CANDIDATE",
+  "authority": "RESUME_READY_OPERATIONAL_ACCEPTANCE_ONLY",
+  "trade_authority": "NONE",
+  "entry_gates": [
+    {"program_id":"FMDL-6-0","pointer":"outputs/status/FMDL6_0_LAST_SUCCESS.json","release_id":"FMDL6_0_20260722_b63e9fb88a33","status":"FMDL6_0_US_EQUITY_RESUME_READY_PILOT_ARCHITECTURE_ACCEPTED","release_sequence":19,"current_path":"outputs/fmdl6_0/current","release_file":"FMDL6_0_RELEASE.json","manifest_file":"FMDL6_0_MANIFEST.json"},
+    {"program_id":"FMDL-6A","pointer":"outputs/status/FMDL6A_LAST_SUCCESS.json","release_id":"FMDL6A_20260722_99a4726452b1","status":"FMDL6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY_ACCEPTED","release_sequence":20,"current_path":"outputs/fmdl6a/current","release_file":"FMDL6A_RELEASE.json","manifest_file":"FMDL6A_MANIFEST.json"},
+    {"program_id":"FMDL-6B","pointer":"outputs/status/FMDL6B_LAST_SUCCESS.json","release_id":"FMDL6B_20260722_de3d0a9b7703","status":"FMDL6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK_ACCEPTED","release_sequence":21,"current_path":"outputs/fmdl6b/current","release_file":"FMDL6B_RELEASE.json","manifest_file":"FMDL6B_MANIFEST.json"},
+    {"program_id":"FMDL-6C","pointer":"outputs/status/FMDL6C_LAST_SUCCESS.json","release_id":"FMDL6C_20260722_0e06fd37937c","status":"FMDL6C_24_SECURITY_BENCHMARK_POOL_ACCEPTED","release_sequence":22,"current_path":"outputs/fmdl6c/current","release_file":"FMDL6C_RELEASE.json","manifest_file":"FMDL6C_MANIFEST.json"},
+    {"program_id":"FMDL-6D","pointer":"outputs/status/FMDL6D_LAST_SUCCESS.json","release_id":"FMDL6D_20260722_5e207a0a13a8","status":"FMDL6D_MINIMAL_END_TO_END_DATA_CHAIN_ACCEPTED","release_sequence":23,"current_path":"outputs/fmdl6d/current","release_file":"FMDL6D_RELEASE.json","manifest_file":"FMDL6D_MANIFEST.json"},
+    {"program_id":"FMDL-6E","pointer":"outputs/status/FMDL6E_LAST_SUCCESS.json","release_id":"FMDL6E_20260722_44e038992a68","status":"FMDL6E_QUALITY_FAILURE_AND_COST_BENCHMARK_ACCEPTED","release_sequence":24,"current_path":"outputs/fmdl6e/current","release_file":"FMDL6E_RELEASE.json","manifest_file":"FMDL6E_MANIFEST.json"}
+  ],
+  "cross_market_base": {"pointer":"outputs/status/FMDL5_FINAL_LAST_SUCCESS.json","release_id":"FMDL5FINAL_20260721_a43285d1ee25","status":"FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED","canonical_base_release_id":"INVESTMENT_OS_R8_20260720_501345e84562"},
+  "scope": {"mode":"RESUME_READY_PILOT_CLOSEOUT","full_universe_build_authorized":false,"full_history_backfill_authorized":false,"production_financial_normalization_authorized":false,"factor_or_screening_build_authorized":false,"research_longlist_authorized":false,"candidate_pool_integration_authorized":false,"simulation_integration_authorized":false,"real_account_integration_authorized":false,"order_generation_authorized":false},
+  "activation_gate": {"source_path":"outputs/fmdl6_0/current/FMDL6_ACTIVATION_GATE.json","required_status":"CLOSED","required_conditions":["USER_HAS_REAL_US_MARKET_INVESTMENT_CHANNEL","TRADABLE_SECURITY_SCOPE_IS_DOCUMENTED","ACCOUNT_CURRENCY_TAX_AND_EXECUTION_CONSTRAINTS_ARE_DOCUMENTED","PILOT_SOURCE_INTERFACES_ARE_REVALIDATED","USER_EXPLICITLY_APPROVES_FULL_BUILD"],"partial_or_implicit_activation_forbidden":true},
+  "deferred_backlog": {"source_path":"outputs/fmdl6_0/current/FMDL6_DEFERRED_BACKLOG.json","required_phase_ids":["FMDL-6X1_CHANNEL_AND_INVESTABLE_UNIVERSE_REFRESH","FMDL-6X2_FULL_UNIVERSE_AND_HISTORICAL_BUILD","FMDL-6X3_FACTOR_SCREENING_AND_RESEARCH_PRODUCTION","FMDL-6X4_INVESTMENT_OS_AND_PORTFOLIO_INTEGRATION"]},
+  "acceptance_gates": {"component_count":6,"first_release_sequence":19,"last_release_sequence":24,"manifest_integrity_required":true,"clean_room_restore_required":true,"failure_rollback_required":true,"same_input_replay_required":true,"upstream_lkg_unchanged_required":true,"activation_gate_closed_required":true,"deferred_backlog_complete_required":true,"candidate_pool_mutation_count":0,"simulation_mutation_count":0,"real_account_mutation_count":0,"order_generation_count":0,"trade_authority":"NONE"},
+  "file_library_retention": {"keep_only":["股票投资助手_CURRENT.zip","股票投资助手_CURRENT_POINTER.md"],"github_is_authoritative_for":["FMDL source code and workflows","FMDL-5 Hong Kong overlay","FMDL-6 US resume-ready pilot releases","Current / Immutable / Archive / Last-success technical evidence"],"do_not_upload_separate_fmdl6_artifacts":true},
+  "publication": {"release_sequence":25,"current_path":"outputs/fmdl6_final/current","archive_root":"outputs/fmdl6_final/archive","immutable_root":"datasets/fmdl6_final/releases","last_success_path":"outputs/status/FMDL6_FINAL_LAST_SUCCESS.json"},
+  "exit_status":"FMDL6_RESUME_READY_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+  "next_gate":"FMDL_PROGRAM_PHASE_COMPLETE_OPERATING_OBSERVATION"
+}
