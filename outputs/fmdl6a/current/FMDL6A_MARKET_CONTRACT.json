@@ -1,0 +1,89 @@
+{
+  "benchmark_pool_is_not_investable_universe": true,
+  "current_pilot_venues": [
+    "XNYS",
+    "XNAS",
+    "XASE"
+  ],
+  "effective_dating_required": true,
+  "instrument_boundary": {
+    "classification_source_priority": [
+      "OFFICIAL_EXCHANGE_OR_REGULATORY_REFERENCE",
+      "SEC_FILING_AND_ISSUER_DISCLOSURE",
+      "EXPLICITLY_APPROVED_FALLBACK"
+    ],
+    "excluded": [
+      "ETF",
+      "MUTUAL_FUND",
+      "CLOSED_END_FUND",
+      "PREFERRED_STOCK",
+      "WARRANT",
+      "RIGHT",
+      "UNIT",
+      "OPTION",
+      "FUTURE",
+      "OTC_SECURITY",
+      "CRYPTO_ASSET",
+      "STRUCTURED_NOTE",
+      "SPAC_UNIT_OR_WARRANT"
+    ],
+    "included": [
+      {
+        "conditions": [
+          "US_EXCHANGE_LISTED",
+          "EQUITY_SECURITY",
+          "NOT_FUND_OR_DERIVATIVE"
+        ],
+        "instrument_type": "COMMON_STOCK",
+        "pilot_role": "CORE"
+      },
+      {
+        "conditions": [
+          "US_EXCHANGE_LISTED",
+          "DEPOSITARY_RECEIPT",
+          "UNDERLYING_ISSUER_LINK_REQUIRED"
+        ],
+        "instrument_type": "ADR",
+        "pilot_role": "IDENTITY_COMPLEXITY_CASE"
+      },
+      {
+        "conditions": [
+          "US_EXCHANGE_LISTED",
+          "FOREIGN_PRIVATE_ISSUER",
+          "SEC_REPORTING_LINEAGE_REQUIRED"
+        ],
+        "instrument_type": "FOREIGN_PRIVATE_ISSUER_ORDINARY_SHARE",
+        "pilot_role": "IFRS_OR_FPI_CASE"
+      },
+      {
+        "conditions": [
+          "US_EXCHANGE_LISTED",
+          "EQUITY_REIT",
+          "COMMON_EQUITY"
+        ],
+        "instrument_type": "EQUITY_REIT_COMMON_STOCK",
+        "pilot_role": "SECTOR_ACCOUNTING_CASE"
+      }
+    ],
+    "unknown_instrument_policy": "QUARANTINE_NOT_DEFAULT_INCLUDE"
+  },
+  "market_id": "US_EXCHANGE_LISTED_PUBLIC_EQUITIES_PILOT",
+  "market_scope": "SEC_REGISTERED_OR_REPORTING_ISSUERS_WITH_SELECTED_US_EXCHANGE_LISTED_EQUITY_SECURITIES",
+  "otc_fallback_membership_forbidden": true,
+  "point_in_time_membership_required": true,
+  "program_id": "FMDL-6A",
+  "release_id": "FMDL6A_20260722_99a4726452b1",
+  "trade_authority": "NONE",
+  "universe_membership_authority": "FMDL6C_TECHNICAL_BENCHMARK_CASE_SELECTION_ONLY",
+  "universe_states": [
+    "ACTIVE_LISTED",
+    "SUSPENDED",
+    "DELISTED",
+    "ACQUIRED_OR_MERGED",
+    "TICKER_CHANGED",
+    "EXCHANGE_TRANSFERRED",
+    "DATA_INCOMPLETE",
+    "QUARANTINED"
+  ],
+  "venue_expansion_requires_change_control": true
+}

@@ -1,0 +1,150 @@
+{
+  "cik_is_listing_identity": false,
+  "controlled_refinement_of_fmdl6_0": {
+    "fmdl6_0_pattern": "US:<EXCHANGE_MIC>:<TICKER>:<SHARE_CLASS_OR_INSTRUMENT_CLASS>",
+    "fmdl6a_interpretation": "EFFECTIVE_DATED_LISTING_LOCATOR_NOT_IMMUTABLE_SECURITY_ID",
+    "historical_release_mutation_authorized": false,
+    "reason": "TICKER_AND_EXCHANGE_CAN_CHANGE_WHILE_THE_ECONOMIC_SECURITY_CONTINUES"
+  },
+  "exchange_is_identity": false,
+  "layers": [
+    {
+      "authoritative_fields": [
+        "cik10",
+        "legal_name",
+        "jurisdiction",
+        "issuer_status"
+      ],
+      "canonical_id_pattern": "SEC:CIK:<CIK10>",
+      "immutability": "STABLE_WHILE_SEC_CIK_CONTINUES",
+      "layer": "ISSUER",
+      "provisional_id_pattern": "USISSUER:PROV:<SHA12>",
+      "provisional_use": "ONLY_WHEN_OFFICIAL_CIK_UNRESOLVED_AND_ALWAYS_QUARANTINED"
+    },
+    {
+      "authoritative_fields": [
+        "issuer_id",
+        "class_token",
+        "voting_profile",
+        "economic_rights_profile"
+      ],
+      "canonical_id_pattern": "USCLASS:<ISSUER_KEY>:<CLASS_TOKEN>",
+      "immutability": "STABLE_ACROSS_TICKER_OR_EXCHANGE_CHANGE",
+      "layer": "SHARE_CLASS"
+    },
+    {
+      "authoritative_fields": [
+        "issuer_id",
+        "share_class_id",
+        "instrument_type",
+        "security_status"
+      ],
+      "canonical_id_pattern": "USSEC:<ISSUER_KEY>:<INSTRUMENT_TYPE>:<CLASS_TOKEN>",
+      "immutability": "STABLE_UNTIL_LEGAL_OR_ECONOMIC_SECURITY_TERMINATION",
+      "layer": "SECURITY"
+    },
+    {
+      "authoritative_fields": [
+        "security_id",
+        "exchange_mic",
+        "ticker",
+        "effective_from",
+        "effective_to",
+        "listing_status"
+      ],
+      "canonical_id_pattern": "USLIST:<MIC>:<TICKER>:<EFFECTIVE_FROM_YYYYMMDD>",
+      "immutability": "EFFECTIVE_DATED_AND_REPLACED_ON_TICKER_OR_EXCHANGE_CHANGE",
+      "layer": "LISTING"
+    }
+  ],
+  "one_issuer_may_have_multiple_securities": true,
+  "one_security_may_have_multiple_effective_dated_listings": true,
+  "program_id": "FMDL-6A",
+  "release_id": "FMDL6A_20260722_99a4726452b1",
+  "required_cross_links": [
+    "ISSUER_TO_SECURITY",
+    "SECURITY_TO_SHARE_CLASS",
+    "SECURITY_TO_LISTING",
+    "ADR_TO_UNDERLYING_ISSUER_OR_SECURITY",
+    "PREDECESSOR_TO_SUCCESSOR",
+    "OLD_LISTING_TO_NEW_LISTING"
+  ],
+  "required_record_fields": {
+    "identity_event": [
+      "event_id",
+      "event_type",
+      "effective_date",
+      "predecessor_id",
+      "successor_id",
+      "source_id",
+      "retrieved_at"
+    ],
+    "issuer": [
+      "issuer_id",
+      "cik10",
+      "legal_name",
+      "jurisdiction",
+      "issuer_status",
+      "effective_from",
+      "effective_to",
+      "source_id",
+      "retrieved_at"
+    ],
+    "listing": [
+      "listing_id",
+      "security_id",
+      "exchange_mic",
+      "ticker",
+      "listing_status",
+      "effective_from",
+      "effective_to",
+      "source_id",
+      "retrieved_at"
+    ],
+    "security": [
+      "security_id",
+      "issuer_id",
+      "share_class_id",
+      "instrument_type",
+      "security_status",
+      "effective_from",
+      "effective_to",
+      "source_id"
+    ],
+    "share_class": [
+      "share_class_id",
+      "issuer_id",
+      "class_token",
+      "voting_profile",
+      "economic_rights_profile",
+      "effective_from",
+      "effective_to",
+      "source_id"
+    ]
+  },
+  "source_authority_and_conflict_policy": {
+    "conflict_resolution": [
+      "PRESERVE_ALL_SOURCE_ASSERTIONS_WITH_RETRIEVAL_AND_EFFECTIVE_TIMESTAMPS",
+      "DO_NOT_SILENTLY_OVERWRITE_CONFLICTS",
+      "PREFER_OFFICIAL_SOURCE_WITH_MATCHING_EFFECTIVE_DATE",
+      "QUARANTINE_UNRESOLVED_CONFLICT",
+      "REQUIRE_CHANGE_EVENT_RECORD_FOR_IDENTITY_TRANSITION"
+    ],
+    "fallback_may_create_decision_grade_identity": false,
+    "instrument_classification_authority": [
+      "OFFICIAL_EXCHANGE_OR_REGULATORY_FLAGS",
+      "SEC_FILING_SECURITY_DESCRIPTION",
+      "MANUALLY_APPROVED_QUARANTINE_OVERRIDE"
+    ],
+    "issuer_and_filing_authority": [
+      "SEC_SUBMISSIONS_AND_OFFICIAL_ISSUER_REFERENCE",
+      "SEC_FILING_HEADER_AND_PRIMARY_DOCUMENT"
+    ],
+    "listing_and_symbol_authority": [
+      "OFFICIAL_EXCHANGE_SYMBOL_DIRECTORY",
+      "OFFICIAL_REGULATORY_OR_MARKET_REFERENCE"
+    ]
+  },
+  "ticker_is_identity": false,
+  "trade_authority": "NONE"
+}
