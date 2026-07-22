@@ -96,11 +96,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A \
             outputs/fmdl6x2/current/identity \
-            outputs/fmdl6x2/archive \
             datasets/fmdl6x2/releases \
             datasets/fmdl6x2/normalized/identity \
             outputs/status/FMDL6X2B_LAST_SUCCESS.json \
             outputs/status/FMDL6X2_IDENTITY_LKG.json
+          if [ -d outputs/fmdl6x2/archive ]; then
+            git add -A outputs/fmdl6x2/archive
+          fi
           git diff --cached --quiet && exit 0
           git commit -m "data: publish FMDL-6X2-B identity classification [skip ci]"
           git push
