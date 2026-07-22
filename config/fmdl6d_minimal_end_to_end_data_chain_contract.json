@@ -1,0 +1,160 @@
+{
+  "program_id": "FMDL-6D",
+  "program_name": "US Minimal End-to-End Data Chain",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "CHAIN_CONTRACT_CANDIDATE",
+  "authority": "BOUNDED_TECHNICAL_DATA_CHAIN_ONLY",
+  "trade_authority": "NONE",
+  "entry_gates": {
+    "fmdl6b_pointer": "outputs/status/FMDL6B_LAST_SUCCESS.json",
+    "fmdl6b_release_id": "FMDL6B_20260722_de3d0a9b7703",
+    "fmdl6b_status": "FMDL6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK_ACCEPTED",
+    "fmdl6c_pointer": "outputs/status/FMDL6C_LAST_SUCCESS.json",
+    "fmdl6c_release_id": "FMDL6C_20260722_0e06fd37937c",
+    "fmdl6c_status": "FMDL6C_24_SECURITY_BENCHMARK_POOL_ACCEPTED"
+  },
+  "scope": {
+    "mode": "SMALL_SAMPLE_END_TO_END_PILOT",
+    "market_sample_security_count": 8,
+    "financial_sample_issuer_count": 4,
+    "full_universe_build_authorized": false,
+    "full_history_backfill_authorized": false,
+    "production_financial_normalization_authorized": false,
+    "factor_or_screening_build_authorized": false,
+    "research_longlist_authorized": false,
+    "candidate_pool_integration_authorized": false,
+    "simulation_integration_authorized": false,
+    "real_account_integration_authorized": false,
+    "order_generation_authorized": false
+  },
+  "sample_securities": [
+    {
+      "pool_order": 1,
+      "ticker": "AAPL",
+      "market_symbol": "AAPL",
+      "cik10": "0000320193",
+      "security_key": "USSEC:SEC:CIK:0000320193:COMMON_STOCK:COMMON",
+      "case_role": "DOMESTIC_COMMON_AND_SPLIT_DIVIDEND_BASE"
+    },
+    {
+      "pool_order": 5,
+      "ticker": "BRK-B",
+      "market_symbol": "BRK-B",
+      "cik10": "0001067983",
+      "security_key": "USSEC:SEC:CIK:0001067983:COMMON_STOCK:CLASS_B",
+      "case_role": "PUNCTUATED_TICKER_AND_MULTI_CLASS"
+    },
+    {
+      "pool_order": 11,
+      "ticker": "BABA",
+      "market_symbol": "BABA",
+      "cik10": "0001577552",
+      "security_key": "USSEC:SEC:CIK:0001577552:ADR:ADS",
+      "case_role": "ADR_FOREIGN_PRIVATE_ISSUER"
+    },
+    {
+      "pool_order": 12,
+      "ticker": "ASML",
+      "market_symbol": "ASML",
+      "cik10": "0000937966",
+      "security_key": "USSEC:SEC:CIK:0000937966:FOREIGN_PRIVATE_ISSUER_ORDINARY:REGISTERED_SHARE",
+      "case_role": "FOREIGN_ORDINARY_IFRS"
+    },
+    {
+      "pool_order": 19,
+      "ticker": "EQIX",
+      "market_symbol": "EQIX",
+      "cik10": "0001101239",
+      "security_key": "USSEC:SEC:CIK:0001101239:EQUITY_REIT_COMMON:COMMON",
+      "case_role": "EQUITY_REIT"
+    },
+    {
+      "pool_order": 21,
+      "ticker": "JPM",
+      "market_symbol": "JPM",
+      "cik10": "0000019617",
+      "security_key": "USSEC:SEC:CIK:0000019617:COMMON_STOCK:COMMON",
+      "case_role": "BANK_SPECIALIZED_REPORTING"
+    },
+    {
+      "pool_order": 23,
+      "ticker": "GEV",
+      "market_symbol": "GEV",
+      "cik10": "0001996810",
+      "security_key": "USSEC:SEC:CIK:0001996810:COMMON_STOCK:COMMON",
+      "case_role": "SPINOFF_AND_SHORT_PUBLIC_HISTORY"
+    },
+    {
+      "pool_order": 24,
+      "ticker": "UEC",
+      "market_symbol": "UEC",
+      "cik10": "0001334933",
+      "security_key": "USSEC:SEC:CIK:0001334933:COMMON_STOCK:COMMON",
+      "case_role": "NYSE_AMERICAN_SMALLER_CAP_VENUE"
+    }
+  ],
+  "source_routes": {
+    "market": {
+      "primary": "YAHOO_QUERY1_CHART_EVENTS",
+      "fallback": "YAHOO_QUERY2_CHART_EVENTS",
+      "authority": "FREE_UNOFFICIAL_PILOT",
+      "history_start": "2025-01-01",
+      "interval": "1d",
+      "events": ["div", "splits"],
+      "point_in_time_posture": "RETRIEVAL_BOUND_ONLY_NOT_HISTORICAL_AS_OF"
+    },
+    "fx": {
+      "primary": "ECB_REFERENCE_FX",
+      "authority": "ECB_OFFICIAL",
+      "currencies": ["USD", "CNY", "HKD"],
+      "currency_denom": "EUR",
+      "derived_pairs": ["USD/CNY", "USD/HKD"],
+      "history_start": "2025-01-01",
+      "point_in_time_posture": "REFERENCE_DATE_WITH_CONSERVATIVE_RETRIEVAL_AVAILABILITY"
+    },
+    "sec_financial_sample": {
+      "path": "datasets/fmdl6d/source_snapshots/sec_financial_fact_sample.json",
+      "route": "CHATGPT_WEB",
+      "authority": "SEC_OFFICIAL_FILING_HTML_SELECTED_FACTS",
+      "full_raw_payload_retained": false,
+      "selected_fact_snapshot_hash_required": true,
+      "no_silent_replacement": true
+    }
+  },
+  "acceptance_gates": {
+    "market_security_count": 8,
+    "minimum_daily_observations_per_security": 250,
+    "minimum_total_daily_observations": 2000,
+    "minimum_fx_observations_per_pair": 100,
+    "financial_sample_issuer_count": 4,
+    "minimum_financial_facts_per_issuer": 2,
+    "minimum_financial_fact_count": 10,
+    "source_lineage_complete": true,
+    "availability_fields_complete": true,
+    "same_input_replay_required": true,
+    "candidate_pool_mutation_count": 0,
+    "simulation_mutation_count": 0,
+    "real_account_mutation_count": 0,
+    "order_generation_count": 0,
+    "trade_authority": "NONE"
+  },
+  "controlled_limitations": [
+    "FREE_MARKET_DATA_PILOT_ONLY_NOT_DECISION_GRADE",
+    "YAHOO_HISTORICAL_REVISION_AND_POINT_IN_TIME_GUARANTEES_NOT_DOCUMENTED",
+    "SEC_SELECTED_FACT_SNAPSHOT_DOES_NOT_RETAIN_FULL_FILING_PAYLOAD",
+    "SEC_FILING_ACCEPTANCE_TIMESTAMPS_NOT_CAPTURED_FOR_ALL_SAMPLE_FACTS",
+    "HISTORICAL_AVAILABILITY_IS_CONSERVATIVELY_BOUND_TO_RETRIEVAL_TIMESTAMP",
+    "FOUR_ISSUER_FINANCIAL_SAMPLE_IS_NOT_PRODUCTION_NORMALIZATION",
+    "NO_FACTOR_SCREENING_OR_INVESTMENT_STATE_AUTHORITY"
+  ],
+  "publication": {
+    "release_sequence": 23,
+    "current_path": "outputs/fmdl6d/current",
+    "archive_root": "outputs/fmdl6d/archive",
+    "immutable_root": "datasets/fmdl6d/releases",
+    "last_success_path": "outputs/status/FMDL6D_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL6D_MINIMAL_END_TO_END_DATA_CHAIN_ACCEPTED",
+  "next_gate": "FMDL-6E_QUALITY_FAILURE_AND_COST_BENCHMARK"
+}
