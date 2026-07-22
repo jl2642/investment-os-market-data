@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import copy
 import json
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, "scripts")
-from fmdl6x1c_benchmark import capability_decisions, parse_payload, validate_contract  # noqa: E402
+from fmdl6x1c_benchmark import capability_decisions, parse_payload, route_payload_valid, validate_contract  # noqa: E402
 
 
 class Fmdl6x1cTests(unittest.TestCase):
@@ -36,6 +34,16 @@ class Fmdl6x1cTests(unittest.TestCase):
         parsed = parse_payload("ZIP_DIRECTORY", stream.getvalue())
         self.assertEqual(parsed["member_count"], 2)
 
+    def test_html_challenge_is_not_valid_stooq_csv(self) -> None:
+        payload = b"<!DOCTYPE html><html><body>JavaScript required</body></html>"
+        parsed = parse_payload("CSV", payload)
+        self.assertFalse(route_payload_valid("STOOQ_AAPL_DAILY", parsed, payload, {"content-type": "text/html"}))
+
+    def test_valid_stooq_csv_is_accepted(self) -> None:
+        payload = b"Date,Open,High,Low,Close,Volume\n2026-01-01,1,2,1,2,10\n2026-01-02,2,3,2,3,11\n"
+        parsed = parse_payload("CSV", payload)
+        self.assertTrue(route_payload_valid("STOOQ_AAPL_DAILY", parsed, payload, {"content-type": "text/csv"}))
+
     def test_capabilities_pass_with_expected_routes(self) -> None:
         observations = []
         for group in self.contract["route_groups"]:
@@ -44,11 +52,11 @@ class Fmdl6x1cTests(unittest.TestCase):
         decisions = capability_decisions(self.contract, {"observations": observations})
         self.assertTrue(all(item["status"] == "PASS" for item in decisions))
 
-    def test_market_capability_fails_without_event_route(self) -> None:
+    def test_market_capability_fails_without_yahoo_chart_route(self) -> None:
         observations = []
         for group in self.contract["route_groups"]:
             for route in group["routes"]:
-                success = route["route_id"] != "YAHOO_QUERY1_AAPL_EVENTS" and route["route_id"] != "YAHOO_QUERY2_AAPL_EVENTS"
+                success = route["route_id"] not in {"YAHOO_QUERY1_AAPL_EVENTS", "YAHOO_QUERY2_AAPL_EVENTS"}
                 observations.append({"route_id": route["route_id"], "success": success, "failure_class": None if success else "HTTP_4XX_AUTH_OR_BLOCK"})
         decisions = {item["capability_id"]: item for item in capability_decisions(self.contract, {"observations": observations})}
         self.assertEqual(decisions["MARKET_HISTORY_AND_CORPORATE_ACTIONS"]["status"], "FAIL")
