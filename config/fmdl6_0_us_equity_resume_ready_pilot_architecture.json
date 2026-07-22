@@ -1,0 +1,294 @@
+{
+  "program_id": "FMDL-6-0",
+  "program_name": "US Equity Interface & Resume-Ready Pilot Architecture",
+  "plan_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "ARCHITECTURE_CANDIDATE",
+  "authority": "US_EQUITY_INTERFACE_AND_RESUME_READY_PILOT_ARCHITECTURE_ONLY",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json",
+    "required_release_id": "FMDL5FINAL_20260721_a43285d1ee25",
+    "required_status": "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+    "required_next_gate": "FMDL-6_0_US_EQUITY_INTERFACE_AND_BENCHMARK_PLAN"
+  },
+  "accepted_cross_market_base": {
+    "investment_os_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+    "investment_os_release_sequence": 8,
+    "fmdl5_final_release_id": "FMDL5FINAL_20260721_a43285d1ee25",
+    "integration_posture": "RELEASE8_BASE_PLUS_IMMUTABLE_FMDL5_OVERLAY",
+    "a_share_capability": "OPERATIONAL",
+    "hong_kong_stock_connect_capability": "OPERATIONAL"
+  },
+  "scope_decision": {
+    "scope_mode": "INTERFACE_AND_SMALL_BENCHMARK_ONLY",
+    "objective": "BUILD_VALIDATE_FREEZE_AND_PUBLISH_A_RESUME_READY_US_EQUITY_INTERFACE_PILOT_WITHOUT_FULL_MARKET_OR_PORTFOLIO_INTEGRATION",
+    "benchmark_security_target": 24,
+    "full_universe_development_authorized": false,
+    "full_history_backfill_authorized": false,
+    "full_financial_normalization_authorized": false,
+    "factor_and_screening_production_authorized": false,
+    "candidate_pool_integration_authorized": false,
+    "simulation_integration_authorized": false,
+    "real_account_integration_authorized": false,
+    "order_generation_authorized": false,
+    "automatic_trade_authority_authorized": false
+  },
+  "controlled_supersession": {
+    "historical_plan_path": "config/fmdl5_0_cross_market_master_plan.json",
+    "historical_fmdl6_scope": "FULL_US_EQUITY_BUILD_IN_10_FORMAL_SUBPHASES",
+    "new_execution_scope": "RESUME_READY_INTERFACE_AND_24_SECURITY_BENCHMARK_PILOT",
+    "historical_record_preserved": true,
+    "historical_release_mutation_authorized": false,
+    "future_full_build_logic_preserved_as_deferred_backlog": true
+  },
+  "design_principles": [
+    "REUSE_ACCEPTED_A_SHARE_AND_HK_INVESTMENT_OS_CORE",
+    "US_MARKET_SPECIFIC_ADAPTERS_ONLY",
+    "OFFICIAL_PRIMARY_SOURCES_FIRST",
+    "FREE_SOURCE_FALLBACKS_EXPLICIT_AND_BENCHMARKED",
+    "POINT_IN_TIME_AND_REVISION_LINEAGE_REQUIRED",
+    "ISSUER_SECURITY_LISTING_AND_SHARE_CLASS_IDENTITIES_SEPARATED",
+    "ADR_AND_UNDERLYING_RELATIONSHIP_EXPLICIT",
+    "NO_FULL_UNIVERSE_OR_FULL_HISTORY_BUILD_IN_CURRENT_SCOPE",
+    "NO_RAW_SCORE_AUTO_PROMOTION",
+    "NO_CANDIDATE_SIMULATION_REAL_ACCOUNT_OR_ORDER_MUTATION",
+    "CURRENT_IMMUTABLE_ARCHIVE_LAST_SUCCESS_AND_LKG_REQUIRED",
+    "RESUME_FROM_MACHINE_READABLE_POINTERS_NOT_CHAT_MEMORY",
+    "NO_UNBOUNDED_SUBPHASE_SPLITTING"
+  ],
+  "current_execution_plan": {
+    "formal_subphases_after_fmdl6_0": [
+      "FMDL-6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY",
+      "FMDL-6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK",
+      "FMDL-6C_24_SECURITY_BENCHMARK_POOL",
+      "FMDL-6D_MINIMAL_END_TO_END_DATA_CHAIN",
+      "FMDL-6E_QUALITY_FAILURE_AND_COST_BENCHMARK",
+      "FMDL-6-FINAL_RESUME_READY_OPERATIONAL_ACCEPTANCE"
+    ],
+    "formal_subphase_count_after_fmdl6_0": 6,
+    "total_planned_round_count_including_fmdl6_0": 7,
+    "maximum_total_rounds_including_targeted_repairs": 9,
+    "repair_round_allowed_only_for": [
+      "FAILED_ACCEPTANCE_GATE",
+      "UPSTREAM_SOURCE_BREAK",
+      "MATERIAL_SCHEMA_OR_IDENTITY_DEFECT"
+    ],
+    "repair_round_forbidden_for": [
+      "COSMETIC_RENAMING",
+      "UNBOUNDED_RESEARCH",
+      "FULL_UNIVERSE_SCOPE_CREEP",
+      "UNAUTHORIZED_PORTFOLIO_INTEGRATION"
+    ]
+  },
+  "security_identity_architecture": {
+    "canonical_layers": [
+      "ISSUER_ID",
+      "SECURITY_ID",
+      "LISTING_ID",
+      "SHARE_CLASS_ID",
+      "CIK",
+      "TICKER",
+      "EXCHANGE_MIC",
+      "INSTRUMENT_TYPE",
+      "ADR_UNDERLYING_LINK",
+      "PREDECESSOR_SUCCESSOR_LINK",
+      "EFFECTIVE_FROM_AND_EFFECTIVE_TO"
+    ],
+    "canonical_security_id_pattern": "US:<EXCHANGE_MIC>:<TICKER>:<SHARE_CLASS_OR_INSTRUMENT_CLASS>",
+    "required_identity_cases": [
+      "MULTIPLE_SHARE_CLASSES",
+      "ADR_AND_FOREIGN_PRIVATE_ISSUER",
+      "REIT",
+      "TICKER_CHANGE",
+      "EXCHANGE_TRANSFER",
+      "DELISTING_OR_ACQUISITION",
+      "SPINOFF_OR_SUCCESSOR_ENTITY",
+      "CORPORATE_ACTION_AFFECTING_IDENTITY"
+    ]
+  },
+  "pilot_universe_boundary": {
+    "included_instruments": [
+      "US_EXCHANGE_LISTED_COMMON_STOCK",
+      "SELECTED_ADR_OR_FOREIGN_PRIVATE_ISSUER",
+      "SELECTED_EQUITY_REIT"
+    ],
+    "excluded_instruments": [
+      "ETF",
+      "MUTUAL_FUND",
+      "CLOSED_END_FUND",
+      "PREFERRED_STOCK",
+      "WARRANT",
+      "RIGHT",
+      "UNIT",
+      "OPTION",
+      "OTC_SECURITY",
+      "CRYPTO_ASSET"
+    ],
+    "benchmark_selection_rule": "REPRESENTATIVE_FAILURE_MODE_COVERAGE_NOT_INVESTMENT_RECOMMENDATION",
+    "benchmark_security_target": 24,
+    "candidate_pool_authority": "NONE"
+  },
+  "required_source_interfaces": [
+    {
+      "interface_id": "SEC_EDGAR_IDENTITY_AND_SUBMISSIONS",
+      "primary_source_family": "SEC_DATA_SEC_GOV",
+      "required_endpoints_or_artifacts": [
+        "COMPANY_TICKERS_OR_OFFICIAL_ISSUER_REFERENCE",
+        "SUBMISSIONS_JSON",
+        "FILING_INDEX_AND_PRIMARY_DOCUMENT_METADATA"
+      ],
+      "decision_grade_claim_deferred_to": "FMDL-6B"
+    },
+    {
+      "interface_id": "SEC_EDGAR_COMPANY_FACTS_AND_XBRL",
+      "primary_source_family": "SEC_DATA_SEC_GOV",
+      "required_endpoints_or_artifacts": [
+        "COMPANYFACTS_JSON",
+        "COMPANYCONCEPT_OR_XBRL_FACTS_WHEN_REQUIRED",
+        "FILING_ACCESSION_AND_ACCEPTANCE_TIMESTAMP"
+      ],
+      "decision_grade_claim_deferred_to": "FMDL-6D_AND_FMDL-6E"
+    },
+    {
+      "interface_id": "US_EXCHANGE_SECURITY_DIRECTORY",
+      "primary_source_family": "OFFICIAL_US_EXCHANGE_OR_REGULATORY_REFERENCE",
+      "required_endpoints_or_artifacts": [
+        "LISTED_SYMBOL_DIRECTORY",
+        "EXCHANGE_AND_INSTRUMENT_TYPE",
+        "EFFECTIVE_DATE_OR_RETRIEVAL_TIMESTAMP"
+      ],
+      "decision_grade_claim_deferred_to": "FMDL-6B"
+    },
+    {
+      "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
+      "primary_source_family": "FREE_OR_FREE_TIER_MARKET_DATA_WITH_EXPLICIT_FALLBACKS",
+      "required_endpoints_or_artifacts": [
+        "DAILY_OHLCV",
+        "SPLIT_AND_DIVIDEND_EVENTS",
+        "USD_CNY_AND_USD_HKD_FX_INTERFACE"
+      ],
+      "decision_grade_claim_deferred_to": "FMDL-6B_AND_FMDL-6D"
+    }
+  ],
+  "phase_deliverables": {
+    "FMDL-6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY": [
+      "US_MARKET_UNIVERSE_CONTRACT",
+      "US_SECURITY_IDENTITY_CONTRACT",
+      "ISSUER_SECURITY_LISTING_SHARE_CLASS_SCHEMA",
+      "INSTRUMENT_BOUNDARY_AND_EXCLUSION_POLICY"
+    ],
+    "FMDL-6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK": [
+      "SOURCE_REGISTRY",
+      "ACCESS_LATENCY_RATE_LIMIT_AND_GITHUB_ACTIONS_BENCHMARK",
+      "FALLBACK_AND_FAILURE_TAXONOMY",
+      "DECISION_GRADE_SOURCE_ROUTE_DECISION"
+    ],
+    "FMDL-6C_24_SECURITY_BENCHMARK_POOL": [
+      "24_SECURITY_BENCHMARK_POOL",
+      "TEST_CASE_COVERAGE_MATRIX",
+      "CIK_TICKER_EXCHANGE_AND_INSTRUMENT_BINDINGS",
+      "NON_CANDIDATE_AUTHORITY_DECLARATION"
+    ],
+    "FMDL-6D_MINIMAL_END_TO_END_DATA_CHAIN": [
+      "SMALL_SAMPLE_PRICE_AND_CORPORATE_ACTION_STORE",
+      "SEC_SUBMISSION_AND_FINANCIAL_FACT_SAMPLE",
+      "POINT_IN_TIME_AVAILABILITY_FIELDS",
+      "SOURCE_LINEAGE_AND_SAMPLE_MANIFEST"
+    ],
+    "FMDL-6E_QUALITY_FAILURE_AND_COST_BENCHMARK": [
+      "QUALITY_REPORT",
+      "FAILURE_INJECTION_AND_LKG_PROOF",
+      "SAME_INPUT_REPLAY",
+      "COVERAGE_LATENCY_COST_AND_SCALING_ESTIMATE"
+    ],
+    "FMDL-6-FINAL_RESUME_READY_OPERATIONAL_ACCEPTANCE": [
+      "CURRENT_IMMUTABLE_ARCHIVE_LAST_SUCCESS",
+      "FMDL6_START_HERE",
+      "ACTIVATION_GATE",
+      "DEFERRED_FULL_BUILD_BACKLOG",
+      "FUTURE_FULL_BUILD_DECISION_GATE"
+    ]
+  },
+  "deferred_full_build_backlog": [
+    {
+      "phase_id": "FMDL-6X1_CHANNEL_AND_INVESTABLE_UNIVERSE_REFRESH",
+      "status": "DEFERRED_NOT_AUTHORIZED",
+      "objective": "Bind the user's real US investment channel, tradable instrument scope, account currency, tax and execution constraints."
+    },
+    {
+      "phase_id": "FMDL-6X2_FULL_UNIVERSE_AND_HISTORICAL_BUILD",
+      "status": "DEFERRED_NOT_AUTHORIZED",
+      "objective": "Build the full eligible Security Master, historical market data, corporate actions and financial evidence stores."
+    },
+    {
+      "phase_id": "FMDL-6X3_FACTOR_SCREENING_AND_RESEARCH_PRODUCTION",
+      "status": "DEFERRED_NOT_AUTHORIZED",
+      "objective": "Build production factors, screening, Research Objects and research graduation for the approved universe."
+    },
+    {
+      "phase_id": "FMDL-6X4_INVESTMENT_OS_AND_PORTFOLIO_INTEGRATION",
+      "status": "DEFERRED_NOT_AUTHORIZED",
+      "objective": "Integrate governed candidate, simulation and real-account review routes only after explicit authorization."
+    }
+  ],
+  "activation_gate": {
+    "gate_status": "CLOSED",
+    "required_conditions": [
+      "USER_HAS_REAL_US_MARKET_INVESTMENT_CHANNEL",
+      "TRADABLE_SECURITY_SCOPE_IS_DOCUMENTED",
+      "ACCOUNT_CURRENCY_TAX_AND_EXECUTION_CONSTRAINTS_ARE_DOCUMENTED",
+      "PILOT_SOURCE_INTERFACES_ARE_REVALIDATED",
+      "USER_EXPLICITLY_APPROVES_FULL_BUILD"
+    ],
+    "full_build_activation_rule": "ALL_REQUIRED_CONDITIONS_TRUE_AND_EXPLICIT_USER_APPROVAL",
+    "partial_or_implicit_activation_forbidden": true
+  },
+  "resume_ready_package": {
+    "required_static_assets": [
+      "docs/FMDL-6_START_HERE.md",
+      "docs/FMDL-6-0_US_EQUITY_INTERFACE_AND_RESUME_READY_PILOT_ARCHITECTURE.md",
+      "docs/FMDL-6-0_PRIMARY_SOURCE_AND_INTERFACE_REGISTER.md",
+      "docs/FMDL-6-0_DEFERRED_FULL_BUILD_PLAN.md",
+      "config/fmdl6_0_us_equity_resume_ready_pilot_architecture.json",
+      "schemas/fmdl6_0_resume_ready_pilot_contract_v1.schema.json"
+    ],
+    "required_published_assets": [
+      "FMDL6_0_RELEASE.json",
+      "FMDL6_0_DECISION.json",
+      "FMDL6_0_VALIDATION.json",
+      "FMDL6_0_MANIFEST.json",
+      "FMDL6_START_HERE.md",
+      "FMDL6_ACTIVATION_GATE.json",
+      "FMDL6_DEFERRED_BACKLOG.json",
+      "FMDL6_SOURCE_INTERFACE_PLAN.json"
+    ],
+    "restore_read_order": [
+      "outputs/status/FMDL6_0_LAST_SUCCESS.json",
+      "outputs/fmdl6_0/current/FMDL6_START_HERE.md",
+      "outputs/fmdl6_0/current/FMDL6_0_RELEASE.json",
+      "outputs/fmdl6_0/current/FMDL6_ACTIVATION_GATE.json",
+      "outputs/fmdl6_0/current/FMDL6_DEFERRED_BACKLOG.json"
+    ],
+    "chat_history_required_for_restore": false
+  },
+  "shared_state_boundaries": {
+    "research_graduation_is_not_candidate_admission": true,
+    "candidate_admission_is_not_simulation_admission": true,
+    "simulation_admission_is_not_real_account_admission": true,
+    "real_account_action_requires_user_confirmation": true,
+    "us_pilot_is_not_us_investment_capability_completion": true,
+    "benchmark_pool_is_not_candidate_pool": true,
+    "trade_authority": "NONE"
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl6_0/candidate",
+    "current_root": "outputs/fmdl6_0/current",
+    "archive_root": "outputs/fmdl6_0/archive",
+    "release_root": "datasets/fmdl6_0/releases",
+    "last_success": "outputs/status/FMDL6_0_LAST_SUCCESS.json",
+    "release_sequence": 19
+  },
+  "exit_status": "FMDL6_0_US_EQUITY_RESUME_READY_PILOT_ARCHITECTURE_ACCEPTED",
+  "next_gate": "FMDL-6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY"
+}
