@@ -13,8 +13,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: fmdl6c-bootstrap-${{ github.event.pull_request.head.ref || github.ref }}
-  cancel-in-progress: false
+  group: fmdl6c-bootstrap-materialization
+  cancel-in-progress: true
 
 jobs:
   materialize:
@@ -25,21 +25,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          ref: fmdl-6c-24-security-benchmark-pool
       - name: Decode and extract prepared FMDL-6C payload
         run: |
           cat .bootstrap/fmdl6c_part_* > /tmp/fmdl6c_payload.b64
           base64 -d /tmp/fmdl6c_payload.b64 > /tmp/fmdl6c_payload.tar.gz
           tar -xzf /tmp/fmdl6c_payload.tar.gz -C .
-      - name: Remove generated caches and one-time bootstrap assets
+      - name: Remove caches bootstrap payload and deferred workflow file
         run: |
           rm -rf scripts/__pycache__ tests/__pycache__ .bootstrap
-          rm -f .github/workflows/fmdl6c-bootstrap.yml
-      - name: Commit materialized FMDL-6C implementation
+          rm -f .github/workflows/fmdl-6c-24-security-benchmark-pool.yml
+      - name: Commit materialized implementation without workflow mutation
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git diff --cached --quiet && exit 0
           git commit -m "FMDL-6C: materialize 24-security benchmark pool"
-          git push origin HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}
+          git push origin HEAD:fmdl-6c-24-security-benchmark-pool
