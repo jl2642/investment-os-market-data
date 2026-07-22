@@ -1,0 +1,117 @@
+name: FMDL 6X1-C Source Cost and Execution Route Revalidation
+
+on:
+  pull_request:
+    paths:
+      - 'config/fmdl6x1c_*.json'
+      - 'docs/FMDL-6X1-C*.md'
+      - 'scripts/fmdl6x1c_*.py'
+      - 'tests/test_fmdl6x1c_*.py'
+      - '.github/workflows/fmdl-6x1c-source-cost-route-revalidation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'config/fmdl6x1c_*.json'
+      - 'docs/FMDL-6X1-C*.md'
+      - 'scripts/fmdl6x1c_*.py'
+      - 'tests/test_fmdl6x1c_*.py'
+      - '.github/workflows/fmdl-6x1c-source-cost-route-revalidation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x1c-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Contract and regression tests
+        run: python -m unittest tests/test_fmdl6x1c_source_revalidation.py -v
+      - name: Compile benchmark
+        run: python -m py_compile scripts/fmdl6x1c_benchmark.py
+      - name: Validate contract directly
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts')
+          from fmdl6x1c_benchmark import validate_contract
+          checks, errors = validate_contract(Path('.').resolve())
+          print({'check_count': len(checks), 'errors': errors})
+          raise SystemExit(1 if errors else 0)
+          PY
+
+  live-revalidation:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SEC_USER_AGENT: InvestmentOS-FMDL6X1C/1.0 jl2642@users.noreply.github.com
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Fetch live route observations
+        run: |
+          rm -rf outputs/fmdl6x1c/work outputs/fmdl6x1c/candidate outputs/fmdl6x1c/acceptance
+          python scripts/fmdl6x1c_benchmark.py fetch --repo-root . --raw outputs/fmdl6x1c/work/FMDL6X1C_RAW_OBSERVATIONS.json
+      - name: Build accepted candidate
+        run: |
+          python scripts/fmdl6x1c_benchmark.py build --repo-root . --raw outputs/fmdl6x1c/work/FMDL6X1C_RAW_OBSERVATIONS.json --candidate outputs/fmdl6x1c/candidate
+      - name: Independent replay validation
+        run: |
+          python scripts/fmdl6x1c_benchmark.py validate --repo-root . --raw outputs/fmdl6x1c/work/FMDL6X1C_RAW_OBSERVATIONS.json --candidate outputs/fmdl6x1c/candidate --acceptance outputs/fmdl6x1c/acceptance/FMDL6X1C_INDEPENDENT_ACCEPTANCE.json
+      - name: Print decision summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('outputs/fmdl6x1c/candidate/FMDL6X1C_DECISION.json').read_text())
+          print(json.dumps({
+            'status': value['status'],
+            'release_id': value['release_id'],
+            'route_summary': value['route_summary'],
+            'capabilities': value['capabilities'],
+            'controlled_non_http_routes': value['controlled_non_http_routes'],
+            'cost_summary': value['cost_summary'],
+            'next_gate': value['next_gate']
+          }, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x1c-source-cost-route-revalidation-candidate
+          path: |
+            outputs/fmdl6x1c/work
+            outputs/fmdl6x1c/candidate
+            outputs/fmdl6x1c/acceptance
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: python scripts/fmdl6x1c_benchmark.py publish --repo-root . --candidate outputs/fmdl6x1c/candidate
+      - name: Commit accepted FMDL-6X1-C state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add outputs/fmdl6x1c/current datasets/fmdl6x1c/releases outputs/status/FMDL6X1C_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'data: publish FMDL-6X1-C route revalidation [skip ci]'
+          git push
