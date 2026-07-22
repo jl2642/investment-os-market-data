@@ -6,12 +6,13 @@ import shutil
 import sys
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 
-from fmdl6x2b_candidate import build_candidate, publish, validate_candidate
+from fmdl6x2b_candidate import build_candidate, load_input, publish, validate_candidate
 from fmdl6x2b_classification import classify, enrich_identity
 from fmdl6x2b_common import deterministic_gzip, deterministic_zip, load_json, sha256_file, validate_contract
 
@@ -70,7 +71,7 @@ class IdentityClassificationTests(unittest.TestCase):
         ]:
             (current / name).write_text(json.dumps(data, sort_keys=True), encoding='utf-8')
         cls.candidate = cls.tmp / 'outputs/fmdl6x2b/candidate'
-        build_candidate(cls.tmp, cls.candidate, '2026-07-22T12:00:00Z', 'TESTSHA')
+        cls.result = build_candidate(cls.tmp, cls.candidate, '2026-07-22T12:00:00Z', 'TESTSHA')
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -83,6 +84,7 @@ class IdentityClassificationTests(unittest.TestCase):
     def test_02_official_flags_and_explicit_types(self) -> None:
         self.assertEqual(classify(base_record('Q', 'Fund ETF', etf=True))['research_status'], 'REFERENCE_ONLY')
         self.assertEqual(classify(base_record('W', 'Issuer Warrants'))['instrument_type'], 'WARRANT')
+        self.assertEqual(classify(base_record('U', 'Issuer Units, each consisting of one share and one-half warrant'))['instrument_type'], 'COMPOSITE_UNIT')
         self.assertEqual(classify(base_record('P', 'Issuer 6% Preferred Stock'))['research_status'], 'EXCLUDED')
 
     def test_03_no_fuzzy_issuer_merge(self) -> None:
@@ -107,6 +109,7 @@ class IdentityClassificationTests(unittest.TestCase):
         self.assertGreaterEqual(summary['review_queue_counts']['SEC_OFFICIAL_IDENTITY_PENDING_QUEUE'], 4)
 
     def test_07_no_sec_cik_inference_and_no_trade_authority(self) -> None:
+        lineage = []
         with gzip.open(self.candidate / 'FMDL6X2B_IDENTITY_LINEAGE.jsonl.gz', 'rt', encoding='utf-8') as handle:
             lineage = [json.loads(line) for line in handle]
         self.assertTrue(all(row['sec_cik10'] is None for row in lineage))
