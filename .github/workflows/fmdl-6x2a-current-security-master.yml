@@ -1,0 +1,115 @@
+name: FMDL 6X2-A Current Security Master Production
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x2a_*.json"
+      - "schemas/fmdl6x2a_*.json"
+      - "scripts/fmdl6x2a_current_security_master.py"
+      - "tests/test_fmdl6x2a_current_security_master.py"
+      - "docs/FMDL-6X2-A*.md"
+      - ".github/workflows/fmdl-6x2a-current-security-master.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x2a_*.json"
+      - "schemas/fmdl6x2a_*.json"
+      - "scripts/fmdl6x2a_current_security_master.py"
+      - "tests/test_fmdl6x2a_current_security_master.py"
+      - "docs/FMDL-6X2-A*.md"
+      - ".github/workflows/fmdl-6x2a-current-security-master.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x2a-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Contract regression tests
+        run: python -m unittest -v tests/test_fmdl6x2a_current_security_master.py
+      - name: Compile producer
+        run: python -m py_compile scripts/fmdl6x2a_current_security_master.py tests/test_fmdl6x2a_current_security_master.py
+      - name: Validate frozen production contract
+        run: python scripts/fmdl6x2a_current_security_master.py validate-contract --repo-root .
+
+  live-production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Freeze run timestamp
+        run: echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+      - name: Fetch official current directories
+        run: |
+          rm -rf outputs/fmdl6x2a/work outputs/fmdl6x2a/candidate outputs/fmdl6x2a/acceptance
+          python scripts/fmdl6x2a_current_security_master.py fetch \
+            --repo-root . \
+            --raw-root outputs/fmdl6x2a/work/raw
+      - name: Build current Security Master candidate
+        run: |
+          python scripts/fmdl6x2a_current_security_master.py build \
+            --repo-root . \
+            --raw-root outputs/fmdl6x2a/work/raw \
+            --candidate outputs/fmdl6x2a/candidate \
+            --accepted-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA"
+      - name: Independent validation and same-input replay
+        run: |
+          python scripts/fmdl6x2a_current_security_master.py validate-candidate \
+            --repo-root . \
+            --raw-root outputs/fmdl6x2a/work/raw \
+            --candidate outputs/fmdl6x2a/candidate \
+            --accepted-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA" \
+            --acceptance outputs/fmdl6x2a/acceptance/FMDL6X2A_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x2a-current-security-master-candidate
+          path: |
+            outputs/fmdl6x2a/work/raw
+            outputs/fmdl6x2a/candidate
+            outputs/fmdl6x2a/acceptance
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release raw normalized and pointers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          python scripts/fmdl6x2a_current_security_master.py publish \
+            --repo-root . \
+            --candidate outputs/fmdl6x2a/candidate \
+            --published-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA"
+      - name: Commit accepted FMDL-6X2-A production state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            outputs/fmdl6x2/current/security_master \
+            outputs/fmdl6x2/archive \
+            datasets/fmdl6x2/releases \
+            datasets/fmdl6x2/raw/nasdaq_trader \
+            datasets/fmdl6x2/normalized/security_master \
+            outputs/status/FMDL6X2A_LAST_SUCCESS.json \
+            outputs/status/FMDL6X2_SECURITY_MASTER_LKG.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X2-A current Security Master [skip ci]"
+          git push
