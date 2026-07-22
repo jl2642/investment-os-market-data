@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
-from fmdl6b_core import PROGRAM_ID, sha256_bytes, stable_json
+from fmdl6b_core import PROGRAM_ID, load_json, sha256_bytes, sha256_file, stable_json, write_json
 
 SEC_REQUIRED_ROUTES = (
     "SEC_COMPANY_TICKERS_EXCHANGE",
@@ -17,7 +18,6 @@ def _is_repeatable_sec_hosted_runner_block(row: dict[str, Any] | None) -> bool:
         and row.get("access_status") == "FAIL"
         and row.get("http_status") == 403
         and row.get("failure_mode") == "HTTP_4XX_AUTH_OR_BLOCK"
-        and row.get("environment", "GITHUB_ACTIONS") != "LOCAL_ONLY"
     )
 
 
@@ -28,8 +28,13 @@ def controlled_normalize_observations(contract: dict[str, Any], raw: dict[str, A
     hard_failures: list[str] = []
     controlled_limitations: list[str] = []
 
-    sec_hosted_runner_blocked = all(_is_repeatable_sec_hosted_runner_block(by_id.get(route_id)) for route_id in SEC_REQUIRED_ROUTES)
-    for route_id in contract["capability_acceptance"]["required_official_route_ids"]:
+    policy = contract["capability_acceptance"]
+    sec_hosted_runner_blocked = (
+        raw.get("environment") == "GITHUB_ACTIONS"
+        and policy.get("github_hosted_sec_403_controlled_limitation_allowed") is True
+        and all(_is_repeatable_sec_hosted_runner_block(by_id.get(route_id)) for route_id in SEC_REQUIRED_ROUTES)
+    )
+    for route_id in policy["required_official_route_ids"]:
         if route_id not in successful and not sec_hosted_runner_blocked:
             hard_failures.append(f"REQUIRED_OFFICIAL_ROUTE_FAILED:{route_id}")
 
@@ -76,6 +81,15 @@ def controlled_normalize_observations(contract: dict[str, Any], raw: dict[str, A
         "COMPANY_FACTS_NORMALIZATION_DEFERRED_TO_FMDL6D_AND_FMDL6E",
     ])
 
+    execution_route_decision = {
+        "github_hosted_actions": "UNAVAILABLE_FOR_SEC_OFFICIAL_APIS_403" if sec_hosted_runner_blocked else "AVAILABLE_OR_NOT_CONCLUSIVELY_BLOCKED",
+        "sec_official_primary": "REQUIRED_AND_RETAINED",
+        "approved_pilot_execution_route": "CHATGPT_WEB_OR_LOCAL_OR_SELF_HOSTED_RUNNER" if sec_hosted_runner_blocked else "GITHUB_ACTIONS",
+        "approved_external_execution_routes": policy.get("approved_external_execution_routes", []),
+        "third_party_sec_proxy_authorized": policy.get("third_party_sec_proxy_authorized", False),
+        "official_snapshot_requirements": policy.get("official_snapshot_requirements", []),
+        "official_snapshot_hash_and_lineage_required": True,
+    }
     routes = [
         {
             **row,
@@ -107,13 +121,7 @@ def controlled_normalize_observations(contract: dict[str, Any], raw: dict[str, A
             "corporate_actions": corporate_action_ok,
             "usd_cny_hkd_fx": fx_ok,
         },
-        "execution_route_decision": {
-            "github_hosted_actions": "UNAVAILABLE_FOR_SEC_OFFICIAL_APIS_403" if sec_hosted_runner_blocked else "AVAILABLE_OR_NOT_CONCLUSIVELY_BLOCKED",
-            "sec_official_primary": "REQUIRED_AND_RETAINED",
-            "approved_pilot_execution_route": "CHATGPT_WEB_OR_LOCAL_OR_SELF_HOSTED_RUNNER" if sec_hosted_runner_blocked else "GITHUB_ACTIONS",
-            "third_party_sec_proxy_authorized": False,
-            "official_snapshot_hash_and_lineage_required": True,
-        },
+        "execution_route_decision": execution_route_decision,
         "controlled_limitations": sorted(set(controlled_limitations)),
         "hard_failures": sorted(set(hard_failures)),
         "routes": routes,
@@ -121,5 +129,72 @@ def controlled_normalize_observations(contract: dict[str, Any], raw: dict[str, A
     }
 
 
+def controlled_canonical_payload(contract: dict[str, Any], normalized: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "program_id": PROGRAM_ID,
+        "entry_release_id": contract["entry_gate"]["required_release_id"],
+        "contract_sha256": normalized["contract_sha256"],
+        "raw_observation_sha256": normalized["raw_observation_sha256"],
+        "capability_summary": normalized["capability_summary"],
+        "execution_route_decision": normalized["execution_route_decision"],
+        "route_decisions": [
+            (row["route_id"], row["access_status"], row["payload_sha256"], row["route_decision"])
+            for row in normalized["routes"]
+        ],
+        "controlled_limitations": normalized["controlled_limitations"],
+        "next_gate": contract["next_gate"],
+        "trade_authority": "NONE",
+    }
+
+
+def _rewrite_manifest(candidate_root: Path) -> None:
+    manifest_path = candidate_root / "FMDL6B_MANIFEST.json"
+    manifest = load_json(manifest_path)
+    manifest["files"] = {
+        path.name: {"sha256": sha256_file(path), "size_bytes": path.stat().st_size}
+        for path in sorted(candidate_root.iterdir())
+        if path.is_file() and path.name != manifest_path.name
+    }
+    write_json(manifest_path, manifest)
+
+
 def install_controlled_access_policy(release_module: Any) -> None:
+    if getattr(release_module, "_fmdl6b_controlled_policy_installed", False):
+        return
+    release_module._fmdl6b_controlled_policy_installed = True
+    original_build = release_module.build_candidate
+    original_publish = release_module.publish_candidate
     release_module.normalize_observations = controlled_normalize_observations
+    release_module.canonical_payload = controlled_canonical_payload
+
+    def governed_build(repo_root: Path, contract_path: Path, raw_path: Path, candidate_root: Path) -> dict[str, Any]:
+        original_build(repo_root, contract_path, raw_path, candidate_root)
+        normalized = load_json(candidate_root / "FMDL6B_INTERFACE_BENCHMARK.json")
+        execution = normalized["execution_route_decision"]
+        decision_path = candidate_root / "FMDL6B_DECISION.json"
+        release_path = candidate_root / "FMDL6B_RELEASE.json"
+        registry_path = candidate_root / "FMDL6B_SOURCE_REGISTRY.json"
+        decision = load_json(decision_path)
+        release = load_json(release_path)
+        registry = load_json(registry_path)
+        decision["execution_route_decision"] = execution
+        release["execution_route_decision"] = execution
+        release["sec_official_github_actions_compatible"] = execution["github_hosted_actions"] != "UNAVAILABLE_FOR_SEC_OFFICIAL_APIS_403"
+        registry["execution_route_decision"] = execution
+        write_json(decision_path, decision)
+        write_json(release_path, release)
+        write_json(registry_path, registry)
+        _rewrite_manifest(candidate_root)
+        return release
+
+    def governed_publish(repo_root: Path, contract_path: Path, candidate_root: Path) -> dict[str, Any]:
+        last_success = original_publish(repo_root, contract_path, candidate_root)
+        contract = load_json(contract_path)
+        release = load_json(candidate_root / "FMDL6B_RELEASE.json")
+        last_success["execution_route_decision"] = release["execution_route_decision"]
+        last_success["sec_official_github_actions_compatible"] = release["sec_official_github_actions_compatible"]
+        write_json(repo_root / contract["publication"]["last_success"], last_success)
+        return last_success
+
+    release_module.build_candidate = governed_build
+    release_module.publish_candidate = governed_publish
