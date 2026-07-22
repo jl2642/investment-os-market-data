@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x2b_identity_classification_contract_v1.schema.json",
+  "title": "FMDL-6X2-B Identity Classification Contract",
+  "type": "object",
+  "required": [
+    "phase_id", "status", "trade_authority", "entry_gate", "input_contract", "scope",
+    "identity_contract", "classification_contract", "review_queue_contract", "storage_contract",
+    "acceptance_gates", "zero_mutation_gate", "required_exit_status", "next_gate"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X2-B"},
+    "status": {"const": "PRODUCTION_CONTRACT_CANDIDATE"},
+    "trade_authority": {"const": "NONE"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["pointer_path", "required_release_id", "required_status", "required_release_sequence", "required_next_gate"],
+      "properties": {"required_release_sequence": {"const": 30}}
+    },
+    "scope": {
+      "type": "object",
+      "required": ["issuer_identity_classification_and_review_queues_authorized"],
+      "properties": {"issuer_identity_classification_and_review_queues_authorized": {"const": true}}
+    },
+    "identity_contract": {
+      "type": "object",
+      "required": ["canonical_id_status", "directory_derived_ids_are_mergeable", "fuzzy_issuer_merge_authorized", "sec_cik_may_be_inferred_without_official_evidence"],
+      "properties": {
+        "directory_derived_ids_are_mergeable": {"const": true},
+        "fuzzy_issuer_merge_authorized": {"const": false},
+        "sec_cik_may_be_inferred_without_official_evidence": {"const": false}
+      }
+    },
+    "storage_contract": {
+      "type": "object",
+      "required": ["bucket_count", "release_sequence", "atomic_promotion_required"],
+      "properties": {
+        "bucket_count": {"const": 64},
+        "release_sequence": {"const": 31},
+        "atomic_promotion_required": {"const": true}
+      }
+    },
+    "required_exit_status": {"const": "FMDL6X2B_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X2-C_HISTORICAL_LISTING_AND_LIFECYCLE_BACKFILL"}
+  },
+  "additionalProperties": true
+}
