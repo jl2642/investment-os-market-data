@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/fmdl6b_source_interface_benchmark_v1.schema.json",
+  "title": "FMDL-6B Source Interface and Access Benchmark Contract",
+  "type": "object",
+  "required": [
+    "program_id",
+    "program_name",
+    "contract_version",
+    "as_of_date",
+    "status",
+    "authority",
+    "trade_authority",
+    "entry_gate",
+    "scope",
+    "network_policy",
+    "probe_window",
+    "interfaces",
+    "capability_acceptance",
+    "failure_taxonomy",
+    "acceptance_gates",
+    "publication",
+    "exit_status",
+    "next_gate"
+  ],
+  "properties": {
+    "program_id": {"const": "FMDL-6B"},
+    "status": {"const": "BENCHMARK_CONTRACT_CANDIDATE"},
+    "trade_authority": {"const": "NONE"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["pointer_path", "required_release_id", "required_status", "required_next_gate"],
+      "properties": {
+        "pointer_path": {"const": "outputs/status/FMDL6A_LAST_SUCCESS.json"},
+        "required_release_id": {"const": "FMDL6A_20260722_99a4726452b1"},
+        "required_status": {"const": "FMDL6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY_ACCEPTED"},
+        "required_next_gate": {"const": "FMDL-6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK"}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "mode",
+        "benchmark_security_target_reserved_for_fmdl6c",
+        "live_security_master_build_authorized",
+        "full_history_build_authorized",
+        "financial_fact_store_build_authorized",
+        "factor_or_screening_build_authorized",
+        "candidate_pool_integration_authorized",
+        "simulation_integration_authorized",
+        "real_account_integration_authorized",
+        "order_generation_authorized"
+      ],
+      "properties": {
+        "mode": {"const": "LIVE_INTERFACE_BENCHMARK_ONLY"},
+        "benchmark_security_target_reserved_for_fmdl6c": {"const": 24},
+        "live_security_master_build_authorized": {"const": false},
+        "full_history_build_authorized": {"const": false},
+        "financial_fact_store_build_authorized": {"const": false},
+        "factor_or_screening_build_authorized": {"const": false},
+        "candidate_pool_integration_authorized": {"const": false},
+        "simulation_integration_authorized": {"const": false},
+        "real_account_integration_authorized": {"const": false},
+        "order_generation_authorized": {"const": false}
+      }
+    },
+    "interfaces": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["interface_id", "minimum_route_successes", "required_capabilities", "routes"],
+        "properties": {
+          "routes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["route_id", "source_authority", "official_or_fallback", "endpoint", "required", "parser"]
+            }
+          }
+        }
+      }
+    },
+    "failure_taxonomy": {"type": "array", "minItems": 10, "uniqueItems": true},
+    "acceptance_gates": {
+      "type": "object",
+      "required": ["candidate_pool_mutation_count", "simulation_mutation_count", "real_account_mutation_count", "order_generation_count", "trade_authority"],
+      "properties": {
+        "candidate_pool_mutation_count": {"const": 0},
+        "simulation_mutation_count": {"const": 0},
+        "real_account_mutation_count": {"const": 0},
+        "order_generation_count": {"const": 0},
+        "trade_authority": {"const": "NONE"}
+      }
+    },
+    "publication": {
+      "type": "object",
+      "required": ["candidate_root", "current_root", "archive_root", "release_root", "last_success", "release_sequence"],
+      "properties": {"release_sequence": {"const": 21}}
+    },
+    "exit_status": {"const": "FMDL6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6C_24_SECURITY_BENCHMARK_POOL"}
+  },
+  "additionalProperties": true
+}
