@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/fmdl6_final_resume_ready_operational_acceptance_v1.schema.json",
+  "title": "FMDL-6-FINAL Resume-Ready Operational Acceptance Contract",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["program_id", "program_name", "contract_version", "as_of_date", "authority", "trade_authority", "entry_gates", "cross_market_base", "scope", "activation_gate", "deferred_backlog", "acceptance_gates", "file_library_retention", "publication", "exit_status", "next_gate"],
+  "properties": {
+    "program_id": {"const": "FMDL-6-FINAL"},
+    "authority": {"const": "RESUME_READY_OPERATIONAL_ACCEPTANCE_ONLY"},
+    "trade_authority": {"const": "NONE"},
+    "entry_gates": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["program_id", "pointer", "release_id", "status", "release_sequence", "current_path", "release_file", "manifest_file"],
+        "properties": {
+          "release_sequence": {"type": "integer", "minimum": 19, "maximum": 24}
+        }
+      }
+    },
+    "cross_market_base": {
+      "type": "object",
+      "required": ["pointer", "release_id", "status", "canonical_base_release_id"]
+    },
+    "scope": {
+      "type": "object",
+      "required": ["mode", "full_universe_build_authorized", "full_history_backfill_authorized", "production_financial_normalization_authorized", "factor_or_screening_build_authorized", "research_longlist_authorized", "candidate_pool_integration_authorized", "simulation_integration_authorized", "real_account_integration_authorized", "order_generation_authorized"],
+      "properties": {
+        "mode": {"const": "RESUME_READY_PILOT_CLOSEOUT"},
+        "full_universe_build_authorized": {"const": false},
+        "full_history_backfill_authorized": {"const": false},
+        "production_financial_normalization_authorized": {"const": false},
+        "factor_or_screening_build_authorized": {"const": false},
+        "research_longlist_authorized": {"const": false},
+        "candidate_pool_integration_authorized": {"const": false},
+        "simulation_integration_authorized": {"const": false},
+        "real_account_integration_authorized": {"const": false},
+        "order_generation_authorized": {"const": false}
+      }
+    },
+    "activation_gate": {
+      "type": "object",
+      "required": ["source_path", "required_status", "required_conditions", "partial_or_implicit_activation_forbidden"],
+      "properties": {
+        "required_status": {"const": "CLOSED"},
+        "required_conditions": {"type": "array", "minItems": 5, "maxItems": 5},
+        "partial_or_implicit_activation_forbidden": {"const": true}
+      }
+    },
+    "deferred_backlog": {
+      "type": "object",
+      "required": ["source_path", "required_phase_ids"],
+      "properties": {"required_phase_ids": {"type": "array", "minItems": 4, "maxItems": 4}}
+    },
+    "acceptance_gates": {
+      "type": "object",
+      "required": ["component_count", "manifest_integrity_required", "clean_room_restore_required", "failure_rollback_required", "same_input_replay_required", "upstream_lkg_unchanged_required", "activation_gate_closed_required", "deferred_backlog_complete_required", "candidate_pool_mutation_count", "simulation_mutation_count", "real_account_mutation_count", "order_generation_count", "trade_authority"],
+      "properties": {
+        "component_count": {"const": 6},
+        "candidate_pool_mutation_count": {"const": 0},
+        "simulation_mutation_count": {"const": 0},
+        "real_account_mutation_count": {"const": 0},
+        "order_generation_count": {"const": 0},
+        "trade_authority": {"const": "NONE"}
+      }
+    },
+    "publication": {
+      "type": "object",
+      "required": ["release_sequence", "current_path", "archive_root", "immutable_root", "last_success_path"],
+      "properties": {"release_sequence": {"const": 25}}
+    },
+    "exit_status": {"const": "FMDL6_RESUME_READY_OPERATIONAL_ACCEPTANCE_ACCEPTED"},
+    "next_gate": {"const": "FMDL_PROGRAM_PHASE_COMPLETE_OPERATING_OBSERVATION"}
+  }
+}
