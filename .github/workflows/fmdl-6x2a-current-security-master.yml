@@ -5,7 +5,7 @@ on:
     paths:
       - "config/fmdl6x2a_*.json"
       - "schemas/fmdl6x2a_*.json"
-      - "scripts/fmdl6x2a_current_security_master.py"
+      - "scripts/fmdl6x2a_*.py"
       - "tests/test_fmdl6x2a_current_security_master.py"
       - "docs/FMDL-6X2-A*.md"
       - ".github/workflows/fmdl-6x2a-current-security-master.yml"
@@ -14,7 +14,7 @@ on:
     paths:
       - "config/fmdl6x2a_*.json"
       - "schemas/fmdl6x2a_*.json"
-      - "scripts/fmdl6x2a_current_security_master.py"
+      - "scripts/fmdl6x2a_*.py"
       - "tests/test_fmdl6x2a_current_security_master.py"
       - "docs/FMDL-6X2-A*.md"
       - ".github/workflows/fmdl-6x2a-current-security-master.yml"
@@ -39,7 +39,13 @@ jobs:
       - name: Contract regression tests
         run: python -m unittest -v tests/test_fmdl6x2a_current_security_master.py
       - name: Compile producer
-        run: python -m py_compile scripts/fmdl6x2a_current_security_master.py tests/test_fmdl6x2a_current_security_master.py
+        run: |
+          python -m py_compile \
+            scripts/fmdl6x2a_common.py \
+            scripts/fmdl6x2a_parser.py \
+            scripts/fmdl6x2a_candidate.py \
+            scripts/fmdl6x2a_current_security_master.py \
+            tests/test_fmdl6x2a_current_security_master.py
       - name: Validate frozen production contract
         run: python scripts/fmdl6x2a_current_security_master.py validate-contract --repo-root .
 
