@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import json
 import shutil
 import tempfile
@@ -19,12 +20,16 @@ def yahoo_payload(symbol: str, close_delta: float=0.0) -> bytes:
     return json.dumps(value,separators=(',',':')).encode()
 
 
-def ecb_csv(mult: float) -> bytes:
-    rows=['TIME_PERIOD,OBS_VALUE']
+def ecb_history_zip() -> bytes:
+    rows=['Date,USD,CNY,HKD']
     start=date(2010,1,1)
     for i in range(3105):
-        rows.append(f"{(start+timedelta(days=i)).isoformat()},{mult+i*0.00001:.6f}")
-    return ('\n'.join(rows)+'\n').encode()
+        d=(start+timedelta(days=i)).isoformat()
+        rows.append(f"{d},{1.1+i*0.00001:.6f},{7.7+i*0.00001:.6f},{8.5+i*0.00001:.6f}")
+    out=io.BytesIO()
+    with zipfile.ZipFile(out,'w',compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr('eurofxref-hist.csv','\n'.join(rows)+'\n')
+    return out.getvalue()
 
 
 class MarketHistoryTests(unittest.TestCase):
@@ -55,10 +60,8 @@ class MarketHistoryTests(unittest.TestCase):
             for route in ('YAHOO_QUERY1_CHART','YAHOO_QUERY2_CHART'):
                 payloads[f'market/{sid}/{route}.json']=yahoo_payload(sym)
                 observations.append({'canonical_security_id':sid,'route_id':route,'success':True,'http_status':200})
-        for series,mult in [('USD_EUR',1.1),('CNY_EUR',7.7),('HKD_EUR',8.5)]:
-            for year in range(2010,2027):
-                payloads[f'fx/ECB_{series}/{year}.csv']=ecb_csv(mult) if year == 2010 else b'TIME_PERIOD,OBS_VALUE\n'
-                observations.append({'route_id':f'ECB_{series}_{year}','ecb_series':series,'calendar_year':year,'success':True,'http_status':200})
+        payloads['fx/ECB_EUROFXREF_HIST.zip']=ecb_history_zip()
+        observations.append({'route_id':'ECB_EUROFXREF_HIST_ZIP','success':True,'http_status':200})
         payloads['fx/FRANKFURTER_USD_CNY_HKD.json']=b'{"base":"USD","rates":{"CNY":7.0,"HKD":7.8}}'
         (self.raw/'FMDL6X2D_RAW_PAYLOADS.zip').write_bytes(deterministic_zip(payloads))
         write_json(self.raw/'FMDL6X2D_ROUTE_OBSERVATIONS.json',{'phase_id':'FMDL-6X2-D','route_observations':observations})
@@ -73,23 +76,23 @@ class MarketHistoryTests(unittest.TestCase):
         self.assertEqual(len(self.cohort),64); self.assertEqual(len(self.queued),8721); self.assertTrue({'AAPL','MSFT','SPY'} <= {x['selected_symbol'] for x in self.cohort})
 
     def test_03_dual_route_reconciliation(self):
-        with zipfile.ZipFile(self.raw/'FMDL6X2D_RAW_PAYLOADS.zip') as z: entries={n:z.read(n) for n in z.namelist()}
+        with zipfile.ZipFile(self.raw/'FMDL6X2D_RAW_PAYLOADS.zip') as archive: entries={n:archive.read(n) for n in archive.namelist()}
         bars,events,accepted,quarantine=reconcile_market(self.cohort,entries,load_json(self.raw/'FMDL6X2D_ROUTE_OBSERVATIONS.json'))
         self.assertEqual(len(accepted),64); self.assertEqual(len(quarantine),0); self.assertEqual(len(bars),128); self.assertEqual(len(events),64)
 
     def test_04_divergence_quarantine(self):
-        with zipfile.ZipFile(self.raw/'FMDL6X2D_RAW_PAYLOADS.zip') as z: entries={n:z.read(n) for n in z.namelist()}
+        with zipfile.ZipFile(self.raw/'FMDL6X2D_RAW_PAYLOADS.zip') as archive: entries={n:archive.read(n) for n in archive.namelist()}
         sec=self.cohort[0]['canonical_security_id']; entries[f'market/{sec}/YAHOO_QUERY2_CHART.json']=yahoo_payload('BAD',1.0)
         _,_,accepted,quarantine=reconcile_market(self.cohort,entries,load_json(self.raw/'FMDL6X2D_ROUTE_OBSERVATIONS.json'))
         self.assertEqual(len(quarantine),1); self.assertEqual(len(accepted),63)
 
     def test_05_fx_cross_rates(self):
-        with zipfile.ZipFile(self.raw/'FMDL6X2D_RAW_PAYLOADS.zip') as z: entries={n:z.read(n) for n in z.namelist()}
+        with zipfile.ZipFile(self.raw/'FMDL6X2D_RAW_PAYLOADS.zip') as archive: entries={n:archive.read(n) for n in archive.namelist()}
         rows,support=build_fx(entries); self.assertGreater(len(rows),6000); self.assertEqual({r['pair'] for r in rows},{'USD_CNY','USD_HKD'}); self.assertTrue(support['route_present'])
 
     def test_06_build_quality_and_grade(self):
         result=build_candidate(self.tmp,self.raw,self.candidate,'2026-07-22T14:00:00Z','TESTSHA')
-        self.assertEqual(result['quality']['quality_status'],'PASS'); self.assertFalse(result['coverage']['full_universe_market_history_claimed']); self.assertEqual(result['quality']['accepted_dual_route_securities'],64); self.assertEqual(result['quality']['ecb_annual_chunks_observed'],51); self.assertEqual(result['quality']['ecb_annual_chunk_failures'],0)
+        self.assertEqual(result['quality']['quality_status'],'PASS'); self.assertFalse(result['coverage']['full_universe_market_history_claimed']); self.assertEqual(result['quality']['accepted_dual_route_securities'],64); self.assertEqual(result['quality']['ecb_official_archives_observed'],1); self.assertEqual(result['quality']['ecb_official_archive_failures'],0)
 
     def test_07_captured_input_replay(self):
         build_candidate(self.tmp,self.raw,self.candidate,'2026-07-22T14:00:00Z','TESTSHA')
