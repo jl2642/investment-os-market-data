@@ -1,0 +1,145 @@
+{
+  "acceptance_gates": {
+    "all_intervals_have_confidence_grade": true,
+    "all_observations_have_lineage": true,
+    "at_least_one_accepted_identity_snapshot": true,
+    "current_and_release_hash_parity_required": true,
+    "historical_completion_claimed": false,
+    "latest_snapshot_listing_count_matches_entry_pointer": true,
+    "official_effective_dates_require_official_evidence": true,
+    "same_input_replay_required": true,
+    "trade_authority": "NONE"
+  },
+  "as_of_date": "2026-07-22",
+  "authority": "US_EQUITY_HISTORICAL_LISTING_AND_LIFECYCLE_ONLY",
+  "contract_version": "1.0.0",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X2B_LAST_SUCCESS.json",
+    "required_next_gate": "FMDL-6X2-C_HISTORICAL_LISTING_AND_LIFECYCLE_BACKFILL",
+    "required_phase_id": "FMDL-6X2-B",
+    "required_release_id": "FMDL6X2B_20260722_9159b4ed7f17",
+    "required_release_sequence": 31,
+    "required_status": "FMDL6X2B_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES_ACCEPTED",
+    "required_trade_authority": "NONE"
+  },
+  "event_contract": {
+    "bounded_candidate_event_types": [
+      "LISTING_DISAPPEARANCE_CANDIDATE",
+      "SYMBOL_CHANGE_CANDIDATE",
+      "VENUE_TRANSFER_CANDIDATE",
+      "SYMBOL_AND_VENUE_CHANGE_CANDIDATE"
+    ],
+    "candidate_events_require_official_cause_confirmation": true,
+    "exact_cause_event_types": [
+      "LISTED",
+      "DELISTED",
+      "SYMBOL_CHANGED",
+      "VENUE_TRANSFERRED",
+      "MERGER_TERMINATION"
+    ],
+    "observation_event_types": [
+      "LISTING_FIRST_OBSERVED_ACTIVE",
+      "LISTING_REAPPEARANCE_CANDIDATE"
+    ]
+  },
+  "history_contract": {
+    "accepted_snapshot_source": "ACCEPTED_FMDL6X2B_IDENTITY_RELEASES_BOUND_TO_NASDAQ_OFFICIAL_DIRECTORIES",
+    "daily_snapshot_accumulation_start": "FMDL6X2_ACTIVATION_DATE",
+    "disappearance_may_be_called_delisting_without_official_cause_evidence": false,
+    "earlier_history": "BEST_EFFORT_ONLY_WHEN_OFFICIAL_EVIDENCE_EXISTS",
+    "effective_date_confidence_grades": [
+      "OFFICIAL_EFFECTIVE_DATE",
+      "BOUNDED_EVENT_WINDOW",
+      "OBSERVATION_ONLY"
+    ],
+    "historical_completion_claim_without_coverage_report": false,
+    "current_only_survivorship_backfill_forbidden": true,
+    "observation_date_may_be_represented_as_exact_effective_date": false,
+    "symbol_or_venue_change_requires_stable_canonical_security_link": true,
+    "target_start_date": "2005-01-01",
+    "universal_zero_cost_official_route_confirmed": false
+  },
+  "input_contract": {
+    "current_identity_lkg_pointer": "outputs/status/FMDL6X2_IDENTITY_LKG.json",
+    "current_identity_root": "outputs/fmdl6x2/current/identity",
+    "identity_release_glob": "datasets/fmdl6x2/releases/FMDL6X2B_*/identity",
+    "optional_official_evidence_glob": "datasets/fmdl6x2/evidence/historical_listing/*.json",
+    "required_identity_files": [
+      "FMDL6X2B_DECISION.json",
+      "FMDL6X2B_MANIFEST.json",
+      "FMDL6X2B_QUALITY_REPORT.json",
+      "FMDL6X2B_IDENTITY_LINEAGE.jsonl.gz",
+      "FMDL6X2B_REVIEW_QUEUES.zip"
+    ]
+  },
+  "next_gate": "FMDL-6X2-D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_STORE",
+  "official_evidence_contract": {
+    "allowed_source_authorities": [
+      "SEC_OFFICIAL",
+      "EXCHANGE_OFFICIAL",
+      "ISSUER_OFFICIAL"
+    ],
+    "no_silent_replacement_assertion_required": true,
+    "required_bundle_fields": [
+      "schema_version",
+      "source_authority",
+      "official_source_url",
+      "retrieved_at",
+      "payload_sha256",
+      "no_silent_replacement_assertion",
+      "events"
+    ],
+    "required_event_fields": [
+      "event_type",
+      "official_effective_date",
+      "evidence_id"
+    ]
+  },
+  "phase_id": "FMDL-6X2-C",
+  "phase_name": "Historical Listing & Lifecycle Backfill",
+  "required_exit_status": "FMDL6X2C_HISTORICAL_LISTING_AND_LIFECYCLE_BACKFILL_ACCEPTED",
+  "review_queue_contract": {
+    "no_silent_queue_drop": true,
+    "required_queues": [
+      "HISTORICAL_EFFECTIVE_DATE_CONFIDENCE_QUEUE",
+      "LIFECYCLE_CAUSE_CONFIRMATION_QUEUE",
+      "HISTORICAL_IDENTITY_CONFLICT_QUEUE",
+      "COVERAGE_GAP_QUEUE",
+      "INHERITED_SOURCE_SCOPE_QUARANTINE"
+    ]
+  },
+  "scope": {
+    "candidate_pool_integration_authorized": false,
+    "factor_or_screening_production_authorized": false,
+    "historical_listing_and_lifecycle_authorized": true,
+    "market_history_production_authorized": false,
+    "order_generation_authorized": false,
+    "real_account_integration_authorized": false,
+    "sec_filings_or_financial_facts_store_authorized": false,
+    "simulation_integration_authorized": false
+  },
+  "status": "PRODUCTION_CONTRACT_CANDIDATE",
+  "storage_contract": {
+    "acceptance_root": "outputs/fmdl6x2c/acceptance",
+    "atomic_promotion_required": true,
+    "bucket_count": 64,
+    "candidate_root": "outputs/fmdl6x2c/candidate",
+    "canonical_serialization": "UTF8_STABLE_SORTED_JSON_AND_DETERMINISTIC_GZIP_ZIP",
+    "current_root": "outputs/fmdl6x2/current/listing_history",
+    "failed_run_may_replace_current": false,
+    "failed_run_may_replace_lkg": false,
+    "immutable_release_collision": "HARD_FAIL",
+    "last_known_good": "outputs/status/FMDL6X2_LISTING_HISTORY_LKG.json",
+    "last_success": "outputs/status/FMDL6X2C_LAST_SUCCESS.json",
+    "normalized_root": "datasets/fmdl6x2/normalized/listing_history/<release_id>",
+    "release_root": "datasets/fmdl6x2/releases/<release_id>/listing_history",
+    "release_sequence": 32
+  },
+  "trade_authority": "NONE",
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0
+  }
+}
