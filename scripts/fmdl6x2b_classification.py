@@ -21,12 +21,12 @@ def classify(record: dict[str, Any]) -> dict[str, str]:
         if re.search(r'closed[- ]end fund', name, re.I):
             return _result('CLOSED_END_FUND', 'REFERENCE_ONLY', 'REFERENCE_CEF', 'HIGH', 'OFFICIAL_ETF_FLAG_PLUS_NAME')
         return _result('ETF_OR_EXCHANGE_TRADED_PRODUCT', 'REFERENCE_ONLY', 'REFERENCE_ETP', 'HIGH', 'OFFICIAL_ETF_FLAG')
+    if re.search(r'\bunits?\b', name, re.I) and re.search(r'warrant|right', name, re.I):
+        return _result('COMPOSITE_UNIT', 'EXCLUDED', 'COMPOSITE_SPAC_OR_OFFERING_UNIT', 'HIGH', 'EXPLICIT_SECURITY_NAME')
     if re.search(r'\bwarrants?\b', name, re.I):
         return _result('WARRANT', 'EXCLUDED', 'DERIVATIVE_WARRANT', 'HIGH', 'EXPLICIT_SECURITY_NAME')
     if re.search(r'\brights?\b', name, re.I):
         return _result('RIGHT', 'EXCLUDED', 'DERIVATIVE_RIGHT', 'HIGH', 'EXPLICIT_SECURITY_NAME')
-    if re.search(r'\bunits?\b', name, re.I) and re.search(r'warrant|right', name, re.I):
-        return _result('COMPOSITE_UNIT', 'EXCLUDED', 'COMPOSITE_SPAC_OR_OFFERING_UNIT', 'HIGH', 'EXPLICIT_SECURITY_NAME')
     if re.search(r'\bpreferred\b|\bpreference shares?\b|trust preferred', name, re.I):
         return _result('PREFERRED_EQUITY', 'EXCLUDED', 'NON_COMMON_PREFERRED', 'HIGH', 'EXPLICIT_SECURITY_NAME')
     if re.search(r'\bsenior notes?\b|\bnotes? due\b|\bbonds?\b|\bdebentures?\b', name, re.I):
@@ -117,8 +117,10 @@ def extract_issuer_base(name: str, instrument_type: str) -> tuple[str, str]:
     for pattern in patterns:
         candidate = re.sub(pattern, '', text, flags=re.I).strip(' ,.-')
         if candidate != text and len(candidate) >= 2:
-            return candidate, 'EXPLICIT_DESCRIPTOR_REMOVAL'
-    return text.strip(' ,.-'), 'FULL_OFFICIAL_SECURITY_NAME'
+            text = candidate
+            return text, 'EXPLICIT_DESCRIPTOR_REMOVAL'
+    text = text.strip(' ,.-')
+    return text, 'FULL_OFFICIAL_SECURITY_NAME'
 
 
 def enrich_identity(record: dict[str, Any]) -> dict[str, Any]:
