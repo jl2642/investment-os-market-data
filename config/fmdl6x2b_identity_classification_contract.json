@@ -17,6 +17,17 @@
   "authority": "US_EQUITY_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES_ONLY",
   "classification_contract": {
     "adr_without_underlying_depositary_ratio_status": "RESEARCH_REVIEW_REQUIRED",
+    "classification_priority": [
+      "TEST_ISSUE",
+      "OFFICIAL_ETF_FLAG",
+      "COMPOSITE_UNIT",
+      "WARRANT",
+      "RIGHT",
+      "PREFERRED_EQUITY",
+      "DEBT_SECURITY",
+      "OTHER_EXPLICIT_NAME_RULES",
+      "UNRESOLVED"
+    ],
     "core_equity_without_sec_profile_status": "RESEARCH_REVIEW_REQUIRED",
     "explicit_name_rules_may_classify": [
       "COMMON_EQUITY",
@@ -35,11 +46,11 @@
     "name_only_fuzzy_business_model_inference_forbidden": true,
     "official_etf_flag_has_priority": true,
     "reference_instruments_excluded_from_issuer_factor_ranking": true,
-    "rule_version": "fmdl6x2b.classification.v1.0.0",
+    "rule_version": "fmdl6x2b.classification.v1.0.1",
     "special_profiles_excluded_from_standard_industrial_ranking": true,
     "test_issue_excluded_but_retained": true
   },
-  "contract_version": "1.0.0",
+  "contract_version": "1.0.1",
   "entry_gate": {
     "pointer_path": "outputs/status/FMDL6X2A_LAST_SUCCESS.json",
     "required_next_gate": "FMDL-6X2-B_ISSUER_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES",
