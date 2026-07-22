@@ -1,1 +1,0 @@
-The formal implementation set is complete.
