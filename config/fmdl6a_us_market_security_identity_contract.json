@@ -1,0 +1,341 @@
+{
+  "program_id": "FMDL-6A",
+  "program_name": "US Market Contract & Security Identity",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "CONTRACT_CANDIDATE",
+  "authority": "US_MARKET_BOUNDARY_AND_SECURITY_IDENTITY_ONLY",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6_0_LAST_SUCCESS.json",
+    "required_release_id": "FMDL6_0_20260722_b63e9fb88a33",
+    "required_status": "FMDL6_0_US_EQUITY_RESUME_READY_PILOT_ARCHITECTURE_ACCEPTED",
+    "required_next_gate": "FMDL-6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY"
+  },
+  "scope": {
+    "mode": "CONTRACT_AND_IDENTITY_ONLY",
+    "benchmark_security_target_reserved_for_fmdl6c": 24,
+    "live_security_master_build_authorized": false,
+    "source_access_benchmark_authorized": false,
+    "market_history_build_authorized": false,
+    "financial_fact_build_authorized": false,
+    "candidate_pool_integration_authorized": false,
+    "simulation_integration_authorized": false,
+    "real_account_integration_authorized": false,
+    "order_generation_authorized": false
+  },
+  "market_contract": {
+    "market_id": "US_EXCHANGE_LISTED_PUBLIC_EQUITIES_PILOT",
+    "market_scope": "SEC_REGISTERED_OR_REPORTING_ISSUERS_WITH_SELECTED_US_EXCHANGE_LISTED_EQUITY_SECURITIES",
+    "current_pilot_venues": ["XNYS", "XNAS", "XASE"],
+    "venue_expansion_requires_change_control": true,
+    "benchmark_pool_is_not_investable_universe": true,
+    "universe_membership_authority": "FMDL6C_TECHNICAL_BENCHMARK_CASE_SELECTION_ONLY",
+    "universe_states": [
+      "ACTIVE_LISTED",
+      "SUSPENDED",
+      "DELISTED",
+      "ACQUIRED_OR_MERGED",
+      "TICKER_CHANGED",
+      "EXCHANGE_TRANSFERRED",
+      "DATA_INCOMPLETE",
+      "QUARANTINED"
+    ],
+    "effective_dating_required": true,
+    "point_in_time_membership_required": true,
+    "otc_fallback_membership_forbidden": true
+  },
+  "instrument_boundary": {
+    "included": [
+      {
+        "instrument_type": "COMMON_STOCK",
+        "pilot_role": "CORE",
+        "conditions": ["US_EXCHANGE_LISTED", "EQUITY_SECURITY", "NOT_FUND_OR_DERIVATIVE"]
+      },
+      {
+        "instrument_type": "ADR",
+        "pilot_role": "IDENTITY_COMPLEXITY_CASE",
+        "conditions": ["US_EXCHANGE_LISTED", "DEPOSITARY_RECEIPT", "UNDERLYING_ISSUER_LINK_REQUIRED"]
+      },
+      {
+        "instrument_type": "FOREIGN_PRIVATE_ISSUER_ORDINARY_SHARE",
+        "pilot_role": "IFRS_OR_FPI_CASE",
+        "conditions": ["US_EXCHANGE_LISTED", "FOREIGN_PRIVATE_ISSUER", "SEC_REPORTING_LINEAGE_REQUIRED"]
+      },
+      {
+        "instrument_type": "EQUITY_REIT_COMMON_STOCK",
+        "pilot_role": "SECTOR_ACCOUNTING_CASE",
+        "conditions": ["US_EXCHANGE_LISTED", "EQUITY_REIT", "COMMON_EQUITY"]
+      }
+    ],
+    "excluded": [
+      "ETF",
+      "MUTUAL_FUND",
+      "CLOSED_END_FUND",
+      "PREFERRED_STOCK",
+      "WARRANT",
+      "RIGHT",
+      "UNIT",
+      "OPTION",
+      "FUTURE",
+      "OTC_SECURITY",
+      "CRYPTO_ASSET",
+      "STRUCTURED_NOTE",
+      "SPAC_UNIT_OR_WARRANT"
+    ],
+    "unknown_instrument_policy": "QUARANTINE_NOT_DEFAULT_INCLUDE",
+    "classification_source_priority": [
+      "OFFICIAL_EXCHANGE_OR_REGULATORY_REFERENCE",
+      "SEC_FILING_AND_ISSUER_DISCLOSURE",
+      "EXPLICITLY_APPROVED_FALLBACK"
+    ]
+  },
+  "identity_model": {
+    "controlled_refinement_of_fmdl6_0": {
+      "fmdl6_0_pattern": "US:<EXCHANGE_MIC>:<TICKER>:<SHARE_CLASS_OR_INSTRUMENT_CLASS>",
+      "fmdl6a_interpretation": "EFFECTIVE_DATED_LISTING_LOCATOR_NOT_IMMUTABLE_SECURITY_ID",
+      "reason": "TICKER_AND_EXCHANGE_CAN_CHANGE_WHILE_THE_ECONOMIC_SECURITY_CONTINUES",
+      "historical_release_mutation_authorized": false
+    },
+    "layers": [
+      {
+        "layer": "ISSUER",
+        "canonical_id_pattern": "SEC:CIK:<CIK10>",
+        "immutability": "STABLE_WHILE_SEC_CIK_CONTINUES",
+        "authoritative_fields": ["cik10", "legal_name", "jurisdiction", "issuer_status"],
+        "provisional_id_pattern": "USISSUER:PROV:<SHA12>",
+        "provisional_use": "ONLY_WHEN_OFFICIAL_CIK_UNRESOLVED_AND_ALWAYS_QUARANTINED"
+      },
+      {
+        "layer": "SHARE_CLASS",
+        "canonical_id_pattern": "USCLASS:<ISSUER_KEY>:<CLASS_TOKEN>",
+        "immutability": "STABLE_ACROSS_TICKER_OR_EXCHANGE_CHANGE",
+        "authoritative_fields": ["issuer_id", "class_token", "voting_profile", "economic_rights_profile"]
+      },
+      {
+        "layer": "SECURITY",
+        "canonical_id_pattern": "USSEC:<ISSUER_KEY>:<INSTRUMENT_TYPE>:<CLASS_TOKEN>",
+        "immutability": "STABLE_UNTIL_LEGAL_OR_ECONOMIC_SECURITY_TERMINATION",
+        "authoritative_fields": ["issuer_id", "share_class_id", "instrument_type", "security_status"]
+      },
+      {
+        "layer": "LISTING",
+        "canonical_id_pattern": "USLIST:<MIC>:<TICKER>:<EFFECTIVE_FROM_YYYYMMDD>",
+        "immutability": "EFFECTIVE_DATED_AND_REPLACED_ON_TICKER_OR_EXCHANGE_CHANGE",
+        "authoritative_fields": ["security_id", "exchange_mic", "ticker", "effective_from", "effective_to", "listing_status"]
+      }
+    ],
+    "required_cross_links": [
+      "ISSUER_TO_SECURITY",
+      "SECURITY_TO_SHARE_CLASS",
+      "SECURITY_TO_LISTING",
+      "ADR_TO_UNDERLYING_ISSUER_OR_SECURITY",
+      "PREDECESSOR_TO_SUCCESSOR",
+      "OLD_LISTING_TO_NEW_LISTING"
+    ],
+    "ticker_is_identity": false,
+    "exchange_is_identity": false,
+    "cik_is_listing_identity": false,
+    "one_issuer_may_have_multiple_securities": true,
+    "one_security_may_have_multiple_effective_dated_listings": true
+  },
+  "source_authority_and_conflict_policy": {
+    "issuer_and_filing_authority": [
+      "SEC_SUBMISSIONS_AND_OFFICIAL_ISSUER_REFERENCE",
+      "SEC_FILING_HEADER_AND_PRIMARY_DOCUMENT"
+    ],
+    "listing_and_symbol_authority": [
+      "OFFICIAL_EXCHANGE_SYMBOL_DIRECTORY",
+      "OFFICIAL_REGULATORY_OR_MARKET_REFERENCE"
+    ],
+    "instrument_classification_authority": [
+      "OFFICIAL_EXCHANGE_OR_REGULATORY_FLAGS",
+      "SEC_FILING_SECURITY_DESCRIPTION",
+      "MANUALLY_APPROVED_QUARANTINE_OVERRIDE"
+    ],
+    "conflict_resolution": [
+      "PRESERVE_ALL_SOURCE_ASSERTIONS_WITH_RETRIEVAL_AND_EFFECTIVE_TIMESTAMPS",
+      "DO_NOT_SILENTLY_OVERWRITE_CONFLICTS",
+      "PREFER_OFFICIAL_SOURCE_WITH_MATCHING_EFFECTIVE_DATE",
+      "QUARANTINE_UNRESOLVED_CONFLICT",
+      "REQUIRE_CHANGE_EVENT_RECORD_FOR_IDENTITY_TRANSITION"
+    ],
+    "fallback_may_create_decision_grade_identity": false
+  },
+  "lifecycle_rules": [
+    {
+      "event_type": "TICKER_CHANGE",
+      "issuer_id_action": "PRESERVE",
+      "share_class_id_action": "PRESERVE",
+      "security_id_action": "PRESERVE",
+      "listing_id_action": "CLOSE_OLD_CREATE_NEW",
+      "required_link": "OLD_LISTING_TO_NEW_LISTING"
+    },
+    {
+      "event_type": "EXCHANGE_TRANSFER",
+      "issuer_id_action": "PRESERVE",
+      "share_class_id_action": "PRESERVE",
+      "security_id_action": "PRESERVE",
+      "listing_id_action": "CLOSE_OLD_CREATE_NEW",
+      "required_link": "OLD_LISTING_TO_NEW_LISTING"
+    },
+    {
+      "event_type": "STOCK_SPLIT_OR_REVERSE_SPLIT",
+      "issuer_id_action": "PRESERVE",
+      "share_class_id_action": "PRESERVE",
+      "security_id_action": "PRESERVE",
+      "listing_id_action": "PRESERVE",
+      "required_link": "CORPORATE_ACTION_EVENT"
+    },
+    {
+      "event_type": "CASH_DIVIDEND",
+      "issuer_id_action": "PRESERVE",
+      "share_class_id_action": "PRESERVE",
+      "security_id_action": "PRESERVE",
+      "listing_id_action": "PRESERVE",
+      "required_link": "CORPORATE_ACTION_EVENT"
+    },
+    {
+      "event_type": "NEW_SHARE_CLASS",
+      "issuer_id_action": "PRESERVE",
+      "share_class_id_action": "CREATE_NEW",
+      "security_id_action": "CREATE_NEW",
+      "listing_id_action": "CREATE_NEW_IF_LISTED",
+      "required_link": "COMMON_ISSUER_LINK"
+    },
+    {
+      "event_type": "ADR_RATIO_CHANGE",
+      "issuer_id_action": "PRESERVE",
+      "share_class_id_action": "PRESERVE_OR_VERSION_ECONOMIC_RIGHTS",
+      "security_id_action": "PRESERVE",
+      "listing_id_action": "PRESERVE_UNLESS_SYMBOL_OR_VENUE_CHANGES",
+      "required_link": "ADR_RATIO_EVENT_AND_UNDERLYING_LINK"
+    },
+    {
+      "event_type": "MERGER_OR_ACQUISITION",
+      "issuer_id_action": "TERMINATE_OR_LINK_PREDECESSOR",
+      "share_class_id_action": "TERMINATE_PREDECESSOR_CLASS",
+      "security_id_action": "TERMINATE_PREDECESSOR_SECURITY",
+      "listing_id_action": "CLOSE_PREDECESSOR_LISTING",
+      "required_link": "PREDECESSOR_TO_SUCCESSOR"
+    },
+    {
+      "event_type": "SPINOFF",
+      "issuer_id_action": "CREATE_NEW_ISSUER_WHEN_LEGALLY_DISTINCT",
+      "share_class_id_action": "CREATE_NEW",
+      "security_id_action": "CREATE_NEW",
+      "listing_id_action": "CREATE_NEW_IF_LISTED",
+      "required_link": "PARENT_TO_SPINOFF"
+    },
+    {
+      "event_type": "DELISTING_TO_OTC",
+      "issuer_id_action": "PRESERVE_IF_ISSUER_CONTINUES",
+      "share_class_id_action": "PRESERVE",
+      "security_id_action": "PRESERVE_WITH_NON_PILOT_STATUS",
+      "listing_id_action": "CLOSE_EXCHANGE_LISTING",
+      "required_link": "DELISTING_EVENT",
+      "pilot_membership_action": "REMOVE_NO_OTC_FALLBACK"
+    },
+    {
+      "event_type": "BANKRUPTCY_OR_LIQUIDATION",
+      "issuer_id_action": "PRESERVE_HISTORICAL_IDENTITY",
+      "share_class_id_action": "TERMINATE_WHEN_LEGALLY_CANCELLED",
+      "security_id_action": "TERMINATE_WHEN_LEGALLY_CANCELLED",
+      "listing_id_action": "CLOSE_WHEN_DELISTED",
+      "required_link": "LEGAL_STATUS_EVENT"
+    }
+  ],
+  "identity_case_fixtures": [
+    {
+      "case_id": "CASE_COMMON_STOCK_SINGLE_LISTING",
+      "case_type": "COMMON_STOCK",
+      "expected_identity_result": "ONE_ISSUER_ONE_CLASS_ONE_SECURITY_ONE_LISTING"
+    },
+    {
+      "case_id": "CASE_MULTIPLE_SHARE_CLASSES",
+      "case_type": "MULTIPLE_SHARE_CLASSES",
+      "expected_identity_result": "ONE_ISSUER_MULTIPLE_CLASSES_AND_SECURITIES"
+    },
+    {
+      "case_id": "CASE_TICKER_CHANGE",
+      "case_type": "TICKER_CHANGE",
+      "expected_identity_result": "SAME_SECURITY_NEW_EFFECTIVE_DATED_LISTING"
+    },
+    {
+      "case_id": "CASE_EXCHANGE_TRANSFER",
+      "case_type": "EXCHANGE_TRANSFER",
+      "expected_identity_result": "SAME_SECURITY_NEW_MIC_LISTING"
+    },
+    {
+      "case_id": "CASE_ADR_WITH_UNDERLYING",
+      "case_type": "ADR",
+      "expected_identity_result": "ADR_SECURITY_DISTINCT_WITH_UNDERLYING_LINK"
+    },
+    {
+      "case_id": "CASE_FOREIGN_PRIVATE_ISSUER",
+      "case_type": "FOREIGN_PRIVATE_ISSUER",
+      "expected_identity_result": "SEC_CIK_ISSUER_WITH_FPI_REPORTING_PROFILE"
+    },
+    {
+      "case_id": "CASE_EQUITY_REIT",
+      "case_type": "EQUITY_REIT",
+      "expected_identity_result": "COMMON_EQUITY_INCLUDED_WITH_REIT_PROFILE"
+    },
+    {
+      "case_id": "CASE_SPINOFF",
+      "case_type": "SPINOFF",
+      "expected_identity_result": "NEW_ISSUER_AND_SECURITY_WITH_PARENT_LINK"
+    },
+    {
+      "case_id": "CASE_MERGER_SUCCESSOR",
+      "case_type": "MERGER_OR_ACQUISITION",
+      "expected_identity_result": "PREDECESSOR_TERMINATED_SUCCESSOR_LINKED"
+    },
+    {
+      "case_id": "CASE_DELISTING_TO_OTC",
+      "case_type": "DELISTING_TO_OTC",
+      "expected_identity_result": "EXCHANGE_LISTING_CLOSED_AND_PILOT_MEMBERSHIP_REMOVED"
+    },
+    {
+      "case_id": "CASE_UNKNOWN_INSTRUMENT",
+      "case_type": "UNKNOWN_INSTRUMENT",
+      "expected_identity_result": "QUARANTINE_NOT_INCLUDED"
+    },
+    {
+      "case_id": "CASE_SPAC_UNIT_OR_WARRANT",
+      "case_type": "SPAC_UNIT_OR_WARRANT",
+      "expected_identity_result": "EXCLUDED_FROM_PILOT"
+    }
+  ],
+  "required_record_fields": {
+    "issuer": ["issuer_id", "cik10", "legal_name", "jurisdiction", "issuer_status", "effective_from", "effective_to", "source_id", "retrieved_at"],
+    "share_class": ["share_class_id", "issuer_id", "class_token", "voting_profile", "economic_rights_profile", "effective_from", "effective_to", "source_id"],
+    "security": ["security_id", "issuer_id", "share_class_id", "instrument_type", "security_status", "effective_from", "effective_to", "source_id"],
+    "listing": ["listing_id", "security_id", "exchange_mic", "ticker", "listing_status", "effective_from", "effective_to", "source_id", "retrieved_at"],
+    "identity_event": ["event_id", "event_type", "effective_date", "predecessor_id", "successor_id", "source_id", "retrieved_at"]
+  },
+  "acceptance_gates": {
+    "identity_layer_count": 4,
+    "included_instrument_type_count": 4,
+    "excluded_instrument_type_minimum": 10,
+    "lifecycle_rule_count": 10,
+    "identity_case_fixture_count": 12,
+    "duplicate_case_id_count": 0,
+    "unresolved_identity_rule_count": 0,
+    "candidate_pool_mutation_count": 0,
+    "simulation_mutation_count": 0,
+    "real_account_mutation_count": 0,
+    "order_generation_count": 0,
+    "trade_authority": "NONE"
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl6a/candidate",
+    "current_root": "outputs/fmdl6a/current",
+    "archive_root": "outputs/fmdl6a/archive",
+    "release_root": "datasets/fmdl6a/releases",
+    "last_success": "outputs/status/FMDL6A_LAST_SUCCESS.json",
+    "release_sequence": 20
+  },
+  "exit_status": "FMDL6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY_ACCEPTED",
+  "next_gate": "FMDL-6B_SOURCE_INTERFACE_AND_ACCESS_BENCHMARK"
+}
