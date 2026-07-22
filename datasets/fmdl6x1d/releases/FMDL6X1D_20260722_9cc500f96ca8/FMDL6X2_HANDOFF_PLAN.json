@@ -1,0 +1,65 @@
+{
+  "entry_gates": {
+    "brokerage_channel_not_required": true,
+    "market_history_requires_current_dual_route_revalidation": true,
+    "paid_route_not_required_for_entry": true,
+    "phase_a_may_start_without_sec_executor": true,
+    "phase_b_sec_dependent_rows_must_remain_review_or_quarantine_until_executor_proven": true,
+    "phase_e_requires_sec_official_executor_proof": true,
+    "program_entry_requires": [
+      "FMDL6X1_FINAL_ACCEPTED",
+      "FMDL6X1D_CONTRACT_HASH_MATCH",
+      "FMDL6X1C_SOURCE_DECISION_BOUND",
+      "TRADE_AUTHORITY_NONE"
+    ]
+  },
+  "fixed_execution_plan": [
+    {
+      "exit_status": "FMDL6X2A_CURRENT_SECURITY_MASTER_PRODUCTION_ACCEPTED",
+      "name": "Current Security Master Production",
+      "objective": "Build and publish the complete current target-venue Security Master with 100% source-row accounting.",
+      "phase_id": "FMDL-6X2-A"
+    },
+    {
+      "exit_status": "FMDL6X2B_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES_ACCEPTED",
+      "name": "Issuer Identity, Classification & Review Queues",
+      "objective": "Resolve issuer/share-class/security/listing identities, research profiles, cross-market groups and quarantine queues.",
+      "phase_id": "FMDL-6X2-B"
+    },
+    {
+      "exit_status": "FMDL6X2C_HISTORICAL_LISTING_AND_LIFECYCLE_BACKFILL_ACCEPTED",
+      "name": "Historical Listing & Lifecycle Backfill",
+      "objective": "Reconstruct effective-dated listings, symbol changes, transfers, mergers and delistings with confidence grades.",
+      "phase_id": "FMDL-6X2-C"
+    },
+    {
+      "exit_status": "FMDL6X2D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_ACCEPTED",
+      "name": "Market History, Corporate Actions & FX Store",
+      "objective": "Build sharded PIT market, event and FX histories with reconciliation and LKG protection.",
+      "phase_id": "FMDL-6X2-D"
+    },
+    {
+      "exit_status": "FMDL6X2E_SEC_FILINGS_AND_FINANCIAL_FACTS_STORE_ACCEPTED",
+      "name": "SEC Filings & Financial Facts Store",
+      "objective": "Ingest official SEC identity, filings and facts through controlled official evidence bundles with revision lineage.",
+      "phase_id": "FMDL-6X2-E"
+    },
+    {
+      "exit_status": "FMDL6X2_FULL_UNIVERSE_AND_HISTORICAL_BUILD_ACCEPTED",
+      "name": "Full Store Reconciliation & Operational Acceptance",
+      "objective": "Reconcile all domains, run replay/failure/restore tests and publish the full FMDL-6X2 production baseline.",
+      "phase_id": "FMDL-6X2-FINAL"
+    }
+  ],
+  "phase_id": "FMDL-6X1-D",
+  "release_id": "FMDL6X1D_20260722_9cc500f96ca8",
+  "required_assets": [
+    "FMDL6X2_START_HERE.md",
+    "FMDL6X2_BUILD_CONTRACT.json",
+    "FMDL6X2_DOMAIN_SCHEMA_REGISTRY.json",
+    "FMDL6X2_SOURCE_EXECUTION_REGISTRY.json",
+    "FMDL6X2_SHARD_PLAN.json",
+    "FMDL6X2_QUALITY_GATE_REGISTRY.json",
+    "FMDL6X2_RESTORE_ORDER.md"
+  ]
+}
