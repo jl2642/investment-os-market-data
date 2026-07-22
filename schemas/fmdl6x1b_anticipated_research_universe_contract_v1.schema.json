@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x1b_anticipated_research_universe_contract_v1.schema.json",
+  "title": "FMDL-6X1-B Anticipated Research Universe Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "phase_name",
+    "contract_version",
+    "as_of_date",
+    "status",
+    "authority",
+    "trade_authority",
+    "entry_gate",
+    "scope",
+    "venue_boundary",
+    "universe_layers",
+    "orthogonal_status_dimensions",
+    "instrument_classification",
+    "profile_routing",
+    "identity_and_duplicate_rules",
+    "point_in_time_and_survivorship_rules",
+    "classification_authority",
+    "downstream_handoff_requirements",
+    "zero_mutation_proof",
+    "required_exit_status"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X1-B"},
+    "status": {"enum": ["CONTRACT_CANDIDATE", "ACCEPTED"]},
+    "trade_authority": {"const": "NONE"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["required_release_id", "required_status", "required_next_gate"],
+      "properties": {
+        "required_release_id": {"const": "FMDL6X1A_20260722_795fcd84ed00"},
+        "required_status": {"const": "FMDL6X1A_EXISTING_PILOT_AUDIT_AND_DUAL_ACTIVATION_CONTRACT_ACCEPTED"},
+        "required_next_gate": {"const": "FMDL-6X1-B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY"}
+      }
+    },
+    "zero_mutation_proof": {
+      "type": "object",
+      "required": ["live_security_rows_created", "candidate_pool_mutations", "simulation_mutations", "real_account_mutations", "orders"],
+      "properties": {
+        "live_security_rows_created": {"const": 0},
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      }
+    },
+    "required_exit_status": {"const": "FMDL6X1B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY_ACCEPTED"}
+  },
+  "additionalProperties": true
+}

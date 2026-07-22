@@ -1,0 +1,37 @@
+name: FMDL 6X1-B Anticipated Research Universe
+
+on:
+  pull_request:
+    paths:
+      - 'config/fmdl6x1b_anticipated_research_universe_contract.json'
+      - 'schemas/fmdl6x1b_anticipated_research_universe_contract_v1.schema.json'
+      - 'docs/FMDL-6X1-B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY.md'
+      - 'docs/FMDL-6X1-B_ACCEPTANCE_CRITERIA.md'
+      - 'scripts/validate_fmdl6x1b_contract.py'
+      - 'tests/test_fmdl6x1b_contract.py'
+      - '.github/workflows/fmdl-6x1b-anticipated-research-universe.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'config/fmdl6x1b_anticipated_research_universe_contract.json'
+      - 'outputs/fmdl6x1b/**'
+      - 'outputs/status/FMDL6X1B_LAST_SUCCESS.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate contract
+        run: python scripts/validate_fmdl6x1b_contract.py
+      - name: Run regression tests
+        run: python -m unittest tests/test_fmdl6x1b_contract.py -v
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_fmdl6x1b_contract.py
