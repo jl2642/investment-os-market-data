@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x1a_dual_activation_contract_v1.schema.json",
+  "title": "FMDL-6X1-A Dual Activation Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "status",
+    "trade_authority",
+    "investment_os_base",
+    "user_channel_fact",
+    "dual_activation",
+    "no_channel_rules",
+    "fixed_execution_plan",
+    "zero_mutation_proof",
+    "required_exit_status",
+    "next_gate"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X1-A"},
+    "status": {"enum": ["CONTRACT_CANDIDATE", "ACCEPTED"]},
+    "trade_authority": {"const": "NONE"},
+    "investment_os_base": {
+      "type": "object",
+      "required": ["release_id", "release_sequence", "package_sha256", "manifest_file_count", "nested_runtime_package_count", "integrity_status"],
+      "properties": {
+        "release_id": {"const": "INVESTMENT_OS_R8_20260720_501345e84562"},
+        "release_sequence": {"const": 8},
+        "package_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "manifest_file_count": {"const": 61},
+        "nested_runtime_package_count": {"const": 4},
+        "integrity_status": {"const": "PASS"}
+      },
+      "additionalProperties": true
+    },
+    "user_channel_fact": {
+      "type": "object",
+      "required": ["has_current_us_brokerage_channel", "channel_status"],
+      "properties": {
+        "has_current_us_brokerage_channel": {"const": false},
+        "channel_status": {"const": "NO_CURRENT_CHANNEL"}
+      },
+      "additionalProperties": true
+    },
+    "dual_activation": {
+      "type": "object",
+      "required": ["research_production_gate", "brokerage_real_account_gate"],
+      "properties": {
+        "research_production_gate": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {"status": {"const": "OPEN_FOR_CONTROLLED_BUILD"}},
+          "additionalProperties": true
+        },
+        "brokerage_real_account_gate": {
+          "type": "object",
+          "required": ["status", "required_conditions"],
+          "properties": {
+            "status": {"const": "CLOSED_NO_CHANNEL"},
+            "required_conditions": {"type": "array", "minItems": 5, "uniqueItems": true}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "no_channel_rules": {
+      "type": "object",
+      "required": ["default_channel_status", "candidate_admission_authorized", "simulation_admission_authorized", "real_account_admission_authorized", "order_generation_authorized"],
+      "properties": {
+        "default_channel_status": {"const": "CHANNEL_ELIGIBILITY_PENDING"},
+        "candidate_admission_authorized": {"const": false},
+        "simulation_admission_authorized": {"const": false},
+        "real_account_admission_authorized": {"const": false},
+        "order_generation_authorized": {"const": false}
+      },
+      "additionalProperties": true
+    },
+    "fixed_execution_plan": {
+      "type": "object",
+      "required": ["planned_subphases", "planned_round_count", "maximum_targeted_repair_rounds"],
+      "properties": {
+        "planned_subphases": {"type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true},
+        "planned_round_count": {"const": 5},
+        "maximum_targeted_repair_rounds": {"const": 2}
+      },
+      "additionalProperties": true
+    },
+    "zero_mutation_proof": {
+      "type": "object",
+      "required": ["candidate_pool_mutations", "simulation_mutations", "real_account_mutations", "orders"],
+      "properties": {
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      },
+      "additionalProperties": false
+    },
+    "required_exit_status": {"const": "FMDL6X1A_EXISTING_PILOT_AUDIT_AND_DUAL_ACTIVATION_CONTRACT_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X1-B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY"}
+  },
+  "additionalProperties": true
+}
