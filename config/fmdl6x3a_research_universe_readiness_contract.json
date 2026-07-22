@@ -1,0 +1,95 @@
+{
+  "phase_id": "FMDL-6X3-A",
+  "phase_name": "Research Universe & Data Readiness Contract",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X2_FINAL_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-6X2-FINAL",
+    "required_release_id": "FMDL6X2FINAL_20260722_0ce00268a68b",
+    "required_release_sequence": 35,
+    "required_status": "FMDL6X2_FINAL_FULL_STORE_RECONCILIATION_AND_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+    "required_next_gate": "FMDL-6X3-A_RESEARCH_UNIVERSE_AND_DATA_READINESS_CONTRACT",
+    "required_trade_authority": "NONE"
+  },
+  "input_contract": {
+    "identity_root": "outputs/fmdl6x2/current/identity",
+    "market_root": "outputs/fmdl6x2/current/market_reference",
+    "sec_root": "outputs/fmdl6x2/current/sec_filings_facts",
+    "full_store_root": "outputs/fmdl6x2/current/full_store",
+    "universe_security_count_expected": 8785,
+    "universe_issuer_count_expected": 7419,
+    "market_accepted_security_count_expected": 64,
+    "sec_filing_issuer_count_expected": 6,
+    "sec_fact_issuer_count_expected": 3
+  },
+  "profile_contract": {
+    "supported_profiles": [
+      "STANDARD_OPERATING_COMPANY",
+      "REIT",
+      "ADR",
+      "PASS_THROUGH",
+      "SPAC",
+      "ETF_ETP_REFERENCE",
+      "LISTED_FUND_REFERENCE",
+      "PREFERRED_REFERENCE",
+      "DEBT_REFERENCE",
+      "NON_STANDARD_REVIEW"
+    ],
+    "research_scopes": [
+      "STANDARD_RESEARCH_PROFILE",
+      "SPECIAL_RESEARCH_PROFILE",
+      "REFERENCE_ONLY",
+      "REVIEW_REQUIRED",
+      "EXCLUDED"
+    ],
+    "profile_assignment_uses_identity_instrument_type_only": true,
+    "sector_or_industry_inference_authorized": false,
+    "ticker_as_immutable_identity_forbidden": true
+  },
+  "readiness_contract": {
+    "full_security_universe_profiled_required": true,
+    "full_data_readiness_claimed": false,
+    "financial_normalization_requires_official_sec_facts": true,
+    "market_factor_data_grade": "NON_DECISION_GRADE_FALLBACK",
+    "market_data_may_open_only_sandbox_gate": true,
+    "neutral_fill_for_missing_financials_forbidden": true,
+    "future_data_leakage_forbidden": true,
+    "research_as_of_date_required": true
+  },
+  "scope": {
+    "research_universe_and_readiness_authorized": true,
+    "financial_normalization_authorized": false,
+    "factor_production_authorized": false,
+    "benchmark_pool_production_authorized": false,
+    "investment_os_candidate_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "order_generation_authorized": false
+  },
+  "storage_contract": {
+    "bucket_count": 64,
+    "expected_shard_count": 128,
+    "candidate_root": "outputs/fmdl6x3a/candidate",
+    "acceptance_root": "outputs/fmdl6x3a/acceptance",
+    "current_root": "outputs/fmdl6x3/current/research_universe_readiness",
+    "release_root": "datasets/fmdl6x3/releases/<release_id>/research_universe_readiness",
+    "normalized_root": "datasets/fmdl6x3/normalized/research_universe_readiness/<release_id>",
+    "archive_root": "outputs/fmdl6x3/archive",
+    "last_success": "outputs/status/FMDL6X3A_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6X3_RESEARCH_UNIVERSE_LKG.json",
+    "release_sequence": 36,
+    "atomic_promotion_required": true,
+    "failed_run_may_replace_current": false,
+    "failed_run_may_replace_lkg": false
+  },
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "required_exit_status": "FMDL6X3A_RESEARCH_UNIVERSE_AND_DATA_READINESS_CONTRACT_ACCEPTED",
+  "next_gate": "FMDL-6X3-B_FINANCIAL_NORMALIZATION_TTM_AND_ANNUAL_METRIC_LAYER"
+}
