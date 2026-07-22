@@ -1,0 +1,541 @@
+{
+  "accepted_routes": [
+    {
+      "access_status": "SUCCESS",
+      "capabilities": [
+        "LISTED_SYMBOL",
+        "EXCHANGE_OR_VENUE",
+        "INSTRUMENT_TYPE_FLAGS",
+        "RETRIEVAL_TIMESTAMP"
+      ],
+      "endpoint": "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
+      "error": null,
+      "failure_mode": null,
+      "field_coverage": [
+        "Symbol",
+        "Security Name",
+        "Market Category",
+        "Test Issue",
+        "Financial Status",
+        "Round Lot Size",
+        "ETF",
+        "NextShares"
+      ],
+      "github_actions_compatibility": true,
+      "history_end": null,
+      "history_start": null,
+      "http_status": 200,
+      "interface_id": "US_EXCHANGE_SECURITY_DIRECTORY",
+      "latency_ms": 565.882,
+      "official_or_fallback": "OFFICIAL_PRIMARY",
+      "parser": "NASDAQ_PIPE_DIRECTORY",
+      "payload_sha256": "db77b270dc3b54bdc1091894dffa47e585017277500b4133aa8ddcdac42de14e",
+      "point_in_time_support": "CURRENT_RETRIEVAL_SNAPSHOT",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": false,
+      "response_bytes": 345111,
+      "retrieved_at_utc": "2026-07-22T04:21:06Z",
+      "revision_support": "NO_HISTORICAL_REVISION_CHAIN",
+      "route_decision": "ACCEPTED_FOR_PILOT",
+      "route_id": "NASDAQ_TRADER_NASDAQLISTED",
+      "sample_count": 5564,
+      "source_authority": "NASDAQ_OFFICIAL"
+    },
+    {
+      "access_status": "SUCCESS",
+      "capabilities": [
+        "LISTED_SYMBOL",
+        "EXCHANGE_OR_VENUE",
+        "INSTRUMENT_TYPE_FLAGS",
+        "RETRIEVAL_TIMESTAMP"
+      ],
+      "endpoint": "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt",
+      "error": null,
+      "failure_mode": null,
+      "field_coverage": [
+        "ACT Symbol",
+        "Security Name",
+        "Exchange",
+        "CQS Symbol",
+        "ETF",
+        "Round Lot Size",
+        "Test Issue",
+        "NASDAQ Symbol"
+      ],
+      "github_actions_compatibility": true,
+      "history_end": null,
+      "history_start": null,
+      "http_status": 200,
+      "interface_id": "US_EXCHANGE_SECURITY_DIRECTORY",
+      "latency_ms": 171.986,
+      "official_or_fallback": "OFFICIAL_PRIMARY",
+      "parser": "NASDAQ_PIPE_DIRECTORY",
+      "payload_sha256": "f22f763cbd9d6e9bdeadc3315568648a7cc898867df62fff119fe840810101a5",
+      "point_in_time_support": "CURRENT_RETRIEVAL_SNAPSHOT",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": false,
+      "response_bytes": 531755,
+      "retrieved_at_utc": "2026-07-22T04:21:07Z",
+      "revision_support": "NO_HISTORICAL_REVISION_CHAIN",
+      "route_decision": "ACCEPTED_FOR_PILOT",
+      "route_id": "NASDAQ_TRADER_OTHERLISTED",
+      "sample_count": 7493,
+      "source_authority": "NASDAQ_OFFICIAL"
+    },
+    {
+      "access_status": "SUCCESS",
+      "capabilities": [
+        "DAILY_OHLCV",
+        "DIVIDEND_OR_SPLIT_EVENTS"
+      ],
+      "detail": {
+        "event_count": 6
+      },
+      "endpoint": "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits",
+      "error": null,
+      "failure_mode": null,
+      "field_coverage": [
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "github_actions_compatibility": true,
+      "history_end": "2026-07-21",
+      "history_start": "2025-01-02",
+      "http_status": 200,
+      "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
+      "latency_ms": 198.841,
+      "official_or_fallback": "FREE_FALLBACK",
+      "parser": "YAHOO_CHART_EVENTS",
+      "payload_sha256": "a81ac62fb9ce6d1456c7e73de0bf17df8eff2555174bffce0a1e8e13efe7211d",
+      "point_in_time_support": "NOT_GUARANTEED_BY_FREE_ROUTE",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": false,
+      "response_bytes": 43466,
+      "retrieved_at_utc": "2026-07-22T04:21:08Z",
+      "revision_support": "EVENT_REVISIONS_NOT_DOCUMENTED",
+      "route_decision": "ACCEPTED_FOR_PILOT",
+      "route_id": "YAHOO_QUERY1_AAPL_CHART_EVENTS",
+      "sample_count": 387,
+      "source_authority": "YAHOO_FREE_UNOFFICIAL"
+    },
+    {
+      "access_status": "SUCCESS",
+      "capabilities": [
+        "DAILY_OHLCV",
+        "DIVIDEND_OR_SPLIT_EVENTS"
+      ],
+      "detail": {
+        "event_count": 6
+      },
+      "endpoint": "https://query2.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits",
+      "error": null,
+      "failure_mode": null,
+      "field_coverage": [
+        "close",
+        "high",
+        "low",
+        "open",
+        "volume"
+      ],
+      "github_actions_compatibility": true,
+      "history_end": "2026-07-21",
+      "history_start": "2025-01-02",
+      "http_status": 200,
+      "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
+      "latency_ms": 214.405,
+      "official_or_fallback": "FREE_FALLBACK",
+      "parser": "YAHOO_CHART_EVENTS",
+      "payload_sha256": "dc3fcf668039e05aebac151923330c8bcbebd3b97a28ef7807ae40e91e6bfe62",
+      "point_in_time_support": "NOT_GUARANTEED_BY_FREE_ROUTE",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": false,
+      "response_bytes": 43472,
+      "retrieved_at_utc": "2026-07-22T04:21:08Z",
+      "revision_support": "EVENT_REVISIONS_NOT_DOCUMENTED",
+      "route_decision": "ACCEPTED_FOR_PILOT",
+      "route_id": "YAHOO_QUERY2_AAPL_CHART_EVENTS",
+      "sample_count": 387,
+      "source_authority": "YAHOO_FREE_UNOFFICIAL"
+    },
+    {
+      "access_status": "SUCCESS",
+      "capabilities": [
+        "USD_CNY_AND_USD_HKD_FX"
+      ],
+      "endpoint": "https://data-api.ecb.europa.eu/service/data/EXR/D.<CURRENCY>.EUR.SP00.A?startPeriod=<START>&format=csvdata",
+      "error": null,
+      "failure_mode": null,
+      "field_coverage": [
+        "TIME_PERIOD",
+        "OBS_VALUE",
+        "CURRENCY",
+        "CURRENCY_DENOM"
+      ],
+      "github_actions_compatibility": true,
+      "history_end": "2026-07-21",
+      "history_start": "2026-06-01",
+      "http_status": 200,
+      "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
+      "latency_ms": 1475.669,
+      "official_or_fallback": "OFFICIAL_PRIMARY",
+      "parser": "ECB_REFERENCE_FX",
+      "payload_sha256": "a743324bca505749aa24fb84f905cabc49039b9f835359dfc476baa645bd45ef",
+      "point_in_time_support": "REFERENCE_DATE",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": false,
+      "response_bytes": 25482,
+      "retrieved_at_utc": "2026-07-22T04:21:08Z",
+      "revision_support": "OFFICIAL_SERIES_RETRIEVABLE",
+      "route_decision": "ACCEPTED_FOR_PILOT",
+      "route_id": "ECB_REFERENCE_FX",
+      "sample_count": 111,
+      "source_authority": "ECB_OFFICIAL"
+    },
+    {
+      "access_status": "SUCCESS",
+      "capabilities": [
+        "USD_CNY_AND_USD_HKD_FX"
+      ],
+      "endpoint": "https://api.frankfurter.app/latest?from=USD&to=CNY,HKD",
+      "error": null,
+      "failure_mode": null,
+      "field_coverage": [
+        "amount",
+        "base",
+        "date",
+        "rates.CNY",
+        "rates.HKD"
+      ],
+      "github_actions_compatibility": true,
+      "history_end": "2026-07-21",
+      "history_start": "2026-07-21",
+      "http_status": 200,
+      "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
+      "latency_ms": 251.364,
+      "official_or_fallback": "FREE_FALLBACK",
+      "parser": "FRANKFURTER_FX",
+      "payload_sha256": "7f46222be0905015d144de03c73b377980b02d5573b08ee28de2c5f1bac08396",
+      "point_in_time_support": "REFERENCE_DATE",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": false,
+      "response_bytes": 83,
+      "retrieved_at_utc": "2026-07-22T04:21:10Z",
+      "revision_support": "NOT_DOCUMENTED",
+      "route_decision": "ACCEPTED_FOR_PILOT",
+      "route_id": "FRANKFURTER_USD_CNY_HKD",
+      "sample_count": 2,
+      "source_authority": "FRANKFURTER_FREE"
+    }
+  ],
+  "decision_grade_claimed": false,
+  "execution_route_decision": {
+    "approved_external_execution_routes": [
+      "CHATGPT_WEB",
+      "LOCAL_RUNNER",
+      "SELF_HOSTED_RUNNER"
+    ],
+    "approved_pilot_execution_route": "CHATGPT_WEB_OR_LOCAL_OR_SELF_HOSTED_RUNNER",
+    "github_hosted_actions": "UNAVAILABLE_FOR_SEC_OFFICIAL_APIS_403",
+    "official_snapshot_hash_and_lineage_required": true,
+    "official_snapshot_requirements": [
+      "OFFICIAL_SOURCE_URL",
+      "RETRIEVAL_TIMESTAMP",
+      "PAYLOAD_SHA256",
+      "PARSER_VERSION",
+      "SOURCE_AUTHORITY",
+      "NO_SILENT_REPLACEMENT"
+    ],
+    "sec_official_primary": "REQUIRED_AND_RETAINED",
+    "third_party_sec_proxy_authorized": false
+  },
+  "interfaces": [
+    {
+      "interface_id": "SEC_EDGAR_IDENTITY_AND_SUBMISSIONS",
+      "minimum_route_successes": 2,
+      "required_capabilities": [
+        "CIK_TICKER_EXCHANGE_REFERENCE",
+        "SUBMISSIONS_HISTORY",
+        "ACCESSION_AND_ACCEPTANCE_METADATA"
+      ],
+      "routes": [
+        {
+          "endpoint": "https://www.sec.gov/files/company_tickers_exchange.json",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "parser": "SEC_COMPANY_TICKERS_EXCHANGE",
+          "required": true,
+          "route_id": "SEC_COMPANY_TICKERS_EXCHANGE",
+          "source_authority": "SEC_OFFICIAL"
+        },
+        {
+          "endpoint": "https://data.sec.gov/submissions/CIK0000320193.json",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "parser": "SEC_SUBMISSIONS",
+          "required": true,
+          "route_id": "SEC_SUBMISSIONS_AAPL",
+          "source_authority": "SEC_OFFICIAL"
+        }
+      ]
+    },
+    {
+      "interface_id": "SEC_EDGAR_COMPANY_FACTS_AND_XBRL",
+      "minimum_route_successes": 1,
+      "required_capabilities": [
+        "COMPANY_FACTS",
+        "TAXONOMY_AND_UNITS",
+        "ACCESSION_LINEAGE"
+      ],
+      "routes": [
+        {
+          "endpoint": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "parser": "SEC_COMPANYFACTS",
+          "required": true,
+          "route_id": "SEC_COMPANYFACTS_AAPL",
+          "source_authority": "SEC_OFFICIAL"
+        }
+      ]
+    },
+    {
+      "interface_id": "US_EXCHANGE_SECURITY_DIRECTORY",
+      "minimum_route_successes": 1,
+      "required_capabilities": [
+        "LISTED_SYMBOL",
+        "EXCHANGE_OR_VENUE",
+        "INSTRUMENT_TYPE_FLAGS",
+        "RETRIEVAL_TIMESTAMP"
+      ],
+      "routes": [
+        {
+          "endpoint": "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "parser": "NASDAQ_PIPE_DIRECTORY",
+          "required": false,
+          "route_id": "NASDAQ_TRADER_NASDAQLISTED",
+          "source_authority": "NASDAQ_OFFICIAL"
+        },
+        {
+          "endpoint": "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "parser": "NASDAQ_PIPE_DIRECTORY",
+          "required": false,
+          "route_id": "NASDAQ_TRADER_OTHERLISTED",
+          "source_authority": "NASDAQ_OFFICIAL"
+        },
+        {
+          "endpoint": "https://www.sec.gov/files/company_tickers_exchange.json",
+          "official_or_fallback": "OFFICIAL_SUPPORT",
+          "parser": "SEC_COMPANY_TICKERS_EXCHANGE",
+          "required": true,
+          "route_id": "SEC_COMPANY_TICKERS_EXCHANGE_SUPPORT",
+          "source_authority": "SEC_OFFICIAL"
+        }
+      ]
+    },
+    {
+      "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
+      "minimum_route_successes": 3,
+      "required_capabilities": [
+        "DAILY_OHLCV",
+        "DIVIDEND_OR_SPLIT_EVENTS",
+        "USD_CNY_AND_USD_HKD_FX",
+        "GITHUB_ACTIONS_ACCESS"
+      ],
+      "routes": [
+        {
+          "endpoint": "https://stooq.com/q/d/l/?s=aapl.us&i=d&d1=20250101&d2=20260722",
+          "official_or_fallback": "FREE_FALLBACK",
+          "parser": "STOOQ_DAILY_CSV",
+          "required": false,
+          "route_id": "STOOQ_AAPL_DAILY",
+          "source_authority": "STOOQ_FREE"
+        },
+        {
+          "endpoint": "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits",
+          "official_or_fallback": "FREE_FALLBACK",
+          "parser": "YAHOO_CHART_EVENTS",
+          "required": false,
+          "route_id": "YAHOO_QUERY1_AAPL_CHART_EVENTS",
+          "source_authority": "YAHOO_FREE_UNOFFICIAL"
+        },
+        {
+          "endpoint": "https://query2.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits",
+          "official_or_fallback": "FREE_FALLBACK",
+          "parser": "YAHOO_CHART_EVENTS",
+          "required": false,
+          "route_id": "YAHOO_QUERY2_AAPL_CHART_EVENTS",
+          "source_authority": "YAHOO_FREE_UNOFFICIAL"
+        },
+        {
+          "endpoint": "https://data-api.ecb.europa.eu/service/data/EXR/D.<CURRENCY>.EUR.SP00.A?startPeriod=<START>&format=csvdata",
+          "official_or_fallback": "OFFICIAL_PRIMARY",
+          "parser": "ECB_REFERENCE_FX",
+          "required": false,
+          "route_id": "ECB_REFERENCE_FX",
+          "source_authority": "ECB_OFFICIAL"
+        },
+        {
+          "endpoint": "https://api.frankfurter.app/latest?from=USD&to=CNY,HKD",
+          "official_or_fallback": "FREE_FALLBACK",
+          "parser": "FRANKFURTER_FX",
+          "required": false,
+          "route_id": "FRANKFURTER_USD_CNY_HKD",
+          "source_authority": "FRANKFURTER_FREE"
+        }
+      ]
+    }
+  ],
+  "program_id": "FMDL-6B",
+  "release_id": "FMDL6B_20260722_de3d0a9b7703",
+  "trade_authority": "NONE",
+  "unavailable_routes": [
+    {
+      "access_status": "FAIL",
+      "capabilities": [],
+      "endpoint": "https://www.sec.gov/files/company_tickers_exchange.json",
+      "error": "HTTPError: HTTP 403",
+      "failure_mode": "HTTP_4XX_AUTH_OR_BLOCK",
+      "field_coverage": [],
+      "github_actions_compatibility": false,
+      "history_end": null,
+      "history_start": null,
+      "http_status": 403,
+      "interface_id": "SEC_EDGAR_IDENTITY_AND_SUBMISSIONS",
+      "latency_ms": 358.065,
+      "official_or_fallback": "OFFICIAL_PRIMARY",
+      "parser": "SEC_COMPANY_TICKERS_EXCHANGE",
+      "payload_sha256": "cf2f1f28c7b81646e03e112914eeed201d7d6e5f0b4a39871947ff64264e8e13",
+      "point_in_time_support": "NOT_EVALUATED",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": true,
+      "response_bytes": 1925,
+      "retrieved_at_utc": "2026-07-22T04:21:05Z",
+      "revision_support": "NOT_EVALUATED",
+      "route_decision": "OFFICIAL_EXTERNAL_EXECUTION_REQUIRED",
+      "route_id": "SEC_COMPANY_TICKERS_EXCHANGE",
+      "sample_count": 0,
+      "source_authority": "SEC_OFFICIAL"
+    },
+    {
+      "access_status": "FAIL",
+      "capabilities": [],
+      "endpoint": "https://data.sec.gov/submissions/CIK0000320193.json",
+      "error": "HTTPError: HTTP 403",
+      "failure_mode": "HTTP_4XX_AUTH_OR_BLOCK",
+      "field_coverage": [],
+      "github_actions_compatibility": false,
+      "history_end": null,
+      "history_start": null,
+      "http_status": 403,
+      "interface_id": "SEC_EDGAR_IDENTITY_AND_SUBMISSIONS",
+      "latency_ms": 376.976,
+      "official_or_fallback": "OFFICIAL_PRIMARY",
+      "parser": "SEC_SUBMISSIONS",
+      "payload_sha256": "b5dd1e912bc45e3e982541f37ef935cb11fcc0a11e5809af689abbf17323d689",
+      "point_in_time_support": "NOT_EVALUATED",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": true,
+      "response_bytes": 4819,
+      "retrieved_at_utc": "2026-07-22T04:21:05Z",
+      "revision_support": "NOT_EVALUATED",
+      "route_decision": "OFFICIAL_EXTERNAL_EXECUTION_REQUIRED",
+      "route_id": "SEC_SUBMISSIONS_AAPL",
+      "sample_count": 0,
+      "source_authority": "SEC_OFFICIAL"
+    },
+    {
+      "access_status": "FAIL",
+      "capabilities": [],
+      "endpoint": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+      "error": "HTTPError: HTTP 403",
+      "failure_mode": "HTTP_4XX_AUTH_OR_BLOCK",
+      "field_coverage": [],
+      "github_actions_compatibility": false,
+      "history_end": null,
+      "history_start": null,
+      "http_status": 403,
+      "interface_id": "SEC_EDGAR_COMPANY_FACTS_AND_XBRL",
+      "latency_ms": 315.688,
+      "official_or_fallback": "OFFICIAL_PRIMARY",
+      "parser": "SEC_COMPANYFACTS",
+      "payload_sha256": "33126a5dec1c486ac73fdb733fd6aae96978a70c51b6397d22a12e981184cf6a",
+      "point_in_time_support": "NOT_EVALUATED",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": true,
+      "response_bytes": 4819,
+      "retrieved_at_utc": "2026-07-22T04:21:06Z",
+      "revision_support": "NOT_EVALUATED",
+      "route_decision": "OFFICIAL_EXTERNAL_EXECUTION_REQUIRED",
+      "route_id": "SEC_COMPANYFACTS_AAPL",
+      "sample_count": 0,
+      "source_authority": "SEC_OFFICIAL"
+    },
+    {
+      "access_status": "FAIL",
+      "capabilities": [],
+      "endpoint": "https://www.sec.gov/files/company_tickers_exchange.json",
+      "error": "HTTPError: HTTP 403",
+      "failure_mode": "HTTP_4XX_AUTH_OR_BLOCK",
+      "field_coverage": [],
+      "github_actions_compatibility": false,
+      "history_end": null,
+      "history_start": null,
+      "http_status": 403,
+      "interface_id": "US_EXCHANGE_SECURITY_DIRECTORY",
+      "latency_ms": 265.622,
+      "official_or_fallback": "OFFICIAL_SUPPORT",
+      "parser": "SEC_COMPANY_TICKERS_EXCHANGE",
+      "payload_sha256": "e056d11604175d074a713bfa5747e4d5bf6f505c2589062e6ff8a224164cc977",
+      "point_in_time_support": "NOT_EVALUATED",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": true,
+      "response_bytes": 1925,
+      "retrieved_at_utc": "2026-07-22T04:21:07Z",
+      "revision_support": "NOT_EVALUATED",
+      "route_decision": "UNAVAILABLE_OR_QUARANTINED",
+      "route_id": "SEC_COMPANY_TICKERS_EXCHANGE_SUPPORT",
+      "sample_count": 0,
+      "source_authority": "SEC_OFFICIAL"
+    },
+    {
+      "access_status": "FAIL",
+      "capabilities": [],
+      "endpoint": "https://stooq.com/q/d/l/?s=aapl.us&i=d&d1=20250101&d2=20260722",
+      "error": "ValueError: Stooq history insufficient",
+      "failure_mode": "SCHEMA_OR_PARSE_DRIFT",
+      "field_coverage": [],
+      "github_actions_compatibility": false,
+      "history_end": null,
+      "history_start": null,
+      "http_status": 200,
+      "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
+      "latency_ms": 708.135,
+      "official_or_fallback": "FREE_FALLBACK",
+      "parser": "STOOQ_DAILY_CSV",
+      "payload_sha256": "bb9f16f983124ddc840d6a22e9ffe0c97eb3a3f592d7a01a28255866148a2c54",
+      "point_in_time_support": "NOT_EVALUATED",
+      "program_id": "FMDL-6B",
+      "rate_limit_headers": {},
+      "required": false,
+      "response_bytes": 796,
+      "retrieved_at_utc": "2026-07-22T04:21:07Z",
+      "revision_support": "NOT_EVALUATED",
+      "route_decision": "UNAVAILABLE_OR_QUARANTINED",
+      "route_id": "STOOQ_AAPL_DAILY",
+      "sample_count": 0,
+      "source_authority": "STOOQ_FREE"
+    }
+  ]
+}

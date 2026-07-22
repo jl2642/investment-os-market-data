@@ -1,0 +1,48 @@
+{
+  "failed_route_may_replace_last_known_good": false,
+  "observed_failures": [
+    {
+      "error": "HTTPError: HTTP 403",
+      "failure_mode": "HTTP_4XX_AUTH_OR_BLOCK",
+      "route_id": "SEC_COMPANY_TICKERS_EXCHANGE"
+    },
+    {
+      "error": "HTTPError: HTTP 403",
+      "failure_mode": "HTTP_4XX_AUTH_OR_BLOCK",
+      "route_id": "SEC_SUBMISSIONS_AAPL"
+    },
+    {
+      "error": "HTTPError: HTTP 403",
+      "failure_mode": "HTTP_4XX_AUTH_OR_BLOCK",
+      "route_id": "SEC_COMPANYFACTS_AAPL"
+    },
+    {
+      "error": "HTTPError: HTTP 403",
+      "failure_mode": "HTTP_4XX_AUTH_OR_BLOCK",
+      "route_id": "SEC_COMPANY_TICKERS_EXCHANGE_SUPPORT"
+    },
+    {
+      "error": "ValueError: Stooq history insufficient",
+      "failure_mode": "SCHEMA_OR_PARSE_DRIFT",
+      "route_id": "STOOQ_AAPL_DAILY"
+    }
+  ],
+  "program_id": "FMDL-6B",
+  "release_id": "FMDL6B_20260722_de3d0a9b7703",
+  "taxonomy": [
+    "DNS_OR_CONNECTIVITY",
+    "TLS_OR_CERTIFICATE",
+    "HTTP_4XX_AUTH_OR_BLOCK",
+    "HTTP_429_RATE_LIMIT",
+    "HTTP_5XX_UPSTREAM",
+    "TIMEOUT",
+    "EMPTY_RESPONSE",
+    "SCHEMA_OR_PARSE_DRIFT",
+    "INSUFFICIENT_FIELD_COVERAGE",
+    "INSUFFICIENT_HISTORY",
+    "CORPORATE_ACTION_EVENTS_UNAVAILABLE",
+    "FX_PAIR_UNAVAILABLE",
+    "UNKNOWN_FAILURE"
+  ],
+  "trade_authority": "NONE"
+}
