@@ -49,6 +49,9 @@ jobs:
       - name: Compile checks
         run: >-
           python -m py_compile
+          scripts/fmdl6b_core.py
+          scripts/fmdl6b_fetch.py
+          scripts/fmdl6b_release.py
           scripts/fmdl6b_benchmark.py
           scripts/publish_fmdl6b.py
           scripts/validate_fmdl6b_candidate.py
@@ -85,6 +88,26 @@ jobs:
           python scripts/fmdl6b_benchmark.py fetch \
             --repo-root . \
             --raw outputs/fmdl6b/work/FMDL6B_RAW_OBSERVATIONS.json
+      - name: Write normalized live diagnostic
+        run: |
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, "scripts")
+          from fmdl6b_benchmark import load_json, normalize_observations, write_json
+          contract = load_json(Path("config/fmdl6b_source_interface_access_benchmark_contract.json"))
+          raw = load_json(Path("outputs/fmdl6b/work/FMDL6B_RAW_OBSERVATIONS.json"))
+          result = normalize_observations(contract, raw)
+          write_json(Path("outputs/fmdl6b/work/FMDL6B_NORMALIZED_DIAGNOSTIC.json"), result)
+          print(json.dumps({
+            "route_success_count": result["route_success_count"],
+            "route_failure_count": result["route_failure_count"],
+            "capability_summary": result["capability_summary"],
+            "controlled_limitations": result["controlled_limitations"],
+            "hard_failures": result["hard_failures"],
+          }, indent=2, sort_keys=True))
+          PY
       - name: Build benchmark candidate
         run: |
           python scripts/fmdl6b_benchmark.py build \
@@ -99,9 +122,11 @@ jobs:
             --candidate outputs/fmdl6b/candidate \
             --acceptance outputs/fmdl6b/acceptance/FMDL6B_INDEPENDENT_ACCEPTANCE.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: fmdl6b-source-interface-access-benchmark-candidate
           path: |
+            outputs/fmdl6b/work
             outputs/fmdl6b/candidate
             outputs/fmdl6b/acceptance/FMDL6B_INDEPENDENT_ACCEPTANCE.json
           if-no-files-found: error
