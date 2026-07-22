@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "contract_version": {
+      "type": "string"
+    },
+    "entry_gate": {
+      "type": "object"
+    },
+    "input_contract": {
+      "type": "object"
+    },
+    "next_gate": {
+      "const": "FMDL-6X3-C_FACTOR_VALUATION_QUALITY_AND_RISK_ENGINE"
+    },
+    "normalization_contract": {
+      "type": "object"
+    },
+    "period_contract": {
+      "type": "object"
+    },
+    "phase_id": {
+      "const": "FMDL-6X3-B"
+    },
+    "quality_contract": {
+      "type": "object"
+    },
+    "required_exit_status": {
+      "const": "FMDL6X3B_FINANCIAL_NORMALIZATION_TTM_AND_ANNUAL_METRIC_LAYER_ACCEPTED"
+    },
+    "storage_contract": {
+      "type": "object"
+    },
+    "tag_mapping": {
+      "minProperties": 15,
+      "type": "object"
+    },
+    "trade_authority": {
+      "const": "NONE"
+    },
+    "zero_mutation_gate": {
+      "properties": {
+        "candidate_pool_mutations": {
+          "const": 0
+        },
+        "orders": {
+          "const": 0
+        },
+        "real_account_mutations": {
+          "const": 0
+        },
+        "simulation_mutations": {
+          "const": 0
+        }
+      },
+      "required": [
+        "candidate_pool_mutations",
+        "simulation_mutations",
+        "real_account_mutations",
+        "orders"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "phase_id",
+    "contract_version",
+    "entry_gate",
+    "input_contract",
+    "tag_mapping",
+    "period_contract",
+    "normalization_contract",
+    "quality_contract",
+    "storage_contract",
+    "required_exit_status",
+    "next_gate",
+    "trade_authority",
+    "zero_mutation_gate"
+  ],
+  "title": "FMDL-6X3-B Financial Normalization Contract",
+  "type": "object"
+}

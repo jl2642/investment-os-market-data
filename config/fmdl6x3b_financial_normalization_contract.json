@@ -1,0 +1,183 @@
+{
+  "as_of_date": "2026-07-22",
+  "contract_version": "1.0.0",
+  "derived_metric_contract": {
+    "denominator_zero_action": "BLOCK_AND_QUEUE",
+    "downstream_use": "QUARTERLY_QUALITY_SANDBOX_ONLY_UNTIL_TTM_AND_ANNUAL_READY",
+    "metrics": [
+      "COST_OF_REVENUE_RATIO",
+      "GROSS_MARGIN",
+      "RESEARCH_AND_DEVELOPMENT_INTENSITY",
+      "SELLING_GENERAL_AND_ADMINISTRATIVE_INTENSITY",
+      "OPERATING_EXPENSE_RATIO",
+      "OPERATING_MARGIN",
+      "PRETAX_MARGIN",
+      "EFFECTIVE_TAX_RATE",
+      "NET_MARGIN"
+    ]
+  },
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X3A_LAST_SUCCESS.json",
+    "required_next_gate": "FMDL-6X3-B_FINANCIAL_NORMALIZATION_TTM_AND_ANNUAL_METRIC_LAYER",
+    "required_phase_id": "FMDL-6X3-A",
+    "required_release_id": "FMDL6X3A_20260722_f918c8f71430",
+    "required_release_sequence": 36,
+    "required_status": "FMDL6X3A_RESEARCH_UNIVERSE_AND_DATA_READINESS_CONTRACT_ACCEPTED",
+    "required_trade_authority": "NONE"
+  },
+  "input_contract": {
+    "accepted_sec_data_grade": "DECISION_GRADE_OFFICIAL_SEC",
+    "minimum_ready_issuer_count": 3,
+    "minimum_ready_security_count": 3,
+    "minimum_source_fact_count": 33,
+    "readiness_manifest": "FMDL6X3A_MANIFEST.json",
+    "readiness_root": "outputs/fmdl6x3/current/research_universe_readiness",
+    "readiness_shards": "FMDL6X3A_READINESS_SHARDS.zip",
+    "sec_fact_shards": "FMDL6X2E_FACTS_SHARDS.zip",
+    "sec_filing_shards": "FMDL6X2E_FILINGS_SHARDS.zip",
+    "sec_manifest": "FMDL6X2E_MANIFEST.json",
+    "sec_root": "outputs/fmdl6x2/current/sec_filings_facts"
+  },
+  "name": "Financial Normalization, TTM & Annual Metric Layer",
+  "next_gate": "FMDL-6X3-C_FACTOR_VALUATION_QUALITY_AND_RISK_ENGINE",
+  "normalization_contract": {
+    "canonical_currency": "USD",
+    "derive_operating_expenses_from_r_and_d_plus_sg_and_a_when_direct_tag_missing": true,
+    "derive_sg_and_a_total_from_sales_marketing_plus_general_admin_when_direct_tag_missing": true,
+    "preserve_reported_scale": true,
+    "quarterly_income_statement_may_be_model_loadable_when_validation_passes": true,
+    "reported_and_derived_values_separate": true,
+    "sign_policy": "PRESERVE_SEC_REPORTED_SIGN",
+    "ttm_or_annual_must_not_be_emitted_when_period_coverage_is_incomplete": true
+  },
+  "period_contract": {
+    "annual_requires_fiscal_year_or_10k_evidence": true,
+    "do_not_infer_period_end_from_quarter_label_only": true,
+    "explicit_start_and_end_dates_required": true,
+    "quarter_duration_days_max": 120,
+    "quarter_duration_days_min": 60,
+    "ttm_required_distinct_quarters": 4
+  },
+  "phase_id": "FMDL-6X3-B",
+  "profile_contract": {
+    "candidate_pool_mutation_authorized": false,
+    "special_profiles_require_dedicated_rules": true,
+    "supported_profiles_v1": [
+      "STANDARD_OPERATING_COMPANY"
+    ],
+    "unsupported_profile_action": "BLOCK_AND_QUEUE"
+  },
+  "quality_contract": {
+    "bucket_count": 64,
+    "expected_shard_count": 256,
+    "maximum_duplicate_source_fact_keys": 0,
+    "maximum_neutral_fill_rows": 0,
+    "maximum_unmapped_source_tags": 0,
+    "maximum_validation_failures": 0,
+    "minimum_normalized_ready_issuer_count": 3,
+    "minimum_normalized_source_fact_count": 33,
+    "require_current_release_parity": true,
+    "require_lkg_protection": true,
+    "require_manifest_hash_validation": true,
+    "require_same_input_byte_replay": true,
+    "required_validation_equations_per_ready_issuer": 4
+  },
+  "required_exit_status": "FMDL6X3B_FINANCIAL_NORMALIZATION_TTM_AND_ANNUAL_METRIC_LAYER_ACCEPTED",
+  "source_contract": {
+    "accepted_authority": "SEC_OFFICIAL",
+    "confidence_labels": [
+      "high",
+      "medium",
+      "low"
+    ],
+    "derived_evidence_label": "derived_calculation",
+    "missing_evidence_label": "missing_required_source",
+    "neutral_fill_authorized": false,
+    "preserve_raw_taxonomy_tag_label_unit_period_accession_and_url": true,
+    "reported_evidence_label": "fact_source_reported",
+    "silent_source_substitution_authorized": false
+  },
+  "storage_contract": {
+    "archive_root": "outputs/fmdl6x3/archive",
+    "current_root": "outputs/fmdl6x3/current/financial_normalization",
+    "domains": [
+      "NORMALIZED_SOURCE_FACT",
+      "CANONICAL_STATEMENT",
+      "DERIVED_METRIC",
+      "NORMALIZATION_ISSUE"
+    ],
+    "last_success_pointer": "outputs/status/FMDL6X3B_LAST_SUCCESS.json",
+    "lkg_pointer": "outputs/status/FMDL6X3_FINANCIAL_NORMALIZATION_LKG.json",
+    "normalized_root": "datasets/fmdl6x3/normalized/financial_normalization",
+    "release_root": "datasets/fmdl6x3/releases"
+  },
+  "tag_mapping": {
+    "CostOfGoodsAndServicesSold": {
+      "canonical_metric": "COST_OF_REVENUE",
+      "statement": "INCOME_STATEMENT"
+    },
+    "CostOfRevenue": {
+      "canonical_metric": "COST_OF_REVENUE",
+      "statement": "INCOME_STATEMENT"
+    },
+    "EarningsPerShareBasic": {
+      "canonical_metric": "BASIC_EPS",
+      "statement": "INCOME_STATEMENT"
+    },
+    "EarningsPerShareDiluted": {
+      "canonical_metric": "DILUTED_EPS",
+      "statement": "INCOME_STATEMENT"
+    },
+    "GeneralAndAdministrativeExpense": {
+      "canonical_metric": "GENERAL_AND_ADMINISTRATIVE",
+      "statement": "INCOME_STATEMENT"
+    },
+    "GrossProfit": {
+      "canonical_metric": "GROSS_PROFIT",
+      "statement": "INCOME_STATEMENT"
+    },
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest": {
+      "canonical_metric": "PRETAX_INCOME",
+      "statement": "INCOME_STATEMENT"
+    },
+    "IncomeTaxExpenseBenefit": {
+      "canonical_metric": "INCOME_TAX_EXPENSE",
+      "statement": "INCOME_STATEMENT"
+    },
+    "NetIncomeLoss": {
+      "canonical_metric": "NET_INCOME",
+      "statement": "INCOME_STATEMENT"
+    },
+    "OperatingExpenses": {
+      "canonical_metric": "OPERATING_EXPENSES",
+      "statement": "INCOME_STATEMENT"
+    },
+    "OperatingIncomeLoss": {
+      "canonical_metric": "OPERATING_INCOME",
+      "statement": "INCOME_STATEMENT"
+    },
+    "ResearchAndDevelopmentExpense": {
+      "canonical_metric": "RESEARCH_AND_DEVELOPMENT",
+      "statement": "INCOME_STATEMENT"
+    },
+    "RevenueFromContractWithCustomerExcludingAssessedTax": {
+      "canonical_metric": "REVENUE",
+      "statement": "INCOME_STATEMENT"
+    },
+    "SellingAndMarketingExpense": {
+      "canonical_metric": "SELLING_AND_MARKETING",
+      "statement": "INCOME_STATEMENT"
+    },
+    "SellingGeneralAndAdministrativeExpense": {
+      "canonical_metric": "SELLING_GENERAL_AND_ADMINISTRATIVE",
+      "statement": "INCOME_STATEMENT"
+    }
+  },
+  "trade_authority": "NONE",
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0
+  }
+}
