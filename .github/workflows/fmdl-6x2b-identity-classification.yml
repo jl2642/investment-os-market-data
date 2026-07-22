@@ -1,0 +1,106 @@
+name: FMDL 6X2-B Identity Classification and Review Queues
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x2b_*.json"
+      - "schemas/fmdl6x2b_*.json"
+      - "scripts/fmdl6x2b_*.py"
+      - "tests/test_fmdl6x2b_*.py"
+      - "docs/FMDL-6X2-B*.md"
+      - ".github/workflows/fmdl-6x2b-identity-classification.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x2b_*.json"
+      - "schemas/fmdl6x2b_*.json"
+      - "scripts/fmdl6x2b_*.py"
+      - "tests/test_fmdl6x2b_*.py"
+      - "docs/FMDL-6X2-B*.md"
+      - ".github/workflows/fmdl-6x2b-identity-classification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x2b-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Contract and classification regression tests
+        run: PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x2b_identity_classification.py
+      - name: Compile producer modules
+        run: python -m py_compile scripts/fmdl6x2b_common.py scripts/fmdl6x2b_classification.py scripts/fmdl6x2b_candidate.py scripts/fmdl6x2b_identity_classification.py tests/test_fmdl6x2b_identity_classification.py
+      - name: Validate frozen production contract
+        run: PYTHONPATH=scripts python scripts/fmdl6x2b_identity_classification.py validate-contract --repo-root .
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Freeze run timestamp
+        run: echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+      - name: Build identity and classification candidate
+        run: |
+          rm -rf outputs/fmdl6x2b/candidate outputs/fmdl6x2b/candidate_replay outputs/fmdl6x2b/acceptance
+          PYTHONPATH=scripts python scripts/fmdl6x2b_identity_classification.py build \
+            --repo-root . \
+            --candidate outputs/fmdl6x2b/candidate \
+            --accepted-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA"
+      - name: Independent validation and same-input replay
+        run: |
+          PYTHONPATH=scripts python scripts/fmdl6x2b_identity_classification.py validate-candidate \
+            --repo-root . \
+            --candidate outputs/fmdl6x2b/candidate \
+            --accepted-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA" \
+            --acceptance outputs/fmdl6x2b/acceptance/FMDL6X2B_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x2b-identity-classification-candidate
+          path: |
+            outputs/fmdl6x2b/candidate
+            outputs/fmdl6x2b/acceptance
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release normalized and pointers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          PYTHONPATH=scripts python scripts/fmdl6x2b_identity_classification.py publish \
+            --repo-root . \
+            --candidate outputs/fmdl6x2b/candidate \
+            --published-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA"
+      - name: Commit accepted FMDL-6X2-B state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A \
+            outputs/fmdl6x2/current/identity \
+            outputs/fmdl6x2/archive \
+            datasets/fmdl6x2/releases \
+            datasets/fmdl6x2/normalized/identity \
+            outputs/status/FMDL6X2B_LAST_SUCCESS.json \
+            outputs/status/FMDL6X2_IDENTITY_LKG.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X2-B identity classification [skip ci]"
+          git push
