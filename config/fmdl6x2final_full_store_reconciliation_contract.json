@@ -1,0 +1,59 @@
+{
+  "phase_id": "FMDL-6X2-FINAL",
+  "phase_name": "Full Store Reconciliation & Operational Acceptance",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "PRODUCTION_CONTRACT_CANDIDATE",
+  "authority": "FMDL6X2_CROSS_DOMAIN_RECONCILIATION_ONLY",
+  "trade_authority": "NONE",
+  "domain_contracts": {
+    "security_master": {"pointer_path": "outputs/status/FMDL6X2A_LAST_SUCCESS.json", "required_release_sequence": 30, "required_status": "FMDL6X2A_CURRENT_SECURITY_MASTER_PRODUCTION_ACCEPTED"},
+    "identity": {"pointer_path": "outputs/status/FMDL6X2B_LAST_SUCCESS.json", "required_release_sequence": 31, "required_status": "FMDL6X2B_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES_ACCEPTED"},
+    "listing_history": {"pointer_path": "outputs/status/FMDL6X2C_LAST_SUCCESS.json", "required_release_sequence": 32, "required_status": "FMDL6X2C_HISTORICAL_LISTING_AND_LIFECYCLE_BACKFILL_ACCEPTED"},
+    "market_reference": {"pointer_path": "outputs/status/FMDL6X2D_LAST_SUCCESS.json", "required_release_sequence": 33, "required_status": "FMDL6X2D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_ACCEPTED"},
+    "sec_filings_facts": {"pointer_path": "outputs/status/FMDL6X2E_LAST_SUCCESS.json", "required_release_sequence": 34, "required_status": "FMDL6X2E_SEC_FILINGS_AND_FINANCIAL_FACTS_STORE_ACCEPTED"}
+  },
+  "reconciliation_contract": {
+    "listing_records_expected": 8807,
+    "security_records_expected": 8785,
+    "issuer_records_expected": 7419,
+    "release_sequence_expected": [30, 31, 32, 33, 34],
+    "current_release_manifest_parity_required": true,
+    "current_release_decision_parity_required": true,
+    "domain_quality_pass_required": true,
+    "coverage_boundary_overclaim_allowed": false,
+    "trade_authority": "NONE"
+  },
+  "completion_boundary": {
+    "historical_listing_completion_claimed": false,
+    "full_universe_market_history_claimed": false,
+    "market_data_grade": "NON_DECISION_GRADE_FALLBACK",
+    "full_universe_sec_store_claimed": false,
+    "accepted_completion_claim": "PRODUCTION_STORES_AND_RESUMABLE_BACKFILL_MECHANISMS_ACCEPTED_WITH_EXPLICIT_COVERAGE_BOUNDARIES"
+  },
+  "scope": {
+    "full_store_reconciliation_authorized": true,
+    "fmdl6x3_handoff_authorized": true,
+    "candidate_pool_integration_authorized": false,
+    "simulation_integration_authorized": false,
+    "real_account_integration_authorized": false,
+    "order_generation_authorized": false
+  },
+  "storage_contract": {
+    "candidate_root": "outputs/fmdl6x2final/candidate",
+    "acceptance_root": "outputs/fmdl6x2final/acceptance",
+    "current_root": "outputs/fmdl6x2/current/full_store",
+    "release_root": "datasets/fmdl6x2/releases/<release_id>/full_store",
+    "normalized_root": "datasets/fmdl6x2/normalized/full_store/<release_id>",
+    "archive_root": "outputs/fmdl6x2/archive",
+    "last_success": "outputs/status/FMDL6X2_FINAL_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6X2_FULL_STORE_LKG.json",
+    "release_sequence": 35,
+    "atomic_promotion_required": true,
+    "failed_run_may_replace_current": false,
+    "failed_run_may_replace_lkg": false
+  },
+  "zero_mutation_gate": {"candidate_pool_mutations": 0, "simulation_mutations": 0, "real_account_mutations": 0, "orders": 0},
+  "required_exit_status": "FMDL6X2_FINAL_FULL_STORE_RECONCILIATION_AND_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+  "next_gate": "FMDL-6X3-A_RESEARCH_UNIVERSE_AND_DATA_READINESS_CONTRACT"
+}
