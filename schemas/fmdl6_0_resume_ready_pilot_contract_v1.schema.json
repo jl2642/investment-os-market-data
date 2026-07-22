@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/fmdl6_0_resume_ready_pilot_contract_v1.schema.json",
+  "title": "FMDL-6-0 US Equity Resume-Ready Pilot Architecture",
+  "type": "object",
+  "required": [
+    "program_id",
+    "plan_version",
+    "status",
+    "authority",
+    "trade_authority",
+    "entry_gate",
+    "scope_decision",
+    "controlled_supersession",
+    "current_execution_plan",
+    "security_identity_architecture",
+    "pilot_universe_boundary",
+    "required_source_interfaces",
+    "phase_deliverables",
+    "deferred_full_build_backlog",
+    "activation_gate",
+    "resume_ready_package",
+    "shared_state_boundaries",
+    "publication",
+    "exit_status",
+    "next_gate"
+  ],
+  "properties": {
+    "program_id": {"const": "FMDL-6-0"},
+    "plan_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "status": {"const": "ARCHITECTURE_CANDIDATE"},
+    "trade_authority": {"const": "NONE"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["pointer_path", "required_release_id", "required_status", "required_next_gate"],
+      "properties": {
+        "pointer_path": {"const": "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json"},
+        "required_release_id": {"const": "FMDL5FINAL_20260721_a43285d1ee25"},
+        "required_status": {"const": "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED"},
+        "required_next_gate": {"const": "FMDL-6_0_US_EQUITY_INTERFACE_AND_BENCHMARK_PLAN"}
+      },
+      "additionalProperties": true
+    },
+    "scope_decision": {
+      "type": "object",
+      "required": [
+        "scope_mode",
+        "benchmark_security_target",
+        "full_universe_development_authorized",
+        "full_history_backfill_authorized",
+        "factor_and_screening_production_authorized",
+        "candidate_pool_integration_authorized",
+        "simulation_integration_authorized",
+        "real_account_integration_authorized",
+        "order_generation_authorized"
+      ],
+      "properties": {
+        "scope_mode": {"const": "INTERFACE_AND_SMALL_BENCHMARK_ONLY"},
+        "benchmark_security_target": {"const": 24},
+        "full_universe_development_authorized": {"const": false},
+        "full_history_backfill_authorized": {"const": false},
+        "factor_and_screening_production_authorized": {"const": false},
+        "candidate_pool_integration_authorized": {"const": false},
+        "simulation_integration_authorized": {"const": false},
+        "real_account_integration_authorized": {"const": false},
+        "order_generation_authorized": {"const": false}
+      },
+      "additionalProperties": true
+    },
+    "current_execution_plan": {
+      "type": "object",
+      "required": [
+        "formal_subphases_after_fmdl6_0",
+        "formal_subphase_count_after_fmdl6_0",
+        "total_planned_round_count_including_fmdl6_0",
+        "maximum_total_rounds_including_targeted_repairs"
+      ],
+      "properties": {
+        "formal_subphases_after_fmdl6_0": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "uniqueItems": true
+        },
+        "formal_subphase_count_after_fmdl6_0": {"const": 6},
+        "total_planned_round_count_including_fmdl6_0": {"const": 7},
+        "maximum_total_rounds_including_targeted_repairs": {"maximum": 9}
+      },
+      "additionalProperties": true
+    },
+    "required_source_interfaces": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["interface_id", "primary_source_family", "required_endpoints_or_artifacts", "decision_grade_claim_deferred_to"]
+      }
+    },
+    "deferred_full_build_backlog": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["phase_id", "status", "objective"],
+        "properties": {
+          "status": {"const": "DEFERRED_NOT_AUTHORIZED"}
+        }
+      }
+    },
+    "activation_gate": {
+      "type": "object",
+      "required": ["gate_status", "required_conditions", "full_build_activation_rule", "partial_or_implicit_activation_forbidden"],
+      "properties": {
+        "gate_status": {"const": "CLOSED"},
+        "required_conditions": {"type": "array", "minItems": 5, "uniqueItems": true},
+        "partial_or_implicit_activation_forbidden": {"const": true}
+      }
+    },
+    "resume_ready_package": {
+      "type": "object",
+      "required": ["required_static_assets", "required_published_assets", "restore_read_order", "chat_history_required_for_restore"],
+      "properties": {
+        "chat_history_required_for_restore": {"const": false},
+        "required_published_assets": {"type": "array", "minItems": 8, "uniqueItems": true},
+        "restore_read_order": {"type": "array", "minItems": 5, "uniqueItems": true}
+      }
+    },
+    "shared_state_boundaries": {
+      "type": "object",
+      "required": [
+        "research_graduation_is_not_candidate_admission",
+        "candidate_admission_is_not_simulation_admission",
+        "simulation_admission_is_not_real_account_admission",
+        "real_account_action_requires_user_confirmation",
+        "us_pilot_is_not_us_investment_capability_completion",
+        "benchmark_pool_is_not_candidate_pool",
+        "trade_authority"
+      ],
+      "properties": {
+        "research_graduation_is_not_candidate_admission": {"const": true},
+        "candidate_admission_is_not_simulation_admission": {"const": true},
+        "simulation_admission_is_not_real_account_admission": {"const": true},
+        "real_account_action_requires_user_confirmation": {"const": true},
+        "us_pilot_is_not_us_investment_capability_completion": {"const": true},
+        "benchmark_pool_is_not_candidate_pool": {"const": true},
+        "trade_authority": {"const": "NONE"}
+      }
+    },
+    "publication": {
+      "type": "object",
+      "required": ["candidate_root", "current_root", "archive_root", "release_root", "last_success", "release_sequence"],
+      "properties": {
+        "release_sequence": {"const": 19}
+      }
+    },
+    "exit_status": {"const": "FMDL6_0_US_EQUITY_RESUME_READY_PILOT_ARCHITECTURE_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6A_US_MARKET_CONTRACT_AND_SECURITY_IDENTITY"}
+  },
+  "additionalProperties": true
+}
