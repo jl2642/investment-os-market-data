@@ -1,0 +1,87 @@
+name: FMDL 6X3-A Research Universe and Data Readiness
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x3a_*.json"
+      - "schemas/fmdl6x3a_*.json"
+      - "scripts/fmdl6x3a_*.py"
+      - "tests/test_fmdl6x3a_*.py"
+      - "docs/FMDL-6X3-A*.md"
+      - ".github/workflows/fmdl-6x3a-research-universe-readiness.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x3a_*.json"
+      - "schemas/fmdl6x3a_*.json"
+      - "scripts/fmdl6x3a_*.py"
+      - "tests/test_fmdl6x3a_*.py"
+      - "docs/FMDL-6X3-A*.md"
+      - ".github/workflows/fmdl-6x3a-research-universe-readiness.yml"
+  workflow_run:
+    workflows: ["FMDL 6X2-FINAL Full Store Reconciliation"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x3a-${{ github.workflow }}-${{ github.ref || github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Contract and readiness regression tests
+        run: PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x3a_research_universe_readiness.py
+      - name: Compile producer and tests
+        run: python -m py_compile scripts/fmdl6x3a_research_universe_readiness.py tests/test_fmdl6x3a_research_universe_readiness.py
+      - name: Validate frozen production contract
+        run: PYTHONPATH=scripts python scripts/fmdl6x3a_research_universe_readiness.py --repo-root . validate-contract
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Freeze run timestamp
+        run: echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+      - name: Build research universe and readiness candidate
+        run: |
+          rm -rf outputs/fmdl6x3a/candidate outputs/fmdl6x3a/candidate_replay outputs/fmdl6x3a/acceptance
+          PYTHONPATH=scripts python scripts/fmdl6x3a_research_universe_readiness.py --repo-root . build --candidate outputs/fmdl6x3a/candidate --accepted-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA"
+      - name: Independent captured-input replay
+        run: PYTHONPATH=scripts python scripts/fmdl6x3a_research_universe_readiness.py --repo-root . validate-candidate --candidate outputs/fmdl6x3a/candidate --accepted-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA" --acceptance outputs/fmdl6x3a/acceptance/FMDL6X3A_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x3a-research-universe-readiness-candidate
+          path: |
+            outputs/fmdl6x3a/candidate
+            outputs/fmdl6x3a/acceptance
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release normalized and pointers
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main') && success()
+        run: PYTHONPATH=scripts python scripts/fmdl6x3a_research_universe_readiness.py --repo-root . publish --candidate outputs/fmdl6x3a/candidate --published-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA"
+      - name: Commit accepted FMDL-6X3-A state
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main') && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A outputs/fmdl6x3/current/research_universe_readiness datasets/fmdl6x3/releases datasets/fmdl6x3/normalized/research_universe_readiness outputs/status/FMDL6X3A_LAST_SUCCESS.json outputs/status/FMDL6X3_RESEARCH_UNIVERSE_LKG.json
+          if [ -d outputs/fmdl6x3/archive ]; then git add -A outputs/fmdl6x3/archive; fi
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X3-A research universe readiness [skip ci]"
+          git push
