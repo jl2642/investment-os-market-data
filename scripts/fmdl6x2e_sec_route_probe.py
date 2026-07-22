@@ -100,6 +100,7 @@ def probe() -> dict:
             error = f"{type(exc).__name__}:{exc}"
         magic_ok = payload.startswith(route["expected_magic"])
         success = error is None and status in {200, 206} and magic_ok
+        controlled_block = error is None and status == 403
         parsed = None
         if route["kind"] == "FULL_SMALL_JSON" and success:
             try:
@@ -123,18 +124,23 @@ def probe() -> dict:
                 "magic_ok": magic_ok,
                 "parsed": parsed,
                 "success": success,
+                "controlled_block": controlled_block,
                 "error": error,
                 "latency_ms": round((time.monotonic() - started) * 1000, 1),
                 "source_authority": "SEC_OFFICIAL",
                 "no_silent_replacement_assertion": True,
             }
         )
+    all_success = all(o["success"] for o in observations)
+    repeatable_controlled_403 = len(observations) == len(ROUTES) and all(o["controlled_block"] for o in observations)
     return {
         "phase_id": "FMDL-6X2-E",
         "captured_at": utc_now(),
         "execution_environment": "GITHUB_HOSTED_RUNNER_PROBE",
         "observations": observations,
-        "all_routes_success": all(o["success"] for o in observations),
+        "all_routes_success": all_success,
+        "repeatable_controlled_403": repeatable_controlled_403,
+        "probe_gate_status": "PASS_DIRECT" if all_success else "PASS_CONTROLLED_403" if repeatable_controlled_403 else "FAIL",
     }
 
 
@@ -144,7 +150,7 @@ def main() -> None:
     result = probe()
     output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))
-    if not result["all_routes_success"]:
+    if result["probe_gate_status"] == "FAIL":
         raise SystemExit(1)
 
 
