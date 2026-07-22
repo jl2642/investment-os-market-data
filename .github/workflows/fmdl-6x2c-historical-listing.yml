@@ -1,0 +1,113 @@
+name: FMDL 6X2-C Historical Listing and Lifecycle Backfill
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x2c_*.json"
+      - "schemas/fmdl6x2c_*.json"
+      - "scripts/fmdl6x2c_*.py"
+      - "tests/test_fmdl6x2c_*.py"
+      - "docs/FMDL-6X2-C*.md"
+      - ".github/workflows/fmdl-6x2c-historical-listing.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x2c_*.json"
+      - "schemas/fmdl6x2c_*.json"
+      - "scripts/fmdl6x2c_*.py"
+      - "tests/test_fmdl6x2c_*.py"
+      - "docs/FMDL-6X2-C*.md"
+      - ".github/workflows/fmdl-6x2c-historical-listing.yml"
+  workflow_run:
+    workflows: ["FMDL 6X2-B Identity Classification and Review Queues"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x2c-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Contract and lifecycle regression tests
+        run: PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x2c_historical_listing.py
+      - name: Compile producer modules
+        run: python -m py_compile scripts/fmdl6x2c_common.py scripts/fmdl6x2c_candidate.py scripts/fmdl6x2c_historical_listing.py tests/test_fmdl6x2c_historical_listing.py
+      - name: Validate frozen production contract
+        run: PYTHONPATH=scripts python scripts/fmdl6x2c_historical_listing.py validate-contract --repo-root .
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Freeze run timestamp
+        run: echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+      - name: Build historical Listing and lifecycle candidate
+        run: |
+          rm -rf outputs/fmdl6x2c/candidate outputs/fmdl6x2c/candidate_replay outputs/fmdl6x2c/acceptance
+          PYTHONPATH=scripts python scripts/fmdl6x2c_historical_listing.py build \
+            --repo-root . \
+            --candidate outputs/fmdl6x2c/candidate \
+            --accepted-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA"
+      - name: Independent validation and same-input replay
+        run: |
+          PYTHONPATH=scripts python scripts/fmdl6x2c_historical_listing.py validate-candidate \
+            --repo-root . \
+            --candidate outputs/fmdl6x2c/candidate \
+            --accepted-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA" \
+            --acceptance outputs/fmdl6x2c/acceptance/FMDL6X2C_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x2c-historical-listing-candidate
+          path: |
+            outputs/fmdl6x2c/candidate
+            outputs/fmdl6x2c/acceptance
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release normalized and pointers
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_run') && success()
+        run: |
+          PYTHONPATH=scripts python scripts/fmdl6x2c_historical_listing.py publish \
+            --repo-root . \
+            --candidate outputs/fmdl6x2c/candidate \
+            --published-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA"
+      - name: Commit accepted FMDL-6X2-C state
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_run') && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A \
+            outputs/fmdl6x2/current/listing_history \
+            datasets/fmdl6x2/releases \
+            datasets/fmdl6x2/normalized/listing_history \
+            outputs/status/FMDL6X2C_LAST_SUCCESS.json \
+            outputs/status/FMDL6X2_LISTING_HISTORY_LKG.json
+          if [ -d outputs/fmdl6x2/archive ]; then git add -A outputs/fmdl6x2/archive; fi
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X2-C listing history [skip ci]"
+          git push
