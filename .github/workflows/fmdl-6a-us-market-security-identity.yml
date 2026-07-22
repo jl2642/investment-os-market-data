@@ -1,0 +1,84 @@
+name: FMDL 6A US Market Contract and Security Identity
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6a_*.json"
+      - "schemas/fmdl6a_*.json"
+      - "scripts/fmdl6a_*.py"
+      - "scripts/publish_fmdl6a.py"
+      - "scripts/validate_fmdl6a_*.py"
+      - "tests/test_fmdl6a_*.py"
+      - "docs/FMDL-6A*.md"
+      - ".github/workflows/fmdl-6a-us-market-security-identity.yml"
+      - "README.md"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6a_*.json"
+      - "schemas/fmdl6a_*.json"
+      - "scripts/fmdl6a_*.py"
+      - "scripts/publish_fmdl6a.py"
+      - "scripts/validate_fmdl6a_*.py"
+      - "tests/test_fmdl6a_*.py"
+      - "docs/FMDL-6A*.md"
+      - ".github/workflows/fmdl-6a-us-market-security-identity.yml"
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6a-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Unit tests
+        run: python -m pytest -q tests/test_fmdl6a_identity_contract.py
+      - name: Compile checks
+        run: >-
+          python -m py_compile
+          scripts/fmdl6a_builder.py
+          scripts/publish_fmdl6a.py
+          scripts/validate_fmdl6a_candidate.py
+      - name: Build contract candidate
+        run: |
+          rm -rf outputs/fmdl6a/candidate outputs/fmdl6a/acceptance
+          python scripts/publish_fmdl6a.py --repo-root . --candidate outputs/fmdl6a/candidate
+      - name: Independent acceptance and replay
+        run: |
+          python scripts/validate_fmdl6a_candidate.py \
+            --repo-root . \
+            --candidate outputs/fmdl6a/candidate \
+            --output outputs/fmdl6a/acceptance/FMDL6A_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmdl6a-us-market-security-identity-candidate
+          path: |
+            outputs/fmdl6a/candidate
+            outputs/fmdl6a/acceptance/FMDL6A_INDEPENDENT_ACCEPTANCE.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: python scripts/publish_fmdl6a.py --repo-root . --candidate outputs/fmdl6a/candidate --publish
+      - name: Commit accepted FMDL-6A state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl6a/current outputs/fmdl6a/archive datasets/fmdl6a/releases outputs/status/FMDL6A_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6A market and identity contract [skip ci]"
+          git push
