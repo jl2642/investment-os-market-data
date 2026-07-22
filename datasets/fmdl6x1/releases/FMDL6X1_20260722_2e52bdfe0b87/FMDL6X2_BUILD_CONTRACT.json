@@ -1,0 +1,188 @@
+{
+  "backfill_contract": {
+    "current_identity_baseline": {
+      "row_accounting_requirement": "100_PERCENT_SOURCE_ROWS_INCLUDED_EXCLUDED_OR_QUARANTINED",
+      "target": "ALL_ROWS_FROM_XNAS_XNYS_XASE_OFFICIAL_CURRENT_DIRECTORIES",
+      "test_issues_retained_with_flag": true
+    },
+    "historical_identity": {
+      "daily_snapshot_accumulation_start": "FMDL6X2_ACTIVATION_DATE",
+      "earlier_history": "BEST_EFFORT_WHEN_OFFICIAL_EVIDENCE_EXISTS",
+      "no_completion_claim_without_coverage_report": true,
+      "target_start_date": "2005-01-01"
+    },
+    "incremental_refresh": {
+      "corporate_actions": "US_TRADING_DAILY",
+      "current_directory": "US_TRADING_DAILY",
+      "full_reconciliation": "WEEKLY",
+      "market_bars": "US_TRADING_DAILY_AFTER_CLOSE",
+      "sec_submissions_and_facts": "DAILY_WHEN_EXECUTOR_AVAILABLE"
+    },
+    "market_history": {
+      "end_date": "LATEST_COMPLETED_US_TRADING_DAY",
+      "inactive_and_delisted_securities_in_scope": true,
+      "initial_target_start_date": "2010-01-01",
+      "point_in_time_listing_window_enforced": true,
+      "pre_2010_history": "OPTIONAL_EXTENDED_WHEN_RELIABLE"
+    },
+    "sec_filings_and_facts": {
+      "actual_start_rule": "SOURCE_AVAILABLE_WITH_ACCESSION_LINEAGE",
+      "amendments_and_restated_facts_retained": true,
+      "forms_domestic": [
+        "10-K",
+        "10-Q",
+        "8-K"
+      ],
+      "forms_fpi": [
+        "20-F",
+        "40-F",
+        "6-K"
+      ],
+      "revision_lineage_required": true,
+      "target_start_date": "2009-01-01"
+    }
+  },
+  "brokerage_real_account_gate": "CLOSED_NO_CHANNEL",
+  "cost_and_runtime_policy": {
+    "cost_overrun_action": "STOP_NEW_SHARDS_PRESERVE_LKG_AND_PUBLISH_DIAGNOSTIC",
+    "github_actions_monthly_minutes_soft_ceiling": 900,
+    "max_parallel_shards": 8,
+    "paid_api_or_dataset_activation_requires_user_approval": true,
+    "paid_subscription_budget_usd": 0,
+    "public_repository_minutes_assumed_unlimited": false,
+    "retry_policy": "BOUNDED_EXPONENTIAL_BACKOFF_NO_INFINITE_RETRY",
+    "single_orchestrator_run_minutes_hard_ceiling": 180,
+    "single_shard_run_minutes_soft_ceiling": 20
+  },
+  "entry_pointer": "outputs/status/FMDL6X1_LAST_SUCCESS.json",
+  "fixed_execution_plan": [
+    {
+      "exit_status": "FMDL6X2A_CURRENT_SECURITY_MASTER_PRODUCTION_ACCEPTED",
+      "name": "Current Security Master Production",
+      "objective": "Build and publish the complete current target-venue Security Master with 100% source-row accounting.",
+      "phase_id": "FMDL-6X2-A"
+    },
+    {
+      "exit_status": "FMDL6X2B_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES_ACCEPTED",
+      "name": "Issuer Identity, Classification & Review Queues",
+      "objective": "Resolve issuer/share-class/security/listing identities, research profiles, cross-market groups and quarantine queues.",
+      "phase_id": "FMDL-6X2-B"
+    },
+    {
+      "exit_status": "FMDL6X2C_HISTORICAL_LISTING_AND_LIFECYCLE_BACKFILL_ACCEPTED",
+      "name": "Historical Listing & Lifecycle Backfill",
+      "objective": "Reconstruct effective-dated listings, symbol changes, transfers, mergers and delistings with confidence grades.",
+      "phase_id": "FMDL-6X2-C"
+    },
+    {
+      "exit_status": "FMDL6X2D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_ACCEPTED",
+      "name": "Market History, Corporate Actions & FX Store",
+      "objective": "Build sharded PIT market, event and FX histories with reconciliation and LKG protection.",
+      "phase_id": "FMDL-6X2-D"
+    },
+    {
+      "exit_status": "FMDL6X2E_SEC_FILINGS_AND_FINANCIAL_FACTS_STORE_ACCEPTED",
+      "name": "SEC Filings & Financial Facts Store",
+      "objective": "Ingest official SEC identity, filings and facts through controlled official evidence bundles with revision lineage.",
+      "phase_id": "FMDL-6X2-E"
+    },
+    {
+      "exit_status": "FMDL6X2_FULL_UNIVERSE_AND_HISTORICAL_BUILD_ACCEPTED",
+      "name": "Full Store Reconciliation & Operational Acceptance",
+      "objective": "Reconcile all domains, run replay/failure/restore tests and publish the full FMDL-6X2 production baseline.",
+      "phase_id": "FMDL-6X2-FINAL"
+    }
+  ],
+  "full_build_domains": {
+    "controlled_review": [
+      "ADR_UNDERLYING_DEPOSITARY_AND_RATIO_QUEUE",
+      "SPECIAL_INSTRUMENT_CLASSIFICATION_QUEUE",
+      "IDENTITY_CONFLICT_QUEUE",
+      "HISTORICAL_EFFECTIVE_DATE_CONFIDENCE_QUEUE"
+    ],
+    "identity_and_universe": [
+      "ISSUER",
+      "SHARE_CLASS",
+      "SECURITY",
+      "EFFECTIVE_DATED_LISTING",
+      "CROSS_MARKET_ISSUER_GROUP",
+      "INSTRUMENT_CLASSIFICATION",
+      "RESEARCH_STATUS",
+      "CHANNEL_STATUS",
+      "PORTFOLIO_STATUS",
+      "LISTING_LIFECYCLE_EVENT"
+    ],
+    "market_and_reference": [
+      "DAILY_OHLCV",
+      "DIVIDEND",
+      "SPLIT",
+      "OTHER_CORPORATE_ACTION",
+      "TRADING_CALENDAR",
+      "USD_CNY_FX",
+      "USD_HKD_FX"
+    ],
+    "sec_and_fundamentals": [
+      "CIK_AND_SUBMISSION_IDENTITY",
+      "FILING_HEADER_AND_ACCESSION",
+      "FILING_FORM_AND_ACCEPTANCE_TIME",
+      "COMPANY_FACTS_WITH_TAXONOMY_UNIT_PERIOD_AND_ACCESSION",
+      "ACCOUNTING_STANDARD_AND_FPI_PROFILE",
+      "SOURCE_ASSERTION_AND_REVISION_LINEAGE"
+    ]
+  },
+  "governing_principles": [
+    "OFFICIAL_PRIMARY_FIRST",
+    "NO_SILENT_SOURCE_SUBSTITUTION",
+    "NO_FABRICATED_EFFECTIVE_DATES",
+    "NO_NEUTRAL_FILL_FOR_MISSING_DATA",
+    "NO_CURRENT_ONLY_SURVIVORSHIP_BACKFILL",
+    "UNKNOWN_OR_CONFLICTED_RECORDS_QUARANTINED",
+    "RESEARCH_CHANNEL_PORTFOLIO_AND_TRADE_AUTHORITY_SEPARATED",
+    "CURRENT_PROMOTION_REQUIRES_COMPLETE_DOMAIN_MANIFEST_AND_LKG",
+    "IMMUTABLE_RELEASES_NEVER_MUTATED"
+  ],
+  "program_id": "FMDL-6X2",
+  "publication_and_recovery": {
+    "clean_room_restore_order": [
+      "FMDL6X1_FINAL_LAST_SUCCESS",
+      "FMDL6X2_START_HERE",
+      "FMDL6X2_BUILD_CONTRACT",
+      "LATEST_DOMAIN_LKG_POINTERS",
+      "LATEST_PROGRAM_LAST_SUCCESS",
+      "IMMUTABLE_RELEASE_MANIFESTS"
+    ],
+    "current_promotion": "ATOMIC_ONLY_AFTER_ALL_REQUIRED_SHARDS_AND_DOMAIN_GATES_PASS",
+    "domain_manifest_required": true,
+    "failed_run_may_replace_current": false,
+    "failed_run_may_replace_lkg": false,
+    "immutable_release_collision": "HARD_FAIL",
+    "last_success_scope": "PROGRAM_RELEASE",
+    "lkg_scope": "PER_DOMAIN_AND_PROGRAM",
+    "manifest_fields": [
+      "domain",
+      "shard_id",
+      "source_snapshot_ids",
+      "schema_version",
+      "row_count",
+      "min_effective_date",
+      "max_effective_date",
+      "payload_sha256",
+      "generated_at",
+      "quality_status"
+    ],
+    "required_layers": [
+      "WORK",
+      "CANDIDATE",
+      "CURRENT",
+      "IMMUTABLE_RELEASE",
+      "ARCHIVE",
+      "LAST_SUCCESS",
+      "LAST_KNOWN_GOOD"
+    ]
+  },
+  "release_id": "FMDL6X1_20260722_2e52bdfe0b87",
+  "required_entry_status": "FMDL6X1_FINAL_ACCEPTED",
+  "research_production_gate": "OPEN_FOR_FMDL6X2_DATA_PRODUCTION",
+  "status": "READY_FOR_FMDL6X2A_AFTER_FINAL_ACCEPTANCE",
+  "trade_authority": "NONE"
+}

@@ -1,0 +1,100 @@
+{
+  "paid_subscription_budget_usd": 0,
+  "program_id": "FMDL-6X2",
+  "silent_source_substitution_forbidden": true,
+  "source_execution_contract": {
+    "adr_and_special_instruments": {
+      "adr_automatic_research_eligibility_requires": [
+        "UNDERLYING_ISSUER_OR_SECURITY_RESOLVED",
+        "DEPOSITARY_RESOLVED",
+        "ADR_RATIO_RESOLVED"
+      ],
+      "adr_sources": [
+        "SEC_FILINGS",
+        "ISSUER_OFFICIAL",
+        "DEPOSITARY_OFFICIAL"
+      ],
+      "classification_sources": [
+        "NASDAQ_DIRECTORY_FLAGS",
+        "SEC_SECURITY_DESCRIPTION",
+        "ISSUER_OR_FUND_OFFICIAL"
+      ],
+      "conflict_action": "QUARANTINE_AND_MANUAL_REVIEW"
+    },
+    "current_security_directory": {
+      "execution_environment": "GITHUB_HOSTED_ALLOWED",
+      "footer_and_test_issue_rows_accounted": true,
+      "frequency": "EACH_US_TRADING_DAY_AFTER_DIRECTORY_REFRESH",
+      "primary_routes": [
+        "NASDAQ_TRADER_NASDAQLISTED",
+        "NASDAQ_TRADER_OTHERLISTED"
+      ],
+      "raw_snapshot_required": true,
+      "symbol_directory_zip_route": "DISABLED_UNTIL_SCHEMA_DRIFT_RESOLVED"
+    },
+    "fx": {
+      "derived_cross_rate_lineage_required": true,
+      "primary": "ECB_OFFICIAL",
+      "support": "FRANKFURTER_FREE"
+    },
+    "historical_listing_and_lifecycle": {
+      "effective_date_confidence_grades": [
+        "OFFICIAL_EFFECTIVE_DATE",
+        "BOUNDED_EVENT_WINDOW",
+        "OBSERVATION_ONLY"
+      ],
+      "evidence_priority": [
+        "DAILY_OFFICIAL_DIRECTORY_SNAPSHOTS",
+        "SEC_FILING_AND_SUBMISSION_HISTORY",
+        "OFFICIAL_EXCHANGE_OR_ISSUER_NOTICES",
+        "EXPLICITLY_APPROVED_LICENSED_SOURCE"
+      ],
+      "observation_only_may_be_represented_as_exact_effective_date": false,
+      "strategy": "ARCHIVAL_RECONSTRUCTION_WITH_CONFIDENCE_GRADES_AND_OPTIONAL_LICENSED_AUGMENTATION",
+      "universal_zero_cost_official_route_confirmed": false
+    },
+    "market_history_and_corporate_actions": {
+      "dual_route_reconciliation_required": true,
+      "interim_grade": "NON_DECISION_GRADE_FALLBACK",
+      "interim_routes": [
+        "YAHOO_QUERY1_CHART",
+        "YAHOO_QUERY2_CHART"
+      ],
+      "licensed_or_additional_route_activation_requires_user_approval": true,
+      "promotion_requirements": [
+        "OHLCV_SCHEMA_VALIDATION",
+        "TRADING_CALENDAR_RECONCILIATION",
+        "DUPLICATE_AND_GAP_CHECKS",
+        "SPLIT_AND_DIVIDEND_EVENT_RECONCILIATION",
+        "OUTLIER_REVIEW",
+        "LAST_KNOWN_GOOD_PROTECTION"
+      ],
+      "stooq_route": "DISABLED_HTML_CHALLENGE"
+    },
+    "sec_official_ingestion": {
+      "approved_interim_execution_environments": [
+        "CHATGPT_WEB_CONTROLLED_OFFICIAL_RETRIEVAL",
+        "LOCAL_RUNNER",
+        "SELF_HOSTED_RUNNER"
+      ],
+      "evidence_bundle_required_fields": [
+        "route_id",
+        "official_source_url",
+        "retrieved_at",
+        "http_status",
+        "media_type",
+        "payload_sha256",
+        "parser_version",
+        "source_authority",
+        "cik10_or_accession_scope",
+        "no_silent_replacement_assertion"
+      ],
+      "github_hosted_direct_execution": "BLOCKED_BY_REPEATABLE_403",
+      "ingress_gate": "EVIDENCE_BUNDLE_HASH_AND_SCHEMA_VALIDATION_BEFORE_PARSE",
+      "source_authority": "SEC_OFFICIAL_ONLY_FOR_DECISION_GRADE_IDENTITY_FILINGS_AND_FACTS",
+      "third_party_sec_proxy_authorized": false
+    }
+  },
+  "source_registry_version": "1.0.0",
+  "trade_authority": "NONE"
+}

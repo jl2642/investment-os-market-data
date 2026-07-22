@@ -1,0 +1,25 @@
+{
+  "atomic_promotion_required": true,
+  "bucket_count": 64,
+  "partial_shard_may_replace_current": false,
+  "program_id": "FMDL-6X2",
+  "shard_plan_version": "1.0.0",
+  "storage_and_sharding": {
+    "archive_root": "outputs/fmdl6x2/archive/<run_id>",
+    "candidate_root": "outputs/fmdl6x2/candidate",
+    "canonical_serialization": "UTF8_STABLE_SORTED_JSON_OR_SCHEMA_LOCKED_PARQUET",
+    "company_fact_shards": "FACT_PERIOD_YEAR_PLUS_CIK_HASH_BUCKET_00_TO_3F",
+    "compression": "GZIP_OR_ZSTD_WHEN_DETERMINISTIC_AND_TOOLCHAIN_SUPPORTED",
+    "current_root": "outputs/fmdl6x2/current",
+    "identity_shards": "VENUE_PLUS_HASH_BUCKET_00_TO_3F",
+    "market_shards": "YEAR_PLUS_SECURITY_HASH_BUCKET_00_TO_3F",
+    "normalized_root": "datasets/fmdl6x2/normalized/<domain>",
+    "partial_shard_may_replace_current": false,
+    "raw_evidence_root": "datasets/fmdl6x2/raw/<source>/<retrieval_date>",
+    "release_root": "datasets/fmdl6x2/releases/<release_id>",
+    "sec_filing_shards": "FILING_YEAR_PLUS_CIK_HASH_BUCKET_00_TO_3F",
+    "shard_function": "SHA256_CANONICAL_SECURITY_OR_ISSUER_ID_MOD_64",
+    "status_root": "outputs/status",
+    "work_root": "outputs/fmdl6x2/work"
+  }
+}

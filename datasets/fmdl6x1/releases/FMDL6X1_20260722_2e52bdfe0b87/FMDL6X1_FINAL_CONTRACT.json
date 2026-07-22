@@ -1,0 +1,138 @@
+{
+  "acceptance": {
+    "acceptance_reason": "INDEPENDENT_REPLAY_FAILURE_INJECTION_CLEAN_ROOM_AND_IMMUTABLE_PUBLICATION_PASS",
+    "accepted_at": "2026-07-22T11:49:11Z",
+    "source_commit": "ca37f3928e45f376967321c3aab1aa5118bbc99a"
+  },
+  "acceptance_dimensions": {
+    "all_prior_last_success_required": true,
+    "clean_room_restore_required": true,
+    "current_release_byte_parity_required": true,
+    "failure_injection_required": true,
+    "immutable_publication_required": true,
+    "independent_validation_required": true,
+    "same_input_replay_required": true
+  },
+  "as_of_date": "2026-07-22",
+  "authority": "FMDL6X1_RESEARCH_PRODUCTION_OPERATIONAL_ACCEPTANCE_ONLY",
+  "contract_version": "1.0.1",
+  "dual_gate_final_state": {
+    "brokerage_real_account_gate": "CLOSED_NO_CHANNEL",
+    "channel_eligibility_default": "CHANNEL_ELIGIBILITY_PENDING",
+    "portfolio_admission_default": "PORTFOLIO_ADMISSION_NOT_AUTHORIZED",
+    "research_production_gate": "OPEN_FOR_FMDL6X2_DATA_PRODUCTION"
+  },
+  "failure_injection_scenarios": [
+    "MISSING_PRIOR_LAST_SUCCESS",
+    "PRIOR_RELEASE_ID_MISMATCH",
+    "CURRENT_RELEASE_BYTE_MISMATCH",
+    "BROKERAGE_GATE_OPEN_WITHOUT_CHANNEL",
+    "TRADE_AUTHORITY_ESCALATED",
+    "SILENT_SOURCE_SUBSTITUTION_ENABLED",
+    "PAID_ROUTE_ACTIVATED_WITHOUT_APPROVAL",
+    "FMDL6X2_PHASE_SEQUENCE_MUTATED",
+    "SEC_PROXY_AUTHORIZED"
+  ],
+  "fixed_execution_plan_path": "docs/FMDL-6X1_FULL_EXECUTION_PLAN.md",
+  "fmdl6x2_entry": {
+    "next_gate": "FMDL-6X2-A_CURRENT_SECURITY_MASTER_PRODUCTION",
+    "required_final_status": "FMDL6X1_FINAL_ACCEPTED",
+    "required_handoff_assets": [
+      "FMDL6X2_START_HERE.md",
+      "FMDL6X2_BUILD_CONTRACT.json",
+      "FMDL6X2_DOMAIN_SCHEMA_REGISTRY.json",
+      "FMDL6X2_SOURCE_EXECUTION_REGISTRY.json",
+      "FMDL6X2_SHARD_PLAN.json",
+      "FMDL6X2_QUALITY_GATE_REGISTRY.json",
+      "FMDL6X2_RESTORE_ORDER.md"
+    ],
+    "required_phase_count": 6,
+    "required_phase_sequence": [
+      "FMDL-6X2-A",
+      "FMDL-6X2-B",
+      "FMDL-6X2-C",
+      "FMDL-6X2-D",
+      "FMDL-6X2-E",
+      "FMDL-6X2-FINAL"
+    ]
+  },
+  "input_release_chain": [
+    {
+      "current_asset": "outputs/fmdl6x1a/current/FMDL6X1A_CONTRACT.json",
+      "phase_id": "FMDL-6X1-A",
+      "pointer_path": "outputs/status/FMDL6X1A_LAST_SUCCESS.json",
+      "release_asset": "datasets/fmdl6x1a/releases/FMDL6X1A_20260722_795fcd84ed00/FMDL6X1A_CONTRACT.json",
+      "required_next_gate": "FMDL-6X1-B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY",
+      "required_release_id": "FMDL6X1A_20260722_795fcd84ed00",
+      "required_status": "FMDL6X1A_EXISTING_PILOT_AUDIT_AND_DUAL_ACTIVATION_CONTRACT_ACCEPTED"
+    },
+    {
+      "current_asset": "outputs/fmdl6x1b/current/FMDL6X1B_CONTRACT.json",
+      "phase_id": "FMDL-6X1-B",
+      "pointer_path": "outputs/status/FMDL6X1B_LAST_SUCCESS.json",
+      "release_asset": "datasets/fmdl6x1b/releases/FMDL6X1B_20260722_8caf155efd67/FMDL6X1B_CONTRACT.json",
+      "required_next_gate": "FMDL-6X1-C_SOURCE_COST_AND_EXECUTION_ROUTE_REVALIDATION",
+      "required_release_id": "FMDL6X1B_20260722_8caf155efd67",
+      "required_status": "FMDL6X1B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY_ACCEPTED"
+    },
+    {
+      "current_asset": "outputs/fmdl6x1c/current/FMDL6X1C_DECISION.json",
+      "phase_id": "FMDL-6X1-C",
+      "pointer_path": "outputs/status/FMDL6X1C_LAST_SUCCESS.json",
+      "release_asset": "datasets/fmdl6x1c/releases/FMDL6X1C_20260722_c3fdb6bd5391/FMDL6X1C_DECISION.json",
+      "required_next_gate": "FMDL-6X1-D_FULL_BUILD_CONTRACT_AND_FMDL6X2_HANDOFF",
+      "required_release_id": "FMDL6X1C_20260722_c3fdb6bd5391",
+      "required_status": "FMDL6X1C_SOURCE_COST_AND_EXECUTION_ROUTE_REVALIDATION_ACCEPTED"
+    },
+    {
+      "current_asset": "outputs/fmdl6x1d/current/FMDL6X1D_CONTRACT.json",
+      "handoff_current_asset": "outputs/fmdl6x1d/current/FMDL6X2_HANDOFF_PLAN.json",
+      "handoff_release_asset": "datasets/fmdl6x1d/releases/FMDL6X1D_20260722_9cc500f96ca8/FMDL6X2_HANDOFF_PLAN.json",
+      "phase_id": "FMDL-6X1-D",
+      "pointer_path": "outputs/status/FMDL6X1D_LAST_SUCCESS.json",
+      "release_asset": "datasets/fmdl6x1d/releases/FMDL6X1D_20260722_9cc500f96ca8/FMDL6X1D_CONTRACT.json",
+      "required_next_gate": "FMDL-6X1-FINAL_OPERATIONAL_ACCEPTANCE",
+      "required_release_id": "FMDL6X1D_20260722_9cc500f96ca8",
+      "required_status": "FMDL6X1D_FULL_BUILD_CONTRACT_AND_FMDL6X2_HANDOFF_ACCEPTED"
+    }
+  ],
+  "next_gate": "FMDL-6X2-A_CURRENT_SECURITY_MASTER_PRODUCTION",
+  "phase_id": "FMDL-6X1-FINAL",
+  "phase_name": "Operational Acceptance",
+  "publication": {
+    "candidate_root": "outputs/fmdl6x1/final_candidate",
+    "current_root": "outputs/fmdl6x1/current",
+    "last_success": "outputs/status/FMDL6X1_LAST_SUCCESS.json",
+    "release_root": "datasets/fmdl6x1/releases",
+    "release_sequence": 29
+  },
+  "release_id": "FMDL6X1_20260722_2e52bdfe0b87",
+  "required_exit_status": "FMDL6X1_FINAL_ACCEPTED",
+  "scope": {
+    "candidate_pool_integration_authorized": false,
+    "historical_backfill_authorized": false,
+    "live_security_master_build_authorized": false,
+    "order_generation_authorized": false,
+    "real_account_integration_authorized": false,
+    "sec_fact_store_build_authorized": false,
+    "simulation_integration_authorized": false
+  },
+  "source_and_cost_binding": {
+    "current_security_directory_authority": "NASDAQ_TRADER_OFFICIAL_DUAL_TEXT_DIRECTORIES",
+    "market_fallback_policy": "YAHOO_DUAL_CHART_NON_DECISION_GRADE_WITH_RECONCILIATION",
+    "paid_subscription_budget_usd": 0,
+    "sec_decision_grade_policy": "OFFICIAL_SEC_EVIDENCE_ONLY_THROUGH_CONTROLLED_EXECUTOR",
+    "silent_source_substitution_forbidden": true,
+    "stooq_route_status": "DISABLED_HTML_CHALLENGE",
+    "third_party_sec_proxy_authorized": false
+  },
+  "status": "ACCEPTED",
+  "trade_authority": "NONE",
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "live_security_rows_created": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0
+  }
+}
