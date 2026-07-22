@@ -1,1 +1,0 @@
-GitHub Actions validation is pending pull-request creation.
