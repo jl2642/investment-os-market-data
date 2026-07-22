@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jl2642/investment-os-market-data/schemas/fmdl6e_quality_failure_cost_contract_v1.schema.json",
+  "title": "FMDL-6E Quality Failure Cost Benchmark Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "program_id",
+    "program_name",
+    "contract_version",
+    "as_of_date",
+    "status",
+    "authority",
+    "trade_authority",
+    "entry_gate",
+    "scope",
+    "quality_dimensions",
+    "failure_injections",
+    "cost_model",
+    "acceptance_gates",
+    "controlled_limitations",
+    "publication",
+    "exit_status",
+    "next_gate"
+  ],
+  "properties": {
+    "program_id": {"const": "FMDL-6E"},
+    "program_name": {"type": "string", "minLength": 1},
+    "contract_version": {"type": "string", "pattern": "^1\\.0\\.0$"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "status": {"const": "QUALITY_FAILURE_COST_CONTRACT_CANDIDATE"},
+    "authority": {"const": "QUALITY_FAILURE_COST_BENCHMARK_ONLY"},
+    "trade_authority": {"const": "NONE"},
+    "entry_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pointer_path", "required_release_id", "required_status", "required_next_gate", "input_current_path"],
+      "properties": {
+        "pointer_path": {"const": "outputs/status/FMDL6D_LAST_SUCCESS.json"},
+        "required_release_id": {"type": "string", "pattern": "^FMDL6D_"},
+        "required_status": {"const": "FMDL6D_MINIMAL_END_TO_END_DATA_CHAIN_ACCEPTED"},
+        "required_next_gate": {"const": "FMDL-6E_QUALITY_FAILURE_AND_COST_BENCHMARK"},
+        "input_current_path": {"const": "outputs/fmdl6d/current"}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {"const": "ACCEPTED_FMDL6D_RELEASE_OFFLINE_QUALITY_BENCHMARK"}
+      },
+      "patternProperties": {
+        ".*_authorized$": {"const": false}
+      },
+      "additionalProperties": true
+    },
+    "quality_dimensions": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "failure_injections": {
+      "type": "array",
+      "minItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["injection_id", "expected_codes"],
+        "properties": {
+          "injection_id": {"type": "string", "minLength": 1},
+          "expected_codes": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "cost_model": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["currency", "provider_cash_cost_assumption", "bounded_projection_security_count", "full_universe_projection_status"],
+      "properties": {
+        "currency": {"const": "USD"},
+        "provider_cash_cost_assumption": {"const": 0},
+        "bounded_projection_security_count": {"const": 24},
+        "full_universe_projection_status": {"const": "DEFERRED_NOT_AUTHORIZED"}
+      }
+    },
+    "acceptance_gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_error_count",
+        "minimum_failure_injection_count",
+        "failure_injection_false_negative_count",
+        "lkg_unchanged_required",
+        "same_input_replay_required",
+        "manifest_integrity_required",
+        "quality_dimension_count",
+        "market_security_count",
+        "minimum_market_daily_observations",
+        "minimum_fx_observations",
+        "minimum_financial_fact_count",
+        "candidate_pool_mutation_count",
+        "simulation_mutation_count",
+        "real_account_mutation_count",
+        "order_generation_count",
+        "trade_authority"
+      ],
+      "properties": {
+        "baseline_error_count": {"const": 0},
+        "minimum_failure_injection_count": {"minimum": 16, "type": "integer"},
+        "failure_injection_false_negative_count": {"const": 0},
+        "lkg_unchanged_required": {"const": true},
+        "same_input_replay_required": {"const": true},
+        "manifest_integrity_required": {"const": true},
+        "quality_dimension_count": {"const": 9},
+        "market_security_count": {"const": 8},
+        "minimum_market_daily_observations": {"minimum": 2000, "type": "integer"},
+        "minimum_fx_observations": {"minimum": 200, "type": "integer"},
+        "minimum_financial_fact_count": {"minimum": 10, "type": "integer"},
+        "candidate_pool_mutation_count": {"const": 0},
+        "simulation_mutation_count": {"const": 0},
+        "real_account_mutation_count": {"const": 0},
+        "order_generation_count": {"const": 0},
+        "trade_authority": {"const": "NONE"}
+      }
+    },
+    "controlled_limitations": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["release_sequence", "current_path", "archive_root", "immutable_root", "last_success_path"],
+      "properties": {
+        "release_sequence": {"const": 24},
+        "current_path": {"const": "outputs/fmdl6e/current"},
+        "archive_root": {"const": "outputs/fmdl6e/archive"},
+        "immutable_root": {"const": "datasets/fmdl6e/releases"},
+        "last_success_path": {"const": "outputs/status/FMDL6E_LAST_SUCCESS.json"}
+      }
+    },
+    "exit_status": {"const": "FMDL6E_QUALITY_FAILURE_AND_COST_BENCHMARK_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6-FINAL_RESUME_READY_OPERATIONAL_ACCEPTANCE"}
+  }
+}
