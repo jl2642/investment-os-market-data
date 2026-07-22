@@ -1,0 +1,100 @@
+name: FMDL 6X1 Final Operational Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x1_final_*.json"
+      - "schemas/fmdl6x1_final_*.json"
+      - "scripts/validate_fmdl6x1_final.py"
+      - "tests/test_fmdl6x1_final.py"
+      - "docs/FMDL-6X1-FINAL*.md"
+      - ".github/workflows/fmdl-6x1-final-operational-acceptance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x1_final_*.json"
+      - "schemas/fmdl6x1_final_*.json"
+      - "scripts/validate_fmdl6x1_final.py"
+      - "tests/test_fmdl6x1_final.py"
+      - "docs/FMDL-6X1-FINAL*.md"
+      - ".github/workflows/fmdl-6x1-final-operational-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x1-final-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Contract regression tests
+        run: python -m unittest -v tests/test_fmdl6x1_final.py
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_fmdl6x1_final.py tests/test_fmdl6x1_final.py
+      - name: Validate frozen final contract
+        run: python scripts/validate_fmdl6x1_final.py validate-contract --repo-root .
+
+  operational-acceptance:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fix acceptance timestamp for deterministic replay
+        run: echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+      - name: Build final acceptance candidate
+        run: |
+          rm -rf outputs/fmdl6x1/final_candidate outputs/fmdl6x1/final_acceptance
+          python scripts/validate_fmdl6x1_final.py build \
+            --repo-root . \
+            --candidate outputs/fmdl6x1/final_candidate \
+            --accepted-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA"
+      - name: Same-input replay and independent validation
+        run: |
+          python scripts/validate_fmdl6x1_final.py validate-candidate \
+            --repo-root . \
+            --candidate outputs/fmdl6x1/final_candidate \
+            --acceptance outputs/fmdl6x1/final_acceptance/FMDL6X1_FINAL_INDEPENDENT_ACCEPTANCE.json \
+            --accepted-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x1-final-operational-acceptance-candidate
+          path: |
+            outputs/fmdl6x1/final_candidate
+            outputs/fmdl6x1/final_acceptance/FMDL6X1_FINAL_INDEPENDENT_ACCEPTANCE.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          python scripts/validate_fmdl6x1_final.py publish \
+            --repo-root . \
+            --candidate outputs/fmdl6x1/final_candidate \
+            --published-at "$RUN_AS_OF" \
+            --source-commit "$GITHUB_SHA"
+      - name: Commit accepted FMDL-6X1 final state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl6x1/current datasets/fmdl6x1/releases outputs/status/FMDL6X1_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X1 final operational acceptance [skip ci]"
+          git push
