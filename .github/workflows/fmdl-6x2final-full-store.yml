@@ -1,0 +1,85 @@
+name: FMDL 6X2-FINAL Full Store Reconciliation
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x2final_*.json"
+      - "schemas/fmdl6x2final_*.json"
+      - "scripts/fmdl6x2final_*.py"
+      - "tests/test_fmdl6x2final_*.py"
+      - "docs/FMDL-6X2-FINAL*.md"
+      - "docs/FMDL-6X3_X4_DEVELOPMENT_ROADMAP.md"
+      - ".github/workflows/fmdl-6x2final-full-store.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x2final_*.json"
+      - "schemas/fmdl6x2final_*.json"
+      - "scripts/fmdl6x2final_*.py"
+      - "tests/test_fmdl6x2final_*.py"
+      - "docs/FMDL-6X2-FINAL*.md"
+      - "docs/FMDL-6X3_X4_DEVELOPMENT_ROADMAP.md"
+      - ".github/workflows/fmdl-6x2final-full-store.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x2final-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Contract and reconciliation regression tests
+        run: PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x2final_reconcile.py
+      - name: Compile reconciler and tests
+        run: python -m py_compile scripts/fmdl6x2final_reconcile.py tests/test_fmdl6x2final_reconcile.py
+      - name: Validate frozen reconciliation contract
+        run: PYTHONPATH=scripts python scripts/fmdl6x2final_reconcile.py --repo-root . validate-contract
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Freeze run timestamp
+        run: echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+      - name: Build full-store reconciliation candidate
+        run: |
+          rm -rf outputs/fmdl6x2final/candidate outputs/fmdl6x2final/candidate_replay outputs/fmdl6x2final/acceptance
+          PYTHONPATH=scripts python scripts/fmdl6x2final_reconcile.py --repo-root . build --candidate outputs/fmdl6x2final/candidate --accepted-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA"
+      - name: Independent captured-input replay
+        run: PYTHONPATH=scripts python scripts/fmdl6x2final_reconcile.py --repo-root . validate-candidate --candidate outputs/fmdl6x2final/candidate --accepted-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA" --acceptance outputs/fmdl6x2final/acceptance/FMDL6X2_FINAL_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x2final-full-store-candidate
+          path: |
+            outputs/fmdl6x2final/candidate
+            outputs/fmdl6x2final/acceptance
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release normalized and pointers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: PYTHONPATH=scripts python scripts/fmdl6x2final_reconcile.py --repo-root . publish --candidate outputs/fmdl6x2final/candidate --published-at "$RUN_AS_OF" --source-commit "$GITHUB_SHA"
+      - name: Commit accepted FMDL-6X2-FINAL state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A outputs/fmdl6x2/current/full_store datasets/fmdl6x2/releases datasets/fmdl6x2/normalized/full_store outputs/status/FMDL6X2_FINAL_LAST_SUCCESS.json outputs/status/FMDL6X2_FULL_STORE_LKG.json
+          if [ -d outputs/fmdl6x2/archive ]; then git add -A outputs/fmdl6x2/archive; fi
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X2-FINAL full store [skip ci]"
+          git push
