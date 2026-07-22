@@ -6,8 +6,8 @@
     "current_and_release_hash_parity_required": true,
     "dual_route_minimum_accepted_securities": 48,
     "duplicate_market_bar_keys_allowed": 0,
-    "ecb_annual_chunk_failures_allowed": 0,
-    "ecb_annual_chunks_required": 51,
+    "ecb_official_archive_failures_allowed": 0,
+    "ecb_official_archives_required": 1,
     "fabricated_market_rows_allowed": 0,
     "fx_pairs_required": ["USD_CNY", "USD_HKD"],
     "market_data_grade": "NON_DECISION_GRADE_FALLBACK",
@@ -15,7 +15,7 @@
   },
   "as_of_date": "2026-07-22",
   "authority": "US_EQUITY_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_STORE_ONLY",
-  "contract_version": "1.0.1",
+  "contract_version": "1.0.2",
   "entry_gate": {
     "pointer_path": "outputs/status/FMDL6X2C_LAST_SUCCESS.json",
     "required_next_gate": "FMDL-6X2-D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_STORE",
@@ -27,13 +27,9 @@
   },
   "fx_contract": {
     "derived_pairs": ["USD_CNY", "USD_HKD"],
-    "ecb_chunking": "CALENDAR_YEAR_COMPLETE_BLOCKS",
-    "ecb_required_years": [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026],
-    "ecb_series": {
-      "CNY_EUR": "https://data-api.ecb.europa.eu/service/data/EXR/D.CNY.EUR.SP00.A?startPeriod={start}&endPeriod={end}&format=csvdata",
-      "HKD_EUR": "https://data-api.ecb.europa.eu/service/data/EXR/D.HKD.EUR.SP00.A?startPeriod={start}&endPeriod={end}&format=csvdata",
-      "USD_EUR": "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?startPeriod={start}&endPeriod={end}&format=csvdata"
-    },
+    "ecb_archive_member": "eurofxref-hist.csv",
+    "ecb_history_zip": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip",
+    "ecb_required_columns": ["Date", "USD", "CNY", "HKD"],
     "frankfurter_support": "https://api.frankfurter.app/latest?from=USD&to=CNY,HKD",
     "primary_authority": "ECB_OFFICIAL",
     "support_authority": "FRANKFURTER_FREE",
