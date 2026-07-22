@@ -1,0 +1,158 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-5-FINAL",
+  "title": "Hong Kong Stock Connect Unified Operational Acceptance",
+  "business_timezone": "Asia/Hong_Kong",
+  "canonical_base": {
+    "publication_path": "config/post_fmdl4_release8_publication.json",
+    "required_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+    "required_release_sequence": 8,
+    "required_status": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ACCEPTED",
+    "integration_posture": "RELEASE8_PLUS_IMMUTABLE_FMDL5_CROSS_MARKET_OVERLAY"
+  },
+  "component_pointers": {
+    "FMDL-5-0": {
+      "path": "outputs/status/FMDL5_0_LAST_SUCCESS.json",
+      "required_status": "FMDL5_0_CROSS_MARKET_ADAPTER_MASTER_PLAN_ACCEPTED",
+      "required_release_id": "FMDL5_0_20260720_c6d45dec3ade"
+    },
+    "FMDL-5A": {
+      "path": "outputs/status/FMDL5A_LAST_SUCCESS.json",
+      "required_status": "FMDL5A_MARKET_CONTRACT_AND_UNIVERSE_BOUNDARY_ACCEPTED",
+      "required_release_id": "FMDL5A_20260720_031b3430a7d0"
+    },
+    "FMDL-5B-1": {
+      "path": "outputs/status/FMDL5B1_LAST_SUCCESS.json",
+      "required_status": "FMDL5B1_SECURITY_IDENTITY_CONTRACT_AND_CANONICAL_MASTER_ACCEPTED",
+      "required_release_id": "FMDL5B1_20260720_d31e787a3ccd"
+    },
+    "FMDL-5B-2": {
+      "path": "outputs/status/FMDL5B2_LAST_SUCCESS.json",
+      "required_status": "FMDL5B2_ISSUER_AND_CROSS_MARKET_SEMANTICS_ACCEPTED",
+      "required_release_id": "FMDL5B2_20260721_752db2c65820"
+    },
+    "FMDL-5C": {
+      "path": "outputs/status/FMDL5C_LAST_SUCCESS.json",
+      "required_status": "FMDL5C_PRICE_VOLUME_CORPORATE_ACTION_AND_FX_STORE_ACCEPTED",
+      "required_release_id": "FMDL5C_20260721_52f17b755436"
+    },
+    "FMDL-5D": {
+      "path": "outputs/status/FMDL5D_LAST_SUCCESS.json",
+      "required_status": "FMDL5D_HKEX_DISCLOSURE_AND_FINANCIAL_NORMALIZATION_ACCEPTED_WITH_CONTROLLED_QUARANTINE",
+      "required_release_id": "FMDL5D_20260721_0aee5654502c"
+    },
+    "FMDL-5E": {
+      "path": "outputs/status/FMDL5E_LAST_SUCCESS.json",
+      "required_status": "FMDL5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER_ACCEPTED",
+      "required_release_id": "FMDL5E_20260721_5fd74c13444b"
+    },
+    "FMDL-5F": {
+      "path": "outputs/status/FMDL5F_LAST_SUCCESS.json",
+      "required_status": "FMDL5F_PUBLIC_EQUITY_RESEARCH_ADAPTER_ACCEPTED",
+      "required_release_id": "FMDL5F_20260721_20aecd58db1e"
+    },
+    "FMDL-5G": {
+      "path": "outputs/status/FMDL5G_LAST_SUCCESS.json",
+      "required_status": "FMDL5G_INVESTMENT_OS_INTEGRATION_ACCEPTED",
+      "required_release_id": "FMDL5G_20260721_1144b9f54606"
+    }
+  },
+  "lineage_inputs": {
+    "hk_longlist": "outputs/fmdl5e/current/FMDL5E_RESEARCH_LONGLIST.csv",
+    "research_priority_registry": "outputs/fmdl5f/research/current/FMDL5F_RESEARCH_PRIORITY_REGISTRY.csv",
+    "research_object_index": "outputs/fmdl5f/research/current/FMDL5F_RESEARCH_OBJECT_INDEX.csv",
+    "research_objects": "outputs/fmdl5f/research/current/FMDL5F_RESEARCH_OBJECTS.jsonl",
+    "graduation_registry": "outputs/fmdl5f/research/current/FMDL5F_RESEARCH_OBJECT_INDEX.csv",
+    "state_transitions": "outputs/fmdl5g/integration/current/FMDL5G_STATE_TRANSITIONS.jsonl",
+    "candidate_reentry_queue": "outputs/fmdl5g/integration/current/FMDL5G_HK_CANDIDATE_REENTRY_REVIEW_QUEUE.csv",
+    "shadow_track_queue": "outputs/fmdl5g/integration/current/FMDL5G_HK_SHADOW_TRACK_QUEUE.csv",
+    "cross_market_duplication_queue": "outputs/fmdl5g/integration/current/FMDL5G_CROSS_MARKET_DUPLICATION_REVIEW.csv",
+    "state_router": "outputs/fmdl5g/integration/current/FMDL5G_STATE_ROUTER.csv",
+    "simulation_router": "outputs/fmdl5g/integration/current/FMDL5G_SIMULATION_ROUTER.csv",
+    "real_account_router": "outputs/fmdl5g/integration/current/FMDL5G_REAL_ACCOUNT_ROUTER.csv",
+    "rollback_proof": "outputs/fmdl5g/integration/current/FMDL5G_ROLLBACK_PROOF.json"
+  },
+  "acceptance": {
+    "required_southbound_security_count": 644,
+    "required_common_equity_count": 613,
+    "minimum_market_snapshot_count": 644,
+    "minimum_decision_grade_financial_count": 600,
+    "required_factor_count": 28,
+    "required_longlist_count": 100,
+    "required_formal_research_object_count": 20,
+    "required_graduated_count": 4,
+    "required_shadow_track_count": 2,
+    "required_state_transition_count": 6,
+    "required_candidate_reentry_review_count": 4,
+    "required_cross_market_duplication_review_count": 2,
+    "maximum_duplicate_security_count": 0,
+    "maximum_lineage_error_count": 0,
+    "maximum_future_information_error_count": 0,
+    "maximum_candidate_pool_mutation_count": 0,
+    "maximum_simulation_mutation_count": 0,
+    "maximum_real_account_mutation_count": 0,
+    "maximum_order_generation_count": 0,
+    "maximum_trade_authority_error_count": 0,
+    "required_failure_injection_count": 5,
+    "require_all_failure_injections_rejected": true,
+    "require_same_input_idempotence": true,
+    "require_rollback_proof": true,
+    "require_manifest_identity": true
+  },
+  "failure_injections": [
+    "COMPONENT_RELEASE_ID_MISMATCH",
+    "MISSING_RESEARCH_OBJECT_BINDING",
+    "DUPLICATE_SECURITY_TRANSITION",
+    "UNAUTHORIZED_CANDIDATE_OR_PORTFOLIO_MUTATION",
+    "A_H_DUPLICATION_REVIEW_BYPASS"
+  ],
+  "capability_matrix": [
+    ["A_SHARE_FULL_MARKET_DATA", "OPERATIONAL", "5,528-symbol accepted A-share market and financial evidence chain"],
+    ["A_SHARE_SCREENING_AND_RESEARCH", "OPERATIONAL", "100-name research Longlist, formal Research Objects and governed state routing"],
+    ["HONG_KONG_STOCK_CONNECT_UNIVERSE", "OPERATIONAL", "644 accepted Southbound securities with security and issuer semantics"],
+    ["HONG_KONG_MARKET_FINANCIAL_EVIDENCE", "OPERATIONAL_WITH_CONTROLLED_FREE_SOURCE_LIMITS", "Price, volume, corporate action, FX, HKEX disclosures and normalized financial facts"],
+    ["HONG_KONG_FACTOR_AND_SCREENING", "OPERATIONAL", "28 factors, five formal sleeves and 100-name formal-sleeve-only Longlist"],
+    ["HONG_KONG_PUBLIC_EQUITY_RESEARCH", "OPERATIONAL_BOUNDED_COHORT", "20 formal Research Objects with 4 Graduated and 2 Shadow Track cases"],
+    ["CROSS_MARKET_A_H_DUPLICATION_CONTROL", "OPERATIONAL", "Explicit A/H duplication review before any market selection or exposure"],
+    ["INVESTMENT_OS_STATE_ROUTING", "OPERATIONAL_READ_ONLY_OVERLAY", "Six governed transitions without base-pool or portfolio mutation"],
+    ["SIMULATION_AND_REAL_ACCOUNT_GATES", "GOVERNANCE_READY_NO_AUTOMATIC_ADMISSION", "Separate user-governed gates remain mandatory"],
+    ["AUTOMATIC_ORDER_EXECUTION", "INTENTIONALLY_DISABLED", "No broker integration and trade authority remains NONE"],
+    ["PERSISTENT_ALPHA_PROOF", "NOT_ESTABLISHED", "Operational capability does not prove future or persistent excess returns"]
+  ],
+  "next_program_policy": {
+    "program_id": "FMDL-6",
+    "program_name": "US Equity Interface and Benchmark Pilot",
+    "scope_mode": "INTERFACE_AND_SMALL_BENCHMARK_ONLY",
+    "full_universe_development_authorized": false,
+    "full_history_backfill_authorized": false,
+    "candidate_pool_integration_authorized": false,
+    "simulation_or_real_account_integration_authorized": false,
+    "benchmark_security_target": 24,
+    "required_source_interfaces": [
+      "SEC_EDGAR_COMPANY_FACTS_AND_SUBMISSIONS",
+      "US_EXCHANGE_SYMBOL_DIRECTORY_OR_OFFICIAL_REFERENCE",
+      "FREE_DAILY_MARKET_DATA_ADAPTER",
+      "CORPORATE_ACTION_AND_FX_INTERFACE"
+    ],
+    "required_outputs": [
+      "US_MARKET_IDENTITY_AND_SOURCE_CONTRACT",
+      "24_SECURITY_BENCHMARK_POOL",
+      "SMALL_SAMPLE_PRICE_AND_SEC_DISCLOSURE_SMOKE_TEST",
+      "DATA_COVERAGE_COST_AND_FAILURE_BENCHMARK",
+      "FUTURE_FULL_BUILD_DECISION_GATE"
+    ],
+    "activation_condition_for_full_build": "USER_GAINS_A_REAL_US_MARKET_INVESTMENT_CHANNEL_AND_EXPLICITLY_APPROVES_FULL_BUILD"
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl5/final/candidate",
+    "current_root": "outputs/fmdl5/final/current",
+    "archive_root": "outputs/fmdl5/final/archive",
+    "release_root": "datasets/fmdl5/final/releases",
+    "last_success": "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json",
+    "release_sequence": 18
+  },
+  "exit_status": "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+  "next_gate": "FMDL-6_0_US_EQUITY_INTERFACE_AND_BENCHMARK_PLAN",
+  "authority": "UNIFIED_A_SHARE_AND_HK_STOCK_CONNECT_RESEARCH_DECISION_SUPPORT_ONLY",
+  "trade_authority": "NONE"
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl5_final_release_manifest_v1.schema.json",
+  "title": "FMDL-5 Final Release Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "program_id",
+    "release_id",
+    "release_sequence",
+    "as_of_date",
+    "canonical_sha256",
+    "component_release_ids",
+    "files"
+  ],
+  "properties": {
+    "program_id": {"const": "FMDL-5-FINAL"},
+    "release_id": {"type": "string", "pattern": "^FMDL5FINAL_[0-9]{8}_[0-9a-f]{12}$"},
+    "release_sequence": {"const": 18},
+    "as_of_date": {"type": "string", "format": "date"},
+    "canonical_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "component_release_ids": {
+      "type": "object",
+      "minProperties": 10,
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "files": {
+      "type": "object",
+      "minProperties": 8,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sha256", "size_bytes"],
+        "properties": {
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 1}
+        }
+      }
+    }
+  }
+}
