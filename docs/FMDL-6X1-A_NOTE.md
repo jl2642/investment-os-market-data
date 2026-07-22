@@ -1,1 +1,0 @@
-FMDL-6X1-A candidate branch assembled on 2026-07-22. See the fixed execution plan and dual activation contract for authoritative scope.
