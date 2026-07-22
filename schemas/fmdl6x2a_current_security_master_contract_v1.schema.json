@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.example/schemas/fmdl6x2a-current-security-master-v1.schema.json",
+  "title": "FMDL-6X2-A Current Security Master Production Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "status",
+    "trade_authority",
+    "entry_gate",
+    "scope",
+    "source_contract",
+    "record_contract",
+    "storage_contract",
+    "quality_gates",
+    "zero_mutation_gate",
+    "required_exit_status",
+    "next_gate"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X2-A"},
+    "status": {"const": "PRODUCTION_CONTRACT_CANDIDATE"},
+    "trade_authority": {"const": "NONE"},
+    "required_exit_status": {"const": "FMDL6X2A_CURRENT_SECURITY_MASTER_PRODUCTION_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X2-B_ISSUER_IDENTITY_CLASSIFICATION_AND_REVIEW_QUEUES"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["pointer_path", "required_status", "required_next_gate", "required_research_gate", "required_brokerage_gate", "required_trade_authority"]
+    },
+    "scope": {
+      "type": "object",
+      "required": ["current_security_master_production_authorized"],
+      "properties": {"current_security_master_production_authorized": {"const": true}}
+    },
+    "source_contract": {
+      "type": "object",
+      "required": ["official_primary_first", "silent_source_substitution_forbidden", "routes", "target_venues"],
+      "properties": {
+        "official_primary_first": {"const": true},
+        "silent_source_substitution_forbidden": {"const": true},
+        "routes": {"type": "array", "minItems": 2, "maxItems": 2},
+        "target_venues": {"const": ["XNAS", "XNYS", "XASE"]}
+      }
+    },
+    "record_contract": {
+      "type": "object",
+      "required": ["canonical_security_id_issued_in_phase", "ticker_or_exchange_may_be_used_as_immutable_identity"],
+      "properties": {
+        "canonical_security_id_issued_in_phase": {"const": false},
+        "ticker_or_exchange_may_be_used_as_immutable_identity": {"const": false}
+      }
+    },
+    "storage_contract": {
+      "type": "object",
+      "required": ["bucket_count", "venues", "release_sequence"],
+      "properties": {
+        "bucket_count": {"const": 64},
+        "venues": {"const": ["XNAS", "XNYS", "XASE"]},
+        "release_sequence": {"const": 30}
+      }
+    },
+    "quality_gates": {"type": "object"},
+    "zero_mutation_gate": {"type": "object", "additionalProperties": {"const": 0}}
+  },
+  "additionalProperties": true
+}
