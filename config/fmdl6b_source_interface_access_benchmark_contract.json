@@ -1,7 +1,7 @@
 {
   "program_id": "FMDL-6B",
   "program_name": "US Source Interface & Access Benchmark",
-  "contract_version": "1.0.0",
+  "contract_version": "1.0.1",
   "as_of_date": "2026-07-22",
   "status": "BENCHMARK_CONTRACT_CANDIDATE",
   "authority": "SOURCE_INTERFACE_ACCESS_AND_ROUTE_DECISION_ONLY",
@@ -33,7 +33,10 @@
     "default_sec_user_agent": "InvestmentOS-FMDL6B/1.0 jl2642@users.noreply.github.com",
     "official_primary_first": true,
     "failed_route_may_replace_last_known_good": false,
-    "missing_data_neutral_fill_forbidden": true
+    "missing_data_neutral_fill_forbidden": true,
+    "sec_contact_email": "jl2642@users.noreply.github.com",
+    "sec_host_header_required": true,
+    "sec_from_header_required": true
   },
   "probe_window": {
     "market_start_date": "2025-01-01",
@@ -46,7 +49,11 @@
     {
       "interface_id": "SEC_EDGAR_IDENTITY_AND_SUBMISSIONS",
       "minimum_route_successes": 2,
-      "required_capabilities": ["CIK_TICKER_EXCHANGE_REFERENCE", "SUBMISSIONS_HISTORY", "ACCESSION_AND_ACCEPTANCE_METADATA"],
+      "required_capabilities": [
+        "CIK_TICKER_EXCHANGE_REFERENCE",
+        "SUBMISSIONS_HISTORY",
+        "ACCESSION_AND_ACCEPTANCE_METADATA"
+      ],
       "routes": [
         {
           "route_id": "SEC_COMPANY_TICKERS_EXCHANGE",
@@ -69,7 +76,11 @@
     {
       "interface_id": "SEC_EDGAR_COMPANY_FACTS_AND_XBRL",
       "minimum_route_successes": 1,
-      "required_capabilities": ["COMPANY_FACTS", "TAXONOMY_AND_UNITS", "ACCESSION_LINEAGE"],
+      "required_capabilities": [
+        "COMPANY_FACTS",
+        "TAXONOMY_AND_UNITS",
+        "ACCESSION_LINEAGE"
+      ],
       "routes": [
         {
           "route_id": "SEC_COMPANYFACTS_AAPL",
@@ -84,7 +95,12 @@
     {
       "interface_id": "US_EXCHANGE_SECURITY_DIRECTORY",
       "minimum_route_successes": 1,
-      "required_capabilities": ["LISTED_SYMBOL", "EXCHANGE_OR_VENUE", "INSTRUMENT_TYPE_FLAGS", "RETRIEVAL_TIMESTAMP"],
+      "required_capabilities": [
+        "LISTED_SYMBOL",
+        "EXCHANGE_OR_VENUE",
+        "INSTRUMENT_TYPE_FLAGS",
+        "RETRIEVAL_TIMESTAMP"
+      ],
       "routes": [
         {
           "route_id": "NASDAQ_TRADER_NASDAQLISTED",
@@ -115,7 +131,12 @@
     {
       "interface_id": "FREE_DAILY_MARKET_CORPORATE_ACTION_AND_FX",
       "minimum_route_successes": 3,
-      "required_capabilities": ["DAILY_OHLCV", "DIVIDEND_OR_SPLIT_EVENTS", "USD_CNY_AND_USD_HKD_FX", "GITHUB_ACTIONS_ACCESS"],
+      "required_capabilities": [
+        "DAILY_OHLCV",
+        "DIVIDEND_OR_SPLIT_EVENTS",
+        "USD_CNY_AND_USD_HKD_FX",
+        "GITHUB_ACTIONS_ACCESS"
+      ],
       "routes": [
         {
           "route_id": "STOOQ_AAPL_DAILY",
@@ -161,14 +182,34 @@
     }
   ],
   "capability_acceptance": {
-    "required_official_route_ids": ["SEC_COMPANY_TICKERS_EXCHANGE", "SEC_SUBMISSIONS_AAPL", "SEC_COMPANYFACTS_AAPL"],
+    "required_official_route_ids": [
+      "SEC_COMPANY_TICKERS_EXCHANGE",
+      "SEC_SUBMISSIONS_AAPL",
+      "SEC_COMPANYFACTS_AAPL"
+    ],
     "security_directory_requires": "AT_LEAST_ONE_NASDAQ_DIRECTORY_OR_SEC_SUPPORT_WITH_EXPLICIT_LIMITATION",
     "daily_market_requires": "AT_LEAST_ONE_STOOQ_OR_YAHOO_PRICE_ROUTE",
     "corporate_action_requires": "AT_LEAST_ONE_YAHOO_EVENT_ROUTE",
     "fx_requires": "AT_LEAST_ONE_ECB_OR_FRANKFURTER_ROUTE",
     "github_actions_compatibility_required": true,
     "point_in_time_claim_for_market_fallbacks": "NOT_YET_DECISION_GRADE",
-    "decision_grade_financial_claim": "DEFERRED_TO_FMDL6D_AND_FMDL6E"
+    "decision_grade_financial_claim": "DEFERRED_TO_FMDL6D_AND_FMDL6E",
+    "required_official_route_execution_policy": "GITHUB_ACTIONS_SUCCESS_OR_REPEATABLE_403_WITH_CONTROLLED_EXTERNAL_OFFICIAL_EXECUTION_ROUTE",
+    "github_hosted_sec_403_controlled_limitation_allowed": true,
+    "approved_external_execution_routes": [
+      "CHATGPT_WEB",
+      "LOCAL_RUNNER",
+      "SELF_HOSTED_RUNNER"
+    ],
+    "third_party_sec_proxy_authorized": false,
+    "official_snapshot_requirements": [
+      "OFFICIAL_SOURCE_URL",
+      "RETRIEVAL_TIMESTAMP",
+      "PAYLOAD_SHA256",
+      "PARSER_VERSION",
+      "SOURCE_AUTHORITY",
+      "NO_SILENT_REPLACEMENT"
+    ]
   },
   "failure_taxonomy": [
     "DNS_OR_CONNECTIVITY",
