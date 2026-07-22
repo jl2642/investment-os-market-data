@@ -1,0 +1,108 @@
+name: FMDL 6 FINAL Resume-Ready Operational Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6_final_*.json"
+      - "schemas/fmdl6_final_*.json"
+      - "scripts/fmdl6_final_*.py"
+      - "tests/test_fmdl6_final_*.py"
+      - "docs/FMDL-6-FINAL*.md"
+      - ".github/workflows/fmdl-6-final-resume-ready-operational-acceptance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6_final_*.json"
+      - "schemas/fmdl6_final_*.json"
+      - "scripts/fmdl6_final_*.py"
+      - "tests/test_fmdl6_final_*.py"
+      - "docs/FMDL-6-FINAL*.md"
+      - ".github/workflows/fmdl-6-final-resume-ready-operational-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6-final-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Schema validation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+          schema = json.loads(Path("schemas/fmdl6_final_resume_ready_operational_acceptance_v1.schema.json").read_text())
+          contract = json.loads(Path("config/fmdl6_final_resume_ready_operational_acceptance.json").read_text())
+          errors = list(Draft202012Validator(schema).iter_errors(contract))
+          for error in errors:
+              print(error.json_path, error.message)
+          raise SystemExit(1 if errors else 0)
+          PY
+      - name: Compile checks
+        run: python -m py_compile scripts/fmdl6_final_acceptance.py
+      - name: Validate accepted component chain
+        run: python scripts/fmdl6_final_acceptance.py contract --repo-root .
+      - name: Unit, clean-room and rollback tests
+        run: python -m pytest -q tests/test_fmdl6_final_acceptance.py
+
+  build-and-accept:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build deterministic FMDL-6-FINAL candidate
+        run: |
+          rm -rf outputs/fmdl6_final/candidate outputs/fmdl6_final/acceptance
+          python scripts/fmdl6_final_acceptance.py build \
+            --repo-root . \
+            --candidate outputs/fmdl6_final/candidate
+      - name: Independent validation and same-input replay
+        run: |
+          python scripts/fmdl6_final_acceptance.py validate \
+            --repo-root . \
+            --candidate outputs/fmdl6_final/candidate \
+            --acceptance outputs/fmdl6_final/acceptance/FMDL6FINAL_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmdl6-final-resume-ready-operational-acceptance-candidate
+          path: |
+            outputs/fmdl6_final/candidate
+            outputs/fmdl6_final/acceptance/FMDL6FINAL_INDEPENDENT_ACCEPTANCE.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current Immutable Archive and Last-success
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          python scripts/fmdl6_final_acceptance.py publish \
+            --repo-root . \
+            --candidate outputs/fmdl6_final/candidate
+      - name: Commit accepted FMDL-6-FINAL state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl6_final/current outputs/fmdl6_final/archive datasets/fmdl6_final/releases outputs/status/FMDL6_FINAL_LAST_SUCCESS.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6-FINAL resume-ready operational acceptance [skip ci]"
+          git push
