@@ -8,7 +8,12 @@ on:
       - 'docs/FMDL-6X1-B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY.md'
       - 'docs/FMDL-6X1-B_ACCEPTANCE_CRITERIA.md'
       - 'scripts/validate_fmdl6x1b_contract.py'
+      - 'scripts/validate_fmdl6x1b_publication.py'
       - 'tests/test_fmdl6x1b_contract.py'
+      - 'tests/test_fmdl6x1b_publication.py'
+      - 'outputs/fmdl6x1b/**'
+      - 'outputs/status/FMDL6X1B_LAST_SUCCESS.json'
+      - 'datasets/fmdl6x1b/releases/**'
       - '.github/workflows/fmdl-6x1b-anticipated-research-universe.yml'
   push:
     branches: [main]
@@ -16,13 +21,14 @@ on:
       - 'config/fmdl6x1b_anticipated_research_universe_contract.json'
       - 'outputs/fmdl6x1b/**'
       - 'outputs/status/FMDL6X1B_LAST_SUCCESS.json'
+      - 'datasets/fmdl6x1b/releases/**'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  validate-contract:
+  validate-contract-and-publication:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +37,12 @@ jobs:
           python-version: '3.12'
       - name: Validate contract
         run: python scripts/validate_fmdl6x1b_contract.py
+      - name: Validate publication when present
+        run: |
+          if [ -f outputs/status/FMDL6X1B_LAST_SUCCESS.json ]; then
+            python scripts/validate_fmdl6x1b_publication.py
+          fi
       - name: Run regression tests
-        run: python -m unittest tests/test_fmdl6x1b_contract.py -v
-      - name: Compile validator
-        run: python -m py_compile scripts/validate_fmdl6x1b_contract.py
+        run: python -m unittest tests/test_fmdl6x1b_contract.py tests/test_fmdl6x1b_publication.py -v
+      - name: Compile validators
+        run: python -m py_compile scripts/validate_fmdl6x1b_contract.py scripts/validate_fmdl6x1b_publication.py
