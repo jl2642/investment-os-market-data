@@ -1,0 +1,135 @@
+{
+  "phase_id": "FMDL-6X1-C",
+  "phase_name": "Source, Cost & Execution Route Revalidation",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "status": "BENCHMARK_CONTRACT_CANDIDATE",
+  "authority": "US_EQUITY_SOURCE_COST_AND_EXECUTION_ROUTE_ONLY",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X1B_LAST_SUCCESS.json",
+    "required_release_id": "FMDL6X1B_20260722_8caf155efd67",
+    "required_status": "FMDL6X1B_ANTICIPATED_RESEARCH_UNIVERSE_AND_INSTRUMENT_BOUNDARY_ACCEPTED",
+    "required_next_gate": "FMDL-6X1-C_SOURCE_COST_AND_EXECUTION_ROUTE_REVALIDATION"
+  },
+  "scope": {
+    "mode": "LIVE_SOURCE_COST_ROUTE_REVALIDATION_ONLY",
+    "live_security_master_build_authorized": false,
+    "historical_backfill_authorized": false,
+    "financial_store_build_authorized": false,
+    "factor_or_screening_production_authorized": false,
+    "candidate_pool_integration_authorized": false,
+    "simulation_integration_authorized": false,
+    "real_account_integration_authorized": false,
+    "order_generation_authorized": false
+  },
+  "network_policy": {
+    "timeout_seconds": 30,
+    "max_attempts": 3,
+    "backoff_seconds": 2,
+    "max_total_runtime_seconds": 900,
+    "sec_user_agent_env": "SEC_USER_AGENT",
+    "default_sec_user_agent": "InvestmentOS-FMDL6X1C/1.0 jl2642@users.noreply.github.com",
+    "sec_contact_email": "jl2642@users.noreply.github.com",
+    "official_primary_first": true,
+    "silent_source_substitution_forbidden": true,
+    "failed_route_may_replace_last_known_good": false,
+    "missing_data_neutral_fill_forbidden": true
+  },
+  "cost_policy": {
+    "currency": "USD",
+    "current_stage_paid_subscription_budget": 0,
+    "github_actions_monthly_minutes_soft_ceiling": 300,
+    "per_revalidation_run_seconds_soft_ceiling": 900,
+    "api_key_required_routes_may_be_benchmarked_without_activation": true,
+    "paid_route_activation_requires_user_approval": true
+  },
+  "route_groups": [
+    {
+      "capability_id": "CURRENT_SECURITY_DIRECTORY",
+      "acceptance_rule": "NASDAQ_LISTED_AND_OTHER_LISTED_OR_SYMBOL_DIRECTORY_ZIP",
+      "routes": [
+        {"route_id":"NASDAQ_TRADER_NASDAQLISTED","endpoint":"https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt","authority":"NASDAQ_OFFICIAL","cost_class":"ZERO_COST_OFFICIAL","parser":"PIPE_TEXT","required":true},
+        {"route_id":"NASDAQ_TRADER_OTHERLISTED","endpoint":"https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt","authority":"NASDAQ_OFFICIAL","cost_class":"ZERO_COST_OFFICIAL","parser":"PIPE_TEXT","required":true},
+        {"route_id":"NASDAQ_TRADER_SYMBOLDIRECTORY_ZIP","endpoint":"https://www.nasdaqtrader.com/dynamic/SymDir/symboldirectory.zip","authority":"NASDAQ_OFFICIAL","cost_class":"ZERO_COST_OFFICIAL","parser":"ZIP_DIRECTORY","required":false}
+      ]
+    },
+    {
+      "capability_id": "SEC_IDENTITY_SUBMISSIONS_AND_FINANCIAL_FACTS",
+      "acceptance_rule": "ALL_REQUIRED_SEC_ROUTES_OR_CONTROLLED_OFFICIAL_EXECUTION_LIMITATION",
+      "routes": [
+        {"route_id":"SEC_COMPANY_TICKERS_EXCHANGE","endpoint":"https://www.sec.gov/files/company_tickers_exchange.json","authority":"SEC_OFFICIAL","cost_class":"ZERO_COST_OFFICIAL","parser":"JSON","required":true,"sec_route":true},
+        {"route_id":"SEC_SUBMISSIONS_AAPL","endpoint":"https://data.sec.gov/submissions/CIK0000320193.json","authority":"SEC_OFFICIAL","cost_class":"ZERO_COST_OFFICIAL","parser":"JSON","required":true,"sec_route":true},
+        {"route_id":"SEC_COMPANYFACTS_AAPL","endpoint":"https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json","authority":"SEC_OFFICIAL","cost_class":"ZERO_COST_OFFICIAL","parser":"JSON","required":true,"sec_route":true},
+        {"route_id":"SEC_SUBMISSIONS_ADR_CASE","endpoint":"https://data.sec.gov/submissions/CIK0001577552.json","authority":"SEC_OFFICIAL","cost_class":"ZERO_COST_OFFICIAL","parser":"JSON","required":false,"sec_route":true}
+      ]
+    },
+    {
+      "capability_id": "MARKET_HISTORY_AND_CORPORATE_ACTIONS",
+      "acceptance_rule": "AT_LEAST_ONE_PRICE_ROUTE_AND_ONE_EVENT_ROUTE_WITH_LIMITATION_LABEL",
+      "routes": [
+        {"route_id":"STOOQ_AAPL_DAILY","endpoint":"https://stooq.com/q/d/l/?s=aapl.us&i=d&d1=20250101&d2=20260722","authority":"STOOQ_FREE","cost_class":"ZERO_COST_UNOFFICIAL","parser":"CSV","required":false},
+        {"route_id":"YAHOO_QUERY1_AAPL_EVENTS","endpoint":"https://query1.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits","authority":"YAHOO_FREE_UNOFFICIAL","cost_class":"ZERO_COST_UNOFFICIAL","parser":"JSON","required":false},
+        {"route_id":"YAHOO_QUERY2_AAPL_EVENTS","endpoint":"https://query2.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits","authority":"YAHOO_FREE_UNOFFICIAL","cost_class":"ZERO_COST_UNOFFICIAL","parser":"JSON","required":false}
+      ]
+    },
+    {
+      "capability_id": "FX_REFERENCE",
+      "acceptance_rule": "AT_LEAST_ONE_FX_ROUTE",
+      "routes": [
+        {"route_id":"ECB_CNY_REFERENCE","endpoint":"https://data-api.ecb.europa.eu/service/data/EXR/D.CNY.EUR.SP00.A?startPeriod=2026-06-01&format=csvdata","authority":"ECB_OFFICIAL","cost_class":"ZERO_COST_OFFICIAL","parser":"CSV","required":false},
+        {"route_id":"ECB_HKD_REFERENCE","endpoint":"https://data-api.ecb.europa.eu/service/data/EXR/D.HKD.EUR.SP00.A?startPeriod=2026-06-01&format=csvdata","authority":"ECB_OFFICIAL","cost_class":"ZERO_COST_OFFICIAL","parser":"CSV","required":false},
+        {"route_id":"FRANKFURTER_USD_CNY_HKD","endpoint":"https://api.frankfurter.app/latest?from=USD&to=CNY,HKD","authority":"FRANKFURTER_FREE","cost_class":"ZERO_COST_UNOFFICIAL","parser":"JSON","required":false}
+      ]
+    }
+  ],
+  "controlled_non_http_routes": [
+    {
+      "capability_id": "HISTORICAL_DELISTED_SYMBOL_CHANGE_AND_TRANSFER",
+      "route_status": "CONTROLLED_GAP",
+      "decision": "NO_COMPLETE_ZERO_COST_OFFICIAL_UNIVERSAL_ROUTE_CONFIRMED",
+      "required_6x1d_action": "FREEZE_ARCHIVAL_RECONSTRUCTION_OR_LICENSED_SOURCE_STRATEGY"
+    },
+    {
+      "capability_id": "ADR_UNDERLYING_DEPOSITARY_AND_RATIO",
+      "route_status": "CONTROLLED_MANUAL_OFFICIAL_EVIDENCE",
+      "decision": "SEC_AND_ISSUER_OR_DEPOSITARY_FILINGS_REQUIRED_PER_PROGRAM",
+      "required_6x1d_action": "FREEZE_FILING_EXTRACTION_AND_MANUAL_REVIEW_QUEUE"
+    },
+    {
+      "capability_id": "REFERENCE_AND_SPECIAL_INSTRUMENT_CLASSIFICATION",
+      "route_status": "CONTROLLED_MULTI_SOURCE",
+      "decision": "NASDAQ_FLAGS_PLUS_SEC_SECURITY_DESCRIPTION_WITH_QUARANTINE_ON_CONFLICT",
+      "required_6x1d_action": "FREEZE_CLASSIFICATION_RULE_ENGINE_AND_EXCEPTION_QUEUE"
+    }
+  ],
+  "route_decision_states": [
+    "APPROVED_PRIMARY",
+    "APPROVED_SUPPORT",
+    "APPROVED_FALLBACK_NON_DECISION_GRADE",
+    "CONTROLLED_EXTERNAL_OFFICIAL_EXECUTION",
+    "CONTROLLED_MANUAL_OFFICIAL_EVIDENCE",
+    "GAP_REQUIRES_RECONSTRUCTION_OR_LICENSED_SOURCE",
+    "REJECTED"
+  ],
+  "acceptance_gates": {
+    "required_live_capabilities": ["CURRENT_SECURITY_DIRECTORY","SEC_IDENTITY_SUBMISSIONS_AND_FINANCIAL_FACTS","MARKET_HISTORY_AND_CORPORATE_ACTIONS","FX_REFERENCE"],
+    "controlled_gap_count_expected": 3,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "publication": {
+    "candidate_root": "outputs/fmdl6x1c/candidate",
+    "work_root": "outputs/fmdl6x1c/work",
+    "acceptance_root": "outputs/fmdl6x1c/acceptance",
+    "current_root": "outputs/fmdl6x1c/current",
+    "release_root": "datasets/fmdl6x1c/releases",
+    "last_success": "outputs/status/FMDL6X1C_LAST_SUCCESS.json",
+    "release_sequence": 27
+  },
+  "required_exit_status": "FMDL6X1C_SOURCE_COST_AND_EXECUTION_ROUTE_REVALIDATION_ACCEPTED",
+  "next_gate": "FMDL-6X1-D_FULL_BUILD_CONTRACT_AND_FMDL6X2_HANDOFF"
+}
