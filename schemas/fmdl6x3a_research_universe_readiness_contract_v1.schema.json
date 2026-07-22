@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FMDL-6X3-A Research Universe and Data Readiness Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "trade_authority",
+    "entry_gate",
+    "input_contract",
+    "profile_contract",
+    "readiness_contract",
+    "scope",
+    "storage_contract",
+    "zero_mutation_gate",
+    "required_exit_status",
+    "next_gate"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X3-A"},
+    "trade_authority": {"const": "NONE"},
+    "required_exit_status": {"const": "FMDL6X3A_RESEARCH_UNIVERSE_AND_DATA_READINESS_CONTRACT_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X3-B_FINANCIAL_NORMALIZATION_TTM_AND_ANNUAL_METRIC_LAYER"},
+    "entry_gate": {"type": "object"},
+    "input_contract": {"type": "object"},
+    "profile_contract": {"type": "object"},
+    "readiness_contract": {"type": "object"},
+    "scope": {"type": "object"},
+    "storage_contract": {"type": "object"},
+    "zero_mutation_gate": {"type": "object"}
+  },
+  "additionalProperties": true
+}
