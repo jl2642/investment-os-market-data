@@ -45,17 +45,17 @@ def build_candidate(repo_root: Path, raw_root: Path, candidate_root: Path, accep
     min_dual = int(contract['acceptance_gates']['dual_route_minimum_accepted_securities'])
     fx_counts = Counter(r['pair'] for r in fx)
     route_observations = route_obs['route_observations']
-    ecb_chunks = [o for o in route_observations if o['route_id'].startswith('ECB_')]
-    ecb_chunk_failures = [o for o in ecb_chunks if not o.get('success')]
-    quality = {'phase_id':PHASE_ID,'release_id':release_id,'quality_status':'PASS','universe_expected':contract['market_contract']['universe_size_expected'],'universe_accounted':len(cohort)+len(queued),'cohort_expected':contract['acceptance_gates']['cohort_size'],'cohort_selected':len(cohort),'accepted_dual_route_securities':len(accepted),'minimum_required':min_dual,'quarantined_cohort_securities':len(quarantine),'duplicate_market_bar_keys':duplicate_bar_keys,'invalid_ohlcv_rows':invalid_ohlc,'market_bar_count':len(bars),'corporate_action_count':len(events),'fx_pair_counts':dict(sorted(fx_counts.items())),'ecb_annual_chunks_observed':len(ecb_chunks),'ecb_annual_chunk_failures':len(ecb_chunk_failures),'manifested_shard_count':len(shards),'expected_shard_count':17*64*2+17+17*2,'fabricated_market_rows':0,'full_universe_market_history_claimed':False,'trade_authority':'NONE','zero_mutation_proof':contract['zero_mutation_gate']}
+    ecb_archives = [o for o in route_observations if o['route_id'] == 'ECB_EUROFXREF_HIST_ZIP']
+    ecb_archive_failures = [o for o in ecb_archives if not o.get('success')]
+    quality = {'phase_id':PHASE_ID,'release_id':release_id,'quality_status':'PASS','universe_expected':contract['market_contract']['universe_size_expected'],'universe_accounted':len(cohort)+len(queued),'cohort_expected':contract['acceptance_gates']['cohort_size'],'cohort_selected':len(cohort),'accepted_dual_route_securities':len(accepted),'minimum_required':min_dual,'quarantined_cohort_securities':len(quarantine),'duplicate_market_bar_keys':duplicate_bar_keys,'invalid_ohlcv_rows':invalid_ohlc,'market_bar_count':len(bars),'corporate_action_count':len(events),'fx_pair_counts':dict(sorted(fx_counts.items())),'ecb_official_archives_observed':len(ecb_archives),'ecb_official_archive_failures':len(ecb_archive_failures),'manifested_shard_count':len(shards),'expected_shard_count':17*64*2+17+17*2,'fabricated_market_rows':0,'full_universe_market_history_claimed':False,'trade_authority':'NONE','zero_mutation_proof':contract['zero_mutation_gate']}
     errors=[]
     if quality['universe_accounted'] != quality['universe_expected']: errors.append('UNIVERSE_ACCOUNTING')
     if quality['cohort_selected'] != quality['cohort_expected']: errors.append('COHORT_SIZE')
     if quality['accepted_dual_route_securities'] < min_dual: errors.append('DUAL_ROUTE_COVERAGE')
     if duplicate_bar_keys: errors.append('DUPLICATE_BAR_KEYS')
     if invalid_ohlc: errors.append('INVALID_OHLCV')
-    if quality['ecb_annual_chunks_observed'] != contract['acceptance_gates']['ecb_annual_chunks_required']: errors.append('ECB_CHUNK_ACCOUNTING')
-    if quality['ecb_annual_chunk_failures'] > contract['acceptance_gates']['ecb_annual_chunk_failures_allowed']: errors.append('ECB_CHUNK_FAILURE')
+    if quality['ecb_official_archives_observed'] != contract['acceptance_gates']['ecb_official_archives_required']: errors.append('ECB_ARCHIVE_ACCOUNTING')
+    if quality['ecb_official_archive_failures'] > contract['acceptance_gates']['ecb_official_archive_failures_allowed']: errors.append('ECB_ARCHIVE_FAILURE')
     if any(fx_counts.get(pair,0) < 3000 for pair in ('USD_CNY','USD_HKD')): errors.append('FX_COVERAGE')
     if quality['manifested_shard_count'] != quality['expected_shard_count']: errors.append('SHARD_COUNT')
     if errors:
