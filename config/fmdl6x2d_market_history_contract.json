@@ -1,0 +1,96 @@
+{
+  "acceptance_gates": {
+    "all_universe_accounted": true,
+    "captured_input_replay_required": true,
+    "cohort_size": 64,
+    "current_and_release_hash_parity_required": true,
+    "dual_route_minimum_accepted_securities": 48,
+    "duplicate_market_bar_keys_allowed": 0,
+    "ecb_official_archive_failures_allowed": 0,
+    "ecb_official_archives_required": 1,
+    "fabricated_market_rows_allowed": 0,
+    "fx_pairs_required": ["USD_CNY", "USD_HKD"],
+    "market_data_grade": "NON_DECISION_GRADE_FALLBACK",
+    "trade_authority": "NONE"
+  },
+  "as_of_date": "2026-07-22",
+  "authority": "US_EQUITY_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_STORE_ONLY",
+  "contract_version": "1.0.2",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X2C_LAST_SUCCESS.json",
+    "required_next_gate": "FMDL-6X2-D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_STORE",
+    "required_phase_id": "FMDL-6X2-C",
+    "required_release_id": "FMDL6X2C_20260722_e55a579723f1",
+    "required_release_sequence": 32,
+    "required_status": "FMDL6X2C_HISTORICAL_LISTING_AND_LIFECYCLE_BACKFILL_ACCEPTED",
+    "required_trade_authority": "NONE"
+  },
+  "fx_contract": {
+    "derived_pairs": ["USD_CNY", "USD_HKD"],
+    "ecb_archive_member": "eurofxref-hist.csv",
+    "ecb_history_zip": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip",
+    "ecb_required_columns": ["Date", "USD", "CNY", "HKD"],
+    "frankfurter_support": "https://api.frankfurter.app/latest?from=USD&to=CNY,HKD",
+    "primary_authority": "ECB_OFFICIAL",
+    "support_authority": "FRANKFURTER_FREE",
+    "support_route_is_decision_grade": false
+  },
+  "market_contract": {
+    "backfill_end_date": "2026-07-21",
+    "backfill_start_date": "2010-01-01",
+    "cohort_selection": "MANDATORY_SENTINELS_THEN_ONE_PER_SHA256_SECURITY_BUCKET",
+    "mandatory_symbols": ["AAPL", "MSFT", "NVDA", "JPM", "XOM", "BRK.B", "SPY", "QQQ"],
+    "market_data_grade": "NON_DECISION_GRADE_FALLBACK",
+    "missing_route_action": "QUARANTINE_NO_SINGLE_ROUTE_PROMOTION",
+    "route_1_template": "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?period1={period1}&period2={period2}&interval=1d&events=div%2Csplits",
+    "route_2_template": "https://query2.finance.yahoo.com/v8/finance/chart/{symbol}?period1={period1}&period2={period2}&interval=1d&events=div%2Csplits",
+    "route_authority": "YAHOO_FREE_UNOFFICIAL",
+    "route_reconciliation": "BOTH_ROUTES_REQUIRED_AND_NORMALIZED_PAYLOADS_MUST_MATCH",
+    "stooq_route": "DISABLED_HTML_CHALLENGE",
+    "universe_size_expected": 8785
+  },
+  "network_policy": {
+    "backoff_seconds": 1,
+    "max_attempts": 3,
+    "max_parallel_requests": 12,
+    "max_total_runtime_seconds": 1800,
+    "timeout_seconds": 40
+  },
+  "next_gate": "FMDL-6X2-E_SEC_FILINGS_AND_FINANCIAL_FACTS_STORE",
+  "phase_id": "FMDL-6X2-D",
+  "phase_name": "Market History, Corporate Actions & FX Store",
+  "required_exit_status": "FMDL6X2D_MARKET_HISTORY_CORPORATE_ACTIONS_AND_FX_ACCEPTED",
+  "scope": {
+    "candidate_pool_integration_authorized": false,
+    "factor_or_screening_production_authorized": false,
+    "market_history_corporate_actions_and_fx_authorized": true,
+    "order_generation_authorized": false,
+    "real_account_integration_authorized": false,
+    "sec_filings_or_financial_facts_store_authorized": false,
+    "simulation_integration_authorized": false
+  },
+  "status": "PRODUCTION_CONTRACT_CANDIDATE",
+  "storage_contract": {
+    "acceptance_root": "outputs/fmdl6x2d/acceptance",
+    "archive_root": "outputs/fmdl6x2/archive",
+    "atomic_promotion_required": true,
+    "bucket_count": 64,
+    "candidate_root": "outputs/fmdl6x2d/candidate",
+    "current_root": "outputs/fmdl6x2/current/market_reference",
+    "failed_run_may_replace_current": false,
+    "failed_run_may_replace_lkg": false,
+    "last_known_good": "outputs/status/FMDL6X2_MARKET_REFERENCE_LKG.json",
+    "last_success": "outputs/status/FMDL6X2D_LAST_SUCCESS.json",
+    "normalized_root": "datasets/fmdl6x2/normalized/market_reference/<release_id>",
+    "raw_root": "datasets/fmdl6x2/raw/market_reference/2026-07-22/<release_id>",
+    "release_root": "datasets/fmdl6x2/releases/<release_id>/market_reference",
+    "release_sequence": 33
+  },
+  "trade_authority": "NONE",
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0
+  }
+}
