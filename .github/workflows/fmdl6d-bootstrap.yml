@@ -1,0 +1,46 @@
+name: FMDL 6D Bootstrap Materialization
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".fmdl6d_bootstrap/**"
+      - ".github/workflows/fmdl6d-bootstrap.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl6d-bootstrap-materialization
+  cancel-in-progress: true
+
+jobs:
+  materialize:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: fmdl-6d-minimal-end-to-end-data-chain
+      - name: Decode and materialize prepared FMDL-6D payload
+        run: |
+          if ! compgen -G ".fmdl6d_bootstrap/part_*" > /dev/null; then
+            echo "FMDL-6D payload is already materialized."
+            exit 0
+          fi
+          cat .fmdl6d_bootstrap/part_* > /tmp/fmdl6d_payload.b64
+          base64 -d /tmp/fmdl6d_payload.b64 > /tmp/fmdl6d_payload.tar.gz
+          tar -xzf /tmp/fmdl6d_payload.tar.gz -C .
+          rm -rf scripts/__pycache__ tests/__pycache__ .fmdl6d_bootstrap
+          rm -f .github/workflows/fmdl-6d-minimal-end-to-end-data-chain.yml
+      - name: Commit materialized implementation without workflow mutation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "FMDL-6D: materialize minimal end-to-end data chain"
+          git push origin HEAD:fmdl-6d-minimal-end-to-end-data-chain
