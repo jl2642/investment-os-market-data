@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/fmdl6d_minimal_chain_v1.schema.json",
+  "title": "FMDL-6D Minimal End-to-End Data Chain Contract",
+  "type": "object",
+  "required": [
+    "program_id",
+    "contract_version",
+    "status",
+    "authority",
+    "trade_authority",
+    "entry_gates",
+    "scope",
+    "sample_securities",
+    "source_routes",
+    "acceptance_gates",
+    "controlled_limitations",
+    "publication",
+    "exit_status",
+    "next_gate"
+  ],
+  "properties": {
+    "program_id": {"const": "FMDL-6D"},
+    "contract_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "status": {"const": "CHAIN_CONTRACT_CANDIDATE"},
+    "authority": {"const": "BOUNDED_TECHNICAL_DATA_CHAIN_ONLY"},
+    "trade_authority": {"const": "NONE"},
+    "entry_gates": {
+      "type": "object",
+      "required": ["fmdl6b_pointer", "fmdl6b_release_id", "fmdl6b_status", "fmdl6c_pointer", "fmdl6c_release_id", "fmdl6c_status"]
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "mode",
+        "market_sample_security_count",
+        "financial_sample_issuer_count",
+        "full_universe_build_authorized",
+        "full_history_backfill_authorized",
+        "production_financial_normalization_authorized",
+        "factor_or_screening_build_authorized",
+        "research_longlist_authorized",
+        "candidate_pool_integration_authorized",
+        "simulation_integration_authorized",
+        "real_account_integration_authorized",
+        "order_generation_authorized"
+      ],
+      "properties": {
+        "mode": {"const": "SMALL_SAMPLE_END_TO_END_PILOT"},
+        "market_sample_security_count": {"const": 8},
+        "financial_sample_issuer_count": {"const": 4},
+        "full_universe_build_authorized": {"const": false},
+        "full_history_backfill_authorized": {"const": false},
+        "production_financial_normalization_authorized": {"const": false},
+        "factor_or_screening_build_authorized": {"const": false},
+        "research_longlist_authorized": {"const": false},
+        "candidate_pool_integration_authorized": {"const": false},
+        "simulation_integration_authorized": {"const": false},
+        "real_account_integration_authorized": {"const": false},
+        "order_generation_authorized": {"const": false}
+      }
+    },
+    "sample_securities": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["pool_order", "ticker", "market_symbol", "cik10", "security_key", "case_role"],
+        "properties": {
+          "pool_order": {"type": "integer", "minimum": 1, "maximum": 24},
+          "ticker": {"type": "string", "minLength": 1},
+          "market_symbol": {"type": "string", "minLength": 1},
+          "cik10": {"type": "string", "pattern": "^[0-9]{10}$"},
+          "security_key": {"type": "string", "pattern": "^USSEC:"},
+          "case_role": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "source_routes": {"type": "object"},
+    "acceptance_gates": {
+      "type": "object",
+      "required": [
+        "market_security_count",
+        "minimum_daily_observations_per_security",
+        "minimum_total_daily_observations",
+        "minimum_fx_observations_per_pair",
+        "financial_sample_issuer_count",
+        "minimum_financial_facts_per_issuer",
+        "minimum_financial_fact_count",
+        "source_lineage_complete",
+        "availability_fields_complete",
+        "same_input_replay_required",
+        "candidate_pool_mutation_count",
+        "simulation_mutation_count",
+        "real_account_mutation_count",
+        "order_generation_count",
+        "trade_authority"
+      ],
+      "properties": {
+        "market_security_count": {"const": 8},
+        "financial_sample_issuer_count": {"const": 4},
+        "source_lineage_complete": {"const": true},
+        "availability_fields_complete": {"const": true},
+        "same_input_replay_required": {"const": true},
+        "candidate_pool_mutation_count": {"const": 0},
+        "simulation_mutation_count": {"const": 0},
+        "real_account_mutation_count": {"const": 0},
+        "order_generation_count": {"const": 0},
+        "trade_authority": {"const": "NONE"}
+      }
+    },
+    "controlled_limitations": {"type": "array", "minItems": 5, "items": {"type": "string"}},
+    "publication": {
+      "type": "object",
+      "required": ["release_sequence", "current_path", "archive_root", "immutable_root", "last_success_path"],
+      "properties": {"release_sequence": {"const": 23}}
+    },
+    "exit_status": {"const": "FMDL6D_MINIMAL_END_TO_END_DATA_CHAIN_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6E_QUALITY_FAILURE_AND_COST_BENCHMARK"}
+  }
+}
