@@ -167,9 +167,16 @@ def reconcile_market(cohort: list[dict[str, Any]], entries: dict[str, bytes], ro
 
 
 def build_fx(entries: dict[str, bytes]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    usd = parse_ecb_csv(entries.get('fx/ECB_USD_EUR.csv', b''))
-    cny = parse_ecb_csv(entries.get('fx/ECB_CNY_EUR.csv', b''))
-    hkd = parse_ecb_csv(entries.get('fx/ECB_HKD_EUR.csv', b''))
+    def series_rows(series: str) -> dict[str, float]:
+        combined: dict[str, float] = {}
+        prefix = f'fx/ECB_{series}/'
+        for name in sorted(entries):
+            if name.startswith(prefix) and name.endswith('.csv'):
+                combined.update(parse_ecb_csv(entries[name]))
+        return combined
+    usd = series_rows('USD_EUR')
+    cny = series_rows('CNY_EUR')
+    hkd = series_rows('HKD_EUR')
     dates = sorted(set(usd) & set(cny) & set(hkd))
     rows: list[dict[str, Any]] = []
     for date in dates:
