@@ -1,0 +1,61 @@
+{
+  "capabilities": [
+    {
+      "acceptance_rule": "NASDAQ_LISTED_AND_OTHER_LISTED_OR_SYMBOL_DIRECTORY_ZIP",
+      "capability_id": "CURRENT_SECURITY_DIRECTORY",
+      "controlled_blocked_routes": [],
+      "failed_routes": [
+        "NASDAQ_TRADER_SYMBOLDIRECTORY_ZIP"
+      ],
+      "status": "PASS",
+      "successful_routes": [
+        "NASDAQ_TRADER_NASDAQLISTED",
+        "NASDAQ_TRADER_OTHERLISTED"
+      ]
+    },
+    {
+      "acceptance_rule": "ALL_REQUIRED_SEC_ROUTES_OR_CONTROLLED_OFFICIAL_EXECUTION_LIMITATION",
+      "capability_id": "SEC_IDENTITY_SUBMISSIONS_AND_FINANCIAL_FACTS",
+      "controlled_blocked_routes": [
+        "SEC_COMPANY_TICKERS_EXCHANGE",
+        "SEC_SUBMISSIONS_AAPL",
+        "SEC_COMPANYFACTS_AAPL",
+        "SEC_SUBMISSIONS_ADR_CASE"
+      ],
+      "failed_routes": [
+        "SEC_COMPANY_TICKERS_EXCHANGE",
+        "SEC_SUBMISSIONS_AAPL",
+        "SEC_COMPANYFACTS_AAPL",
+        "SEC_SUBMISSIONS_ADR_CASE"
+      ],
+      "status": "PASS",
+      "successful_routes": []
+    },
+    {
+      "acceptance_rule": "AT_LEAST_ONE_PRICE_ROUTE_AND_ONE_EVENT_ROUTE_WITH_LIMITATION_LABEL",
+      "capability_id": "MARKET_HISTORY_AND_CORPORATE_ACTIONS",
+      "controlled_blocked_routes": [],
+      "failed_routes": [
+        "STOOQ_AAPL_DAILY"
+      ],
+      "status": "PASS",
+      "successful_routes": [
+        "YAHOO_QUERY1_AAPL_EVENTS",
+        "YAHOO_QUERY2_AAPL_EVENTS"
+      ]
+    },
+    {
+      "acceptance_rule": "AT_LEAST_ONE_FX_ROUTE",
+      "capability_id": "FX_REFERENCE",
+      "controlled_blocked_routes": [],
+      "failed_routes": [],
+      "status": "PASS",
+      "successful_routes": [
+        "ECB_CNY_REFERENCE",
+        "ECB_HKD_REFERENCE",
+        "FRANKFURTER_USD_CNY_HKD"
+      ]
+    }
+  ],
+  "phase_id": "FMDL-6X1-C"
+}

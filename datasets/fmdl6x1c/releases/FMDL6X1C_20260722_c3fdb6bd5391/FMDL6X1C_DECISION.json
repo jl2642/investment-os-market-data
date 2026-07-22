@@ -1,0 +1,114 @@
+{
+  "as_of": "2026-07-22T11:02:37Z",
+  "capabilities": [
+    {
+      "acceptance_rule": "NASDAQ_LISTED_AND_OTHER_LISTED_OR_SYMBOL_DIRECTORY_ZIP",
+      "capability_id": "CURRENT_SECURITY_DIRECTORY",
+      "controlled_blocked_routes": [],
+      "failed_routes": [
+        "NASDAQ_TRADER_SYMBOLDIRECTORY_ZIP"
+      ],
+      "status": "PASS",
+      "successful_routes": [
+        "NASDAQ_TRADER_NASDAQLISTED",
+        "NASDAQ_TRADER_OTHERLISTED"
+      ]
+    },
+    {
+      "acceptance_rule": "ALL_REQUIRED_SEC_ROUTES_OR_CONTROLLED_OFFICIAL_EXECUTION_LIMITATION",
+      "capability_id": "SEC_IDENTITY_SUBMISSIONS_AND_FINANCIAL_FACTS",
+      "controlled_blocked_routes": [
+        "SEC_COMPANY_TICKERS_EXCHANGE",
+        "SEC_SUBMISSIONS_AAPL",
+        "SEC_COMPANYFACTS_AAPL",
+        "SEC_SUBMISSIONS_ADR_CASE"
+      ],
+      "failed_routes": [
+        "SEC_COMPANY_TICKERS_EXCHANGE",
+        "SEC_SUBMISSIONS_AAPL",
+        "SEC_COMPANYFACTS_AAPL",
+        "SEC_SUBMISSIONS_ADR_CASE"
+      ],
+      "status": "PASS",
+      "successful_routes": []
+    },
+    {
+      "acceptance_rule": "AT_LEAST_ONE_PRICE_ROUTE_AND_ONE_EVENT_ROUTE_WITH_LIMITATION_LABEL",
+      "capability_id": "MARKET_HISTORY_AND_CORPORATE_ACTIONS",
+      "controlled_blocked_routes": [],
+      "failed_routes": [
+        "STOOQ_AAPL_DAILY"
+      ],
+      "status": "PASS",
+      "successful_routes": [
+        "YAHOO_QUERY1_AAPL_EVENTS",
+        "YAHOO_QUERY2_AAPL_EVENTS"
+      ]
+    },
+    {
+      "acceptance_rule": "AT_LEAST_ONE_FX_ROUTE",
+      "capability_id": "FX_REFERENCE",
+      "controlled_blocked_routes": [],
+      "failed_routes": [],
+      "status": "PASS",
+      "successful_routes": [
+        "ECB_CNY_REFERENCE",
+        "ECB_HKD_REFERENCE",
+        "FRANKFURTER_USD_CNY_HKD"
+      ]
+    }
+  ],
+  "controlled_non_http_routes": [
+    {
+      "capability_id": "HISTORICAL_DELISTED_SYMBOL_CHANGE_AND_TRANSFER",
+      "decision": "NO_COMPLETE_ZERO_COST_OFFICIAL_UNIVERSAL_ROUTE_CONFIRMED",
+      "required_6x1d_action": "FREEZE_ARCHIVAL_RECONSTRUCTION_OR_LICENSED_SOURCE_STRATEGY",
+      "route_status": "CONTROLLED_GAP"
+    },
+    {
+      "capability_id": "ADR_UNDERLYING_DEPOSITARY_AND_RATIO",
+      "decision": "SEC_AND_ISSUER_OR_DEPOSITARY_FILINGS_REQUIRED_PER_PROGRAM",
+      "required_6x1d_action": "FREEZE_FILING_EXTRACTION_AND_MANUAL_REVIEW_QUEUE",
+      "route_status": "CONTROLLED_MANUAL_OFFICIAL_EVIDENCE"
+    },
+    {
+      "capability_id": "REFERENCE_AND_SPECIAL_INSTRUMENT_CLASSIFICATION",
+      "decision": "NASDAQ_FLAGS_PLUS_SEC_SECURITY_DESCRIPTION_WITH_QUARANTINE_ON_CONFLICT",
+      "required_6x1d_action": "FREEZE_CLASSIFICATION_RULE_ENGINE_AND_EXCEPTION_QUEUE",
+      "route_status": "CONTROLLED_MULTI_SOURCE"
+    }
+  ],
+  "cost_summary": {
+    "github_actions_monthly_minutes_soft_ceiling": 300,
+    "observed_run_seconds": 15.591,
+    "paid_routes_activated": 0,
+    "paid_subscription_cost_usd": 0,
+    "sum_route_latency_seconds": 15.589
+  },
+  "next_gate": "FMDL-6X1-D_FULL_BUILD_CONTRACT_AND_FMDL6X2_HANDOFF",
+  "phase_id": "FMDL-6X1-C",
+  "release_id": "FMDL6X1C_20260722_c3fdb6bd5391",
+  "release_sequence": 27,
+  "route_policy": {
+    "adr_ratio_requires_filing_or_manual_evidence": true,
+    "historical_listing_gap_requires_6x1d_strategy": true,
+    "market_fallbacks_decision_grade": false,
+    "official_primary_first": true,
+    "silent_source_substitution_forbidden": true,
+    "stooq_html_challenge_must_fail": true
+  },
+  "route_summary": {
+    "failure_count": 6,
+    "route_count": 13,
+    "success_count": 7
+  },
+  "status": "FMDL6X1C_SOURCE_COST_AND_EXECUTION_ROUTE_REVALIDATION_ACCEPTED",
+  "trade_authority": "NONE",
+  "zero_mutation_proof": {
+    "candidate_pool_mutations": 0,
+    "live_security_rows_created": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0
+  }
+}

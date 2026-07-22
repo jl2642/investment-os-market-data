@@ -1,0 +1,407 @@
+{
+  "captured_at": "2026-07-22T11:02:37Z",
+  "elapsed_seconds": 15.591,
+  "observations": [
+    {
+      "authority": "NASDAQ_OFFICIAL",
+      "bytes": 345006,
+      "capability_id": "CURRENT_SECURITY_DIRECTORY",
+      "cost_class": "ZERO_COST_OFFICIAL",
+      "endpoint": "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
+      "exception": null,
+      "failure_class": null,
+      "headers": {
+        "content-length": "72175",
+        "content-type": "text/plain",
+        "etag": "\"0d91debc019dd1:0\"",
+        "last-modified": "Wed, 22 Jul 2026 10:00:26 GMT"
+      },
+      "http_status": 200,
+      "latency_ms": 255.7,
+      "parse": {
+        "header": [
+          "Symbol",
+          "Security Name",
+          "Market Category",
+          "Test Issue",
+          "Financial Status",
+          "Round Lot Size",
+          "ETF",
+          "NextShares"
+        ],
+        "parse_status": "PASS",
+        "row_count": 5562
+      },
+      "payload_sha256": "ca8f3b5219786e289dffcafdd56ba351a441114b00543b9b3c69ab1aec6fb7a9",
+      "required": true,
+      "retrieved_at": "2026-07-22T11:02:21Z",
+      "route_id": "NASDAQ_TRADER_NASDAQLISTED",
+      "success": true
+    },
+    {
+      "authority": "NASDAQ_OFFICIAL",
+      "bytes": 531414,
+      "capability_id": "CURRENT_SECURITY_DIRECTORY",
+      "cost_class": "ZERO_COST_OFFICIAL",
+      "endpoint": "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt",
+      "exception": null,
+      "failure_class": null,
+      "headers": {
+        "content-length": "146580",
+        "content-type": "text/plain",
+        "etag": "\"0d91debc019dd1:0\"",
+        "last-modified": "Wed, 22 Jul 2026 10:00:26 GMT"
+      },
+      "http_status": 200,
+      "latency_ms": 172.3,
+      "parse": {
+        "header": [
+          "ACT Symbol",
+          "Security Name",
+          "Exchange",
+          "CQS Symbol",
+          "ETF",
+          "Round Lot Size",
+          "Test Issue",
+          "NASDAQ Symbol"
+        ],
+        "parse_status": "PASS",
+        "row_count": 7490
+      },
+      "payload_sha256": "4c4d4851e459322da2fe87e0b1b3ce9b71e76d4b97e641ed4861e2dd34096f6b",
+      "required": true,
+      "retrieved_at": "2026-07-22T11:02:21Z",
+      "route_id": "NASDAQ_TRADER_OTHERLISTED",
+      "success": true
+    },
+    {
+      "authority": "NASDAQ_OFFICIAL",
+      "bytes": 43087,
+      "capability_id": "CURRENT_SECURITY_DIRECTORY",
+      "cost_class": "ZERO_COST_OFFICIAL",
+      "endpoint": "https://www.nasdaqtrader.com/dynamic/SymDir/symboldirectory.zip",
+      "exception": "BadZipFile",
+      "failure_class": "SCHEMA_OR_PARSE_DRIFT",
+      "headers": {
+        "content-type": "text/html; charset=utf-8"
+      },
+      "http_status": 200,
+      "latency_ms": 177.6,
+      "parse": {},
+      "payload_sha256": "bace68660c3ee43f3b89b217aeedd1003d77102d29c719d908f96f3dc165a958",
+      "required": false,
+      "retrieved_at": "2026-07-22T11:02:22Z",
+      "route_id": "NASDAQ_TRADER_SYMBOLDIRECTORY_ZIP",
+      "success": false
+    },
+    {
+      "authority": "SEC_OFFICIAL",
+      "bytes": 1925,
+      "capability_id": "SEC_IDENTITY_SUBMISSIONS_AND_FINANCIAL_FACTS",
+      "cost_class": "ZERO_COST_OFFICIAL",
+      "endpoint": "https://www.sec.gov/files/company_tickers_exchange.json",
+      "exception": null,
+      "failure_class": "HTTP_4XX_AUTH_OR_BLOCK",
+      "headers": {
+        "content-length": "919",
+        "content-type": "text/html"
+      },
+      "http_status": 403,
+      "latency_ms": 121.9,
+      "parse": {},
+      "payload_sha256": "e6512340a99fff9099c98f0160fb13117291354f3027c51d92ab61f232145ab3",
+      "required": true,
+      "retrieved_at": "2026-07-22T11:02:22Z",
+      "route_id": "SEC_COMPANY_TICKERS_EXCHANGE",
+      "success": false
+    },
+    {
+      "authority": "SEC_OFFICIAL",
+      "bytes": 4818,
+      "capability_id": "SEC_IDENTITY_SUBMISSIONS_AND_FINANCIAL_FACTS",
+      "cost_class": "ZERO_COST_OFFICIAL",
+      "endpoint": "https://data.sec.gov/submissions/CIK0000320193.json",
+      "exception": null,
+      "failure_class": "HTTP_4XX_AUTH_OR_BLOCK",
+      "headers": {
+        "content-length": "2164",
+        "content-type": "text/html"
+      },
+      "http_status": 403,
+      "latency_ms": 59.9,
+      "parse": {},
+      "payload_sha256": "9bd697ee913b7d16d7468c5c725eb2f1de00f83222a9185100e8f2a395f95a64",
+      "required": true,
+      "retrieved_at": "2026-07-22T11:02:22Z",
+      "route_id": "SEC_SUBMISSIONS_AAPL",
+      "success": false
+    },
+    {
+      "authority": "SEC_OFFICIAL",
+      "bytes": 4818,
+      "capability_id": "SEC_IDENTITY_SUBMISSIONS_AND_FINANCIAL_FACTS",
+      "cost_class": "ZERO_COST_OFFICIAL",
+      "endpoint": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+      "exception": null,
+      "failure_class": "HTTP_4XX_AUTH_OR_BLOCK",
+      "headers": {
+        "content-length": "2164",
+        "content-type": "text/html"
+      },
+      "http_status": 403,
+      "latency_ms": 10.4,
+      "parse": {},
+      "payload_sha256": "25828c8a7fc7065dbdf10bf8f644de008006715b7ca9408204431531f33b4c6f",
+      "required": true,
+      "retrieved_at": "2026-07-22T11:02:22Z",
+      "route_id": "SEC_COMPANYFACTS_AAPL",
+      "success": false
+    },
+    {
+      "authority": "SEC_OFFICIAL",
+      "bytes": 4818,
+      "capability_id": "SEC_IDENTITY_SUBMISSIONS_AND_FINANCIAL_FACTS",
+      "cost_class": "ZERO_COST_OFFICIAL",
+      "endpoint": "https://data.sec.gov/submissions/CIK0001577552.json",
+      "exception": null,
+      "failure_class": "HTTP_4XX_AUTH_OR_BLOCK",
+      "headers": {
+        "content-length": "2164",
+        "content-type": "text/html"
+      },
+      "http_status": 403,
+      "latency_ms": 48.7,
+      "parse": {},
+      "payload_sha256": "b6908d316dc55a096445a40397b9ccdc2efe5cdc8bf7fc27fe26365a720b13bd",
+      "required": false,
+      "retrieved_at": "2026-07-22T11:02:22Z",
+      "route_id": "SEC_SUBMISSIONS_ADR_CASE",
+      "success": false
+    },
+    {
+      "authority": "STOOQ_FREE",
+      "bytes": 796,
+      "capability_id": "MARKET_HISTORY_AND_CORPORATE_ACTIONS",
+      "cost_class": "ZERO_COST_UNOFFICIAL",
+      "endpoint": "https://stooq.com/q/d/l/?s=aapl.us&i=d&d1=20250101&d2=20260722",
+      "exception": null,
+      "failure_class": "SCHEMA_OR_PARSE_DRIFT",
+      "headers": {
+        "content-type": "text/html; charset=utf-8"
+      },
+      "http_status": 200,
+      "latency_ms": 504.5,
+      "parse": {
+        "header": [
+          "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"robots\" content=\"noindex",
+          "nofollow\"></head><body><noscript>This site requires JavaScript to verify your browser. Please enable JavaScript and reload.</noscript><script nonce=\"NlsxSmr6cM_JyahfWIJg_A\">"
+        ],
+        "parse_status": "PASS",
+        "row_count": 3
+      },
+      "payload_sha256": "a2b1581b60373d4ff3e19671546b332fd73502f2e64177ab61be8bd2aedba4ac",
+      "required": false,
+      "retrieved_at": "2026-07-22T11:02:22Z",
+      "route_id": "STOOQ_AAPL_DAILY",
+      "success": false
+    },
+    {
+      "authority": "YAHOO_FREE_UNOFFICIAL",
+      "bytes": 43474,
+      "capability_id": "MARKET_HISTORY_AND_CORPORATE_ACTIONS",
+      "cost_class": "ZERO_COST_UNOFFICIAL",
+      "endpoint": "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits",
+      "exception": null,
+      "failure_class": null,
+      "headers": {
+        "content-type": "application/json;charset=utf-8"
+      },
+      "http_status": 200,
+      "latency_ms": 163.3,
+      "parse": {
+        "item_count": 1,
+        "parse_status": "PASS",
+        "top_level_keys": [
+          "chart"
+        ],
+        "top_level_type": "object"
+      },
+      "payload_sha256": "c0d7ea93fe7502eeb2d85175ee9dc29562ebb7b6557429b70ced3b1fd56e1542",
+      "required": false,
+      "retrieved_at": "2026-07-22T11:02:23Z",
+      "route_id": "YAHOO_QUERY1_AAPL_EVENTS",
+      "success": true
+    },
+    {
+      "authority": "YAHOO_FREE_UNOFFICIAL",
+      "bytes": 43460,
+      "capability_id": "MARKET_HISTORY_AND_CORPORATE_ACTIONS",
+      "cost_class": "ZERO_COST_UNOFFICIAL",
+      "endpoint": "https://query2.finance.yahoo.com/v8/finance/chart/AAPL?period1=1735689600&period2=1784678400&interval=1d&events=div%2Csplits",
+      "exception": null,
+      "failure_class": null,
+      "headers": {
+        "content-type": "application/json;charset=utf-8"
+      },
+      "http_status": 200,
+      "latency_ms": 108.9,
+      "parse": {
+        "item_count": 1,
+        "parse_status": "PASS",
+        "top_level_keys": [
+          "chart"
+        ],
+        "top_level_type": "object"
+      },
+      "payload_sha256": "5dbcef26304f07bed099341a0c56501a42381d3263aa653cddcfd41f141722f3",
+      "required": false,
+      "retrieved_at": "2026-07-22T11:02:23Z",
+      "route_id": "YAHOO_QUERY2_AAPL_EVENTS",
+      "success": true
+    },
+    {
+      "authority": "ECB_OFFICIAL",
+      "bytes": 8906,
+      "capability_id": "FX_REFERENCE",
+      "cost_class": "ZERO_COST_OFFICIAL",
+      "endpoint": "https://data-api.ecb.europa.eu/service/data/EXR/D.CNY.EUR.SP00.A?startPeriod=2026-06-01&format=csvdata",
+      "exception": null,
+      "failure_class": null,
+      "headers": {
+        "content-type": "text/csv",
+        "last-modified": "Tue, 21 Jul 2026 13:57:02 GMT"
+      },
+      "http_status": 200,
+      "latency_ms": 952.7,
+      "parse": {
+        "header": [
+          "KEY",
+          "FREQ",
+          "CURRENCY",
+          "CURRENCY_DENOM",
+          "EXR_TYPE",
+          "EXR_SUFFIX",
+          "TIME_PERIOD",
+          "OBS_VALUE",
+          "OBS_STATUS",
+          "OBS_CONF",
+          "OBS_PRE_BREAK",
+          "OBS_COM",
+          "TIME_FORMAT",
+          "BREAKS",
+          "COLLECTION",
+          "COMPILING_ORG",
+          "DISS_ORG",
+          "DOM_SER_IDS",
+          "PUBL_ECB",
+          "PUBL_MU",
+          "PUBL_PUBLIC",
+          "UNIT_INDEX_BASE",
+          "COMPILATION",
+          "COVERAGE",
+          "DECIMALS",
+          "NAT_TITLE",
+          "SOURCE_AGENCY",
+          "SOURCE_PUB",
+          "TITLE",
+          "TITLE_COMPL"
+        ],
+        "parse_status": "PASS",
+        "row_count": 38
+      },
+      "payload_sha256": "a04f7920642e7eabad4cb7a25cc7203bf4f937c026ab77843382058548ea6126",
+      "required": false,
+      "retrieved_at": "2026-07-22T11:02:24Z",
+      "route_id": "ECB_CNY_REFERENCE",
+      "success": true
+    },
+    {
+      "authority": "ECB_OFFICIAL",
+      "bytes": 8535,
+      "capability_id": "FX_REFERENCE",
+      "cost_class": "ZERO_COST_OFFICIAL",
+      "endpoint": "https://data-api.ecb.europa.eu/service/data/EXR/D.HKD.EUR.SP00.A?startPeriod=2026-06-01&format=csvdata",
+      "exception": null,
+      "failure_class": null,
+      "headers": {
+        "content-type": "text/csv",
+        "last-modified": "Tue, 21 Jul 2026 13:57:02 GMT"
+      },
+      "http_status": 200,
+      "latency_ms": 134.9,
+      "parse": {
+        "header": [
+          "KEY",
+          "FREQ",
+          "CURRENCY",
+          "CURRENCY_DENOM",
+          "EXR_TYPE",
+          "EXR_SUFFIX",
+          "TIME_PERIOD",
+          "OBS_VALUE",
+          "OBS_STATUS",
+          "OBS_CONF",
+          "OBS_PRE_BREAK",
+          "OBS_COM",
+          "TIME_FORMAT",
+          "BREAKS",
+          "COLLECTION",
+          "COMPILING_ORG",
+          "DISS_ORG",
+          "DOM_SER_IDS",
+          "PUBL_ECB",
+          "PUBL_MU",
+          "PUBL_PUBLIC",
+          "UNIT_INDEX_BASE",
+          "COMPILATION",
+          "COVERAGE",
+          "DECIMALS",
+          "NAT_TITLE",
+          "SOURCE_AGENCY",
+          "SOURCE_PUB",
+          "TITLE",
+          "TITLE_COMPL"
+        ],
+        "parse_status": "PASS",
+        "row_count": 38
+      },
+      "payload_sha256": "9c8d48844f39401849fd7268e319315b5e6ee24e09c91b700cf099c7fb521b11",
+      "required": false,
+      "retrieved_at": "2026-07-22T11:02:24Z",
+      "route_id": "ECB_HKD_REFERENCE",
+      "success": true
+    },
+    {
+      "authority": "FRANKFURTER_FREE",
+      "bytes": 83,
+      "capability_id": "FX_REFERENCE",
+      "cost_class": "ZERO_COST_UNOFFICIAL",
+      "endpoint": "https://api.frankfurter.app/latest?from=USD&to=CNY,HKD",
+      "exception": null,
+      "failure_class": null,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "etag": "W/\"fecd4ceea8b67336754a33966116f596\""
+      },
+      "http_status": 200,
+      "latency_ms": 12878.7,
+      "parse": {
+        "item_count": 4,
+        "parse_status": "PASS",
+        "top_level_keys": [
+          "amount",
+          "base",
+          "date",
+          "rates"
+        ],
+        "top_level_type": "object"
+      },
+      "payload_sha256": "7f46222be0905015d144de03c73b377980b02d5573b08ee28de2c5f1bac08396",
+      "required": false,
+      "retrieved_at": "2026-07-22T11:02:37Z",
+      "route_id": "FRANKFURTER_USD_CNY_HKD",
+      "success": true
+    }
+  ],
+  "phase_id": "FMDL-6X1-C"
+}
