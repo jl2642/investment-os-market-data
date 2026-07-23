@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jl2642/investment-os-market-data/schemas/fmdl7a_state_reconciliation_contract_v1.schema.json",
+  "title": "FMDL-7A Cross-market Canonical Inventory and State Reconciliation Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "as_of_date",
+    "required_exit_status",
+    "next_gate",
+    "entry_gate",
+    "source_bindings",
+    "file_library_observation",
+    "market_inventory",
+    "state_domains",
+    "duplication_controls",
+    "reconciliation_conclusions",
+    "scope",
+    "acceptance_gates",
+    "storage_contract",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-7A"},
+    "contract_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "as_of_date": {"const": "2026-07-23"},
+    "required_exit_status": {"const": "FMDL7A_CROSS_MARKET_CANONICAL_INVENTORY_AND_STATE_RECONCILIATION_ACCEPTED"},
+    "next_gate": {"const": "FMDL-7B_END_TO_END_RESEARCH_AND_DECISION_LINEAGE_ACCEPTANCE"},
+    "entry_gate": {"type": "object"},
+    "source_bindings": {"type": "object", "minProperties": 7, "maxProperties": 7},
+    "file_library_observation": {"type": "object"},
+    "market_inventory": {
+      "type": "object",
+      "required": ["A_SHARE", "HONG_KONG_CONNECT", "US_EQUITY"],
+      "minProperties": 3,
+      "maxProperties": 3
+    },
+    "state_domains": {
+      "type": "object",
+      "required": ["real_account", "simulation_book", "candidate_pool"],
+      "minProperties": 3,
+      "maxProperties": 3
+    },
+    "duplication_controls": {"type": "object"},
+    "reconciliation_conclusions": {"type": "array", "minItems": 6, "maxItems": 6, "uniqueItems": true},
+    "scope": {"type": "object"},
+    "acceptance_gates": {"type": "object"},
+    "storage_contract": {"type": "object"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
