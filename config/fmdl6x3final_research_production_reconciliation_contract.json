@@ -1,0 +1,94 @@
+{
+  "phase_id": "FMDL-6X3-FINAL",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "input_releases": {
+    "FMDL-6X3-A": {
+      "release_id": "FMDL6X3A_20260722_f918c8f71430",
+      "release_sequence": 36,
+      "pointer_path": "outputs/status/FMDL6X3A_LAST_SUCCESS.json",
+      "current_root": "outputs/fmdl6x3/current/research_universe_readiness",
+      "manifest_name": "FMDL6X3A_MANIFEST.json",
+      "decision_name": "FMDL6X3A_DECISION.json"
+    },
+    "FMDL-6X3-B": {
+      "release_id": "FMDL6X3B_20260722_5d2ed5708fc1",
+      "release_sequence": 37,
+      "pointer_path": "outputs/status/FMDL6X3B_LAST_SUCCESS.json",
+      "current_root": "outputs/fmdl6x3/current/financial_normalization",
+      "manifest_name": "FMDL6X3B_MANIFEST.json",
+      "decision_name": "FMDL6X3B_DECISION.json"
+    },
+    "FMDL-6X3-C": {
+      "release_id": "FMDL6X3C_20260722_2209fb89f9ed",
+      "release_sequence": 38,
+      "pointer_path": "outputs/status/FMDL6X3C_LAST_SUCCESS.json",
+      "current_root": "outputs/fmdl6x3/current/factor_engine",
+      "manifest_name": "FMDL6X3C_MANIFEST.json",
+      "decision_name": "FMDL6X3C_DECISION.json"
+    },
+    "FMDL-6X3-D": {
+      "release_id": "FMDL6X3D_20260723_5bff8dce01af",
+      "release_sequence": 39,
+      "pointer_path": "outputs/status/FMDL6X3D_LAST_SUCCESS.json",
+      "current_root": "outputs/fmdl6x3/current/sector_peer_benchmark",
+      "manifest_name": "FMDL6X3D_MANIFEST.json",
+      "decision_name": "FMDL6X3D_DECISION.json"
+    },
+    "FMDL-6X3-E": {
+      "release_id": "FMDL6X3E_20260723_073519d1e23f",
+      "release_sequence": 40,
+      "pointer_path": "outputs/status/FMDL6X3E_LAST_SUCCESS.json",
+      "current_root": "outputs/fmdl6x3/current/screening_research_cards",
+      "manifest_name": "FMDL6X3E_MANIFEST.json",
+      "decision_name": "FMDL6X3E_DECISION.json"
+    }
+  },
+  "reconciliation_contract": {
+    "security_universe_count": 8785,
+    "issuer_universe_count": 7419,
+    "quarterly_financial_security_count": 3,
+    "quality_sandbox_security_count": 3,
+    "market_risk_sandbox_security_count": 63,
+    "official_sic_security_count": 6,
+    "research_card_count": 8785,
+    "benchmark_pool_member_count": 7,
+    "formal_peer_group_count": 0,
+    "valuation_ready_security_count": 0,
+    "global_rank_count": 0,
+    "formal_candidate_promotion_count": 0,
+    "research_recommendation_count": 0,
+    "required_release_sequences": [36, 37, 38, 39, 40],
+    "logical_shard_count": 128
+  },
+  "operational_acceptance": {
+    "current_release_byte_parity_required": true,
+    "last_success_manifest_binding_required": true,
+    "lkg_required_for_each_domain": true,
+    "same_input_replay_required": true,
+    "explicit_data_gaps_allowed": true,
+    "global_full_data_completion_claimed": false,
+    "formal_investment_ranking_claimed": false,
+    "candidate_pool_authorized": false,
+    "simulation_authorized": false,
+    "brokerage_channel_available": false
+  },
+  "storage_contract": {
+    "release_sequence": 41,
+    "current_root": "outputs/fmdl6x3/current/research_production_final",
+    "release_root": "datasets/fmdl6x3/releases/<release_id>/research_production_final",
+    "normalized_root": "datasets/fmdl6x3/normalized/research_production_final/<release_id>",
+    "archive_root": "outputs/fmdl6x3/archive",
+    "last_success": "outputs/status/FMDL6X3FINAL_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6X3_RESEARCH_PRODUCTION_LKG.json"
+  },
+  "required_exit_status": "FMDL6X3_FINAL_RESEARCH_PRODUCTION_RECONCILIATION_AND_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+  "next_gate": "FMDL-6X4-A_PUBLIC_EQUITY_INVESTING_ADAPTER_AND_CONTRACT_MAPPING",
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "trade_authority": "NONE"
+}
