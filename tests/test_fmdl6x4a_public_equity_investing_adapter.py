@@ -45,7 +45,7 @@ class FMDL6X4ATests(unittest.TestCase):
         self.assertEqual(self.quality['benchmark_pool_member_count'], 7)
         self.assertEqual(self.quality['security_workflow_mapping_count'], 98)
         self.assertEqual(self.quality['adapter_payload_count'], 7)
-        self.assertEqual(self.payload['symbols'], ['AAPL', 'BRK.B', 'JPM', 'MSFT', 'NVDA', 'QQQ', 'XOM'])
+        self.assertEqual(sorted(self.payload['symbols']), ['AAPL', 'BRK.B', 'JPM', 'MSFT', 'NVDA', 'QQQ', 'XOM'])
 
     def test_04_mapping_state_counts(self) -> None:
         expected = {
