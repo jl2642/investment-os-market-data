@@ -31,7 +31,7 @@ permissions:
 
 concurrency:
   group: fmdl-7d-${{ github.event_name }}-${{ github.ref || github.event.schedule }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   quality-gates:
