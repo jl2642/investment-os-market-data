@@ -1,0 +1,130 @@
+{
+  "phase_id": "FMDL-6X4-A",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X3FINAL_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-6X3-FINAL",
+    "required_release_id": "FMDL6X3FINAL_20260723_c9dff24a71f0",
+    "required_release_sequence": 41,
+    "required_status": "FMDL6X3_FINAL_RESEARCH_PRODUCTION_RECONCILIATION_AND_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+    "required_next_gate": "FMDL-6X4-A_PUBLIC_EQUITY_INVESTING_ADAPTER_AND_CONTRACT_MAPPING",
+    "required_gate": "OPEN_ADAPTER_AND_CONTRACT_MAPPING_ONLY"
+  },
+  "workflow_contract": {
+    "workflow_count": 14,
+    "workflow_slugs": [
+      "company-tearsheet",
+      "financials-normalizer",
+      "earnings-preview",
+      "earnings-deep-dive",
+      "comps-valuation",
+      "dcf-model-builder",
+      "three-statement-model-builder",
+      "scenario-sensitivity-generator",
+      "catalyst-calendar",
+      "long-short-pitch",
+      "thesis-tracker",
+      "memo-builder",
+      "meeting-prep",
+      "initiating-coverage"
+    ],
+    "status_enum": [
+      "PARTIAL_ADAPTER_READY",
+      "HUMAN_CONFIRMATION_REQUIRED",
+      "BLOCKED_REQUIRED_INPUTS_MISSING",
+      "NOT_APPLICABLE_REFERENCE_INSTRUMENT"
+    ],
+    "workflow_execution_authorized": false,
+    "adapter_payload_materialization_authorized": true,
+    "decision_grade_handoff_authorized": false
+  },
+  "source_category_contract": {
+    "allowed_categories": [
+      "Market Data & Estimates",
+      "Company Filings & IR",
+      "Earnings Transcripts & Events",
+      "Portfolio Models & Trackers",
+      "Internal Research"
+    ],
+    "category_availability_is_not_connector_readiness": true,
+    "runtime_source_check_required_before_workflow_execution": true,
+    "silent_weaker_source_substitution_allowed": false
+  },
+  "mapping_contract": {
+    "benchmark_pool_id": "US_RESEARCH_BENCHMARK_POOL_V1",
+    "benchmark_pool_member_count": 7,
+    "security_workflow_mapping_count": 98,
+    "partial_adapter_ready_count": 10,
+    "human_confirmation_required_count": 19,
+    "blocked_required_inputs_count": 58,
+    "not_applicable_count": 11,
+    "formal_workflow_execution_count": 0,
+    "investment_recommendation_count": 0,
+    "candidate_promotion_count": 0
+  },
+  "adapter_contract": {
+    "required_identity_fields": [
+      "canonical_security_id",
+      "canonical_issuer_id",
+      "symbol",
+      "research_profile",
+      "research_scope"
+    ],
+    "required_evidence_fields": [
+      "research_card_id",
+      "screening_disposition",
+      "input_release_id",
+      "source_manifest_sha256",
+      "financial_source_grade",
+      "market_source_grade",
+      "classification_authority"
+    ],
+    "required_boundary_fields": [
+      "workflow_execution_authorized",
+      "investment_recommendation_authorized",
+      "candidate_pool_promotion_authorized",
+      "simulation_authorized",
+      "trade_authority"
+    ],
+    "research_card_is_not_recommendation": true,
+    "benchmark_pool_is_not_candidate_pool": true
+  },
+  "storage_contract": {
+    "bucket_count": 64,
+    "expected_shard_count": 256,
+    "current_root": "outputs/fmdl6x4/current/public_equity_investing_adapter",
+    "release_root": "datasets/fmdl6x4/releases/<release_id>/public_equity_investing_adapter",
+    "normalized_root": "datasets/fmdl6x4/normalized/public_equity_investing_adapter/<release_id>",
+    "archive_root": "outputs/fmdl6x4/archive",
+    "last_success": "outputs/status/FMDL6X4A_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6X4_PUBLIC_EQUITY_INVESTING_ADAPTER_LKG.json",
+    "release_sequence": 42,
+    "failed_run_may_replace_current": false,
+    "failed_run_may_replace_lkg": false
+  },
+  "acceptance_gates": {
+    "workflow_contract_count": 14,
+    "benchmark_pool_member_count": 7,
+    "security_workflow_mapping_count": 98,
+    "adapter_payload_count": 7,
+    "partial_adapter_ready_count": 10,
+    "human_confirmation_required_count": 19,
+    "blocked_required_inputs_count": 58,
+    "not_applicable_count": 11,
+    "formal_workflow_execution_count": 0,
+    "investment_recommendation_count": 0,
+    "candidate_promotion_count": 0,
+    "logical_shard_count": 256,
+    "neutral_fill_count": 0
+  },
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "required_exit_status": "FMDL6X4A_PUBLIC_EQUITY_INVESTING_ADAPTER_AND_CONTRACT_MAPPING_ACCEPTED",
+  "next_gate": "FMDL-6X4-B_RESEARCH_WORKFLOW_INTEGRATION_AND_EVIDENCE_REGISTRATION",
+  "trade_authority": "NONE"
+}
