@@ -1,3 +1,0 @@
-# FMDL-6X4-D Ready Flag
-
-`READY_FOR_PULL_REQUEST = true`
