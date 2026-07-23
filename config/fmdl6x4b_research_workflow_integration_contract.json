@@ -1,0 +1,100 @@
+{
+  "acceptance_gates": {
+    "candidate_promotion_count": 0,
+    "evidence_registration_count": 53,
+    "formal_workflow_execution_count": 0,
+    "investment_recommendation_count": 0,
+    "invocation_envelope_count": 10,
+    "logical_shard_count": 320,
+    "neutral_fill_count": 0,
+    "output_registration_contract_count": 14,
+    "registered_workflow_output_count": 0,
+    "security_evidence_ledger_count": 7,
+    "security_workflow_mapping_count": 98,
+    "source_registry_count": 7,
+    "workflow_contract_count": 14
+  },
+  "as_of_date": "2026-07-23",
+  "contract_version": "1.0.0",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X4A_LAST_SUCCESS.json",
+    "required_next_gate": "FMDL-6X4-B_RESEARCH_WORKFLOW_INTEGRATION_AND_EVIDENCE_REGISTRATION",
+    "required_phase_id": "FMDL-6X4-A",
+    "required_release_id": "FMDL6X4A_20260723_7d5e491ad3fd",
+    "required_release_sequence": 42,
+    "required_status": "FMDL6X4A_PUBLIC_EQUITY_INVESTING_ADAPTER_AND_CONTRACT_MAPPING_ACCEPTED",
+    "required_trade_authority": "NONE"
+  },
+  "evidence_contract": {
+    "allowed_evidence_labels": [
+      "fact_source_reported",
+      "fact_provider_standardized",
+      "derived_calculation",
+      "missing_required_source",
+      "unknown"
+    ],
+    "evidence_registration_count": 53,
+    "required_fields": [
+      "evidence_registration_id",
+      "canonical_security_id",
+      "canonical_issuer_id",
+      "evidence_type",
+      "source_id",
+      "source_artifact_path",
+      "source_manifest_sha256",
+      "evidence_grade",
+      "as_of_date",
+      "evidence_label"
+    ],
+    "runtime_source_check_required": true,
+    "security_evidence_ledger_count": 7,
+    "silent_weaker_source_substitution_allowed": false,
+    "source_registry_count": 7
+  },
+  "integration_contract": {
+    "integration_state_counts": {
+      "BLOCKED_REQUIRED_INPUTS_MISSING": 58,
+      "INVOCATION_ENVELOPE_REGISTERED_RUNTIME_SOURCE_CHECK_PENDING": 10,
+      "NOT_APPLICABLE_REFERENCE_INSTRUMENT": 11,
+      "WAITING_USER_CONFIRMATION": 19
+    },
+    "invocation_envelope_count": 10,
+    "output_registration_contract_count": 14,
+    "registered_workflow_output_count": 0,
+    "security_workflow_mapping_count": 98,
+    "workflow_contract_count": 14,
+    "workflow_execution_count": 0
+  },
+  "next_gate": "FMDL-6X4-C_CANDIDATE_GRADUATION_DECISION_INTERFACE_AND_GUARDRAILS",
+  "phase_id": "FMDL-6X4-B",
+  "required_exit_status": "FMDL6X4B_RESEARCH_WORKFLOW_INTEGRATION_AND_EVIDENCE_REGISTRATION_ACCEPTED",
+  "scope": {
+    "brokerage_authorized": false,
+    "candidate_pool_promotion_authorized": false,
+    "completed_workflow_artifact_registration_authorized": false,
+    "evidence_registration_authorized": true,
+    "formal_workflow_execution_authorized": false,
+    "investment_recommendation_authorized": false,
+    "invocation_envelope_materialization_authorized": true,
+    "simulation_authorized": false,
+    "workflow_integration_authorized": true,
+    "workflow_output_registration_contract_authorized": true
+  },
+  "storage_contract": {
+    "archive_root": "outputs/fmdl6x4/archive",
+    "bucket_count": 64,
+    "current_root": "outputs/fmdl6x4/current/research_workflow_integration",
+    "last_known_good": "outputs/status/FMDL6X4_RESEARCH_WORKFLOW_INTEGRATION_LKG.json",
+    "last_success": "outputs/status/FMDL6X4B_LAST_SUCCESS.json",
+    "normalized_root": "datasets/fmdl6x4/normalized/research_workflow_integration/<release_id>",
+    "release_root": "datasets/fmdl6x4/releases/<release_id>/research_workflow_integration",
+    "release_sequence": 43
+  },
+  "trade_authority": "NONE",
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0
+  }
+}
