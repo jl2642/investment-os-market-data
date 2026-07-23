@@ -1,0 +1,86 @@
+{
+  "phase_id": "FMDL-6X3-D",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "input_contract": {
+    "input_release_id": "FMDL6X3C_20260722_2209fb89f9ed",
+    "readiness_release_id": "FMDL6X3A_20260722_f918c8f71430",
+    "factor_release_id": "FMDL6X3C_20260722_2209fb89f9ed",
+    "accepted_sic_authority": "SEC_OFFICIAL",
+    "accepted_benchmark_identity_authority": "NASDAQ_AND_INVESCO_OFFICIAL",
+    "market_data_grade": "NON_DECISION_GRADE_FALLBACK"
+  },
+  "classification_contract": {
+    "official_classification_anchor": "SEC_STANDARD_INDUSTRIAL_CLASSIFICATION",
+    "sector_industry_crosswalk": "INTERNAL_SEC_SIC_CROSSWALK_V1",
+    "gics_claimed": false,
+    "icb_claimed": false,
+    "name_only_classification_allowed": false,
+    "missing_classification_action": "QUEUE_NO_NEUTRAL_OR_GUESSED_SECTOR"
+  },
+  "peer_contract": {
+    "formal_peer_minimum_members": 3,
+    "required_dimensions": [
+      "SAME_INTERNAL_INDUSTRY",
+      "COMPATIBLE_RESEARCH_PROFILE",
+      "COMPARABLE_FINANCIAL_PERIOD",
+      "ACCEPTED_SOURCE_GRADE"
+    ],
+    "singleton_or_small_group_action": "RETAIN_MEMBERSHIP_BLOCK_FORMAL_RANKING",
+    "sector_cohort_is_not_peer_group": true
+  },
+  "benchmark_contract": {
+    "available_role": "US_LARGE_CAP_NASDAQ_100_REFERENCE",
+    "available_security": "QQQ",
+    "available_benchmark_id": "USBMK-NASDAQ100-QQQ",
+    "available_usage": "NON_DECISION_GRADE_RELATIVE_SANDBOX_ONLY",
+    "relative_market_metrics": [
+      "PRICE_RETURN_21D",
+      "PRICE_RETURN_63D",
+      "PRICE_RETURN_126D",
+      "PRICE_RETURN_252D",
+      "PRICE_MOMENTUM_12M_EX_1M"
+    ],
+    "required_roles_pending": [
+      "US_BROAD_MARKET_REFERENCE",
+      "US_SMALL_CAP_REFERENCE",
+      "US_INFORMATION_TECHNOLOGY_SECTOR_REFERENCE",
+      "US_FINANCIALS_SECTOR_REFERENCE",
+      "US_ENERGY_SECTOR_REFERENCE"
+    ],
+    "formal_benchmark_usage_requires_decision_grade_market_data": true
+  },
+  "ranking_contract": {
+    "sector_neutral_factor_allowed": false,
+    "formal_peer_rank_allowed": false,
+    "global_factor_score_allowed": false,
+    "reason": "OFFICIAL_CLASSIFICATION_COVERAGE_PEER_MINIMUM_PERIOD_COMPARABILITY_AND_DECISION_GRADE_BENCHMARKS_PENDING"
+  },
+  "storage_contract": {
+    "bucket_count": 64,
+    "current_root": "outputs/fmdl6x3/current/sector_peer_benchmark",
+    "release_root": "datasets/fmdl6x3/releases/<release_id>/sector_peer_benchmark",
+    "normalized_root": "datasets/fmdl6x3/normalized/sector_peer_benchmark/<release_id>",
+    "archive_root": "outputs/fmdl6x3/archive",
+    "last_success": "outputs/status/FMDL6X3D_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6X3_SECTOR_PEER_BENCHMARK_LKG.json"
+  },
+  "acceptance_gates": {
+    "security_universe_count": 8785,
+    "official_sic_evidence_count": 6,
+    "available_benchmark_count": 1,
+    "formal_peer_group_count": 0,
+    "benchmark_relative_observation_count": 15,
+    "logical_shard_count": 320,
+    "neutral_fill_count": 0,
+    "sector_neutral_factor_count": 0,
+    "global_factor_score_count": 0
+  },
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "trade_authority": "NONE"
+}
