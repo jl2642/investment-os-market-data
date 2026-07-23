@@ -183,7 +183,7 @@ def reconcile(inputs: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any
     c_ids = id_set(rows["c_status"])
     d_ids = id_set(rows["d_classification"])
     e_screen_ids = id_set(rows["e_screening"])
-    e_card_ids = id_set(rows["e_cards"])
+    e_card_ids = {str(row["identity"]["canonical_security_id"]) for row in rows["e_cards"]}
     expected = contract["reconciliation_contract"]["security_universe_count"]
     if not (len(a_ids) == len(c_ids) == len(d_ids) == len(e_screen_ids) == len(e_card_ids) == expected):
         errors.append("SECURITY_UNIVERSE_COUNTS")
@@ -237,7 +237,7 @@ def reconcile(inputs: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any
 
     factor_by_id = {row["canonical_security_id"]: row for row in rows["c_status"]}
     class_by_id = {row["canonical_security_id"]: row for row in rows["d_classification"]}
-    card_by_id = {row["canonical_security_id"]: row for row in rows["e_cards"]}
+    card_by_id = {row["identity"]["canonical_security_id"]: row for row in rows["e_cards"]}
     reconciliation_rows: list[dict[str, Any]] = []
     for readiness in sorted(rows["a_security"], key=lambda row: row["canonical_security_id"]):
         sid = readiness["canonical_security_id"]
@@ -248,7 +248,10 @@ def reconcile(inputs: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any
             "research_profile": readiness["research_profile"],
             "research_scope": readiness["research_scope"],
             "readiness_tier": readiness["readiness_tier"],
-            "factor_status": factor_by_id[sid].get("factor_status"),
+            "quality_factor_gate": factor_by_id[sid].get("quality_factor_gate"),
+            "market_factor_gate": factor_by_id[sid].get("market_factor_gate"),
+            "risk_factor_gate": factor_by_id[sid].get("risk_factor_gate"),
+            "valuation_factor_gate": factor_by_id[sid].get("valuation_factor_gate"),
             "classification_status": class_by_id[sid].get("classification_status"),
             "screening_disposition": screening_by_id[sid]["screening_disposition"],
             "research_card_id": card_by_id[sid]["research_card_id"],
