@@ -1,0 +1,91 @@
+name: FMDL 7A Cross-market Canonical Inventory and State Reconciliation
+
+on:
+  pull_request:
+    paths:
+      - 'config/fmdl7a_state_reconciliation_contract.json'
+      - 'schemas/fmdl7a_state_reconciliation_contract_v1.schema.json'
+      - 'scripts/fmdl7a_state_reconciliation.py'
+      - 'tests/test_fmdl7a_state_reconciliation.py'
+      - 'docs/FMDL-7A_*.md'
+      - '.github/workflows/fmdl-7a-state-reconciliation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'config/fmdl7a_state_reconciliation_contract.json'
+      - 'schemas/fmdl7a_state_reconciliation_contract_v1.schema.json'
+      - 'scripts/fmdl7a_state_reconciliation.py'
+      - 'tests/test_fmdl7a_state_reconciliation.py'
+      - 'docs/FMDL-7A_*.md'
+      - '.github/workflows/fmdl-7a-state-reconciliation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-7a-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Contract and regression tests
+        run: python -m unittest tests/test_fmdl7a_state_reconciliation.py
+      - name: Compile producer and tests
+        run: python -m py_compile scripts/fmdl7a_state_reconciliation.py tests/test_fmdl7a_state_reconciliation.py
+      - name: Validate frozen inventory and state bindings
+        run: python scripts/fmdl7a_state_reconciliation.py validate
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze run timestamp and source commit
+        run: |
+          echo "RUN_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+          echo "SOURCE_COMMIT=${GITHUB_SHA}" >> "$GITHUB_ENV"
+      - name: Build FMDL-7A candidate
+        run: |
+          python scripts/fmdl7a_state_reconciliation.py build \
+            --output build/fmdl7a_candidate \
+            --generated-at "$RUN_TS" \
+            --source-commit "$SOURCE_COMMIT"
+      - name: Independent same-input byte replay
+        run: |
+          python scripts/fmdl7a_state_reconciliation.py build \
+            --output build/fmdl7a_replay \
+            --generated-at "$RUN_TS" \
+            --source-commit "$SOURCE_COMMIT"
+          diff -qr build/fmdl7a_candidate build/fmdl7a_replay
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmdl7a-state-reconciliation-candidate
+          path: build/fmdl7a_candidate
+          if-no-files-found: error
+      - name: Publish Current immutable Release normalized and pointers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: python scripts/fmdl7a_state_reconciliation.py publish --candidate build/fmdl7a_candidate
+      - name: Commit accepted FMDL-7A state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl7 datasets/fmdl7 outputs/status/FMDL7A_LAST_SUCCESS.json outputs/status/FMDL7_STATE_RECONCILIATION_LKG.json
+          if git diff --cached --quiet; then
+            echo "No publication changes"
+          else
+            git commit -m "data: publish FMDL-7A canonical inventory and state reconciliation [skip ci]"
+            git push origin HEAD:main
+          fi
