@@ -1,0 +1,171 @@
+{
+  "all_scenarios_fail_closed": true,
+  "failure_recovery_pass_count": 10,
+  "failure_recovery_scenario_count": 10,
+  "phase_id": "FMDL-6X4-D",
+  "recovery_checkpoint_count": 4,
+  "recovery_checkpoints": [
+    {
+      "checkpoint_name": "DOMAIN_LAST_KNOWN_GOOD",
+      "checkpoint_status": "AVAILABLE_AND_REQUIRED",
+      "recovery_checkpoint_id": "PEIRECOVERY-7dc1684aea048a1eab3c14ad",
+      "recovery_semantics": "Use LKG when new output fails QC, publication or evidence validation.",
+      "trade_authority": "NONE"
+    },
+    {
+      "checkpoint_name": "DETERMINISTIC_SAME_INPUT_REPLAY",
+      "checkpoint_status": "AVAILABLE_AND_REQUIRED",
+      "recovery_checkpoint_id": "PEIRECOVERY-d72fdc47cc7ec7811cab01ed",
+      "recovery_semantics": "Rebuild must reproduce candidate bytes before publication.",
+      "trade_authority": "NONE"
+    },
+    {
+      "checkpoint_name": "LAST_SUCCESS_POINTER",
+      "checkpoint_status": "AVAILABLE_AND_REQUIRED",
+      "recovery_checkpoint_id": "PEIRECOVERY-ebabd51e35db85790b213c3a",
+      "recovery_semantics": "Resume only from the last accepted release pointer.",
+      "trade_authority": "NONE"
+    },
+    {
+      "checkpoint_name": "CURRENT_IMMUTABLE_RELEASE_PARITY",
+      "checkpoint_status": "AVAILABLE_AND_REQUIRED",
+      "recovery_checkpoint_id": "PEIRECOVERY-ec1dcd34e12767dac45903c1",
+      "recovery_semantics": "Reject Current on byte mismatch and restore accepted immutable Release.",
+      "trade_authority": "NONE"
+    }
+  ],
+  "release_id": "FMDL6X4D_20260723_1b325920f2b5",
+  "scenarios": [
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "NO_OP_IDEMPOTENT",
+      "failure_recovery_scenario_id": "PEIFAILREC-1b45b445caffb2b5146d6667",
+      "injected_failure": "DUPLICATE_EVENT_REPLAY",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "RETAIN_ORIGINAL_APPEND_ONLY_EVENT",
+      "scenario_code": "FR09",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    },
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "WITHDRAW_FROM_SIMULATION_ELIGIBILITY",
+      "failure_recovery_scenario_id": "PEIFAILREC-5138c0b1ac41f8d916130418",
+      "injected_failure": "HUMAN_APPROVAL_WITHDRAWN",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "REQUIRE_NEW_EXPLICIT_HUMAN_APPROVAL",
+      "scenario_code": "FR06",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    },
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "DOWNGRADE_ELIGIBILITY",
+      "failure_recovery_scenario_id": "PEIFAILREC-586a3ac765cff24529f89c23",
+      "injected_failure": "PEER_GROUP_INVALIDATED",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "REESTABLISH_FORMAL_COMPARABLE_SET",
+      "scenario_code": "FR04",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    },
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "PAUSE_SHADOW_AND_BLOCK_FORMAL_SIMULATION",
+      "failure_recovery_scenario_id": "PEIFAILREC-5f733460b095a5348676bcef",
+      "injected_failure": "DECISION_GRADE_MARKET_DATA_STALE",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "REFRESH_AND_REVALIDATE_DECISION_GRADE_SOURCE",
+      "scenario_code": "FR02",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    },
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "REJECT_CURRENT_AND_USE_LKG",
+      "failure_recovery_scenario_id": "PEIFAILREC-6dc206bb72f813591cca74af",
+      "injected_failure": "CURRENT_RELEASE_MANIFEST_MISMATCH",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "RESTORE_BYTE_IDENTICAL_ACCEPTED_RELEASE",
+      "scenario_code": "FR07",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    },
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "DOWNGRADE_ELIGIBILITY",
+      "failure_recovery_scenario_id": "PEIFAILREC-83be1103d29dacf75e373c0d",
+      "injected_failure": "VALUATION_INVALIDATED",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "REBUILD_AND_REGISTER_CURRENT_VALUATION",
+      "scenario_code": "FR03",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    },
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "PAUSE_AND_BLOCK_GRADUATION",
+      "failure_recovery_scenario_id": "PEIFAILREC-92f94b9ffdf9317ce13621a6",
+      "injected_failure": "REGISTERED_OUTPUT_FAILED_QC",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "RESTORE_LAST_QC_PASSED_OUTPUT_FROM_LKG",
+      "scenario_code": "FR01",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    },
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "KEEP_PREVIOUS_POINTER_ACTIVE",
+      "failure_recovery_scenario_id": "PEIFAILREC-b1a2452865f93cbf8e490212",
+      "injected_failure": "PUBLICATION_INTERRUPTED_BEFORE_POINTER",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "RESUME_IDEMPOTENT_PUBLICATION",
+      "scenario_code": "FR08",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    },
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "REJECT_EVENT_FAIL_CLOSED",
+      "failure_recovery_scenario_id": "PEIFAILREC-dade9fdcaf003b89043e0745",
+      "injected_failure": "OUT_OF_ORDER_STATE_EVENT",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "REPLAY_FROM_LAST_ACCEPTED_SEQUENCE",
+      "scenario_code": "FR10",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    },
+    {
+      "candidate_pool_mutations": 0,
+      "expected_fail_closed_action": "FREEZE_SECURITY_STATE",
+      "failure_recovery_scenario_id": "PEIFAILREC-f096ee0f269e679cdf2eff36",
+      "injected_failure": "MATERIAL_EVIDENCE_CONFLICT",
+      "orders": 0,
+      "real_account_mutations": 0,
+      "required_recovery": "RESOLVE_CONFLICT_AND_APPEND_DECISION_LOG",
+      "scenario_code": "FR05",
+      "scenario_result": "PASS",
+      "simulation_book_mutations": 0,
+      "trade_authority": "NONE"
+    }
+  ],
+  "trade_authority": "NONE"
+}
