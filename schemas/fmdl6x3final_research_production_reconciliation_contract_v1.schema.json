@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x3final-research-production-reconciliation-v1.schema.json",
+  "title": "FMDL-6X3-FINAL Research Production Reconciliation Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "input_releases",
+    "reconciliation_contract",
+    "operational_acceptance",
+    "storage_contract",
+    "required_exit_status",
+    "next_gate",
+    "zero_mutation_gate",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X3-FINAL"},
+    "trade_authority": {"const": "NONE"},
+    "input_releases": {
+      "type": "object",
+      "required": ["FMDL-6X3-A", "FMDL-6X3-B", "FMDL-6X3-C", "FMDL-6X3-D", "FMDL-6X3-E"],
+      "minProperties": 5,
+      "maxProperties": 5
+    },
+    "reconciliation_contract": {
+      "type": "object",
+      "required": [
+        "security_universe_count",
+        "issuer_universe_count",
+        "research_card_count",
+        "benchmark_pool_member_count",
+        "formal_candidate_promotion_count",
+        "logical_shard_count"
+      ],
+      "properties": {
+        "security_universe_count": {"const": 8785},
+        "issuer_universe_count": {"const": 7419},
+        "research_card_count": {"const": 8785},
+        "benchmark_pool_member_count": {"const": 7},
+        "formal_peer_group_count": {"const": 0},
+        "valuation_ready_security_count": {"const": 0},
+        "global_rank_count": {"const": 0},
+        "formal_candidate_promotion_count": {"const": 0},
+        "research_recommendation_count": {"const": 0},
+        "logical_shard_count": {"const": 128}
+      }
+    },
+    "operational_acceptance": {
+      "type": "object",
+      "properties": {
+        "current_release_byte_parity_required": {"const": true},
+        "last_success_manifest_binding_required": {"const": true},
+        "lkg_required_for_each_domain": {"const": true},
+        "same_input_replay_required": {"const": true},
+        "global_full_data_completion_claimed": {"const": false},
+        "formal_investment_ranking_claimed": {"const": false},
+        "candidate_pool_authorized": {"const": false},
+        "simulation_authorized": {"const": false},
+        "brokerage_channel_available": {"const": false}
+      }
+    },
+    "storage_contract": {"type": "object"},
+    "zero_mutation_gate": {
+      "type": "object",
+      "properties": {
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      }
+    }
+  },
+  "additionalProperties": true
+}
