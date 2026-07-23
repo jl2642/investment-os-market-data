@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x4a-public-equity-investing-adapter-contract-v1.schema.json",
+  "title": "FMDL-6X4-A Public Equity Investing Adapter Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "entry_gate",
+    "workflow_contract",
+    "source_category_contract",
+    "mapping_contract",
+    "adapter_contract",
+    "storage_contract",
+    "acceptance_gates",
+    "zero_mutation_gate",
+    "required_exit_status",
+    "next_gate",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X4-A"},
+    "trade_authority": {"const": "NONE"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["required_release_id", "required_release_sequence", "required_status", "required_next_gate", "required_gate"],
+      "properties": {
+        "required_release_sequence": {"const": 41},
+        "required_gate": {"const": "OPEN_ADAPTER_AND_CONTRACT_MAPPING_ONLY"}
+      }
+    },
+    "workflow_contract": {
+      "type": "object",
+      "required": ["workflow_count", "workflow_slugs", "status_enum", "workflow_execution_authorized", "adapter_payload_materialization_authorized", "decision_grade_handoff_authorized"],
+      "properties": {
+        "workflow_count": {"const": 14},
+        "workflow_slugs": {"type": "array", "minItems": 14, "maxItems": 14, "uniqueItems": true},
+        "workflow_execution_authorized": {"const": false},
+        "adapter_payload_materialization_authorized": {"const": true},
+        "decision_grade_handoff_authorized": {"const": false}
+      }
+    },
+    "source_category_contract": {
+      "type": "object",
+      "required": ["allowed_categories", "category_availability_is_not_connector_readiness", "runtime_source_check_required_before_workflow_execution", "silent_weaker_source_substitution_allowed"],
+      "properties": {
+        "category_availability_is_not_connector_readiness": {"const": true},
+        "runtime_source_check_required_before_workflow_execution": {"const": true},
+        "silent_weaker_source_substitution_allowed": {"const": false}
+      }
+    },
+    "mapping_contract": {
+      "type": "object",
+      "required": ["benchmark_pool_member_count", "security_workflow_mapping_count", "formal_workflow_execution_count", "investment_recommendation_count", "candidate_promotion_count"],
+      "properties": {
+        "benchmark_pool_member_count": {"const": 7},
+        "security_workflow_mapping_count": {"const": 98},
+        "formal_workflow_execution_count": {"const": 0},
+        "investment_recommendation_count": {"const": 0},
+        "candidate_promotion_count": {"const": 0}
+      }
+    },
+    "adapter_contract": {
+      "type": "object",
+      "required": ["required_identity_fields", "required_evidence_fields", "required_boundary_fields", "research_card_is_not_recommendation", "benchmark_pool_is_not_candidate_pool"],
+      "properties": {
+        "research_card_is_not_recommendation": {"const": true},
+        "benchmark_pool_is_not_candidate_pool": {"const": true}
+      }
+    },
+    "storage_contract": {"type": "object"},
+    "acceptance_gates": {"type": "object"},
+    "zero_mutation_gate": {
+      "type": "object",
+      "properties": {
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      }
+    },
+    "required_exit_status": {"const": "FMDL6X4A_PUBLIC_EQUITY_INVESTING_ADAPTER_AND_CONTRACT_MAPPING_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X4-B_RESEARCH_WORKFLOW_INTEGRATION_AND_EVIDENCE_REGISTRATION"}
+  },
+  "additionalProperties": true
+}
