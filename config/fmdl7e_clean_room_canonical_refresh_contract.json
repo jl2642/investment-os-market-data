@@ -1,0 +1,186 @@
+{
+  "phase_id": "FMDL-7E",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "title": "Failure Recovery, Clean-room Restore and Canonical Refresh",
+  "required_exit_status": "FMDL7E_FAILURE_RECOVERY_CLEAN_ROOM_RESTORE_AND_CANONICAL_REFRESH_ACCEPTED",
+  "next_gate": "FMDL-7-FINAL_CROSS_MARKET_AND_FULL_SYSTEM_FINAL_OPERATIONAL_ACCEPTANCE",
+  "entry_gate": {
+    "path": "outputs/status/FMDL7D_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-7D",
+    "required_release_id": "FMDL7D_20260723_1b62d98ab7bb",
+    "required_release_sequence": 52,
+    "required_status": "FMDL7D_SCHEDULED_OPERATIONS_MONITORING_STALENESS_AND_COST_CONTROLS_ACCEPTED",
+    "required_next_gate": "FMDL-7E_FAILURE_RECOVERY_CLEAN_ROOM_RESTORE_AND_CANONICAL_REFRESH",
+    "required_trade_authority": "NONE"
+  },
+  "authoritative_release_bindings": [
+    {
+      "binding_id": "FMDL7-0",
+      "path": "outputs/status/FMDL7_0_LAST_SUCCESS.json",
+      "required_release_id": "FMDL7_0_20260723_5927ce071ac6",
+      "required_release_sequence": 48,
+      "required_status": "FMDL7_0_MASTER_PLAN_AUTHORITATIVE_ASSET_REGISTRY_AND_ACCEPTANCE_CONTRACT_ACCEPTED"
+    },
+    {
+      "binding_id": "FMDL7A",
+      "path": "outputs/status/FMDL7A_LAST_SUCCESS.json",
+      "required_release_id": "FMDL7A_20260723_50e93f592497",
+      "required_release_sequence": 49,
+      "required_status": "FMDL7A_CROSS_MARKET_CANONICAL_INVENTORY_AND_STATE_RECONCILIATION_ACCEPTED"
+    },
+    {
+      "binding_id": "FMDL7B",
+      "path": "outputs/status/FMDL7B_LAST_SUCCESS.json",
+      "required_release_id": "FMDL7B_20260723_2f6d06b5debe",
+      "required_release_sequence": 50,
+      "required_status": "FMDL7B_END_TO_END_RESEARCH_AND_DECISION_LINEAGE_ACCEPTED"
+    },
+    {
+      "binding_id": "FMDL7C",
+      "path": "outputs/status/FMDL7C_LAST_SUCCESS.json",
+      "required_release_id": "FMDL7C_20260723_5a389ae0cae3",
+      "required_release_sequence": 51,
+      "required_status": "FMDL7C_PORTFOLIO_SIMULATION_ATTRIBUTION_AND_RULE_CALIBRATION_ACCEPTED"
+    },
+    {
+      "binding_id": "FMDL7D",
+      "path": "outputs/status/FMDL7D_LAST_SUCCESS.json",
+      "required_release_id": "FMDL7D_20260723_1b62d98ab7bb",
+      "required_release_sequence": 52,
+      "required_status": "FMDL7D_SCHEDULED_OPERATIONS_MONITORING_STALENESS_AND_COST_CONTROLS_ACCEPTED"
+    },
+    {
+      "binding_id": "HONG_KONG_CONNECT",
+      "path": "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json",
+      "required_release_id": "FMDL5FINAL_20260721_a43285d1ee25",
+      "required_release_sequence": 18,
+      "required_status": "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED"
+    },
+    {
+      "binding_id": "US_RESEARCH_ADAPTER",
+      "path": "outputs/status/FMDL6X4FINAL_LAST_SUCCESS.json",
+      "required_release_id": "FMDL6X4FINAL_20260723_dbe82fe7b7ec",
+      "required_release_sequence": 47,
+      "required_status": "FMDL6X4_FINAL_US_RESEARCH_ADAPTER_OPERATIONAL_ACCEPTANCE_AND_FMDL6_FREEZE_ACCEPTED"
+    }
+  ],
+  "legacy_canonical_binding": {
+    "path": "config/post_fmdl4_release8_publication.json",
+    "required_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+    "required_release_sequence": 8,
+    "required_status": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ACCEPTED",
+    "required_package_filename": "股票投资助手_CURRENT.zip",
+    "required_package_sha256": "479d375da1586419a98bb2821342cf691b0d1358882b66bc1601fd717ab2a9aa",
+    "required_package_size_bytes": 23791438,
+    "required_market_as_of": "2026-07-20",
+    "required_trade_authority": "NONE",
+    "binary_runtime_posture": "LEGACY_RELEASE8_BINARY_NOT_AVAILABLE_TO_GITHUB_RUNTIME_OR_FILE_SEARCH",
+    "file_library_pointer_observation": "POINTER_DISCOVERED_AND_IDENTITY_MATCHED_BINARY_NOT_INDEPENDENTLY_BYTE_VERIFIED"
+  },
+  "canonical_refresh_contract": {
+    "new_canonical_release_sequence": 9,
+    "package_filename": "股票投资助手_CURRENT.zip",
+    "pointer_filename": "股票投资助手_CURRENT_POINTER.md",
+    "start_here_filename": "股票投资助手_START_HERE_CURRENT.md",
+    "package_mode": "CONTROL_PLANE_STATE_AND_RECOVERY_CAPSULE_WITH_IMMUTABLE_GITHUB_RELEASE_REFERENCES",
+    "legacy_release8_binary_embedded": false,
+    "legacy_release8_identity_preserved": true,
+    "full_market_data_stores_embedded": false,
+    "full_market_data_store_authority": "IMMUTABLE_GITHUB_RELEASES_AND_LAST_SUCCESS_POINTERS",
+    "clean_room_environment": "FRESH_CHECKOUT_WITH_PYTHON_3_12_AND_NO_CONVERSATION_MEMORY",
+    "outer_package_sha_location": "COMPANION_POINTER_AND_PACKAGE_IDENTITY_JSON",
+    "file_library_activation_requires_upload": true,
+    "file_library_activation_requires_open_verification": true,
+    "file_library_activation_requires_sha_verification": true,
+    "project_sources_required": false
+  },
+  "package_source_files": [
+    ["config/post_fmdl4_release8_publication.json", "20_CANONICAL_BINDINGS/RELEASE8_PUBLICATION.json"],
+    ["config/post_fmdl4_release4_state_binding.json", "10_STATE/INVESTMENT_STATE_BINDING.json"],
+    ["evidence/post_fmdl4/POST_FMDL4_ACTION_REVIEW.json", "10_STATE/POST_FMDL4_ACTION_REVIEW.json"],
+    ["outputs/status/FMDL5_FINAL_LAST_SUCCESS.json", "20_CANONICAL_BINDINGS/HONG_KONG_CONNECT_LAST_SUCCESS.json"],
+    ["outputs/status/FMDL6X4FINAL_LAST_SUCCESS.json", "20_CANONICAL_BINDINGS/US_RESEARCH_ADAPTER_LAST_SUCCESS.json"],
+    ["outputs/status/FMDL7_0_LAST_SUCCESS.json", "20_CANONICAL_BINDINGS/FMDL7_0_LAST_SUCCESS.json"],
+    ["outputs/status/FMDL7A_LAST_SUCCESS.json", "20_CANONICAL_BINDINGS/FMDL7A_LAST_SUCCESS.json"],
+    ["outputs/status/FMDL7B_LAST_SUCCESS.json", "20_CANONICAL_BINDINGS/FMDL7B_LAST_SUCCESS.json"],
+    ["outputs/status/FMDL7C_LAST_SUCCESS.json", "20_CANONICAL_BINDINGS/FMDL7C_LAST_SUCCESS.json"],
+    ["outputs/status/FMDL7D_LAST_SUCCESS.json", "20_CANONICAL_BINDINGS/FMDL7D_LAST_SUCCESS.json"],
+    ["outputs/fmdl7/current/portfolio_attribution/FMDL7C_REAL_ACCOUNT_SUMMARY.json", "10_STATE/REAL_ACCOUNT_SUMMARY.json"],
+    ["outputs/fmdl7/current/portfolio_attribution/FMDL7C_SIMULATION_ACCOUNT_SUMMARY.json", "10_STATE/SIMULATION_SUMMARY.json"],
+    ["outputs/fmdl7/current/portfolio_attribution/FMDL7C_CANDIDATE_POOL_SUMMARY.json", "10_STATE/CANDIDATE_SUMMARY.json"],
+    ["outputs/fmdl7/current/scheduled_operations/FMDL7D_CADENCE_REGISTRY.json", "30_OPERATIONS/CADENCE_REGISTRY.json"],
+    ["outputs/fmdl7/current/scheduled_operations/FMDL7D_QUALITY_REPORT.json", "30_OPERATIONS/FMDL7D_QUALITY_REPORT.json"]
+  ],
+  "required_package_members": [
+    "00_CONTROL/START_HERE.md",
+    "00_CONTROL/CURRENT_POINTER.json",
+    "00_CONTROL/MANIFEST.json",
+    "00_CONTROL/AUTHORITATIVE_RELEASE_REGISTRY.json",
+    "00_CONTROL/LEGACY_RELEASE8_BINDING.json",
+    "10_STATE/REAL_ACCOUNT_SUMMARY.json",
+    "10_STATE/SIMULATION_SUMMARY.json",
+    "10_STATE/CANDIDATE_SUMMARY.json",
+    "30_OPERATIONS/CADENCE_REGISTRY.json",
+    "40_RECOVERY/CLEAN_ROOM_RESTORE_PLAN.json",
+    "40_RECOVERY/CLEAN_ROOM_RESTORE_REPORT.json",
+    "40_RECOVERY/FAILURE_INJECTION_REPORT.json",
+    "50_FILE_LIBRARY/FILE_LIBRARY_PROMOTION_PLAN.json",
+    "90_GOVERNANCE/ZERO_MUTATION_PROOF.json"
+  ],
+  "failure_injections": [
+    ["MISSING_LAST_SUCCESS_POINTER", "MISSING_AUTHORITY_POINTER"],
+    ["RELEASE_ID_OR_SEQUENCE_MISMATCH", "RELEASE_IDENTITY_MISMATCH"],
+    ["MANIFEST_MEMBER_HASH_TAMPER", "PACKAGE_MANIFEST_HASH_FAILURE"],
+    ["PARTIAL_PACKAGE_PUBLICATION", "PARTIAL_CANONICAL_PUBLICATION"],
+    ["ZIP_PATH_TRAVERSAL_MEMBER", "UNSAFE_PACKAGE_PATH"],
+    ["DUPLICATE_CANONICAL_MEMBER", "DUPLICATE_PACKAGE_MEMBER"],
+    ["CORRUPTED_OR_UNOPENABLE_ZIP", "PACKAGE_OPEN_FAILURE"],
+    ["POINTER_PACKAGE_SHA_MISMATCH", "POINTER_PACKAGE_IDENTITY_MISMATCH"],
+    ["LEGACY_LKG_PRESENTED_AS_CURRENT", "STALE_STATE_PROMOTION"],
+    ["FILE_LIBRARY_POINTER_WITHOUT_VERIFIED_PACKAGE", "FILE_LIBRARY_ACTIVATION_INCOMPLETE"],
+    ["UNAUTHORIZED_INVESTMENT_STATE_MUTATION", "UNAUTHORIZED_MUTATION"],
+    ["TRADE_AUTHORITY_ESCALATION", "TRADE_AUTHORITY"]
+  ],
+  "acceptance_gates": {
+    "authoritative_release_binding_count": 7,
+    "strict_fmdl7_release_sequence": [48, 49, 50, 51, 52],
+    "package_source_file_count": 15,
+    "required_package_member_count": 14,
+    "failure_injection_count": 12,
+    "clean_room_restore_scenario_count": 6,
+    "logical_shard_domain_count": 9,
+    "bucket_count": 64,
+    "logical_shard_count": 576,
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "rule_mutations": 0,
+    "orders": 0
+  },
+  "scope": {
+    "failure_recovery_testing_authorized": true,
+    "clean_room_package_build_authorized": true,
+    "canonical_control_package_refresh_authorized": true,
+    "github_current_release_normalized_publication_authorized": true,
+    "file_library_package_generation_authorized": true,
+    "file_library_direct_write_available": false,
+    "live_market_refresh_authorized": false,
+    "post_2026_07_20_state_fabrication_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_book_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "rule_mutation_authorized": false,
+    "brokerage_or_order_authorized": false
+  },
+  "storage_contract": {
+    "release_sequence": 53,
+    "current_root": "outputs/fmdl7/current/canonical_refresh",
+    "release_root": "datasets/fmdl7/releases/<release_id>/canonical_refresh",
+    "normalized_root": "datasets/fmdl7/normalized/canonical_refresh/<release_id>",
+    "archive_root": "outputs/fmdl7/archive/canonical_refresh",
+    "last_success": "outputs/status/FMDL7E_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL7_CANONICAL_REFRESH_LKG.json"
+  },
+  "trade_authority": "NONE"
+}

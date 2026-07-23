@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl7e_clean_room_canonical_refresh_contract_v1.schema.json",
+  "title": "FMDL-7E Failure Recovery Clean-room Restore and Canonical Refresh Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "phase_id",
+    "contract_version",
+    "as_of_date",
+    "title",
+    "required_exit_status",
+    "next_gate",
+    "entry_gate",
+    "authoritative_release_bindings",
+    "legacy_canonical_binding",
+    "canonical_refresh_contract",
+    "package_source_files",
+    "required_package_members",
+    "failure_injections",
+    "acceptance_gates",
+    "scope",
+    "storage_contract",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-7E"},
+    "contract_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "title": {"type": "string", "minLength": 10},
+    "required_exit_status": {"const": "FMDL7E_FAILURE_RECOVERY_CLEAN_ROOM_RESTORE_AND_CANONICAL_REFRESH_ACCEPTED"},
+    "next_gate": {"const": "FMDL-7-FINAL_CROSS_MARKET_AND_FULL_SYSTEM_FINAL_OPERATIONAL_ACCEPTANCE"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["path", "required_phase_id", "required_release_id", "required_release_sequence", "required_status", "required_next_gate", "required_trade_authority"],
+      "properties": {
+        "path": {"type": "string"},
+        "required_phase_id": {"const": "FMDL-7D"},
+        "required_release_id": {"type": "string"},
+        "required_release_sequence": {"const": 52},
+        "required_status": {"type": "string"},
+        "required_next_gate": {"type": "string"},
+        "required_trade_authority": {"const": "NONE"}
+      },
+      "additionalProperties": false
+    },
+    "authoritative_release_bindings": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "required": ["binding_id", "path", "required_release_id", "required_release_sequence", "required_status"],
+        "properties": {
+          "binding_id": {"type": "string"},
+          "path": {"type": "string"},
+          "required_release_id": {"type": "string"},
+          "required_release_sequence": {"type": "integer", "minimum": 1},
+          "required_status": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "legacy_canonical_binding": {
+      "type": "object",
+      "required": ["path", "required_release_id", "required_release_sequence", "required_status", "required_package_filename", "required_package_sha256", "required_package_size_bytes", "required_market_as_of", "required_trade_authority", "binary_runtime_posture", "file_library_pointer_observation"],
+      "properties": {
+        "path": {"type": "string"},
+        "required_release_id": {"type": "string"},
+        "required_release_sequence": {"const": 8},
+        "required_status": {"type": "string"},
+        "required_package_filename": {"const": "股票投资助手_CURRENT.zip"},
+        "required_package_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "required_package_size_bytes": {"type": "integer", "minimum": 1},
+        "required_market_as_of": {"type": "string", "format": "date"},
+        "required_trade_authority": {"const": "NONE"},
+        "binary_runtime_posture": {"type": "string"},
+        "file_library_pointer_observation": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "canonical_refresh_contract": {
+      "type": "object",
+      "required": ["new_canonical_release_sequence", "package_filename", "pointer_filename", "start_here_filename", "package_mode", "legacy_release8_binary_embedded", "legacy_release8_identity_preserved", "full_market_data_stores_embedded", "full_market_data_store_authority", "clean_room_environment", "outer_package_sha_location", "file_library_activation_requires_upload", "file_library_activation_requires_open_verification", "file_library_activation_requires_sha_verification", "project_sources_required"],
+      "properties": {
+        "new_canonical_release_sequence": {"const": 9},
+        "package_filename": {"const": "股票投资助手_CURRENT.zip"},
+        "pointer_filename": {"const": "股票投资助手_CURRENT_POINTER.md"},
+        "start_here_filename": {"const": "股票投资助手_START_HERE_CURRENT.md"},
+        "package_mode": {"type": "string"},
+        "legacy_release8_binary_embedded": {"const": false},
+        "legacy_release8_identity_preserved": {"const": true},
+        "full_market_data_stores_embedded": {"const": false},
+        "full_market_data_store_authority": {"type": "string"},
+        "clean_room_environment": {"type": "string"},
+        "outer_package_sha_location": {"type": "string"},
+        "file_library_activation_requires_upload": {"const": true},
+        "file_library_activation_requires_open_verification": {"const": true},
+        "file_library_activation_requires_sha_verification": {"const": true},
+        "project_sources_required": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "package_source_files": {
+      "type": "array",
+      "minItems": 15,
+      "items": {
+        "type": "array",
+        "prefixItems": [{"type": "string"}, {"type": "string"}],
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "required_package_members": {"type": "array", "minItems": 14, "items": {"type": "string"}},
+    "failure_injections": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "array",
+        "prefixItems": [{"type": "string"}, {"type": "string"}],
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "acceptance_gates": {"type": "object"},
+    "scope": {"type": "object"},
+    "storage_contract": {"type": "object"},
+    "trade_authority": {"const": "NONE"}
+  }
+}

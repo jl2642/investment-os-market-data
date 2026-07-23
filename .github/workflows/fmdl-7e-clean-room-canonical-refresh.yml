@@ -1,0 +1,95 @@
+name: FMDL 7E Failure Recovery Clean-room Restore and Canonical Refresh
+
+on:
+  pull_request:
+    paths:
+      - 'config/fmdl7e_clean_room_canonical_refresh_contract.json'
+      - 'schemas/fmdl7e_clean_room_canonical_refresh_contract_v1.schema.json'
+      - 'scripts/fmdl7e_clean_room_canonical_refresh.py'
+      - 'tests/test_fmdl7e_clean_room_canonical_refresh.py'
+      - 'docs/FMDL-7E_*.md'
+      - '.github/workflows/fmdl-7e-clean-room-canonical-refresh.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'config/fmdl7e_clean_room_canonical_refresh_contract.json'
+      - 'schemas/fmdl7e_clean_room_canonical_refresh_contract_v1.schema.json'
+      - 'scripts/fmdl7e_clean_room_canonical_refresh.py'
+      - 'tests/test_fmdl7e_clean_room_canonical_refresh.py'
+      - 'docs/FMDL-7E_*.md'
+      - '.github/workflows/fmdl-7e-clean-room-canonical-refresh.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-7e-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Contract and regression tests
+        run: python -m unittest tests/test_fmdl7e_clean_room_canonical_refresh.py
+      - name: Compile producer and tests
+        run: python -m py_compile scripts/fmdl7e_clean_room_canonical_refresh.py tests/test_fmdl7e_clean_room_canonical_refresh.py
+      - name: Validate authority bindings and fail-closed scope
+        run: python scripts/fmdl7e_clean_room_canonical_refresh.py validate
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze run timestamp and source commit
+        run: |
+          echo "RUN_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+          echo "SOURCE_COMMIT=${GITHUB_SHA}" >> "$GITHUB_ENV"
+      - name: Build FMDL-7E candidate and Release 9 package
+        run: |
+          rm -rf build/fmdl7e_candidate build/fmdl7e_replay
+          python scripts/fmdl7e_clean_room_canonical_refresh.py build \
+            --output build/fmdl7e_candidate \
+            --generated-at "$RUN_TS" \
+            --source-commit "$SOURCE_COMMIT"
+      - name: Independent same-input byte replay
+        run: |
+          python scripts/fmdl7e_clean_room_canonical_refresh.py build \
+            --output build/fmdl7e_replay \
+            --generated-at "$RUN_TS" \
+            --source-commit "$SOURCE_COMMIT"
+          diff -qr build/fmdl7e_candidate build/fmdl7e_replay
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmdl7e-canonical-refresh-and-file-library-handoff
+          path: build/fmdl7e_candidate
+          if-no-files-found: error
+          retention-days: 90
+      - name: Publish Current immutable Release normalized archive and pointers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: python scripts/fmdl7e_clean_room_canonical_refresh.py publish --candidate build/fmdl7e_candidate
+      - name: Commit accepted FMDL-7E state and Release 9 package
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl7 datasets/fmdl7 outputs/status/FMDL7E_LAST_SUCCESS.json outputs/status/FMDL7_CANONICAL_REFRESH_LKG.json
+          if git diff --cached --quiet; then
+            echo "No publication changes"
+          else
+            git commit -m "data: publish FMDL-7E clean-room canonical refresh [skip ci]"
+            git push origin HEAD:main
+          fi
