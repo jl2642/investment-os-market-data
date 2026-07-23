@@ -1,0 +1,185 @@
+{
+  "cadence_control_count": 5,
+  "cadence_controls": [
+    {
+      "automatic_trade_action_authorized": false,
+      "cadence": "DAILY",
+      "cadence_control_id": "PEICADENCE-0e884f4aa5fe8263557db5c3",
+      "publication_requires_quality_pass": true,
+      "required_review": "Market data, source freshness, adapter QC, identity and cross-listing exceptions",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_trade_action_authorized": false,
+      "cadence": "EVENT_DRIVEN",
+      "cadence_control_id": "PEICADENCE-4361a1ba8c50c98eda2a43ac",
+      "publication_requires_quality_pass": true,
+      "required_review": "Material disclosure, thesis break, approval change, data-grade downgrade or recovery event",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_trade_action_authorized": false,
+      "cadence": "MONTHLY",
+      "cadence_control_id": "PEICADENCE-cd2d4fe7244283af8da1d011",
+      "publication_requires_quality_pass": true,
+      "required_review": "Attribution, runbook effectiveness, unresolved queues and operating-state review",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_trade_action_authorized": false,
+      "cadence": "QUARTERLY",
+      "cadence_control_id": "PEICADENCE-75fa3c5bbc5749e547dcbc5c",
+      "publication_requires_quality_pass": true,
+      "required_review": "Accounting comparability, taxonomy crosswalk, strategy calibration and architecture review",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_trade_action_authorized": false,
+      "cadence": "WEEKLY",
+      "cadence_control_id": "PEICADENCE-450fc73ff1ced3ff41b133fa",
+      "publication_requires_quality_pass": true,
+      "required_review": "Financial, factor, valuation, peer, research and duplication review",
+      "trade_authority": "NONE"
+    }
+  ],
+  "phase_id": "FMDL-6X4-E",
+  "release_id": "FMDL6X4E_20260723_231f2f787d29",
+  "runbook_status": "FROZEN_FOR_OPERATIONAL_USE",
+  "runbook_step_count": 12,
+  "state_mutation_requires_separate_human_authority": true,
+  "steps": [
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "EACH_RUN",
+      "control_text": "Validate immutable Release IDs, Last-success pointers, Manifests and trade-authority boundaries before reading outputs.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-183c3300fc8007a8030a64ff",
+      "sequence": 1,
+      "step_code": "RB01",
+      "step_name": "ENTRY_GATE_AND_POINTER_BINDING",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "DAILY",
+      "control_text": "Register as-of, freshness, source grade and allowed use separately for A-share, Hong Kong and US inputs.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-f2a34eac1bd8e9f78a57aeaa",
+      "sequence": 2,
+      "step_code": "RB02",
+      "step_name": "SOURCE_FRESHNESS_AND_DATA_GRADE_CHECK",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "DAILY",
+      "control_text": "Run each market adapter independently; quarantine failed domains and prohibit silent source substitution.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-ab9d319edd6608cba0a7483a",
+      "sequence": 3,
+      "step_code": "RB03",
+      "step_name": "MARKET_SPECIFIC_INGESTION_AND_QC",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "DAILY",
+      "control_text": "Resolve Canonical Security, Issuer, listing, A/H, ADR and share-class relationships before comparison.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-1ed756da180845997e6b7f36",
+      "sequence": 4,
+      "step_code": "RB04",
+      "step_name": "SECURITY_IDENTITY_AND_CROSS_LISTING_RECONCILIATION",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "WEEKLY",
+      "control_text": "Normalize only with explicit accounting-period, currency, FX and corporate-action evidence.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-b11391cfe51bf0fe8221e991",
+      "sequence": 5,
+      "step_code": "RB05",
+      "step_name": "ACCOUNTING_CURRENCY_AND_CORPORATE_ACTION_NORMALIZATION",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "WEEKLY",
+      "control_text": "Assess formula, window, data-grade, universe and peer-set compatibility; fail closed when definitions differ.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-ba91d34c7d0c333efe0db720",
+      "sequence": 6,
+      "step_code": "RB06",
+      "step_name": "FACTOR_VALUATION_AND_PEER_COMPARABILITY_ASSESSMENT",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "WEEKLY",
+      "control_text": "Refresh evidence ledgers, research objects, thesis status and falsifiers without auto-promoting securities.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-f329202a7da614ec8ae13745",
+      "sequence": 7,
+      "step_code": "RB07",
+      "step_name": "RESEARCH_EVIDENCE_THESIS_AND_FALSIFIER_REFRESH",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "WEEKLY",
+      "control_text": "Review A/H, ADR, issuer and exposure duplication before any market-selection or replacement conclusion.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-3299603cc4527812fcf7fd95",
+      "sequence": 8,
+      "step_code": "RB08",
+      "step_name": "CROSS_MARKET_DUPLICATION_AND_REPLACEMENT_REVIEW",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "EVENT_DRIVEN",
+      "control_text": "Require market-specific graduation rules and explicit human approval; scores and priorities are non-authoritative.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-034e286e944df06b8cea2da4",
+      "sequence": 9,
+      "step_code": "RB09",
+      "step_name": "CANDIDATE_GRADUATION_AND_HUMAN_APPROVAL_GATE",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "MONTHLY",
+      "control_text": "Separate shadow observations from formal simulation; require decision-grade data and explicit authorization for state mutation.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-cbbca346e65a3464238ab0dc",
+      "sequence": 10,
+      "step_code": "RB10",
+      "step_name": "SHADOW_ATTRIBUTION_AND_SIMULATION_CONTROL",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "EACH_RUN",
+      "control_text": "Reject invalid Current, preserve immutable Release and Last-known-good, and require deterministic replay before republishing.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-7df644702f96d156d016907f",
+      "sequence": 11,
+      "step_code": "RB11",
+      "step_name": "FAILURE_RECOVERY_LKG_AND_ROLLBACK",
+      "trade_authority": "NONE"
+    },
+    {
+      "automatic_state_mutation_authorized": false,
+      "cadence": "MONTHLY",
+      "control_text": "Publish capability, comparability, queue and runbook artifacts only after all gates pass and open only 6X4-FINAL.",
+      "failure_posture": "FAIL_CLOSED_AND_PRESERVE_LKG",
+      "runbook_step_id": "PEIRUNBOOK-da9cbfd3d6bb080b92799529",
+      "sequence": 12,
+      "step_code": "RB12",
+      "step_name": "OPERATING_REVIEW_PUBLICATION_AND_FINAL_HANDOFF",
+      "trade_authority": "NONE"
+    }
+  ],
+  "trade_authority": "NONE"
+}
