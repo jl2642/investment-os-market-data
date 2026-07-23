@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jl2642/investment-os-market-data/schemas/fmdl7_0_master_plan_contract_v1.schema.json",
+  "title": "FMDL-7-0 Master Plan Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "as_of_date",
+    "title",
+    "required_exit_status",
+    "next_gate",
+    "authoritative_assets",
+    "stage_plan",
+    "round_budget",
+    "authority_registry",
+    "canonical_refresh_plan",
+    "scope",
+    "acceptance_gates",
+    "storage_contract",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-7-0"},
+    "contract_version": {"type": "string", "pattern": "^1\\.0\\.[0-9]+$"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "required_exit_status": {"const": "FMDL7_0_MASTER_PLAN_AUTHORITATIVE_ASSET_REGISTRY_AND_ACCEPTANCE_CONTRACT_ACCEPTED"},
+    "next_gate": {"const": "FMDL-7A_CROSS_MARKET_CANONICAL_INVENTORY_AND_STATE_RECONCILIATION"},
+    "authoritative_assets": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "required": ["asset_id", "path", "checks", "authority_role"],
+        "properties": {
+          "asset_id": {"type": "string", "minLength": 1},
+          "path": {"type": "string", "minLength": 1},
+          "checks": {"type": "object", "minProperties": 1},
+          "authority_role": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "stage_plan": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "required": ["stage_id", "title", "exit_status"],
+        "properties": {
+          "stage_id": {"type": "string"},
+          "title": {"type": "string"},
+          "exit_status": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "round_budget": {
+      "type": "object",
+      "required": ["formal_rounds", "targeted_repair_rounds", "hard_maximum_rounds", "repair_triggers", "prohibited_expansion_patterns"],
+      "properties": {
+        "formal_rounds": {"const": 7},
+        "targeted_repair_rounds": {"const": 2},
+        "hard_maximum_rounds": {"const": 9},
+        "repair_triggers": {"type": "array", "minItems": 7},
+        "prohibited_expansion_patterns": {"type": "array", "minItems": 5}
+      },
+      "additionalProperties": false
+    },
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
