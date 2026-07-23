@@ -44,7 +44,21 @@ jobs:
         with:
           python-version: "3.12"
       - name: Contract and adapter regression tests
-        run: PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x4a_public_equity_investing_adapter.py
+        run: |
+          mkdir -p outputs/fmdl6x4a/diagnostics
+          set +e
+          PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x4a_public_equity_investing_adapter.py > outputs/fmdl6x4a/diagnostics/regression.log 2>&1
+          status=$?
+          echo "$status" > outputs/fmdl6x4a/diagnostics/regression.exit_code
+          set -e
+          exit "$status"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x4a-regression-diagnostics
+          path: outputs/fmdl6x4a/diagnostics
+          if-no-files-found: error
+          retention-days: 7
       - name: Compile producer and tests
         run: python -m py_compile scripts/fmdl6x4a_public_equity_investing_adapter.py tests/test_fmdl6x4a_public_equity_investing_adapter.py
       - name: Validate frozen production contract
