@@ -1,0 +1,64 @@
+{
+  "phase_id": "FMDL-6X3-C",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-22",
+  "market_as_of_date": "2026-07-21",
+  "trade_authority": "NONE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X3B_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-6X3-B",
+    "required_release_id": "FMDL6X3B_20260722_5d2ed5708fc1",
+    "required_release_sequence": 37,
+    "required_status": "FMDL6X3B_FINANCIAL_NORMALIZATION_TTM_AND_ANNUAL_METRIC_LAYER_ACCEPTED",
+    "required_next_gate": "FMDL-6X3-C_FACTOR_VALUATION_QUALITY_AND_RISK_ENGINE"
+  },
+  "input_contract": {
+    "readiness_root": "outputs/fmdl6x3/current/research_universe_readiness",
+    "financial_root": "outputs/fmdl6x3/current/financial_normalization",
+    "market_root": "outputs/fmdl6x2/current/market_reference"
+  },
+  "quality_contract": {
+    "metric_direction": {
+      "COST_OF_REVENUE_RATIO": "LOWER_BETTER",
+      "GROSS_MARGIN": "HIGHER_BETTER",
+      "RESEARCH_AND_DEVELOPMENT_INTENSITY": "DESCRIPTIVE_ONLY",
+      "SELLING_GENERAL_AND_ADMINISTRATIVE_INTENSITY": "LOWER_BETTER",
+      "OPERATING_EXPENSE_RATIO": "LOWER_BETTER",
+      "OPERATING_MARGIN": "HIGHER_BETTER",
+      "PRETAX_MARGIN": "HIGHER_BETTER",
+      "EFFECTIVE_TAX_RATE": "DESCRIPTIVE_ONLY",
+      "NET_MARGIN": "HIGHER_BETTER"
+    },
+    "sandbox_score_components": [
+      "COST_OF_REVENUE_RATIO",
+      "GROSS_MARGIN",
+      "OPERATING_EXPENSE_RATIO",
+      "OPERATING_MARGIN",
+      "NET_MARGIN"
+    ]
+  },
+  "factor_contract": {
+    "neutral_fill_allowed": false,
+    "global_composite_allowed": false,
+    "sector_neutralization_stage": "FMDL-6X3-D"
+  },
+  "valuation_contract": {
+    "initial_gate": "CLOSED_TTM_AND_ANNUAL_PENDING",
+    "inferred_annualization_allowed": false
+  },
+  "storage_contract": {
+    "bucket_count": 64
+  },
+  "quality_gates": {
+    "security_universe_expected": 8785,
+    "expected_shard_count": 320
+  },
+  "required_exit_status": "FMDL6X3C_FACTOR_VALUATION_QUALITY_AND_RISK_ENGINE_ACCEPTED",
+  "next_gate": "FMDL-6X3-D_SECTOR_INDUSTRY_PEER_AND_BENCHMARK_FRAMEWORK",
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  }
+}

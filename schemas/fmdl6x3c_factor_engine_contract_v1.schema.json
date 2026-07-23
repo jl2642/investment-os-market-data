@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x3c_factor_engine_contract_v1.schema.json",
+  "title": "FMDL-6X3-C Factor Engine Contract",
+  "type": "object",
+  "required": ["phase_id", "contract_version", "as_of_date", "market_as_of_date", "trade_authority", "entry_gate", "input_contract", "quality_contract", "factor_contract", "valuation_contract", "storage_contract", "quality_gates", "required_exit_status", "next_gate", "zero_mutation_gate"],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X3-C"},
+    "contract_version": {"type": "string"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "market_as_of_date": {"type": "string", "format": "date"},
+    "trade_authority": {"const": "NONE"},
+    "entry_gate": {"type": "object"},
+    "input_contract": {"type": "object"},
+    "quality_contract": {"type": "object"},
+    "factor_contract": {
+      "type": "object",
+      "required": ["neutral_fill_allowed", "global_composite_allowed", "sector_neutralization_stage"],
+      "properties": {
+        "neutral_fill_allowed": {"const": false},
+        "global_composite_allowed": {"const": false},
+        "sector_neutralization_stage": {"const": "FMDL-6X3-D"}
+      }
+    },
+    "valuation_contract": {
+      "type": "object",
+      "required": ["initial_gate", "inferred_annualization_allowed"],
+      "properties": {
+        "initial_gate": {"const": "CLOSED_TTM_AND_ANNUAL_PENDING"},
+        "inferred_annualization_allowed": {"const": false}
+      }
+    },
+    "storage_contract": {"type": "object", "properties": {"bucket_count": {"const": 64}}},
+    "quality_gates": {"type": "object"},
+    "required_exit_status": {"const": "FMDL6X3C_FACTOR_VALUATION_QUALITY_AND_RISK_ENGINE_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X3-D_SECTOR_INDUSTRY_PEER_AND_BENCHMARK_FRAMEWORK"},
+    "zero_mutation_gate": {
+      "type": "object",
+      "properties": {
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      }
+    }
+  }
+}
