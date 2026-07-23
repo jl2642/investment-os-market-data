@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl7_final_operational_acceptance_contract_v1.schema.json",
+  "title": "FMDL-7 Final Operational Acceptance Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "required_exit_status",
+    "next_operating_mode",
+    "entry_gate",
+    "fmdl7_release_bindings",
+    "market_component_bindings",
+    "canonical_release9_binding",
+    "file_library_acceptance_evidence",
+    "cross_market_controls",
+    "operating_boundaries",
+    "handoff_contract",
+    "failure_injections",
+    "acceptance_gates",
+    "storage_contract",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-7-FINAL"},
+    "contract_version": {"const": "1.0.0"},
+    "required_exit_status": {"const": "FMDL7_CROSS_MARKET_AND_FULL_SYSTEM_FINAL_OPERATIONAL_ACCEPTANCE_ACCEPTED"},
+    "next_operating_mode": {"const": "POST_FMDL7_OPERATING_OBSERVATION_AND_TARGETED_ITERATION"},
+    "fmdl7_release_bindings": {"type": "array", "minItems": 6, "maxItems": 6},
+    "market_component_bindings": {"type": "array", "minItems": 3, "maxItems": 3},
+    "failure_injections": {"type": "array", "minItems": 14, "maxItems": 14},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}

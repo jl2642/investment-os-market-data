@@ -1,0 +1,172 @@
+{
+  "phase_id": "FMDL-7-FINAL",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "title": "Cross-market and Full-system Final Operational Acceptance",
+  "required_exit_status": "FMDL7_CROSS_MARKET_AND_FULL_SYSTEM_FINAL_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+  "next_operating_mode": "POST_FMDL7_OPERATING_OBSERVATION_AND_TARGETED_ITERATION",
+  "entry_gate": {
+    "path": "outputs/status/FMDL7E_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-7E",
+    "required_release_id": "FMDL7E_20260723_0a3b2c2424cc",
+    "required_release_sequence": 53,
+    "required_status": "FMDL7E_FAILURE_RECOVERY_CLEAN_ROOM_RESTORE_AND_CANONICAL_REFRESH_ACCEPTED",
+    "required_next_gate": "FMDL-7-FINAL_CROSS_MARKET_AND_FULL_SYSTEM_FINAL_OPERATIONAL_ACCEPTANCE",
+    "required_trade_authority": "NONE"
+  },
+  "fmdl7_release_bindings": [
+    ["FMDL-7-0", "outputs/status/FMDL7_0_LAST_SUCCESS.json", "FMDL7_0_20260723_5927ce071ac6", 48, "FMDL7_0_MASTER_PLAN_AUTHORITATIVE_ASSET_REGISTRY_AND_ACCEPTANCE_CONTRACT_ACCEPTED"],
+    ["FMDL-7A", "outputs/status/FMDL7A_LAST_SUCCESS.json", "FMDL7A_20260723_50e93f592497", 49, "FMDL7A_CROSS_MARKET_CANONICAL_INVENTORY_AND_STATE_RECONCILIATION_ACCEPTED"],
+    ["FMDL-7B", "outputs/status/FMDL7B_LAST_SUCCESS.json", "FMDL7B_20260723_2f6d06b5debe", 50, "FMDL7B_END_TO_END_RESEARCH_AND_DECISION_LINEAGE_ACCEPTED"],
+    ["FMDL-7C", "outputs/status/FMDL7C_LAST_SUCCESS.json", "FMDL7C_20260723_5a389ae0cae3", 51, "FMDL7C_PORTFOLIO_SIMULATION_ATTRIBUTION_AND_RULE_CALIBRATION_ACCEPTED"],
+    ["FMDL-7D", "outputs/status/FMDL7D_LAST_SUCCESS.json", "FMDL7D_20260723_1b62d98ab7bb", 52, "FMDL7D_SCHEDULED_OPERATIONS_MONITORING_STALENESS_AND_COST_CONTROLS_ACCEPTED"],
+    ["FMDL-7E", "outputs/status/FMDL7E_LAST_SUCCESS.json", "FMDL7E_20260723_0a3b2c2424cc", 53, "FMDL7E_FAILURE_RECOVERY_CLEAN_ROOM_RESTORE_AND_CANONICAL_REFRESH_ACCEPTED"]
+  ],
+  "market_component_bindings": [
+    {
+      "market": "A_SHARE",
+      "components": [
+        ["FMDL-1", "outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json", "status", "ACTIVE"],
+        ["FMDL-2", "outputs/status/FMDL2D_LAST_SUCCESS.json", "status", "FMDL2_FINAL_ACCEPTED_WITH_CONTROLLED_LIMITATIONS"],
+        ["FMDL-3", "outputs/status/FMDL3E_CANONICAL_LAST_SUCCESS.json", "status", "FMDL3E_UNIFIED_OPERATIONAL_ACCEPTANCE_AND_CANONICAL_CLOSURE_ACCEPTED"],
+        ["FMDL-4", "outputs/status/FMDL4_FINAL_LAST_SUCCESS.json", "status", "FMDL4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION_ACCEPTED"]
+      ],
+      "integration_status": "OPERATIONALLY_INTEGRATED_WITH_FRESHNESS_AND_HUMAN_AUTHORITY_GATES",
+      "research_scope": "FULL_MARKET_DATA_FACTOR_FINANCIAL_VALUATION_RESEARCH_DECISION_STATE_AND_ATTRIBUTION",
+      "candidate_scope": "ACTIVE_HUMAN_GOVERNED",
+      "simulation_scope": "ACTIVE_LKG_USER_GOVERNED",
+      "real_account_scope": "ACTIVE_LKG_USER_GOVERNED",
+      "live_action_scope": "BLOCKED_UNTIL_CURRENT_STATE_CONFIRMATION_AND_FRESH_MARKET_DATA"
+    },
+    {
+      "market": "HONG_KONG_STOCK_CONNECT",
+      "components": [
+        ["FMDL-5", "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json", "status", "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED"]
+      ],
+      "integration_status": "OPERATIONALLY_INTEGRATED_AS_IMMUTABLE_CROSS_MARKET_OVERLAY",
+      "research_scope": "STOCK_CONNECT_SCREEN_RESEARCH_OBJECT_DECISION_AND_GOVERNED_ROUTE",
+      "candidate_scope": "GRADUATION_REQUIRES_HUMAN_REENTRY_REVIEW",
+      "simulation_scope": "NO_AUTOMATIC_ADMISSION",
+      "real_account_scope": "NO_AUTOMATIC_ADMISSION",
+      "live_action_scope": "BLOCKED_WITHOUT_CURRENT_EVIDENCE_AND_HUMAN_APPROVAL"
+    },
+    {
+      "market": "US_EQUITY",
+      "components": [
+        ["FMDL-6", "outputs/status/FMDL6X4FINAL_LAST_SUCCESS.json", "status", "FMDL6X4_FINAL_US_RESEARCH_ADAPTER_OPERATIONAL_ACCEPTANCE_AND_FMDL6_FREEZE_ACCEPTED"]
+      ],
+      "integration_status": "OPERATIONALLY_INTEGRATED_RESEARCH_ADAPTER_ONLY",
+      "research_scope": "SECURITY_MASTER_IDENTITY_STORES_RESEARCH_CARDS_WORKFLOW_CONTRACTS_GUARDRAILS_AND_CROSS_MARKET_RUNBOOK",
+      "candidate_scope": "FORMAL_PROMOTION_CLOSED",
+      "simulation_scope": "FORMAL_SIMULATION_CLOSED_NO_ACCEPTED_CHANNEL",
+      "real_account_scope": "BROKERAGE_AND_REAL_ACCOUNT_CLOSED",
+      "live_action_scope": "NO_INVESTMENT_RECOMMENDATION_OR_TRADE_AUTHORITY"
+    }
+  ],
+  "canonical_release9_binding": {
+    "identity_path": "outputs/fmdl7/current/canonical_refresh/FMDL7E_CANONICAL_PACKAGE_IDENTITY.json",
+    "package_path": "outputs/fmdl7/current/canonical_refresh/股票投资助手_CURRENT.zip",
+    "pointer_path": "outputs/fmdl7/current/canonical_refresh/股票投资助手_CURRENT_POINTER.md",
+    "start_here_path": "outputs/fmdl7/current/canonical_refresh/股票投资助手_START_HERE_CURRENT.md",
+    "required_canonical_release_id": "INVESTMENT_OS_R9_20260723_0a3b2c2424cc",
+    "required_canonical_release_sequence": 9,
+    "required_package_sha256": "30e97549a9b4294687538e0791c2109f4efeed28c1814e5bd0b3e4367c9d3fb2",
+    "required_package_size_bytes": 22681,
+    "package_mode": "CONTROL_PLANE_STATE_AND_RECOVERY_CAPSULE_WITH_IMMUTABLE_GITHUB_RELEASE_REFERENCES"
+  },
+  "file_library_acceptance_evidence": {
+    "user_attestation": "USER_CONFIRMED_FILE_LIBRARY_CLEANED_AND_REQUESTED_FINAL_ACCEPTANCE_ON_2026_07_23",
+    "pointer_discoverable": true,
+    "start_here_discoverable": true,
+    "pointer_canonical_release_id": "INVESTMENT_OS_R9_20260723_0a3b2c2424cc",
+    "pointer_package_sha256": "30e97549a9b4294687538e0791c2109f4efeed28c1814e5bd0b3e4367c9d3fb2",
+    "binary_file_search_visibility": "NOT_INDEPENDENTLY_INDEXED_OR_DISCOVERABLE_BY_FILE_SEARCH",
+    "binary_byte_validation_authority": "GITHUB_FMDL7E_RELEASE53_CLEAN_ROOM_VALIDATION",
+    "acceptance_posture": "USER_ATTESTED_LIBRARY_CLEANUP_POINTER_AND_START_HERE_DISCOVERED_GITHUB_BINARY_BYTE_VALIDATED_WITH_CONNECTOR_VISIBILITY_LIMITATION",
+    "project_sources_required": false
+  },
+  "cross_market_controls": {
+    "forced_common_factor_score": false,
+    "global_cross_market_stock_rank": false,
+    "ticker_only_identity_matching": false,
+    "neutral_fill": false,
+    "silent_source_substitution": false,
+    "automatic_candidate_promotion": false,
+    "automatic_simulation_admission": false,
+    "automatic_real_account_admission": false,
+    "automatic_rule_mutation": false,
+    "human_user_is_only_investment_authority": true,
+    "candidate_simulation_real_account_state_domains_separate": true,
+    "trade_authority": "NONE"
+  },
+  "operating_boundaries": {
+    "accepted_state_as_of": "2026-07-20_CLOSE_LAST_KNOWN_GOOD",
+    "current_state_confirmation_required": true,
+    "fresh_market_data_required_for_live_action": true,
+    "candidate_alpha_claimed": false,
+    "persistent_alpha_proven": false,
+    "full_data_coverage_claimed": false,
+    "us_brokerage_channel_claimed": false,
+    "automatic_trading_claimed": false
+  },
+  "handoff_contract": {
+    "repository_document": "docs/股票投资助手_FMDL7_FINAL_HANDOFF_CURRENT.md",
+    "required_sections": [
+      "SYSTEM_IDENTITY",
+      "MARKET_CAPABILITY_BOUNDARIES",
+      "CURRENT_STATE_AND_STALENESS",
+      "OPERATING_CADENCES",
+      "AUTHORITATIVE_ASSETS",
+      "NEW_CHAT_AUDIT_PROMPT",
+      "ITERATION_GOVERNANCE",
+      "PROHIBITED_OVERCLAIMS"
+    ],
+    "next_development_rule": "NO_NEW_PHASE_BY_DEFAULT_REAL_DEFECT_OR_ACCEPTED_REQUIREMENT_REQUIRED",
+    "recommended_next_activity": "INDEPENDENT_TRUE_FUNCTION_AUDIT_THEN_OPERATING_OBSERVATION_AND_TARGETED_ITERATION"
+  },
+  "failure_injections": [
+    ["MISSING_RELEASE53_ENTRY", "ENTRY_GATE_MISSING"],
+    ["FMDL7_SEQUENCE_MISMATCH", "FMDL7_RELEASE_SEQUENCE"],
+    ["CANONICAL_R9_PACKAGE_HASH_MISMATCH", "CANONICAL_PACKAGE_IDENTITY"],
+    ["FILE_LIBRARY_BINARY_VISIBILITY_OVERCLAIM", "FILE_LIBRARY_EVIDENCE_OVERCLAIM"],
+    ["LKG_PRESENTED_AS_CURRENT", "STALE_STATE_PROMOTION"],
+    ["FORCED_COMMON_CROSS_MARKET_SCORE", "FORCED_COMMON_SCORE"],
+    ["TICKER_ONLY_CROSS_MARKET_MATCH", "IDENTITY_CONTROL"],
+    ["AUTOMATIC_CANDIDATE_PROMOTION", "UNAUTHORIZED_CANDIDATE_PROMOTION"],
+    ["US_FORMAL_SIMULATION_WITHOUT_ACCEPTED_CHANNEL", "US_SIMULATION_GATE"],
+    ["BROKERAGE_OR_TRADE_AUTHORITY_ESCALATION", "TRADE_AUTHORITY"],
+    ["UNAUTHORIZED_RULE_OR_STATE_MUTATION", "UNAUTHORIZED_MUTATION"],
+    ["SCHEDULED_OPERATIONS_STALENESS_BYPASS", "STALENESS_CONTROL"],
+    ["LKG_RECOVERY_BYPASS", "RECOVERY_CONTROL"],
+    ["CONVERSATION_MEMORY_AS_AUTHORITY", "AUTHORITY_SOURCE_INVALID"]
+  ],
+  "acceptance_gates": {
+    "fmdl7_release_count": 6,
+    "strict_fmdl7_release_sequence": [48, 49, 50, 51, 52, 53],
+    "market_count": 3,
+    "a_share_component_count": 4,
+    "hk_component_count": 1,
+    "us_component_count": 1,
+    "cross_market_control_count": 12,
+    "failure_injection_count": 14,
+    "gate_count": 30,
+    "logical_shard_domain_count": 10,
+    "bucket_count": 64,
+    "logical_shard_count": 640,
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "rule_mutations": 0,
+    "orders": 0
+  },
+  "storage_contract": {
+    "release_sequence": 54,
+    "current_root": "outputs/fmdl7/current/final_operational_acceptance",
+    "release_root": "datasets/fmdl7/releases/<release_id>/final_operational_acceptance",
+    "normalized_root": "datasets/fmdl7/normalized/final_operational_acceptance/<release_id>",
+    "archive_root": "outputs/fmdl7/archive/final_operational_acceptance",
+    "last_success": "outputs/status/FMDL7_FINAL_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL7_FINAL_OPERATIONAL_LKG.json"
+  },
+  "trade_authority": "NONE"
+}
