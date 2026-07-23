@@ -1,0 +1,211 @@
+{
+  "phase_id": "FMDL-7A",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "title": "Cross-market Canonical Inventory and State Reconciliation",
+  "required_exit_status": "FMDL7A_CROSS_MARKET_CANONICAL_INVENTORY_AND_STATE_RECONCILIATION_ACCEPTED",
+  "next_gate": "FMDL-7B_END_TO_END_RESEARCH_AND_DECISION_LINEAGE_ACCEPTANCE",
+  "entry_gate": {
+    "path": "outputs/status/FMDL7_0_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-7-0",
+    "required_release_id": "FMDL7_0_20260723_5927ce071ac6",
+    "required_release_sequence": 48,
+    "required_status": "FMDL7_0_MASTER_PLAN_AUTHORITATIVE_ASSET_REGISTRY_AND_ACCEPTANCE_CONTRACT_ACCEPTED",
+    "required_next_gate": "FMDL-7A_CROSS_MARKET_CANONICAL_INVENTORY_AND_STATE_RECONCILIATION",
+    "required_trade_authority": "NONE"
+  },
+  "source_bindings": {
+    "a_share_interface": {
+      "path": "outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json",
+      "required_interface_id": "FMDL_A_SHARE_MARKET_DATA_INTERFACE",
+      "required_status": "ACTIVE",
+      "required_run_id": "FMDL1BC_20260717T174015+0800",
+      "required_as_of_date": "2026-07-17",
+      "required_trade_authority": "NONE"
+    },
+    "investment_os_release8": {
+      "path": "config/post_fmdl4_release8_publication.json",
+      "required_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+      "required_release_sequence": 8,
+      "required_status": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ACCEPTED",
+      "required_package_sha256": "479d375da1586419a98bb2821342cf691b0d1358882b66bc1601fd717ab2a9aa",
+      "required_market_as_of": "2026-07-20",
+      "required_trade_authority": "NONE"
+    },
+    "investment_state_binding": {
+      "path": "config/post_fmdl4_release4_state_binding.json",
+      "required_source_release_sequence": 4,
+      "required_real_holding_count": 7,
+      "required_simulation_holding_count": 16,
+      "required_candidate_core_count": 20,
+      "required_active_memo_count": 6,
+      "required_trade_authority": "NONE"
+    },
+    "operating_state_review": {
+      "path": "evidence/post_fmdl4/POST_FMDL4_ACTION_REVIEW.json",
+      "required_as_of": "2026-07-20_CLOSE",
+      "required_real_holding_count": 7,
+      "required_simulation_holding_count": 16,
+      "required_candidate_core_count": 20,
+      "required_active_memo_count": 6,
+      "required_trade_authority": "NONE"
+    },
+    "hong_kong_final": {
+      "path": "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json",
+      "required_release_id": "FMDL5FINAL_20260721_a43285d1ee25",
+      "required_release_sequence": 18,
+      "required_status": "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+      "required_canonical_base_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+      "required_trade_authority": "NONE"
+    },
+    "hong_kong_duplication_registry": {
+      "path": "outputs/fmdl5g/integration/current/FMDL5G_CROSS_MARKET_DUPLICATION_REVIEW.csv",
+      "required_row_count": 2,
+      "required_security_ids": ["HKEX:00300", "HKEX:02359"]
+    },
+    "us_final": {
+      "path": "outputs/status/FMDL6X4FINAL_LAST_SUCCESS.json",
+      "required_release_id": "FMDL6X4FINAL_20260723_dbe82fe7b7ec",
+      "required_release_sequence": 47,
+      "required_status": "FMDL6X4_FINAL_US_RESEARCH_ADAPTER_OPERATIONAL_ACCEPTANCE_AND_FMDL6_FREEZE_ACCEPTED",
+      "required_fmdl6_status": "COMPLETE_AND_FROZEN",
+      "required_trade_authority": "NONE"
+    }
+  },
+  "file_library_observation": {
+    "observation_date": "2026-07-23",
+    "observation_method": "FILE_LIBRARY_SEARCH_AND_POINTER_CONTENT_REVIEW",
+    "pointer_filename": "股票投资助手_CURRENT_POINTER.md",
+    "pointer_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+    "pointer_package_filename": "股票投资助手_CURRENT.zip",
+    "pointer_package_sha256": "479d375da1586419a98bb2821342cf691b0d1358882b66bc1601fd717ab2a9aa",
+    "pointer_status": "DISCOVERABLE_AND_CONTENT_READABLE",
+    "canonical_zip_status": "NOT_INDEPENDENTLY_RETRIEVABLE_OR_BYTE_VERIFIABLE_VIA_FILE_LIBRARY_SEARCH_IN_THIS_ACCEPTANCE_RUN",
+    "interpretation": "POINTER_IDENTITY_MATCHES_GITHUB_RELEASE8_BUT_BINARY_PACKAGE_VERIFICATION_REMAINS_DEFERRED_TO_FMDL7E",
+    "conversation_memory_authoritative": false
+  },
+  "market_inventory": {
+    "A_SHARE": {
+      "canonical_role": "PRIMARY_OPERATIONAL_MARKET_AND_INVESTMENT_OS_BASE",
+      "security_universe_count": 5528,
+      "research_longlist_count": 100,
+      "candidate_core_count": 20,
+      "market_data_as_of": "2026-07-17",
+      "operating_state_as_of": "2026-07-20_CLOSE",
+      "freshness_state": "STALE_FOR_NEW_FULL_MARKET_DECISION_REQUIRES_REFRESH",
+      "decision_grade": "EXISTING_STATE_LKG_ONLY_NEW_DECISION_BLOCKED_UNTIL_REFRESH"
+    },
+    "HONG_KONG_CONNECT": {
+      "canonical_role": "IMMUTABLE_READ_ONLY_CROSS_MARKET_OVERLAY",
+      "security_universe_count": 644,
+      "common_equity_count": 613,
+      "research_longlist_count": 100,
+      "research_object_count": 20,
+      "graduated_count": 4,
+      "shadow_track_count": 2,
+      "as_of_date": "2026-07-21",
+      "freshness_state": "ACCEPTED_OVERLAY_NOT_REPACKED_IN_RELEASE8",
+      "decision_grade": "RESEARCH_AND_REENTRY_REVIEW_ONLY_NO_AUTOMATIC_ADMISSION"
+    },
+    "US_EQUITY": {
+      "canonical_role": "OPERATIONALLY_ACCEPTED_FROZEN_RESEARCH_ADAPTER",
+      "security_universe_count": 8785,
+      "benchmark_pool_member_count": 7,
+      "shadow_security_count": 3,
+      "as_of_date": "2026-07-23",
+      "freshness_state": "RESEARCH_ARCHITECTURE_CURRENT_MARKET_AND_ATTRIBUTION_NON_DECISION_GRADE",
+      "decision_grade": "NO_FORMAL_CANDIDATE_PROMOTION_NO_FORMAL_SIMULATION_NO_BROKERAGE_CHANNEL"
+    }
+  },
+  "state_domains": {
+    "real_account": {
+      "holding_count": 7,
+      "total_assets": 448831.42,
+      "stock_etf_value": 134732.0,
+      "bond_fund_value": 313978.93,
+      "execution_cash": 120.49,
+      "as_of": "2026-07-20_CLOSE",
+      "reconciliation_state": "LAST_KNOWN_GOOD_USER_CONFIRMATION_REQUIRED_FOR_ANY_POST_AS_OF_CHANGE",
+      "decision": "HOLD_AND_MONITOR"
+    },
+    "simulation_book": {
+      "holding_count": 16,
+      "total_assets": 1001714.58,
+      "market_value": 782180.6,
+      "available_cash": 219533.98,
+      "account_total_pnl": 1714.58,
+      "as_of": "2026-07-20_CLOSE",
+      "reconciliation_state": "LAST_KNOWN_GOOD_USER_CONFIRMATION_REQUIRED_FOR_ANY_POST_AS_OF_CHANGE"
+    },
+    "candidate_pool": {
+      "formal_core_count": 20,
+      "active_memo_count": 6,
+      "price_trigger_met_count": 0,
+      "as_of": "2026-07-20_CLOSE",
+      "reconciliation_state": "CORE20_UNCHANGED_LAST_KNOWN_GOOD_NO_AUTOMATIC_MEMBERSHIP_CHANGE"
+    }
+  },
+  "duplication_controls": {
+    "real_account_duplicate_exposure": {
+      "case_id": "REAL-SP500-ETF-DUPLICATION",
+      "security_codes": ["159612", "159655"],
+      "state": "CONTROLLED_REVIEW_ONLY",
+      "action_boundary": "NO_AUTOMATIC_CONSOLIDATION"
+    },
+    "a_h_duplication_cases": [
+      {"security_id": "HKEX:00300", "name": "MIDEA GROUP", "state": "CROSS_MARKET_DUPLICATION_REVIEW_REQUIRED"},
+      {"security_id": "HKEX:02359", "name": "WUXI APPTEC", "state": "CROSS_MARKET_DUPLICATION_REVIEW_REQUIRED"}
+    ],
+    "ticker_only_matching_prohibited": true,
+    "automatic_market_selection_prohibited": true
+  },
+  "reconciliation_conclusions": [
+    "INVESTMENT_OS_RELEASE8_IS_THE_BINARY_CANONICAL_BASE",
+    "FMDL5_AND_FMDL6_ARE_ACCEPTED_IMMUTABLE_OVERLAYS_NOT_YET_REPACKED_IN_RELEASE8",
+    "REAL_SIMULATION_AND_CANDIDATE_STATES_ARE_LAST_KNOWN_GOOD_AS_OF_2026_07_20_NOT_CONFIRMED_CURRENT_BEYOND_THAT_DATE",
+    "A_SHARE_MARKET_DATA_REQUIRES_REFRESH_BEFORE_NEW_FULL_MARKET_DECISION_USE",
+    "FILE_LIBRARY_POINTER_MATCHES_RELEASE8_IDENTITY_BUT_BINARY_PACKAGE_BYTE_VERIFICATION_IS_DEFERRED_TO_FMDL7E",
+    "NO_RESEARCH_POOL_SHADOW_TRACK_OR_BENCHMARK_POOL_IS_A_FORMAL_CANDIDATE_OR_POSITION"
+  ],
+  "scope": {
+    "canonical_inventory_authorized": true,
+    "state_reconciliation_authorized": true,
+    "freshness_and_staleness_classification_authorized": true,
+    "duplication_registry_authorized": true,
+    "new_market_data_refresh_authorized": false,
+    "research_workflow_execution_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_book_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "rule_mutation_authorized": false,
+    "canonical_repack_authorized": false,
+    "brokerage_or_order_authorized": false
+  },
+  "acceptance_gates": {
+    "source_binding_count": 7,
+    "market_count": 3,
+    "state_domain_count": 3,
+    "a_h_duplication_case_count": 2,
+    "real_account_duplication_case_count": 1,
+    "reconciliation_conclusion_count": 6,
+    "gate_count": 16,
+    "logical_shard_domain_count": 5,
+    "bucket_count": 64,
+    "logical_shard_count": 320,
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "rule_mutations": 0,
+    "orders": 0
+  },
+  "storage_contract": {
+    "release_sequence": 49,
+    "current_root": "outputs/fmdl7/current/state_reconciliation",
+    "release_root": "datasets/fmdl7/releases/<release_id>/state_reconciliation",
+    "normalized_root": "datasets/fmdl7/normalized/state_reconciliation/<release_id>",
+    "archive_root": "outputs/fmdl7/archive/state_reconciliation",
+    "last_success": "outputs/status/FMDL7A_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL7_STATE_RECONCILIATION_LKG.json"
+  },
+  "trade_authority": "NONE"
+}
