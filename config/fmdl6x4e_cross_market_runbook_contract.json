@@ -1,0 +1,317 @@
+{
+  "phase_id": "FMDL-6X4-E",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "title": "Cross-market Comparability and Operating Runbook",
+  "required_exit_status": "FMDL6X4E_CROSS_MARKET_COMPARABILITY_AND_OPERATING_RUNBOOK_ACCEPTED",
+  "next_gate": "FMDL-6X4-FINAL_US_RESEARCH_ADAPTER_OPERATIONAL_ACCEPTANCE_AND_FMDL6_FREEZE",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X4D_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-6X4-D",
+    "required_release_id": "FMDL6X4D_20260723_1b325920f2b5",
+    "required_release_sequence": 45,
+    "required_status": "FMDL6X4D_SIMULATION_ONLY_PILOT_ATTRIBUTION_AND_FAILURE_RECOVERY_ACCEPTED",
+    "required_next_gate": "FMDL-6X4-E_CROSS_MARKET_COMPARABILITY_AND_OPERATING_RUNBOOK",
+    "required_trade_authority": "NONE"
+  },
+  "roadmap_authority": {
+    "path": "docs/FMDL-6X3_X4_DEVELOPMENT_ROADMAP.md",
+    "required_stage_text": "Cross-market Comparability & Operating Runbook",
+    "required_following_stage_text": "US Research Adapter Operational Acceptance & FMDL-6 Freeze"
+  },
+  "source_bindings": {
+    "A_SHARE": {
+      "publication_path": "config/post_fmdl4_release8_publication.json",
+      "required_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+      "required_release_sequence": 8,
+      "required_status": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ACCEPTED",
+      "required_trade_authority": "NONE",
+      "expected_security_universe_count": 5528,
+      "expected_research_longlist_count": 100,
+      "expected_candidate_core_count": 20,
+      "evidence_posture": "OPERATIONAL_ACCEPTED_A_SHARE_EVIDENCE_CHAIN"
+    },
+    "HONG_KONG_CONNECT": {
+      "pointer_path": "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json",
+      "contract_path": "config/fmdl5_final_operational_acceptance.json",
+      "required_release_id": "FMDL5FINAL_20260721_a43285d1ee25",
+      "required_release_sequence": 18,
+      "required_status": "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+      "required_trade_authority": "NONE",
+      "expected_security_universe_count": 644,
+      "expected_common_equity_count": 613,
+      "expected_factor_count": 28,
+      "expected_research_longlist_count": 100,
+      "expected_research_object_count": 20,
+      "expected_graduated_count": 4,
+      "expected_shadow_track_count": 2,
+      "evidence_posture": "OPERATIONAL_WITH_CONTROLLED_FREE_SOURCE_LIMITS"
+    },
+    "US_EQUITY": {
+      "research_pointer_path": "outputs/status/FMDL6X3FINAL_LAST_SUCCESS.json",
+      "pilot_pointer_path": "outputs/status/FMDL6X4D_LAST_SUCCESS.json",
+      "pilot_current_root": "outputs/fmdl6x4/current/simulation_pilot_attribution_recovery",
+      "required_research_release_id": "FMDL6X3FINAL_20260723_c9dff24a71f0",
+      "required_research_release_sequence": 41,
+      "required_pilot_release_id": "FMDL6X4D_20260723_1b325920f2b5",
+      "required_pilot_release_sequence": 45,
+      "required_trade_authority": "NONE",
+      "expected_security_universe_count": 8785,
+      "expected_benchmark_pool_member_count": 7,
+      "expected_shadow_security_count": 3,
+      "expected_shadow_attribution_observation_count": 15,
+      "expected_shadow_portfolio_window_count": 5,
+      "expected_formal_candidate_promotion_count": 0,
+      "evidence_posture": "RESEARCH_ARCHITECTURE_OPERATIONAL_MARKET_AND_ATTRIBUTION_NON_DECISION_GRADE"
+    }
+  },
+  "scope": {
+    "market_capability_comparison_authorized": true,
+    "dimension_level_comparability_assessment_authorized": true,
+    "operating_runbook_freeze_authorized": true,
+    "market_specific_research_context_authorized": true,
+    "forced_common_factor_score_authorized": false,
+    "cross_market_security_ranking_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_book_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "investment_recommendation_authorized": false,
+    "brokerage_or_order_authorized": false
+  },
+  "comparability_classes": [
+    "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+    "PARTIAL_CONTEXT_ONLY",
+    "NOT_COMPARABLE_FAIL_CLOSED"
+  ],
+  "comparability_dimensions": [
+    {
+      "dimension_code": "SECURITY_IDENTITY",
+      "normalization_action": "MAP_TO_CANONICAL_SECURITY_AND_MARKET_SPECIFIC_LISTING_ID",
+      "prohibited_shortcut": "TICKER_ONLY_MATCH",
+      "comparison_output": "CANONICAL_IDENTITY_COMPATIBILITY",
+      "market_postures": {
+        "A_SHARE": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "HONG_KONG_CONNECT": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "US_EQUITY": "DIRECT_WITH_EXPLICIT_NORMALIZATION"
+      }
+    },
+    {
+      "dimension_code": "ISSUER_CROSS_LISTING",
+      "normalization_action": "MAP_SECURITY_TO_CANONICAL_ISSUER_AND_REGISTER_A_H_ADR_OR_MULTI_CLASS_RELATIONSHIPS",
+      "prohibited_shortcut": "ASSUME_ONE_SECURITY_EQUALS_ONE_ISSUER",
+      "comparison_output": "ISSUER_LEVEL_DUPLICATION_AND_REPLACEMENT_CONTEXT",
+      "market_postures": {
+        "A_SHARE": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "HONG_KONG_CONNECT": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "US_EQUITY": "PARTIAL_CONTEXT_ONLY"
+      }
+    },
+    {
+      "dimension_code": "INSTRUMENT_PROFILE",
+      "normalization_action": "CLASSIFY_COMMON_EQUITY_REIT_ADR_ETF_PREFERRED_AND_NON_STANDARD_PROFILE",
+      "prohibited_shortcut": "MIX_INSTRUMENT_TYPES_IN_ONE_RANK",
+      "comparison_output": "PROFILE_COMPATIBILITY_FLAG",
+      "market_postures": {
+        "A_SHARE": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "HONG_KONG_CONNECT": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "US_EQUITY": "DIRECT_WITH_EXPLICIT_NORMALIZATION"
+      }
+    },
+    {
+      "dimension_code": "MARKET_DATA_GRADE",
+      "normalization_action": "REGISTER_SOURCE_GRADE_FRESHNESS_AND_ALLOWED_USE_PER_MARKET",
+      "prohibited_shortcut": "UPGRADE_FALLBACK_DATA_TO_DECISION_GRADE",
+      "comparison_output": "DATA_GRADE_BOUNDARY",
+      "market_postures": {
+        "A_SHARE": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "HONG_KONG_CONNECT": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "US_EQUITY": "NOT_COMPARABLE_FAIL_CLOSED"
+      }
+    },
+    {
+      "dimension_code": "ACCOUNTING_STANDARD_PERIODICITY",
+      "normalization_action": "REGISTER_PRCCAS_HKFRS_IFRS_USGAAP_AND_QUARTERLY_SEMIANNUAL_ANNUAL_PERIODICITY",
+      "prohibited_shortcut": "ANNUALIZE_OR_FILL_MISSING_PERIODS_WITHOUT_EVIDENCE",
+      "comparison_output": "ACCOUNTING_AND_PERIOD_COMPATIBILITY",
+      "market_postures": {
+        "A_SHARE": "PARTIAL_CONTEXT_ONLY",
+        "HONG_KONG_CONNECT": "PARTIAL_CONTEXT_ONLY",
+        "US_EQUITY": "PARTIAL_CONTEXT_ONLY"
+      }
+    },
+    {
+      "dimension_code": "CURRENCY_FX",
+      "normalization_action": "PRESERVE_REPORTED_CURRENCY_AND_APPLY_AS_OF_ALIGNED_FX_ONLY_FOR_EXPLICIT_COMPARISONS",
+      "prohibited_shortcut": "MIX_LOCAL_CURRENCY_METRICS",
+      "comparison_output": "CURRENCY_NORMALIZED_CONTEXT",
+      "market_postures": {
+        "A_SHARE": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "HONG_KONG_CONNECT": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "US_EQUITY": "DIRECT_WITH_EXPLICIT_NORMALIZATION"
+      }
+    },
+    {
+      "dimension_code": "CORPORATE_ACTIONS",
+      "normalization_action": "APPLY_MARKET_SPECIFIC_SPLIT_DIVIDEND_RIGHTS_AND_ADJUSTMENT_SEMANTICS",
+      "prohibited_shortcut": "COMPARE_UNADJUSTED_RETURN_SERIES",
+      "comparison_output": "CORPORATE_ACTION_ADJUSTMENT_STATUS",
+      "market_postures": {
+        "A_SHARE": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "HONG_KONG_CONNECT": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "US_EQUITY": "PARTIAL_CONTEXT_ONLY"
+      }
+    },
+    {
+      "dimension_code": "SECTOR_INDUSTRY_TAXONOMY",
+      "normalization_action": "PRESERVE_NATIVE_TAXONOMY_AND_USE_EXPLICIT_CROSSWALK_WITH_CONFIDENCE",
+      "prohibited_shortcut": "LABEL_INTERNAL_CROSSWALK_AS_GICS_OR_ICB",
+      "comparison_output": "TAXONOMY_CROSSWALK_CONTEXT",
+      "market_postures": {
+        "A_SHARE": "PARTIAL_CONTEXT_ONLY",
+        "HONG_KONG_CONNECT": "PARTIAL_CONTEXT_ONLY",
+        "US_EQUITY": "PARTIAL_CONTEXT_ONLY"
+      }
+    },
+    {
+      "dimension_code": "FACTOR_DEFINITION",
+      "normalization_action": "COMPARE_ONLY_IDENTICAL_FORMULA_WINDOW_SOURCE_GRADE_AND_UNIVERSE_SEMANTICS",
+      "prohibited_shortcut": "MERGE_DIFFERENT_FACTOR_NAMES_OR_WINDOWS_INTO_ONE_SCORE",
+      "comparison_output": "FACTOR_DEFINITION_COMPATIBILITY",
+      "market_postures": {
+        "A_SHARE": "PARTIAL_CONTEXT_ONLY",
+        "HONG_KONG_CONNECT": "PARTIAL_CONTEXT_ONLY",
+        "US_EQUITY": "NOT_COMPARABLE_FAIL_CLOSED"
+      }
+    },
+    {
+      "dimension_code": "VALUATION_READINESS",
+      "normalization_action": "REQUIRE_TTM_OR_ANNUAL_METRICS_PRICE_AS_OF_AND_PROFILE_APPROPRIATENESS",
+      "prohibited_shortcut": "NEUTRAL_FILL_OR_INFER_TTM",
+      "comparison_output": "VALUATION_READINESS_FLAG",
+      "market_postures": {
+        "A_SHARE": "PARTIAL_CONTEXT_ONLY",
+        "HONG_KONG_CONNECT": "PARTIAL_CONTEXT_ONLY",
+        "US_EQUITY": "NOT_COMPARABLE_FAIL_CLOSED"
+      }
+    },
+    {
+      "dimension_code": "PEER_GROUP_READINESS",
+      "normalization_action": "REQUIRE_FORMAL_SAME_INDUSTRY_COMPARABLE_SET_AND_SPECIAL_PROFILE_HANDLING",
+      "prohibited_shortcut": "RANK_SINGLE_MEMBER_OR_UNRELATED_PEERS",
+      "comparison_output": "PEER_GROUP_READINESS_FLAG",
+      "market_postures": {
+        "A_SHARE": "PARTIAL_CONTEXT_ONLY",
+        "HONG_KONG_CONNECT": "PARTIAL_CONTEXT_ONLY",
+        "US_EQUITY": "NOT_COMPARABLE_FAIL_CLOSED"
+      }
+    },
+    {
+      "dimension_code": "RESEARCH_OBJECT_MATURITY",
+      "normalization_action": "MAP_RESEARCH_CARD_OBJECT_EVIDENCE_LEDGER_THESIS_AND_FALSIFIER_COMPLETENESS",
+      "prohibited_shortcut": "TREAT_SCREENING_CARD_AS_COMPLETED_INVESTMENT_MEMO",
+      "comparison_output": "RESEARCH_MATURITY_STAGE",
+      "market_postures": {
+        "A_SHARE": "PARTIAL_CONTEXT_ONLY",
+        "HONG_KONG_CONNECT": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "US_EQUITY": "PARTIAL_CONTEXT_ONLY"
+      }
+    },
+    {
+      "dimension_code": "CANDIDATE_GRADUATION_AUTHORITY",
+      "normalization_action": "REQUIRE_MARKET_SPECIFIC_RULE_PASS_AND_EXPLICIT_HUMAN_APPROVAL",
+      "prohibited_shortcut": "AUTO_PROMOTE_FROM_SCORE_OR_RESEARCH_PRIORITY",
+      "comparison_output": "GOVERNED_GRADUATION_STATUS",
+      "market_postures": {
+        "A_SHARE": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "HONG_KONG_CONNECT": "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+        "US_EQUITY": "NOT_COMPARABLE_FAIL_CLOSED"
+      }
+    },
+    {
+      "dimension_code": "PERFORMANCE_ATTRIBUTION_GRADE",
+      "normalization_action": "DISTINGUISH_FORMAL_BOOK_ATTRIBUTION_FROM_SHADOW_NON_DECISION_GRADE_OBSERVATION",
+      "prohibited_shortcut": "PRESENT_SHADOW_OR_FALLBACK_SERIES_AS_INVESTMENT_PERFORMANCE",
+      "comparison_output": "ATTRIBUTION_GRADE_AND_ALLOWED_CLAIM",
+      "market_postures": {
+        "A_SHARE": "PARTIAL_CONTEXT_ONLY",
+        "HONG_KONG_CONNECT": "PARTIAL_CONTEXT_ONLY",
+        "US_EQUITY": "NOT_COMPARABLE_FAIL_CLOSED"
+      }
+    }
+  ],
+  "runbook_steps": [
+    ["RB01", "ENTRY_GATE_AND_POINTER_BINDING", "EACH_RUN", "Validate immutable Release IDs, Last-success pointers, Manifests and trade-authority boundaries before reading outputs."],
+    ["RB02", "SOURCE_FRESHNESS_AND_DATA_GRADE_CHECK", "DAILY", "Register as-of, freshness, source grade and allowed use separately for A-share, Hong Kong and US inputs."],
+    ["RB03", "MARKET_SPECIFIC_INGESTION_AND_QC", "DAILY", "Run each market adapter independently; quarantine failed domains and prohibit silent source substitution."],
+    ["RB04", "SECURITY_IDENTITY_AND_CROSS_LISTING_RECONCILIATION", "DAILY", "Resolve Canonical Security, Issuer, listing, A/H, ADR and share-class relationships before comparison."],
+    ["RB05", "ACCOUNTING_CURRENCY_AND_CORPORATE_ACTION_NORMALIZATION", "WEEKLY", "Normalize only with explicit accounting-period, currency, FX and corporate-action evidence."],
+    ["RB06", "FACTOR_VALUATION_AND_PEER_COMPARABILITY_ASSESSMENT", "WEEKLY", "Assess formula, window, data-grade, universe and peer-set compatibility; fail closed when definitions differ."],
+    ["RB07", "RESEARCH_EVIDENCE_THESIS_AND_FALSIFIER_REFRESH", "WEEKLY", "Refresh evidence ledgers, research objects, thesis status and falsifiers without auto-promoting securities."],
+    ["RB08", "CROSS_MARKET_DUPLICATION_AND_REPLACEMENT_REVIEW", "WEEKLY", "Review A/H, ADR, issuer and exposure duplication before any market-selection or replacement conclusion."],
+    ["RB09", "CANDIDATE_GRADUATION_AND_HUMAN_APPROVAL_GATE", "EVENT_DRIVEN", "Require market-specific graduation rules and explicit human approval; scores and priorities are non-authoritative."],
+    ["RB10", "SHADOW_ATTRIBUTION_AND_SIMULATION_CONTROL", "MONTHLY", "Separate shadow observations from formal simulation; require decision-grade data and explicit authorization for state mutation."],
+    ["RB11", "FAILURE_RECOVERY_LKG_AND_ROLLBACK", "EACH_RUN", "Reject invalid Current, preserve immutable Release and Last-known-good, and require deterministic replay before republishing."],
+    ["RB12", "OPERATING_REVIEW_PUBLICATION_AND_FINAL_HANDOFF", "MONTHLY", "Publish capability, comparability, queue and runbook artifacts only after all gates pass and open only 6X4-FINAL."]
+  ],
+  "cadence_controls": [
+    ["DAILY", "Market data, source freshness, adapter QC, identity and cross-listing exceptions"],
+    ["WEEKLY", "Financial, factor, valuation, peer, research and duplication review"],
+    ["MONTHLY", "Attribution, runbook effectiveness, unresolved queues and operating-state review"],
+    ["QUARTERLY", "Accounting comparability, taxonomy crosswalk, strategy calibration and architecture review"],
+    ["EVENT_DRIVEN", "Material disclosure, thesis break, approval change, data-grade downgrade or recovery event"]
+  ],
+  "escalation_rules": [
+    ["ER01", "SOURCE_STALE_OR_AS_OF_MISMATCH", "QUARANTINE_AFFECTED_MARKET_DOMAIN_AND_USE_LKG"],
+    ["ER02", "DATA_GRADE_DOWNGRADE", "BLOCK_DECISION_USE_AND_CROSS_MARKET_RANKING"],
+    ["ER03", "SECURITY_OR_ISSUER_IDENTITY_COLLISION", "FREEZE_AFFECTED_SECURITY_AND_REQUIRE_MANUAL_RESOLUTION"],
+    ["ER04", "A_H_ADR_OR_SHARE_CLASS_DUPLICATION_UNRESOLVED", "BLOCK_MARKET_SELECTION_AND_EXPOSURE_CONCLUSION"],
+    ["ER05", "ACCOUNTING_PERIOD_OR_STANDARD_MISMATCH", "LIMIT_OUTPUT_TO_CONTEXT_ONLY"],
+    ["ER06", "FX_OR_CORPORATE_ACTION_EVIDENCE_MISSING", "BLOCK_NORMALIZED_RETURN_OR_VALUATION_COMPARISON"],
+    ["ER07", "FACTOR_DEFINITION_OR_UNIVERSE_MISMATCH", "PROHIBIT_COMMON_SCORE_AND_GLOBAL_RANK"],
+    ["ER08", "VALUATION_OR_PEER_READINESS_MISSING", "BLOCK_GRADUATION_DEPENDENT_ON_COMPARABLES"],
+    ["ER09", "HUMAN_APPROVAL_MISSING_WITHDRAWN_OR_EXPIRED", "BLOCK_CANDIDATE_AND_SIMULATION_TRANSITION"],
+    ["ER10", "CURRENT_RELEASE_MANIFEST_OR_REPLAY_MISMATCH", "REJECT_CURRENT_RESTORE_IMMUTABLE_RELEASE_AND_LKG"]
+  ],
+  "final_gates": [
+    ["FG01", "FMDL6X4D_ENTRY_BINDING"],
+    ["FG02", "A_SHARE_RELEASE8_SOURCE_BINDING"],
+    ["FG03", "HONG_KONG_FMDL5_FINAL_SOURCE_BINDING"],
+    ["FG04", "US_RESEARCH_AND_SIMULATION_PILOT_SOURCE_BINDING"],
+    ["FG05", "NO_FORCED_COMMON_SCORE_OR_CROSS_MARKET_SECURITY_RANK"],
+    ["FG06", "OPERATING_RUNBOOK_AND_CADENCE_COMPLETE"],
+    ["FG07", "ZERO_CANDIDATE_SIMULATION_REAL_ACCOUNT_AND_ORDER_MUTATION"],
+    ["FG08", "RECOVERY_CONTROLS_AND_6X4_FINAL_HANDOFF_ONLY"]
+  ],
+  "storage_contract": {
+    "bucket_count": 64,
+    "release_sequence": 46,
+    "current_root": "outputs/fmdl6x4/current/cross_market_comparability_runbook",
+    "release_root": "datasets/fmdl6x4/releases/<release_id>/cross_market_comparability_runbook",
+    "normalized_root": "datasets/fmdl6x4/normalized/cross_market_comparability_runbook/<release_id>",
+    "archive_root": "outputs/fmdl6x4/archive",
+    "last_success": "outputs/status/FMDL6X4E_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6X4_CROSS_MARKET_COMPARABILITY_RUNBOOK_LKG.json"
+  },
+  "acceptance_gates": {
+    "market_count": 3,
+    "comparability_dimension_count": 14,
+    "market_dimension_assessment_count": 42,
+    "normalization_rule_count": 14,
+    "runbook_step_count": 12,
+    "cadence_control_count": 5,
+    "escalation_rule_count": 10,
+    "final_gate_count": 8,
+    "logical_shard_count": 448,
+    "forced_common_factor_score_count": 0,
+    "cross_market_security_rank_count": 0,
+    "investment_recommendation_count": 0,
+    "neutral_fill_count": 0
+  },
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "trade_authority": "NONE"
+}

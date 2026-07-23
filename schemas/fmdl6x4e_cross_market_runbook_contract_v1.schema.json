@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/fmdl6x4e_cross_market_runbook_contract_v1.schema.json",
+  "title": "FMDL-6X4-E Cross-market Comparability and Operating Runbook Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "phase_id",
+    "contract_version",
+    "required_exit_status",
+    "next_gate",
+    "entry_gate",
+    "roadmap_authority",
+    "source_bindings",
+    "scope",
+    "comparability_classes",
+    "comparability_dimensions",
+    "runbook_steps",
+    "cadence_controls",
+    "escalation_rules",
+    "final_gates",
+    "storage_contract",
+    "acceptance_gates",
+    "zero_mutation_gate",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X4-E"},
+    "contract_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "as_of_date": {"type": "string", "format": "date"},
+    "title": {"type": "string", "minLength": 1},
+    "required_exit_status": {"const": "FMDL6X4E_CROSS_MARKET_COMPARABILITY_AND_OPERATING_RUNBOOK_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X4-FINAL_US_RESEARCH_ADAPTER_OPERATIONAL_ACCEPTANCE_AND_FMDL6_FREEZE"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["pointer_path", "required_phase_id", "required_release_id", "required_release_sequence", "required_status", "required_next_gate", "required_trade_authority"]
+    },
+    "roadmap_authority": {
+      "type": "object",
+      "required": ["path", "required_stage_text", "required_following_stage_text"]
+    },
+    "source_bindings": {
+      "type": "object",
+      "required": ["A_SHARE", "HONG_KONG_CONNECT", "US_EQUITY"]
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "market_capability_comparison_authorized",
+        "dimension_level_comparability_assessment_authorized",
+        "operating_runbook_freeze_authorized",
+        "forced_common_factor_score_authorized",
+        "cross_market_security_ranking_authorized",
+        "candidate_pool_mutation_authorized",
+        "simulation_book_mutation_authorized",
+        "real_account_mutation_authorized",
+        "investment_recommendation_authorized",
+        "brokerage_or_order_authorized"
+      ]
+    },
+    "comparability_classes": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "DIRECT_WITH_EXPLICIT_NORMALIZATION",
+          "PARTIAL_CONTEXT_ONLY",
+          "NOT_COMPARABLE_FAIL_CLOSED"
+        ]
+      }
+    },
+    "comparability_dimensions": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dimension_code", "normalization_action", "prohibited_shortcut", "comparison_output", "market_postures"],
+        "properties": {
+          "dimension_code": {"type": "string", "minLength": 1},
+          "normalization_action": {"type": "string", "minLength": 1},
+          "prohibited_shortcut": {"type": "string", "minLength": 1},
+          "comparison_output": {"type": "string", "minLength": 1},
+          "market_postures": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["A_SHARE", "HONG_KONG_CONNECT", "US_EQUITY"],
+            "properties": {
+              "A_SHARE": {"type": "string"},
+              "HONG_KONG_CONNECT": {"type": "string"},
+              "US_EQUITY": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "runbook_steps": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          {"type": "string", "pattern": "^RB[0-9]{2}$"},
+          {"type": "string", "minLength": 1},
+          {"enum": ["EACH_RUN", "DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "EVENT_DRIVEN"]},
+          {"type": "string", "minLength": 1}
+        ],
+        "minItems": 4,
+        "maxItems": 4
+      }
+    },
+    "cadence_controls": {"type": "array", "minItems": 5, "maxItems": 5},
+    "escalation_rules": {"type": "array", "minItems": 10, "maxItems": 10},
+    "final_gates": {"type": "array", "minItems": 8, "maxItems": 8},
+    "storage_contract": {
+      "type": "object",
+      "required": ["bucket_count", "release_sequence", "current_root", "release_root", "normalized_root", "archive_root", "last_success", "last_known_good"],
+      "properties": {
+        "bucket_count": {"const": 64},
+        "release_sequence": {"const": 46}
+      }
+    },
+    "acceptance_gates": {
+      "type": "object",
+      "required": [
+        "market_count",
+        "comparability_dimension_count",
+        "market_dimension_assessment_count",
+        "normalization_rule_count",
+        "runbook_step_count",
+        "cadence_control_count",
+        "escalation_rule_count",
+        "final_gate_count",
+        "logical_shard_count",
+        "forced_common_factor_score_count",
+        "cross_market_security_rank_count",
+        "investment_recommendation_count",
+        "neutral_fill_count"
+      ]
+    },
+    "zero_mutation_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_pool_mutations", "simulation_book_mutations", "real_account_mutations", "orders"],
+      "properties": {
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_book_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      }
+    },
+    "trade_authority": {"const": "NONE"}
+  }
+}
