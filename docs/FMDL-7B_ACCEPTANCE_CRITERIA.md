@@ -8,7 +8,8 @@
 6. Replay seven US Evidence Ledger to Decision Interface and Human Approval lineages.
 7. Preserve six US issuer cases as blocked and QQQ as a reference instrument, with zero formal candidate promotion.
 8. Produce nineteen cross-market lineage records, all PASS, with zero orphan and zero duplicate lineage identities.
-9. Reject all seven failure-injection fixtures while preserving Current and Last-known-good.
-10. Produce six domains × 64 buckets = 384 deterministic logical shards and pass same-input byte replay.
-11. Preserve investment recommendations, Candidate Pool mutations, simulation mutations, real-account mutations, rule mutations and orders at zero.
-12. Preserve `trade_authority = NONE` and open only FMDL-7C.
+9. Preserve market-specific evidence grades and route semantics without forcing a common score or silently filling missing links.
+10. Reject all seven failure-injection fixtures while preserving Current and Last-known-good.
+11. Produce six domains × 64 buckets = 384 deterministic logical shards and pass same-input byte replay.
+12. Preserve investment recommendations, Candidate Pool mutations, simulation mutations, real-account mutations, rule mutations and orders at zero.
+13. Preserve `trade_authority = NONE` and open only FMDL-7C.
