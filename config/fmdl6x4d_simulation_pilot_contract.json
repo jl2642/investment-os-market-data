@@ -1,0 +1,92 @@
+{
+  "phase_id": "FMDL-6X4-D",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "required_exit_status": "FMDL6X4D_SIMULATION_ONLY_PILOT_ATTRIBUTION_AND_FAILURE_RECOVERY_ACCEPTED",
+  "next_gate": "FMDL-6X4-E_CROSS_MARKET_COMPARABILITY_AND_OPERATING_RUNBOOK",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL6X4C_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-6X4-C",
+    "required_release_id": "FMDL6X4C_20260723_fe78ea8b7e74",
+    "required_release_sequence": 44,
+    "required_status": "FMDL6X4C_CANDIDATE_GRADUATION_DECISION_INTERFACE_AND_GUARDRAILS_ACCEPTED",
+    "observed_legacy_next_gate": "FMDL-6X4-FINAL_PUBLIC_EQUITY_INVESTING_INTEGRATION_RECONCILIATION_AND_OPERATIONAL_ACCEPTANCE",
+    "required_trade_authority": "NONE"
+  },
+  "roadmap_reconciliation": {
+    "authority_path": "docs/FMDL-6X3_X4_DEVELOPMENT_ROADMAP.md",
+    "required_stage_text": "6X4-D — Simulation-only Pilot, Attribution & Failure Recovery",
+    "required_following_stage_text": "6X4-E — Cross-market Comparability & Operating Runbook",
+    "legacy_c_handoff_superseded": true,
+    "immutable_release_44_preserved": true
+  },
+  "scope": {
+    "shadow_simulation_computation_authorized": true,
+    "non_decision_grade_attribution_sandbox_authorized": true,
+    "failure_injection_and_recovery_validation_authorized": true,
+    "investment_os_simulation_book_mutation_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "investment_recommendation_authorized": false,
+    "brokerage_or_order_authorized": false
+  },
+  "pilot_contract": {
+    "actual_control_lane": "ZERO_EXPOSURE_FAIL_CLOSED",
+    "shadow_lane": "HYPOTHETICAL_EQUAL_WEIGHT_RESEARCH_SANDBOX",
+    "shadow_symbols": ["AAPL", "MSFT", "NVDA"],
+    "benchmark_symbol": "QQQ",
+    "required_horizons": [
+      "PRICE_RETURN_21D_EXCESS_VS_QQQ",
+      "PRICE_RETURN_63D_EXCESS_VS_QQQ",
+      "PRICE_RETURN_126D_EXCESS_VS_QQQ",
+      "PRICE_RETURN_252D_EXCESS_VS_QQQ",
+      "PRICE_MOMENTUM_12M_EX_1M_EXCESS_VS_QQQ"
+    ],
+    "weighting": "EQUAL_WEIGHT_ONE_THIRD",
+    "market_data_grade": "NON_DECISION_GRADE_FALLBACK",
+    "usage": "SHADOW_ATTRIBUTION_ONLY_NOT_INVESTMENT_PERFORMANCE",
+    "formal_performance_claim_allowed": false
+  },
+  "failure_recovery_contract": {
+    "scenario_count": 10,
+    "all_scenarios_must_pass": true,
+    "fail_closed_required": true,
+    "last_known_good_recovery_required": true,
+    "append_only_event_semantics_required": true,
+    "duplicate_replay_idempotency_required": true,
+    "out_of_order_event_rejection_required": true
+  },
+  "storage_contract": {
+    "bucket_count": 64,
+    "release_sequence": 45,
+    "current_root": "outputs/fmdl6x4/current/simulation_pilot_attribution_recovery",
+    "release_root": "datasets/fmdl6x4/releases/<release_id>/simulation_pilot_attribution_recovery",
+    "normalized_root": "datasets/fmdl6x4/normalized/simulation_pilot_attribution_recovery/<release_id>",
+    "archive_root": "outputs/fmdl6x4/archive",
+    "last_success": "outputs/status/FMDL6X4D_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6X4_SIMULATION_PILOT_ATTRIBUTION_RECOVERY_LKG.json"
+  },
+  "acceptance_gates": {
+    "security_control_count": 7,
+    "blocked_issuer_count": 6,
+    "reference_instrument_count": 1,
+    "actual_position_count": 0,
+    "actual_simulation_event_count": 0,
+    "shadow_security_count": 3,
+    "shadow_attribution_observation_count": 15,
+    "shadow_portfolio_window_count": 5,
+    "failure_recovery_scenario_count": 10,
+    "failure_recovery_pass_count": 10,
+    "recovery_checkpoint_count": 4,
+    "executed_state_transition_count": 0,
+    "logical_shard_count": 384,
+    "investment_recommendation_count": 0,
+    "neutral_fill_count": 0
+  },
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "trade_authority": "NONE"
+}
