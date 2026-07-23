@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x4d_simulation_pilot_contract_v1.schema.json",
+  "title": "FMDL-6X4-D Simulation-only Pilot Contract",
+  "type": "object",
+  "required": [
+    "phase_id", "contract_version", "required_exit_status", "next_gate",
+    "entry_gate", "roadmap_reconciliation", "scope", "pilot_contract",
+    "failure_recovery_contract", "storage_contract", "acceptance_gates",
+    "zero_mutation_gate", "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X4-D"},
+    "required_exit_status": {"const": "FMDL6X4D_SIMULATION_ONLY_PILOT_ATTRIBUTION_AND_FAILURE_RECOVERY_ACCEPTED"},
+    "next_gate": {"const": "FMDL-6X4-E_CROSS_MARKET_COMPARABILITY_AND_OPERATING_RUNBOOK"},
+    "trade_authority": {"const": "NONE"},
+    "scope": {
+      "type": "object",
+      "properties": {
+        "investment_os_simulation_book_mutation_authorized": {"const": false},
+        "candidate_pool_mutation_authorized": {"const": false},
+        "brokerage_or_order_authorized": {"const": false}
+      },
+      "required": ["investment_os_simulation_book_mutation_authorized", "candidate_pool_mutation_authorized", "brokerage_or_order_authorized"]
+    },
+    "zero_mutation_gate": {
+      "type": "object",
+      "additionalProperties": {"const": 0}
+    }
+  },
+  "additionalProperties": true
+}
