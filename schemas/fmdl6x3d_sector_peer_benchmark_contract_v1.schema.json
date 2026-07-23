@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x3d-sector-peer-benchmark-contract-v1.schema.json",
+  "title": "FMDL-6X3-D Sector Industry Peer and Benchmark Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "input_contract",
+    "classification_contract",
+    "peer_contract",
+    "benchmark_contract",
+    "ranking_contract",
+    "storage_contract",
+    "acceptance_gates",
+    "zero_mutation_gate",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X3-D"},
+    "contract_version": {"type": "string"},
+    "trade_authority": {"const": "NONE"},
+    "input_contract": {"type": "object"},
+    "classification_contract": {
+      "type": "object",
+      "required": ["official_classification_anchor", "sector_industry_crosswalk", "gics_claimed", "icb_claimed", "name_only_classification_allowed"],
+      "properties": {
+        "gics_claimed": {"const": false},
+        "icb_claimed": {"const": false},
+        "name_only_classification_allowed": {"const": false}
+      }
+    },
+    "peer_contract": {
+      "type": "object",
+      "required": ["formal_peer_minimum_members", "required_dimensions", "sector_cohort_is_not_peer_group"],
+      "properties": {
+        "formal_peer_minimum_members": {"type": "integer", "minimum": 3},
+        "sector_cohort_is_not_peer_group": {"const": true}
+      }
+    },
+    "benchmark_contract": {"type": "object"},
+    "ranking_contract": {
+      "type": "object",
+      "properties": {
+        "sector_neutral_factor_allowed": {"const": false},
+        "formal_peer_rank_allowed": {"const": false},
+        "global_factor_score_allowed": {"const": false}
+      }
+    },
+    "storage_contract": {"type": "object"},
+    "acceptance_gates": {"type": "object"},
+    "zero_mutation_gate": {
+      "type": "object",
+      "properties": {
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      }
+    }
+  },
+  "additionalProperties": true
+}
