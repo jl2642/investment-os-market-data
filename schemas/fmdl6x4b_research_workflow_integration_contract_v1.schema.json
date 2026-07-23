@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x4b-research-workflow-integration-contract-v1.schema.json",
+  "title": "FMDL-6X4-B Research Workflow Integration and Evidence Registration Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "entry_gate",
+    "scope",
+    "evidence_contract",
+    "integration_contract",
+    "storage_contract",
+    "acceptance_gates",
+    "zero_mutation_gate",
+    "required_exit_status",
+    "next_gate",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X4-B"},
+    "trade_authority": {"const": "NONE"},
+    "scope": {
+      "type": "object",
+      "properties": {
+        "workflow_integration_authorized": {"const": true},
+        "evidence_registration_authorized": {"const": true},
+        "invocation_envelope_materialization_authorized": {"const": true},
+        "workflow_output_registration_contract_authorized": {"const": true},
+        "formal_workflow_execution_authorized": {"const": false},
+        "completed_workflow_artifact_registration_authorized": {"const": false},
+        "investment_recommendation_authorized": {"const": false},
+        "candidate_pool_promotion_authorized": {"const": false},
+        "simulation_authorized": {"const": false},
+        "brokerage_authorized": {"const": false}
+      }
+    },
+    "evidence_contract": {
+      "type": "object",
+      "properties": {
+        "source_registry_count": {"const": 7},
+        "evidence_registration_count": {"const": 53},
+        "security_evidence_ledger_count": {"const": 7},
+        "runtime_source_check_required": {"const": true},
+        "silent_weaker_source_substitution_allowed": {"const": false}
+      }
+    },
+    "integration_contract": {
+      "type": "object",
+      "properties": {
+        "workflow_contract_count": {"const": 14},
+        "security_workflow_mapping_count": {"const": 98},
+        "invocation_envelope_count": {"const": 10},
+        "output_registration_contract_count": {"const": 14},
+        "workflow_execution_count": {"const": 0},
+        "registered_workflow_output_count": {"const": 0}
+      }
+    },
+    "storage_contract": {"type": "object"},
+    "acceptance_gates": {"type": "object"},
+    "zero_mutation_gate": {
+      "type": "object",
+      "properties": {
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      }
+    }
+  },
+  "additionalProperties": true
+}
