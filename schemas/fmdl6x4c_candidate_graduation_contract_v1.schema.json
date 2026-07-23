@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x4c-candidate-graduation-contract-v1.schema.json",
+  "title": "FMDL-6X4-C Candidate Graduation Decision Interface and Guardrails Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "required_exit_status",
+    "next_gate",
+    "entry_gate",
+    "scope",
+    "graduation_contract",
+    "decision_interface_contract",
+    "approval_contract",
+    "downgrade_contract",
+    "storage_contract",
+    "acceptance_gates",
+    "zero_mutation_gate",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X4-C"},
+    "trade_authority": {"const": "NONE"},
+    "scope": {
+      "type": "object",
+      "properties": {
+        "candidate_pool_mutation_authorized": {"const": false},
+        "investment_recommendation_authorized": {"const": false},
+        "simulation_authorized": {"const": false},
+        "brokerage_or_order_authorized": {"const": false}
+      }
+    },
+    "graduation_contract": {
+      "type": "object",
+      "required": [
+        "all_applicable_rules_must_pass",
+        "scoring_or_neutral_fill_allowed",
+        "minimum_registered_workflow_outputs",
+        "required_market_data_grade",
+        "formal_valuation_required",
+        "formal_peer_comparability_required",
+        "user_confirmed_investment_context_required",
+        "thesis_and_falsifiers_required",
+        "human_approval_required",
+        "reference_instruments_cannot_graduate_as_issuer_candidates"
+      ],
+      "properties": {
+        "all_applicable_rules_must_pass": {"const": true},
+        "scoring_or_neutral_fill_allowed": {"const": false},
+        "minimum_registered_workflow_outputs": {"type": "integer", "minimum": 1},
+        "formal_valuation_required": {"const": true},
+        "formal_peer_comparability_required": {"const": true},
+        "user_confirmed_investment_context_required": {"const": true},
+        "thesis_and_falsifiers_required": {"const": true},
+        "human_approval_required": {"const": true},
+        "reference_instruments_cannot_graduate_as_issuer_candidates": {"const": true}
+      }
+    },
+    "decision_interface_contract": {
+      "type": "object",
+      "properties": {
+        "research_priority_is_not_recommendation": {"const": true},
+        "candidate_graduation_is_not_trade_authority": {"const": true},
+        "automatic_approval_allowed": {"const": false}
+      }
+    },
+    "approval_contract": {
+      "type": "object",
+      "properties": {
+        "decision_authority": {"const": "HUMAN_USER"},
+        "append_only_decision_log_required": {"const": true},
+        "approval_does_not_authorize_trade": {"const": true}
+      }
+    },
+    "storage_contract": {"type": "object"},
+    "acceptance_gates": {"type": "object"},
+    "zero_mutation_gate": {
+      "type": "object",
+      "properties": {
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      }
+    }
+  },
+  "additionalProperties": true
+}
