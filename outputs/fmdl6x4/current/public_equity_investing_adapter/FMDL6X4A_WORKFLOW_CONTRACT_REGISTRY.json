@@ -1,0 +1,340 @@
+{
+  "phase_id": "FMDL-6X4-A",
+  "release_id": "FMDL6X4A_20260723_7d5e491ad3fd",
+  "workflow_count": 14,
+  "workflows": [
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "dated_event_evidence",
+        "confirmed_or_inferred_status",
+        "monitoring_window",
+        "event_readthrough"
+      ],
+      "owning_artifact": "DATED_CATALYST_AND_MONITORING_CALENDAR",
+      "required_source_categories": [
+        "Earnings Transcripts & Events",
+        "Company Filings & IR",
+        "Market Data & Estimates",
+        "Internal Research"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-7954b0263ddad86112db1a27",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Catalyst Calendar",
+      "workflow_slug": "catalyst-calendar"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "canonical_identity",
+        "source_inventory",
+        "reported_company_facts",
+        "market_context"
+      ],
+      "owning_artifact": "SOURCE_BACKED_ISSUER_OR_REFERENCE_BASELINE",
+      "required_source_categories": [
+        "Market Data & Estimates",
+        "Company Filings & IR"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-bf3bff2d2ba4bdcab77d8492",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Company Tearsheet",
+      "workflow_slug": "company-tearsheet"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "decision_grade_price",
+        "shares_and_ev_bridge",
+        "ttm_or_forward_denominators",
+        "formal_peer_set",
+        "comparability_checks"
+      ],
+      "owning_artifact": "PUBLIC_COMPARABLE_COMPANY_VALUATION",
+      "required_source_categories": [
+        "Market Data & Estimates",
+        "Company Filings & IR",
+        "Portfolio Models & Trackers"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-37f1e43ac08112fd19a6e2ab",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Comps Valuation",
+      "workflow_slug": "comps-valuation"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "historical_financials",
+        "forecast_driver_plan",
+        "cash_flow",
+        "net_debt",
+        "share_count",
+        "wacc_and_terminal_assumptions"
+      ],
+      "owning_artifact": "FORMULA_FIRST_DCF_WORKBOOK",
+      "required_source_categories": [
+        "Company Filings & IR",
+        "Market Data & Estimates",
+        "Portfolio Models & Trackers"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-079e40678dc2668ed963dca5",
+      "workflow_execution_authorized": false,
+      "workflow_name": "DCF Model Builder",
+      "workflow_slug": "dcf-model-builder"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "earnings_release",
+        "reported_results",
+        "transcript_or_call_commentary",
+        "guidance",
+        "price_reaction"
+      ],
+      "owning_artifact": "POST_EARNINGS_THESIS_AND_MODEL_IMPLICATIONS",
+      "required_source_categories": [
+        "Earnings Transcripts & Events",
+        "Company Filings & IR",
+        "Market Data & Estimates",
+        "Internal Research"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-4fb4e2beffe1b33bc2d7d357",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Earnings Deep Dive",
+      "workflow_slug": "earnings-deep-dive"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "next_earnings_date",
+        "reported_baseline",
+        "consensus_bar",
+        "guidance_history",
+        "event_freeze_time"
+      ],
+      "owning_artifact": "PRE_EARNINGS_INVESTOR_REPORT",
+      "required_source_categories": [
+        "Earnings Transcripts & Events",
+        "Company Filings & IR",
+        "Market Data & Estimates",
+        "Internal Research"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-56860b515e18bd2f9dde2613",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Earnings Preview",
+      "workflow_slug": "earnings-preview"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "reported_financial_facts",
+        "period_end_dates",
+        "units_currency",
+        "source_ids",
+        "validation_scope"
+      ],
+      "owning_artifact": "MODEL_READY_NORMALIZED_FINANCIAL_PACKAGE",
+      "required_source_categories": [
+        "Company Filings & IR",
+        "Portfolio Models & Trackers",
+        "Market Data & Estimates"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-8c8f3b5877968a3498e28997",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Financials Normalizer",
+      "workflow_slug": "financials-normalizer"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "complete_issuer_baseline",
+        "multi_period_financials",
+        "forecast",
+        "valuation",
+        "thesis",
+        "catalysts",
+        "risks"
+      ],
+      "owning_artifact": "FULL_INITIATING_COVERAGE_REPORT",
+      "required_source_categories": [
+        "Company Filings & IR",
+        "Market Data & Estimates",
+        "Earnings Transcripts & Events",
+        "Portfolio Models & Trackers",
+        "Internal Research"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-baee8ba4cb332609cabf7579",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Initiating Coverage",
+      "workflow_slug": "initiating-coverage"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "variant_perception",
+        "valuation",
+        "catalysts",
+        "risk_reward",
+        "falsifiers",
+        "trade_expression_context"
+      ],
+      "owning_artifact": "PM_FACING_TRADE_PITCH",
+      "required_source_categories": [
+        "Company Filings & IR",
+        "Market Data & Estimates",
+        "Earnings Transcripts & Events",
+        "Portfolio Models & Trackers",
+        "Internal Research"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-b28b7ef1d00cc90534084b5d",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Long Short Pitch",
+      "workflow_slug": "long-short-pitch"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "user_confirmed_meeting_purpose",
+        "participants",
+        "meeting_timing",
+        "thesis_linked_questions"
+      ],
+      "owning_artifact": "INVESTOR_MEETING_PREP_BRIEF",
+      "required_source_categories": [
+        "Internal Research",
+        "Company Filings & IR",
+        "Earnings Transcripts & Events",
+        "Market Data & Estimates"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-f6d2ed891fa6e1e180e5bf3d",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Meeting Prep",
+      "workflow_slug": "meeting-prep"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "owning_analysis_outputs",
+        "investment_question",
+        "valuation_or_scenario_support",
+        "risk_and_catalyst_evidence"
+      ],
+      "owning_artifact": "FORMAL_PUBLIC_EQUITY_INVESTMENT_MEMO",
+      "required_source_categories": [
+        "Internal Research",
+        "Company Filings & IR",
+        "Market Data & Estimates",
+        "Portfolio Models & Trackers"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-d97efd354fec70e34a136935",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Memo Builder",
+      "workflow_slug": "memo-builder"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "user_confirmed_decision_context",
+        "validated_base_case",
+        "current_price",
+        "scenario_drivers",
+        "source_as_of_dates"
+      ],
+      "owning_artifact": "SCENARIO_BREAKPOINT_AND_ACTION_THRESHOLD_ANALYSIS",
+      "required_source_categories": [
+        "Market Data & Estimates",
+        "Company Filings & IR",
+        "Portfolio Models & Trackers",
+        "Earnings Transcripts & Events"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-e6e02703a49a549d0672513b",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Scenario Sensitivity Generator",
+      "workflow_slug": "scenario-sensitivity-generator"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "user_confirmed_thesis",
+        "prove_kill_conditions",
+        "monitoring_triggers",
+        "review_cadence"
+      ],
+      "owning_artifact": "THESIS_STATUS_AND_PROVE_KILL_TRACKER",
+      "required_source_categories": [
+        "Internal Research",
+        "Company Filings & IR",
+        "Market Data & Estimates",
+        "Earnings Transcripts & Events",
+        "Portfolio Models & Trackers"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-f77540c9da5c9f03684d51f6",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Thesis Tracker",
+      "workflow_slug": "thesis-tracker"
+    },
+    {
+      "adapter_payload_materialization_authorized": true,
+      "decision_grade_handoff_authorized": false,
+      "minimum_required_inputs": [
+        "income_statement",
+        "balance_sheet",
+        "cash_flow",
+        "historical_periods",
+        "forecast_assumptions",
+        "capital_structure"
+      ],
+      "owning_artifact": "FORMULA_FIRST_THREE_STATEMENT_WORKBOOK",
+      "required_source_categories": [
+        "Company Filings & IR",
+        "Market Data & Estimates",
+        "Portfolio Models & Trackers"
+      ],
+      "runtime_source_check_required": true,
+      "trade_authority": "NONE",
+      "workflow_contract_id": "PEICONTRACT-b313c8eac4592956b4fe687b",
+      "workflow_execution_authorized": false,
+      "workflow_name": "Three Statement Model Builder",
+      "workflow_slug": "three-statement-model-builder"
+    }
+  ]
+}
