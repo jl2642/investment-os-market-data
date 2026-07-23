@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x3e-screening-research-cards-contract-v1.schema.json",
+  "title": "FMDL-6X3-E Screening Funnel Research Cards and US Benchmark Pool Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "input_contract",
+    "screening_contract",
+    "research_card_contract",
+    "benchmark_pool_contract",
+    "storage_contract",
+    "acceptance_gates",
+    "zero_mutation_gate",
+    "required_exit_status",
+    "next_gate",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X3-E"},
+    "contract_version": {"type": "string"},
+    "trade_authority": {"const": "NONE"},
+    "screening_contract": {
+      "type": "object",
+      "required": ["method", "neutral_fill_allowed", "formal_cross_section_rank_allowed", "formal_candidate_promotion_allowed"],
+      "properties": {
+        "method": {"const": "EVIDENCE_GATED_NON_RANKED_FUNNEL"},
+        "neutral_fill_allowed": {"const": false},
+        "formal_cross_section_rank_allowed": {"const": false},
+        "formal_candidate_promotion_allowed": {"const": false}
+      }
+    },
+    "research_card_contract": {
+      "type": "object",
+      "required": ["all_universe_card_required", "card_is_research_artifact_not_investment_recommendation"],
+      "properties": {
+        "all_universe_card_required": {"const": true},
+        "card_is_research_artifact_not_investment_recommendation": {"const": true}
+      }
+    },
+    "benchmark_pool_contract": {
+      "type": "object",
+      "required": ["pool_is_not_candidate_pool", "member_symbols", "formal_investment_os_graduation_count"],
+      "properties": {
+        "pool_is_not_candidate_pool": {"const": true},
+        "member_symbols": {"type": "array", "minItems": 7, "maxItems": 7, "uniqueItems": true},
+        "formal_investment_os_graduation_count": {"const": 0}
+      }
+    },
+    "input_contract": {"type": "object"},
+    "storage_contract": {"type": "object"},
+    "acceptance_gates": {"type": "object"},
+    "zero_mutation_gate": {
+      "type": "object",
+      "properties": {
+        "candidate_pool_mutations": {"const": 0},
+        "simulation_mutations": {"const": 0},
+        "real_account_mutations": {"const": 0},
+        "orders": {"const": 0}
+      }
+    }
+  },
+  "additionalProperties": true
+}
