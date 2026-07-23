@@ -1,0 +1,97 @@
+name: FMDL 6X4-FINAL US Research Adapter Operational Acceptance and FMDL-6 Freeze
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x4final_*.json"
+      - "schemas/fmdl6x4final_*.json"
+      - "scripts/fmdl6x4final_*.py"
+      - "tests/test_fmdl6x4final_*.py"
+      - "docs/FMDL-6X4-FINAL*.md"
+      - ".github/workflows/fmdl-6x4-final-operational-acceptance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x4final_*.json"
+      - "schemas/fmdl6x4final_*.json"
+      - "scripts/fmdl6x4final_*.py"
+      - "tests/test_fmdl6x4final_*.py"
+      - "docs/FMDL-6X4-FINAL*.md"
+      - ".github/workflows/fmdl-6x4-final-operational-acceptance.yml"
+  workflow_run:
+    workflows: ["FMDL 6X4-E Cross-market Comparability and Operating Runbook"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x4-final-${{ github.workflow }}-${{ github.ref || github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Contract and final operational acceptance regression tests
+        run: PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x4final_operational_acceptance.py
+      - name: Compile producer and tests
+        run: python -m py_compile scripts/fmdl6x4final_operational_acceptance.py tests/test_fmdl6x4final_operational_acceptance.py
+      - name: Validate final component chain and FMDL-6 freeze contract
+        run: PYTHONPATH=scripts python scripts/fmdl6x4final_operational_acceptance.py --repo-root . validate-contract
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Freeze run timestamp and source commit
+        run: |
+          echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+          echo "SOURCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Build final operational acceptance candidate
+        run: |
+          rm -rf outputs/fmdl6x4final/candidate outputs/fmdl6x4final/candidate_replay outputs/fmdl6x4final/acceptance
+          PYTHONPATH=scripts python scripts/fmdl6x4final_operational_acceptance.py --repo-root . build --candidate outputs/fmdl6x4final/candidate --accepted-at "$RUN_AS_OF" --source-commit "$SOURCE_COMMIT"
+      - name: Independent same-input replay
+        run: PYTHONPATH=scripts python scripts/fmdl6x4final_operational_acceptance.py --repo-root . validate-candidate --candidate outputs/fmdl6x4final/candidate --accepted-at "$RUN_AS_OF" --source-commit "$SOURCE_COMMIT" --acceptance outputs/fmdl6x4final/acceptance/FMDL6X4FINAL_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x4final-operational-acceptance-candidate
+          path: |
+            outputs/fmdl6x4final/candidate
+            outputs/fmdl6x4final/acceptance
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release normalized and pointers
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && success()) || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && success())
+        run: PYTHONPATH=scripts python scripts/fmdl6x4final_operational_acceptance.py --repo-root . publish --candidate outputs/fmdl6x4final/candidate --published-at "$RUN_AS_OF" --source-commit "$SOURCE_COMMIT"
+      - name: Commit accepted FMDL-6X4-FINAL state
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && success()) || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && success())
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A outputs/fmdl6x4/current/us_research_adapter_final datasets/fmdl6x4/releases datasets/fmdl6x4/normalized/us_research_adapter_final outputs/status/FMDL6X4FINAL_LAST_SUCCESS.json outputs/status/FMDL6_US_RESEARCH_ADAPTER_FINAL_LKG.json
+          if [ -d outputs/fmdl6x4/archive ]; then git add -A outputs/fmdl6x4/archive; fi
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X4-FINAL operational acceptance and FMDL-6 freeze [skip ci]"
+          git push

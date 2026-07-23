@@ -1,0 +1,158 @@
+{
+  "phase_id": "FMDL-6X4-FINAL",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "title": "US Research Adapter Operational Acceptance and FMDL-6 Freeze",
+  "required_exit_status": "FMDL6X4_FINAL_US_RESEARCH_ADAPTER_OPERATIONAL_ACCEPTANCE_AND_FMDL6_FREEZE_ACCEPTED",
+  "next_gate": "FMDL-7_CROSS_MARKET_AND_FULL_SYSTEM_FINAL_OPERATIONAL_ACCEPTANCE",
+  "roadmap_authority": {
+    "path": "docs/FMDL-6X3_X4_DEVELOPMENT_ROADMAP.md",
+    "required_stage_text": "US Research Adapter Operational Acceptance & FMDL-6 Freeze",
+    "required_completion_text": "FMDL-6 is complete only after 6X4-FINAL accepts X1–X4 and freezes the US research adapter",
+    "required_following_text": "FMDL-7 then performs cross-market and full-system final operational acceptance"
+  },
+  "component_pointers": [
+    {
+      "component_id": "FMDL-6X1-FINAL",
+      "path": "outputs/status/FMDL6X1_LAST_SUCCESS.json",
+      "required_phase_id": "FMDL-6X1-FINAL",
+      "required_release_id": "FMDL6X1_20260722_2e52bdfe0b87",
+      "required_release_sequence": 29,
+      "required_status": "FMDL6X1_FINAL_ACCEPTED",
+      "accepted_capability": "SOURCE_COST_EXECUTION_AND_FULL_BUILD_CONTRACT_OPERATIONAL_BASELINE"
+    },
+    {
+      "component_id": "FMDL-6X2-FINAL",
+      "path": "outputs/status/FMDL6X2_FINAL_LAST_SUCCESS.json",
+      "required_phase_id": "FMDL-6X2-FINAL",
+      "required_release_id": "FMDL6X2FINAL_20260722_0ce00268a68b",
+      "required_release_sequence": 35,
+      "required_status": "FMDL6X2_FINAL_FULL_STORE_RECONCILIATION_AND_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+      "accepted_capability": "US_SECURITY_IDENTITY_MARKET_AND_SEC_STORE_FOUNDATION"
+    },
+    {
+      "component_id": "FMDL-6X3-FINAL",
+      "path": "outputs/status/FMDL6X3FINAL_LAST_SUCCESS.json",
+      "required_phase_id": "FMDL-6X3-FINAL",
+      "required_release_id": "FMDL6X3FINAL_20260723_c9dff24a71f0",
+      "required_release_sequence": 41,
+      "required_status": "FMDL6X3_FINAL_RESEARCH_PRODUCTION_RECONCILIATION_AND_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+      "accepted_capability": "US_RESEARCH_PRODUCTION_FACTOR_SCREENING_CARD_AND_BENCHMARK_POOL"
+    },
+    {
+      "component_id": "FMDL-6X4-A",
+      "path": "outputs/status/FMDL6X4A_LAST_SUCCESS.json",
+      "required_phase_id": "FMDL-6X4-A",
+      "required_release_id": "FMDL6X4A_20260723_7d5e491ad3fd",
+      "required_release_sequence": 42,
+      "required_status": "FMDL6X4A_PUBLIC_EQUITY_INVESTING_ADAPTER_AND_CONTRACT_MAPPING_ACCEPTED",
+      "accepted_capability": "PUBLIC_EQUITY_INVESTING_ADAPTER_AND_WORKFLOW_CONTRACT_MAPPING"
+    },
+    {
+      "component_id": "FMDL-6X4-B",
+      "path": "outputs/status/FMDL6X4B_LAST_SUCCESS.json",
+      "required_phase_id": "FMDL-6X4-B",
+      "required_release_id": "FMDL6X4B_20260723_1c2e0a86a712",
+      "required_release_sequence": 43,
+      "required_status": "FMDL6X4B_RESEARCH_WORKFLOW_INTEGRATION_AND_EVIDENCE_REGISTRATION_ACCEPTED",
+      "accepted_capability": "WORKFLOW_EVIDENCE_REGISTRATION_AND_APPEND_ONLY_SECURITY_LEDGER"
+    },
+    {
+      "component_id": "FMDL-6X4-C",
+      "path": "outputs/status/FMDL6X4C_LAST_SUCCESS.json",
+      "required_phase_id": "FMDL-6X4-C",
+      "required_release_id": "FMDL6X4C_20260723_fe78ea8b7e74",
+      "required_release_sequence": 44,
+      "required_status": "FMDL6X4C_CANDIDATE_GRADUATION_DECISION_INTERFACE_AND_GUARDRAILS_ACCEPTED",
+      "accepted_capability": "CANDIDATE_GRADUATION_INTERFACE_HUMAN_APPROVAL_AND_GUARDRAILS"
+    },
+    {
+      "component_id": "FMDL-6X4-D",
+      "path": "outputs/status/FMDL6X4D_LAST_SUCCESS.json",
+      "required_phase_id": "FMDL-6X4-D",
+      "required_release_id": "FMDL6X4D_20260723_1b325920f2b5",
+      "required_release_sequence": 45,
+      "required_status": "FMDL6X4D_SIMULATION_ONLY_PILOT_ATTRIBUTION_AND_FAILURE_RECOVERY_ACCEPTED",
+      "accepted_capability": "ZERO_EXPOSURE_SIMULATION_CONTROL_SHADOW_ATTRIBUTION_AND_FAILURE_RECOVERY"
+    },
+    {
+      "component_id": "FMDL-6X4-E",
+      "path": "outputs/status/FMDL6X4E_LAST_SUCCESS.json",
+      "required_phase_id": "FMDL-6X4-E",
+      "required_release_id": "FMDL6X4E_20260723_231f2f787d29",
+      "required_release_sequence": 46,
+      "required_status": "FMDL6X4E_CROSS_MARKET_COMPARABILITY_AND_OPERATING_RUNBOOK_ACCEPTED",
+      "accepted_capability": "CROSS_MARKET_DIMENSION_COMPARABILITY_AND_OPERATING_RUNBOOK"
+    }
+  ],
+  "freeze_controls": [
+    "FREEZE_US_RESEARCH_ADAPTER_CONTRACTS_AND_OUTPUT_IDENTITIES",
+    "FREEZE_COMPONENT_RELEASE_SEQUENCE_29_35_41_42_43_44_45_46",
+    "PRESERVE_MARKET_SPECIFIC_ACCOUNTING_AND_DATA_GRADE_BOUNDARIES",
+    "PRESERVE_NO_FORCED_COMMON_FACTOR_SCORE",
+    "PRESERVE_NO_CROSS_MARKET_SECURITY_RANK",
+    "PRESERVE_NO_NEUTRAL_FILL_OR_SILENT_SOURCE_SUBSTITUTION",
+    "PRESERVE_HUMAN_USER_AS_ONLY_GRADUATION_AND_SIMULATION_AUTHORITY",
+    "PRESERVE_US_FORMAL_SIMULATION_GATE_CLOSED",
+    "PRESERVE_BROKERAGE_AND_REAL_ACCOUNT_GATE_CLOSED_NO_CHANNEL",
+    "PRESERVE_TRADE_AUTHORITY_NONE",
+    "FREEZE_DAILY_WEEKLY_MONTHLY_QUARTERLY_EVENT_DRIVEN_RUNBOOK",
+    "OPEN_ONLY_FMDL7_CROSS_MARKET_FULL_SYSTEM_ACCEPTANCE_GATE"
+  ],
+  "recovery_controls": [
+    "VERIFY_EACH_COMPONENT_LAST_SUCCESS_POINTER",
+    "VERIFY_EACH_COMPONENT_RELEASE_SEQUENCE_AND_STATUS",
+    "VERIFY_EACH_COMPONENT_MANIFEST_SHA256_PRESENT",
+    "VERIFY_STRICT_COMPONENT_RELEASE_ORDER",
+    "VERIFY_CURRENT_IMMUTABLE_RELEASE_POINTERS_RETAINED",
+    "VERIFY_FMDL6X4E_RUNBOOK_IS_FINAL_X4_ENTRY",
+    "VERIFY_SAME_INPUT_BYTE_REPLAY",
+    "RESTORE_FROM_FMDL6_FINAL_LAST_KNOWN_GOOD_ON_FAILURE"
+  ],
+  "scope": {
+    "operational_acceptance_authorized": true,
+    "fmdl6_freeze_authorized": true,
+    "fmdl7_handoff_authorized": true,
+    "new_data_backfill_authorized": false,
+    "workflow_execution_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_book_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "investment_recommendation_authorized": false,
+    "brokerage_or_order_authorized": false
+  },
+  "acceptance_gates": {
+    "component_count": 8,
+    "x4_stage_count": 5,
+    "strict_release_sequence_count": 8,
+    "freeze_control_count": 12,
+    "recovery_control_count": 8,
+    "operational_capability_count": 8,
+    "final_gate_count": 12,
+    "logical_shard_count": 384,
+    "formal_workflow_execution_count": 0,
+    "formal_candidate_promotion_count": 0,
+    "formal_simulation_position_count": 0,
+    "investment_recommendation_count": 0,
+    "cross_market_security_rank_count": 0,
+    "forced_common_factor_score_count": 0,
+    "neutral_fill_count": 0
+  },
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "storage_contract": {
+    "bucket_count": 64,
+    "release_sequence": 47,
+    "current_root": "outputs/fmdl6x4/current/us_research_adapter_final",
+    "release_root": "datasets/fmdl6x4/releases/<release_id>/us_research_adapter_final",
+    "normalized_root": "datasets/fmdl6x4/normalized/us_research_adapter_final/<release_id>",
+    "archive_root": "outputs/fmdl6x4/archive",
+    "last_success": "outputs/status/FMDL6X4FINAL_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6_US_RESEARCH_ADAPTER_FINAL_LKG.json"
+  },
+  "trade_authority": "NONE"
+}
