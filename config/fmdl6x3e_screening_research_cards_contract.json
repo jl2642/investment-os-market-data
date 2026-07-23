@@ -1,0 +1,85 @@
+{
+  "phase_id": "FMDL-6X3-E",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "input_contract": {
+    "readiness_release_id": "FMDL6X3A_20260722_f918c8f71430",
+    "financial_release_id": "FMDL6X3B_20260722_5d2ed5708fc1",
+    "factor_release_id": "FMDL6X3C_20260722_2209fb89f9ed",
+    "framework_release_id": "FMDL6X3D_20260723_5bff8dce01af"
+  },
+  "screening_contract": {
+    "method": "EVIDENCE_GATED_NON_RANKED_FUNNEL",
+    "neutral_fill_allowed": false,
+    "inferred_valuation_allowed": false,
+    "formal_cross_section_rank_allowed": false,
+    "formal_candidate_promotion_allowed": false,
+    "dispositions": [
+      "CORE_RESEARCH_SANDBOX",
+      "OFFICIAL_FILING_WATCH",
+      "BENCHMARK_REFERENCE",
+      "MARKET_RISK_SANDBOX_OBSERVATION",
+      "DATA_BACKFILL_PENDING",
+      "REFERENCE_ONLY",
+      "INSTRUMENT_REVIEW_REQUIRED",
+      "EXCLUDED"
+    ]
+  },
+  "research_card_contract": {
+    "all_universe_card_required": true,
+    "card_is_research_artifact_not_investment_recommendation": true,
+    "required_sections": [
+      "IDENTITY",
+      "DATA_READINESS",
+      "CLASSIFICATION",
+      "FACTOR_SNAPSHOT",
+      "BENCHMARK_CONTEXT",
+      "BLOCKERS_AND_GATES"
+    ],
+    "missing_data_action": "SHOW_EXPLICIT_BLOCKER_NO_SCORE_FILL"
+  },
+  "benchmark_pool_contract": {
+    "pool_name": "US_RESEARCH_BENCHMARK_POOL_V1",
+    "pool_is_not_candidate_pool": true,
+    "member_symbols": ["AAPL", "MSFT", "NVDA", "JPM", "BRK.B", "XOM", "QQQ"],
+    "core_quality_sandbox_symbols": ["AAPL", "MSFT", "NVDA"],
+    "filing_watch_symbols": ["JPM", "BRK.B", "XOM"],
+    "benchmark_reference_symbols": ["QQQ"],
+    "formal_investment_os_graduation_count": 0
+  },
+  "storage_contract": {
+    "bucket_count": 64,
+    "current_root": "outputs/fmdl6x3/current/screening_research_cards",
+    "release_root": "datasets/fmdl6x3/releases/<release_id>/screening_research_cards",
+    "normalized_root": "datasets/fmdl6x3/normalized/screening_research_cards/<release_id>",
+    "archive_root": "outputs/fmdl6x3/archive",
+    "last_success": "outputs/status/FMDL6X3E_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL6X3_SCREENING_RESEARCH_CARDS_LKG.json"
+  },
+  "acceptance_gates": {
+    "security_universe_count": 8785,
+    "research_card_count": 8785,
+    "benchmark_pool_member_count": 7,
+    "core_research_sandbox_count": 3,
+    "official_filing_watch_count": 3,
+    "benchmark_reference_count": 1,
+    "market_risk_observation_count": 39,
+    "data_backfill_pending_count": 5428,
+    "reference_only_count": 1601,
+    "instrument_review_count": 437,
+    "excluded_count": 1273,
+    "formal_candidate_promotion_count": 0,
+    "logical_shard_count": 256,
+    "neutral_fill_count": 0,
+    "global_rank_count": 0
+  },
+  "zero_mutation_gate": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "required_exit_status": "FMDL6X3E_SCREENING_FUNNEL_RESEARCH_CARDS_AND_US_BENCHMARK_POOL_ACCEPTED",
+  "next_gate": "FMDL-6X3-FINAL_RESEARCH_PRODUCTION_RECONCILIATION_AND_ACCEPTANCE",
+  "trade_authority": "NONE"
+}
