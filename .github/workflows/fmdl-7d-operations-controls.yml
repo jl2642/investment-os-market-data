@@ -1,0 +1,100 @@
+name: FMDL 7D Scheduled Operations Monitoring Staleness and Cost Controls
+
+on:
+  pull_request:
+    paths:
+      - 'config/fmdl7d_operations_controls_contract.json'
+      - 'schemas/fmdl7d_operations_controls_contract_v1.schema.json'
+      - 'scripts/fmdl7d_operations_controls.py'
+      - 'tests/test_fmdl7d_operations_controls.py'
+      - 'docs/FMDL-7D_*.md'
+      - '.github/workflows/fmdl-7d-operations-controls.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'config/fmdl7d_operations_controls_contract.json'
+      - 'schemas/fmdl7d_operations_controls_contract_v1.schema.json'
+      - 'scripts/fmdl7d_operations_controls.py'
+      - 'tests/test_fmdl7d_operations_controls.py'
+      - 'docs/FMDL-7D_*.md'
+      - '.github/workflows/fmdl-7d-operations-controls.yml'
+  schedule:
+    - cron: '15 2 * * 1-5'
+    - cron: '0 3 * * 1'
+    - cron: '30 3 1 * *'
+    - cron: '0 4 1 1,4,7,10 *'
+    - cron: '30 4 2 1 *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-7d-${{ github.event_name }}-${{ github.ref || github.event.schedule }}
+  cancel-in-progress: false
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Contract and regression tests
+        run: python -m unittest tests/test_fmdl7d_operations_controls.py
+      - name: Compile producer and tests
+        run: python -m py_compile scripts/fmdl7d_operations_controls.py tests/test_fmdl7d_operations_controls.py
+      - name: Validate source bindings and fail-closed control plane
+        run: python scripts/fmdl7d_operations_controls.py validate
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze run timestamp and source commit
+        run: |
+          echo "RUN_TS=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+          echo "SOURCE_COMMIT=${GITHUB_SHA}" >> "$GITHUB_ENV"
+      - name: Build FMDL-7D candidate
+        run: |
+          python scripts/fmdl7d_operations_controls.py build \
+            --output build/fmdl7d_candidate \
+            --generated-at "$RUN_TS" \
+            --source-commit "$SOURCE_COMMIT"
+      - name: Independent same-input byte replay
+        run: |
+          python scripts/fmdl7d_operations_controls.py build \
+            --output build/fmdl7d_replay \
+            --generated-at "$RUN_TS" \
+            --source-commit "$SOURCE_COMMIT"
+          diff -qr build/fmdl7d_candidate build/fmdl7d_replay
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fmdl7d-operations-controls-candidate
+          path: build/fmdl7d_candidate
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release normalized and pointers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: python scripts/fmdl7d_operations_controls.py publish --candidate build/fmdl7d_candidate
+      - name: Commit accepted FMDL-7D state
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/fmdl7 datasets/fmdl7 outputs/status/FMDL7D_LAST_SUCCESS.json outputs/status/FMDL7_SCHEDULED_OPERATIONS_LKG.json
+          if git diff --cached --quiet; then
+            echo "No publication changes"
+          else
+            git commit -m "data: publish FMDL-7D scheduled operations controls [skip ci]"
+            git push origin HEAD:main
+          fi

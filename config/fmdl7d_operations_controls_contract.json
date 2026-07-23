@@ -1,0 +1,281 @@
+{
+  "phase_id": "FMDL-7D",
+  "contract_version": "1.0.0",
+  "acceptance_run_date": "2026-07-23",
+  "title": "Scheduled Operations, Monitoring, Staleness and Cost Controls",
+  "required_exit_status": "FMDL7D_SCHEDULED_OPERATIONS_MONITORING_STALENESS_AND_COST_CONTROLS_ACCEPTED",
+  "next_gate": "FMDL-7E_FAILURE_RECOVERY_CLEAN_ROOM_RESTORE_AND_CANONICAL_REFRESH",
+  "entry_gate": {
+    "path": "outputs/status/FMDL7C_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-7C",
+    "required_release_id": "FMDL7C_20260723_5a389ae0cae3",
+    "required_release_sequence": 51,
+    "required_status": "FMDL7C_PORTFOLIO_SIMULATION_ATTRIBUTION_AND_RULE_CALIBRATION_ACCEPTED",
+    "required_next_gate": "FMDL-7D_SCHEDULED_OPERATIONS_MONITORING_STALENESS_AND_COST_CONTROLS",
+    "required_trade_authority": "NONE"
+  },
+  "source_bindings": {
+    "fmdl7c_portfolio_attribution": {
+      "path": "outputs/status/FMDL7C_LAST_SUCCESS.json",
+      "required_release_id": "FMDL7C_20260723_5a389ae0cae3",
+      "required_release_sequence": 51,
+      "required_state_posture": "LAST_KNOWN_GOOD_NOT_CONFIRMED_CURRENT_AFTER_AS_OF",
+      "required_live_action_status": "BLOCKED_PENDING_CURRENT_STATE_CONFIRMATION_AND_MARKET_REFRESH",
+      "required_trade_authority": "NONE"
+    },
+    "fmdl6x4e_operating_runbook": {
+      "path": "outputs/status/FMDL6X4E_LAST_SUCCESS.json",
+      "required_release_id": "FMDL6X4E_20260723_231f2f787d29",
+      "required_release_sequence": 46,
+      "required_status": "FMDL6X4E_CROSS_MARKET_COMPARABILITY_AND_OPERATING_RUNBOOK_ACCEPTED",
+      "required_trade_authority": "NONE"
+    },
+    "investment_os_release8": {
+      "path": "config/post_fmdl4_release8_publication.json",
+      "required_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+      "required_release_sequence": 8,
+      "required_status": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ACCEPTED",
+      "required_market_as_of": "2026-07-20",
+      "required_trade_authority": "NONE"
+    },
+    "a_share_interface": {
+      "path": "outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json",
+      "required_interface_id": "FMDL_A_SHARE_MARKET_DATA_INTERFACE",
+      "required_status": "ACTIVE",
+      "required_as_of_date": "2026-07-17",
+      "required_trade_authority": "NONE"
+    },
+    "hong_kong_final": {
+      "path": "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json",
+      "required_release_id": "FMDL5FINAL_20260721_a43285d1ee25",
+      "required_release_sequence": 18,
+      "required_status": "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+      "required_trade_authority": "NONE"
+    },
+    "us_final": {
+      "path": "outputs/status/FMDL6X4FINAL_LAST_SUCCESS.json",
+      "required_release_id": "FMDL6X4FINAL_20260723_dbe82fe7b7ec",
+      "required_release_sequence": 47,
+      "required_status": "FMDL6X4_FINAL_US_RESEARCH_ADAPTER_OPERATIONAL_ACCEPTANCE_AND_FMDL6_FREEZE_ACCEPTED",
+      "required_fmdl6_status": "COMPLETE_AND_FROZEN",
+      "required_trade_authority": "NONE"
+    },
+    "operating_state_review": {
+      "path": "evidence/post_fmdl4/POST_FMDL4_ACTION_REVIEW.json",
+      "required_as_of": "2026-07-20_CLOSE",
+      "required_real_holding_count": 7,
+      "required_simulation_holding_count": 16,
+      "required_candidate_core_count": 20,
+      "required_trade_authority": "NONE"
+    }
+  },
+  "cadence_registry": [
+    {
+      "cadence_code": "DAILY",
+      "timezone": "Asia/Shanghai",
+      "schedule_expression": "15 2 * * 1-5",
+      "schedule_meaning": "Weekday 10:15 Beijing operational health and market-state review after the latest completed session",
+      "required_outputs": ["SOURCE_FRESHNESS", "POINTER_HEALTH", "MARKET_ADAPTER_STATUS", "STATE_CHANGE_CONFIRMATION_GATE", "ALERT_SUMMARY"],
+      "max_runtime_minutes": 45,
+      "max_retry_count": 2,
+      "publication_boundary": "HEALTH_AND_CONTROL_OUTPUT_ONLY_NO_PORTFOLIO_MUTATION"
+    },
+    {
+      "cadence_code": "WEEKLY",
+      "timezone": "Asia/Shanghai",
+      "schedule_expression": "0 3 * * 1",
+      "schedule_meaning": "Monday 11:00 Beijing cross-market candidate, thesis, duplication and simulation-control review",
+      "required_outputs": ["WEEKLY_STATE_RECONCILIATION", "CANDIDATE_AND_MEMO_REVIEW", "THESIS_AND_FALSIFIER_REVIEW", "CROSS_MARKET_DUPLICATION_REVIEW", "SIMULATION_CONTROL_REVIEW"],
+      "max_runtime_minutes": 90,
+      "max_retry_count": 2,
+      "publication_boundary": "REVIEW_AND_PROPOSAL_ONLY_HUMAN_APPROVAL_REQUIRED"
+    },
+    {
+      "cadence_code": "MONTHLY",
+      "timezone": "Asia/Shanghai",
+      "schedule_expression": "30 3 1 * *",
+      "schedule_meaning": "First calendar day 11:30 Beijing prior-month attribution and strategy-calibration review",
+      "required_outputs": ["MONTHLY_PORTFOLIO_ATTRIBUTION", "SIMULATION_PNL_BRIDGE", "CANDIDATE_OUTCOME_COVERAGE", "RULE_CALIBRATION_PROPOSALS", "OPERATING_COST_REPORT"],
+      "max_runtime_minutes": 150,
+      "max_retry_count": 1,
+      "publication_boundary": "ATTRIBUTION_AND_RULE_PROPOSAL_ONLY_NO_RULE_MUTATION"
+    },
+    {
+      "cadence_code": "QUARTERLY",
+      "timezone": "Asia/Shanghai",
+      "schedule_expression": "0 4 1 1,4,7,10 *",
+      "schedule_meaning": "Quarter-opening day 12:00 Beijing financial, valuation and research refresh acceptance",
+      "required_outputs": ["FINANCIAL_AND_VALUATION_REFRESH_STATUS", "RESEARCH_OBJECT_REFRESH", "CANDIDATE_GRADUATION_REVIEW", "DATA_SOURCE_QUALITY_REVIEW", "QUARTERLY_SYSTEM_DIAGNOSTIC"],
+      "max_runtime_minutes": 240,
+      "max_retry_count": 1,
+      "publication_boundary": "DECISION_SUPPORT_ONLY_NO_AUTOMATIC_GRADUATION"
+    },
+    {
+      "cadence_code": "ANNUAL",
+      "timezone": "Asia/Shanghai",
+      "schedule_expression": "30 4 2 1 *",
+      "schedule_meaning": "January 2 12:30 Beijing prior-year strategy and system governance audit",
+      "required_outputs": ["ANNUAL_STRATEGY_REVIEW", "RULE_EFFECTIVENESS_REVIEW", "SOURCE_AND_COST_REVIEW", "CANONICAL_HYGIENE_REVIEW", "NEXT_YEAR_OPERATING_PLAN"],
+      "max_runtime_minutes": 360,
+      "max_retry_count": 1,
+      "publication_boundary": "GOVERNANCE_REVIEW_ONLY_HUMAN_APPROVAL_REQUIRED"
+    },
+    {
+      "cadence_code": "EVENT_DRIVEN",
+      "timezone": "Asia/Shanghai",
+      "schedule_expression": "WORKFLOW_DISPATCH_OR_REGISTERED_UPSTREAM_EVENT",
+      "schedule_meaning": "Registered filing, price, thesis, data-quality, pointer or state-change event",
+      "required_outputs": ["EVENT_IDEMPOTENCY_CHECK", "EVENT_EVIDENCE_ENVELOPE", "IMPACT_CLASSIFICATION", "REQUIRED_REVIEW_ROUTE", "ESCALATION_DECISION"],
+      "max_runtime_minutes": 60,
+      "max_retry_count": 2,
+      "publication_boundary": "EVENT_REVIEW_ONLY_NO_UNAUTHORIZED_STATE_CHANGE"
+    }
+  ],
+  "operating_runbook": [
+    ["OP01", "ENTRY_POINTER_AND_RELEASE_BINDING", "EACH_RUN", "Validate Last-success, LKG, immutable Release, Current, Manifest and trade-authority identities before reading downstream outputs."],
+    ["OP02", "RUN_ID_AND_IDEMPOTENCY_KEY", "EACH_RUN", "Create one deterministic run identity from cadence, effective as-of, source identities and event identity."],
+    ["OP03", "STATE_CONFIRMATION_GATE", "DAILY", "Require user-confirmed post-as-of real and simulation changes before treating an LKG snapshot as current."],
+    ["OP04", "SOURCE_FRESHNESS_AND_GRADE", "DAILY", "Evaluate source as-of, market-session alignment, data grade and allowed use separately for each market and domain."],
+    ["OP05", "MARKET_ADAPTER_EXECUTION", "DAILY", "Run A-share, Hong Kong and US adapters independently and quarantine failed markets or domains."],
+    ["OP06", "IDENTITY_AND_DUPLICATION_RECONCILIATION", "DAILY", "Reconcile Security, Issuer, listing, A/H, ADR, share-class and duplicate-index exposure before comparisons."],
+    ["OP07", "CURRENT_PROMOTION_GATE", "DAILY", "Promote Current only after source, schema, quality, Manifest, replay and authority checks pass."],
+    ["OP08", "CANDIDATE_AND_MEMO_REVIEW", "WEEKLY", "Review Candidate Core, Active Memo, triggers and re-entry routes without automatic membership changes."],
+    ["OP09", "THESIS_CATALYST_FALSIFIER_REVIEW", "WEEKLY", "Refresh thesis, catalyst, Prove/Kill and hard-review status with append-only decision logging."],
+    ["OP10", "SIMULATION_CONTROL_REVIEW", "WEEKLY", "Review no-add, hard-review, concentration, contribution and migration-readiness controls without automatic orders."],
+    ["OP11", "CROSS_MARKET_COMPARABILITY_REVIEW", "WEEKLY", "Apply explicit normalization and fail closed where factor, valuation, accounting, peer or attribution definitions differ."],
+    ["OP12", "MONTHLY_ATTRIBUTION_AND_PNL_BRIDGE", "MONTHLY", "Reconcile open-position, closed-position, fee, cash and total-account effects and preserve unavailable components explicitly."],
+    ["OP13", "MONTHLY_RULE_CALIBRATION_PROPOSALS", "MONTHLY", "Classify recurring failures and produce proposals only after multiple observations and regression requirements are met."],
+    ["OP14", "QUARTERLY_FINANCIAL_AND_RESEARCH_REFRESH", "QUARTERLY", "Refresh financial, valuation and research evidence under PIT, filing and source-grade controls."],
+    ["OP15", "ANNUAL_STRATEGY_AND_SYSTEM_AUDIT", "ANNUAL", "Review strategy effectiveness, false positives, false negatives, operating costs, source resilience and governance rules."],
+    ["OP16", "EVENT_CLASSIFICATION_AND_ROUTE", "EVENT_DRIVEN", "Deduplicate events, register evidence, classify impact and route to observation, memo, hard review or human decision."],
+    ["OP17", "FAILURE_RECOVERY_AND_LKG", "EACH_RUN", "Preserve LKG, reject partial publication and recover from immutable Release before Current can be replaced."],
+    ["OP18", "PUBLICATION_MONITORING_AND_HANDOFF", "EACH_RUN", "Publish accepted control outputs, alert unresolved conditions and open only the next frozen gate." ]
+  ],
+  "monitoring_controls": [
+    ["MON01", "POINTER_IDENTITY_MISMATCH", "CRITICAL", "Last-success or LKG identity differs from immutable Release or Manifest", "BLOCK_CURRENT_AND_ESCALATE"],
+    ["MON02", "SOURCE_MISSING", "CRITICAL", "Required source path or registered upstream Release is unavailable", "QUARANTINE_DOMAIN_AND_PRESERVE_LKG"],
+    ["MON03", "SOURCE_STALE", "HIGH", "Source age exceeds its allowed-use threshold", "DOWNGRADE_ALLOWED_USE_AND_BLOCK_LIVE_ACTION"],
+    ["MON04", "MARKET_SESSION_MISMATCH", "HIGH", "Price date is not the latest required completed market session", "BLOCK_MARKET_DECISION_OUTPUT"],
+    ["MON05", "SCHEMA_OR_CONTRACT_FAILURE", "CRITICAL", "Schema, contract or mandatory field validation fails", "REJECT_RUN"],
+    ["MON06", "MANIFEST_OR_HASH_FAILURE", "CRITICAL", "Manifest count, path, size or SHA validation fails", "REJECT_PUBLICATION_AND_PRESERVE_LKG"],
+    ["MON07", "DETERMINISTIC_REPLAY_FAILURE", "CRITICAL", "Same-input replay differs byte-for-byte", "REJECT_PUBLICATION"],
+    ["MON08", "PARTIAL_PUBLICATION", "CRITICAL", "Only part of Current, Release, normalized or pointer outputs exists", "ROLL_BACK_TO_LKG"],
+    ["MON09", "RUNTIME_BUDGET_BREACH", "MEDIUM", "Cadence runtime exceeds frozen maximum", "STOP_NONCRITICAL_STEPS_AND_ESCALATE"],
+    ["MON10", "RETRY_BUDGET_BREACH", "HIGH", "Retry count exceeds cadence allowance", "STOP_RETRY_LOOP_AND_ESCALATE"],
+    ["MON11", "ARTIFACT_BUDGET_BREACH", "MEDIUM", "Produced artifact volume exceeds cadence budget", "QUARANTINE_LARGE_OUTPUT_AND_REPORT"],
+    ["MON12", "STATE_CONFIRMATION_MISSING", "HIGH", "Post-as-of real or simulation state is not user-confirmed", "KEEP_LKG_AND_BLOCK_LIVE_RECOMMENDATION"],
+    ["MON13", "UNAUTHORIZED_MUTATION", "CRITICAL", "Candidate, simulation, real account, rule or order mutation is attempted without authority", "REJECT_RUN_AND_AUDIT"],
+    ["MON14", "DUPLICATE_EVENT", "LOW", "Event idempotency key already exists", "NO_OP_ALREADY_PROCESSED"],
+    ["MON15", "COST_UNIT_BUDGET_BREACH", "MEDIUM", "Internal compute or network budget units exceed cadence envelope", "DEFER_NONCRITICAL_BACKFILL"],
+    ["MON16", "NO_SUCCESS_WITHIN_SERVICE_WINDOW", "HIGH", "No accepted run exists within the cadence service window", "ESCALATE_OPERATING_GAP" ]
+  ],
+  "staleness_policies": [
+    ["ST01", "A_SHARE_MARKET_PRICE", 1, "TRADING_DAY", "NEW_MARKET_DECISION_AND_LIVE_ACTION"],
+    ["ST02", "HONG_KONG_MARKET_PRICE", 1, "TRADING_DAY", "NEW_MARKET_DECISION_AND_LIVE_ACTION"],
+    ["ST03", "US_MARKET_PRICE", 1, "TRADING_DAY", "FORMAL_CANDIDATE_AND_PERFORMANCE_CLAIM"],
+    ["ST04", "REAL_ACCOUNT_STATE", 0, "POST_TRADE_CONFIRMATION", "LIVE_PORTFOLIO_ACTION"],
+    ["ST05", "SIMULATION_BOOK_STATE", 0, "POST_TRADE_CONFIRMATION", "LIVE_SIMULATION_ACTION"],
+    ["ST06", "CANDIDATE_POOL_STATE", 7, "CALENDAR_DAY", "WEEKLY_REVIEW_AND_MEMBERSHIP_PROPOSAL"],
+    ["ST07", "ACTIVE_MEMO_PRICE_TRIGGER", 1, "TRADING_DAY", "TRIGGER_EVALUATION"],
+    ["ST08", "FINANCIAL_STATEMENT", 120, "CALENDAR_DAY_OR_LATEST_REQUIRED_FILING", "FINANCIAL_AND_VALUATION_USE"],
+    ["ST09", "VALUATION_CONTEXT", 7, "CALENDAR_DAY", "SECURITY_DECISION_GRADE_USE"],
+    ["ST10", "THESIS_AND_FALSIFIER", 90, "CALENDAR_DAY_OR_MATERIAL_EVENT", "THESIS_RELIANCE"],
+    ["ST11", "SIMULATION_ATTRIBUTION", 7, "CALENDAR_DAY", "WEEKLY_AND_MONTHLY_PERFORMANCE_REVIEW"],
+    ["ST12", "CANONICAL_POINTER_AND_MANIFEST", 0, "EACH_RUN_IDENTITY_MATCH", "ANY_DOWNSTREAM_USE" ]
+  ],
+  "cost_controls": [
+    ["DAILY", 45, 120, 5000, 256, 2],
+    ["WEEKLY", 90, 300, 12000, 512, 2],
+    ["MONTHLY", 150, 600, 25000, 1024, 1],
+    ["QUARTERLY", 240, 1000, 50000, 2048, 1],
+    ["ANNUAL", 360, 1600, 80000, 4096, 1],
+    ["EVENT_DRIVEN", 60, 180, 8000, 512, 2]
+  ],
+  "cost_control_fields": ["cadence_code", "max_runtime_minutes", "max_compute_units", "max_network_requests", "max_artifact_mb", "max_retry_count"],
+  "replay_scenarios": [
+    ["RP01", "SAME_INPUT_SAME_DAY_REPLAY", "PASS_IDENTICAL_BYTES"],
+    ["RP02", "DAILY_LATEST_SESSION_HEALTH_CHECK", "PASS_OR_EXPLICIT_STALE_ALERT_NO_LIVE_ACTION"],
+    ["RP03", "WEEKLY_CANDIDATE_AND_THESIS_REVIEW", "PASS_NO_AUTOMATIC_MEMBERSHIP_CHANGE"],
+    ["RP04", "MONTH_END_ATTRIBUTION_BOUNDARY", "PASS_COMPLETE_PNL_BRIDGE_OR_UNAVAILABLE_COMPONENT_DISCLOSURE"],
+    ["RP05", "QUARTER_END_FINANCIAL_REFRESH_BOUNDARY", "PASS_PIT_AND_LATEST_FILING_GATES"],
+    ["RP06", "YEAR_END_STRATEGY_AUDIT_BOUNDARY", "PASS_NO_AUTOMATIC_RULE_MUTATION"],
+    ["RP07", "EVENT_DUPLICATE_REPLAY", "PASS_NO_OP_ALREADY_PROCESSED"],
+    ["RP08", "STALE_SOURCE_INJECTION", "PASS_BLOCKED_AND_LKG_PRESERVED"],
+    ["RP09", "PARTIAL_PUBLICATION_INJECTION", "PASS_ROLLBACK_TO_LKG"],
+    ["RP10", "TIMEOUT_AND_RETRY_BUDGET_INJECTION", "PASS_STOPPED_AND_ESCALATED"],
+    ["RP11", "COST_AND_ARTIFACT_BUDGET_INJECTION", "PASS_NONCRITICAL_WORK_DEFERRED"],
+    ["RP12", "UNAUTHORIZED_STATE_MUTATION_INJECTION", "PASS_REJECTED_AND_AUDITED" ]
+  ],
+  "escalation_rules": [
+    ["ESC01", "CRITICAL_INTEGRITY_FAILURE", "IMMEDIATE", "BLOCK_CURRENT_PRESERVE_LKG_AND_REQUIRE_REPAIR"],
+    ["ESC02", "MISSING_REQUIRED_SOURCE", "IMMEDIATE", "QUARANTINE_DOMAIN_AND_NOTIFY"],
+    ["ESC03", "STALE_LIVE_ACTION_INPUT", "IMMEDIATE", "BLOCK_LIVE_ACTION_AND_REQUEST_REFRESH_OR_CONFIRMATION"],
+    ["ESC04", "MARKET_SPECIFIC_DEGRADATION", "SAME_RUN", "PUBLISH_PARTIAL_HEALTH_ONLY_NOT_PARTIAL_CANONICAL"],
+    ["ESC05", "RUNTIME_OR_RETRY_BREACH", "SAME_RUN", "STOP_NONCRITICAL_STEPS_AND_RECORD_BREACH"],
+    ["ESC06", "COST_BUDGET_BREACH", "SAME_RUN", "DEFER_BACKFILL_AND_REQUIRE_CAPACITY_REVIEW"],
+    ["ESC07", "NO_DAILY_SUCCESS", "NEXT_SERVICE_WINDOW", "OPEN_OPERATING_GAP_INCIDENT"],
+    ["ESC08", "NO_WEEKLY_SUCCESS", "NEXT_SERVICE_WINDOW", "BLOCK_WEEKLY_DECISION_REVIEW_CLAIMS"],
+    ["ESC09", "STATE_CONFIRMATION_REQUIRED", "BEFORE_LIVE_ACTION", "REQUEST_USER_CONFIRMATION"],
+    ["ESC10", "RULE_CHANGE_PROPOSAL", "MONTHLY_OR_ANNUAL", "REQUIRE_MULTIPLE_OBSERVATIONS_REGRESSION_AND_HUMAN_APPROVAL"],
+    ["ESC11", "TRADE_AUTHORITY_ESCALATION_ATTEMPT", "IMMEDIATE", "REJECT_RUN_AND_SECURITY_AUDIT"],
+    ["ESC12", "CANONICAL_OR_FILE_LIBRARY_DRIFT", "FMDL7E", "DEFER_REPACK_AND_EXECUTE_CLEAN_ROOM_RESTORE" ]
+  ],
+  "failure_injections": [
+    "STALE_SOURCE_USED_FOR_LIVE_ACTION",
+    "MISSING_REQUIRED_SOURCE_SILENT_SUBSTITUTION",
+    "POINTER_RELEASE_MANIFEST_MISMATCH",
+    "PARTIAL_CURRENT_PUBLICATION",
+    "SAME_INPUT_NONDETERMINISTIC_REPLAY",
+    "DUPLICATE_EVENT_DOUBLE_PROCESSING",
+    "RUNTIME_RETRY_LOOP_BUDGET_BREACH",
+    "COST_OR_ARTIFACT_BUDGET_BREACH",
+    "POST_AS_OF_STATE_WITHOUT_USER_CONFIRMATION",
+    "UNAUTHORIZED_CANDIDATE_SIMULATION_REAL_RULE_OR_ORDER_MUTATION"
+  ],
+  "scope": {
+    "cadence_and_runbook_freeze_authorized": true,
+    "monitoring_and_alert_acceptance_authorized": true,
+    "staleness_policy_acceptance_authorized": true,
+    "cost_and_runtime_budget_acceptance_authorized": true,
+    "historical_boundary_and_failure_replay_authorized": true,
+    "new_market_data_refresh_authorized": false,
+    "post_as_of_state_confirmation_fabrication_authorized": false,
+    "live_trade_recommendation_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_book_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "rule_mutation_authorized": false,
+    "canonical_repack_authorized": false,
+    "brokerage_or_order_authorized": false
+  },
+  "acceptance_gates": {
+    "source_binding_count": 7,
+    "cadence_count": 6,
+    "runbook_step_count": 18,
+    "monitoring_control_count": 16,
+    "staleness_policy_count": 12,
+    "cost_control_count": 6,
+    "replay_scenario_count": 12,
+    "escalation_rule_count": 12,
+    "failure_injection_count": 10,
+    "gate_count": 28,
+    "logical_shard_domain_count": 8,
+    "bucket_count": 64,
+    "logical_shard_count": 512,
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "rule_mutations": 0,
+    "orders": 0
+  },
+  "storage_contract": {
+    "release_sequence": 52,
+    "current_root": "outputs/fmdl7/current/scheduled_operations",
+    "release_root": "datasets/fmdl7/releases/<release_id>/scheduled_operations",
+    "normalized_root": "datasets/fmdl7/normalized/scheduled_operations/<release_id>",
+    "archive_root": "outputs/fmdl7/archive/scheduled_operations",
+    "last_success": "outputs/status/FMDL7D_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL7_SCHEDULED_OPERATIONS_LKG.json"
+  },
+  "trade_authority": "NONE"
+}
