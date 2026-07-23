@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/fmdl7b_lineage_acceptance_contract_v1.schema.json",
+  "title": "FMDL-7B End-to-End Research and Decision Lineage Acceptance Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "as_of_date",
+    "required_exit_status",
+    "next_gate",
+    "entry_gate",
+    "market_lineage_sources",
+    "lineage_rules",
+    "failure_injections",
+    "scope",
+    "acceptance_gates",
+    "storage_contract",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-7B"},
+    "contract_version": {"const": "1.0.0"},
+    "required_exit_status": {"const": "FMDL7B_END_TO_END_RESEARCH_AND_DECISION_LINEAGE_ACCEPTED"},
+    "next_gate": {"const": "FMDL-7C_PORTFOLIO_SIMULATION_ATTRIBUTION_AND_RULE_CALIBRATION_ACCEPTANCE"},
+    "market_lineage_sources": {
+      "type": "object",
+      "required": ["A_SHARE", "HONG_KONG_CONNECT", "US_EQUITY"],
+      "additionalProperties": false
+    },
+    "failure_injections": {"type": "array", "minItems": 7, "maxItems": 7, "uniqueItems": true},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
