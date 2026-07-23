@@ -1,0 +1,208 @@
+{
+  "phase_id": "FMDL-7-0",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-23",
+  "title": "Master Plan, Authoritative Asset Registry and Acceptance Contract Freeze",
+  "objective": "Freeze a bounded seven-round final operating-acceptance program over the accepted A-share, Hong Kong Stock Connect, US research-adapter and Investment OS operating bases without mutating investment state.",
+  "required_exit_status": "FMDL7_0_MASTER_PLAN_AUTHORITATIVE_ASSET_REGISTRY_AND_ACCEPTANCE_CONTRACT_ACCEPTED",
+  "next_gate": "FMDL-7A_CROSS_MARKET_CANONICAL_INVENTORY_AND_STATE_RECONCILIATION",
+  "authoritative_assets": [
+    {
+      "asset_id": "FMDL-1-A_SHARE_MARKET_INTERFACE",
+      "path": "outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json",
+      "checks": {
+        "interface_id": "FMDL_A_SHARE_MARKET_DATA_INTERFACE",
+        "status": "ACTIVE",
+        "current_release.run_id": "FMDL1BC_20260717T174015+0800",
+        "downstream_handoff.trade_authority": "NONE"
+      },
+      "authority_role": "A_SHARE_CURRENT_MARKET_DATA_AND_CONSUMER_INTERFACE"
+    },
+    {
+      "asset_id": "FMDL-2-FINAL",
+      "path": "outputs/status/FMDL2D_LAST_SUCCESS.json",
+      "checks": {
+        "release_id": "FMDL2D_20260717T220406+0800",
+        "status": "FMDL2_FINAL_ACCEPTED_WITH_CONTROLLED_LIMITATIONS",
+        "trade_authority": "NONE"
+      },
+      "authority_role": "A_SHARE_HISTORY_FACTOR_SCREENING_AND_STABILITY_BASELINE"
+    },
+    {
+      "asset_id": "FMDL-3-FINAL",
+      "path": "outputs/status/FMDL3E_CANONICAL_LAST_SUCCESS.json",
+      "checks": {
+        "program_id": "FMDL-3E-FINAL",
+        "release_id": "FMDL3E_FINAL_20260720T121735+0800",
+        "status": "FMDL3E_UNIFIED_OPERATIONAL_ACCEPTANCE_AND_CANONICAL_CLOSURE_ACCEPTED",
+        "trade_authority": "NONE"
+      },
+      "authority_role": "A_SHARE_FINANCIAL_VALUATION_AND_INCREMENTAL_EVIDENCE_BASELINE"
+    },
+    {
+      "asset_id": "FMDL-4-FINAL",
+      "path": "outputs/status/FMDL4_FINAL_LAST_SUCCESS.json",
+      "checks": {
+        "program_id": "FMDL-4-FINAL",
+        "release_id": "FMDL4FINAL_20260717_fb7be097e110",
+        "status": "FMDL4_PUBLIC_EQUITY_INVESTING_AND_INVESTMENT_OS_INTEGRATION_ACCEPTED",
+        "trade_authority": "NONE"
+      },
+      "authority_role": "A_SHARE_RESEARCH_DECISION_STATE_AND_ATTRIBUTION_OVERLAY"
+    },
+    {
+      "asset_id": "INVESTMENT-OS-RELEASE-8",
+      "path": "config/post_fmdl4_release8_publication.json",
+      "checks": {
+        "release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+        "release_sequence": 8,
+        "status": "INVESTMENT_OS_CANONICAL_REFRESH_AND_STATE_RECONCILIATION_ACCEPTED",
+        "package_sha256": "479d375da1586419a98bb2821342cf691b0d1358882b66bc1601fd717ab2a9aa",
+        "trade_authority": "NONE"
+      },
+      "authority_role": "CURRENT_BINARY_CANONICAL_BASE_PENDING_FMDL7_STATE_AND_FILE_LIBRARY_RECONCILIATION"
+    },
+    {
+      "asset_id": "FMDL-5-FINAL",
+      "path": "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json",
+      "checks": {
+        "program_id": "FMDL-5-FINAL",
+        "release_id": "FMDL5FINAL_20260721_a43285d1ee25",
+        "release_sequence": 18,
+        "status": "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED",
+        "canonical_base_release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
+        "trade_authority": "NONE"
+      },
+      "authority_role": "HONG_KONG_STOCK_CONNECT_IMMUTABLE_CROSS_MARKET_OVERLAY"
+    },
+    {
+      "asset_id": "FMDL-6-FINAL",
+      "path": "outputs/status/FMDL6X4FINAL_LAST_SUCCESS.json",
+      "checks": {
+        "phase_id": "FMDL-6X4-FINAL",
+        "release_id": "FMDL6X4FINAL_20260723_dbe82fe7b7ec",
+        "release_sequence": 47,
+        "status": "FMDL6X4_FINAL_US_RESEARCH_ADAPTER_OPERATIONAL_ACCEPTANCE_AND_FMDL6_FREEZE_ACCEPTED",
+        "fmdl6_status": "COMPLETE_AND_FROZEN",
+        "trade_authority": "NONE"
+      },
+      "authority_role": "US_RESEARCH_ADAPTER_OPERATIONALLY_ACCEPTED_AND_FROZEN"
+    }
+  ],
+  "stage_plan": [
+    {
+      "stage_id": "FMDL-7-0",
+      "title": "Master Plan, Authoritative Asset Registry and Acceptance Contract Freeze",
+      "exit_status": "FMDL7_0_MASTER_PLAN_AUTHORITATIVE_ASSET_REGISTRY_AND_ACCEPTANCE_CONTRACT_ACCEPTED"
+    },
+    {
+      "stage_id": "FMDL-7A",
+      "title": "Cross-market Canonical Inventory and State Reconciliation",
+      "exit_status": "FMDL7A_CROSS_MARKET_CANONICAL_INVENTORY_AND_STATE_RECONCILIATION_ACCEPTED"
+    },
+    {
+      "stage_id": "FMDL-7B",
+      "title": "End-to-End Research and Decision Lineage Acceptance",
+      "exit_status": "FMDL7B_END_TO_END_RESEARCH_AND_DECISION_LINEAGE_ACCEPTED"
+    },
+    {
+      "stage_id": "FMDL-7C",
+      "title": "Portfolio, Simulation, Attribution and Rule Calibration Acceptance",
+      "exit_status": "FMDL7C_PORTFOLIO_SIMULATION_ATTRIBUTION_AND_RULE_CALIBRATION_ACCEPTED"
+    },
+    {
+      "stage_id": "FMDL-7D",
+      "title": "Scheduled Operations, Monitoring, Staleness and Cost Controls",
+      "exit_status": "FMDL7D_SCHEDULED_OPERATIONS_MONITORING_STALENESS_AND_COST_CONTROLS_ACCEPTED"
+    },
+    {
+      "stage_id": "FMDL-7E",
+      "title": "Failure Recovery, Clean-room Restore and Canonical Refresh",
+      "exit_status": "FMDL7E_FAILURE_RECOVERY_CLEAN_ROOM_RESTORE_AND_CANONICAL_REFRESH_ACCEPTED"
+    },
+    {
+      "stage_id": "FMDL-7-FINAL",
+      "title": "Cross-market and Full-system Final Operational Acceptance",
+      "exit_status": "FMDL7_CROSS_MARKET_AND_FULL_SYSTEM_FINAL_OPERATIONAL_ACCEPTANCE_ACCEPTED"
+    }
+  ],
+  "round_budget": {
+    "formal_rounds": 7,
+    "targeted_repair_rounds": 2,
+    "hard_maximum_rounds": 9,
+    "repair_triggers": [
+      "MACHINE_ACCEPTANCE_FAILURE",
+      "AUTHORITATIVE_RELEASE_OR_POINTER_MISMATCH",
+      "CANONICAL_PACKAGE_NOT_OPENABLE_OR_HASH_INVALID",
+      "CURRENT_STATE_NOT_RECOVERABLE",
+      "LKG_OR_FAILURE_RECOVERY_CONTROL_FAILURE",
+      "MATERIAL_STATE_AUTHORITY_BREACH",
+      "POINT_IN_TIME_OR_FUTURE_INFORMATION_LEAKAGE"
+    ],
+    "prohibited_expansion_patterns": [
+      "FMDL-7F",
+      "FMDL-7G",
+      "FMDL-7X1",
+      "FMDL-7X2",
+      "UNBOUNDED_SUBPHASE_CREATION"
+    ]
+  },
+  "authority_registry": {
+    "github": "AUTHORITATIVE_FOR_SOURCE_CODE_WORKFLOWS_MACHINE_CONTRACTS_IMMUTABLE_RELEASE_EVIDENCE_AND_TECHNICAL_HISTORY",
+    "file_library": "AUTHORITATIVE_FOR_THE_USER_FACING_CURRENT_CANONICAL_ZIP_MATCHING_POINTER_AND_START_HERE_AFTER_FMDL7E_REFRESH_AND_USER_VERIFICATION",
+    "investment_os_release8": "CURRENT_BINARY_BASE_NOT_A_CLAIM_THAT_FMDL5_AND_FMDL6_OVERLAYS_ARE_ALREADY_REPACKED",
+    "conversation_memory": "NON_AUTHORITATIVE_RECOVERY_MUST_NOT_DEPEND_ON_CHAT_MEMORY"
+  },
+  "canonical_refresh_plan": {
+    "refresh_stage": "FMDL-7E",
+    "preconditions": [
+      "FMDL7A_STATE_RECONCILIATION_ACCEPTED",
+      "FMDL7B_LINEAGE_ACCEPTED",
+      "FMDL7C_ATTRIBUTION_ACCEPTED",
+      "FMDL7D_OPERATING_CONTROLS_ACCEPTED"
+    ],
+    "target_file_library_posture": [
+      "ONE_CURRENT_CANONICAL_ZIP",
+      "ONE_MATCHING_POINTER",
+      "ONE_START_HERE"
+    ],
+    "premature_repack_authorized": false
+  },
+  "scope": {
+    "master_plan_freeze_authorized": true,
+    "authoritative_asset_registration_authorized": true,
+    "future_stage_gate_freeze_authorized": true,
+    "new_market_data_refresh_authorized": false,
+    "research_workflow_execution_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_book_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "rule_mutation_authorized": false,
+    "brokerage_or_order_authorized": false
+  },
+  "acceptance_gates": {
+    "authoritative_asset_count": 7,
+    "stage_count": 7,
+    "formal_round_count": 7,
+    "repair_round_count": 2,
+    "hard_maximum_round_count": 9,
+    "logical_shard_domain_count": 4,
+    "bucket_count": 64,
+    "logical_shard_count": 256,
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "rule_mutations": 0,
+    "orders": 0
+  },
+  "storage_contract": {
+    "release_sequence": 48,
+    "current_root": "outputs/fmdl7/current/master_plan",
+    "release_root": "datasets/fmdl7/releases/<release_id>/master_plan",
+    "normalized_root": "datasets/fmdl7/normalized/master_plan/<release_id>",
+    "archive_root": "outputs/fmdl7/archive/master_plan",
+    "last_success": "outputs/status/FMDL7_0_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL7_MASTER_PLAN_LKG.json"
+  },
+  "trade_authority": "NONE"
+}
