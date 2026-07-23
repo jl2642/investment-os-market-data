@@ -1,0 +1,111 @@
+name: FMDL 6X4-A Public Equity Investing Adapter and Contract Mapping
+
+on:
+  pull_request:
+    paths:
+      - "config/fmdl6x4a_*.json"
+      - "schemas/fmdl6x4a_*.json"
+      - "scripts/fmdl6x4a_*.py"
+      - "tests/test_fmdl6x4a_*.py"
+      - "docs/FMDL-6X4-A*.md"
+      - ".github/workflows/fmdl-6x4a-public-equity-investing-adapter.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/fmdl6x4a_*.json"
+      - "schemas/fmdl6x4a_*.json"
+      - "scripts/fmdl6x4a_*.py"
+      - "tests/test_fmdl6x4a_*.py"
+      - "docs/FMDL-6X4-A*.md"
+      - ".github/workflows/fmdl-6x4a-public-equity-investing-adapter.yml"
+  workflow_run:
+    workflows: ["FMDL 6X3-FINAL Research Production Reconciliation"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fmdl-6x4a-${{ github.workflow }}-${{ github.ref || github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Contract and adapter regression tests
+        run: |
+          mkdir -p outputs/fmdl6x4a/diagnostics
+          set +e
+          PYTHONPATH=scripts python -m unittest -v tests/test_fmdl6x4a_public_equity_investing_adapter.py > outputs/fmdl6x4a/diagnostics/regression.log 2>&1
+          status=$?
+          echo "$status" > outputs/fmdl6x4a/diagnostics/regression.exit_code
+          set -e
+          exit "$status"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x4a-regression-diagnostics
+          path: outputs/fmdl6x4a/diagnostics
+          if-no-files-found: error
+          retention-days: 7
+      - name: Compile producer and tests
+        run: python -m py_compile scripts/fmdl6x4a_public_equity_investing_adapter.py tests/test_fmdl6x4a_public_equity_investing_adapter.py
+      - name: Validate frozen production contract
+        run: PYTHONPATH=scripts python scripts/fmdl6x4a_public_equity_investing_adapter.py --repo-root . validate-contract
+
+  production:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Freeze run timestamp and source commit
+        run: |
+          echo "RUN_AS_OF=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+          echo "SOURCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Build adapter candidate
+        run: |
+          rm -rf outputs/fmdl6x4a/candidate outputs/fmdl6x4a/candidate_replay outputs/fmdl6x4a/acceptance
+          PYTHONPATH=scripts python scripts/fmdl6x4a_public_equity_investing_adapter.py --repo-root . build --candidate outputs/fmdl6x4a/candidate --accepted-at "$RUN_AS_OF" --source-commit "$SOURCE_COMMIT"
+      - name: Independent same-input replay
+        run: PYTHONPATH=scripts python scripts/fmdl6x4a_public_equity_investing_adapter.py --repo-root . validate-candidate --candidate outputs/fmdl6x4a/candidate --accepted-at "$RUN_AS_OF" --source-commit "$SOURCE_COMMIT" --acceptance outputs/fmdl6x4a/acceptance/FMDL6X4A_INDEPENDENT_ACCEPTANCE.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fmdl6x4a-public-equity-investing-adapter-candidate
+          path: |
+            outputs/fmdl6x4a/candidate
+            outputs/fmdl6x4a/acceptance
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish Current immutable Release normalized and pointers
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && success()) || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && success())
+        run: PYTHONPATH=scripts python scripts/fmdl6x4a_public_equity_investing_adapter.py --repo-root . publish --candidate outputs/fmdl6x4a/candidate --published-at "$RUN_AS_OF" --source-commit "$SOURCE_COMMIT"
+      - name: Commit accepted FMDL-6X4-A state
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && success()) || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && success())
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A outputs/fmdl6x4/current/public_equity_investing_adapter datasets/fmdl6x4/releases datasets/fmdl6x4/normalized/public_equity_investing_adapter outputs/status/FMDL6X4A_LAST_SUCCESS.json outputs/status/FMDL6X4_PUBLIC_EQUITY_INVESTING_ADAPTER_LKG.json
+          if [ -d outputs/fmdl6x4/archive ]; then git add -A outputs/fmdl6x4/archive; fi
+          git diff --cached --quiet && exit 0
+          git commit -m "data: publish FMDL-6X4-A public equity investing adapter [skip ci]"
+          git push
