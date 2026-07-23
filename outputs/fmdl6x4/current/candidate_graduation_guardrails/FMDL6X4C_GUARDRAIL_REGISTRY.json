@@ -1,0 +1,167 @@
+{
+  "guardrail_count": 16,
+  "guardrails": [
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR01",
+      "guardrail_description": "Research-priority status cannot be represented as an investment recommendation.",
+      "guardrail_id": "PEIGUARD-72ff53e469b98548830beeaf",
+      "guardrail_name": "RESEARCH_PRIORITY_NOT_RECOMMENDATION",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR02",
+      "guardrail_description": "US Research Benchmark Pool membership cannot create Candidate Pool membership.",
+      "guardrail_id": "PEIGUARD-1aa14a424deaaaa7c7a6dee3",
+      "guardrail_name": "BENCHMARK_POOL_NOT_CANDIDATE_POOL",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR03",
+      "guardrail_description": "At least two registered QC-passed workflow outputs are required before human review.",
+      "guardrail_id": "PEIGUARD-8deb4cd6484ec0deb9892aa5",
+      "guardrail_name": "REGISTERED_WORKFLOW_OUTPUT_MINIMUM",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR04",
+      "guardrail_description": "Every workflow output must bind security, issuer, sources, evidence labels, QC and artifact hash.",
+      "guardrail_id": "PEIGUARD-cddc1a6962d56d19b5db3fd4",
+      "guardrail_name": "OUTPUT_IDENTITY_QC_AND_HASH_REQUIRED",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR05",
+      "guardrail_description": "Non-decision-grade market data cannot support security-level graduation.",
+      "guardrail_id": "PEIGUARD-8cd322c1ca50a10a9f2a19b7",
+      "guardrail_name": "DECISION_GRADE_MARKET_DATA_REQUIRED",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR06",
+      "guardrail_description": "A formal and current valuation is mandatory.",
+      "guardrail_id": "PEIGUARD-f42ee6949ffc60e3c344e966",
+      "guardrail_name": "FORMAL_VALUATION_REQUIRED",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR07",
+      "guardrail_description": "Formal peer comparability is mandatory and sector cohorts alone are insufficient.",
+      "guardrail_id": "PEIGUARD-d856fa698a9e02fa6294e855",
+      "guardrail_name": "FORMAL_PEER_COMPARABILITY_REQUIRED",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR08",
+      "guardrail_description": "Mandate, direction, horizon, benchmark and decision use require user confirmation.",
+      "guardrail_id": "PEIGUARD-93a5b10b95633e6db39ff611",
+      "guardrail_name": "USER_CONFIRMED_INVESTMENT_CONTEXT_REQUIRED",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR09",
+      "guardrail_description": "Thesis, variant view, catalysts, risks and falsifiers must be registered.",
+      "guardrail_id": "PEIGUARD-a9b8c8136e9d44ccbb3381fd",
+      "guardrail_name": "THESIS_AND_FALSIFIERS_REQUIRED",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR10",
+      "guardrail_description": "Only HUMAN_USER can approve graduation; automatic approval is prohibited.",
+      "guardrail_id": "PEIGUARD-d58982bb9926c73bc4edfda9",
+      "guardrail_name": "HUMAN_APPROVAL_ONLY",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR11",
+      "guardrail_description": "Graduation assessment cannot mutate the Candidate Pool.",
+      "guardrail_id": "PEIGUARD-430c75a75c3eb63de2f6a16e",
+      "guardrail_name": "NO_AUTOMATIC_CANDIDATE_POOL_MUTATION",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR12",
+      "guardrail_description": "Graduation assessment cannot mutate simulation state.",
+      "guardrail_id": "PEIGUARD-e87fc3fca8c1db2d1e98df65",
+      "guardrail_name": "NO_SIMULATION_MUTATION",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR13",
+      "guardrail_description": "No brokerage connection, real-account mutation or order may be created.",
+      "guardrail_id": "PEIGUARD-79e73562188ab95b045a3dc5",
+      "guardrail_name": "NO_BROKERAGE_OR_ORDER_CHANNEL",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR14",
+      "guardrail_description": "Approval, rejection, deferral, withdrawal and downgrade transitions require an append-only log.",
+      "guardrail_id": "PEIGUARD-edc3edc2fd9162ce2958cf3e",
+      "guardrail_name": "APPEND_ONLY_DECISION_LOG",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR15",
+      "guardrail_description": "Approved status must downgrade when evidence becomes stale, conflicting, withdrawn or invalidated.",
+      "guardrail_id": "PEIGUARD-d23555613847146bdc08be6b",
+      "guardrail_name": "DOWNGRADE_ON_STALE_CONFLICTING_OR_INVALIDATED_EVIDENCE",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    },
+    {
+      "automatic_waiver_allowed": false,
+      "guardrail_code": "GR16",
+      "guardrail_description": "Research-candidate approval never creates trade authority.",
+      "guardrail_id": "PEIGUARD-23676cf1597c84dab38b8f8d",
+      "guardrail_name": "APPROVAL_DOES_NOT_AUTHORIZE_TRADE",
+      "guardrail_status": "ACTIVE_ENFORCED",
+      "trade_authority": "NONE",
+      "violation_count": 0
+    }
+  ],
+  "phase_id": "FMDL-6X4-C",
+  "release_id": "FMDL6X4C_20260723_fe78ea8b7e74"
+}
