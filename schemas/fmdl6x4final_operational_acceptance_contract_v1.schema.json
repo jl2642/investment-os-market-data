@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/fmdl6x4final_operational_acceptance_contract_v1.schema.json",
+  "title": "FMDL-6X4-FINAL Operational Acceptance Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "required_exit_status",
+    "next_gate",
+    "roadmap_authority",
+    "component_pointers",
+    "freeze_controls",
+    "recovery_controls",
+    "scope",
+    "acceptance_gates",
+    "zero_mutation_gate",
+    "storage_contract",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-6X4-FINAL"},
+    "contract_version": {"type": "string"},
+    "required_exit_status": {"const": "FMDL6X4_FINAL_US_RESEARCH_ADAPTER_OPERATIONAL_ACCEPTANCE_AND_FMDL6_FREEZE_ACCEPTED"},
+    "next_gate": {"const": "FMDL-7_CROSS_MARKET_AND_FULL_SYSTEM_FINAL_OPERATIONAL_ACCEPTANCE"},
+    "component_pointers": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": [
+          "component_id",
+          "path",
+          "required_phase_id",
+          "required_release_id",
+          "required_release_sequence",
+          "required_status",
+          "accepted_capability"
+        ],
+        "properties": {
+          "component_id": {"type": "string"},
+          "path": {"type": "string"},
+          "required_phase_id": {"type": "string"},
+          "required_release_id": {"type": "string"},
+          "required_release_sequence": {"type": "integer"},
+          "required_status": {"type": "string"},
+          "accepted_capability": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "freeze_controls": {"type": "array", "minItems": 12, "maxItems": 12, "items": {"type": "string"}},
+    "recovery_controls": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "string"}},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
