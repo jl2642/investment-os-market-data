@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/fmdl7c_portfolio_attribution_contract_v1.schema.json",
+  "title": "FMDL-7C Portfolio Attribution Contract",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "contract_version",
+    "as_of_date",
+    "required_exit_status",
+    "next_gate",
+    "entry_gate",
+    "source_bindings",
+    "attribution_contract",
+    "action_review_contract",
+    "rule_calibration_proposals",
+    "failure_injections",
+    "scope",
+    "acceptance_gates",
+    "storage_contract",
+    "trade_authority"
+  ],
+  "properties": {
+    "phase_id": {"const": "FMDL-7C"},
+    "contract_version": {"type": "string", "minLength": 1},
+    "as_of_date": {"type": "string", "format": "date"},
+    "required_exit_status": {"const": "FMDL7C_PORTFOLIO_SIMULATION_ATTRIBUTION_AND_RULE_CALIBRATION_ACCEPTED"},
+    "next_gate": {"const": "FMDL-7D_SCHEDULED_OPERATIONS_MONITORING_STALENESS_AND_COST_CONTROLS"},
+    "entry_gate": {
+      "type": "object",
+      "required": ["path", "required_release_id", "required_release_sequence", "required_status", "required_next_gate", "required_trade_authority"]
+    },
+    "source_bindings": {"type": "object", "minProperties": 6, "maxProperties": 6},
+    "attribution_contract": {
+      "type": "object",
+      "required": [
+        "real_account_method",
+        "simulation_method",
+        "candidate_pool_method",
+        "live_action_recommendation_allowed",
+        "post_as_of_user_confirmation_required",
+        "fresh_market_data_required_before_live_action"
+      ]
+    },
+    "action_review_contract": {
+      "type": "object",
+      "required": [
+        "fact_judgment_recommendation_rule_proposal_separation_required",
+        "real_account_posture",
+        "simulation_posture",
+        "candidate_pool_posture",
+        "live_action_status",
+        "immediate_trade_proposal_count"
+      ]
+    },
+    "rule_calibration_proposals": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["proposal_id", "title", "trigger", "proposal", "minimum_evidence"]
+      }
+    },
+    "failure_injections": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "string"}},
+    "scope": {
+      "type": "object",
+      "required": [
+        "accepted_snapshot_attribution_authorized",
+        "portfolio_and_simulation_diagnostic_authorized",
+        "candidate_state_review_authorized",
+        "rule_calibration_proposal_authorized",
+        "live_trade_recommendation_authorized",
+        "candidate_pool_mutation_authorized",
+        "simulation_book_mutation_authorized",
+        "real_account_mutation_authorized",
+        "rule_mutation_authorized",
+        "brokerage_or_order_authorized"
+      ]
+    },
+    "acceptance_gates": {"type": "object"},
+    "storage_contract": {
+      "type": "object",
+      "required": ["release_sequence", "current_root", "release_root", "normalized_root", "archive_root", "last_success", "last_known_good"],
+      "properties": {"release_sequence": {"const": 51}}
+    },
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,228 @@
+{
+  "phase_id": "FMDL-7C",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-20",
+  "acceptance_run_date": "2026-07-23",
+  "title": "Portfolio, Simulation, Attribution and Rule Calibration Acceptance",
+  "required_exit_status": "FMDL7C_PORTFOLIO_SIMULATION_ATTRIBUTION_AND_RULE_CALIBRATION_ACCEPTED",
+  "next_gate": "FMDL-7D_SCHEDULED_OPERATIONS_MONITORING_STALENESS_AND_COST_CONTROLS",
+  "entry_gate": {
+    "path": "outputs/status/FMDL7B_LAST_SUCCESS.json",
+    "required_phase_id": "FMDL-7B",
+    "required_release_id": "FMDL7B_20260723_2f6d06b5debe",
+    "required_release_sequence": 50,
+    "required_status": "FMDL7B_END_TO_END_RESEARCH_AND_DECISION_LINEAGE_ACCEPTED",
+    "required_next_gate": "FMDL-7C_PORTFOLIO_SIMULATION_ATTRIBUTION_AND_RULE_CALIBRATION_ACCEPTANCE",
+    "required_trade_authority": "NONE"
+  },
+  "source_bindings": {
+    "investment_state_binding": {
+      "path": "config/post_fmdl4_release4_state_binding.json",
+      "required_source_release_sequence": 4,
+      "required_source_as_of": "2026-07-16_INTRADAY_1107",
+      "required_real_holding_count": 7,
+      "required_simulation_holding_count": 16,
+      "required_candidate_core_count": 20,
+      "required_active_memo_count": 6,
+      "required_simulation_original_capital": 1000000.0,
+      "required_trade_authority": "NONE"
+    },
+    "operating_state_review": {
+      "path": "evidence/post_fmdl4/POST_FMDL4_ACTION_REVIEW.json",
+      "required_as_of": "2026-07-20_CLOSE",
+      "required_real_total_assets": 448831.42,
+      "required_simulation_total_assets": 1001714.58,
+      "required_simulation_market_value": 782180.6,
+      "required_simulation_cash": 219533.98,
+      "required_simulation_total_pnl": 1714.58,
+      "required_real_decision": "HOLD_AND_MONITOR",
+      "required_trade_authority": "NONE"
+    },
+    "a_share_quote_snapshot": {
+      "path": "outputs/post_fmdl4/market_refresh_candidate/POST_FMDL4_A_SHARE_QUOTES_20260720.csv",
+      "required_quote_date": "2026-07-20",
+      "required_row_count": 30,
+      "required_validation_status": "PASS"
+    },
+    "fund_nav_snapshot": {
+      "path": "outputs/post_fmdl4/market_refresh_candidate/POST_FMDL4_FUND_NAV_20260720.csv",
+      "required_row_count": 3,
+      "required_validation_status": "PASS",
+      "maximum_nav_age_days": 3
+    },
+    "fmdl4d_feedback_proposals": {
+      "path": "outputs/fmdl4d/thesis/current/FMDL4D_THESIS_OVERLAY/EVIDENCE/FMDL4D_FEEDBACK_PROPOSALS.jsonl",
+      "required_record_count": 5,
+      "required_applied_rule_mutation_count": 0,
+      "required_trade_authority": "NONE"
+    },
+    "fmdl4d_attribution_registry": {
+      "path": "outputs/fmdl4d/thesis/current/FMDL4D_THESIS_OVERLAY/STATE_CURRENT/FMDL4D_ATTRIBUTION_REGISTRY.csv",
+      "required_record_count": 6,
+      "required_exposure_status": "NO_POSITION",
+      "required_trade_authority": "NONE"
+    }
+  },
+  "attribution_contract": {
+    "real_account_method": "POSITION_MARK_TO_RECORDED_COST_USING_ACCEPTED_2026_07_20_CLOSE_OR_LATEST_ACCEPTED_NAV",
+    "real_account_total_return_claim_allowed": false,
+    "simulation_method": "OPEN_POSITION_MARK_TO_COST_PLUS_ACCOUNT_TOTAL_PNL_BRIDGE",
+    "simulation_residual_label": "CLOSED_POSITION_REALIZED_FEES_AND_OTHER_ACCOUNT_RESIDUAL_NOT_FURTHER_DECOMPOSED",
+    "candidate_pool_method": "STATE_AND_EXPOSURE_COVERAGE_ONLY_NO_FABRICATED_RETURN_WITHOUT_APPROVED_ENTRY_BASELINE",
+    "benchmark_attribution_allowed": false,
+    "live_action_recommendation_allowed": false,
+    "lkg_as_of": "2026-07-20_CLOSE",
+    "post_as_of_user_confirmation_required": true,
+    "fresh_market_data_required_before_live_action": true
+  },
+  "action_review_contract": {
+    "fact_judgment_recommendation_rule_proposal_separation_required": true,
+    "real_account_posture": "HOLD_AND_MONITOR_LKG_ONLY",
+    "simulation_posture": "HOLD_AND_OBSERVE_LKG_WITH_NO_ADD_AND_HARD_REVIEW_CONTROLS",
+    "candidate_pool_posture": "CORE20_UNCHANGED_LKG_ONLY",
+    "duplicate_sp500_etf_posture": "CONTROLLED_CONSOLIDATION_REVIEW_ONLY_WHEN_FRESH_COST_TRACKING_AND_EXECUTION_CASE_IS_CLEAR",
+    "live_action_status": "BLOCKED_PENDING_CURRENT_STATE_CONFIRMATION_AND_MARKET_REFRESH",
+    "immediate_trade_proposal_count": 0,
+    "automatic_candidate_admission_count": 0,
+    "automatic_simulation_admission_count": 0,
+    "automatic_real_account_admission_count": 0
+  },
+  "rule_calibration_proposals": [
+    {
+      "proposal_id": "FMDL7C-RULE-001",
+      "title": "Current-state and market-freshness gate before live action",
+      "trigger": "LKG state is accepted only through 2026-07-20 and A-share data is not confirmed current beyond that point.",
+      "proposal": "Require user-confirmed post-as-of account state and a completed latest-session market refresh before any live adjustment recommendation.",
+      "minimum_evidence": "CURRENT_ACCOUNT_STATE_CONFIRMATION_PLUS_LATEST_COMPLETED_MARKET_SESSION",
+      "source_proposal_ids": ["FMDL4D-FB-001"]
+    },
+    {
+      "proposal_id": "FMDL7C-RULE-002",
+      "title": "Simulation account PnL bridge is mandatory",
+      "trigger": "Open-position unrealized PnL differs from total account PnL because closed-position, fee or other residual effects exist.",
+      "proposal": "Every simulation review must reconcile open-position unrealized contribution, closed-position or fee residual, cash and total account PnL without silently forcing equality.",
+      "minimum_evidence": "POSITION_COSTS_PLUS_CURRENT_PRICES_PLUS_CASH_PLUS_ACCOUNT_TOTAL_ASSETS"
+    },
+    {
+      "proposal_id": "FMDL7C-RULE-003",
+      "title": "Duplicate benchmark exposure requires controlled review",
+      "trigger": "Two real-account ETFs track the S&P 500.",
+      "proposal": "Require explicit cost, tracking, liquidity, tax and execution comparison before consolidating duplicate index exposures; prohibit automatic consolidation.",
+      "minimum_evidence": "FRESH_TRACKING_ERROR_COST_LIQUIDITY_TAX_AND_EXECUTION_COMPARISON"
+    },
+    {
+      "proposal_id": "FMDL7C-RULE-004",
+      "title": "No-add and hard-review flags are binding controls",
+      "trigger": "Four simulation positions carry no-add controls and two positions carry hard-review requirements.",
+      "proposal": "Block incremental simulation exposure while a no-add flag is active and require an append-only review decision before a hard-review deadline can be cleared.",
+      "minimum_evidence": "CURRENT_PRICE_TREND_THESIS_FALSIFIER_AND_REVIEW_DECISION_LOG"
+    },
+    {
+      "proposal_id": "FMDL7C-RULE-005",
+      "title": "Positive simulation samples do not automatically migrate to real capital",
+      "trigger": "Positive open-position contribution exists for multiple simulation names but does not establish persistent alpha or portfolio fit.",
+      "proposal": "Require multiple independent observation windows, thesis validation, valuation, downside, portfolio fit and explicit user approval before any real-capital migration.",
+      "minimum_evidence": "MULTIPLE_OBSERVATION_WINDOWS_PLUS_THESIS_VALUATION_DOWNSIDE_PORTFOLIO_FIT_AND_APPROVAL",
+      "source_proposal_ids": ["FMDL4D-FB-005"]
+    },
+    {
+      "proposal_id": "FMDL7C-RULE-006",
+      "title": "Candidate price triggers require current quotes and no automatic membership change",
+      "trigger": "Six Active Memo thresholds exist and none were met in the accepted 2026-07-20 snapshot.",
+      "proposal": "Evaluate triggers only against validated current quotes and route any met trigger to memo review rather than automatic Candidate Pool or portfolio admission.",
+      "minimum_evidence": "VALIDATED_CURRENT_QUOTE_PLUS_ACTIVE_MEMO_AND_HUMAN_REVIEW"
+    },
+    {
+      "proposal_id": "FMDL7C-RULE-007",
+      "title": "Candidate outcome attribution requires an approved entry baseline",
+      "trigger": "Research graduation and Candidate Core membership do not provide an approved entry price or exposure start for every security.",
+      "proposal": "Do not calculate candidate alpha or selection attribution without an approved entry baseline, benchmark, observation window and exposure state.",
+      "minimum_evidence": "APPROVED_ENTRY_BASELINE_PLUS_BENCHMARK_PLUS_OBSERVATION_WINDOW_PLUS_EXPOSURE_STATE"
+    },
+    {
+      "proposal_id": "FMDL7C-RULE-008",
+      "title": "No single period may mutate system rules",
+      "trigger": "One portfolio snapshot or one security outcome is insufficient to establish a robust rule change.",
+      "proposal": "Require multiple independent observations, failure classification, regression testing and human approval before applying any strategy-rule change.",
+      "minimum_evidence": "MULTIPLE_INDEPENDENT_OBSERVATIONS_PLUS_FAILURE_CLASSIFICATION_PLUS_REGRESSION_PLUS_HUMAN_APPROVAL",
+      "source_proposal_ids": ["FMDL4D-FB-005"]
+    }
+  ],
+  "failure_injections": [
+    "POST_AS_OF_STATE_FABRICATED_AS_CURRENT",
+    "STALE_PRICE_USED_FOR_LIVE_TRADE_RECOMMENDATION",
+    "DUPLICATE_SP500_ETF_AUTOMATIC_CONSOLIDATION",
+    "SIMULATION_ACCOUNT_PNL_BRIDGE_MISMATCH",
+    "NO_ADD_OR_HARD_REVIEW_BYPASS",
+    "SINGLE_OBSERVATION_RULE_MUTATION",
+    "CANDIDATE_PRICE_TRIGGER_FABRICATION",
+    "TRADE_AUTHORITY_ESCALATION"
+  ],
+  "scope": {
+    "accepted_snapshot_attribution_authorized": true,
+    "portfolio_and_simulation_diagnostic_authorized": true,
+    "candidate_state_review_authorized": true,
+    "action_recommendation_register_authorized": true,
+    "rule_calibration_proposal_authorized": true,
+    "new_market_data_refresh_authorized": false,
+    "post_as_of_state_fabrication_authorized": false,
+    "live_trade_recommendation_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_book_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "rule_mutation_authorized": false,
+    "canonical_repack_authorized": false,
+    "brokerage_or_order_authorized": false
+  },
+  "acceptance_gates": {
+    "source_binding_count": 6,
+    "real_holding_count": 7,
+    "real_stock_etf_count": 4,
+    "real_bond_fund_count": 3,
+    "real_total_assets": 448831.42,
+    "real_invested_cost_estimate": 452382.98,
+    "real_mark_to_cost_pnl_estimate": -3672.05,
+    "real_stock_etf_pnl_estimate": -7036.6,
+    "real_bond_fund_pnl_estimate": 3364.55,
+    "simulation_holding_count": 16,
+    "simulation_market_value": 782180.6,
+    "simulation_cash": 219533.98,
+    "simulation_total_assets": 1001714.58,
+    "simulation_account_total_pnl": 1714.58,
+    "simulation_open_position_unrealized_pnl": 10165.0,
+    "simulation_closed_fee_other_residual": -8450.42,
+    "simulation_positive_position_count": 10,
+    "simulation_negative_position_count": 6,
+    "simulation_positive_contribution": 48647.0,
+    "simulation_negative_contribution": -38482.0,
+    "simulation_hard_review_count": 2,
+    "simulation_no_add_count": 4,
+    "candidate_core_count": 20,
+    "active_memo_count": 6,
+    "active_memo_trigger_met_count": 0,
+    "candidate_simulation_overlap_count": 13,
+    "action_recommendation_count": 6,
+    "rule_calibration_proposal_count": 8,
+    "failure_injection_count": 8,
+    "gate_count": 24,
+    "logical_shard_domain_count": 7,
+    "bucket_count": 64,
+    "logical_shard_count": 448,
+    "investment_recommendation_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "rule_mutations": 0,
+    "orders": 0
+  },
+  "storage_contract": {
+    "release_sequence": 51,
+    "current_root": "outputs/fmdl7/current/portfolio_attribution",
+    "release_root": "datasets/fmdl7/releases/<release_id>/portfolio_attribution",
+    "normalized_root": "datasets/fmdl7/normalized/portfolio_attribution/<release_id>",
+    "archive_root": "outputs/fmdl7/archive/portfolio_attribution",
+    "last_success": "outputs/status/FMDL7C_LAST_SUCCESS.json",
+    "last_known_good": "outputs/status/FMDL7_PORTFOLIO_ATTRIBUTION_LKG.json"
+  },
+  "trade_authority": "NONE"
+}
