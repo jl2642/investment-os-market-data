@@ -1,99 +1,58 @@
 {
-  "registry_id": "WP1_5E_LIMITATION_REGISTER_V5",
+  "registry_id": "WP1_6_LIMITATION_REGISTER_V6",
   "status": "ACTIVE",
   "date": "2026-07-24",
-  "closed_in_wp1_5b": [
+  "closed": [
     "ACTIVE_KERNEL_INCOMPLETE",
     "MULTIPLE_ACTIVE_SCHEMA_VERSIONS",
     "MISSING_STATE_DOMAIN_SCHEMA",
-    "PRIVATE_REPOSITORY_BLOCKER"
+    "PRIVATE_REPOSITORY_BLOCKER",
+    "WP1_5B_5C_GITHUB_PUBLICATION_BLOCKER",
+    "WP1_5D_5E_CANONICAL_ACCEPTANCE_BLOCKER",
+    "RUNTIME_1_0_0_FRESHNESS_FORWARD_COMPATIBILITY_DEFECT"
   ],
   "open": [
     {
       "id": "LIM-001",
       "priority": "P0",
+      "status": "OPEN",
       "description": "Investment state is confirmed only through 2026-07-20 LKG.",
       "effect": "No current portfolio action; WP2 refresh required."
     },
     {
       "id": "LIM-002",
       "priority": "P0",
+      "status": "OPEN",
       "description": "A-share market watermark is 2026-07-17.",
       "effect": "No current market-based action; WP2 refresh required."
     },
     {
       "id": "LIM-003",
       "priority": "P0",
+      "status": "OPEN",
       "description": "Candidate Core20 lacks valid Entry Baseline and benchmark windows.",
       "effect": "No Candidate Alpha claim; WP3 rebuild required."
     },
     {
       "id": "LIM-004",
       "priority": "P1",
-      "description": "Simulation ledger retains legacy reconciliation residual.",
-      "effect": "No exact security Alpha claim."
-    },
-    {
-      "id": "LIM-005",
-      "priority": "P0",
-      "description": "Control Runtime and Market Capability Bindings were implemented and locally validated.",
-      "effect": "GitHub publication remains required before repository Current.",
-      "status": "CLOSED_BY_LOCAL_WP1_5C"
-    },
-    {
-      "id": "LIM-006",
-      "priority": "P0",
-      "description": "Current files are promotion-ready candidates only.",
-      "effect": "Active promotion requires WP1-5E and WP1-6."
-    },
-    {
-      "id": "LIM-WP1-5C-001",
-      "priority": "P0",
-      "status": "CLOSED_BY_PR97_GITHUB_PUBLICATION",
-      "description": "GitHub PR #96 was verified unmerged and has been closed as an invalid publication attempt.",
-      "effect": "A new clean PR must be created from the validated WP1-5C package before repository Current can advance."
-    },
-    {
-      "id": "LIM-WP1-5C-002",
-      "priority": "P1",
-      "status": "CLOSED_BY_PR97_GITHUB_PUBLICATION",
-      "description": "The current GitHub connector cannot reliably transfer the local binary runtime payload, and the temporary Drive file cannot be anonymously shared.",
-      "effect": "Repository publication requires a compatible local git/gh or binary-upload path."
+      "status": "OPEN",
+      "description": "Simulation ledger retains a legacy reconciliation residual.",
+      "effect": "No exact security Alpha claim until reconciliation."
     },
     {
       "id": "LIM-WP1-5C-003",
       "priority": "P0",
       "status": "CONTROLLED",
       "description": "Operating cadence contracts exist but scheduled automation remains disabled until WP6.",
-      "effect": "No daily, weekly, monthly, quarterly or annual product is automatically produced."
+      "effect": "No automatic daily, weekly, monthly, quarterly or annual products or state mutations."
     },
     {
-      "id": "LIM-WP1-5D-001",
+      "id": "LIM-WP1-6-001",
       "priority": "P0",
-      "status": "CONTROLLED_PENDING_INDEPENDENT_WP1_6",
-      "description": "R10 passed WP1-5E self-audit but has not yet passed independent WP1-6 clean-room acceptance.",
-      "effect": "Do not replace File Library Current before WP1-6."
-    },
-    {
-      "id": "LIM-WP1-5D-002",
-      "priority": "P0",
-      "status": "CONTROLLED",
-      "description": "State remains confirmed only through 2026-07-20 LKG and A-share market data through 2026-07-17.",
-      "effect": "No current investment action."
-    },
-    {
-      "id": "LIM-WP1-5D-003",
-      "priority": "P0",
-      "status": "CONTROLLED",
-      "description": "Cadence automation remains disabled until WP6.",
-      "effect": "No automatic operating products or state mutations."
-    },
-    {
-      "id": "LIM-WP1-5E-001",
-      "priority": "P0",
-      "status": "CLOSED_BY_RUNTIME_1_0_1",
-      "description": "Runtime 1.0.0 rejected fresh A-share data and hard-coded the evaluation date.",
-      "effect": "Repaired and regression-tested in Runtime 1.0.1."
+      "status": "OPEN_DEPLOYMENT_TASK",
+      "description": "The accepted Canonical has not yet been uploaded to File Library because the current connector has no File Library write action.",
+      "effect": "Cross-chat File Library recovery remains on the prior Current until the user uploads the accepted assets."
     }
   ],
   "trade_authority": "NONE"
