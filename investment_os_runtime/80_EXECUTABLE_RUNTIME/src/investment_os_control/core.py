@@ -200,10 +200,13 @@ def validate_runtime(root: Path, evaluation_date: str) -> dict[str, Any]:
         daily["maximum_age_calendar_days"],
         daily["stale_behavior"],
     )
-    if freshness["outcome"] != "BLOCK":
-        errors.append("A_SHARE_STALENESS_NOT_BLOCKED")
-    else:
-        warnings.append("A_SHARE_LIVE_ACTION_BLOCKED_BY_STALENESS")
+    if freshness["stale"]:
+        if freshness["outcome"] != "BLOCK":
+            errors.append("A_SHARE_STALENESS_NOT_BLOCKED")
+        else:
+            warnings.append("A_SHARE_LIVE_ACTION_BLOCKED_BY_STALENESS")
+    elif freshness["outcome"] != "PASS":
+        errors.append("A_SHARE_FRESH_DATA_NOT_ACCEPTED")
 
     hk = read_json(binding_root / "HK_CONNECT_CURRENT.json")
     if enforce_market_permission(hk, "CANDIDATE_ADMISSION")["allowed"]:
@@ -252,7 +255,7 @@ def validate_runtime(root: Path, evaluation_date: str) -> dict[str, Any]:
             errors.append(f"ZERO_MUTATION:{key}")
 
     return {
-        "runtime_version": "1.0.0",
+        "runtime_version": "1.0.1",
         "evaluation_date": evaluation_date,
         "status": "PASS" if not errors else "FAIL",
         "errors": errors,
