@@ -1,14 +1,14 @@
 {
-  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V1_10_WP1_5E_FROZEN",
+  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V2_0_WP1_COMPLETED",
   "status_date": "2026-07-24",
-  "overall_status": "WORK_PACKAGE_1_IN_PROGRESS",
-  "current_step": "WP1-6_READY",
+  "overall_status": "WP1_COMPLETED_WP2_READY",
+  "current_step": "WP2-1_READY",
   "repository": "jl2642/investment-os-market-data",
   "github_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
   "runtime_root": "investment_os_runtime/",
   "release_id": "INVESTMENT_OS_R10_20260724_d5bbfa2f0a36",
   "release_sequence": 10,
-  "file_library_promotion_status": "FROZEN_PROMOTION_CANDIDATE_NOT_ACTIVE",
+  "file_library_promotion_status": "PENDING_MANUAL_UPLOAD",
   "trade_authority": "NONE",
   "wp1_status": {
     "WP1-1": "COMPLETED_WITH_FINDINGS",
@@ -21,7 +21,7 @@
     "WP1-5C": "GITHUB_PUBLISHED",
     "WP1-5D": "COMPLETED_SUPERSEDED_BY_WP1-5E_FREEZE",
     "WP1-5E": "COMPLETED_WITH_TARGETED_RUNTIME_REPAIR",
-    "WP1-6": "READY"
+    "WP1-6": "COMPLETED_INDEPENDENT_CLEAN_ROOM_PASS"
   },
   "wp1_5b": {
     "rule_count": 118,
@@ -73,7 +73,7 @@
     "orders": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "WP1-6_INDEPENDENT_CLEAN_ROOM_ACCEPTANCE",
+  "next_task": "WP2-1_ACCOUNT_SIMULATION_CANDIDATE_DELTA_CONFIRMATION",
   "runtime_baseline_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
   "previous_wp1_5d_metadata_sha": "5a7e4f13e8f02eaa56f88ebbd8e924e08ed79124",
   "wp1_5e": {
@@ -94,5 +94,26 @@
     "embedded_release8_validation": "PASS_EXACT_SHA",
     "file_library_active": false
   },
-  "wp1_5bc_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54"
+  "wp1_5bc_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54",
+  "canonical_acceptance_status": "ACCEPTED_CANONICAL",
+  "wp1_5e_metadata_merge_sha": "fdb102b9f1e329b1402deefc6262128e368855cb",
+  "wp1_6": {
+    "status": "COMPLETED_INDEPENDENT_CLEAN_ROOM_PASS",
+    "acceptance_id": "WP1_6_INDEPENDENT_CLEAN_ROOM_ACCEPTANCE_20260724",
+    "input_file_count": 2,
+    "capsule_only_recovery": "BLOCKED_AS_DESIGNED",
+    "manifest_validation": "PASS",
+    "formal_runtime_tree_validation": "PASS",
+    "content_tree_validation": "PASS",
+    "embedded_release8_validation": "PASS",
+    "pytest": "35 passed",
+    "stale_acceptance": "PASS_WITH_LIVE_ACTION_BLOCKED",
+    "fresh_acceptance": "PASS",
+    "failure_injections": "13/13 PASS",
+    "deterministic_replay": "PASS_BYTE_IDENTICAL",
+    "sensitive_scan_hits": 0,
+    "state_changed_files": 0,
+    "promotion_decision": "ACCEPTED_CANONICAL",
+    "file_library_deployment": "PENDING_MANUAL_UPLOAD"
+  }
 }
