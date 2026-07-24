@@ -1,4 +1,4 @@
-name: WP1-5B Tree SHA Probe
+name: WP1-5B Atomic Runtime Materialization
 
 on:
   pull_request:
@@ -8,37 +8,73 @@ on:
       - '.github/workflows/wp1-5b-materialize-runtime.yml'
 
 permissions:
-  contents: read
-  issues: write
-  pull-requests: write
+  contents: write
+
+concurrency:
+  group: wp1-5b-atomic-runtime-materialization
+  cancel-in-progress: true
 
 jobs:
-  probe:
+  materialize:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: agent/wp1-5b-rule-schema-state-rebuild
           fetch-depth: 0
-      - name: Publish current tree SHA to PR
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reconstruct and validate accepted runtime
+        run: python bootstrap/wp1_5b_compact/materialize.py
+      - name: Create one atomic Git tree and commit
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TREE_SHA=$(git rev-parse HEAD^{tree})
           python - <<'PY'
-          import json, os, urllib.request
-          tree = os.popen('git rev-parse HEAD^{tree}').read().strip()
-          req = urllib.request.Request(
-              'https://api.github.com/repos/jl2642/investment-os-market-data/issues/96/comments',
-              data=json.dumps({'body': f'WP1_5B_TREE_SHA={tree}'}).encode(),
-              headers={
-                  'Authorization': f"Bearer {os.environ['GH_TOKEN']}",
-                  'Accept': 'application/vnd.github+json',
-                  'X-GitHub-Api-Version': '2022-11-28',
-                  'Content-Type': 'application/json',
-              },
-              method='POST',
-          )
-          with urllib.request.urlopen(req) as response:
-              print(response.status)
+          from pathlib import Path
+          import json, os, subprocess, urllib.request
+
+          repo = 'jl2642/investment-os-market-data'
+          branch = 'agent/wp1-5b-rule-schema-state-rebuild'
+          api_root = f'https://api.github.com/repos/{repo}'
+          token = os.environ['GH_TOKEN']
+
+          def api(method, path, payload=None):
+              data = None if payload is None else json.dumps(payload).encode('utf-8')
+              req = urllib.request.Request(
+                  api_root + path,
+                  data=data,
+                  method=method,
+                  headers={
+                      'Authorization': f'Bearer {token}',
+                      'Accept': 'application/vnd.github+json',
+                      'X-GitHub-Api-Version': '2022-11-28',
+                      'Content-Type': 'application/json',
+                  },
+              )
+              with urllib.request.urlopen(req) as response:
+                  return json.loads(response.read().decode('utf-8'))
+
+          parent = subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          base_tree = subprocess.check_output(['git','rev-parse','HEAD^{tree}'], text=True).strip()
+          root = Path('investment_os_runtime')
+          files = sorted(p for p in root.rglob('*') if p.is_file())
+          if len(files) != 56:
+              raise SystemExit(f'expected 56 runtime files, got {len(files)}')
+
+          entries = []
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              blob = api('POST', '/git/blobs', {'content': text, 'encoding': 'utf-8'})
+              entries.append({'path': path.as_posix(), 'mode': '100644', 'type': 'blob', 'sha': blob['sha']})
+
+          tree = api('POST', '/git/trees', {'base_tree': base_tree, 'tree': entries})
+          commit = api('POST', '/git/commits', {
+              'message': 'WP1-5B: atomically materialize active rules schemas and state',
+              'tree': tree['sha'],
+              'parents': [parent],
+          })
+          api('PATCH', f'/git/refs/heads/{branch}', {'sha': commit['sha'], 'force': False})
+          print(json.dumps({'status':'PASS','files':len(files),'commit':commit['sha'],'trade_authority':'NONE'}, indent=2))
           PY
