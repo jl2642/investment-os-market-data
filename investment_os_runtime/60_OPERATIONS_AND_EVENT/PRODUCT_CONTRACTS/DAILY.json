@@ -1,0 +1,25 @@
+{
+  "contract_id": "WP1_5C_PRODUCT_DAILY_V1",
+  "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
+  "product_type": "DAILY",
+  "lifecycle": [
+    "CANDIDATE",
+    "QC_PASSED",
+    "ACCEPTED",
+    "CURRENT",
+    "LKG"
+  ],
+  "required_sections": [
+    "SYSTEM_HEALTH",
+    "DATA_FRESHNESS",
+    "STATE_WATERMARK",
+    "EVENTS",
+    "BLOCKED_ACTIONS"
+  ],
+  "prohibited_claims": [
+    "CURRENT_ACTION_WHEN_DATA_OR_STATE_STALE"
+  ],
+  "default_status": "CANDIDATE",
+  "activation": "DISABLED_UNTIL_WP6",
+  "trade_authority": "NONE"
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Candidate Entry Baseline",
+  "type": "object",
+  "required": [
+    "baseline_id",
+    "security_id",
+    "status"
+  ],
+  "properties": {
+    "baseline_id": {
+      "type": "string"
+    },
+    "security_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "MISSING",
+        "COMPLETE",
+        "STALE",
+        "INVALID"
+      ]
+    },
+    "entry_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "entry_price": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "entry_valuation": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "benchmark": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "windows": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "thesis_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

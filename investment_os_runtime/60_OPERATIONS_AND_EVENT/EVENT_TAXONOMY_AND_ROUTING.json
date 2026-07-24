@@ -1,0 +1,72 @@
+{
+  "taxonomy_id": "WP1_5C_EVENT_E0_E5_V1",
+  "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
+  "levels": {
+    "E0": {
+      "meaning": "LOG_ONLY",
+      "routes": [
+        "EVENT_REGISTER"
+      ],
+      "urgency": "NONE"
+    },
+    "E1": {
+      "meaning": "WATCH_MONITOR",
+      "routes": [
+        "EVENT_REGISTER",
+        "WATCH_QUEUE"
+      ],
+      "urgency": "LOW"
+    },
+    "E2": {
+      "meaning": "RESEARCH_OR_VALUATION_REFRESH",
+      "routes": [
+        "RESEARCH_QUEUE"
+      ],
+      "urgency": "NORMAL"
+    },
+    "E3": {
+      "meaning": "THESIS_OR_CANDIDATE_REVIEW",
+      "routes": [
+        "RESEARCH_QUEUE",
+        "DECISION_REVIEW_QUEUE"
+      ],
+      "urgency": "HIGH"
+    },
+    "E4": {
+      "meaning": "URGENT_PORTFOLIO_DECISION_SUPPORT",
+      "routes": [
+        "URGENT_DECISION_SUPPORT"
+      ],
+      "urgency": "URGENT",
+      "automatic_trade": false
+    },
+    "E5": {
+      "meaning": "DATA_AUTHORITY_OR_SYSTEM_INTEGRITY_FAILURE",
+      "routes": [
+        "FAIL_CLOSED",
+        "RECOVERY_QUEUE"
+      ],
+      "urgency": "IMMEDIATE",
+      "automatic_trade": false
+    }
+  },
+  "event_states": [
+    "NEW",
+    "DEDUPED",
+    "EVIDENCE_READY",
+    "IMPACT_ASSESSED",
+    "ROUTED",
+    "UNDER_REVIEW",
+    "ESCALATED",
+    "CLOSED",
+    "QUARANTINED"
+  ],
+  "idempotency_key": [
+    "event_type",
+    "issuer_id",
+    "source_id",
+    "effective_at",
+    "content_hash"
+  ],
+  "trade_authority": "NONE"
+}

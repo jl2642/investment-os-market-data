@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Simulation State",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "state_id",
+    "as_of",
+    "status",
+    "holdings",
+    "trade_ledger"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "state_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "as_of": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_bindings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "holdings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "trade_ledger": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "historical_action_records": {
+      "type": "array"
+    },
+    "trade_authority": {
+      "const": "NONE"
+    }
+  },
+  "additionalProperties": true
+}

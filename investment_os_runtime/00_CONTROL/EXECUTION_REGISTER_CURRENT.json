@@ -1,58 +1,83 @@
 {
-  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V1_5_SINGLE_REPOSITORY",
+  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V1_8_WP1_5BC_GITHUB_PUBLISHED",
   "status_date": "2026-07-24",
   "overall_status": "WORK_PACKAGE_1_IN_PROGRESS",
-  "current_step": "WP1-5B_READY",
+  "current_step": "WP1-5D_READY",
   "repository": "jl2642/investment-os-market-data",
   "runtime_root": "investment_os_runtime/",
   "trade_authority": "NONE",
-  "work_packages": {
-    "WP1": {
-      "status": "IN_PROGRESS",
-      "steps": {
-        "WP1-1": "COMPLETED_WITH_FINDINGS",
-        "WP1-1S": "COMPLETED",
-        "WP1-2": "COMPLETED_WITH_FINDINGS",
-        "WP1-3": "COMPLETED_WITH_FINDINGS",
-        "WP1-4": "COMPLETED",
-        "WP1-5A": "COMPLETED",
-        "WP1-5B": "READY",
-        "WP1-5C": "PLANNED",
-        "WP1-5D": "PLANNED",
-        "WP1-5E": "PLANNED",
-        "WP1-6": "PLANNED"
-      }
-    },
-    "WP2": {"status": "PLANNED"},
-    "WP3": {"status": "PLANNED"},
-    "WP4": {"status": "PLANNED"},
-    "WP5": {"status": "PLANNED"},
-    "WP6": {"status": "PLANNED"},
-    "WP7": {"status": "PLANNED"}
+  "wp1_status": {
+    "WP1-1": "COMPLETED_WITH_FINDINGS",
+    "WP1-1S": "COMPLETED",
+    "WP1-2": "COMPLETED_WITH_FINDINGS",
+    "WP1-3": "COMPLETED_WITH_FINDINGS",
+    "WP1-4": "COMPLETED_WITH_SINGLE_REPOSITORY_CORRECTION",
+    "WP1-5A": "COMPLETED",
+    "WP1-5B": "GITHUB_PUBLISHED",
+    "WP1-5C": "GITHUB_PUBLISHED",
+    "WP1-5D": "READY",
+    "WP1-5E": "PLANNED",
+    "WP1-6": "PLANNED"
   },
-  "architecture_decisions": [
-    "SINGLE_GITHUB_REPOSITORY",
-    "DIRECTORY_SCHEMA_MANIFEST_AND_PROMOTION_BOUNDARIES",
-    "NO_SECOND_RUNTIME_REPOSITORY",
-    "PUBLIC_REPOSITORY_ACCEPTED_BY_USER",
-    "RAW_ACCOUNT_IDENTIFIERS_AND_CREDENTIALS_EXCLUDED",
-    "STRUCTURED_INVESTMENT_STATE_ALLOWED_BY_SCHEMA",
-    "FULL_RUNTIME_AND_CONTROL_CAPSULE_SEPARATED",
-    "RELEASE8_RETAINED_AS_HISTORICAL_BASELINE",
-    "TRADE_AUTHORITY_NONE"
-  ],
-  "latest_execution_log": [
-    {
-      "date": "2026-07-24",
-      "record_id": "WP1-5A-ARCHITECTURE-CORRECTION",
-      "result": "COMPLETED_SINGLE_REPOSITORY_CONTROL_FOUNDATION",
-      "reason": "Repository separation was unnecessary; responsibility separation is implemented in the existing repository.",
-      "candidate_pool_mutations": 0,
-      "simulation_book_mutations": 0,
-      "real_account_mutations": 0,
-      "rule_mutations": 0,
-      "orders": 0
+  "wp1_5b": {
+    "run_id": "WP1_5B_RULE_SCHEMA_STATE_REBUILD_20260724_001",
+    "rule_count": 118,
+    "active_rule_count": 111,
+    "deprecated_rule_count": 5,
+    "archived_rule_count": 2,
+    "schema_version": "1.0.0",
+    "schema_count": 19,
+    "state_domain_count": 10,
+    "conflict_count_closed": 22,
+    "missing_capability_count_routed": 24,
+    "migration_acceptance": "PASS_GITHUB_PUBLISHED"
+  },
+  "mutation_proof": {
+    "proof_id": "WP1_5B_ZERO_MUTATION_PROOF",
+    "date": "2026-07-24",
+    "source_release": "INVESTMENT_OS_R8_20260720_501345e84562",
+    "candidate_core_before": 20,
+    "candidate_core_after": 20,
+    "candidate_membership_mutations": 0,
+    "simulation_holdings_before": 16,
+    "simulation_holdings_after": 16,
+    "simulation_trade_mutations": 0,
+    "real_holdings_before": 7,
+    "real_holdings_after": 7,
+    "real_account_mutations": 0,
+    "rule_auto_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "next_task": "WP1-5D_CANONICAL_PACKAGING_AND_FILE_LIBRARY_TARGET_DELIVERY",
+  "wp1_5c": {
+    "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
+    "runtime_version": "1.0.0",
+    "binding_count": 6,
+    "cadence_contract_count": 6,
+    "event_level_count": 6,
+    "product_contract_count": 6,
+    "attribution_contract_count": 4,
+    "automation_activation": "DISABLED_UNTIL_WP6",
+    "local_acceptance": "PASS",
+    "github_status": "GITHUB_PUBLISHED_VIA_CLEAN_PR",
+    "pytest_summary": "\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m                                       [100%]\u001b[0m\n\u001b[32m\u001b[32m\u001b[1m34 passed\u001b[0m\u001b[32m in 0.97s\u001b[0m\u001b[0m",
+    "runtime_acceptance": "PASS",
+    "invalid_pr": {
+      "number": 96,
+      "state": "CLOSED",
+      "merged": false,
+      "reason": "INCOMPLETE_AND_CORRUPTED_TEMPORARY_MATERIALIZATION_PAYLOAD"
+    },
+    "clean_publication": {
+      "branch": "agent/wp1-5bc-clean-runtime-publication",
+      "source_archive_sha256": "a11f66cda909b3e05a8eaafafe8434d257de6cdc2e275392badd72247cebb04e",
+      "runtime_file_count": 96,
+      "pytest_expected": "34 passed",
+      "state_changed_files": 0,
+      "automation_activation": "DISABLED_UNTIL_WP6",
+      "trade_authority": "NONE",
+      "effective_when_merged_to_main": true
     }
-  ],
-  "next_task": "WP1-5B_RULE_SCHEMA_AND_STATE_REBUILD"
+  }
 }

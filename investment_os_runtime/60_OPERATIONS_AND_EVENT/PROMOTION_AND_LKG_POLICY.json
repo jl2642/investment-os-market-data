@@ -1,0 +1,24 @@
+{
+  "policy_id": "WP1_5C_PROMOTION_AND_LKG_POLICY_V1",
+  "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
+  "states": [
+    "CANDIDATE",
+    "QC_PASSED",
+    "ACCEPTED",
+    "CURRENT",
+    "LKG",
+    "SUPERSEDED",
+    "REJECTED",
+    "QUARANTINED"
+  ],
+  "rules": [
+    "A scheduled artifact starts as CANDIDATE.",
+    "CANDIDATE cannot become CURRENT without QC_PASSED and ACCEPTED.",
+    "A new run_id alone is not a semantic change.",
+    "A failed candidate never replaces CURRENT or LKG.",
+    "LKG is recoverable history, not current market fact.",
+    "State and rule mutation require their own governed proposal lifecycle."
+  ],
+  "automation_activation": "DISABLED_UNTIL_WP6",
+  "trade_authority": "NONE"
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "State Change Proposal",
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "domain",
+    "from_state",
+    "to_state",
+    "permission",
+    "status"
+  ],
+  "properties": {
+    "proposal_id": {
+      "type": "string"
+    },
+    "domain": {
+      "enum": [
+        "RESEARCH",
+        "CANDIDATE",
+        "SIMULATION",
+        "REAL_ACCOUNT",
+        "THESIS",
+        "EVENT",
+        "RULE"
+      ]
+    },
+    "object_id": {
+      "type": "string"
+    },
+    "from_state": {},
+    "to_state": {},
+    "reason": {
+      "type": "string"
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "permission": {
+      "enum": [
+        "RESEARCH_ONLY",
+        "USER_DECISION_REQUIRED",
+        "USER_APPROVED_MANUAL_EXECUTION"
+      ]
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "QC_PASSED",
+        "USER_REVIEW_REQUIRED",
+        "APPROVED",
+        "REJECTED",
+        "APPLIED",
+        "CANCELLED"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

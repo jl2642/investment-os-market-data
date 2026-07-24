@@ -1,0 +1,46 @@
+{
+  "registry_id": "WP1_5C_CADENCE_REGISTRY_V1",
+  "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
+  "status": "CONTRACTS_READY_AUTOMATIONS_DISABLED",
+  "cadences": [
+    {
+      "cadence": "DAILY",
+      "purpose": "Market/data/state health, alerts and blocked actions",
+      "target_schedule": "10:15 Asia/Shanghai weekdays",
+      "activation": "DISABLED_UNTIL_WP6"
+    },
+    {
+      "cadence": "WEEKLY",
+      "purpose": "Candidate, thesis, simulation and action review",
+      "target_schedule": "11:00 Asia/Shanghai Monday",
+      "activation": "DISABLED_UNTIL_WP6"
+    },
+    {
+      "cadence": "MONTHLY",
+      "purpose": "Real/simulation/candidate attribution and calibration",
+      "target_schedule": "11:30 Asia/Shanghai month end",
+      "activation": "DISABLED_UNTIL_WP6"
+    },
+    {
+      "cadence": "QUARTERLY",
+      "purpose": "Financial, valuation and research refresh",
+      "target_schedule": "12:00 Asia/Shanghai quarter end",
+      "activation": "DISABLED_UNTIL_WP6"
+    },
+    {
+      "cadence": "ANNUAL",
+      "purpose": "Strategy, rules, sources, cost and system audit",
+      "target_schedule": "12:30 Asia/Shanghai Jan 2",
+      "activation": "DISABLED_UNTIL_WP6"
+    },
+    {
+      "cadence": "EVENT_DRIVEN",
+      "purpose": "Event evidence, impact, route and escalation",
+      "target_schedule": "Condition based",
+      "activation": "INTERFACE_ACTIVE_PRODUCER_DISABLED"
+    }
+  ],
+  "scheduled_run_cannot_mutate_investment_state": true,
+  "scheduled_run_cannot_promote_without_qc": true,
+  "trade_authority": "NONE"
+}

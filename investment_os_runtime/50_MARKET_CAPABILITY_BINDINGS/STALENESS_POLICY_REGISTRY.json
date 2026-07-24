@@ -1,0 +1,46 @@
+{
+  "registry_id": "WP1_5C_STALENESS_POLICY_REGISTRY",
+  "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
+  "evaluation_date": "2026-07-24",
+  "policies": [
+    {
+      "market": "A_SHARE",
+      "object": "DAILY_MARKET_SNAPSHOT",
+      "maximum_age_calendar_days": 3,
+      "requires_latest_completed_session": true,
+      "stale_behavior": "BLOCK_LIVE_ACTION"
+    },
+    {
+      "market": "A_SHARE",
+      "object": "UNIVERSE",
+      "maximum_age_calendar_days": 7,
+      "stale_behavior": "LABEL_AND_RESTRICT"
+    },
+    {
+      "market": "A_SHARE",
+      "object": "EVENT_FLAGS",
+      "maximum_age_calendar_days": 3,
+      "stale_behavior": "REVIEW_ONLY"
+    },
+    {
+      "market": "HONG_KONG_STOCK_CONNECT",
+      "object": "RESEARCH_OVERLAY",
+      "maximum_age_calendar_days": 7,
+      "stale_behavior": "HUMAN_REENTRY_REVIEW"
+    },
+    {
+      "market": "US_EQUITY",
+      "object": "RESEARCH_ADAPTER",
+      "maximum_age_calendar_days": 30,
+      "stale_behavior": "RESEARCH_ONLY_NEVER_LIVE_ACTION"
+    },
+    {
+      "market": "CROSS_MARKET",
+      "object": "INVESTMENT_STATE",
+      "maximum_age_calendar_days": 0,
+      "stale_behavior": "REQUIRE_USER_CONFIRMATION",
+      "note": "No age allowance converts an LKG account state into current fact."
+    }
+  ],
+  "trade_authority": "NONE"
+}

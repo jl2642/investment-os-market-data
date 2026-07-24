@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "WP1_5B_RULE_SCHEMA_STATE_REBUILD_20260724_001",
+  "as_of": "2026-07-24",
+  "promotion_status": "PROMOTION_READY_NOT_ACTIVE",
+  "source_release": "INVESTMENT_OS_R8_20260720_501345e84562",
+  "source_state_as_of": "2026-07-20_CLOSE",
+  "domains": [
+    {
+      "domain": "10_REAL_ACCOUNT",
+      "path": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json",
+      "rows": 7,
+      "sha256": "dd1da023870b20eb579d78456f69533f2a1b03a7cb800b92fad1eeebe4368bfa",
+      "status": "LKG_STALE_FOR_CURRENT_ACTION"
+    },
+    {
+      "domain": "20_SIMULATION",
+      "path": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json",
+      "rows": 16,
+      "sha256": "b044eac06d3e5fff4d629816f8281d949e82129732bf452159861ee3940c45fc",
+      "status": "LKG_STALE_FOR_CURRENT_ACTION"
+    },
+    {
+      "domain": "30_RESEARCH",
+      "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_OBJECTS_CURRENT.json",
+      "rows": 6,
+      "sha256": "563472fc5730c5fe44729370961677ef3744a819b2923b17c02a84cb25c611c5",
+      "status": "LKG_STALE_RESEARCH_REFRESH_REQUIRED"
+    },
+    {
+      "domain": "31_RESEARCH",
+      "path": "investment_os_runtime/30_STATE_CURRENT/31_RESEARCH/THESIS_CURRENT.json",
+      "rows": 6,
+      "sha256": "08af57dac028d50b9cf921fc9c08d278b7e352e9f99d4e37a2ba34ed5bb63d14",
+      "status": "LKG_STALE_FOR_CURRENT_DECISION"
+    },
+    {
+      "domain": "40_CANDIDATE",
+      "path": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+      "rows": 20,
+      "sha256": "4e50c78fc2ab01322ff7c5758fdff133cc443e93f67110f3e5e5381d256bbe5e",
+      "status": "HISTORICAL_CORE20_FROZEN_PENDING_WP3_REBUILD"
+    },
+    {
+      "domain": "50_EVENTS",
+      "path": "investment_os_runtime/30_STATE_CURRENT/50_EVENTS/EVENT_REGISTER_CURRENT.json",
+      "rows": 0,
+      "sha256": "f9d738dbdd5a0c622e92425394d46c88e4e963f4688fa0e1699d9d1bde8bd888",
+      "status": "SCHEMA_ACTIVE_NO_CURRENT_EVENTS_MIGRATED"
+    },
+    {
+      "domain": "60_DECISIONS",
+      "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json",
+      "rows": 0,
+      "sha256": "186002192dd279fc79b0923cfd5d8acdf3850e8f5c5a03319c0c51df294bce64",
+      "status": "HISTORICAL_LKG_NOT_ACTIONABLE"
+    },
+    {
+      "domain": "61_DECISIONS",
+      "path": "investment_os_runtime/30_STATE_CURRENT/61_DECISIONS/USER_CONFIRMATIONS_CURRENT.json",
+      "rows": 0,
+      "sha256": "939a6e26feeeb3ca50b0135acf614971a16f2e11c7944db88ada708d695aee52",
+      "status": "NO_CURRENT_CONFIRMATIONS"
+    },
+    {
+      "domain": "70_OPERATIONS",
+      "path": "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/OPERATING_RUN_CURRENT.json",
+      "rows": 0,
+      "sha256": "fec1f2fab7b70a96eee4ecf0a53238bf5b7d7ee639662d45400e89d703f760ac",
+      "status": "WP1_5B_COMPLETED_WP1_5C_READY"
+    },
+    {
+      "domain": "80_GOVERNANCE",
+      "path": "investment_os_runtime/30_STATE_CURRENT/80_GOVERNANCE/RULE_PROPOSALS_CURRENT.json",
+      "rows": 118,
+      "sha256": "7627eeed4d4281e5a7dd0e2803d7ad315ddf248844385bfcc5f65d32340d7c7c",
+      "status": "118_RULE_DISPOSITIONS_IMPLEMENTED_IN_CANDIDATE_RUNTIME"
+    }
+  ],
+  "atomic_promotion": false,
+  "cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED",
+  "candidate_membership_mutations": 0,
+  "simulation_mutations": 0,
+  "real_account_mutations": 0,
+  "orders": 0,
+  "trade_authority": "NONE"
+}

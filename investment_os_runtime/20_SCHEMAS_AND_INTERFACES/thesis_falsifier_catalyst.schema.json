@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Thesis Falsifier Catalyst",
+  "type": "object",
+  "required": [
+    "thesis_id",
+    "security_id",
+    "thesis_status",
+    "falsifiers",
+    "catalysts"
+  ],
+  "properties": {
+    "thesis_id": {
+      "type": "string"
+    },
+    "security_id": {
+      "type": "string"
+    },
+    "thesis_status": {
+      "type": "string"
+    },
+    "thesis": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "falsifiers": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "catalysts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

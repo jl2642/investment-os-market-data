@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Market Capability Binding",
+  "type": "object",
+  "required": [
+    "binding_id",
+    "market",
+    "capability",
+    "current_release",
+    "freshness_status",
+    "permission"
+  ],
+  "properties": {
+    "binding_id": {
+      "type": "string"
+    },
+    "market": {
+      "enum": [
+        "A_SHARE",
+        "HK_CONNECT",
+        "US_RESEARCH"
+      ]
+    },
+    "capability": {
+      "type": "string"
+    },
+    "current_release": {
+      "type": "object"
+    },
+    "freshness_status": {
+      "enum": [
+        "CURRENT",
+        "STALE",
+        "LKG_ONLY",
+        "BLOCKED"
+      ]
+    },
+    "permission": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array"
+    }
+  },
+  "additionalProperties": true
+}

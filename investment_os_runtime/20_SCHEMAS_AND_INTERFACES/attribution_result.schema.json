@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Attribution Result",
+  "type": "object",
+  "required": [
+    "attribution_id",
+    "domain",
+    "as_of",
+    "status"
+  ],
+  "properties": {
+    "attribution_id": {
+      "type": "string"
+    },
+    "domain": {
+      "enum": [
+        "REAL_ACCOUNT",
+        "SIMULATION",
+        "CANDIDATE"
+      ]
+    },
+    "as_of": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "COMPLETE",
+        "PARTIAL",
+        "BLOCKED"
+      ]
+    },
+    "components": {
+      "type": "array"
+    },
+    "residual": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "confidence": {
+      "type": "string"
+    },
+    "alpha_claim_allowed": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}

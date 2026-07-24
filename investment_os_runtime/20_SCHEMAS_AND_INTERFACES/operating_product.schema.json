@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Operating Product",
+  "type": "object",
+  "required": [
+    "product_id",
+    "cadence",
+    "status",
+    "as_of",
+    "limitations"
+  ],
+  "properties": {
+    "product_id": {
+      "type": "string"
+    },
+    "cadence": {
+      "enum": [
+        "DAILY",
+        "WEEKLY",
+        "MONTHLY",
+        "QUARTERLY",
+        "ANNUAL",
+        "EVENT_DRIVEN"
+      ]
+    },
+    "status": {
+      "enum": [
+        "CANDIDATE",
+        "QC_PASSED",
+        "ACCEPTED",
+        "CURRENT",
+        "LKG",
+        "SUPERSEDED",
+        "REJECTED",
+        "QUARANTINED"
+      ]
+    },
+    "as_of": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "array"
+    },
+    "outputs": {
+      "type": "array"
+    },
+    "trade_authority": {
+      "const": "NONE"
+    }
+  },
+  "additionalProperties": true
+}
