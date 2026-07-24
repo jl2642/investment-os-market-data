@@ -1,0 +1,42 @@
+{
+  "contract_id": "WP1_5A_FILE_LIBRARY_DUAL_ASSET_MODEL_V2_SINGLE_REPOSITORY",
+  "status": "ACTIVE_CONTROL_FOUNDATION",
+  "date": "2026-07-24",
+  "github_repository": "jl2642/investment-os-market-data",
+  "runtime_root": "investment_os_runtime/",
+  "assets": {
+    "股票投资助手_CURRENT.zip": {
+      "role": "FULL_RUNTIME_CANONICAL",
+      "requirements": [
+        "CORE_STATIC",
+        "SCHEMAS_AND_INTERFACES",
+        "STATE_CURRENT",
+        "EVIDENCE_AND_LINEAGE_INDEX",
+        "MARKET_CAPABILITY_BINDINGS",
+        "OPERATIONS_AND_EVENT_CONTRACTS",
+        "ATTRIBUTION_AND_CALIBRATION",
+        "CONTROL_RUNTIME",
+        "RECOVERY_AND_ARCHIVE"
+      ],
+      "activation": "ONLY_AFTER_WP1_6_CLEAN_ROOM_ACCEPTANCE"
+    },
+    "股票投资助手_CONTROL_CAPSULE_CURRENT.zip": {
+      "role": "CONTROL_AND_RECOVERY_CAPSULE",
+      "requirements": [
+        "release identities",
+        "state summaries",
+        "limitations",
+        "last-success pointers",
+        "recovery order"
+      ],
+      "must_not_impersonate_full_runtime": true
+    },
+    "股票投资助手_RELEASE8_FULL_RUNTIME_BASELINE_20260720.zip": {
+      "role": "IMMUTABLE_HISTORICAL_FULL_RUNTIME_BASELINE",
+      "retention": "PERMANENT_UNTIL_EXPLICIT_SUCCESSOR_RETENTION_REVIEW"
+    }
+  },
+  "daily_operating_authority": "GITHUB_SINGLE_REPOSITORY_ACCEPTED_CURRENT",
+  "file_library_role": "RELEASE_SNAPSHOT_AND_CLEAN_ROOM_RECOVERY",
+  "deletion_rule": "NO_PREDECESSOR_FULL_RUNTIME_DELETION_BEFORE_SUCCESSOR_FULL_RUNTIME_OPEN_SHA_AND_CLEAN_ROOM_PASS"
+}

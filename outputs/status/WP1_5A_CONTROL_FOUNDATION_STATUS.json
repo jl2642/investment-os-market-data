@@ -1,0 +1,42 @@
+{
+  "phase_id": "WP1-5A",
+  "status": "COMPLETED_SINGLE_REPOSITORY_CONTROL_FOUNDATION",
+  "date": "2026-07-24",
+  "repository": {
+    "name": "jl2642/investment-os-market-data",
+    "visibility": "public",
+    "admin_permission_confirmed": true,
+    "branch": "agent/wp1-5a-runtime-foundation",
+    "architecture": "SINGLE_REPOSITORY_DIRECTORY_SEPARATION",
+    "runtime_root": "investment_os_runtime/"
+  },
+  "superseded_design": {
+    "repository": "jl2642/investment-os-runtime",
+    "status": "WITHDRAWN_NOT_REQUIRED",
+    "reason": "Responsibility separation does not require repository separation; user accepts the existing public repository model."
+  },
+  "completed_controls": [
+    "single-repository responsibility boundary",
+    "rule, state and data authority order",
+    "File Library full-runtime and control-capsule model",
+    "public repository content exclusions",
+    "zero-mutation and trade-authority boundary",
+    "runtime control root reserved in the existing repository"
+  ],
+  "public_repository_exclusions": [
+    "brokerage account numbers",
+    "raw brokerage screenshots",
+    "credentials, tokens and private keys",
+    "unrelated personal records"
+  ],
+  "structured_state_policy": "Structured holdings, costs, Candidate and decision state may be stored under accepted schemas when required by the user-approved operating model.",
+  "mutation_proof": {
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "rule_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "WP1-5B_RULE_SCHEMA_AND_STATE_REBUILD"
+}

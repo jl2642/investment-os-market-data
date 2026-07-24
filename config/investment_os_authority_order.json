@@ -1,0 +1,45 @@
+{
+  "contract_id": "WP1_5A_AUTHORITY_ORDER_V2_SINGLE_REPOSITORY",
+  "status": "ACTIVE_CONTROL_FOUNDATION",
+  "date": "2026-07-24",
+  "repository": "jl2642/investment-os-market-data",
+  "runtime_root": "investment_os_runtime/",
+  "trade_authority": "NONE",
+  "rule_authority": [
+    "USER_CONFIRMED_LONG_TERM_POLICY",
+    "PUBLISHED_IN_REPOSITORY_CORE_STATIC_RELEASE",
+    "FILE_LIBRARY_FULL_RUNTIME_CANONICAL_SNAPSHOT",
+    "HISTORICAL_RELEASE_OR_ARCHIVE",
+    "CONVERSATION_MEMORY_NO_AUTHORITY"
+  ],
+  "state_authority": [
+    "USER_PROVIDED_ACCOUNT_AND_TRADE_FACTS",
+    "ACCEPTED_ATOMIC_STATE_CURRENT",
+    "FILE_LIBRARY_FULL_RUNTIME_CANONICAL_SNAPSHOT",
+    "LAST_KNOWN_GOOD",
+    "ARCHIVE",
+    "CONVERSATION_MEMORY_NO_AUTHORITY"
+  ],
+  "data_authority": [
+    "ACCEPTED_GITHUB_DATA_CURRENT",
+    "GITHUB_DATA_LKG_WITH_LIMITATIONS",
+    "FILE_LIBRARY_DATA_BINDING_SNAPSHOT",
+    "OTHER_EVIDENCE"
+  ],
+  "directory_authority": {
+    "fmdl_data_and_outputs": "DATA_PLANE",
+    "investment_os_runtime/10_CORE_STATIC": "RULE_AND_GOVERNANCE_PLANE",
+    "investment_os_runtime/30_STATE_CURRENT": "STATE_PLANE",
+    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE": "EVIDENCE_PLANE",
+    "investment_os_runtime/60_OPERATIONS_AND_EVENT": "OPERATIONS_AND_EVENT_PLANE",
+    "investment_os_runtime/80_EXECUTABLE_RUNTIME": "CONTROL_RUNTIME"
+  },
+  "promotion_rule": "NEW_RUN_ID_IS_NOT_NEW_CANONICAL_WITHOUT_AS_OF_MANIFEST_SEMANTIC_DIFF_AND_GATES",
+  "state_mutation_rule": "PROPOSAL_THEN_GATE_THEN_REQUIRED_USER_CONFIRMATION_THEN_ATOMIC_WRITEBACK",
+  "public_repository_exclusions": [
+    "brokerage_account_numbers",
+    "raw_brokerage_screenshots",
+    "credentials_tokens_and_private_keys",
+    "unrelated_personal_records"
+  ]
+}

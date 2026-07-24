@@ -1,0 +1,40 @@
+{
+  "layout_id": "WP1_5A_SINGLE_REPOSITORY_LAYOUT_V1",
+  "status": "ACTIVE_CONTROL_FOUNDATION",
+  "repository": "jl2642/investment-os-market-data",
+  "data_plane": {
+    "existing_paths": [
+      "config/",
+      "data/",
+      "outputs/",
+      "scripts/",
+      "docs/",
+      ".github/workflows/"
+    ],
+    "authority": "FMDL_MARKET_DATA_AND_TECHNICAL_RELEASES"
+  },
+  "investment_os_runtime": {
+    "root": "investment_os_runtime/",
+    "top_level_directories": [
+      "00_CONTROL",
+      "10_CORE_STATIC",
+      "20_SCHEMAS_AND_INTERFACES",
+      "30_STATE_CURRENT",
+      "40_EVIDENCE_AND_LINEAGE",
+      "50_MARKET_CAPABILITY_BINDINGS",
+      "60_OPERATIONS_AND_EVENT",
+      "70_ATTRIBUTION_AND_CALIBRATION",
+      "80_EXECUTABLE_RUNTIME",
+      "90_RECOVERY_AND_ARCHIVE"
+    ],
+    "authority": "RULE_STATE_RESEARCH_DECISION_OPERATIONS_AND_RECOVERY"
+  },
+  "separation_method": [
+    "directory ownership",
+    "schema boundaries",
+    "manifest and release identities",
+    "proposal and promotion gates",
+    "zero-mutation controls"
+  ],
+  "trade_authority": "NONE"
+}

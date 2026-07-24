@@ -1,0 +1,43 @@
+{
+  "registry_id": "WP1_5A_LIMITATION_REGISTER_V2_SINGLE_REPOSITORY",
+  "status": "ACTIVE",
+  "date": "2026-07-24",
+  "limitations": [
+    {
+      "id": "LIM-001",
+      "priority": "P0",
+      "status": "OPEN",
+      "description": "Release 8 is a complete historical baseline but its embedded runtime replay fails.",
+      "effect": "Do not use R8 as executable golden runtime."
+    },
+    {
+      "id": "LIM-002",
+      "priority": "P0",
+      "status": "OPEN",
+      "description": "Release 9 is a control capsule and not a full runtime replacement.",
+      "effect": "Do not treat R9 as the full CURRENT package."
+    },
+    {
+      "id": "LIM-003",
+      "priority": "P0",
+      "status": "OPEN",
+      "description": "Investment state is confirmed only through 2026-07-20 LKG.",
+      "effect": "No current portfolio action until WP2 refresh."
+    },
+    {
+      "id": "LIM-004",
+      "priority": "P0",
+      "status": "OPEN",
+      "description": "A-share market-data watermark remains 2026-07-17 in the audited baseline.",
+      "effect": "No current market-based action until WP2 refresh."
+    },
+    {
+      "id": "LIM-005",
+      "priority": "P0",
+      "status": "OPEN",
+      "description": "Rules, schemas and state are not yet rebuilt under the new runtime root.",
+      "effect": "WP1-5B must complete before runtime activation."
+    }
+  ],
+  "trade_authority": "NONE"
+}
