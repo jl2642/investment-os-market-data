@@ -1,11 +1,6 @@
 name: WP1-5B Materialize Runtime Candidate
 
 on:
-  push:
-    branches:
-      - agent/wp1-5b-rule-schema-state-rebuild
-    paths:
-      - 'bootstrap/wp1_5b_compact/**'
   pull_request:
     branches:
       - main
@@ -15,6 +10,10 @@ on:
 
 permissions:
   contents: write
+
+concurrency:
+  group: wp1-5b-materialize-runtime
+  cancel-in-progress: true
 
 jobs:
   materialize:
@@ -41,6 +40,7 @@ jobs:
             echo "No generated changes to commit"
           else
             git commit -m "WP1-5B: persist runtime materialization result"
+            git pull --rebase origin agent/wp1-5b-rule-schema-state-rebuild
             git push origin HEAD:agent/wp1-5b-rule-schema-state-rebuild
           fi
       - name: Enforce materialization result
