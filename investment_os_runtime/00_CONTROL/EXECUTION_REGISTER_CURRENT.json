@@ -1,10 +1,14 @@
 {
-  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V1_8_WP1_5BC_GITHUB_PUBLISHED",
+  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V1_9_WP1_5D",
   "status_date": "2026-07-24",
   "overall_status": "WORK_PACKAGE_1_IN_PROGRESS",
-  "current_step": "WP1-5D_READY",
+  "current_step": "WP1-5E_READY",
   "repository": "jl2642/investment-os-market-data",
+  "github_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54",
   "runtime_root": "investment_os_runtime/",
+  "release_id": "INVESTMENT_OS_R10_20260724_b7b4e2726672",
+  "release_sequence": 10,
+  "file_library_promotion_status": "PROMOTION_READY_NOT_ACTIVE",
   "trade_authority": "NONE",
   "wp1_status": {
     "WP1-1": "COMPLETED_WITH_FINDINGS",
@@ -15,12 +19,11 @@
     "WP1-5A": "COMPLETED",
     "WP1-5B": "GITHUB_PUBLISHED",
     "WP1-5C": "GITHUB_PUBLISHED",
-    "WP1-5D": "READY",
-    "WP1-5E": "PLANNED",
+    "WP1-5D": "COMPLETED_PACKAGE_CANDIDATE",
+    "WP1-5E": "READY",
     "WP1-6": "PLANNED"
   },
   "wp1_5b": {
-    "run_id": "WP1_5B_RULE_SCHEMA_STATE_REBUILD_20260724_001",
     "rule_count": 118,
     "active_rule_count": 111,
     "deprecated_rule_count": 5,
@@ -28,56 +31,50 @@
     "schema_version": "1.0.0",
     "schema_count": 19,
     "state_domain_count": 10,
-    "conflict_count_closed": 22,
-    "missing_capability_count_routed": 24,
-    "migration_acceptance": "PASS_GITHUB_PUBLISHED"
+    "conflicts_closed": 22,
+    "missing_capabilities_routed": 24,
+    "github_status": "PUBLISHED"
   },
-  "mutation_proof": {
-    "proof_id": "WP1_5B_ZERO_MUTATION_PROOF",
-    "date": "2026-07-24",
-    "source_release": "INVESTMENT_OS_R8_20260720_501345e84562",
-    "candidate_core_before": 20,
-    "candidate_core_after": 20,
-    "candidate_membership_mutations": 0,
-    "simulation_holdings_before": 16,
-    "simulation_holdings_after": 16,
-    "simulation_trade_mutations": 0,
-    "real_holdings_before": 7,
-    "real_holdings_after": 7,
-    "real_account_mutations": 0,
-    "rule_auto_mutations": 0,
-    "orders": 0,
-    "trade_authority": "NONE"
-  },
-  "next_task": "WP1-5D_CANONICAL_PACKAGING_AND_FILE_LIBRARY_TARGET_DELIVERY",
   "wp1_5c": {
-    "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
     "runtime_version": "1.0.0",
+    "runtime_acceptance": "PASS",
+    "pytest": "34 passed",
     "binding_count": 6,
     "cadence_contract_count": 6,
     "event_level_count": 6,
     "product_contract_count": 6,
     "attribution_contract_count": 4,
     "automation_activation": "DISABLED_UNTIL_WP6",
-    "local_acceptance": "PASS",
-    "github_status": "GITHUB_PUBLISHED_VIA_CLEAN_PR",
-    "pytest_summary": "\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m.\u001b[0m\u001b[32m                                       [100%]\u001b[0m\n\u001b[32m\u001b[32m\u001b[1m34 passed\u001b[0m\u001b[32m in 0.97s\u001b[0m\u001b[0m",
-    "runtime_acceptance": "PASS",
-    "invalid_pr": {
-      "number": 96,
-      "state": "CLOSED",
-      "merged": false,
-      "reason": "INCOMPLETE_AND_CORRUPTED_TEMPORARY_MATERIALIZATION_PAYLOAD"
-    },
-    "clean_publication": {
-      "branch": "agent/wp1-5bc-clean-runtime-publication",
-      "source_archive_sha256": "a11f66cda909b3e05a8eaafafe8434d257de6cdc2e275392badd72247cebb04e",
-      "runtime_file_count": 96,
-      "pytest_expected": "34 passed",
-      "state_changed_files": 0,
-      "automation_activation": "DISABLED_UNTIL_WP6",
-      "trade_authority": "NONE",
-      "effective_when_merged_to_main": true
-    }
-  }
+    "github_status": "PUBLISHED"
+  },
+  "wp1_5d": {
+    "full_runtime_filename": "股票投资助手_CURRENT.zip",
+    "full_runtime_size_bytes": 24391262,
+    "full_runtime_sha256": "cb30e978e103320693939dc2db14b25cea99ffd4785d35a3f20990f023439997",
+    "full_runtime_member_count": 109,
+    "control_capsule_filename": "股票投资助手_CONTROL_CAPSULE_CURRENT.zip",
+    "control_capsule_size_bytes": 7165,
+    "control_capsule_sha256": "061e4028bb55e44722cd21bbf613416270011a37c8d48d06e42d4d5ed3e505f4",
+    "historical_release8_filename": "股票投资助手_RELEASE8_FULL_RUNTIME_BASELINE_20260720.zip",
+    "release8_sha256": "479d375da1586419a98bb2821342cf691b0d1358882b66bc1601fd717ab2a9aa",
+    "active_promotion": false,
+    "next_gate": "WP1-5E_SELF_AUDIT_REPLAY_AND_PROMOTION_CANDIDATE_FREEZE"
+  },
+  "state_preservation": {
+    "state_source_as_of": "2026-07-20_CLOSE",
+    "real_holdings": 7,
+    "simulation_holdings": 16,
+    "candidate_core": 20,
+    "changed_state_files": 0
+  },
+  "mutation_proof": {
+    "candidate_membership_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "automatic_rule_mutations": 0,
+    "automation_activations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "next_task": "WP1-5E_SELF_AUDIT_REPLAY_AND_PROMOTION_CANDIDATE_FREEZE"
 }

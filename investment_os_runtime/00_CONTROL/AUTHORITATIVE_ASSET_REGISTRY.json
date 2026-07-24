@@ -1,64 +1,54 @@
 {
-  "registry_id": "WP1_5BC_AUTHORITATIVE_ASSET_REGISTRY_V4",
-  "status": "GITHUB_PUBLISHED_ACTIVE_RUNTIME",
+  "registry_id": "WP1_5D_AUTHORITATIVE_ASSET_REGISTRY_V5",
+  "status": "PACKAGE_CANDIDATE_PROMOTION_READY_NOT_ACTIVE",
   "date": "2026-07-24",
+  "release_id": "INVESTMENT_OS_R10_20260724_b7b4e2726672",
+  "release_sequence": 10,
   "repository": "jl2642/investment-os-market-data",
+  "github_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54",
   "assets": [
     {
-      "asset_id": "FMDL_DATA_PLANE",
-      "location": "existing repository FMDL paths",
-      "role": "DATA_CURRENT_AND_LKG",
-      "status": "ACTIVE_WITH_STALENESS_LIMITATIONS"
-    },
-    {
-      "asset_id": "CORE_STATIC_VNEXT",
-      "location": "investment_os_runtime/10_CORE_STATIC",
-      "role": "RULE_AND_GOVERNANCE_PLANE",
+      "asset_id": "GITHUB_ACTIVE_RUNTIME",
+      "location": "investment_os_runtime/",
+      "role": "RULE_STATE_RESEARCH_DECISION_OPERATIONS_AND_CONTROL_RUNTIME",
       "status": "GITHUB_PUBLISHED"
     },
     {
-      "asset_id": "SCHEMA_FAMILY_1_0_0",
-      "location": "investment_os_runtime/20_SCHEMAS_AND_INTERFACES",
-      "role": "UNIFIED_INTERFACE_PLANE",
-      "status": "GITHUB_PUBLISHED"
+      "asset_id": "FULL_RUNTIME_CANONICAL_R10",
+      "location": "File Library target: 股票投资助手_CURRENT.zip",
+      "role": "COMPLETE_SELF_CONTAINED_RUNTIME_AND_RECOVERY",
+      "status": "PROMOTION_READY_NOT_ACTIVE",
+      "size_bytes": 24391262,
+      "sha256": "cb30e978e103320693939dc2db14b25cea99ffd4785d35a3f20990f023439997"
     },
     {
-      "asset_id": "STATE_CURRENT_VNEXT",
-      "location": "investment_os_runtime/30_STATE_CURRENT",
-      "role": "STRUCTURALLY_MIGRATED_LKG",
-      "status": "PROMOTION_READY_NOT_ACTIVE"
+      "asset_id": "CONTROL_CAPSULE_R10",
+      "location": "File Library target: 股票投资助手_CONTROL_CAPSULE_CURRENT.zip",
+      "role": "FAST_CONTROL_STATUS_AND_RECOVERY_ENTRY",
+      "status": "PROMOTION_READY_NOT_ACTIVE",
+      "size_bytes": 7165,
+      "sha256": "061e4028bb55e44722cd21bbf613416270011a37c8d48d06e42d4d5ed3e505f4"
     },
     {
       "asset_id": "RELEASE8_FULL_RUNTIME_BASELINE",
-      "location": "File Library/local immutable package",
+      "location": "R10 embedded recovery baseline and File Library retained copy",
       "release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
-      "role": "HISTORICAL_FULL_RUNTIME_BASELINE",
-      "status": "RETAINED_NOT_EXECUTABLE_GOLDEN"
+      "role": "IMMUTABLE_HISTORICAL_FULL_RUNTIME_BASELINE",
+      "status": "RETAINED_NOT_EXECUTABLE_GOLDEN",
+      "sha256": "479d375da1586419a98bb2821342cf691b0d1358882b66bc1601fd717ab2a9aa"
     },
     {
       "asset_id": "FMDL7_FINAL",
-      "location": "GitHub immutable releases",
       "release_id": "FMDL7FINAL_20260723_fc73ee3baa2b",
+      "location": "GitHub immutable releases and R10 binding",
       "role": "GOVERNANCE_BASELINE",
       "status": "FROZEN_WITH_LIMITATIONS"
     },
     {
-      "asset_id": "MARKET_CAPABILITY_BINDINGS_WP1_5C",
-      "location": "investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS",
-      "role": "FMDL1_TO_FMDL7_DATA_AND_GOVERNANCE_BINDINGS",
-      "status": "GITHUB_PUBLISHED"
-    },
-    {
-      "asset_id": "OPERATIONS_EVENT_CONTRACTS_WP1_5C",
-      "location": "investment_os_runtime/60_OPERATIONS_AND_EVENT",
-      "role": "ORCHESTRATION_CADENCE_EVENT_AND_PRODUCT_CONTRACTS",
-      "status": "GITHUB_PUBLISHED"
-    },
-    {
-      "asset_id": "CONTROL_RUNTIME_V1",
-      "location": "investment_os_runtime/80_EXECUTABLE_RUNTIME",
-      "role": "DETERMINISTIC_CONTROL_VALIDATION_AND_PUBLICATION",
-      "status": "GITHUB_PUBLISHED"
+      "asset_id": "WP1_5D_RELEASE_MANIFEST",
+      "location": "investment_os_runtime/90_RECOVERY_AND_ARCHIVE/WP1_5D_RELEASE_MANIFEST.json",
+      "role": "PACKAGE_IDENTITY_AND_FILE_LIBRARY_DELIVERY_AUTHORITY",
+      "status": "GITHUB_PUBLISHED_AFTER_PR98"
     }
   ],
   "conversation_memory_authority": "NONE",
