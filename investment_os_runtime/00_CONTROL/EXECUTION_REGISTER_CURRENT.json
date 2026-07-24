@@ -1,0 +1,58 @@
+{
+  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V1_5_SINGLE_REPOSITORY",
+  "status_date": "2026-07-24",
+  "overall_status": "WORK_PACKAGE_1_IN_PROGRESS",
+  "current_step": "WP1-5B_READY",
+  "repository": "jl2642/investment-os-market-data",
+  "runtime_root": "investment_os_runtime/",
+  "trade_authority": "NONE",
+  "work_packages": {
+    "WP1": {
+      "status": "IN_PROGRESS",
+      "steps": {
+        "WP1-1": "COMPLETED_WITH_FINDINGS",
+        "WP1-1S": "COMPLETED",
+        "WP1-2": "COMPLETED_WITH_FINDINGS",
+        "WP1-3": "COMPLETED_WITH_FINDINGS",
+        "WP1-4": "COMPLETED",
+        "WP1-5A": "COMPLETED",
+        "WP1-5B": "READY",
+        "WP1-5C": "PLANNED",
+        "WP1-5D": "PLANNED",
+        "WP1-5E": "PLANNED",
+        "WP1-6": "PLANNED"
+      }
+    },
+    "WP2": {"status": "PLANNED"},
+    "WP3": {"status": "PLANNED"},
+    "WP4": {"status": "PLANNED"},
+    "WP5": {"status": "PLANNED"},
+    "WP6": {"status": "PLANNED"},
+    "WP7": {"status": "PLANNED"}
+  },
+  "architecture_decisions": [
+    "SINGLE_GITHUB_REPOSITORY",
+    "DIRECTORY_SCHEMA_MANIFEST_AND_PROMOTION_BOUNDARIES",
+    "NO_SECOND_RUNTIME_REPOSITORY",
+    "PUBLIC_REPOSITORY_ACCEPTED_BY_USER",
+    "RAW_ACCOUNT_IDENTIFIERS_AND_CREDENTIALS_EXCLUDED",
+    "STRUCTURED_INVESTMENT_STATE_ALLOWED_BY_SCHEMA",
+    "FULL_RUNTIME_AND_CONTROL_CAPSULE_SEPARATED",
+    "RELEASE8_RETAINED_AS_HISTORICAL_BASELINE",
+    "TRADE_AUTHORITY_NONE"
+  ],
+  "latest_execution_log": [
+    {
+      "date": "2026-07-24",
+      "record_id": "WP1-5A-ARCHITECTURE-CORRECTION",
+      "result": "COMPLETED_SINGLE_REPOSITORY_CONTROL_FOUNDATION",
+      "reason": "Repository separation was unnecessary; responsibility separation is implemented in the existing repository.",
+      "candidate_pool_mutations": 0,
+      "simulation_book_mutations": 0,
+      "real_account_mutations": 0,
+      "rule_mutations": 0,
+      "orders": 0
+    }
+  ],
+  "next_task": "WP1-5B_RULE_SCHEMA_AND_STATE_REBUILD"
+}
