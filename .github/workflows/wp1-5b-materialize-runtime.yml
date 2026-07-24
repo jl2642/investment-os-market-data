@@ -1,0 +1,36 @@
+name: WP1-5B Materialize Runtime Candidate
+
+on:
+  push:
+    branches:
+      - agent/wp1-5b-rule-schema-state-rebuild
+    paths:
+      - 'bootstrap/wp1_5b_compact/**'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/wp1-5b-rule-schema-state-rebuild
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Materialize and validate runtime candidate
+        run: python bootstrap/wp1_5b_compact/materialize.py
+      - name: Commit generated runtime candidate
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add investment_os_runtime
+          if git diff --cached --quiet; then
+            echo "No runtime changes to commit"
+          else
+            git commit -m "WP1-5B: materialize rule schema and state candidate"
+            git push origin HEAD:agent/wp1-5b-rule-schema-state-rebuild
+          fi
