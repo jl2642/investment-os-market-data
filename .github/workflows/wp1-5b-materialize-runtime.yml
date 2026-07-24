@@ -6,6 +6,12 @@ on:
       - agent/wp1-5b-rule-schema-state-rebuild
     paths:
       - 'bootstrap/wp1_5b_compact/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'bootstrap/wp1_5b_compact/**'
+      - '.github/workflows/wp1-5b-materialize-runtime.yml'
 
 permissions:
   contents: write
