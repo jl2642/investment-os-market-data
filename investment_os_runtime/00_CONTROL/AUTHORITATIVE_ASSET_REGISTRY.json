@@ -1,53 +1,46 @@
 {
-  "registry_id": "WP1_5A_AUTHORITATIVE_ASSET_REGISTRY_V1",
-  "status": "ACTIVE_CONTROL_FOUNDATION",
+  "registry_id": "WP1_5B_AUTHORITATIVE_ASSET_REGISTRY_V2",
+  "status": "CONTROL_RULE_SCHEMA_STATE_FOUNDATION_ACTIVE_CANDIDATE",
   "date": "2026-07-24",
   "repository": "jl2642/investment-os-market-data",
   "assets": [
     {
-      "asset_id": "MARKET_DATA_REPOSITORY",
-      "location": "repository existing FMDL paths",
-      "role": "DATA_PLANE_CURRENT_AND_LKG",
-      "status": "ACTIVE_WITH_AUDITED_STALENESS_LIMITATIONS"
+      "asset_id": "FMDL_DATA_PLANE",
+      "location": "existing repository FMDL paths",
+      "role": "DATA_CURRENT_AND_LKG",
+      "status": "ACTIVE_WITH_STALENESS_LIMITATIONS"
     },
     {
-      "asset_id": "INVESTMENT_OS_RUNTIME_ROOT",
-      "location": "investment_os_runtime/",
-      "role": "RULE_STATE_RESEARCH_DECISION_OPERATIONS_AND_RECOVERY",
-      "status": "CONTROL_FOUNDATION_ACTIVE_RULE_AND_STATE_REBUILD_PENDING"
+      "asset_id": "CORE_STATIC_VNEXT",
+      "location": "investment_os_runtime/10_CORE_STATIC",
+      "role": "RULE_AND_GOVERNANCE_PLANE",
+      "status": "118_RULES_RESOLVED_CANDIDATE"
+    },
+    {
+      "asset_id": "SCHEMA_FAMILY_1_0_0",
+      "location": "investment_os_runtime/20_SCHEMAS_AND_INTERFACES",
+      "role": "UNIFIED_INTERFACE_PLANE",
+      "status": "ACTIVE_CANDIDATE"
+    },
+    {
+      "asset_id": "STATE_CURRENT_VNEXT",
+      "location": "investment_os_runtime/30_STATE_CURRENT",
+      "role": "STRUCTURALLY_MIGRATED_LKG",
+      "status": "PROMOTION_READY_NOT_ACTIVE"
     },
     {
       "asset_id": "RELEASE8_FULL_RUNTIME_BASELINE",
       "location": "File Library/local immutable package",
       "release_id": "INVESTMENT_OS_R8_20260720_501345e84562",
-      "role": "IMMUTABLE_HISTORICAL_FULL_RUNTIME_BASELINE",
-      "status": "VERIFIED_NOT_EXECUTABLE_GOLDEN_RUNTIME"
-    },
-    {
-      "asset_id": "RELEASE9_CONTROL_CAPSULE",
-      "location": "File Library/GitHub bindings",
-      "release_id": "INVESTMENT_OS_R9_20260723_0a3b2c2424cc",
-      "role": "HISTORICAL_CONTROL_AND_RECOVERY_CAPSULE",
-      "status": "NOT_FULL_RUNTIME_REPLACEMENT"
+      "role": "HISTORICAL_FULL_RUNTIME_BASELINE",
+      "status": "RETAINED_NOT_EXECUTABLE_GOLDEN"
     },
     {
       "asset_id": "FMDL7_FINAL",
-      "location": "repository immutable releases",
+      "location": "GitHub immutable releases",
       "release_id": "FMDL7FINAL_20260723_fc73ee3baa2b",
-      "role": "MARKET_CAPABILITY_GOVERNANCE_BASELINE",
-      "status": "COMPLETE_FROZEN_WITH_OPEN_LIMITATIONS"
-    },
-    {
-      "asset_id": "MASTER_PLAN_CURRENT",
-      "location": "investment_os_runtime/00_CONTROL/MASTER_PLAN_AND_STATUS_CURRENT.md",
-      "role": "CROSS_DIALOG_PROGRAM_AUTHORITY",
-      "status": "ACTIVE"
-    },
-    {
-      "asset_id": "EXECUTION_REGISTER_CURRENT",
-      "location": "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json",
-      "role": "MACHINE_EXECUTION_STATUS_AUTHORITY",
-      "status": "ACTIVE"
+      "role": "GOVERNANCE_BASELINE",
+      "status": "FROZEN_WITH_LIMITATIONS"
     }
   ],
   "conversation_memory_authority": "NONE",

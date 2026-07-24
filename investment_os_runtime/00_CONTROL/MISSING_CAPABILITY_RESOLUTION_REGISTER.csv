@@ -1,0 +1,25 @@
+﻿capability_id,priority,capability,required_definition,current_gap,target_layer,planned_resolution,wp1_5b_status,landing
+MC-001,P0,完整Active投资策略,长期稳健成长、质量成长、合理估值和可承受下行的正式目标函数,95/100中部分存在但未Active,10_CORE_STATIC,WP1-4设计/WP1-5实现,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-002,P0,完整Canonical资产模型,Full Runtime Baseline + Control Capsule + GitHub Release/LKG,当前三包契约和R9胶囊均不完整,00_CONTROL/80_RECOVERY,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-003,P0,统一Candidate状态机,Longlist/Active Research/Candidate Core/Ready/Shadow/Rejected,多套状态并存,01_SCHEMAS/20_RESEARCH,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-004,P0,Candidate Entry Baseline,入池日期、价格、估值、基准、窗口和理由,只在Archive 98,20_RESEARCH,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-005,P0,Candidate Outcome Attribution,相对收益、晋级有效性、误选漏选和研究资源效率,FMDL7C确认不可计算Alpha,70_ATTRIBUTION,WP3/WP6,INTERFACE_OR_RULE_LANDING_COMPLETE_DOWNSTREAM_EXECUTION_PENDING,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-006,P0,事件驱动系统,事件登记、幂等、Evidence Envelope、影响分类、路由和升级,Active缺失,60_EVENT_DRIVEN,WP1-5规则/ WP6运营,INTERFACE_OR_RULE_LANDING_COMPLETE_DOWNSTREAM_EXECUTION_PENDING,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-007,P0,Event Schema,事件类型、等级、对象、日期、证据、影响、Thesis和组合动作,不存在,01_SCHEMAS,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-008,P0,Research Object完整Schema,商业质量、成长来源、财务、估值、Thesis、Falsifier、催化剂和复核,handoff schema过于简化,01_SCHEMAS/20_RESEARCH,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-009,P0,统一评分治理,维度评分、硬Gate、置信度和可配置Profile,多套评分冲突,20_RESEARCH,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-010,P0,三路径真实账户准入,配置工具、直接基本面研究、模拟迁移,旧规则只有混合路径,70_DECISION,WP1-4,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-011,P0,完整退出与风险控制,Thesis/估值/组合/ETF/机会成本/归因退出,仅在Archive 103,70_DECISION,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-012,P0,State Mutation与Writeback,交易、候选、研究、事件和规则变更写回,仅在Archive 18,10_STATE,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-013,P0,运行一致性验收,Canonical包必须用自身State/Evidence完成全套重放,R8未通过,80_RECOVERY/20_ENGINE,WP1-5/6,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-014,P0,FMDL5-7消费接口,港股Overlay、美股Adapter、FMDL7治理进入CORE/Engine,仅GitHub保存,40_MARKET_BINDINGS,WP1-3/5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-015,P1,Quarterly Research Review,财报、ROIC、现金流、资本配置、估值和Thesis复核,Active缺失,50_OPERATIONS,WP6,INTERFACE_OR_RULE_LANDING_COMPLETE_DOWNSTREAM_EXECUTION_PENDING,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-016,P1,Annual Strategy Review,规则有效性、误选漏选、换手、成本、数据源和系统升级,Active缺失,50_OPERATIONS,WP6,INTERFACE_OR_RULE_LANDING_COMPLETE_DOWNSTREAM_EXECUTION_PENDING,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-017,P1,Operating Product Contract,日报、周报、月报、季报、年报和事件产品的输入/输出/晋级,FMDL7D只有控制面,50_OPERATIONS,WP1-5/WP6,INTERFACE_OR_RULE_LANDING_COMPLETE_DOWNSTREAM_EXECUTION_PENDING,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-018,P1,Cross-market Exposure,A/H、重复ETF、行业、因子和宏观变量穿透,仅有个案检查,70_DECISION,WP1-5/WP5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-019,P1,Master Plan恢复入口,工作包、步骤、状态和变更登记纳入Canonical,本轮外部已建立,00_CONTROL,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-020,P1,Decision Object扩展,估值区间、下行情景、组合适配、Thesis、Falsifier、事件影响和置信度,当前schema缺失,01_SCHEMAS,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-021,P1,Rule Proposal Schema,提案证据、案例、回放、影响、批准、版本和复验,现schema只有4个字段,01_SCHEMAS/90_GOVERNANCE,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-022,P1,配置Policy有效期与区间,目标范围、无目标、观察状态、现金排除、批准日期,point target schema不足,01_SCHEMAS,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-023,P1,Tool-agnostic Research Routing,能力型工作流与可替换执行器,当前绑定特定插件名称,20_RESEARCH,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
+MC-024,P2,依赖与环境锁定,Python版本、依赖锁文件、无pyc发布,当前只存源码/pyc，无依赖锁,20_ENGINE,WP1-5,RESOLVED_IN_WP1_5B,CORE_STATIC/SCHEMAS/STATE_CURRENT according to target layer
