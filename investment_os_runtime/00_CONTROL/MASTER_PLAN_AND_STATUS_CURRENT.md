@@ -1,16 +1,29 @@
 # 股票投资助手｜Master Plan与Current状态
 
-- **版本**：`v1.10-WP1-5E-FROZEN`
+- **版本**：`v2.0-WP1-CANONICAL-ACCEPTED`
 - **日期**：2026-07-24
 - **Release**：`INVESTMENT_OS_R10_20260724_d5bbfa2f0a36`
 - **Release sequence**：`10`
 - **Control Runtime**：`1.0.1`
-- **Runtime基线提交**：`3ee7be7912377c002ebeb7292e35e679f79ae8b3`
-- **当前步骤**：`WP1-6_READY`
-- **File Library状态**：`FROZEN_PROMOTION_CANDIDATE_NOT_ACTIVE`
+- **Runtime基线**：`3ee7be7912377c002ebeb7292e35e679f79ae8b3`
+- **总体状态**：`WP1_COMPLETED / WP2_READY`
+- **Canonical状态**：`ACCEPTED_CANONICAL`
+- **File Library部署**：`PENDING_MANUAL_UPLOAD`
 - **trade_authority**：`NONE`
 
-## WP1状态
+## 工作包状态
+
+| 工作包 | 状态 |
+|---|---|
+| WP1 | COMPLETED |
+| WP2 | READY |
+| WP3 | PLANNED |
+| WP4 | PLANNED |
+| WP5 | PLANNED |
+| WP6 | PLANNED |
+| WP7 | PLANNED |
+
+## WP1最终状态
 
 | 步骤 | 状态 |
 |---|---|
@@ -24,20 +37,21 @@
 | WP1-5C | GITHUB_PUBLISHED |
 | WP1-5D | COMPLETED_SUPERSEDED_BY_WP1-5E_FREEZE |
 | WP1-5E | COMPLETED_WITH_TARGETED_RUNTIME_REPAIR |
-| WP1-6 | READY |
+| WP1-6 | COMPLETED_INDEPENDENT_CLEAN_ROOM_PASS |
 
-## WP1-5E关键发现与修复
+## Canonical能力
 
-自审发现Runtime 1.0.0错误地要求A股行情必须持续陈旧并被阻断，且验收日期固定为2026-07-24。该缺陷会导致WP2刷新出新鲜行情后反而验收失败。
+R10已通过独立恢复验收，包含规则、Schema、State、FMDL1—7 Bindings、Control Runtime、运营与事件合同、归因与校准合同、Release 8完整基线及WP1审计证据。
 
-已修复为Runtime 1.0.1：
+## 当前事实边界
 
-- 新鲜行情通过控制门禁；
-- 陈旧行情仍必须阻断Live Action；
-- 评估日期默认为运行日期，也可显式指定；
-- 测试从34项增至35项；
-- 13项故障注入全部通过。
+- State仍确认至`2026-07-20_CLOSE_LKG`；
+- A股行情仍为`2026-07-17`；
+- 当前Live Action继续阻断；
+- WP2必须先确认7月20日后的真实账户、模拟盘和Candidate变化，并刷新市场数据；
+- Cadence自动化仍禁用至WP6；
+- 不自动交易、不生成订单。
 
-## 晋级边界
+## 下一任务
 
-本Release已完成自审、重放、故障注入和冻结，但仍不是File Library Active Current。只有WP1-6独立Clean-room通过后才能上传替换并执行清理。
+> `WP2-1｜账户、模拟盘与Candidate人工Delta确认`
