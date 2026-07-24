@@ -35,6 +35,12 @@ def test_a_share_daily_snapshot_blocks_when_stale():
     assert result["outcome"] == "BLOCK"
 
 
+def test_runtime_validation_accepts_fresh_market_data():
+    result = validate_runtime(RUNTIME, "2026-07-18")
+    assert result["status"] == "PASS"
+    assert "A_SHARE_LIVE_ACTION_BLOCKED_BY_STALENESS" not in result["warnings"]
+
+
 def test_universe_uses_restrict_not_live_action():
     result = assess_freshness("2026-07-17", "2026-07-24", 7, "LABEL_AND_RESTRICT")
     assert result["stale"] is False
