@@ -1,13 +1,13 @@
 # 股票投资助手｜Master Plan与Current状态
 
-- **版本**：`v1.9-WP1-5D`
+- **版本**：`v1.10-WP1-5E-FROZEN`
 - **日期**：2026-07-24
-- **Release**：`INVESTMENT_OS_R10_20260724_b7b4e2726672`
+- **Release**：`INVESTMENT_OS_R10_20260724_d5bbfa2f0a36`
 - **Release sequence**：`10`
-- **GitHub仓库**：`jl2642/investment-os-market-data`
-- **GitHub基线提交**：`8e3c362eda68e83548407d0eaf51657ebf650c54`
-- **当前步骤**：`WP1-5E_READY`
-- **File Library状态**：`PROMOTION_READY_NOT_ACTIVE`
+- **Control Runtime**：`1.0.1`
+- **Runtime基线提交**：`3ee7be7912377c002ebeb7292e35e679f79ae8b3`
+- **当前步骤**：`WP1-6_READY`
+- **File Library状态**：`FROZEN_PROMOTION_CANDIDATE_NOT_ACTIVE`
 - **trade_authority**：`NONE`
 
 ## WP1状态
@@ -22,21 +22,22 @@
 | WP1-5A | COMPLETED |
 | WP1-5B | GITHUB_PUBLISHED |
 | WP1-5C | GITHUB_PUBLISHED |
-| WP1-5D | COMPLETED_PACKAGE_CANDIDATE |
-| WP1-5E | READY |
-| WP1-6 | PLANNED |
+| WP1-5D | COMPLETED_SUPERSEDED_BY_WP1-5E_FREEZE |
+| WP1-5E | COMPLETED_WITH_TARGETED_RUNTIME_REPAIR |
+| WP1-6 | READY |
 
-## R10定位
+## WP1-5E关键发现与修复
 
-R10是完整运行Canonical晋级候选，包含11个Active CORE模块、118项规则处置、19个Schema、10个State域、FMDL1—7绑定、Control Runtime v1.0、运营/事件/归因合同、Release 8完整历史基线和WP1审计证据。
+自审发现Runtime 1.0.0错误地要求A股行情必须持续陈旧并被阻断，且验收日期固定为2026-07-24。该缺陷会导致WP2刷新出新鲜行情后反而验收失败。
 
-R10尚未成为File Library Active Current。WP1-5E完成自审与回放、WP1-6完成独立Clean-room后才允许替换现有Current。
+已修复为Runtime 1.0.1：
 
-## 当前投资边界
+- 新鲜行情通过控制门禁；
+- 陈旧行情仍必须阻断Live Action；
+- 评估日期默认为运行日期，也可显式指定；
+- 测试从34项增至35项；
+- 13项故障注入全部通过。
 
-- State仅确认至2026-07-20 LKG；
-- A股行情水位为2026-07-17；
-- Live Action继续阻断；
-- Candidate、模拟盘和真实账户均未变化；
-- Cadence自动化禁用至WP6；
-- 不生成订单。
+## 晋级边界
+
+本Release已完成自审、重放、故障注入和冻结，但仍不是File Library Active Current。只有WP1-6独立Clean-room通过后才能上传替换并执行清理。
