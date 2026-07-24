@@ -6,6 +6,12 @@ on:
       - agent/wp1-5bc-clean-runtime-publication
     paths:
       - bootstrap/wp1_5bc_clean/READY.json
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/wp1-5bc-clean-materialize.yml'
+      - 'bootstrap/wp1_5bc_clean/**'
 
 permissions:
   contents: write
