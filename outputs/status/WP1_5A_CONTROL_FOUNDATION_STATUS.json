@@ -1,0 +1,44 @@
+{
+  "phase_id": "WP1-5A",
+  "status": "IN_PROGRESS_BLOCKED_AT_PRIVATE_REPOSITORY_CREATION",
+  "date": "2026-07-24",
+  "data_repository": {
+    "repository": "jl2642/investment-os-market-data",
+    "visibility": "public",
+    "admin_permission_confirmed": true,
+    "branch": "agent/wp1-5a-runtime-foundation",
+    "control_boundary_files_prepared": true
+  },
+  "runtime_repository": {
+    "repository": "jl2642/investment-os-runtime",
+    "required_visibility": "private",
+    "repository_exists": false,
+    "creation_method_available_in_current_connector": false,
+    "gh_cli_available": false,
+    "state_migration_allowed": false
+  },
+  "completed_in_this_run": [
+    "verified authenticated GitHub owner jl2642",
+    "verified admin access to data repository",
+    "verified data repository is public",
+    "created branch agent/wp1-5a-runtime-foundation",
+    "prepared repository boundary contract",
+    "prepared authority order",
+    "prepared File Library dual-asset model",
+    "prepared private runtime repository bootstrap package"
+  ],
+  "blocked_actions": [
+    "create private runtime repository",
+    "publish runtime authority files to private repository",
+    "mark WP1-5A complete"
+  ],
+  "mutation_proof": {
+    "candidate_pool_mutations": 0,
+    "simulation_book_mutations": 0,
+    "real_account_mutations": 0,
+    "rule_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "CREATE_PRIVATE_REPOSITORY_jl2642/investment-os-runtime_THEN_PUBLISH_BOOTSTRAP"
+}
