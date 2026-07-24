@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Real Account State",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "state_id",
+    "as_of",
+    "status",
+    "cash_policy",
+    "holdings",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "state_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "as_of": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_bindings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "cash_policy": {
+      "const": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED"
+    },
+    "holdings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "summary": {
+      "type": "object"
+    },
+    "historical_action_records": {
+      "type": "array"
+    },
+    "trade_authority": {
+      "const": "NONE"
+    }
+  },
+  "additionalProperties": true
+}

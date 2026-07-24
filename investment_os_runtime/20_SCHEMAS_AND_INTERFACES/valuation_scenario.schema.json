@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Valuation Scenario",
+  "type": "object",
+  "required": [
+    "valuation_id",
+    "security_id",
+    "status",
+    "scenarios"
+  ],
+  "properties": {
+    "valuation_id": {
+      "type": "string"
+    },
+    "security_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "MISSING",
+        "DRAFT",
+        "RESEARCH_GRADE",
+        "DECISION_GRADE",
+        "STALE"
+      ]
+    },
+    "implied_expectations": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "downside": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

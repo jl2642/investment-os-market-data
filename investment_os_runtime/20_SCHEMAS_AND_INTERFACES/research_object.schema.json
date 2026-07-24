@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Research Object",
+  "type": "object",
+  "required": [
+    "research_id",
+    "security_id",
+    "lifecycle_state",
+    "evidence_ids",
+    "decision_grade"
+  ],
+  "properties": {
+    "research_id": {
+      "type": "string"
+    },
+    "security_id": {
+      "type": "string"
+    },
+    "lifecycle_state": {
+      "enum": [
+        "IDEA",
+        "TRIAGE",
+        "ACTIVE_RESEARCH",
+        "RESEARCH_COMPLETE",
+        "GRADUATED",
+        "DEFERRED",
+        "REJECTED",
+        "ARCHIVED"
+      ]
+    },
+    "dimensions": {
+      "type": "object"
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "decision_grade": {
+      "type": "boolean"
+    },
+    "review_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_record": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

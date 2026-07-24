@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0.0",
+  "binding_id": "MARKET_BINDING_HK_CONNECT_WP1_5C",
+  "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
+  "market": "HONG_KONG_STOCK_CONNECT",
+  "status": "BOUND_IMMUTABLE_RESEARCH_OVERLAY",
+  "repository": "jl2642/investment-os-market-data",
+  "authority": "RESEARCH_OVERLAY_ONLY",
+  "as_of_date": "2026-07-21",
+  "fmdl_components": [
+    {
+      "phase": "FMDL-5",
+      "path": "outputs/status/FMDL5_FINAL_LAST_SUCCESS.json",
+      "status": "FMDL5_HONG_KONG_STOCK_CONNECT_OPERATIONAL_ACCEPTANCE_ACCEPTED"
+    }
+  ],
+  "capability_summary": {
+    "southbound_securities": 644,
+    "common_equity": 613,
+    "screen_longlist": 100,
+    "research_objects": 20,
+    "governed_reentry": 4,
+    "shadow_objects": 2,
+    "a_h_duplicates": [
+      {
+        "issuer": "Midea Group",
+        "hk_code": "00300"
+      },
+      {
+        "issuer": "Wuxi AppTec",
+        "hk_code": "02359"
+      }
+    ]
+  },
+  "candidate_scope": "GRADUATION_REQUIRES_HUMAN_REENTRY_REVIEW",
+  "simulation_scope": "NO_AUTOMATIC_ADMISSION",
+  "real_account_scope": "NO_AUTOMATIC_ADMISSION",
+  "live_action_scope": "BLOCKED_WITHOUT_CURRENT_EVIDENCE_AND_HUMAN_APPROVAL",
+  "permissions": {
+    "research": true,
+    "candidate_proposal": true,
+    "candidate_automatic_admission": false,
+    "simulation_proposal": true,
+    "simulation_automatic_admission": false,
+    "real_action_proposal": true,
+    "real_automatic_admission": false,
+    "order_execution": false
+  },
+  "trade_authority": "NONE"
+}

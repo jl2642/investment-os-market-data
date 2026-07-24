@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Security Identity",
+  "type": "object",
+  "required": [
+    "security_id",
+    "market",
+    "code",
+    "security_type"
+  ],
+  "properties": {
+    "security_id": {
+      "type": "string"
+    },
+    "issuer_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "market": {
+      "enum": [
+        "A_SHARE",
+        "HK_CONNECT",
+        "US_RESEARCH",
+        "FUND",
+        "OTHER"
+      ]
+    },
+    "exchange": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "code": {
+      "type": "string"
+    },
+    "security_type": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "duplicate_group_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

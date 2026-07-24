@@ -1,0 +1,49 @@
+{
+  "acceptance_id": "WP1_5B_MIGRATION_ACCEPTANCE_20260724",
+  "status": "PASS_LOCAL_CANDIDATE_PENDING_GITHUB_PR",
+  "schema_version": "1.0.0",
+  "source_release": "INVESTMENT_OS_R8_20260720_501345e84562",
+  "target_run": "WP1_5B_RULE_SCHEMA_STATE_REBUILD_20260724_001",
+  "source_counts": {
+    "real_holdings": 7,
+    "simulation_holdings": 16,
+    "simulation_trades": 12,
+    "candidate_core_members": 20,
+    "candidate_active_memos": 6,
+    "fmdl4_theses": 6,
+    "prove_kill": 30,
+    "catalysts": 20,
+    "historical_actions": 31,
+    "rules": 118,
+    "conflicts": 22,
+    "missing_capabilities": 24
+  },
+  "identity_hashes": {
+    "real_holdings_code_name": "98b6b085f68659f3e206fb2d1e68fdd901f91ea7ddb9237fc2d027c9a7e88b76",
+    "simulation_holdings_code_name": "ee98aa69c45a4094ce33d68afe9969932571bfa5e257ae401b41ad4c771d57bc",
+    "candidate_core_code_name": "409d9d6076ace9b5afde5f46a56a22c2c4dd9cf822c2aee8e6454b3e5a7b47ff"
+  },
+  "gates": {
+    "118_rule_dispositions_materialized": true,
+    "22_conflicts_closed": true,
+    "24_missing_capabilities_routed": true,
+    "single_active_schema_major": true,
+    "legacy_versions_active": false,
+    "fixed_15_percent_cash_rule_present": false,
+    "real_holdings_count_preserved": true,
+    "simulation_holdings_count_preserved": true,
+    "candidate_core_count_preserved": true,
+    "candidate_membership_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0
+  },
+  "limitations": [
+    "STRUCTURAL_MIGRATION_ONLY",
+    "NO_CURRENT_MARKET_REFRESH",
+    "NO_CURRENT_PORTFOLIO_ACTION",
+    "WP1_5C_RUNTIME_AND_BINDING_PENDING",
+    "ACTIVE_PROMOTION_REQUIRES_WP1_5E_AND_WP1_6"
+  ],
+  "trade_authority": "NONE"
+}

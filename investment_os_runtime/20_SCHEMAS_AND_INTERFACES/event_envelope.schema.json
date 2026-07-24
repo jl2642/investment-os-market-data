@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Event Envelope",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "level",
+    "status",
+    "evidence_ids"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string"
+    },
+    "level": {
+      "enum": [
+        "E0",
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5"
+      ]
+    },
+    "status": {
+      "enum": [
+        "NEW",
+        "DEDUPED",
+        "EVIDENCE_READY",
+        "IMPACT_ASSESSED",
+        "ROUTED",
+        "UNDER_REVIEW",
+        "ESCALATED",
+        "CLOSED",
+        "QUARANTINED"
+      ]
+    },
+    "security_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "impact": {
+      "type": "object"
+    },
+    "route": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "automatic_state_mutation": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

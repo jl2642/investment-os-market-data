@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Authority Asset Registry",
+  "type": "object",
+  "required": [
+    "registry_id",
+    "assets",
+    "trade_authority"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string"
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "asset_id",
+          "location",
+          "role",
+          "status"
+        ]
+      }
+    },
+    "trade_authority": {
+      "const": "NONE"
+    }
+  },
+  "additionalProperties": true
+}

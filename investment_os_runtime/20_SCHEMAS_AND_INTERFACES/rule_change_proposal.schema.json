@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Rule Change Proposal",
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "rule_id",
+    "status",
+    "automatic_mutation"
+  ],
+  "properties": {
+    "proposal_id": {
+      "type": "string"
+    },
+    "rule_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PROPOSED",
+        "EVIDENCE_ACCUMULATING",
+        "REPLAY_READY",
+        "REPLAY_PASSED",
+        "USER_APPROVAL_REQUIRED",
+        "APPROVED",
+        "REJECTED",
+        "RELEASED",
+        "REVALIDATION_PENDING",
+        "CLOSED"
+      ]
+    },
+    "evidence_ids": {
+      "type": "array"
+    },
+    "replay_result": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "user_confirmation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "automatic_mutation": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

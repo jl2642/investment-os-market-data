@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pre Trade Memo",
+  "type": "object",
+  "required": [
+    "memo_id",
+    "proposal_id",
+    "security_id",
+    "thesis",
+    "valuation",
+    "portfolio_fit",
+    "exit_conditions"
+  ],
+  "properties": {
+    "memo_id": {
+      "type": "string"
+    },
+    "proposal_id": {
+      "type": "string"
+    },
+    "security_id": {
+      "type": "string"
+    },
+    "thesis": {
+      "type": "object"
+    },
+    "valuation": {
+      "type": "object"
+    },
+    "portfolio_fit": {
+      "type": "object"
+    },
+    "funding_source": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "max_loss": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "alternatives": {
+      "type": "array"
+    },
+    "exit_conditions": {
+      "type": "array"
+    },
+    "review_date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

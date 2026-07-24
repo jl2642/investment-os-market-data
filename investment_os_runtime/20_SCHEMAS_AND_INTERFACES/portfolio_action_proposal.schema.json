@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Portfolio Action Proposal",
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "security_id",
+    "decision",
+    "permission",
+    "execution_status"
+  ],
+  "properties": {
+    "proposal_id": {
+      "type": "string"
+    },
+    "security_id": {
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "NO_ACTION",
+        "WATCH",
+        "RESEARCH",
+        "AVOID",
+        "HOLD",
+        "BUY_PROPOSAL",
+        "ADD_PROPOSAL",
+        "REDUCE_PROPOSAL",
+        "EXIT_PROPOSAL"
+      ]
+    },
+    "permission": {
+      "enum": [
+        "RESEARCH_ONLY",
+        "USER_DECISION_REQUIRED",
+        "USER_APPROVED_MANUAL_EXECUTION"
+      ]
+    },
+    "execution_status": {
+      "enum": [
+        "NOT_EXECUTED",
+        "USER_REPORTED_EXECUTED_PENDING_RECONCILIATION",
+        "RECONCILED"
+      ]
+    },
+    "portfolio_fit": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "risk_budget": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

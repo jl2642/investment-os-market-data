@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "User Confirmation",
+  "type": "object",
+  "required": [
+    "confirmation_id",
+    "proposal_id",
+    "decision",
+    "confirmed_at"
+  ],
+  "properties": {
+    "confirmation_id": {
+      "type": "string"
+    },
+    "proposal_id": {
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "APPROVED",
+        "REJECTED",
+        "CANCELLED",
+        "EXECUTED_REPORTED"
+      ]
+    },
+    "confirmed_at": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "execution_authority": {
+      "const": "USER_MANUAL_ONLY"
+    }
+  },
+  "additionalProperties": true
+}

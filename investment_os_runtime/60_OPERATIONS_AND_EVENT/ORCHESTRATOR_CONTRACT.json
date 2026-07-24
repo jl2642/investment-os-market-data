@@ -1,0 +1,76 @@
+{
+  "contract_id": "WP1_5C_ORCHESTRATOR_CONTRACT_V1",
+  "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
+  "status": "CONTRACT_ACTIVE_AUTOMATION_DISABLED",
+  "stages": [
+    {
+      "sequence": 1,
+      "stage": "UPSTREAM_DISCOVERY",
+      "output": "DATA_PREFLIGHT_CANDIDATE"
+    },
+    {
+      "sequence": 2,
+      "stage": "AUTHORITY_AND_SCHEMA_PREFLIGHT",
+      "output": "PREFLIGHT_RESULT"
+    },
+    {
+      "sequence": 3,
+      "stage": "FRESHNESS_AND_SEMANTIC_CHANGE",
+      "output": "SEMANTIC_CHANGE_RESULT"
+    },
+    {
+      "sequence": 4,
+      "stage": "RESEARCH_QUEUE",
+      "output": "RESEARCH_QUEUE_CANDIDATE"
+    },
+    {
+      "sequence": 5,
+      "stage": "RESEARCH_AND_VALUATION",
+      "output": "RESEARCH_OBJECT_CANDIDATE"
+    },
+    {
+      "sequence": 6,
+      "stage": "STATE_CHANGE_PROPOSAL",
+      "output": "PROPOSAL_ONLY"
+    },
+    {
+      "sequence": 7,
+      "stage": "USER_REVIEW_WHERE_REQUIRED",
+      "output": "USER_CONFIRMATION"
+    },
+    {
+      "sequence": 8,
+      "stage": "ATOMIC_WRITEBACK",
+      "output": "MUTATION_RECORD"
+    },
+    {
+      "sequence": 9,
+      "stage": "OPERATING_PRODUCT_QC",
+      "output": "QC_RESULT"
+    },
+    {
+      "sequence": 10,
+      "stage": "CANONICAL_PROMOTION",
+      "output": "ACCEPTED_OR_LKG"
+    }
+  ],
+  "hard_gates": [
+    "AUTHORITY_VALID",
+    "SCHEMA_VALID",
+    "HASH_AND_ROW_COUNT_VALID",
+    "FRESHNESS_VALID_FOR_REQUESTED_USE",
+    "SEMANTIC_CHANGE_NOT_RUN_ID_ONLY",
+    "MARKET_PERMISSION_VALID",
+    "STATE_DOMAIN_SEPARATION",
+    "USER_CONFIRMATION_WHERE_REQUIRED",
+    "ZERO_UNAUTHORIZED_MUTATION",
+    "TRADE_AUTHORITY_NONE"
+  ],
+  "scheduled_output_default": "CANDIDATE",
+  "current_requires": [
+    "QC_PASSED",
+    "CANONICAL_PROMOTION_RECORD"
+  ],
+  "automation_activation": "DISABLED_UNTIL_WP6",
+  "trade_authority": "NONE"
+}

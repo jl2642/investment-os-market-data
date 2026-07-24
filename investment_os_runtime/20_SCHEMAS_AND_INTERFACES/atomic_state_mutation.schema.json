@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Atomic State Mutation",
+  "type": "object",
+  "required": [
+    "mutation_id",
+    "proposal_id",
+    "status",
+    "pre_hash",
+    "post_hash"
+  ],
+  "properties": {
+    "mutation_id": {
+      "type": "string"
+    },
+    "proposal_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "PENDING",
+        "APPLIED",
+        "REJECTED",
+        "ROLLED_BACK"
+      ]
+    },
+    "pre_hash": {
+      "type": "string"
+    },
+    "post_hash": {
+      "type": "string"
+    },
+    "validation": {
+      "type": "object"
+    },
+    "trade_authority": {
+      "const": "NONE"
+    }
+  },
+  "additionalProperties": true
+}
