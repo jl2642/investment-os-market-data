@@ -1,14 +1,14 @@
 {
-  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V1_9_WP1_5D",
+  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V1_10_WP1_5E_FROZEN",
   "status_date": "2026-07-24",
   "overall_status": "WORK_PACKAGE_1_IN_PROGRESS",
-  "current_step": "WP1-5E_READY",
+  "current_step": "WP1-6_READY",
   "repository": "jl2642/investment-os-market-data",
-  "github_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54",
+  "github_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
   "runtime_root": "investment_os_runtime/",
-  "release_id": "INVESTMENT_OS_R10_20260724_b7b4e2726672",
+  "release_id": "INVESTMENT_OS_R10_20260724_d5bbfa2f0a36",
   "release_sequence": 10,
-  "file_library_promotion_status": "PROMOTION_READY_NOT_ACTIVE",
+  "file_library_promotion_status": "FROZEN_PROMOTION_CANDIDATE_NOT_ACTIVE",
   "trade_authority": "NONE",
   "wp1_status": {
     "WP1-1": "COMPLETED_WITH_FINDINGS",
@@ -19,9 +19,9 @@
     "WP1-5A": "COMPLETED",
     "WP1-5B": "GITHUB_PUBLISHED",
     "WP1-5C": "GITHUB_PUBLISHED",
-    "WP1-5D": "COMPLETED_PACKAGE_CANDIDATE",
-    "WP1-5E": "READY",
-    "WP1-6": "PLANNED"
+    "WP1-5D": "COMPLETED_SUPERSEDED_BY_WP1-5E_FREEZE",
+    "WP1-5E": "COMPLETED_WITH_TARGETED_RUNTIME_REPAIR",
+    "WP1-6": "READY"
   },
   "wp1_5b": {
     "rule_count": 118,
@@ -36,9 +36,9 @@
     "github_status": "PUBLISHED"
   },
   "wp1_5c": {
-    "runtime_version": "1.0.0",
-    "runtime_acceptance": "PASS",
-    "pytest": "34 passed",
+    "runtime_version": "1.0.1",
+    "runtime_acceptance": "PASS_STALE_AND_FRESH",
+    "pytest": "35 passed",
     "binding_count": 6,
     "cadence_contract_count": 6,
     "event_level_count": 6,
@@ -49,14 +49,11 @@
   },
   "wp1_5d": {
     "full_runtime_filename": "股票投资助手_CURRENT.zip",
-    "full_runtime_size_bytes": 24391262,
-    "full_runtime_sha256": "cb30e978e103320693939dc2db14b25cea99ffd4785d35a3f20990f023439997",
-    "full_runtime_member_count": 109,
     "control_capsule_filename": "股票投资助手_CONTROL_CAPSULE_CURRENT.zip",
-    "control_capsule_size_bytes": 7165,
-    "control_capsule_sha256": "061e4028bb55e44722cd21bbf613416270011a37c8d48d06e42d4d5ed3e505f4",
     "historical_release8_filename": "股票投资助手_RELEASE8_FULL_RUNTIME_BASELINE_20260720.zip",
-    "release8_sha256": "479d375da1586419a98bb2821342cf691b0d1358882b66bc1601fd717ab2a9aa",
+    "full_runtime_role": "COMPLETE_SELF_CONTAINED_PROMOTION_CANDIDATE",
+    "control_capsule_role": "FAST_CONTROL_AND_RECOVERY_ENTRY",
+    "release8_role": "IMMUTABLE_HISTORICAL_FULL_RUNTIME_BASELINE",
     "active_promotion": false,
     "next_gate": "WP1-5E_SELF_AUDIT_REPLAY_AND_PROMOTION_CANDIDATE_FREEZE"
   },
@@ -76,5 +73,26 @@
     "orders": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "WP1-5E_SELF_AUDIT_REPLAY_AND_PROMOTION_CANDIDATE_FREEZE"
+  "next_task": "WP1-6_INDEPENDENT_CLEAN_ROOM_ACCEPTANCE",
+  "runtime_baseline_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
+  "previous_wp1_5d_metadata_sha": "5a7e4f13e8f02eaa56f88ebbd8e924e08ed79124",
+  "wp1_5e": {
+    "status": "COMPLETED_WITH_TARGETED_RUNTIME_REPAIR",
+    "runtime_version": "1.0.1",
+    "runtime_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
+    "finding_count": 1,
+    "p0_findings_repaired": 1,
+    "pytest": "35 passed",
+    "failure_injection_count": 13,
+    "failure_injection_status": "PASS",
+    "deterministic_replay": "PASS_BYTE_IDENTICAL",
+    "package_self_audit": "PASS",
+    "active_promotion": false,
+    "next_gate": "WP1-6_INDEPENDENT_CLEAN_ROOM_ACCEPTANCE",
+    "cleanroom_pytest": "35 passed",
+    "content_manifest_validation": "PASS",
+    "embedded_release8_validation": "PASS_EXACT_SHA",
+    "file_library_active": false
+  },
+  "wp1_5bc_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54"
 }
