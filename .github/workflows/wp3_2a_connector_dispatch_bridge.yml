@@ -1,0 +1,91 @@
+name: WP3-2A Connector Dispatch Bridge
+run-name: "WP3-2A connector dispatch ${{ github.ref_name }}"
+
+on:
+  push:
+    branches:
+      - "automation/wp3-2a-run-*"
+    paths:
+      - ".wp3_2a_control/run_request.json"
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: wp3-2a-connector-dispatch
+  cancel-in-progress: false
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate connector run request
+        id: request
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import re
+          from pathlib import Path
+
+          path = Path('.wp3_2a_control/run_request.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          allowed_keys = {'accepted_session', 'provider_policy', 'create_pr'}
+          extra = set(data) - allowed_keys
+          if extra:
+              raise SystemExit(f'unsupported request keys: {sorted(extra)}')
+
+          session = str(data.get('accepted_session') or '')
+          if session and not re.fullmatch(r'\d{4}-\d{2}-\d{2}', session):
+              raise SystemExit('accepted_session must be YYYY-MM-DD or blank')
+
+          provider = str(data.get('provider_policy') or 'configured')
+          if provider not in {'configured', 'eastmoney_public', 'sina_public'}:
+              raise SystemExit(f'unsupported provider_policy: {provider}')
+
+          create_pr = data.get('create_pr', True)
+          if not isinstance(create_pr, bool):
+              raise SystemExit('create_pr must be boolean')
+
+          print(f'accepted_session={session}')
+          print(f'provider_policy={provider}')
+          print(f"create_pr={'true' if create_pr else 'false'}")
+          print('trade_authority=NONE')
+          PY
+
+      - name: Dispatch Universe Refresh on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACCEPTED_SESSION: ${{ steps.request.outputs.accepted_session }}
+          PROVIDER_POLICY: ${{ steps.request.outputs.provider_policy }}
+          CREATE_PR: ${{ steps.request.outputs.create_pr }}
+        shell: bash
+        run: |
+          gh workflow run wp3_2a_universe_refresh.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f accepted_session="$ACCEPTED_SESSION" \
+            -f provider_policy="$PROVIDER_POLICY" \
+            -f create_pr="$CREATE_PR"
+
+      - name: Record dispatch contract
+        shell: bash
+        run: |
+          {
+            echo '## WP3-2A connector dispatch'
+            echo
+            echo "- Trigger branch: \`$GITHUB_REF_NAME\`"
+            echo "- accepted_session: \`${{ steps.request.outputs.accepted_session || 'provider-derived' }}\`"
+            echo "- provider_policy: \`${{ steps.request.outputs.provider_policy }}\`"
+            echo "- create_pr: \`${{ steps.request.outputs.create_pr }}\`"
+            echo '- Candidate / Research / account / simulation mutations: `0`'
+            echo '- Orders: `0`'
+            echo '- trade_authority: `NONE`'
+          } >> "$GITHUB_STEP_SUMMARY"
