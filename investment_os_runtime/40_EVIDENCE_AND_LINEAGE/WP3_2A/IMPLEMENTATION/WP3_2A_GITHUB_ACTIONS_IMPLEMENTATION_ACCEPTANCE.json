@@ -1,6 +1,6 @@
 {
   "acceptance_id": "WP3_2A_GITHUB_ACTIONS_IMPLEMENTATION_ACCEPTANCE_20260725",
-  "status": "PASS_LOCAL_AND_GITHUB_DRAFT_PR_PUBLICATION_PENDING_CI_AND_HUMAN_MERGE",
+  "status": "PASS_GITHUB_PR_103_CI_ACCEPTED_PENDING_USER_MERGE",
   "workflow_count": 4,
   "self_test": {
     "status": "PASS",
@@ -14,12 +14,26 @@
   "source_delta_zip_sha256": "2f5a66c6d5e996393cba826b57c61755220b193bb3e26c756bfe5039aa0d0dd9",
   "bootstrap_branch": "automation/wp3-2a-bootstrap-20260725",
   "bootstrap_pr_number": 103,
-  "bootstrap_pr_state": "OPEN_DRAFT",
+  "bootstrap_pr_state": "OPEN_READY_FOR_REVIEW",
   "bootstrap_pr_url": "https://github.com/jl2642/investment-os-market-data/pull/103",
+  "bootstrap_pr_mergeable": true,
   "investment_object_changes": [],
   "github_connectivity": "PASS_GITHUB_CONNECTOR_AUTHENTICATED_ADMIN_PUSH",
   "github_branch_publication": "PASS",
-  "github_pr_publication": "PASS_DRAFT_PR_103_OPEN",
+  "github_pr_publication": "PASS_PR_103_OPEN_READY_FOR_REVIEW",
+  "ci_acceptance": {
+    "wp3_2a_lineage_gate": {
+      "run_id": 30145417444,
+      "conclusion": "SUCCESS",
+      "forbidden_mutation_check": "SUCCESS",
+      "repository_state_validation": "SUCCESS",
+      "runtime_acceptance": "SUCCESS"
+    },
+    "fmdl_contract_validation": {
+      "run_id": 30145417445,
+      "conclusion": "SUCCESS"
+    }
+  },
   "github_main_updated": false,
   "github_main_verified": false,
   "live_workflow_run": false,
@@ -29,7 +43,7 @@
   "simulation_trade_mutations": 0,
   "orders": 0,
   "trade_authority": "NONE",
-  "next_gate": "VALIDATE_PR_103_CI_DIFF_AND_FINAL_MANIFEST_THEN_REQUEST_HUMAN_MERGE",
+  "next_gate": "USER_REVIEW_AND_MERGE_PR_103",
   "freshness_controls": {
     "provider_timestamp_modal_ratio_minimum": 0.8,
     "manual_override_must_match_provider_timestamp": true,
