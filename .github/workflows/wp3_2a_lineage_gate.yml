@@ -66,6 +66,65 @@ jobs:
       - name: Validate workflow and authority contract
         run: python automation/wp3_2a/self_test.py --repo-root .
 
+      - name: Count identity-baseline transport parts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2_R4')
+          parts = sorted(root.glob('WP3_2_OLD_ACCEPTED_IDENTITY_BASELINE_20260717.slim.jsonl.gz.b64.part*'))
+          assert len(parts) == 6, f'expected 6 parts, got {len(parts)}'
+          print([p.name for p in parts])
+          PY
+
+      - name: Decode identity-baseline Base64 transport
+        run: |
+          python - <<'PY'
+          import base64
+          from pathlib import Path
+          root = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2_R4')
+          parts = sorted(root.glob('WP3_2_OLD_ACCEPTED_IDENTITY_BASELINE_20260717.slim.jsonl.gz.b64.part*'))
+          encoded = ''.join(p.read_text(encoding='ascii').strip() for p in parts)
+          payload = base64.b64decode(encoded, validate=True)
+          Path('/tmp/wp3_2a_identity.gz').write_bytes(payload)
+          print(len(payload))
+          PY
+
+      - name: Decompress identity-baseline transport
+        run: |
+          python - <<'PY'
+          import gzip
+          from pathlib import Path
+          payload = gzip.decompress(Path('/tmp/wp3_2a_identity.gz').read_bytes())
+          Path('/tmp/wp3_2a_identity.jsonl').write_bytes(payload)
+          print(len(payload))
+          PY
+
+      - name: Verify identity-baseline size and hash
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          payload = Path('/tmp/wp3_2a_identity.jsonl').read_bytes()
+          assert len(payload) == 592_941, len(payload)
+          digest = hashlib.sha256(payload).hexdigest()
+          assert digest == '5f9ac4f3b0bf3d91dcee21fcae9825051ec8ed5c20778117de6700702415e11b', digest
+          print(digest)
+          PY
+
+      - name: Verify identity-baseline record schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          records = [json.loads(line) for line in Path('/tmp/wp3_2a_identity.jsonl').read_text(encoding='utf-8').splitlines() if line]
+          assert len(records) == 5_528, len(records)
+          symbols = [record['symbol'] for record in records]
+          assert len(set(symbols)) == 5_528
+          assert all(set(record) == {'symbol', 'name', 'market_evidence'} for record in records)
+          assert all(isinstance(record['market_evidence'], dict) and record['market_evidence'].get('exchange') for record in records)
+          print(len(records))
+          PY
+
       - name: Validate identity-baseline materialization
         run: python -m pytest -q automation/wp3_2a/tests/test_identity_baseline_materialization.py
 
