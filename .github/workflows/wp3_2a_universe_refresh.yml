@@ -40,6 +40,7 @@ env:
   TRADE_AUTHORITY: NONE
   CONFIG: automation/wp3_2a/config.json
   RUN_DIR: .wp3_2a_run
+  EVIDENCE_DIR: wp3_2a_run_evidence
 
 jobs:
   refresh-and-propose:
@@ -82,6 +83,65 @@ jobs:
           print('success=' + ('true' if data.get('run_status')=='PASS' else 'false'))
           print('session=' + str(data.get('session') or 'UNRESOLVED'))
           print('provider=' + str(data.get('selected_provider') or 'NONE'))
+          PY
+      - name: Preserve and summarize acquisition diagnostics
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p "$EVIDENCE_DIR"
+          if [[ -d "$RUN_DIR" ]]; then
+            cp -a "$RUN_DIR"/. "$EVIDENCE_DIR"/
+          fi
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest_path = Path('.wp3_2a_run/ACQUISITION_MANIFEST.json')
+          summary_path = Path(os.environ['GITHUB_STEP_SUMMARY'])
+          if manifest_path.exists():
+              data = json.loads(manifest_path.read_text(encoding='utf-8'))
+          else:
+              data = {
+                  'run_status': 'FAIL',
+                  'failure_reasons': ['ACQUISITION_MANIFEST_MISSING'],
+                  'attempts': [],
+                  'trade_authority': 'NONE',
+              }
+              Path('wp3_2a_run_evidence/ACQUISITION_MANIFEST_MISSING.json').write_text(
+                  json.dumps(data, ensure_ascii=False, indent=2) + '\n',
+                  encoding='utf-8',
+              )
+
+          print(json.dumps(data, ensure_ascii=False, indent=2))
+          lines = [
+              '## WP3-2A acquisition diagnostics',
+              '',
+              f"- Run status: `{data.get('run_status', 'UNKNOWN')}`",
+              f"- Session: `{data.get('session') or data.get('derived_session') or 'UNRESOLVED'}`",
+              f"- Selected provider: `{data.get('selected_provider') or 'NONE'}`",
+              f"- Failure reasons: `{', '.join(data.get('failure_reasons') or []) or 'NONE_RECORDED'}`",
+              f"- Attempt count: `{len(data.get('attempts') or [])}`",
+              '- Candidate / Research / account / simulation mutations: `0`',
+              '- Orders: `0`',
+              '- trade_authority: `NONE`',
+              '',
+              '### Provider attempts',
+              '',
+          ]
+          attempts = data.get('attempts') or []
+          if not attempts:
+              lines.append('- No provider attempt record was produced.')
+          else:
+              for attempt in attempts:
+                  error = str(attempt.get('error') or '').replace('\n', ' ')[:500]
+                  lines.append(
+                      f"- `{attempt.get('provider')}` attempt `{attempt.get('attempt')}`: "
+                      f"`{attempt.get('status')}` rows=`{attempt.get('rows', 0)}` "
+                      f"error=`{error or 'NONE'}`"
+                  )
+          with summary_path.open('a', encoding='utf-8') as f:
+              f.write('\n'.join(lines) + '\n')
           PY
       - name: Run Gate v3
         id: gate
@@ -144,13 +204,22 @@ jobs:
             "WP3-2A data proposal: ${{ steps.status.outputs.session }}" \
             "$RUN_DIR/PR_BODY.md" \
             "wp3-2a,data-proposal,human-review-required" main
+      - name: Refresh visible evidence copy after downstream steps
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p "$EVIDENCE_DIR"
+          if [[ -d "$RUN_DIR" ]]; then
+            cp -a "$RUN_DIR"/. "$EVIDENCE_DIR"/
+          fi
       - name: Upload run evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: wp3-2a-universe-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .wp3_2a_run/
-          if-no-files-found: warn
+          path: wp3_2a_run_evidence/
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 14
       - name: Upsert blocked-data issue
         if: steps.stage.outcome != 'success'
@@ -159,7 +228,8 @@ jobs:
         shell: bash
         run: |
           TITLE="WP3-2A data acquisition blocked"
-          BODY="Run $GITHUB_RUN_ID attempt $GITHUB_RUN_ATTEMPT did not produce a Gate-v3-passed proposal. Provider attempts and raw failure evidence are retained in the workflow artifact. No Current, Candidate, account, simulation or order state changed."
+          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}"
+          BODY="Run ${RUN_URL} did not produce a Gate-v3-passed proposal. Download artifact wp3-2a-universe-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT} for provider attempts and raw failure evidence. No Current, Candidate, account, simulation or order state changed. trade_authority=NONE."
           NUMBER=$(gh issue list --state open --search "$TITLE in:title" --json number,title --jq '.[] | select(.title=="'"$TITLE"'") | .number' | head -1)
           if [[ -n "$NUMBER" ]]; then gh issue comment "$NUMBER" --body "$BODY"; else gh issue create --title "$TITLE" --body "$BODY" --label "wp3-2a" || gh issue create --title "$TITLE" --body "$BODY"; fi
       - name: Fail closed when no proposal was produced
