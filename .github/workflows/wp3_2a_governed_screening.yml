@@ -1,0 +1,77 @@
+name: WP3-2A Governed Screening Proposal
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type RUN_PROPOSAL_ONLY_SCREENING"
+        required: true
+        type: string
+      max_research_queue:
+        description: "Maximum research-workload queue rows"
+        required: true
+        default: 100
+        type: number
+
+permissions: {}
+concurrency:
+  group: wp3-2a-governed-screening
+  cancel-in-progress: false
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  proposal-only-screening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: wp3-2a-screening-approval
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp3_2a/requirements.lock
+      - run: python -m pip install --retries 5 --timeout 30 -r automation/wp3_2a/requirements.lock
+      - name: Validate accepted Current
+        run: python automation/wp3_2a/validate_repository_state.py --repo-root .
+      - name: Produce research-workload proposal only
+        run: |
+          python automation/wp3_2a/governed_screening.py \
+            --repo-root . --config automation/wp3_2a/config.json \
+            --max-proposals "${{ inputs.max_research_queue }}" \
+            --confirmation "${{ inputs.confirmation }}" \
+            --run-id "${{ github.run_id }}_${{ github.run_attempt }}"
+      - name: Confirm forbidden domains unchanged
+        run: |
+          python automation/wp3_2a/self_test.py --repo-root .
+          python -m pytest -q automation/wp3_2a/tests
+      - name: Create screening-proposal PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SESSION=$(python - <<'PY'
+          import json
+          print(json.load(open('investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json'))['as_of_date'])
+          PY
+          )
+          cat > /tmp/wp3_2a_screening_pr.md <<EOF
+          ## WP3-2A governed screening proposal
+          - Accepted universe session: `$SESSION`
+          - Method: market-data readiness and liquidity workload triage only
+          - Investment ranking: `false`
+          - Research Objects created: `0`
+          - Candidate changes: `0`
+          - Orders: `0`
+          - trade_authority: `NONE`
+          EOF
+          automation/wp3_2a/create_or_update_pr.sh \
+            "automation/wp3-2a-screening-$SESSION-${{ github.run_id }}" \
+            "WP3-2A screening proposal: $SESSION" \
+            /tmp/wp3_2a_screening_pr.md \
+            "wp3-2a,screening-proposal,research-only" main
