@@ -8,14 +8,10 @@ LABELS="${4:-wp3-2a,data-proposal}"
 BASE="${5:-main}"
 RUN_KEY="${GITHUB_RUN_ID:-manual}-${GITHUB_RUN_ATTEMPT:-1}"
 BRANCH="${BRANCH_BASE}-${RUN_KEY}"
-LOG_DIR="${RUN_DIR:-.wp3_2a_run}"
-LOG_FILE="$LOG_DIR/CREATE_OR_UPDATE_PR.log"
-EXIT_FILE="$LOG_DIR/CREATE_OR_UPDATE_PR_EXIT_CODE.txt"
-RECEIPT_FILE="$LOG_DIR/PROPOSAL_PR_RECEIPT.json"
+RECEIPT_DIR="${RUN_DIR:-.wp3_2a_run}"
+RECEIPT_FILE="$RECEIPT_DIR/PROPOSAL_PR_RECEIPT.json"
 
-mkdir -p "$LOG_DIR"
-exec > >(tee -a "$LOG_FILE") 2>&1
-trap 'rc=$?; printf "%s\n" "$rc" > "$EXIT_FILE"; echo "create_or_update_pr exit_code=$rc branch=$BRANCH"' EXIT
+mkdir -p "$RECEIPT_DIR"
 
 echo "Preparing proposal PR branch: $BRANCH"
 echo "Base branch: $BASE"
