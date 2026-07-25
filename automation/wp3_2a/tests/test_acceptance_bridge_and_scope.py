@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[3]
 CONFIG = ROOT / "automation/wp3_2a/config.json"
 ACCEPT_SCRIPT = ROOT / "automation/wp3_2a/accept_data_proposal.py"
 BRIDGE = ROOT / ".github/workflows/wp3_2a_acceptance_connector_bridge.yml"
+ACCEPT_WORKFLOW = ROOT / ".github/workflows/wp3_2a_accept_universe.yml"
 
 
 def test_cdr_scope_exception_is_explicit_and_non_mutating():
@@ -42,4 +43,21 @@ def test_connector_bridge_only_dispatches_exact_protected_acceptance_request():
     assert "forked acceptance requests are not permitted" in text
     assert "proposal_path is outside the governed WP3-2A proposal root" in text
     assert "Environment approval remains a human governance gate" in text
+    assert "trade_authority: `NONE`" in text
+
+
+def test_acceptance_pr_publication_uses_exact_governed_scope():
+    text = ACCEPT_WORKFLOW.read_text(encoding="utf-8")
+
+    assert 'BRANCH="automation/wp3-2a-accept-${SESSION}-${RUN_KEY}"' in text
+    assert "create_or_update_pr.sh" not in text
+    assert "git push --set-upstream origin" in text
+    assert "--force" not in text
+    assert "Acceptance publication scope violation" in text
+    assert "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT" in text
+    assert "investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json" in text
+    assert "investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_SCOPE_EXCEPTIONS_CURRENT.json" in text
+    assert "investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_ACCEPTANCE_RECORD.json" in text
+    assert "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json" in text
+    assert "Candidate / Research / account / simulation mutations: `0`" in text
     assert "trade_authority: `NONE`" in text
