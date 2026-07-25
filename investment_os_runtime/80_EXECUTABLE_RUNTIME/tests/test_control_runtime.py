@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import date, timedelta
 import copy
 import json
 
@@ -22,23 +23,37 @@ RUNTIME = HERE.parents[2]
 BINDINGS = RUNTIME / "50_MARKET_CAPABILITY_BINDINGS"
 
 
-def test_runtime_validation_passes():
-    result = validate_runtime(RUNTIME, "2026-07-24")
+def a_share_binding_date() -> str:
+    return str(read_json(BINDINGS / "A_SHARE_CURRENT.json")["as_of_date"])
+
+
+def test_runtime_validation_passes_for_current_binding_date():
+    evaluation_date = a_share_binding_date()
+    result = validate_runtime(RUNTIME, evaluation_date)
     assert result["status"] == "PASS"
     assert result["trade_authority"] == "NONE"
-    assert "A_SHARE_LIVE_ACTION_BLOCKED_BY_STALENESS" in result["warnings"]
+    assert "A_SHARE_LIVE_ACTION_BLOCKED_BY_STALENESS" not in result["warnings"]
 
 
 def test_a_share_daily_snapshot_blocks_when_stale():
-    result = assess_freshness("2026-07-17", "2026-07-24", 3, "BLOCK")
+    as_of_date = a_share_binding_date()
+    evaluation_date = (
+        date.fromisoformat(as_of_date) + timedelta(days=4)
+    ).isoformat()
+    result = assess_freshness(as_of_date, evaluation_date, 3, "BLOCK")
     assert result["stale"] is True
     assert result["outcome"] == "BLOCK"
 
 
-def test_runtime_validation_accepts_fresh_market_data():
-    result = validate_runtime(RUNTIME, "2026-07-18")
+def test_runtime_validation_blocks_stale_market_data():
+    as_of_date = a_share_binding_date()
+    evaluation_date = (
+        date.fromisoformat(as_of_date) + timedelta(days=4)
+    ).isoformat()
+    result = validate_runtime(RUNTIME, evaluation_date)
     assert result["status"] == "PASS"
-    assert "A_SHARE_LIVE_ACTION_BLOCKED_BY_STALENESS" not in result["warnings"]
+    assert result["trade_authority"] == "NONE"
+    assert "A_SHARE_LIVE_ACTION_BLOCKED_BY_STALENESS" in result["warnings"]
 
 
 def test_universe_uses_restrict_not_live_action():
