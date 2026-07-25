@@ -80,7 +80,7 @@ jobs:
           from pathlib import Path
           p=Path('.wp3_2a_run/ACQUISITION_MANIFEST.json')
           data=json.loads(p.read_text()) if p.exists() else {'run_status':'FAIL'}
-          print('success=' + ('true' if data.get('run_status')=='PASS' else 'false'))
+          print('acquisition_pass=' + ('true' if data.get('run_status')=='PASS' else 'false'))
           print('session=' + str(data.get('session') or 'UNRESOLVED'))
           print('provider=' + str(data.get('selected_provider') or 'NONE'))
           PY
@@ -145,7 +145,7 @@ jobs:
           PY
       - name: Run Gate v3
         id: gate
-        if: steps.status.outputs.success == 'true'
+        if: ${{ always() && steps.acquire.outcome == 'success' && steps.status.outputs.acquisition_pass == 'true' }}
         env:
           SESSION: ${{ steps.status.outputs.session }}
           PROVIDER: ${{ steps.status.outputs.provider }}
@@ -158,7 +158,7 @@ jobs:
             --output "$RUN_DIR/LINEAGE_ACCEPTANCE.json"
       - name: Stage data proposal only
         id: stage
-        if: steps.status.outputs.success == 'true' && steps.gate.outcome == 'success'
+        if: ${{ always() && steps.status.outputs.acquisition_pass == 'true' && steps.gate.outcome == 'success' }}
         env:
           RUN_ID_SAFE: ${{ github.run_id }}_${{ github.run_attempt }}
         run: |
@@ -222,7 +222,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Upsert blocked-data issue
-        if: steps.stage.outcome != 'success'
+        if: ${{ always() && steps.stage.outcome != 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -233,5 +233,5 @@ jobs:
           NUMBER=$(gh issue list --state open --search "$TITLE in:title" --json number,title --jq '.[] | select(.title=="'"$TITLE"'") | .number' | head -1)
           if [[ -n "$NUMBER" ]]; then gh issue comment "$NUMBER" --body "$BODY"; else gh issue create --title "$TITLE" --body "$BODY" --label "wp3-2a" || gh issue create --title "$TITLE" --body "$BODY"; fi
       - name: Fail closed when no proposal was produced
-        if: steps.stage.outcome != 'success'
+        if: ${{ always() && steps.stage.outcome != 'success' }}
         run: exit 1
