@@ -64,9 +64,72 @@ jobs:
           echo "wp3_2a_forbidden_mutation_enforcement=$ENFORCE"
 
       - name: Validate workflow and authority contract
+        run: python automation/wp3_2a/self_test.py --repo-root .
+
+      - name: Count identity-baseline transport parts
         run: |
-          python automation/wp3_2a/self_test.py --repo-root .
-          python -m pytest -q automation/wp3_2a/tests
+          python - <<'PY'
+          from pathlib import Path
+          root = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2_R4')
+          parts = sorted(root.glob('WP3_2_OLD_ACCEPTED_IDENTITY_BASELINE_20260717.slim.jsonl.gz.b64.part*'))
+          assert len(parts) == 6, f'expected 6 parts, got {len(parts)}'
+          print([p.name for p in parts])
+          PY
+
+      - name: Decode identity-baseline Base64 transport
+        run: |
+          python - <<'PY'
+          import base64
+          from pathlib import Path
+          root = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2_R4')
+          parts = sorted(root.glob('WP3_2_OLD_ACCEPTED_IDENTITY_BASELINE_20260717.slim.jsonl.gz.b64.part*'))
+          encoded = ''.join(p.read_text(encoding='ascii').strip() for p in parts)
+          payload = base64.b64decode(encoded, validate=True)
+          Path('/tmp/wp3_2a_identity.gz').write_bytes(payload)
+          print(len(payload))
+          PY
+
+      - name: Decompress identity-baseline transport
+        run: |
+          python - <<'PY'
+          import gzip
+          from pathlib import Path
+          payload = gzip.decompress(Path('/tmp/wp3_2a_identity.gz').read_bytes())
+          Path('/tmp/wp3_2a_identity.jsonl').write_bytes(payload)
+          print(len(payload))
+          PY
+
+      - name: Verify identity-baseline size and hash
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          payload = Path('/tmp/wp3_2a_identity.jsonl').read_bytes()
+          assert len(payload) == 444_911, len(payload)
+          digest = hashlib.sha256(payload).hexdigest()
+          assert digest == 'c99f9bcca0c32a3992ef8f1b46679e854a958027fc48d89f3244c510985d304a', digest
+          print(digest)
+          PY
+
+      - name: Verify identity-baseline record schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          records = [json.loads(line) for line in Path('/tmp/wp3_2a_identity.jsonl').read_text(encoding='utf-8').splitlines() if line]
+          assert len(records) == 5_528, len(records)
+          symbols = [record['symbol'] for record in records]
+          assert len(set(symbols)) == 5_528
+          assert all(set(record) == {'symbol', 'name', 'market_evidence'} for record in records)
+          assert all(isinstance(record['market_evidence'], dict) and record['market_evidence'].get('exchange') for record in records)
+          print(len(records))
+          PY
+
+      - name: Validate identity-baseline materialization
+        run: python -m pytest -q automation/wp3_2a/tests/test_identity_baseline_materialization.py
+
+      - name: Validate remaining WP3-2A regression suite
+        run: python -m pytest -q automation/wp3_2a/tests --ignore=automation/wp3_2a/tests/test_identity_baseline_materialization.py
 
       - name: Reject investment-object mutations for WP3-2A automation branches
         if: steps.scope.outputs.enforce == 'true'

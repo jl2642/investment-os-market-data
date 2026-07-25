@@ -43,6 +43,17 @@ def current_rows(path: Path) -> dict[str, dict]:
             rows[code] = row
     return rows
 
+def ensure_previous_identity(path: Path) -> None:
+    if path.exists():
+        return
+    from materialize_identity_baseline import materialize
+
+    generated = materialize(Path.cwd())
+    if generated.resolve() != path.resolve():
+        raise RuntimeError(
+            f"materialized identity baseline at unexpected path: {generated} != {path}"
+        )
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--previous-jsonl", required=True)
@@ -57,6 +68,7 @@ def main() -> None:
 
     previous_path = Path(a.previous_jsonl)
     current_path = Path(a.current_csv)
+    ensure_previous_identity(previous_path)
     old = old_identity(previous_path)
     cur = current_rows(current_path)
     errors, warnings = [], []

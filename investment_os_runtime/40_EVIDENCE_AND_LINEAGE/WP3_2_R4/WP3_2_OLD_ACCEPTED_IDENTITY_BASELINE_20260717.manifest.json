@@ -1,0 +1,43 @@
+{
+  "schema_version": "wp3_2a_identity_baseline_package_v1",
+  "authority": "historical accepted identity-diff baseline only",
+  "source": {
+    "filename": "WP3_2_OLD_ACCEPTED_IDENTITY_EVIDENCE_20260717.jsonl",
+    "size_bytes": 14949468,
+    "sha256": "b5fde4d2145f6d47a8120a3f96f91b74466fefd6793d5eeb37ab40a9a09b9b5d",
+    "records": 5528,
+    "unique_symbols": 5528,
+    "as_of": "2026-07-17",
+    "trade_authority": "NONE"
+  },
+  "identity_derivative": {
+    "filename": "WP3_2_OLD_ACCEPTED_IDENTITY_EVIDENCE_20260717.jsonl",
+    "size_bytes": 444911,
+    "sha256": "c99f9bcca0c32a3992ef8f1b46679e854a958027fc48d89f3244c510985d304a",
+    "records": 5528,
+    "unique_symbols": 5528,
+    "fields": [
+      "symbol",
+      "name",
+      "market_evidence.exchange"
+    ],
+    "consumer": "automation/wp3_2a/validate_a_share_universe_gate_v3.py::old_identity"
+  },
+  "transport": {
+    "encoding": "gzip+base64",
+    "part_glob": "WP3_2_OLD_ACCEPTED_IDENTITY_BASELINE_20260717.slim.jsonl.gz.b64.part*",
+    "part_count": 6,
+    "compressed_size_bytes": 55949,
+    "compressed_sha256": "01f7978dee6fa9e62922f23b7cf434dc3deffd958f619be5b6ebe3804824cbc3",
+    "base64_characters": 74600,
+    "materializer": "automation/wp3_2a/materialize_identity_baseline.py"
+  },
+  "safety": {
+    "candidate_mutations": 0,
+    "research_object_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_trade_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
