@@ -1,0 +1,50 @@
+{
+  "record_id": "WP3_2A_GITHUB_ACTIONS_IMPLEMENTATION_RECORD_20260725",
+  "status": "BOOTSTRAP_PR_103_CI_PASS_READY_FOR_HUMAN_REVIEW_AND_MERGE",
+  "repository": "jl2642/investment-os-market-data",
+  "bootstrap_branch": "automation/wp3-2a-bootstrap-20260725",
+  "bootstrap_pr_number": 103,
+  "bootstrap_pr_state": "OPEN_READY_FOR_REVIEW",
+  "bootstrap_pr_url": "https://github.com/jl2642/investment-os-market-data/pull/103",
+  "main_head_at_bootstrap": "56ffd69bae17f06d2f982e9834d5d3153b677cd0",
+  "source_delta_zip_sha256": "2f5a66c6d5e996393cba826b57c61755220b193bb3e26c756bfe5039aa0d0dd9",
+  "workflows": [
+    ".github/workflows/wp3_2a_universe_refresh.yml",
+    ".github/workflows/wp3_2a_lineage_gate.yml",
+    ".github/workflows/wp3_2a_accept_universe.yml",
+    ".github/workflows/wp3_2a_governed_screening.yml"
+  ],
+  "design": {
+    "schedule_timezone": "Asia/Shanghai",
+    "bounded_retries": 5,
+    "data_proposal_pr": true,
+    "separate_acceptance_pr": true,
+    "automatic_current_overwrite": false,
+    "automatic_screening": false,
+    "automatic_candidate_admission": false,
+    "orders": 0
+  },
+  "hardening_adaptations": [
+    "RETAINED_EXISTING_FULL_GITIGNORE",
+    "REMOVED_GITHUB_ADMIN_LEADING_INVALID_CHARACTER",
+    "ADAPTED_PYTHON_CACHE_IGNORE_TEST_TO_EXISTING_GLOB",
+    "REGENERATED_IMPLEMENTATION_MANIFEST_FROM_FINAL_PR_STATE"
+  ],
+  "github_connectivity": "PASS_AUTHENTICATED_ADMIN_PUSH",
+  "github_publication": "BOOTSTRAP_PR_103_OPEN_READY_FOR_REVIEW",
+  "ci": {
+    "lineage_gate_run_id": 30145417444,
+    "lineage_gate_conclusion": "SUCCESS",
+    "fmdl_contract_run_id": 30145417445,
+    "fmdl_contract_conclusion": "SUCCESS"
+  },
+  "github_main_updated": false,
+  "live_actions_run": false,
+  "candidate_membership_mutations": 0,
+  "research_object_mutations": 0,
+  "real_account_mutations": 0,
+  "simulation_trade_mutations": 0,
+  "orders": 0,
+  "trade_authority": "NONE",
+  "next_gate": "USER_REVIEW_AND_MERGE_PR_103"
+}

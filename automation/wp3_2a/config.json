@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "config_id": "WP3_2A_GITHUB_AUTOMATION_CONFIG_V1",
+  "repository": "jl2642/investment-os-market-data",
+  "timezone": "Asia/Shanghai",
+  "provider_order": [
+    "eastmoney_public",
+    "sina_public"
+  ],
+  "previous_canonical_provider": "sina_public",
+  "provider_change_requires_human_review": true,
+  "minimum_accepted_session": "2026-07-23",
+  "allow_manual_session_override": true,
+  "row_count": {
+    "minimum": 5400,
+    "maximum": 5900
+  },
+  "fill_thresholds": {
+    "price": 0.9,
+    "volume": 0.85
+  },
+  "retry_delays_seconds": [
+    0,
+    30,
+    120,
+    300,
+    600
+  ],
+  "http_timeout_seconds": 35,
+  "old_identity_jsonl": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2_R4/WP3_2_OLD_ACCEPTED_IDENTITY_EVIDENCE_20260717.jsonl",
+  "proposal_root": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/PROPOSALS",
+  "current_root": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT",
+  "screening_root": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/SCREENING_PROPOSALS",
+  "forbidden_mutation_prefixes": [
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/",
+    "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/",
+    "investment_os_runtime/30_STATE_CURRENT/31_RESEARCH/",
+    "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/"
+  ],
+  "permissions": {
+    "automatic_candidate_admission": false,
+    "automatic_research_object_creation": false,
+    "simulation_trade": false,
+    "real_trade": false,
+    "orders": false
+  },
+  "trade_authority": "NONE",
+  "minimum_session_timestamp_ratio": 0.8,
+  "manual_session_must_match_provider_timestamp": true
+}

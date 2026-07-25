@@ -1,57 +1,57 @@
 # 股票投资助手｜Master Plan与Current状态
 
-- **版本**：`v2.0-WP1-CANONICAL-ACCEPTED`
-- **日期**：2026-07-24
-- **Release**：`INVESTMENT_OS_R10_20260724_d5bbfa2f0a36`
-- **Release sequence**：`10`
-- **Control Runtime**：`1.0.1`
-- **Runtime基线**：`3ee7be7912377c002ebeb7292e35e679f79ae8b3`
-- **总体状态**：`WP1_COMPLETED / WP2_READY`
-- **Canonical状态**：`ACCEPTED_CANONICAL`
-- **File Library部署**：`PENDING_MANUAL_UPLOAD`
+- **版本**：`v3.2A-GITHUB-BOOTSTRAP-PR-CI-PASS`
+- **日期**：`2026-07-25`
+- **总体状态**：`WP3_IN_PROGRESS_BOOTSTRAP_PR_103_CI_PASS_READY_FOR_HUMAN_REVIEW`
+- **当前步骤**：`WP3-2A_PR_103_OPEN_READY_FOR_HUMAN_REVIEW_AND_MERGE`
+- **Bootstrap分支**：`automation/wp3-2a-bootstrap-20260725`
+- **Bootstrap PR**：`#103｜OPEN_READY_FOR_REVIEW`
+- **main基线**：`56ffd69bae17f06d2f982e9834d5d3153b677cd0`
 - **trade_authority**：`NONE`
 
-## 工作包状态
+## 整体工作包状态
 
-| 工作包 | 状态 |
+| 工作包 | 当前状态 |
 |---|---|
-| WP1 | COMPLETED |
-| WP2 | READY |
-| WP3 | PLANNED |
-| WP4 | PLANNED |
-| WP5 | PLANNED |
+| WP1 | COMPLETED_INDEPENDENT_CLEAN_ROOM_PASS |
+| WP2 | COMPLETED_FIRST_OPERATING_DIAGNOSTIC |
+| WP3 | IN_PROGRESS |
+| WP4 | WAITING_FOR_ACCEPTED_CANDIDATE_REBUILD |
+| WP5 | WAITING_FOR_WP4 |
 | WP6 | PLANNED |
 | WP7 | PLANNED |
 
-## WP1最终状态
+## WP3-2A实施状态
 
-| 步骤 | 状态 |
-|---|---|
-| WP1-1 | COMPLETED_WITH_FINDINGS |
-| WP1-1S | COMPLETED |
-| WP1-2 | COMPLETED_WITH_FINDINGS |
-| WP1-3 | COMPLETED_WITH_FINDINGS |
-| WP1-4 | COMPLETED_WITH_SINGLE_REPOSITORY_CORRECTION |
-| WP1-5A | COMPLETED |
-| WP1-5B | GITHUB_PUBLISHED |
-| WP1-5C | GITHUB_PUBLISHED |
-| WP1-5D | COMPLETED_SUPERSEDED_BY_WP1-5E_FREEZE |
-| WP1-5E | COMPLETED_WITH_TARGETED_RUNTIME_REPAIR |
-| WP1-6 | COMPLETED_INDEPENDENT_CLEAN_ROOM_PASS |
+加固版增量补丁已经发布到GitHub并形成Bootstrap PR #103，包括：
 
-## Canonical能力
+1. 定时及手动Universe Refresh；
+2. PR级`WP3-2A / Lineage Gate`；
+3. 受保护的Universe接受工作流；
+4. 受保护的治理筛选提案工作流；
+5. 两阶段人工合并PR链；
+6. 数据获取、Gate v3、零投资对象变更和Runtime回归工具。
 
-R10已通过独立恢复验收，包含规则、Schema、State、FMDL1—7 Bindings、Control Runtime、运营与事件合同、归因与校准合同、Release 8完整基线及WP1审计证据。
+Bootstrap源包SHA-256：`2f5a66c6d5e996393cba826b57c61755220b193bb3e26c756bfe5039aa0d0dd9`。发布时保留仓库既有完整`.gitignore`，未使用补丁中的缩略版覆盖；移除了`github_admin.py`的前导异常字符，并按加固版测试契约适配既有Python忽略规则。
+
+## GitHub验收
+
+- `WP3-2A / Lineage Gate`：SUCCESS，Run `30145417444`；
+- FMDL Contract Validation：SUCCESS，Run `30145417445`；
+- PR状态：OPEN，已解除Draft，可供人工审核；
+- PR可合并性：MERGEABLE；
+- 自动合并：未启用；
+- `main`：未变更。
 
 ## 当前事实边界
 
-- State仍确认至`2026-07-20_CLOSE_LKG`；
-- A股行情仍为`2026-07-17`；
-- 当前Live Action继续阻断；
-- WP2必须先确认7月20日后的真实账户、模拟盘和Candidate变化，并刷新市场数据；
-- Cadence自动化仍禁用至WP6；
-- 不自动交易、不生成订单。
+- PR #103已经通过当前CI，尚未合并；
+- Repository Settings、Environment和Required Check尚未配置；
+- 首次Universe Refresh尚未触发；
+- 未形成新的Universe Current；
+- Candidate、Research Objects、模拟盘、真实账户和订单均未改变；
+- `trade_authority=NONE`。
 
-## 下一任务
+## 下一Gate
 
-> `WP2-1｜账户、模拟盘与Candidate人工Delta确认`
+> 用户人工审核并合并PR #103。合并后再配置仓库保护及Environment，并手动触发首次Universe Refresh。

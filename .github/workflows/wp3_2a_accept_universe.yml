@@ -1,0 +1,79 @@
+name: WP3-2A Accept Universe Proposal
+on:
+  workflow_dispatch:
+    inputs:
+      proposal_path:
+        description: "Merged proposal path under investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/PROPOSALS/..."
+        required: true
+        type: string
+      confirmation:
+        description: "Type ACCEPT_UNIVERSE_PROPOSAL"
+        required: true
+        type: string
+
+permissions: {}
+concurrency:
+  group: wp3-2a-universe-acceptance
+  cancel-in-progress: false
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  accept-proposal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: wp3-2a-data-acceptance
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp3_2a/requirements.lock
+      - run: python -m pip install --retries 5 --timeout 30 -r automation/wp3_2a/requirements.lock
+      - name: Validate repository before acceptance
+        run: python automation/wp3_2a/validate_repository_state.py --repo-root .
+      - name: Stage acceptance candidate
+        run: |
+          python automation/wp3_2a/accept_data_proposal.py \
+            --repo-root . --proposal-path "${{ inputs.proposal_path }}" \
+            --confirmation "${{ inputs.confirmation }}" \
+            --config automation/wp3_2a/config.json
+      - name: Regression and zero-mutation tests
+        run: |
+          python automation/wp3_2a/self_test.py --repo-root .
+          python -m pytest -q automation/wp3_2a/tests
+          cd investment_os_runtime/80_EXECUTABLE_RUNTIME
+          python -m pip install --retries 5 --timeout 30 -r requirements.lock
+          python -m pytest -q
+      - name: Build acceptance PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SESSION=$(python - <<'PY'
+          import json
+          print(json.load(open('investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json'))['as_of_date'])
+          PY
+          )
+          cat > /tmp/wp3_2a_acceptance_pr.md <<EOF
+          ## WP3-2A universe acceptance candidate
+          - Session: `$SESSION`
+          - Lineage Gate: `PASS`
+          - Human confirmation: supplied through protected environment
+          - Candidate / Research / account mutations: `0`
+          - Orders: `0`
+          - trade_authority: `NONE`
+
+          Merging this PR is the human-controlled Current promotion.
+          EOF
+          automation/wp3_2a/create_or_update_pr.sh \
+            "automation/wp3-2a-accept-$SESSION" \
+            "WP3-2A accept universe: $SESSION" \
+            /tmp/wp3_2a_acceptance_pr.md \
+            "wp3-2a,data-acceptance,human-merge-required" main

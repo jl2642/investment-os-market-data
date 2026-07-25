@@ -1,0 +1,98 @@
+name: WP3-2A Lineage Gate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: "Base branch used for a manual verification run"
+        required: false
+        default: main
+        type: string
+      enforce_wp3_2a_scope:
+        description: "Enforce WP3-2A forbidden-mutation rules"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wp3-2a-lineage-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  lineage-gate:
+    name: WP3-2A / Lineage Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp3_2a/requirements.lock
+
+      - name: Install automation requirements
+        run: python -m pip install --retries 5 --timeout 30 -r automation/wp3_2a/requirements.lock
+
+      - name: Resolve gate scope
+        id: scope
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          MANUAL_ENFORCE: ${{ inputs.enforce_wp3_2a_scope || false }}
+        run: |
+          ENFORCE=false
+          if [[ "$HEAD_REF" == automation/wp3-2a-* ]]; then
+            ENFORCE=true
+          fi
+          if [[ "$MANUAL_ENFORCE" == "true" ]]; then
+            ENFORCE=true
+          fi
+          echo "enforce=$ENFORCE" >> "$GITHUB_OUTPUT"
+          echo "head_ref=${HEAD_REF:-MANUAL_DISPATCH}"
+          echo "wp3_2a_forbidden_mutation_enforcement=$ENFORCE"
+
+      - name: Validate workflow and authority contract
+        run: |
+          python automation/wp3_2a/self_test.py --repo-root .
+          python -m pytest -q automation/wp3_2a/tests
+
+      - name: Reject investment-object mutations for WP3-2A automation branches
+        if: steps.scope.outputs.enforce == 'true'
+        env:
+          BASE_REF: ${{ github.base_ref || inputs.base_ref || 'main' }}
+        run: |
+          git fetch origin "$BASE_REF"
+          python automation/wp3_2a/check_forbidden_mutations.py \
+            --repo-root . \
+            --base-ref "origin/$BASE_REF" \
+            --config automation/wp3_2a/config.json
+
+      - name: Record non-WP3-2A applicability
+        if: steps.scope.outputs.enforce != 'true'
+        run: |
+          echo "This PR is outside an automation/wp3-2a-* branch."
+          echo "The required check reports success but does not impose WP3-2A investment-object restrictions."
+
+      - name: Validate proposal and Current hashes
+        run: python automation/wp3_2a/validate_repository_state.py --repo-root .
+
+      - name: Runtime acceptance
+        working-directory: investment_os_runtime/80_EXECUTABLE_RUNTIME
+        run: |
+          python -m pip install --retries 5 --timeout 30 -r requirements.lock
+          python -m pytest -q
+          PYTHONPATH=src python bin/validate_runtime.py \
+            --evaluation-date "$(date -u +%F)" \
+            --output /tmp/runtime_acceptance.json
