@@ -2,9 +2,43 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 from pathlib import Path
 
 import yaml
+
+
+def tracked_repository_paths(repo: Path) -> list[Path]:
+    """Return tracked paths when Git metadata is available.
+
+    Runtime execution legitimately creates ignored ``__pycache__`` and
+    ``.pytest_cache`` directories. Repository hygiene must reject cache files
+    committed to source control, not transient ignored files produced by the
+    current workflow run.
+    """
+
+    proc = subprocess.run(
+        ["git", "-C", str(repo), "ls-files", "-z"],
+        capture_output=True,
+        check=False,
+    )
+    if proc.returncode == 0:
+        return [repo / item.decode("utf-8", errors="surrogateescape") for item in proc.stdout.split(b"\0") if item]
+
+    # Recovery packages may be tested outside a Git checkout. In that case,
+    # scan package contents while excluding Git internals if present.
+    return [
+        path
+        for path in repo.rglob("*")
+        if ".git" not in path.relative_to(repo).parts
+    ]
+
+
+def is_generated_cache_path(path: Path) -> bool:
+    return (
+        path.name in {".pytest_cache", "__pycache__"}
+        or path.suffix in {".pyc", ".pyo"}
+    )
 
 
 def main() -> None:
@@ -55,16 +89,21 @@ def main() -> None:
         errors.append("automatic investment permissions must all be false")
 
     cache_paths = [
-        p for p in repo.rglob("*")
-        if p.name in {".pytest_cache", "__pycache__"} or p.suffix == ".pyc"
+        path
+        for path in tracked_repository_paths(repo)
+        if is_generated_cache_path(path)
     ]
     if cache_paths:
-        errors.append(f"generated cache paths present: {[str(p) for p in cache_paths[:10]]}")
+        errors.append(
+            "tracked generated cache paths present: "
+            f"{[str(path.relative_to(repo)) for path in cache_paths[:10]]}"
+        )
 
     result = {
         "status": "PASS" if not errors else "FAIL",
         "workflow_count": len(workflows),
         "errors": errors,
+        "cache_scope": "TRACKED_REPOSITORY_PATHS",
         "trade_authority": "NONE",
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
