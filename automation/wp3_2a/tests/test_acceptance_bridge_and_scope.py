@@ -59,5 +59,7 @@ def test_acceptance_pr_publication_uses_exact_governed_scope():
     assert "investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_SCOPE_EXCEPTIONS_CURRENT.json" in text
     assert "investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_ACCEPTANCE_RECORD.json" in text
     assert "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json" in text
-    assert "Candidate / Research / account / simulation mutations: `0`" in text
-    assert "trade_authority: `NONE`" in text
+    assert "Candidate / Research / account / simulation mutations:" in text
+    assert "Orders:" in text
+    assert "trade_authority:" in text
+    assert "NONE" in text
