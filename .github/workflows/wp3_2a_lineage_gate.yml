@@ -105,9 +105,9 @@ jobs:
           import hashlib
           from pathlib import Path
           payload = Path('/tmp/wp3_2a_identity.jsonl').read_bytes()
-          assert len(payload) == 592_941, len(payload)
+          assert len(payload) == 444_911, len(payload)
           digest = hashlib.sha256(payload).hexdigest()
-          assert digest == '5f9ac4f3b0bf3d91dcee21fcae9825051ec8ed5c20778117de6700702415e11b', digest
+          assert digest == 'c99f9bcca0c32a3992ef8f1b46679e854a958027fc48d89f3244c510985d304a', digest
           print(digest)
           PY
 
