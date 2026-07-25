@@ -1,0 +1,180 @@
+name: WP3-2A Acceptance Connector Bridge
+run-name: "WP3-2A acceptance connector ${{ github.event.pull_request.head.ref || github.ref_name }}"
+
+on:
+  push:
+    branches:
+      - "automation/wp3-2a-accept-*"
+    paths:
+      - ".wp3_2a_control/accept_request.json"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - ".wp3_2a_control/accept_request.json"
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: wp3-2a-acceptance-connector-dispatch
+  cancel-in-progress: false
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  dispatch:
+    if: ${{ startsWith(github.event.pull_request.head.ref || github.ref_name, 'automation/wp3-2a-accept-') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Validate acceptance request
+        id: request
+        env:
+          TRIGGER_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import os
+          from pathlib import Path, PurePosixPath
+
+          branch = os.environ['TRIGGER_BRANCH']
+          head_repository = os.environ['HEAD_REPOSITORY']
+          repository = os.environ['GITHUB_REPOSITORY']
+          if not branch.startswith('automation/wp3-2a-accept-'):
+              raise SystemExit(f'unsupported trigger branch: {branch}')
+          if head_repository != repository:
+              raise SystemExit('forked acceptance requests are not permitted')
+
+          request_path = Path('.wp3_2a_control/accept_request.json')
+          data = json.loads(request_path.read_text(encoding='utf-8'))
+          if set(data) != {'proposal_path', 'confirmation'}:
+              raise SystemExit('acceptance request must contain only proposal_path and confirmation')
+
+          proposal_path = str(data['proposal_path'])
+          pure = PurePosixPath(proposal_path)
+          prefix = PurePosixPath('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/PROPOSALS')
+          if pure.is_absolute() or '..' in pure.parts or prefix not in pure.parents:
+              raise SystemExit('proposal_path is outside the governed WP3-2A proposal root')
+          if data['confirmation'] != 'ACCEPT_UNIVERSE_PROPOSAL':
+              raise SystemExit('confirmation mismatch')
+          if not (Path(proposal_path) / 'PROPOSAL_MANIFEST.json').is_file():
+              raise SystemExit('merged proposal manifest not found on trigger branch')
+
+          print(f'proposal_path={proposal_path}')
+          print('confirmation=ACCEPT_UNIVERSE_PROPOSAL')
+          print('trade_authority=NONE')
+          PY
+
+      - name: Dispatch protected acceptance and resolve receipt
+        id: dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROPOSAL_PATH: ${{ steps.request.outputs.proposal_path }}
+          CONFIRMATION: ${{ steps.request.outputs.confirmation }}
+        shell: bash
+        run: |
+          started_epoch=$(date -u +%s)
+
+          gh workflow run wp3_2a_accept_universe.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f proposal_path="$PROPOSAL_PATH" \
+            -f confirmation="$CONFIRMATION"
+
+          run_id=""
+          run_url=""
+          run_status=""
+          for _ in $(seq 1 24); do
+            gh run list \
+              --repo "$GITHUB_REPOSITORY" \
+              --workflow wp3_2a_accept_universe.yml \
+              --event workflow_dispatch \
+              --branch main \
+              --limit 20 \
+              --json databaseId,createdAt,status,conclusion,url \
+              > /tmp/wp3_2a_accept_runs.json
+
+            receipt=$(STARTED_EPOCH="$started_epoch" python - <<'PY'
+          import datetime as dt
+          import json
+          import os
+
+          threshold = int(os.environ['STARTED_EPOCH']) - 10
+          candidates = []
+          for run in json.load(open('/tmp/wp3_2a_accept_runs.json', encoding='utf-8')):
+              stamp = str(run.get('createdAt') or '')
+              try:
+                  epoch = int(dt.datetime.fromisoformat(stamp.replace('Z', '+00:00')).timestamp())
+              except Exception:
+                  continue
+              if epoch >= threshold:
+                  candidates.append((epoch, run))
+          if candidates:
+              run = sorted(candidates, key=lambda item: item[0], reverse=True)[0][1]
+              print(f"{run['databaseId']}\t{run['url']}\t{run['status']}")
+          PY
+            )
+            if [[ -n "$receipt" ]]; then
+              IFS=$'\t' read -r run_id run_url run_status <<< "$receipt"
+              break
+            fi
+            sleep 5
+          done
+
+          if [[ -z "$run_id" ]]; then
+            echo "Acceptance dispatch was accepted but no matching run receipt was resolved." >&2
+            exit 2
+          fi
+
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "run_url=$run_url" >> "$GITHUB_OUTPUT"
+          echo "run_status=$run_status" >> "$GITHUB_OUTPUT"
+
+      - name: Publish acceptance receipt and close transient PR
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_ID: ${{ steps.dispatch.outputs.run_id }}
+          RUN_URL: ${{ steps.dispatch.outputs.run_url }}
+          RUN_STATUS: ${{ steps.dispatch.outputs.run_status }}
+        shell: bash
+        run: |
+          cat > /tmp/acceptance_dispatch_receipt.md <<EOF
+          ## WP3-2A protected acceptance dispatch receipt
+
+          - Acceptance run: [${RUN_ID}](${RUN_URL})
+          - Initial status: \`${RUN_STATUS}\`
+          - Proposal: \`${{ steps.request.outputs.proposal_path }}\`
+          - Protected environment: \`wp3-2a-data-acceptance\`
+          - Candidate / Research / account / simulation mutations: \`0\`
+          - Orders: \`0\`
+          - trade_authority: \`NONE\`
+          EOF
+          gh pr comment "$PR_NUMBER" --body-file /tmp/acceptance_dispatch_receipt.md
+          gh pr close "$PR_NUMBER" --comment "Transient acceptance trigger closed after the protected run receipt was recorded. Environment approval remains a human governance gate."
+
+      - name: Record acceptance dispatch contract
+        shell: bash
+        run: |
+          {
+            echo '## WP3-2A acceptance connector dispatch'
+            echo
+            echo "- Trigger branch: \`${{ github.event.pull_request.head.ref || github.ref_name }}\`"
+            echo "- Acceptance run: [${{ steps.dispatch.outputs.run_id }}](${{ steps.dispatch.outputs.run_url }})"
+            echo "- Initial status: \`${{ steps.dispatch.outputs.run_status }}\`"
+            echo "- Proposal: \`${{ steps.request.outputs.proposal_path }}\`"
+            echo '- Protected environment: `wp3-2a-data-acceptance`'
+            echo '- Candidate / Research / account / simulation mutations: `0`'
+            echo '- Orders: `0`'
+            echo '- trade_authority: `NONE`'
+          } >> "$GITHUB_STEP_SUMMARY"
