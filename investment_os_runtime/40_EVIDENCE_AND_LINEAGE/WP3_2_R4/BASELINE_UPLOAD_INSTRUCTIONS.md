@@ -15,10 +15,12 @@ No manual GitHub upload is required.
 
 ## Gate-v3 derivative
 
-Gate v3 reads only `symbol`, `name` and `market_evidence.exchange`. The verified identity-only derivative is transported as six `gzip+base64` parts and is materialized at runtime to the exact legacy path expected by Gate v3.
+Gate v3 reads only `symbol`, `name` and `market_evidence.exchange`. The verified identity-only derivative is transported as six deterministic `gzip+base64` parts and is materialized at runtime to the exact legacy path expected by Gate v3.
 
-- materialized size: `592,941` bytes
-- materialized SHA-256: `5f9ac4f3b0bf3d91dcee21fcae9825051ec8ed5c20778117de6700702415e11b`
+- materialized size: `444,911` bytes
+- materialized SHA-256: `c99f9bcca0c32a3992ef8f1b46679e854a958027fc48d89f3244c510985d304a`
+- compressed size: `55,949` bytes
+- compressed SHA-256: `01f7978dee6fa9e62922f23b7cf434dc3deffd958f619be5b6ebe3804824cbc3`
 - records / unique symbols: `5,528 / 5,528`
 - materializer: `automation/wp3_2a/materialize_identity_baseline.py`
 - lineage manifest: `WP3_2_OLD_ACCEPTED_IDENTITY_BASELINE_20260717.manifest.json`
