@@ -129,7 +129,16 @@ jobs:
         run: python -m pytest -q automation/wp3_2a/tests/test_identity_baseline_materialization.py
 
       - name: Validate remaining WP3-2A regression suite
-        run: python -m pytest -q automation/wp3_2a/tests --ignore=automation/wp3_2a/tests/test_identity_baseline_materialization.py
+        run: python -m pytest -q automation/wp3_2a/tests --ignore=automation/wp3_2a/tests/test_identity_baseline_materialization.py --junitxml=/tmp/wp3_2a_pytest.xml
+
+      - name: Upload WP3-2A pytest diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wp3-2a-pytest-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/wp3_2a_pytest.xml
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Reject investment-object mutations for WP3-2A automation branches
         if: steps.scope.outputs.enforce == 'true'

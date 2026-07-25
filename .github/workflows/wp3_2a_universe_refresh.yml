@@ -146,16 +146,76 @@ jobs:
       - name: Run Gate v3
         id: gate
         if: ${{ always() && steps.acquire.outcome == 'success' && steps.status.outputs.acquisition_pass == 'true' }}
+        continue-on-error: true
         env:
           SESSION: ${{ steps.status.outputs.session }}
           PROVIDER: ${{ steps.status.outputs.provider }}
+        shell: bash
         run: |
+          set +e
           python automation/wp3_2a/validate_a_share_universe_gate_v3.py \
             --previous-jsonl investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2_R4/WP3_2_OLD_ACCEPTED_IDENTITY_EVIDENCE_20260717.jsonl \
             --current-csv "$RUN_DIR/A_SHARE_FULL_UNIVERSE_CURRENT.csv" \
             --as-of "$SESSION" --latest-completed-session "$SESSION" \
             --expected-provider "$PROVIDER" --expected-min 5400 --expected-max 5900 \
-            --output "$RUN_DIR/LINEAGE_ACCEPTANCE.json"
+            --output "$RUN_DIR/LINEAGE_ACCEPTANCE.json" \
+            > >(tee "$RUN_DIR/GATE_V3_STDOUT.log") \
+            2> >(tee "$RUN_DIR/GATE_V3_STDERR.log" >&2)
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > "$RUN_DIR/GATE_V3_EXIT_CODE.txt"
+          exit "$rc"
+      - name: Summarize Gate v3 diagnostics
+        if: ${{ always() && steps.status.outputs.acquisition_pass == 'true' }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          run_dir = Path('.wp3_2a_run')
+          report_path = run_dir / 'LINEAGE_ACCEPTANCE.json'
+          exit_path = run_dir / 'GATE_V3_EXIT_CODE.txt'
+          stderr_path = run_dir / 'GATE_V3_STDERR.log'
+          summary_path = Path(os.environ['GITHUB_STEP_SUMMARY'])
+
+          report = None
+          if report_path.exists():
+              try:
+                  report = json.loads(report_path.read_text(encoding='utf-8'))
+              except Exception as exc:
+                  report = {
+                      'status': 'FAIL',
+                      'errors': ['GATE_REPORT_UNREADABLE'],
+                      'runtime_exception': {
+                          'type': type(exc).__name__,
+                          'message': str(exc),
+                      },
+                      'trade_authority': 'NONE',
+                  }
+          exit_code = exit_path.read_text(encoding='utf-8').strip() if exit_path.exists() else 'MISSING'
+          stderr = stderr_path.read_text(encoding='utf-8', errors='replace').strip() if stderr_path.exists() else ''
+
+          lines = [
+              '',
+              '## WP3-2A Gate v3 diagnostics',
+              '',
+              f"- Exit code: `{exit_code}`",
+              f"- Report present: `{'yes' if report_path.exists() else 'no'}`",
+              f"- Status: `{(report or {}).get('status', 'NO_REPORT')}`",
+              f"- Errors: `{', '.join((report or {}).get('errors') or []) or 'NONE_RECORDED'}`",
+              f"- Runtime exception: `{json.dumps((report or {}).get('runtime_exception') or {}, ensure_ascii=False)}`",
+              '- Candidate / Research / account / simulation mutations: `0`',
+              '- Orders: `0`',
+              '- trade_authority: `NONE`',
+          ]
+          if stderr:
+              lines.extend(['', '### Gate stderr tail', '', '```text', stderr[-4000:], '```'])
+          with summary_path.open('a', encoding='utf-8') as f:
+              f.write('\n'.join(lines) + '\n')
+          print(json.dumps(report or {'status': 'NO_REPORT'}, ensure_ascii=False, indent=2))
+          PY
       - name: Stage data proposal only
         id: stage
         if: ${{ always() && steps.status.outputs.acquisition_pass == 'true' && steps.gate.outcome == 'success' }}
@@ -227,9 +287,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TITLE="WP3-2A data acquisition blocked"
+          TITLE="WP3-2A proposal generation blocked"
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}"
-          BODY="Run ${RUN_URL} did not produce a Gate-v3-passed proposal. Download artifact wp3-2a-universe-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT} for provider attempts and raw failure evidence. No Current, Candidate, account, simulation or order state changed. trade_authority=NONE."
+          BODY="Run ${RUN_URL} did not produce a Gate-v3-passed proposal. Download artifact wp3-2a-universe-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT} for acquisition, Gate v3 and runtime evidence. No Current, Candidate, account, simulation or order state changed. trade_authority=NONE."
           NUMBER=$(gh issue list --state open --search "$TITLE in:title" --json number,title --jq '.[] | select(.title=="'"$TITLE"'") | .number' | head -1)
           if [[ -n "$NUMBER" ]]; then gh issue comment "$NUMBER" --body "$BODY"; else gh issue create --title "$TITLE" --body "$BODY" --label "wp3-2a" || gh issue create --title "$TITLE" --body "$BODY"; fi
       - name: Fail closed when no proposal was produced
