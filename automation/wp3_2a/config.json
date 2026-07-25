@@ -31,6 +31,46 @@
   "proposal_root": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/PROPOSALS",
   "current_root": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT",
   "screening_root": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/SCREENING_PROPOSALS",
+  "ordinary_a_share_scope": {
+    "includes": [
+      "SSE ordinary shares",
+      "SZSE ordinary shares",
+      "BSE ordinary shares"
+    ],
+    "excludes": [
+      "B shares",
+      "funds",
+      "bonds",
+      "convertible bonds",
+      "depositary receipts"
+    ],
+    "scope_exceptions": [
+      {
+        "security_code": "689009",
+        "security_name": "九号公司",
+        "exchange": "SSE",
+        "security_type": "CDR",
+        "classification": "SPECIAL_SECURITY_OUTSIDE_ORDINARY_A_SHARE_CURRENT",
+        "not_a_delisting": true,
+        "handling": "RETAIN_EXISTING_RESEARCH_EVIDENCE_WITH_LIMITATIONS_NO_AUTOMATIC_CANDIDATE_ADMISSION",
+        "reason": "The accepted 2026-07-17 evidence included 689009, but it is a Shanghai-listed depositary receipt rather than an ordinary A share. The sina_public hs_a universe does not return it. Its absence from A_SHARE_CURRENT is therefore an explicit product-scope exclusion and must not be interpreted as a delisting.",
+        "official_evidence": [
+          {
+            "date": "2020-10-28",
+            "authority": "Shanghai Stock Exchange",
+            "evidence": "689009 was listed as a domestic depositary receipt on the STAR Market",
+            "url": "https://www.sse.com.cn/disclosure/announcement/listing/c/c_20201027_5242851.shtml"
+          },
+          {
+            "date": "2026-06-27",
+            "authority": "Shanghai Stock Exchange issuer disclosure",
+            "evidence": "The issuer continued to disclose under security code 689009 and described the instrument as depositary receipts",
+            "url": "https://www.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-06-27/689009_20260627_KOW9.pdf"
+          }
+        ]
+      }
+    ]
+  },
   "forbidden_mutation_prefixes": [
     "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/",
     "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/",
