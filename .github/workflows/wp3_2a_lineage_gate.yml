@@ -66,8 +66,11 @@ jobs:
       - name: Validate workflow and authority contract
         run: python automation/wp3_2a/self_test.py --repo-root .
 
-      - name: Validate WP3-2A regression suite
-        run: python -m pytest -q automation/wp3_2a/tests
+      - name: Validate identity-baseline materialization
+        run: python -m pytest -q automation/wp3_2a/tests/test_identity_baseline_materialization.py
+
+      - name: Validate remaining WP3-2A regression suite
+        run: python -m pytest -q automation/wp3_2a/tests --ignore=automation/wp3_2a/tests/test_identity_baseline_materialization.py
 
       - name: Reject investment-object mutations for WP3-2A automation branches
         if: steps.scope.outputs.enforce == 'true'
