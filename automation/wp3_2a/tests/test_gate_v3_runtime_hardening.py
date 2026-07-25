@@ -11,6 +11,23 @@ GATE = ROOT / "automation/wp3_2a/validate_a_share_universe_gate_v3.py"
 
 
 def write_current(path: Path) -> None:
+    rows = [
+        {
+            "security_code": "600000",
+            "security_name": "浦发银行",
+            "exchange": "SSE",
+        },
+        {
+            "security_code": "000001",
+            "security_name": "平安银行",
+            "exchange": "SZSE",
+        },
+        {
+            "security_code": "920001",
+            "security_name": "北交样本",
+            "exchange": "BSE",
+        },
+    ]
     with path.open("w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(
             f,
@@ -24,16 +41,15 @@ def write_current(path: Path) -> None:
             ],
         )
         writer.writeheader()
-        writer.writerow(
-            {
-                "security_code": "600000",
-                "security_name": "浦发银行",
-                "exchange": "SSE",
-                "last_price": "10.0",
-                "volume": "100",
-                "source_provider": "fixture",
-            }
-        )
+        for row in rows:
+            writer.writerow(
+                {
+                    **row,
+                    "last_price": "10.0",
+                    "volume": "100",
+                    "source_provider": "fixture",
+                }
+            )
 
 
 def gate_command(previous: Path, current: Path, output: Path) -> list[str]:
@@ -51,9 +67,9 @@ def gate_command(previous: Path, current: Path, output: Path) -> list[str]:
         "--expected-provider",
         "fixture",
         "--expected-min",
-        "1",
+        "3",
         "--expected-max",
-        "1",
+        "3",
         "--output",
         str(output),
     ]
@@ -61,16 +77,27 @@ def gate_command(previous: Path, current: Path, output: Path) -> list[str]:
 
 def test_gate_accepts_suffixless_historical_symbol(tmp_path: Path) -> None:
     previous = tmp_path / "old.jsonl"
+    historical = [
+        {
+            "symbol": "600000",
+            "name": "浦发银行",
+            "market_evidence": {"exchange": "SH"},
+        },
+        {
+            "symbol": "000001",
+            "name": "平安银行",
+            "market_evidence": {"exchange": "SZ"},
+        },
+        {
+            "symbol": "920001",
+            "name": "北交样本",
+            "market_evidence": {"exchange": "BJ"},
+        },
+    ]
     previous.write_text(
-        json.dumps(
-            {
-                "symbol": "600000",
-                "name": "浦发银行",
-                "market_evidence": {"exchange": "SH"},
-            },
-            ensure_ascii=False,
-        )
-        + "\n",
+        "".join(
+            json.dumps(item, ensure_ascii=False) + "\n" for item in historical
+        ),
         encoding="utf-8",
     )
     current = tmp_path / "current.csv"
@@ -86,7 +113,8 @@ def test_gate_accepts_suffixless_historical_symbol(tmp_path: Path) -> None:
     assert run.returncode == 0, run.stdout + run.stderr
     report = json.loads(output.read_text(encoding="utf-8"))
     assert report["status"] == "PASS"
-    assert report["previous"]["records"] == 1
+    assert report["previous"]["records"] == 3
+    assert report["current"]["exchanges"] == ["BSE", "SSE", "SZSE"]
     assert report["trade_authority"] == "NONE"
 
 
