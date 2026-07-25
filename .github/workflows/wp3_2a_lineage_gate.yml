@@ -64,9 +64,10 @@ jobs:
           echo "wp3_2a_forbidden_mutation_enforcement=$ENFORCE"
 
       - name: Validate workflow and authority contract
-        run: |
-          python automation/wp3_2a/self_test.py --repo-root .
-          python -m pytest -q automation/wp3_2a/tests
+        run: python automation/wp3_2a/self_test.py --repo-root .
+
+      - name: Validate WP3-2A regression suite
+        run: python -m pytest -q automation/wp3_2a/tests
 
       - name: Reject investment-object mutations for WP3-2A automation branches
         if: steps.scope.outputs.enforce == 'true'
