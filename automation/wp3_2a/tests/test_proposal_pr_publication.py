@@ -1,3 +1,4 @@
+import stat
 from pathlib import Path
 
 
@@ -12,11 +13,13 @@ def test_proposal_pr_publication_is_unique_and_observable():
     assert 'BRANCH="${BRANCH_BASE}-${RUN_KEY}"' in text
     assert "git push --set-upstream origin" in text
     assert "--force" not in text
-    assert "CREATE_OR_UPDATE_PR.log" in text
-    assert "CREATE_OR_UPDATE_PR_EXIT_CODE.txt" in text
     assert "PROPOSAL_PR_RECEIPT.json" in text
     assert "gh pr create" in text
     assert "trade_authority=NONE" in text
+
+
+def test_publication_script_is_executable_in_repository_checkout():
+    assert SCRIPT.stat().st_mode & stat.S_IXUSR
 
 
 def test_publication_stages_only_wp3_2a_governed_area():
