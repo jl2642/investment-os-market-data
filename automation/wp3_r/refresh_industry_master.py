@@ -97,15 +97,30 @@ def normalize_security_id(code: Any, market_id: Any = None) -> str:
 
 
 def read_market_ids(path: Path) -> set[str]:
-    with path.open(encoding="utf-8", newline="") as handle:
+    with path.open(encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
-        if "security_code" not in (reader.fieldnames or []):
-            raise ValueError("A_SHARE_CURRENT_SECURITY_CODE_COLUMN_MISSING")
-        return {
-            normalize_security_id(row["security_code"])
-            for row in reader
-            if str(row.get("security_code") or "").strip()
+        raw_fields = reader.fieldnames or []
+        normalized_fields = {
+            str(field).strip().lstrip("\ufeff"): field
+            for field in raw_fields
+            if field is not None
         }
+        source_field = normalized_fields.get("security_code")
+        if source_field is None:
+            raise ValueError(
+                "A_SHARE_CURRENT_SECURITY_CODE_COLUMN_MISSING:"
+                + ",".join(map(str, raw_fields))
+            )
+        market_ids = {
+            normalize_security_id(row[source_field])
+            for row in reader
+            if str(row.get(source_field) or "").strip()
+        }
+        if len(market_ids) < 5000:
+            raise ValueError(
+                f"A_SHARE_CURRENT_SECURITY_ID_COUNT_TOO_LOW:{len(market_ids)}"
+            )
+        return market_ids
 
 
 def fetch_industry_boards(page_size: int) -> list[dict[str, str]]:

@@ -1,9 +1,21 @@
 Traceback (most recent call last):
-  File "/home/runner/work/investment-os-market-data/investment-os-market-data/automation/wp3_r/refresh_industry_master.py", line 313, in <module>
+  File "/home/runner/work/investment-os-market-data/investment-os-market-data/automation/wp3_r/refresh_industry_master.py", line 328, in <module>
     main()
     ~~~~^^
-  File "/home/runner/work/investment-os-market-data/investment-os-market-data/automation/wp3_r/refresh_industry_master.py", line 198, in main
-    market_ids = read_market_ids(market_path)
-  File "/home/runner/work/investment-os-market-data/investment-os-market-data/automation/wp3_r/refresh_industry_master.py", line 103, in read_market_ids
-    raise ValueError("A_SHARE_CURRENT_SECURITY_CODE_COLUMN_MISSING")
-ValueError: A_SHARE_CURRENT_SECURITY_CODE_COLUMN_MISSING
+  File "/home/runner/work/investment-os-market-data/investment-os-market-data/automation/wp3_r/refresh_industry_master.py", line 214, in main
+    boards = fetch_industry_boards(args.board_page_size)
+  File "/home/runner/work/investment-os-market-data/investment-os-market-data/automation/wp3_r/refresh_industry_master.py", line 127, in fetch_industry_boards
+    rows, provider_total = paginated_rows(
+                           ~~~~~~~~~~~~~~^
+        BOARD_ENDPOINTS,
+        ^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+        max_pages=10,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/runner/work/investment-os-market-data/investment-os-market-data/automation/wp3_r/refresh_industry_master.py", line 69, in paginated_rows
+    payload = request_json(endpoints, params)
+  File "/home/runner/work/investment-os-market-data/investment-os-market-data/automation/wp3_r/refresh_industry_master.py", line 54, in request_json
+    raise RuntimeError("|".join(errors))
+RuntimeError: https://17.push2.eastmoney.com/api/qt/clist/get:attempt=1:RemoteDisconnected:Remote end closed connection without response|https://17.push2.eastmoney.com/api/qt/clist/get:attempt=2:RemoteDisconnected:Remote end closed connection without response|https://17.push2.eastmoney.com/api/qt/clist/get:attempt=3:RemoteDisconnected:Remote end closed connection without response|https://push2.eastmoney.com/api/qt/clist/get:attempt=1:HTTPError:HTTP Error 502: Bad Gateway|https://push2.eastmoney.com/api/qt/clist/get:attempt=2:HTTPError:HTTP Error 502: Bad Gateway|https://push2.eastmoney.com/api/qt/clist/get:attempt=3:HTTPError:HTTP Error 502: Bad Gateway
