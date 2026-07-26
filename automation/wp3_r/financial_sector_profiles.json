@@ -1,0 +1,94 @@
+{
+  "contract_id": "WP3R_FINANCIAL_SECTOR_PROFILES_V1",
+  "principle": "FINANCIAL_INSTITUTIONS_MUST_NOT_BE_SCORED_BY_GENERAL_NON_FINANCIAL_FACTORS",
+  "profiles": {
+    "BANK": {
+      "peer_group": "BANK_ONLY",
+      "minimum_families": 4,
+      "families": {
+        "PROFITABILITY": {
+          "weight": 0.20,
+          "required_metrics": ["ROAE", "ROAA", "NET_INTEREST_MARGIN"]
+        },
+        "GROWTH_AND_REVENUE_MIX": {
+          "weight": 0.15,
+          "required_metrics": ["NET_PROFIT_YOY", "NET_PROFIT_CAGR_3Y", "FEE_INCOME_GROWTH"]
+        },
+        "ASSET_QUALITY": {
+          "weight": 0.30,
+          "required_metrics": ["NPL_RATIO", "PROVISION_COVERAGE", "CREDIT_COST"]
+        },
+        "CAPITAL_AND_LIQUIDITY": {
+          "weight": 0.20,
+          "required_metrics": ["CET1_RATIO", "CAPITAL_ADEQUACY_RATIO", "LIQUIDITY_OR_LOAN_DEPOSIT_RATIO"]
+        },
+        "VALUATION_AND_SHAREHOLDER_RETURN": {
+          "weight": 0.15,
+          "required_metrics": ["PB", "DIVIDEND_YIELD", "ROE_TO_PB_CONTEXT"]
+        }
+      },
+      "currently_reusable_metrics": ["ROAE", "ROAA", "NET_PROFIT_YOY", "NET_PROFIT_CAGR_3Y"],
+      "missing_production_metrics": [
+        "NET_INTEREST_MARGIN",
+        "FEE_INCOME_GROWTH",
+        "NPL_RATIO",
+        "PROVISION_COVERAGE",
+        "CREDIT_COST",
+        "CET1_RATIO",
+        "CAPITAL_ADEQUACY_RATIO",
+        "LIQUIDITY_OR_LOAN_DEPOSIT_RATIO"
+      ]
+    },
+    "INSURANCE": {
+      "peer_group": "INSURANCE_ONLY",
+      "minimum_families": 4,
+      "families": {
+        "PROFITABILITY": {"weight": 0.20, "required_metrics": ["ROAE", "ROAA"]},
+        "FRANCHISE_GROWTH": {"weight": 0.25, "required_metrics": ["NBV_GROWTH", "VNB_MARGIN", "EMBEDDED_VALUE_GROWTH"]},
+        "UNDERWRITING_AND_PERSISTENCY": {"weight": 0.20, "required_metrics": ["COMBINED_RATIO_OR_LAPSE_RATE"]},
+        "INVESTMENT_AND_SOLVENCY": {"weight": 0.20, "required_metrics": ["TOTAL_INVESTMENT_YIELD", "CORE_SOLVENCY_RATIO"]},
+        "VALUATION_AND_SHAREHOLDER_RETURN": {"weight": 0.15, "required_metrics": ["PEV_OR_PB", "DIVIDEND_YIELD"]}
+      },
+      "currently_reusable_metrics": ["ROAE", "ROAA", "NET_PROFIT_YOY", "NET_PROFIT_CAGR_3Y"],
+      "missing_production_metrics": [
+        "NBV_GROWTH",
+        "VNB_MARGIN",
+        "EMBEDDED_VALUE_GROWTH",
+        "COMBINED_RATIO_OR_LAPSE_RATE",
+        "TOTAL_INVESTMENT_YIELD",
+        "CORE_SOLVENCY_RATIO",
+        "PEV_OR_PB"
+      ]
+    },
+    "SECURITIES_AND_BROKERAGE": {
+      "peer_group": "SECURITIES_AND_BROKERAGE_ONLY",
+      "minimum_families": 4,
+      "families": {
+        "PROFITABILITY": {"weight": 0.25, "required_metrics": ["ROAE", "ROAA"]},
+        "GROWTH_AND_BUSINESS_MIX": {"weight": 0.20, "required_metrics": ["NET_PROFIT_YOY", "NET_PROFIT_CAGR_3Y", "FEE_BUSINESS_MIX"]},
+        "EARNINGS_STABILITY": {"weight": 0.20, "required_metrics": ["PROPRIETARY_TRADING_DEPENDENCE", "EARNINGS_VOLATILITY"]},
+        "CAPITAL_AND_RISK": {"weight": 0.20, "required_metrics": ["NET_CAPITAL_RATIO", "LEVERAGE_RATIO", "LIQUIDITY_COVERAGE"]},
+        "VALUATION_AND_SHAREHOLDER_RETURN": {"weight": 0.15, "required_metrics": ["PB", "DIVIDEND_YIELD"]}
+      },
+      "currently_reusable_metrics": ["ROAE", "ROAA", "NET_PROFIT_YOY", "NET_PROFIT_CAGR_3Y"],
+      "missing_production_metrics": [
+        "FEE_BUSINESS_MIX",
+        "PROPRIETARY_TRADING_DEPENDENCE",
+        "EARNINGS_VOLATILITY",
+        "NET_CAPITAL_RATIO",
+        "LEVERAGE_RATIO",
+        "LIQUIDITY_COVERAGE"
+      ]
+    }
+  },
+  "scoring_policy": {
+    "cross_profile_ranking_forbidden": true,
+    "partial_metric_profile_may_not_issue_composite_score": true,
+    "minimum_required_metric_coverage": 0.75,
+    "missing_critical_family_blocks_score": true,
+    "general_non_financial_score_substitution_forbidden": true,
+    "candidate_membership_change_requires_governed_human_merge": true
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
