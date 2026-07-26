@@ -38,11 +38,7 @@ def canonical_asset_id(key: str) -> str:
 
 
 def add_asset(registry: dict[str, Any], key: str, path: str, role: str, state: str) -> None:
-    """Upsert an R2 asset without changing the Canonical Registry container shape.
-
-    The accepted registry stores `assets` as a list of objects. A dict branch is
-    retained only for forward/backward compatibility with older test fixtures.
-    """
+    """Upsert an R2 asset without changing the Canonical Registry container shape."""
     assets = registry.setdefault("assets", [])
     if isinstance(assets, list):
         asset_id = canonical_asset_id(key)
@@ -95,11 +91,40 @@ def validate_acceptances(root: Path) -> tuple[dict[str, Any], dict[str, Any], di
     return wp2, wp3, wp4b
 
 
+def gap_r2_status(gap: dict[str, Any]) -> str:
+    package = str(gap.get("work_package", ""))
+    limitation = str(gap.get("limitation", ""))
+    if package == "WP2":
+        return "CLOSED_OR_NON_BLOCKING_DISCLOSED_BY_WP2_R"
+    if package == "WP3":
+        if limitation == "CANDIDATE_20_60_120_DAY_OUTCOME_WINDOWS_INCOMPLETE":
+            return "EXPLICITLY_GATED_PROSPECTIVE_WINDOWS_MATURING"
+        if limitation == "ALPHA_CLAIM_NOT_ALLOWED":
+            return "EXPLICITLY_GATED_NO_ALPHA_CLAIM_UNTIL_OUTCOME_WINDOWS_MATURE"
+        return "CLOSED_OR_EXPLICITLY_GATED_BY_WP3_R"
+    if package == "WP4":
+        if limitation == "READY_FOR_USER_DECISION_COUNT_ZERO":
+            return "ROUTED_TO_SEPARATE_GOVERNED_WP5_DECISION_PHASE"
+        return "CLOSED_BY_WP4_B_RESEARCH_HARDENING"
+    return "RETAINED_NON_BLOCKING_LEGACY_GAP"
+
+
 def update_gap_register(register: dict[str, Any], mode: str) -> dict[str, Any]:
+    post_merge = mode == "post-merge"
     register["status"] = (
         "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
-        if mode == "post-merge"
+        if post_merge
         else "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_BRANCH_PENDING_MERGE"
+    )
+    register["next_task"] = (
+        "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE"
+        if post_merge
+        else "USER_MERGE_PR_145_TO_MAIN"
+    )
+    register["wp5_gate"] = (
+        "READY_PENDING_EXPLICIT_WP5_START"
+        if post_merge
+        else "BLOCKED_PENDING_R2_MERGE"
     )
     register["r2_closure"] = {
         "wp2_r_portfolio_current": "CLOSED_RECURRING_PORTFOLIO_CURRENT_READY",
@@ -107,22 +132,26 @@ def update_gap_register(register: dict[str, Any], mode: str) -> dict[str, Any]:
         "wp4_b_core2_research": "CLOSED_CORE2_RESEARCH_HARDENING_READY_RESEARCH_ONLY",
         "wp5": (
             "READY_PENDING_EXPLICIT_WP5_START"
-            if mode == "post-merge"
+            if post_merge
             else "BLOCKED_PENDING_R2_MERGE"
         ),
+        "legacy_r1_gaps_blocking_wp5": 0,
         "automatic_real_account_mutations": 0,
         "automatic_simulation_mutations": 0,
+        "candidate_membership_mutations": 0,
         "orders": 0,
         "trade_authority": "NONE",
     }
     for gap in register.get("gaps", []):
-        gap_id = str(gap.get("gap_id", ""))
-        if gap_id == "WP2-G1" or gap_id.startswith("WP2-"):
-            gap["r2_status"] = "CLOSED_BY_WP2_R"
-        elif gap_id.startswith("WP3-"):
-            gap["r2_status"] = "CLOSED_OR_EXPLICITLY_GATED_BY_WP3_R"
-        elif gap_id.startswith("WP4-"):
-            gap["r2_status"] = "CLOSED_BY_WP4_B"
+        if not isinstance(gap, dict):
+            continue
+        gap["r2_status"] = gap_r2_status(gap)
+        gap["blocks_wp5"] = False
+        gap["resolution_route"] = (
+            "R2_ACCEPTED_ON_MAIN_RETAIN_AS_OPERATING_LIMIT_OR_WP5_INPUT"
+            if post_merge
+            else "R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE"
+        )
     return register
 
 
@@ -134,6 +163,25 @@ def update_execution_register(
     merge_sha: str | None,
     acceptance_hash: str,
 ) -> dict[str, Any]:
+    post_merge = mode == "post-merge"
+    register["current_step"] = (
+        "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
+        if post_merge
+        else "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE"
+    )
+    register["next_task"] = (
+        "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE"
+        if post_merge
+        else "USER_MERGE_PR_145_TO_MAIN"
+    )
+    register["overall_status"] = (
+        "R2_ACCEPTED_ON_MAIN_WP5_READY_PENDING_EXPLICIT_START"
+        if post_merge
+        else "R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE_WP5_BLOCKED"
+    )
+    if post_merge and merge_sha:
+        register["latest_governed_merge_sha"] = merge_sha
+        register["github_merge_sha"] = merge_sha
     register["r2"] = {
         "program": "R2_PRODUCT_CAPABILITY_HARDENING",
         "workstreams": ["WP2-R", "WP3-R", "WP4-B"],
@@ -142,14 +190,14 @@ def update_execution_register(
         "merge_sha": merge_sha,
         "status": (
             "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
-            if mode == "post-merge"
+            if post_merge
             else "R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE"
         ),
         "acceptance_path": R2_ACCEPTANCE,
         "acceptance_semantic_hash": acceptance_hash,
         "wp5_status": (
             "READY_PENDING_EXPLICIT_WP5_START"
-            if mode == "post-merge"
+            if post_merge
             else "BLOCKED_PENDING_R2_MERGE"
         ),
         "economic_mutations": {
@@ -166,6 +214,7 @@ def update_execution_register(
 def render_status(mode: str, merge_sha: str | None) -> str:
     phase = "ACCEPTED_ON_MAIN" if mode == "post-merge" else "ACCEPTED_ON_BRANCH_PENDING_USER_MERGE"
     wp5 = "READY_PENDING_EXPLICIT_WP5_START" if mode == "post-merge" else "BLOCKED_PENDING_R2_MERGE"
+    next_task = "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE" if mode == "post-merge" else "USER_MERGE_PR_145_TO_MAIN"
     return f"""# R2 Product Capability Status Current
 
 - R2 status: `{phase}`
@@ -175,6 +224,7 @@ def render_status(mode: str, merge_sha: str | None) -> str:
 - WP3-R: `CONTINUOUS_CANDIDATE_ENGINE_CAPABILITY_ACCEPTED`
 - WP4-B: `CORE2_RESEARCH_HARDENING_ACCEPTED_RESEARCH_ONLY`
 - WP5: `{wp5}`
+- Next task: `{next_task}`
 - Real-account mutations: `0`
 - Simulation economic mutations: `0`
 - Candidate membership mutations: `0`
@@ -264,6 +314,9 @@ def main() -> None:
         if args.mode == "post-merge"
         else "R2_CAPABILITY_ASSETS_ACCEPTED_PENDING_MERGE"
     )
+    if args.mode == "post-merge" and args.merge_sha:
+        registry["latest_governed_merge_sha"] = args.merge_sha
+        registry["github_merge_sha"] = args.merge_sha
     assets = {
         "real_account_positions_current": ("investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json", "WP2-R real-account Position Current", "CURRENT"),
         "simulation_positions_current": ("investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json", "WP2-R simulation Position Current", "CURRENT"),
@@ -290,6 +343,7 @@ def main() -> None:
     print(json.dumps({
         "status": acceptance["status"],
         "wp5_status": acceptance["wp5_status"],
+        "next_task": execution["next_task"],
         "pr_number": args.pr_number,
         "merge_sha": args.merge_sha,
         "real_account_mutations": 0,
