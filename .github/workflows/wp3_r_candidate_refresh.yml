@@ -1,5 +1,5 @@
 name: R2 WP3-R Candidate Refresh Hardening
-run-name: "R2 WP3-R Candidate Refresh audit and operating products"
+run-name: "R2 WP3-R Candidate Refresh audit validation"
 
 on:
   push:
@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   TRADE_AUTHORITY: NONE
@@ -51,28 +51,8 @@ jobs:
             automation/wp3_r/build_candidate_refresh_current.py \
             automation/wp3_r/refresh_candidate_price_ledger.py
 
-      - name: Build WP3-R audit and Current products
+      - name: Build WP3-R audit products in validation workspace only
         run: python automation/wp3_r/build_candidate_refresh_current.py --repo-root . --as-of 2026-07-26
-
-      - name: Publish diagnostic products before acceptance assertions
-        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            automation/wp3_r/build_candidate_refresh_current.py \
-            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R \
-            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS \
-            investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json \
-            investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
-          if git diff --cached --quiet; then
-            echo "WP3-R diagnostic products already committed."
-          else
-            git commit -m "R2 WP3-R publish Candidate Refresh diagnostic baseline"
-            git push origin "HEAD:agent/r2-product-capability-hardening"
-          fi
 
       - name: Validate scope, truthfulness and zero mutations
         shell: bash
@@ -101,11 +81,7 @@ jobs:
               'weekly_status': data['weekly'].get('status'),
               'weekly_covered': data['weekly'].get('covered_count'),
               'profile_status': data['profiles'].get('status'),
-              'profile_counts': data['profiles'].get('profile_counts'),
               'freshness_status': data['freshness'].get('status'),
-              'freshness_counts': data['freshness'].get('counts'),
-              'industry_status': data['industry'].get('status'),
-              'industry_fields': data['industry'].get('detected_fields'),
               'outcome_status': data['outcome'].get('status'),
           }, ensure_ascii=False, sort_keys=True))
           assert data['audit']['financial_score_rows'] > 0
@@ -153,14 +129,11 @@ jobs:
         if: always()
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          ## WP3-R Candidate Refresh foundation
+          ## WP3-R Candidate Refresh foundation validation
+          - This workflow is read-only; the operating-profile workflow is the sole publication owner
           - Existing 2/38/33 Candidate Current preserved
-          - Financial statement profiles audited separately from composite scoring
-          - General non-financial score retained; bank/insurance/broker composite scores fail closed pending critical inputs
-          - Financial report period and availability freshness audited
-          - Industry classification quality measured; strategy sleeves cannot substitute for industry identity
-          - Weekly price screen is observation-only
-          - 20/60/120 outcome windows remain prospective and no alpha claim is allowed
+          - Financial statement profiles and freshness are audited
+          - Weekly price screen and 20/60/120 outcome contract remain observation-only
           - Candidate, portfolio and order mutations: 0
           - trade_authority: NONE
           EOF
