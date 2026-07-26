@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "binding_id": "MARKET_BINDING_A_SHARE_WP1_5C",
+  "binding_id": "MARKET_BINDING_A_SHARE_WP3_2A_ACCEPTANCE_CANDIDATE",
   "run_id": "WP1_5C_RUNTIME_BINDINGS_OPERATIONS_20260724_001",
   "market": "A_SHARE",
-  "status": "BOUND_LKG_STALE_FOR_CURRENT_ACTION",
+  "status": "ACCEPTED_IF_AND_ONLY_IF_MERGED_TO_MAIN",
   "repository": "jl2642/investment-os-market-data",
   "authority": "DATA_EVIDENCE_RESEARCH_PRIORITY_ONLY",
-  "as_of_date": "2026-07-17",
-  "generated_at": "2026-07-17T19:43:10+08:00",
+  "as_of_date": "2026-07-24",
+  "generated_at": "2026-07-26T04:17:33+00:00",
   "source_provider": "sina_public",
   "fmdl_components": [
     {
@@ -35,14 +35,16 @@
   ],
   "datasets": {
     "universe": {
-      "rows": 5528,
-      "sha256": "c02038784bfe16182089351aa8f96bb76ba47b83fdb4ac1c30f90b889cd32b03",
+      "path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/A_SHARE_FULL_UNIVERSE.csv",
+      "rows": 5530,
+      "sha256": "746a435901de5a8871a75606630c7d90c855f1de7365c9ff467f44c29a1eb9e9",
       "maximum_age_calendar_days": 7,
       "stale_behavior": "LABEL_AND_RESTRICT"
     },
     "daily_market_snapshot": {
-      "rows": 5528,
-      "sha256": "ab9cacf47cd8e14631af76d2b267c585863946ea33a04731a9339df2020e4212",
+      "path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/A_SHARE_FULL_UNIVERSE.csv",
+      "rows": 5530,
+      "sha256": "746a435901de5a8871a75606630c7d90c855f1de7365c9ff467f44c29a1eb9e9",
       "maximum_age_calendar_days": 3,
       "requires_latest_completed_session": true,
       "stale_behavior": "BLOCK"
@@ -74,7 +76,7 @@
     "FMDL3_NO_PRE_REVISION_FINANCIAL_HISTORY",
     "NO_PERSISTENT_ALPHA_CLAIM"
   ],
-  "live_action_scope": "BLOCKED_UNTIL_CURRENT_STATE_CONFIRMATION_AND_FRESH_MARKET_DATA",
+  "live_action_scope": "BLOCKED_PENDING_HUMAN_MERGE_AND_SEPARATE_RESEARCH_REVIEW",
   "permissions": {
     "research": true,
     "candidate_proposal": true,
@@ -85,5 +87,31 @@
     "real_automatic_admission": false,
     "order_execution": false
   },
-  "trade_authority": "NONE"
+  "trade_authority": "NONE",
+  "universe_scope": {
+    "classification": "ORDINARY_A_SHARES",
+    "includes": [
+      "SSE ordinary shares",
+      "SZSE ordinary shares",
+      "BSE ordinary shares"
+    ],
+    "excludes": [
+      "B shares",
+      "funds",
+      "bonds",
+      "convertible bonds",
+      "depositary receipts"
+    ],
+    "scope_exception_count": 1,
+    "scope_exception_record": "investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_SCOPE_EXCEPTIONS_CURRENT.json"
+  },
+  "wp3_2a_lineage": {
+    "proposal_id": "WP3_2A_UNIVERSE_PROPOSAL_20260724_30162751251_1",
+    "lineage_status": "PASS",
+    "lineage_path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/LINEAGE_ACCEPTANCE.json",
+    "provider_change_reviewed_by_merge": true,
+    "scope_exceptions_reviewed_by_merge": true,
+    "automatic_candidate_admission": false,
+    "orders": 0
+  }
 }
