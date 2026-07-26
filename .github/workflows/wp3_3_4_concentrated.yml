@@ -1,0 +1,114 @@
+name: WP3-3 + WP3-4 Concentrated Milestone
+run-name: "WP3-3/4 multidimensional screening and Core20 review"
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/wp3_3_4/**"
+      - ".github/workflows/wp3_3_4_concentrated.yml"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/**"
+      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  WP3_3_4_OUTPUT_DIR: investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V4
+
+jobs:
+  build-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            automation/wp3_2a/requirements.lock
+            automation/wp3_3_4/requirements.lock
+      - name: Install dependencies
+        run: |
+          python -m pip install --retries 5 --timeout 30 \
+            -r automation/wp3_2a/requirements.lock \
+            -r automation/wp3_3_4/requirements.lock
+      - name: Build WP3-3 and WP3-4 proposal
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p .wp3_3_4_run
+          rm -rf "$WP3_3_4_OUTPUT_DIR"
+          python automation/wp3_3_4/build_milestone_v4.py \
+            --repo-root . \
+            --config automation/wp3_3_4/config.json \
+            --output-dir "$WP3_3_4_OUTPUT_DIR" \
+            2>&1 | tee .wp3_3_4_run/BUILD_RESULT.log
+          python automation/wp3_3_4/finalize_milestone_state.py \
+            --repo-root . \
+            --proposal-dir "$WP3_3_4_OUTPUT_DIR"
+      - name: Run WP3-3 and WP3-4 acceptance tests
+        run: python -m pytest -q automation/wp3_3_4/tests
+      - name: Confirm investment domains unchanged
+        run: |
+          python automation/wp3_2a/check_forbidden_mutations.py \
+            --repo-root . --base-ref origin/main \
+            --config automation/wp3_2a/config.json
+      - name: Publish deterministic proposal and operating state
+        if: github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            "$WP3_3_4_OUTPUT_DIR" \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md
+          if git diff --cached --quiet; then
+            echo "Deterministic outputs already published."
+            exit 0
+          fi
+          git commit -m "WP3-3/4 publish deterministic proposal and operating state"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+      - name: Record proposal-only summary
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['WP3_3_4_OUTPUT_DIR'])
+          data = json.load(open(root / 'WP3_3_4_MANIFEST.json', encoding='utf-8'))
+          m = data['metrics']
+          print('## WP3-3 + WP3-4 concentrated milestone')
+          print()
+          print(f"- Full-market assessment: `{m['full_market_rows']}`")
+          print(f"- Multidimensional eligible: `{m['multidimensional_eligible_rows']}`")
+          print(f"- A deep dive / B structured / C watch: `{m['deep_dive_rows']} / {m['structured_research_rows']} / {m['watch_rows']}`")
+          print(f"- Industry Longlist: `{m['industry_longlist_rows']}`")
+          print(f"- Strategy sleeves in Longlist: `{m['strategy_sleeve_count']}`")
+          print(f"- Historical Core20 review: `{m['historical_core20_review_rows']}`")
+          print(f"- Unified research workplan: `{m['unified_research_workplan_rows']}`")
+          print(f"- Core20 / new Longlist overlap: `{m['core20_longlist_overlap']}`")
+          print('- Investment ranking: `false`')
+          print('- Candidate / Research Object / account / simulation mutations: `0`')
+          print('- Orders: `0`')
+          print('- trade_authority: `NONE`')
+          PY
+      - name: Upload milestone evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wp3-3-4-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .wp3_3_4_run/
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V4/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14

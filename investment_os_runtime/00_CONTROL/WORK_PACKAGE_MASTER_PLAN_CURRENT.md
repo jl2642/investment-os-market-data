@@ -3,6 +3,7 @@
 - 状态日期：2026-07-26
 - Canonical状态源：`investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json`
 - 市场数据Current：`investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json`
+- WP3-3/4 Proposal：`investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V4/`
 - 交易权限：`NONE`
 
 ## 当前阶段
@@ -12,58 +13,45 @@
 | WP1 | COMPLETED | Canonical、规则、Runtime与独立Clean-Room验收完成 |
 | WP2 | COMPLETED | 真实账户、模拟盘、历史Candidate与市场状态诊断完成；无交易变更 |
 | WP3-1 | COMPLETED | 稳健成长策略、Candidate准入、生命周期、Entry Baseline与Research Readiness Gate完成 |
-| WP3-2A | COMPLETED | 2026-07-24普通A股5530只Current已在main接受；定时刷新、有限重试、Lineage Gate v3、Proposal与受保护Acceptance已上线 |
-| WP3-2B | ACTIVE / READY | 基于已接受Current形成Eligible Universe、Exclusions与Research Workload Queue；仅Proposal，不是投资排名 |
-| WP3-3 | PLANNED | 多维筛选、行业Longlist与研究优先级，在WP3-2B人工验收后进入 |
-| WP3-4 | PLANNED | 研究对象、Candidate重建与Entry Baseline补齐 |
-| WP4–WP7 | PLANNED | 组合决策、运营、归因、复盘与持续校准 |
+| WP3-2A | COMPLETED | 2026-07-24普通A股5530只Current已接受；定时刷新、Lineage Gate、Proposal与受保护Acceptance上线 |
+| WP3-2B | COMPLETED | 5525只数据与流动性Eligible Universe、5只排除和100只初始研究工作队列已接受 |
+| WP3-3 + WP3-4 | COMPLETED ON MERGE | 5525只多维评估、496只多维Eligible、53只行业Longlist、20只历史Core重审及73只统一研究计划 |
+| WP3-5 + WP3-6 | READY ON MERGE | Research Object、Entry Baseline、Candidate Core / Shadow / Ready-to-Buy重建Proposal |
+| WP4–WP7 | PLANNED | 深研、组合决策、周期运营、归因复盘与真实试点 |
 
-## WP3-2A运营模式
+## WP3-3 + WP3-4结果边界
 
-工作日定时运行：
+- A Deep Dive：20
+- B Structured Research：20
+- C Watch / Evidence Fill：13
+- Longlist行业桶：13
+- Longlist策略袖套：3
+- 历史Core20重审：20
+- 新Longlist与历史Core20重合：0
+- 独立金融Profile：47
+- 既有研究拒绝、等待新证据：5
+
+本轮是研究优先级，不是证券投资吸引力排名。估值只进行2026-07-24价格联动重估，不宣称底层财务期已刷新。历史Core20不享受祖父条款，但所有20只均进入强制重审工作计划；没有自动留存、自动删除或自动重新准入。
+
+## 下一里程碑
 
 ```text
-免费公开数据源抓取
-→ 有限重试
-→ 原始证据保存
-→ 新交易日/重复Proposal判断
-→ Gate v3
-→ Runtime回归
-→ 数据Proposal PR
-→ 人工合并Proposal
-→ 受保护Acceptance
-→ 人工合并Current
+WP3-5 + WP3-6
+统一研究工作计划
+→ Research Object与证据缺口
+→ Entry Baseline
+→ Candidate Core / Shadow / Ready-to-Buy建议
+→ 新旧Candidate迁移对照
+→ 单一受治理Candidate重建Proposal
 ```
 
-同一交易日或已有未关闭Proposal时，运行必须以`NO_OP`成功结束，不得生成重复PR，不得创建阻断Issue。
+该里程碑内部开发和测试由ChatGPT与GitHub执行。只有最终Candidate成员或状态变更Proposal需要用户批准与合并。
 
-未来Current晋级PR在被人工合并后即形成最终`ACCEPTED_ON_MAIN`状态，不再需要单独的运营收口PR。
+## 永久权限边界
 
-## WP3-2B边界
-
-WP3-2B只执行：
-
-1. 全市场数据与流动性资格判断；
-2. `ELIGIBLE_UNIVERSE.csv`；
-3. `SCREENING_EXCLUSIONS.csv`；
-4. 最多100行的`RESEARCH_WORKLOAD_QUEUE.csv`；
-5. 可审计Manifest与证据Artifact。
-
-WP3-2B明确不执行：
-
-- 投资吸引力排名；
-- 自动创建Research Object；
-- Candidate准入、剔除或权重调整；
-- 模拟盘或真实账户交易；
-- 订单生成；
-- 自动规则修改。
-
-## 人工治理门禁
-
-仅以下动作需要用户介入：
-
-1. 合并受治理的数据或筛选Proposal PR；
-2. 批准受保护Environment；
-3. 合并最终Current或后续投资状态变更PR。
-
-其余抓取、重试、测试、差异检查、Artifact和故障诊断由GitHub工作流与ChatGPT执行。
+- Candidate membership mutations：0（截至本Current）
+- Research Object mutations：0（截至本Current）
+- real-account mutations：0
+- simulation-trade mutations：0
+- orders：0
+- `trade_authority=NONE`
