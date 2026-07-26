@@ -51,12 +51,14 @@ jobs:
         run: python -m pip install --retries 5 --timeout 30 -r automation/wp2_r/requirements.lock
 
       - name: Build deterministic Portfolio Current
-        run: python automation/wp2_r/build_portfolio_current.py --repo-root .
+        run: |
+          python automation/wp2_r/build_portfolio_current.py --repo-root .
+          python automation/wp2_r/finalize_account_summaries.py --repo-root .
 
       - name: Run WP2-R tests
         run: python -m pytest -q automation/wp2_r/tests
 
-      - name: Validate schemas and economic boundaries
+      - name: Validate schemas, cash and economic boundaries
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -97,11 +99,27 @@ jobs:
           assert ledger['continuity_confirmed_through'] == '2026-07-24'
           assert marks['automatic_position_mutations'] == 0
           assert run['economic_transaction_mutations'] == 0
+          assert run['position_or_cost_mutations_from_reconciliation'] == 0
           assert run['orders'] == 0
           assert acceptance['wp5_unblocked'] is False
+          assert acceptance['account_summary_controls']['forced_reconciliation_mutations'] == 0
+          assert real['summary']['execution_cash_balance'] == 120.49
+          assert sim['summary']['execution_cash_balance'] == 219533.98
+          assert real['summary']['account_total_assets'] == round(real['summary']['position_market_value'] + 120.49, 6)
+          assert sim['summary']['account_total_assets'] == round(sim['summary']['position_market_value'] + 219533.98, 6)
+          assert real['summary']['historical_wp2_3_watermark'] == '2026-07-24_TRACKED_CLOSE_BOND_NAV_MIXED'
+          assert sim['summary']['historical_wp2_3_watermark'] == '2026-07-24_CLOSE'
           assert all(x['broker_verified'] is False for x in real['holdings'])
-          assert run['trade_authority'] == marks['trade_authority'] == 'NONE'
-          print({'real': 7, 'simulation': 16, 'delta': 0, 'orders': 0, 'trade_authority': 'NONE'})
+          assert run['trade_authority'] == marks['trade_authority'] == acceptance['trade_authority'] == 'NONE'
+          print({
+              'real': 7,
+              'simulation': 16,
+              'delta': 0,
+              'real_total_assets': real['summary']['account_total_assets'],
+              'simulation_total_assets': sim['summary']['account_total_assets'],
+              'orders': 0,
+              'trade_authority': 'NONE',
+          })
           PY
 
       - name: Prove legacy position sources and forbidden domains unchanged
@@ -151,8 +169,9 @@ jobs:
           - Real positions: 7
           - Simulation positions: 16
           - User transaction Delta: 0
-          - Position/mark watermarks: separated
-          - Broker Verification: separated and false
+          - Position/mark/Broker watermarks: separated
+          - Execution cash included; external real-account liquidity excluded
+          - Historical WP2-3 differences disclosed, never force-reconciled
           - Automatic quantity/cost mutations: 0
           - Orders: 0
           - trade_authority: NONE
