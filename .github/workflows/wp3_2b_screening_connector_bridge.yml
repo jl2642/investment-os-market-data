@@ -1,14 +1,9 @@
 name: WP3-2B Screening Connector Bridge
-run-name: "WP3-2B screening connector ${{ github.event.pull_request.head.ref || github.ref_name }}"
+run-name: "WP3-2B screening connector ${{ github.event.pull_request.head.ref }}"
 
 on:
-  push:
-    branches:
-      - "automation/wp3-2b-screen-*"
-    paths:
-      - ".wp3_2a_control/screening_request.json"
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened]
     paths:
       - ".wp3_2a_control/screening_request.json"
 
@@ -18,7 +13,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: wp3-2b-screening-connector-dispatch
+  group: wp3-2b-screening-connector-${{ github.event.pull_request.head.ref }}
   cancel-in-progress: false
 
 env:
@@ -26,19 +21,19 @@ env:
 
 jobs:
   dispatch:
-    if: ${{ startsWith(github.event.pull_request.head.ref || github.ref_name, 'automation/wp3-2b-screen-') }}
+    if: ${{ startsWith(github.event.pull_request.head.ref, 'automation/wp3-2b-screen-') }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Validate WP3-2B screening request
         id: request
         env:
-          TRIGGER_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
-          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          TRIGGER_BRANCH: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
         shell: bash
         run: |
           python - <<'PY' >> "$GITHUB_OUTPUT"
@@ -135,7 +130,6 @@ jobs:
           echo "run_status=$run_status" >> "$GITHUB_OUTPUT"
 
       - name: Publish screening receipt and close transient PR
-        if: ${{ github.event_name == 'pull_request' }}
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -166,7 +160,7 @@ jobs:
           {
             echo '## WP3-2B screening connector dispatch'
             echo
-            echo "- Trigger branch: \`${{ github.event.pull_request.head.ref || github.ref_name }}\`"
+            echo "- Trigger branch: \`${{ github.event.pull_request.head.ref }}\`"
             echo "- Screening run: [${{ steps.dispatch.outputs.run_id }}](${{ steps.dispatch.outputs.run_url }})"
             echo "- Initial status: \`${{ steps.dispatch.outputs.run_status }}\`"
             echo "- Maximum research queue: \`${{ steps.request.outputs.max_research_queue }}\`"

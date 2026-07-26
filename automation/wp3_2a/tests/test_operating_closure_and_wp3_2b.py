@@ -91,14 +91,21 @@ def test_wp3_2b_is_proposal_only_and_connector_dispatchable():
 
     assert "name: WP3-2B Governed Screening Proposal" in workflow
     assert "environment: wp3-2a-screening-approval" in workflow
+    assert "<<'EOF'" in workflow
+    assert "Accepted universe session:" in workflow
+    assert "Eligible Universe rows:" in workflow
     assert "ELIGIBLE_UNIVERSE.csv" in script
     assert "SCREENING_EXCLUSIONS.csv" in script
     assert "WP3_2B_SCREENING_PROPOSAL" in script
     assert '"investment_ranking": False' in script
     assert '"candidate_membership_mutations": 0' in script
     assert '"trade_authority": "NONE"' in script
-    assert "automation/wp3-2b-screen-*" in bridge
+    assert "automation/wp3-2b-screen-" in bridge
     assert ".wp3_2a_control/screening_request.json" in bridge
+    assert "types: [opened]" in bridge
+    assert "\n  push:" not in bridge
+    assert "synchronize" not in bridge
+    assert "reopened" not in bridge
     assert "RUN_PROPOSAL_ONLY_SCREENING" in bridge
     assert "forked screening requests are not permitted" in bridge
     assert "Environment approval remains a human governance gate" in bridge
