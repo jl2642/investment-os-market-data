@@ -1,0 +1,679 @@
+{
+  "additive_to_wp4_initial_baseline": true,
+  "business_and_competition": {
+    "competitive_advantages": [
+      "稀缺、长寿命、低边际成本的大型水电资产组合",
+      "梯级联合调度和流域级运营能力难以复制",
+      "现金流强、维护资本开支相对可控，支持高分红",
+      "央企治理与融资能力降低再融资和信用风险"
+    ],
+    "key_risks": [
+      "来水和水文周期导致发电量波动",
+      "上网电价、市场化交易和监管政策变化",
+      "高杠杆与利率水平影响财务费用和股东回报",
+      "投资收益、公允价值变动掩盖主业真实增长",
+      "重大资产收购、资本开支或分红政策变化"
+    ],
+    "revenue_engines": [
+      "乌东德、白鹤滩、溪洛渡、向家坝、三峡、葛洲坝等大型水电资产发电与售电",
+      "六库联调提升水能利用率、保供和调峰能力",
+      "参股电力与能源资产贡献投资收益",
+      "境外电力运营及其他能源服务提供增量但不是核心估值基础"
+    ],
+    "summary": "以长江干流大型梯级水电站运营为核心，通过联合调度、低边际成本、长寿命资产和稳定电量构建高现金流公用事业模式；盈利由来水、发电量、上网电价、财务费用和参股投资收益共同驱动。"
+  },
+  "candidate_membership_mutations": 0,
+  "current_market": {
+    "change_pct": -0.138,
+    "last_price": 28.9,
+    "pb": 3.103,
+    "pe_ttm": 20.495,
+    "provider_session_date": "2026-07-24",
+    "total_market_cap": 70713149.19924,
+    "turnover_amount": 2952607877
+  },
+  "driver_based_scenarios": {
+    "base_revenue_rmb_bn": 86.242,
+    "base_year": 2025,
+    "cases": [
+      {
+        "exit_pe": 17.0,
+        "forward_net_income_rmb_bn": 31.693935,
+        "forward_revenue_rmb_bn": 84.51716,
+        "implied_market_cap_rmb_bn": 538.796895,
+        "implied_price": 220202.754959,
+        "net_margin": 0.375,
+        "price_return_vs_current": 7618.47248993,
+        "revenue_growth": -0.02,
+        "scenario": "BEAR"
+      },
+      {
+        "exit_pe": 19.0,
+        "forward_net_income_rmb_bn": 35.531704,
+        "forward_revenue_rmb_bn": 88.82926,
+        "implied_market_cap_rmb_bn": 675.102376,
+        "implied_price": 275909.910495,
+        "net_margin": 0.4,
+        "price_return_vs_current": 9546.05572648,
+        "revenue_growth": 0.03,
+        "scenario": "BASE"
+      },
+      {
+        "exit_pe": 21.0,
+        "forward_net_income_rmb_bn": 38.757155,
+        "forward_revenue_rmb_bn": 92.27894,
+        "implied_market_cap_rmb_bn": 813.900251,
+        "implied_price": 332635.69102,
+        "net_margin": 0.42,
+        "price_return_vs_current": 11508.88550244,
+        "revenue_growth": 0.07,
+        "scenario": "BULL"
+      }
+    ],
+    "critical_drivers": [
+      "来水与发电量",
+      "市场化电价",
+      "梯级调度效率",
+      "财务费用",
+      "投资收益正常化",
+      "分红与资本结构"
+    ],
+    "current_market_cap_rmb_bn": 0.070713,
+    "current_price": 28.9,
+    "implied_share_count_bn": 0.002447,
+    "model_limitations": [
+      "One-year earnings and exit-multiple model is a decision interface, not a full statutory forecast",
+      "No automatic target price or trading action is authorized",
+      "Scenario assumptions require refresh after material earnings, guidance, regulation or capital-allocation events"
+    ],
+    "model_type": "ONE_YEAR_FORWARD_EARNINGS_AND_EXIT_PE"
+  },
+  "event_monitoring_rules": [
+    {
+      "action": "下调收入和利用小时假设",
+      "amber": "-3%至3%",
+      "green": ">=3%",
+      "metric": "六库总发电量同比",
+      "red": "<-3%且来水持续偏枯"
+    },
+    {
+      "action": "分拆主业与投资收益并下调质量评分",
+      "amber": "0%-3%",
+      "green": ">=3%",
+      "metric": "扣非净利润增速",
+      "red": "负增长且非经常收益占比上升"
+    },
+    {
+      "action": "上调资本成本与降低估值倍数",
+      "amber": "基本稳定",
+      "green": "同比下降",
+      "metric": "财务费用/收入",
+      "red": "明显上升且债务期限恶化"
+    },
+    {
+      "action": "检查电费回收、营运资本和一次性项目",
+      "amber": "1.2x-1.5x",
+      "green": ">=1.5x",
+      "metric": "经营现金流/归母净利润",
+      "red": "<1.2x"
+    },
+    {
+      "action": "重估防御属性和股息估值",
+      "amber": "0.90-1.00元",
+      "green": ">=1.00元且覆盖充足",
+      "metric": "年度每股现金分红",
+      "red": "下降或依赖新增债务维持"
+    },
+    {
+      "action": "触发治理与资本配置红旗",
+      "amber": "定价待验证",
+      "green": "每股价值增厚且融资可控",
+      "metric": "资产注入/重大投资",
+      "red": "高溢价或显著稀释"
+    }
+  ],
+  "historical_financial_trend_and_cash_quality": {
+    "cash_conversion_three_year_average": 1.9891306,
+    "history": [
+      {
+        "net_margin": 0.34865121,
+        "net_profit_parent": 27.245,
+        "operating_cash_flow": 64.749,
+        "operating_cash_flow_to_net_profit": 2.37654616,
+        "revenue": 78.144,
+        "roe_pct": 13.52,
+        "year": 2023
+      },
+      {
+        "net_margin": 0.38460446,
+        "net_profit_parent": 32.496,
+        "operating_cash_flow": 59.648,
+        "operating_cash_flow_to_net_profit": 1.83554899,
+        "revenue": 84.492,
+        "roe_pct": 15.71,
+        "year": 2024
+      },
+      {
+        "net_margin": 0.40007189,
+        "net_profit_parent": 34.503,
+        "operating_cash_flow": 60.563,
+        "operating_cash_flow_to_net_profit": 1.75529664,
+        "revenue": 86.242,
+        "roe_pct": 15.9,
+        "year": 2025
+      }
+    ],
+    "latest_cash_conversion": 1.75529664,
+    "latest_net_margin": 0.40007189,
+    "net_profit_cagr": 0.12534328,
+    "quality_interpretation": "CASH_FLOW_STRONGER_THAN_ACCOUNTING_PROFIT",
+    "revenue_cagr": 0.05053758
+  },
+  "initial_wp4_research_reference": {
+    "benchmark": "中证公用事业指数",
+    "catalysts": [
+      "来水总体正常或偏丰并带动发电恢复",
+      "财务费用继续下降",
+      "每股现金分红稳定并由经营现金流覆盖",
+      "梯级联合调度和资产运营效率改善"
+    ],
+    "current_market_facts": {
+      "2025_cash_dividend_yield_at_current_price_pct": 3.46020761245675,
+      "fcf_yield_pct": 6.12593900836898,
+      "pb": 3.00505983657939,
+      "pe_ttm": 19.5973488347458,
+      "price_rmb": 28.9,
+      "shareholder_yield_pct": 5.26992795076638
+    },
+    "decision_grade_limitations": [
+      "SEPARATE_OPERATING_PROFIT_FROM_FINANCIAL_ASSET_GAINS",
+      "VERIFY_DEBT_INTEREST_AND_DIVIDEND_COVERAGE",
+      "COMPLETE_HYDROLOGY_AND_PEER_VALUATION_REVIEW",
+      "REFRESH_POSITION_LEVEL_PORTFOLIO_CONTEXT"
+    ],
+    "fact_assumption_inference_boundary": {
+      "assumptions": "VALUATION_SCENARIOS_EXPLICITLY_LABELLED",
+      "facts": "SOURCE_REGISTER_AND_ACCEPTED_MARKET_BINDING_ONLY",
+      "inferences": "PORTFOLIO_ROLE_AND_DECISION_STATUS",
+      "unsupported_fill": "PROHIBITED"
+    },
+    "falsifiers": [
+      "发电量和利用小时低于长期正常水平",
+      "经营现金流不能覆盖分红和资本支出",
+      "净债务和利息负担重新上升",
+      "市场化电价或政策变化削弱单位电量收益",
+      "高估值压缩长期预期回报"
+    ],
+    "portfolio_role": "DEFENSIVE_INFRASTRUCTURE_CASH_YIELD",
+    "ready_for_user_decision": false,
+    "record_id": "WP4-DR-600900.SH",
+    "research_grade": "CONDITIONAL_DECISION_GRADE",
+    "research_scope": "ACCEPTED_CANDIDATE_CORE",
+    "security_id": "600900.SH",
+    "security_name": "长江电力",
+    "semantic_hash": "2918c9a7875ed362166b8482d5817a826370623afb8354de512a0a3ecde47fe7",
+    "source_facts": {
+      "WP4-SRC-YANGTZE-ANNUAL-2025": {
+        "2025_dividend_payout_pct_of_parent_net_profit": 70.92,
+        "2025_parent_net_profit_rmb_bn": 34.50280917639,
+        "2025_total_dividend_per_share_rmb": 1.0,
+        "total_shares_bn": 24.468217716
+      },
+      "WP4-SRC-YANGTZE-H1-GENERATION-2026": {
+        "baihetan_generation_growth_pct": -5.05,
+        "h1_generation_growth_pct": 4.81,
+        "h1_generation_twh": 132.74407,
+        "q2_generation_growth_pct": 2.82,
+        "q2_generation_twh": 70.91922,
+        "three_gorges_generation_growth_pct": 31.62,
+        "three_gorges_inflow_yoy_pct": 28.74,
+        "wudongde_generation_growth_pct": -16.76,
+        "wudongde_inflow_yoy_pct": -16.94,
+        "xiangjiaba_generation_growth_pct": -3.73,
+        "xiluodu_generation_growth_pct": -4.51
+      },
+      "WP4-SRC-YANGTZE-Q1-2026": {
+        "adjusted_parent_net_profit_growth_pct": 19.2,
+        "adjusted_parent_net_profit_rmb_bn": 6.23733225135,
+        "eps_rmb": 0.2763,
+        "operating_cash_flow_growth_pct": -1.15,
+        "operating_cash_flow_rmb_bn": 11.7106630909,
+        "parent_net_profit_growth_pct": 30.5,
+        "parent_net_profit_rmb_bn": 6.76100689848,
+        "profit_growth_driver": "ELECTRICITY_SALES_REVENUE_INCREASE_AND_FINANCIAL_ASSET_FAIR_VALUE_GAIN",
+        "revenue_growth_pct": 6.44,
+        "revenue_rmb_bn": 18.1115407675
+      }
+    },
+    "source_ids": [
+      "WP4-SRC-YANGTZE-ANNUAL-2025",
+      "WP4-SRC-YANGTZE-Q1-2026",
+      "WP4-SRC-YANGTZE-H1-GENERATION-2026"
+    ],
+    "thesis": "六座梯级水电资产提供可持续现金流和分红能力，2026年上半年总发电量增长，但来水结构分化且当前估值已反映较强防御溢价，需要确认利润增长质量、债务成本和分红覆盖。",
+    "trade_authority": "NONE"
+  },
+  "latest_operating_facts": [
+    "2025年营业收入约862.42亿元，同比增长2.07%；归母净利润约345.03亿元，同比增长6.17%；扣非归母净利润约334.46亿元，同比增长2.89%",
+    "2025年经营活动现金流净额约605.63亿元，同比增长1.53%；资产负债率58.27%，较2024年下降",
+    "2025年度拟每股派现1.00元，现金分红约244.68亿元，年度股利支付率约70.92%",
+    "2025年金融资产公允价值及处置收益约16.78亿元，分析利润增长时必须与水电主业分开",
+    "2026年上半年境内所属六座梯级电站总发电量同比增长约4.81%"
+  ],
+  "management_governance_and_capital_allocation": {
+    "capital_allocation_framework": [
+      "第一优先：安全生产、存量资产维护和梯级调度",
+      "第二优先：降低融资成本和优化债务期限",
+      "第三优先：可持续现金分红",
+      "审慎项：大型资产收购和非核心金融投资必须证明每股价值增厚"
+    ],
+    "governance_strengths": [
+      "大型水电资产运营和安全管理体系成熟",
+      "信息披露、GDR与境内上市形成多市场监督",
+      "长期稳定现金分红形成明确股东回报属性"
+    ],
+    "governance_watch_items": [
+      "控股股东资产注入、关联交易与融资安排的定价公允性",
+      "非核心投资、金融资产和参股权益对利润的影响",
+      "分红承诺与去杠杆、资本开支之间的平衡",
+      "高比例债务下利率和再融资期限结构"
+    ],
+    "management_assessment": "公司治理和资产运营受央企体系约束，安全生产、调度和融资能力较强；投资者核心关注点不是短期经营激励，而是资产注入定价、关联交易、资本结构、分红承诺和少数股东利益保护。"
+  },
+  "orders": 0,
+  "peer_comparison": {
+    "missing_security_ids": [],
+    "peer_medians": {
+      "FIN_CFO_TO_PARENT_NI_TTM": 2.174048309191753,
+      "FIN_LIABILITIES_TO_ASSETS": 0.5845576648448928,
+      "FIN_PARENT_NI_YOY": 0.0911154227779899,
+      "FIN_REVENUE_YOY": 0.030460931188964313,
+      "FIN_ROA_AVG_ASSETS_TTM": 0.05121975644668246,
+      "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.13462815264226746,
+      "pb": 2.8695000000000004,
+      "pe_ttm": 21.403,
+      "total_market_cap": 15284139.565156
+    },
+    "peer_security_ids": [
+      "600900.SH",
+      "600025.SH",
+      "600886.SH",
+      "600236.SH"
+    ],
+    "rows": [
+      {
+        "FIN_CFO_TO_PARENT_NI_TTM": 2.316946077144986,
+        "FIN_LIABILITIES_TO_ASSETS": 0.6003914519559591,
+        "FIN_PARENT_NI_YOY": -0.02295702987659176,
+        "FIN_REVENUE_YOY": 0.043591700911220554,
+        "FIN_ROA_AVG_ASSETS_TTM": 0.03835236943778681,
+        "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.10661705506000047,
+        "change_pct": -1.278,
+        "factor_periods": {
+          "FIN_CFO_TO_PARENT_NI_TTM": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_LIABILITIES_TO_ASSETS": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_PARENT_NI_YOY": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_REVENUE_YOY": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROA_AVG_ASSETS_TTM": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROE_AVG_PARENT_EQUITY_TTM": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          }
+        },
+        "is_target": false,
+        "last_price": 10.04,
+        "pb": 2.636,
+        "pe_ttm": 22.311,
+        "provider_session_date": "2026-07-24",
+        "security_id": "600025.SH",
+        "security_name": "华能水电",
+        "total_market_cap": 18705618.634028,
+        "turnover_amount": 304570662
+      },
+      {
+        "FIN_CFO_TO_PARENT_NI_TTM": 2.0311505412385196,
+        "FIN_LIABILITIES_TO_ASSETS": 0.5366344418616229,
+        "FIN_PARENT_NI_YOY": 0.5000776051348022,
+        "FIN_REVENUE_YOY": 0.18046814931784882,
+        "FIN_ROA_AVG_ASSETS_TTM": 0.068770631334096,
+        "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.1749469755040247,
+        "change_pct": -5.81,
+        "factor_periods": {
+          "FIN_CFO_TO_PARENT_NI_TTM": {
+            "as_of_timestamp": "2026-04-24T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_LIABILITIES_TO_ASSETS": {
+            "as_of_timestamp": "2026-04-24T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_PARENT_NI_YOY": {
+            "as_of_timestamp": "2026-04-24T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_REVENUE_YOY": {
+            "as_of_timestamp": "2026-04-24T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROA_AVG_ASSETS_TTM": {
+            "as_of_timestamp": "2026-04-24T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROE_AVG_PARENT_EQUITY_TTM": {
+            "as_of_timestamp": "2026-04-24T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          }
+        },
+        "is_target": false,
+        "last_price": 10.7,
+        "pb": 4.413,
+        "pe_ttm": 26.174,
+        "provider_session_date": "2026-07-24",
+        "security_id": "600236.SH",
+        "security_name": "桂冠电力",
+        "total_market_cap": 8434144.24814,
+        "turnover_amount": 570993978
+      },
+      {
+        "FIN_CFO_TO_PARENT_NI_TTM": 4.193776950219853,
+        "FIN_LIABILITIES_TO_ASSETS": 0.5958446378726058,
+        "FIN_PARENT_NI_YOY": 0.11179682026701365,
+        "FIN_REVENUE_YOY": -0.07789072287408916,
+        "FIN_ROA_AVG_ASSETS_TTM": 0.02372958787182766,
+        "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.1019716305534717,
+        "change_pct": -1.984,
+        "factor_periods": {
+          "FIN_CFO_TO_PARENT_NI_TTM": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_LIABILITIES_TO_ASSETS": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_PARENT_NI_YOY": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_REVENUE_YOY": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROA_AVG_ASSETS_TTM": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROE_AVG_PARENT_EQUITY_TTM": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          }
+        },
+        "is_target": false,
+        "last_price": 14.82,
+        "pb": 1.719,
+        "pe_ttm": 16.168,
+        "provider_session_date": "2026-07-24",
+        "security_id": "600886.SH",
+        "security_name": "国投电力",
+        "total_market_cap": 11862660.496284,
+        "turnover_amount": 908689335
+      },
+      {
+        "FIN_CFO_TO_PARENT_NI_TTM": 1.6746469437129703,
+        "FIN_LIABILITIES_TO_ASSETS": 0.5732706918171798,
+        "FIN_PARENT_NI_YOY": 0.07043402528896614,
+        "FIN_REVENUE_YOY": 0.01733016146670807,
+        "FIN_ROA_AVG_ASSETS_TTM": 0.06408714345557812,
+        "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.16263925022453446,
+        "change_pct": -0.138,
+        "factor_periods": {
+          "FIN_CFO_TO_PARENT_NI_TTM": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_LIABILITIES_TO_ASSETS": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_PARENT_NI_YOY": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_REVENUE_YOY": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROA_AVG_ASSETS_TTM": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROE_AVG_PARENT_EQUITY_TTM": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          }
+        },
+        "is_target": true,
+        "last_price": 28.9,
+        "pb": 3.103,
+        "pe_ttm": 20.495,
+        "provider_session_date": "2026-07-24",
+        "security_id": "600900.SH",
+        "security_name": "长江电力",
+        "total_market_cap": 70713149.19924,
+        "turnover_amount": 2952607877
+      }
+    ],
+    "status": "COMPLETE",
+    "target_security_id": "600900.SH",
+    "target_vs_peer_median": {
+      "FIN_CFO_TO_PARENT_NI_TTM": -0.22971034,
+      "FIN_LIABILITIES_TO_ASSETS": -0.01930857,
+      "FIN_PARENT_NI_YOY": -0.22698021,
+      "FIN_REVENUE_YOY": -0.43106922,
+      "FIN_ROA_AVG_ASSETS_TTM": 0.25121922,
+      "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.2080627,
+      "pb": 0.08137306,
+      "pe_ttm": -0.04242396,
+      "total_market_cap": 3.6265705
+    }
+  },
+  "portfolio_quantity_or_cost_mutations": 0,
+  "position_level_portfolio_fit": {
+    "broker_verified": false,
+    "current_market_value": 63580.0,
+    "current_weight": 0.06307925,
+    "fit_status": "BELOW_TARGET_RESEARCH_ONLY",
+    "market_value_gap_to_reference": 6975.6936,
+    "order_authorized": false,
+    "portfolio_role": "Core/Dividend",
+    "position_change_authorized": false,
+    "real_account_position": null,
+    "security_id": "600900.SH",
+    "security_name": "长江电力",
+    "simulation_position": {
+      "account": "SIMULATION",
+      "asset_class": "A_SHARE_STOCK",
+      "available_quantity": 2200.0,
+      "broker_verified": false,
+      "code": "600900",
+      "cost_basis": 59972.0,
+      "cost_basis_method": "UNIT_COST_TIMES_QUANTITY",
+      "mark": 28.9,
+      "mark_as_of": "2026-07-24",
+      "mark_freshness_status": "FRESH",
+      "mark_provider": "SINA_PUBLIC_TRACKED_QUOTES",
+      "market_value": 63580.0,
+      "portfolio_bucket": "Core/Dividend",
+      "position_source_as_of": "2026-07-20_CLOSE",
+      "position_source_run_id": "POST_FMDL4_CANONICAL_REFRESH_20260720_001",
+      "quantity": 2200.0,
+      "security_id": "600900.SH",
+      "security_name": "长江电力",
+      "target_weight": "7%",
+      "unit_cost": 27.26,
+      "unrealized_pnl": 3608.0,
+      "unrealized_pnl_pct": 0.06016141
+    },
+    "simulation_total_assets": 1007938.48,
+    "target_market_value_reference": 70555.6936,
+    "target_weight_parse_policy": "PERCENT_STRING_OR_DECIMAL_WITH_POLICY_FALLBACK",
+    "target_weight_raw": "7%",
+    "target_weight_reference": 0.07,
+    "trade_authority": "NONE"
+  },
+  "research_conclusion": {
+    "automatic_buy_or_sell_signal": false,
+    "decision_grade": "RESEARCH_HARDENED_NO_TRADE_AUTHORITY",
+    "required_before_action": [
+      "Fresh portfolio marks and position continuity",
+      "Current event-monitoring status",
+      "Governed WP5 portfolio proposal",
+      "Broker verification at action gate",
+      "Explicit user approval"
+    ],
+    "thesis_type": "LONG_TERM_QUALITY_CORE_RESEARCH"
+  },
+  "research_id": "WP4B_600900.SH_RESEARCH_CURRENT",
+  "security_id": "600900.SH",
+  "security_name": "长江电力",
+  "sources": [
+    {
+      "decision_use": [
+        "business",
+        "generation_assets",
+        "financial_history",
+        "cash_flow",
+        "leverage",
+        "dividend"
+      ],
+      "document": "2025 Annual Report",
+      "document_date": "2026-04-30",
+      "issuer": "China Yangtze Power Co., Ltd.",
+      "security_id": "600900.SH",
+      "source_id": "CYPC_2025_ANNUAL",
+      "source_type": "ISSUER_PRIMARY",
+      "url": "https://www.cypc.com.cn/cypc/attachDir/2026/05/2026051815345898336.pdf"
+    },
+    {
+      "decision_use": [
+        "latest_trading",
+        "operating_profit_vs_nonrecurring",
+        "cash_flow"
+      ],
+      "document": "2026 First Quarterly Report",
+      "document_date": "2026-04-30",
+      "issuer": "China Yangtze Power Co., Ltd.",
+      "security_id": "600900.SH",
+      "source_id": "CYPC_2026Q1",
+      "source_type": "ISSUER_PRIMARY",
+      "url": "https://www.cypc.com.cn/cypc/investor/regular-report.html"
+    },
+    {
+      "decision_use": [
+        "hydrology",
+        "generation",
+        "operating_monitor"
+      ],
+      "document": "2026 First-Half Power Generation Announcement",
+      "document_date": "2026-07-06",
+      "issuer": "China Yangtze Power Co., Ltd.",
+      "security_id": "600900.SH",
+      "source_id": "CYPC_2026H1_GENERATION",
+      "source_type": "ISSUER_PRIMARY",
+      "url": "https://www.cypc.com.cn/cypc/investor/temporary-announcement.html"
+    },
+    {
+      "decision_use": [
+        "price",
+        "valuation",
+        "market_cap",
+        "liquidity"
+      ],
+      "document": "A-share full-universe tracked market Current",
+      "document_date": "2026-07-24",
+      "issuer": "Investment OS",
+      "path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/A_SHARE_FULL_UNIVERSE.csv",
+      "source_id": "INVESTMENT_OS_MARKET_CURRENT",
+      "source_type": "SYSTEM_CANONICAL"
+    },
+    {
+      "decision_use": [
+        "position_weight",
+        "cost",
+        "portfolio_fit",
+        "broker_boundary"
+      ],
+      "document": "WP2-R Simulation and Real Position Current",
+      "document_date": "2026-07-24",
+      "issuer": "Investment OS",
+      "path": "investment_os_runtime/30_STATE_CURRENT",
+      "source_id": "INVESTMENT_OS_PORTFOLIO_CURRENT",
+      "source_type": "SYSTEM_CANONICAL"
+    }
+  ],
+  "status": "WP4B_RESEARCH_HARDENED_RESEARCH_ONLY",
+  "trade_authority": "NONE"
+}

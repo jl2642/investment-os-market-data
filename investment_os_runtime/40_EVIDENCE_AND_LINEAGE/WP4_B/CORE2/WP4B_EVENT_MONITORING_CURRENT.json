@@ -1,0 +1,101 @@
+{
+  "automatic_trade_action": false,
+  "companies": {
+    "000333.SZ": {
+      "automatic_trade_action": false,
+      "rules": [
+        {
+          "action": "重估利润率与盈利质量假设",
+          "amber": "-5%至5%",
+          "green": ">=5%",
+          "metric": "扣非归母净利润同比",
+          "red": "<-5%连续两个季度"
+        },
+        {
+          "action": "下调现金流质量评分",
+          "amber": "0.8x-1.0x",
+          "green": ">=1.0x滚动12月",
+          "metric": "经营现金流/归母净利润",
+          "red": "<0.8x且应收/存货同步上升"
+        },
+        {
+          "action": "重估全球化增长和估值溢价",
+          "amber": "0%-10%",
+          "green": ">=10%",
+          "metric": "海外收入增速",
+          "red": "负增长或关税导致显著利润率下滑"
+        },
+        {
+          "action": "降低第二增长曲线权重",
+          "amber": "仅收入增长",
+          "green": "收入双位数增长且利润率改善",
+          "metric": "ToB收入与利润贡献",
+          "red": "收入放缓并出现减值/整合损失"
+        },
+        {
+          "action": "触发治理和资本配置红旗",
+          "amber": "回报待验证",
+          "green": "协同明确且ROIC改善",
+          "metric": "并购与资本回报",
+          "red": "重大减值或持续低于资本成本"
+        }
+      ],
+      "security_id": "000333.SZ",
+      "security_name": "美的集团",
+      "trade_authority": "NONE"
+    },
+    "600900.SH": {
+      "automatic_trade_action": false,
+      "rules": [
+        {
+          "action": "下调收入和利用小时假设",
+          "amber": "-3%至3%",
+          "green": ">=3%",
+          "metric": "六库总发电量同比",
+          "red": "<-3%且来水持续偏枯"
+        },
+        {
+          "action": "分拆主业与投资收益并下调质量评分",
+          "amber": "0%-3%",
+          "green": ">=3%",
+          "metric": "扣非净利润增速",
+          "red": "负增长且非经常收益占比上升"
+        },
+        {
+          "action": "上调资本成本与降低估值倍数",
+          "amber": "基本稳定",
+          "green": "同比下降",
+          "metric": "财务费用/收入",
+          "red": "明显上升且债务期限恶化"
+        },
+        {
+          "action": "检查电费回收、营运资本和一次性项目",
+          "amber": "1.2x-1.5x",
+          "green": ">=1.5x",
+          "metric": "经营现金流/归母净利润",
+          "red": "<1.2x"
+        },
+        {
+          "action": "重估防御属性和股息估值",
+          "amber": "0.90-1.00元",
+          "green": ">=1.00元且覆盖充足",
+          "metric": "年度每股现金分红",
+          "red": "下降或依赖新增债务维持"
+        },
+        {
+          "action": "触发治理与资本配置红旗",
+          "amber": "定价待验证",
+          "green": "每股价值增厚且融资可控",
+          "metric": "资产注入/重大投资",
+          "red": "高溢价或显著稀释"
+        }
+      ],
+      "security_id": "600900.SH",
+      "security_name": "长江电力",
+      "trade_authority": "NONE"
+    }
+  },
+  "orders": 0,
+  "state_id": "WP4B_EVENT_MONITORING_CURRENT",
+  "trade_authority": "NONE"
+}

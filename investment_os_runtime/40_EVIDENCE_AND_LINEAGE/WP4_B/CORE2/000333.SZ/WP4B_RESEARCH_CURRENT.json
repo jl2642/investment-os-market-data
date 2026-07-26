@@ -1,0 +1,662 @@
+{
+  "additive_to_wp4_initial_baseline": true,
+  "business_and_competition": {
+    "competitive_advantages": [
+      "多品牌、多品类、全球制造与渠道规模形成采购、研发、交付和营销效率",
+      "ToC现金流与ToB技术资产形成组合式增长，降低单一耐用品周期依赖",
+      "海外收入和本地化生产提升全球市场覆盖，但同时扩大关税、汇率和跨国经营风险",
+      "数字化、研发平台和供应链协同可支持毛利率与营运效率，但并非不可复制"
+    ],
+    "key_risks": [
+      "中国家电需求成熟、价格竞争和渠道库存波动",
+      "美国及其他市场关税、贸易限制、汇率和本地化成本",
+      "ToB业务资本密集度、项目周期与并购整合风险",
+      "KUKA及新业务回报低于资本成本",
+      "原材料价格与促销竞争侵蚀利润率"
+    ],
+    "revenue_engines": [
+      "智能家居：空调、冰箱、洗衣机、厨房及小家电，核心驱动为产品升级、渠道效率、套系化和海外本地化",
+      "新能源及工业技术：压缩机、电机、工业控制、储能及汽车部件，驱动为产业升级与客户拓展",
+      "智能建筑科技：楼宇控制、暖通、电梯及能源管理，驱动为项目交付、数字化与全球扩张",
+      "机器人与自动化：KUKA及工业自动化解决方案，驱动为制造业资本开支与整合提效"
+    ],
+    "summary": "全球化科技集团，以智能家居ToC业务提供规模、品牌和现金流，以新能源及工业技术、智能建筑科技、机器人与自动化等ToB业务提供第二增长曲线；全球制造、研发、渠道和本地化运营共同构成壁垒。"
+  },
+  "candidate_membership_mutations": 0,
+  "current_market": {
+    "change_pct": -0.319,
+    "last_price": 84.5,
+    "pb": 2.774,
+    "pe_ttm": 14.569,
+    "provider_session_date": "2026-07-24",
+    "total_market_cap": 64433580.6959,
+    "turnover_amount": 2014365070
+  },
+  "driver_based_scenarios": {
+    "base_revenue_rmb_bn": 456.452,
+    "base_year": 2025,
+    "cases": [
+      {
+        "exit_pe": 13.0,
+        "forward_net_income_rmb_bn": 39.574388,
+        "forward_revenue_rmb_bn": 465.58104,
+        "implied_market_cap_rmb_bn": 514.467049,
+        "implied_price": 674686.478508,
+        "net_margin": 0.085,
+        "price_return_vs_current": 7983.45536696,
+        "revenue_growth": 0.02,
+        "scenario": "BEAR"
+      },
+      {
+        "exit_pe": 16.0,
+        "forward_net_income_rmb_bn": 45.964716,
+        "forward_revenue_rmb_bn": 483.83912,
+        "implied_market_cap_rmb_bn": 735.435462,
+        "implied_price": 964470.636299,
+        "net_margin": 0.095,
+        "price_return_vs_current": 11412.85368401,
+        "revenue_growth": 0.06,
+        "scenario": "BASE"
+      },
+      {
+        "exit_pe": 19.0,
+        "forward_net_income_rmb_bn": 51.213914,
+        "forward_revenue_rmb_bn": 502.0972,
+        "implied_market_cap_rmb_bn": 973.064374,
+        "implied_price": 1276103.837179,
+        "net_margin": 0.102,
+        "price_return_vs_current": 15100.82055833,
+        "revenue_growth": 0.1,
+        "scenario": "BULL"
+      }
+    ],
+    "critical_drivers": [
+      "ToC量价与渠道效率",
+      "海外本地化与关税",
+      "ToB增长及利润率",
+      "KUKA改善",
+      "原材料与汇率",
+      "资本配置"
+    ],
+    "current_market_cap_rmb_bn": 0.064434,
+    "current_price": 84.5,
+    "implied_share_count_bn": 0.000763,
+    "model_limitations": [
+      "One-year earnings and exit-multiple model is a decision interface, not a full statutory forecast",
+      "No automatic target price or trading action is authorized",
+      "Scenario assumptions require refresh after material earnings, guidance, regulation or capital-allocation events"
+    ],
+    "model_type": "ONE_YEAR_FORWARD_EARNINGS_AND_EXIT_PE"
+  },
+  "event_monitoring_rules": [
+    {
+      "action": "重估利润率与盈利质量假设",
+      "amber": "-5%至5%",
+      "green": ">=5%",
+      "metric": "扣非归母净利润同比",
+      "red": "<-5%连续两个季度"
+    },
+    {
+      "action": "下调现金流质量评分",
+      "amber": "0.8x-1.0x",
+      "green": ">=1.0x滚动12月",
+      "metric": "经营现金流/归母净利润",
+      "red": "<0.8x且应收/存货同步上升"
+    },
+    {
+      "action": "重估全球化增长和估值溢价",
+      "amber": "0%-10%",
+      "green": ">=10%",
+      "metric": "海外收入增速",
+      "red": "负增长或关税导致显著利润率下滑"
+    },
+    {
+      "action": "降低第二增长曲线权重",
+      "amber": "仅收入增长",
+      "green": "收入双位数增长且利润率改善",
+      "metric": "ToB收入与利润贡献",
+      "red": "收入放缓并出现减值/整合损失"
+    },
+    {
+      "action": "触发治理和资本配置红旗",
+      "amber": "回报待验证",
+      "green": "协同明确且ROIC改善",
+      "metric": "并购与资本回报",
+      "red": "重大减值或持续低于资本成本"
+    }
+  ],
+  "historical_financial_trend_and_cash_quality": {
+    "cash_conversion_three_year_average": 1.50044284,
+    "history": [
+      {
+        "net_margin": 0.09063615,
+        "net_profit_parent": 33.72,
+        "operating_cash_flow": 57.903,
+        "operating_cash_flow_to_net_profit": 1.71717082,
+        "revenue": 372.037,
+        "roe_pct": 22.23,
+        "year": 2023
+      },
+      {
+        "net_margin": 0.09465062,
+        "net_profit_parent": 38.537,
+        "operating_cash_flow": 60.512,
+        "operating_cash_flow_to_net_profit": 1.57023121,
+        "revenue": 407.15,
+        "roe_pct": 21.29,
+        "year": 2024
+      },
+      {
+        "net_margin": 0.09627518,
+        "net_profit_parent": 43.945,
+        "operating_cash_flow": 53.346,
+        "operating_cash_flow_to_net_profit": 1.2139265,
+        "revenue": 456.452,
+        "roe_pct": 20.53,
+        "year": 2025
+      }
+    ],
+    "latest_cash_conversion": 1.2139265,
+    "latest_net_margin": 0.09627518,
+    "net_profit_cagr": 0.14159209,
+    "quality_interpretation": "CASH_FLOW_STRONGER_THAN_ACCOUNTING_PROFIT",
+    "revenue_cagr": 0.10765494
+  },
+  "initial_wp4_research_reference": {
+    "benchmark": "中证全指家用电器指数",
+    "catalysts": [
+      "海外OBM份额和本地化利润改善",
+      "ToB业务保持双位数增长并改善利润率",
+      "工业技术业务恢复增长",
+      "持续分红回购形成可验证股东回报"
+    ],
+    "current_market_facts": {
+      "fcf_yield_pct": 6.54210480375044,
+      "pb": 2.71355156889495,
+      "pe_ttm": 14.5717067586207,
+      "price_rmb": 84.5,
+      "shareholder_yield_pct": 5.08903728183045
+    },
+    "decision_grade_limitations": [
+      "VERIFY_2026_ADJUSTED_PROFIT_AND_MARGIN_TREND",
+      "VERIFY_OVERSEAS_TARIFF_AND_LOCALIZATION_IMPACT",
+      "VERIFY_ACQUISITION_INTEGRATION_AND_CAPITAL_RETURN",
+      "REFRESH_POSITION_LEVEL_PORTFOLIO_CONTEXT"
+    ],
+    "fact_assumption_inference_boundary": {
+      "assumptions": "VALUATION_SCENARIOS_EXPLICITLY_LABELLED",
+      "facts": "SOURCE_REGISTER_AND_ACCEPTED_MARKET_BINDING_ONLY",
+      "inferences": "PORTFOLIO_ROLE_AND_DECISION_STATUS",
+      "unsupported_fill": "PROHIBITED"
+    },
+    "falsifiers": [
+      "扣非利润和核心经营利润率持续弱于收入",
+      "海外本地化不能抵消关税与贸易壁垒",
+      "ToB并购整合降低资本回报或现金转化",
+      "自由现金流和股东回报持续低于历史正常水平"
+    ],
+    "portfolio_role": "QUALITY_GLOBAL_INDUSTRIAL_CONSUMER_COMPOUNDER",
+    "ready_for_user_decision": false,
+    "record_id": "WP4-DR-000333.SZ",
+    "research_grade": "CONDITIONAL_DECISION_GRADE",
+    "research_scope": "ACCEPTED_CANDIDATE_CORE",
+    "security_id": "000333.SZ",
+    "security_name": "美的集团",
+    "semantic_hash": "8fb245a30fbf0a36c030c7ef43618cfa17a24a8ae75f9ab7590fb4b573172e70",
+    "source_facts": {
+      "WP4-SRC-MIDEA-IR-2025": {
+        "2025_overseas_revenue_growth_pct": 16.0,
+        "2025_overseas_revenue_rmb_bn": 195.9,
+        "2025_parent_net_profit_rmb_bn": 43.95,
+        "2025_revenue_rmb_bn": 458.5,
+        "2025_tob_revenue_growth_pct": 17.5,
+        "2025_tob_revenue_rmb_bn": 122.8
+      },
+      "WP4-SRC-MIDEA-Q1-2026": {
+        "adjusted_parent_net_profit_growth_pct": -14.02,
+        "adjusted_parent_net_profit_rmb_bn": 10.961722,
+        "building_technology_growth_pct": 10.1,
+        "building_technology_revenue_rmb_bn": 10.8,
+        "eps_rmb": 1.69,
+        "industrial_technology_growth_pct": -11.7,
+        "industrial_technology_revenue_rmb_bn": 6.8,
+        "operating_cash_flow_growth_pct": 1.45,
+        "operating_cash_flow_rmb_bn": 14.529165,
+        "parent_net_profit_growth_pct": 2.03,
+        "parent_net_profit_rmb_bn": 12.674556,
+        "revenue_growth_pct": 2.55,
+        "revenue_rmb_bn": 131.098601,
+        "robotics_automation_growth_pct": 11.8,
+        "robotics_automation_revenue_rmb_bn": 8.2
+      }
+    },
+    "source_ids": [
+      "WP4-SRC-MIDEA-IR-2025",
+      "WP4-SRC-MIDEA-Q1-2026"
+    ],
+    "thesis": "全球化家电与工业技术平台具备现金创造和股东回报能力，但2026年一季度收入与归母利润增长明显放缓，扣非利润下降，需要验证利润质量、海外贸易风险和收购整合。",
+    "trade_authority": "NONE"
+  },
+  "latest_operating_facts": [
+    "2025年营业总收入约4,585亿元，归母净利润约439.5亿元；海外收入约1,959亿元，同比增长约16%；ToB业务收入约1,228亿元，同比增长约17.5%",
+    "2026年一季度收入约1,310.99亿元，同比增长2.55%；归母净利润同比增长2.03%，但扣非归母净利润同比下降14.02%",
+    "2026年一季度经营活动现金流净额约145.29亿元，同比增长1.45%"
+  ],
+  "management_governance_and_capital_allocation": {
+    "capital_allocation_framework": [
+      "第一优先：核心业务研发、品牌、渠道与全球本地化产能",
+      "第二优先：ToB能力建设与具有协同的并购",
+      "第三优先：稳定分红与回购注销",
+      "否决项：依赖高估值叙事、缺乏协同或回报低于资本成本的扩张"
+    ],
+    "governance_strengths": [
+      "A+H双资本市场披露与治理框架提高外部监督",
+      "稳定的职业经理人团队和分权经营机制",
+      "长期激励、员工持股及回购工具可支持人才绑定"
+    ],
+    "governance_watch_items": [
+      "并购、产业投资与金融资产配置是否围绕核心能力并实现高于资本成本的回报",
+      "回购注销、股权激励与现金分红之间的每股价值增厚效果",
+      "控股股东与上市公司之间的利益边界和关联交易公允性",
+      "海外业务扩张中的合规、制裁、数据与供应链治理"
+    ],
+    "management_assessment": "职业经理人体系连续性较强，执行效率和多业务运营能力是核心正面因素；治理评价仍需持续关注控股股东影响、关联交易、并购资本纪律和长期激励的收益质量约束。"
+  },
+  "orders": 0,
+  "peer_comparison": {
+    "missing_security_ids": [],
+    "peer_medians": {
+      "FIN_CFO_TO_PARENT_NI_TTM": 1.4165009840101894,
+      "FIN_LIABILITIES_TO_ASSETS": 0.5958611262968627,
+      "FIN_PARENT_NI_YOY": -0.07609152174318151,
+      "FIN_REVENUE_YOY": -0.03597356736321189,
+      "FIN_ROA_AVG_ASSETS_TTM": 0.0668925516734665,
+      "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.18387274533446563,
+      "pb": 1.73,
+      "pe_ttm": 10.3765,
+      "total_market_cap": 21534504.873243
+    },
+    "peer_security_ids": [
+      "000333.SZ",
+      "000651.SZ",
+      "600690.SH",
+      "000921.SZ"
+    ],
+    "rows": [
+      {
+        "FIN_CFO_TO_PARENT_NI_TTM": 1.3532470239609777,
+        "FIN_LIABILITIES_TO_ASSETS": 0.5515470684403154,
+        "FIN_PARENT_NI_YOY": -0.03765771000585061,
+        "FIN_REVENUE_YOY": 0.012513813149600317,
+        "FIN_ROA_AVG_ASSETS_TTM": 0.06299319568045866,
+        "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.1540971188237058,
+        "change_pct": -0.457,
+        "factor_periods": {
+          "FIN_CFO_TO_PARENT_NI_TTM": {
+            "as_of_timestamp": "2026-04-29T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID_WITH_WARNING",
+            "rank_eligibility": "CONDITIONAL"
+          },
+          "FIN_LIABILITIES_TO_ASSETS": {
+            "as_of_timestamp": "2026-04-29T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_PARENT_NI_YOY": {
+            "as_of_timestamp": "2026-04-29T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID_WITH_WARNING",
+            "rank_eligibility": "CONDITIONAL"
+          },
+          "FIN_REVENUE_YOY": {
+            "as_of_timestamp": "2026-04-29T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID_WITH_WARNING",
+            "rank_eligibility": "CONDITIONAL"
+          },
+          "FIN_ROA_AVG_ASSETS_TTM": {
+            "as_of_timestamp": "2026-04-29T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID_WITH_WARNING",
+            "rank_eligibility": "CONDITIONAL"
+          },
+          "FIN_ROE_AVG_PARENT_EQUITY_TTM": {
+            "as_of_timestamp": "2026-04-29T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID_WITH_WARNING",
+            "rank_eligibility": "CONDITIONAL"
+          }
+        },
+        "is_target": false,
+        "last_price": 21.76,
+        "pb": 1.63,
+        "pe_ttm": 10.264,
+        "provider_session_date": "2026-07-24",
+        "security_id": "600690.SH",
+        "security_name": "海尔智家",
+        "total_market_cap": 20405722.1184,
+        "turnover_amount": 932415747
+      },
+      {
+        "FIN_CFO_TO_PARENT_NI_TTM": 1.2116939524546666,
+        "FIN_LIABILITIES_TO_ASSETS": 0.6001816268890731,
+        "FIN_PARENT_NI_YOY": 0.05334365218163062,
+        "FIN_REVENUE_YOY": 0.07187278249911722,
+        "FIN_ROA_AVG_ASSETS_TTM": 0.07079190766647435,
+        "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.19127754102866926,
+        "change_pct": -0.319,
+        "factor_periods": {
+          "FIN_CFO_TO_PARENT_NI_TTM": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_LIABILITIES_TO_ASSETS": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_PARENT_NI_YOY": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_REVENUE_YOY": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROA_AVG_ASSETS_TTM": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROE_AVG_PARENT_EQUITY_TTM": {
+            "as_of_timestamp": "2026-05-06T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          }
+        },
+        "is_target": true,
+        "last_price": 84.5,
+        "pb": 2.774,
+        "pe_ttm": 14.569,
+        "provider_session_date": "2026-07-24",
+        "security_id": "000333.SZ",
+        "security_name": "美的集团",
+        "total_market_cap": 64433580.6959,
+        "turnover_amount": 2014365070
+      },
+      {
+        "FIN_CFO_TO_PARENT_NI_TTM": 1.479754944059401,
+        "FIN_LIABILITIES_TO_ASSETS": 0.5915406257046524,
+        "FIN_PARENT_NI_YOY": -0.12668590350578868,
+        "FIN_REVENUE_YOY": -0.1152815485061458,
+        "FIN_ROA_AVG_ASSETS_TTM": 0.07519058216808526,
+        "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.19769479832394707,
+        "change_pct": -0.271,
+        "factor_periods": {
+          "FIN_CFO_TO_PARENT_NI_TTM": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_LIABILITIES_TO_ASSETS": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_PARENT_NI_YOY": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_REVENUE_YOY": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROA_AVG_ASSETS_TTM": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROE_AVG_PARENT_EQUITY_TTM": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          }
+        },
+        "is_target": false,
+        "last_price": 40.46,
+        "pb": 1.491,
+        "pe_ttm": 7.781,
+        "provider_session_date": "2026-07-24",
+        "security_id": "000651.SZ",
+        "security_name": "格力电器",
+        "total_market_cap": 22663287.628086,
+        "turnover_amount": 1606931657
+      },
+      {
+        "FIN_CFO_TO_PARENT_NI_TTM": 2.15395284337811,
+        "FIN_LIABILITIES_TO_ASSETS": 0.6940874003603039,
+        "FIN_PARENT_NI_YOY": -0.11452533348051241,
+        "FIN_REVENUE_YOY": -0.0844609478760241,
+        "FIN_ROA_AVG_ASSETS_TTM": 0.04170359690099284,
+        "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.17646794964026202,
+        "change_pct": -3.969,
+        "factor_periods": {
+          "FIN_CFO_TO_PARENT_NI_TTM": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_LIABILITIES_TO_ASSETS": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_PARENT_NI_YOY": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_REVENUE_YOY": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROA_AVG_ASSETS_TTM": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          },
+          "FIN_ROE_AVG_PARENT_EQUITY_TTM": {
+            "as_of_timestamp": "2026-04-30T01:30:00+00:00",
+            "period_end": "2026-03-31",
+            "quality_state": "VALID",
+            "rank_eligibility": "ELIGIBLE"
+          }
+        },
+        "is_target": false,
+        "last_price": 24.44,
+        "pb": 1.83,
+        "pe_ttm": 10.489,
+        "provider_session_date": "2026-07-24",
+        "security_id": "000921.SZ",
+        "security_name": "海信家电",
+        "total_market_cap": 3384600.701924,
+        "turnover_amount": 698261150
+      }
+    ],
+    "status": "COMPLETE",
+    "target_security_id": "000333.SZ",
+    "target_vs_peer_median": {
+      "FIN_CFO_TO_PARENT_NI_TTM": -0.14458658,
+      "FIN_LIABILITIES_TO_ASSETS": 0.00725085,
+      "FIN_PARENT_NI_YOY": -1.70104594,
+      "FIN_REVENUE_YOY": -2.99793314,
+      "FIN_ROA_AVG_ASSETS_TTM": 0.05829283,
+      "FIN_ROE_AVG_PARENT_EQUITY_TTM": 0.04027131,
+      "pb": 0.60346821,
+      "pe_ttm": 0.40403797,
+      "total_market_cap": 1.99210876
+    }
+  },
+  "portfolio_quantity_or_cost_mutations": 0,
+  "position_level_portfolio_fit": {
+    "broker_verified": false,
+    "current_market_value": 67600.0,
+    "current_weight": 0.06706759,
+    "fit_status": "BELOW_TARGET_RESEARCH_ONLY",
+    "market_value_gap_to_reference": 13035.0784,
+    "order_authorized": false,
+    "portfolio_role": "Core",
+    "position_change_authorized": false,
+    "real_account_position": null,
+    "security_id": "000333.SZ",
+    "security_name": "美的集团",
+    "simulation_position": {
+      "account": "SIMULATION",
+      "asset_class": "A_SHARE_STOCK",
+      "available_quantity": 800.0,
+      "broker_verified": false,
+      "code": "000333",
+      "cost_basis": 61904.0,
+      "cost_basis_method": "UNIT_COST_TIMES_QUANTITY",
+      "mark": 84.5,
+      "mark_as_of": "2026-07-24",
+      "mark_freshness_status": "FRESH",
+      "mark_provider": "SINA_PUBLIC_TRACKED_QUOTES",
+      "market_value": 67600.0,
+      "portfolio_bucket": "Core",
+      "position_source_as_of": "2026-07-20_CLOSE",
+      "position_source_run_id": "POST_FMDL4_CANONICAL_REFRESH_20260720_001",
+      "quantity": 800.0,
+      "security_id": "000333.SZ",
+      "security_name": "美的集团",
+      "target_weight": "8%",
+      "unit_cost": 77.38,
+      "unrealized_pnl": 5696.0,
+      "unrealized_pnl_pct": 0.09201344
+    },
+    "simulation_total_assets": 1007938.48,
+    "target_market_value_reference": 80635.0784,
+    "target_weight_parse_policy": "PERCENT_STRING_OR_DECIMAL_WITH_POLICY_FALLBACK",
+    "target_weight_raw": "8%",
+    "target_weight_reference": 0.08,
+    "trade_authority": "NONE"
+  },
+  "research_conclusion": {
+    "automatic_buy_or_sell_signal": false,
+    "decision_grade": "RESEARCH_HARDENED_NO_TRADE_AUTHORITY",
+    "required_before_action": [
+      "Fresh portfolio marks and position continuity",
+      "Current event-monitoring status",
+      "Governed WP5 portfolio proposal",
+      "Broker verification at action gate",
+      "Explicit user approval"
+    ],
+    "thesis_type": "LONG_TERM_QUALITY_CORE_RESEARCH"
+  },
+  "research_id": "WP4B_000333.SZ_RESEARCH_CURRENT",
+  "security_id": "000333.SZ",
+  "security_name": "美的集团",
+  "sources": [
+    {
+      "decision_use": [
+        "business_mix",
+        "globalization",
+        "financial_history",
+        "cash_flow",
+        "capital_allocation"
+      ],
+      "document": "2025 Annual Results / Shareholder Letter and audited annual-report data",
+      "document_date": "2026-04-29",
+      "issuer": "Midea Group Co., Ltd.",
+      "security_id": "000333.SZ",
+      "source_id": "MIDEA_2025_ANNUAL_IR",
+      "source_type": "ISSUER_PRIMARY",
+      "url": "https://www.midea.com.cn/en/Investors/PeriodicReports"
+    },
+    {
+      "decision_use": [
+        "latest_trading",
+        "adjusted_profit",
+        "cash_flow"
+      ],
+      "document": "2026 First Quarterly Report",
+      "document_date": "2026-04-29",
+      "issuer": "Midea Group Co., Ltd.",
+      "security_id": "000333.SZ",
+      "source_id": "MIDEA_2026Q1",
+      "source_type": "ISSUER_PRIMARY",
+      "url": "https://www.midea.com.cn/en/Investors/PeriodicReports"
+    },
+    {
+      "decision_use": [
+        "management",
+        "governance",
+        "dividend",
+        "buyback",
+        "incentives"
+      ],
+      "document": "2025 Corporate Governance and shareholder-return disclosures",
+      "document_date": "2026-04-29",
+      "issuer": "Midea Group Co., Ltd.",
+      "security_id": "000333.SZ",
+      "source_id": "MIDEA_GOVERNANCE",
+      "source_type": "ISSUER_PRIMARY",
+      "url": "https://www.midea.com.cn/en/Investors/CorporateGovernance"
+    },
+    {
+      "decision_use": [
+        "price",
+        "valuation",
+        "market_cap",
+        "liquidity"
+      ],
+      "document": "A-share full-universe tracked market Current",
+      "document_date": "2026-07-24",
+      "issuer": "Investment OS",
+      "path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/A_SHARE_FULL_UNIVERSE.csv",
+      "source_id": "INVESTMENT_OS_MARKET_CURRENT",
+      "source_type": "SYSTEM_CANONICAL"
+    },
+    {
+      "decision_use": [
+        "position_weight",
+        "cost",
+        "portfolio_fit",
+        "broker_boundary"
+      ],
+      "document": "WP2-R Simulation and Real Position Current",
+      "document_date": "2026-07-24",
+      "issuer": "Investment OS",
+      "path": "investment_os_runtime/30_STATE_CURRENT",
+      "source_id": "INVESTMENT_OS_PORTFOLIO_CURRENT",
+      "source_type": "SYSTEM_CANONICAL"
+    }
+  ],
+  "status": "WP4B_RESEARCH_HARDENED_RESEARCH_ONLY",
+  "trade_authority": "NONE"
+}
