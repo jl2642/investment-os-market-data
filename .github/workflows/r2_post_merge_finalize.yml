@@ -46,16 +46,39 @@ jobs:
           sha = os.environ['GITHUB_SHA']
           r2 = json.loads((root / 'investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json').read_text(encoding='utf-8'))
           execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          registry = json.loads((root / 'investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
           gaps = json.loads((root / 'investment_os_runtime/00_CONTROL/WP2_WP4_CAPABILITY_GAP_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          status_text = (root / 'investment_os_runtime/00_CONTROL/R2_STATUS_CURRENT.md').read_text(encoding='utf-8')
+
           assert r2['status'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN'
           assert r2['merge_sha'] == sha
           assert r2['wp5_status'] == 'READY_PENDING_EXPLICIT_WP5_START'
-          assert execution['r2']['merge_sha'] == sha
-          assert execution['r2']['status'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN'
-          assert gaps['r2_closure']['wp5'] == 'READY_PENDING_EXPLICIT_WP5_START'
           assert r2['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
           assert r2['trade_authority'] == 'NONE'
-          print({'merge_sha': sha, 'r2': r2['status'], 'wp5': r2['wp5_status'], 'mutations': 0})
+
+          assert execution['current_step'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN'
+          assert execution['next_task'] == 'EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE'
+          assert execution['overall_status'] == 'R2_ACCEPTED_ON_MAIN_WP5_READY_PENDING_EXPLICIT_START'
+          assert execution['latest_governed_merge_sha'] == sha
+          assert execution['github_merge_sha'] == sha
+          assert execution['r2']['merge_sha'] == sha
+          assert execution['r2']['status'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN'
+          assert execution['r2']['wp5_status'] == 'READY_PENDING_EXPLICIT_WP5_START'
+
+          assert registry['registry_status'] == 'R2_CAPABILITY_ASSETS_ACCEPTED_ON_MAIN'
+          assert registry['latest_governed_merge_sha'] == sha
+          assert registry['github_merge_sha'] == sha
+
+          assert gaps['status'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN'
+          assert gaps['next_task'] == 'EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE'
+          assert gaps['wp5_gate'] == 'READY_PENDING_EXPLICIT_WP5_START'
+          assert gaps['r2_closure']['wp5'] == 'READY_PENDING_EXPLICIT_WP5_START'
+          assert gaps['r2_closure']['legacy_r1_gaps_blocking_wp5'] == 0
+          assert all(gap['blocks_wp5'] is False for gap in gaps['gaps'])
+          assert all(gap.get('r2_status') for gap in gaps['gaps'])
+
+          assert 'Next task: `EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE`' in status_text
+          print({'merge_sha': sha, 'r2': r2['status'], 'wp5': r2['wp5_status'], 'legacy_blocks': 0, 'mutations': 0})
           PY
 
       - name: Commit canonical post-merge pointers
@@ -79,9 +102,10 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## R2 Post-Merge Finalization
-          - Writes the actual main merge SHA to Execution Register and R2 acceptance
+          - Writes the actual main merge SHA to Execution Register, Asset Registry and R2 acceptance
           - Marks R2 accepted on main
           - Changes WP5 from merge-blocked to ready for a separate explicit WP5 start
+          - Converts legacy R1 gaps from WP5 blockers to closed or explicitly governed operating limits
           - Does not create any portfolio, Candidate or order mutation
           - No second user merge is required
           EOF
