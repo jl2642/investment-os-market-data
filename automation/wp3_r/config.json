@@ -1,0 +1,52 @@
+{
+  "program_id": "WP3-R_CANDIDATE_REFRESH_HARDENING_V1",
+  "status_date": "2026-07-26",
+  "inputs": {
+    "candidate_current": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+    "candidate_outcome_contract": "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CONTRACT.json",
+    "entry_baselines": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_5_6/PROPOSALS/WP3_5_6_CANDIDATE_REBUILD_20260724_V1/WP3_5_ENTRY_BASELINE_PROPOSALS.jsonl",
+    "a_share_binding": "investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json",
+    "a_share_current": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/A_SHARE_FULL_UNIVERSE.csv",
+    "financial_score": "outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet",
+    "financial_family_scores": "outputs/financial_factors/score/current/FMDL3CD_FAMILY_SCORES.parquet",
+    "financial_profile_reconciliation": "outputs/financial_factors/hardening/current/FMDL3CC_PROFILE_RECONCILIATION.csv",
+    "historical_store_release": "outputs/history/candidate/HISTORICAL_STORE_RELEASE.json",
+    "historical_store_manifest": "outputs/history/candidate/HISTORICAL_STORE_MANIFEST.json"
+  },
+  "contracts": {
+    "financial_sector_profiles": "automation/wp3_r/financial_sector_profiles.json",
+    "industry_classification": "automation/wp3_r/industry_classification_contract.json"
+  },
+  "outputs": {
+    "input_audit": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_REFRESH_INPUT_AUDIT_CURRENT.json",
+    "financial_profile_readiness": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_PROFILE_READINESS_CURRENT.json",
+    "financial_freshness": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json",
+    "industry_quality": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_CLASSIFICATION_QUALITY_CURRENT.json",
+    "weekly_price_screen": "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json",
+    "candidate_outcomes": "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json",
+    "operating_current": "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json",
+    "acceptance": "investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json"
+  },
+  "cadence": {
+    "weekly_price_screen": "WEEKLY_FRIDAY_AFTER_CLOSE",
+    "monthly_candidate_review": "MONTH_END_FIRST_BUSINESS_DAY",
+    "quarterly_financial_rescreen": "QUARTER_END_AFTER_REPORT_AVAILABILITY_GATE",
+    "outcome_attribution": "WEEKLY_WHEN_WINDOW_MATURES"
+  },
+  "freshness_policy": {
+    "annual_report_max_age_days": 150,
+    "interim_report_max_age_days": 120,
+    "report_period_required": true,
+    "availability_timestamp_required": true,
+    "price_current_max_calendar_days": 4
+  },
+  "outcome_windows_trading_days": [20, 60, 120],
+  "authority": {
+    "candidate_membership_mutations": 0,
+    "research_object_mutations": 0,
+    "simulation_trade_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
