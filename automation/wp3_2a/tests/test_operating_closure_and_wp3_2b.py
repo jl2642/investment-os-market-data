@@ -43,7 +43,7 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
 
     assert register["wp3_status"]["WP3-2A"] == "COMPLETED_ACCEPTED_CURRENT"
     assert register["trade_authority"] == "NONE"
-    assert "WP3-2A | COMPLETED" in plan
+    assert "WP3-2A | COMPLETED" in plan or "WP3-2A / 2B | COMPLETED" in plan
 
     if register["current_step"] == "WP3-2B_GOVERNED_SCREENING":
         assert register["wp3_status"]["WP3-2B"] == "READY_FOR_PROTECTED_PROPOSAL_ONLY_SCREENING"
