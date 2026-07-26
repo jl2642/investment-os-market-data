@@ -1,0 +1,64 @@
+{
+  "program_id": "WP3-3+WP3-4",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-24",
+  "inputs": {
+    "accepted_current_binding": "investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json",
+    "current_universe": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/A_SHARE_FULL_UNIVERSE.csv",
+    "wp3_2b_proposal_root": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/SCREENING_PROPOSALS/WP3_2B_SCREENING_PROPOSAL_20260724_30191318668_1",
+    "wp3_2b_eligible_universe": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/SCREENING_PROPOSALS/WP3_2B_SCREENING_PROPOSAL_20260724_30191318668_1/ELIGIBLE_UNIVERSE.csv",
+    "wp3_2b_workload_queue": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/SCREENING_PROPOSALS/WP3_2B_SCREENING_PROPOSAL_20260724_30191318668_1/RESEARCH_WORKLOAD_QUEUE.csv",
+    "fmdl2_screening_universe": "outputs/screens/candidate/SCREENING_UNIVERSE.parquet",
+    "fmdl2_longlist": "outputs/screens/current/SCREENING_LONGLIST.csv",
+    "financial_score": "outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet",
+    "financial_family_scores": "outputs/financial_factors/score/current/FMDL3CD_FAMILY_SCORES.parquet",
+    "fmdl3_unified_current": "outputs/fmdl3e/operational/current/FMDL3EFINAL_UNIFIED_CURRENT.parquet",
+    "fmdl4b_graduation_decisions": "outputs/fmdl4b/research/current/FMDL4B_GRADUATION_DECISIONS.csv",
+    "fmdl4b_research_objects": "outputs/fmdl4b/research/current/FMDL4B_PUBLIC_EQUITY_RESEARCH_OBJECTS.jsonl",
+    "historical_core20": "config/post_fmdl4_symbol_universe.json"
+  },
+  "financial_gate": {
+    "minimum_financial_score": 60.0,
+    "preferred_financial_score": 70.0,
+    "allowed_confidence": ["HIGH", "MEDIUM"],
+    "minimum_available_family_count": 3,
+    "minimum_profitability_score": 50.0,
+    "minimum_growth_score": 45.0,
+    "minimum_cash_quality_score": 45.0,
+    "minimum_balance_sheet_score": 40.0
+  },
+  "valuation_context": {
+    "minimum_valid_metric_count": 2,
+    "moderate_pe_ttm_max": 50.0,
+    "high_expectation_pe_ttm_min": 70.0,
+    "positive_fcf_yield_preferred": true,
+    "positive_shareholder_yield_preferred": true
+  },
+  "research_priority_weights": {
+    "financial_score": 0.25,
+    "profitability_returns": 0.18,
+    "growth_momentum": 0.18,
+    "cash_earnings_quality": 0.16,
+    "balance_sheet_efficiency": 0.12,
+    "valuation_context": 0.06,
+    "historical_factor_evidence": 0.03,
+    "current_liquidity": 0.02
+  },
+  "longlist": {
+    "maximum_rows": 60,
+    "maximum_per_industry": 6,
+    "maximum_per_board": 18,
+    "minimum_target_industries": 12,
+    "historical_core20_review_count": 20
+  },
+  "authority": {
+    "investment_ranking": false,
+    "research_priority_only": true,
+    "candidate_membership_mutations": 0,
+    "research_object_mutations": 0,
+    "simulation_trade_mutations": 0,
+    "real_account_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
