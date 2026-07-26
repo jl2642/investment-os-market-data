@@ -1,0 +1,83 @@
+name: WP3-R Weekly Candidate Price Screen
+run-name: "WP3-R weekly 73-name price and valuation screen"
+
+on:
+  schedule:
+    - cron: "5 15 * * 5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  weekly-screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp3_r/requirements.lock
+
+      - name: Install runtime
+        run: python -m pip install --retries 5 --timeout 30 -r automation/wp3_r/requirements.lock
+
+      - name: Rebuild audit and weekly operating products
+        run: |
+          python automation/wp3_r/repair_source.py
+          python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
+          python automation/wp3_r/finalize_operating_products.py --repo-root .
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance
+
+      - name: Validate full weekly coverage and zero mutations
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('.')
+          weekly = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          assert weekly['status'] == 'PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION'
+          assert weekly['tracked_count'] == weekly['covered_count'] == 73
+          assert weekly['candidate_membership_mutations'] == 0
+          assert weekly['research_object_mutations'] == 0
+          assert weekly['orders'] == 0
+          assert weekly['trade_authority'] == 'NONE'
+          assert acceptance['wp5_unblocked'] is False
+          print({'covered': 73, 'as_of': weekly['as_of_date'], 'mutations': 0})
+          PY
+
+      - name: Publish observation-only weekly Current
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
+          if git diff --cached --quiet; then
+            echo "Weekly Candidate screen already current."
+            exit 0
+          fi
+          git commit -m "WP3-R automated weekly Candidate price screen"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Record summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP3-R Weekly Candidate Screen
+          - 73 Candidate Core, Shadow and Research Queue names
+          - Price, daily change, liquidity and current valuation snapshot
+          - Observation-only; no Candidate membership or Research Object mutation
+          - No portfolio mutation, order or trade authority
+          EOF
