@@ -1,5 +1,5 @@
 name: R2 WP3-R Industry and Financial Profiles
-run-name: "R2 WP3-R industry master and financial profile screening"
+run-name: "R2 WP3-R industry master, cadence baseline and financial profile screening"
 
 on:
   push:
@@ -83,6 +83,12 @@ jobs:
       - name: Finalize weekly, industry and financial profile products
         run: python automation/wp3_r/finalize_operating_products.py --repo-root . --as-of 2026-07-26
 
+      - name: Install monthly and quarterly cadence baseline and finalize capability
+        run: |
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode monthly --as-of 2026-07-26
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode quarterly-gate --as-of 2026-07-26
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance --as-of 2026-07-26
+
       - name: Validate full tracked coverage and controlled financial scope
         shell: bash
         run: |
@@ -91,12 +97,15 @@ jobs:
           import csv, json
           from pathlib import Path
           root = Path('.')
-          weekly = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          op = root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS'
+          weekly = json.loads((op / 'WEEKLY_PRICE_SCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          monthly = json.loads((op / 'MONTHLY_CANDIDATE_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
+          quarterly = json.loads((op / 'QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          operating = json.loads((op / 'CANDIDATE_REFRESH_CURRENT.json').read_text(encoding='utf-8'))
           industry = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_CLASSIFICATION_QUALITY_CURRENT.json').read_text(encoding='utf-8'))
           industry_manifest = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/SECURITY_INDUSTRY_MASTER_CURRENT.json').read_text(encoding='utf-8'))
           financial = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_SECTOR_SCREENING/FINANCIAL_SECTOR_SCREENING_SCORE_CURRENT.json').read_text(encoding='utf-8'))
           readiness = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_PROFILE_READINESS_CURRENT.json').read_text(encoding='utf-8'))
-          operating = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json').read_text(encoding='utf-8'))
           acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
           with (root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_SECTOR_SCREENING/FINANCIAL_SECTOR_SCREENING_SCORE_CURRENT.csv').open(encoding='utf-8') as handle:
               rows = list(csv.DictReader(handle))
@@ -105,6 +114,10 @@ jobs:
           assert weekly['tracked_count'] == weekly['covered_count'] == 73
           assert weekly['missing_security_ids'] == []
           assert weekly['stale_security_ids'] == []
+          assert monthly['status'] in {'MONTHLY_REVIEW_COMPLETE_NO_AUTOMATIC_MEMBERSHIP_CHANGE', 'NOOP_ALREADY_REVIEWED_THIS_MONTH'}
+          assert monthly['automatic_candidate_membership_mutations'] == 0
+          assert quarterly['status'] in {'BASELINE_INSTALLED_NO_RETROACTIVE_RERUN', 'NO_NEW_FINANCIAL_WATERMARK_NO_RERUN'}
+          assert quarterly['candidate_membership_mutations'] == 0
           assert industry_manifest['status'] == 'PASS_CANONICAL_INDUSTRY_MASTER_CURRENT'
           assert industry_manifest['row_count'] == industry_manifest['market_security_count'] == 5530
           assert industry_manifest['coverage'] >= 0.99
@@ -119,14 +132,21 @@ jobs:
           assert readiness['status'] == 'INDEPENDENT_FINANCIAL_SCREENING_PROFILE_ACTIVE_RESEARCH_GRADE_INPUTS_PENDING'
           assert operating['candidate_membership_mutations'] == 0
           assert operating['orders'] == 0
+          assert acceptance['status'] == 'WP3R_CONTINUOUS_CANDIDATE_ENGINE_CAPABILITY_ACCEPTED'
+          assert acceptance['continuous_candidate_engine_complete'] is True
+          assert acceptance['candidate_outcome_windows_complete'] is False
+          assert acceptance['candidate_membership_mutations'] == 0
+          assert acceptance['orders'] == 0
           assert acceptance['wp5_unblocked'] is False
-          assert acceptance['controls']['trade_authority'] == 'NONE'
+          assert acceptance['trade_authority'] == 'NONE'
           print({
               'weekly': weekly['covered_count'],
+              'monthly': monthly['status'],
+              'quarterly': quarterly['status'],
               'industry_rows': industry_manifest['row_count'],
               'industry_coverage': industry['industry_coverage'],
               'financial_rows': financial['row_count'],
-              'profiles': sorted(financial['profile_summaries']),
+              'wp3r': acceptance['status'],
               'mutations': 0,
           })
           PY
@@ -149,7 +169,7 @@ jobs:
               raise SystemExit('FORBIDDEN_WP3R_OPERATING_MUTATION:' + ','.join(leaked))
           PY
 
-      - name: Publish complete WP3-R operating profile products once
+      - name: Publish complete WP3-R operating capability once
         if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
         shell: bash
         run: |
@@ -160,13 +180,14 @@ jobs:
             automation/wp3_r/build_candidate_refresh_current.py \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS \
+            investment_os_runtime/60_OPERATIONS_AND_EVENT/WP3_R_CADENCE_REGISTRY_CURRENT.json \
             investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json \
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
           if git diff --cached --quiet; then
-            echo "WP3-R operating profile products already current."
+            echo "WP3-R operating capability already current."
             exit 0
           fi
-          git commit -m "R2 WP3-R publish industry and financial screening profiles"
+          git commit -m "R2 WP3-R accept continuous Candidate engine capability"
           git pull --rebase origin agent/r2-product-capability-hardening
           git push origin HEAD:agent/r2-product-capability-hardening
 
@@ -174,13 +195,13 @@ jobs:
         if: always()
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          ## WP3-R operating profiles
+          ## WP3-R operating profiles and cadence baseline
           - One workflow owns Industry Master generation and publication; diagnostic workflow is manual-only
-          - Canonical industry Security Master is separate from quote Current
           - 73/73 Candidate Core, Shadow and Research Queue names are screened weekly
+          - Monthly Candidate Review and quarterly report-watermark gate are installed without retroactive rerun
           - Bank, insurance and brokerage issuers receive profile-internal screening scores only
+          - 20/60/120 outcome engine is active; windows mature prospectively
           - Cross-profile ranking and automatic Candidate promotion remain forbidden
-          - Specialized financial metrics remain required before research-grade promotion
           - Candidate, portfolio and order mutations: 0
           - trade_authority: NONE
           EOF
