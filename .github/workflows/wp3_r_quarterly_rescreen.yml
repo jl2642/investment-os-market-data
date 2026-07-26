@@ -1,0 +1,131 @@
+name: WP3-R Quarterly Financial Rescreen Gate
+run-name: "WP3-R report-watermark gated full-market rescreen proposal"
+
+on:
+  schedule:
+    - cron: "25 15 5 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  report-watermark-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            automation/wp3_r/requirements.lock
+            automation/wp3_3_4/requirements.lock
+
+      - name: Install runtimes
+        run: |
+          python -m pip install --retries 5 --timeout 30 -r automation/wp3_r/requirements.lock
+          python -m pip install --retries 5 --timeout 30 -r automation/wp3_3_4/requirements.lock
+
+      - name: Refresh financial report-period audit
+        run: |
+          python automation/wp3_r/repair_source.py
+          python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
+          python automation/wp3_r/finalize_operating_products.py --repo-root .
+
+      - name: Evaluate new-report watermark
+        id: gate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode quarterly-gate
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          state = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          period = state.get('latest_report_period_observed') or 'UNKNOWN'
+          proposal_dir = f"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/QUARTERLY_PROPOSALS/WP3R_FINANCIAL_RESCREEN_{period.replace('-', '')}"
+          print(f"run_rescreen={'true' if state['run_full_rescreen_proposal'] else 'false'}")
+          print(f"report_period={period}")
+          print(f"proposal_dir={proposal_dir}")
+          PY
+
+      - name: Build full-market rescreen proposal only for new report watermark
+        if: steps.gate.outputs.run_rescreen == 'true'
+        run: |
+          python automation/wp3_3_4/build_milestone_v4.py \
+            --repo-root . \
+            --config automation/wp3_3_4/config.json \
+            --output-dir "${{ steps.gate.outputs.proposal_dir }}"
+          python automation/wp3_r/build_candidate_cadence.py \
+            --repo-root . \
+            --mode quarterly-complete \
+            --proposal-dir "${{ steps.gate.outputs.proposal_dir }}"
+
+      - name: Finalize capability acceptance
+        run: python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance
+
+      - name: Validate proposal-only boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          state = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads(Path('investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          assert state['status'] in {
+              'BASELINE_INSTALLED_NO_RETROACTIVE_RERUN',
+              'NO_NEW_FINANCIAL_WATERMARK_NO_RERUN',
+              'QUARTERLY_FULL_RESCREEN_PROPOSAL_COMPLETE_HUMAN_MERGE_REQUIRED',
+          }
+          assert state['candidate_membership_mutations'] == 0
+          assert state['research_object_mutations'] == 0
+          assert state['portfolio_mutations'] == 0
+          assert state['orders'] == 0
+          assert state['trade_authority'] == 'NONE'
+          assert acceptance['wp5_unblocked'] is False
+          print({
+              'latest_report_period': state['latest_report_period_observed'],
+              'status': state['status'],
+              'proposal_path': state.get('last_proposal_path'),
+              'automatic_mutations': 0,
+          })
+          PY
+
+      - name: Prove Candidate Current remains unchanged
+        run: |
+          git fetch origin main
+          git diff --exit-code origin/main -- investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
+
+      - name: Publish gate state and proposal evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/QUARTERLY_PROPOSALS \
+            investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Quarterly report-watermark state already current."
+            exit 0
+          fi
+          git commit -m "WP3-R report-watermark gated quarterly rescreen evidence"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Record summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP3-R Quarterly Financial Rescreen
+          - Checks financial report-period watermark monthly
+          - First installation records the existing watermark without rerunning WP3-3/4
+          - A later new watermark creates a full-market proposal only
+          - Candidate Current changes require separate human review and merge
+          - No portfolio mutation, order or trade authority
+          EOF
