@@ -1,0 +1,153 @@
+name: R2 WP3-R Candidate Refresh Hardening
+run-name: "R2 WP3-R Candidate Refresh audit and operating products"
+
+on:
+  push:
+    branches:
+      - agent/r2-product-capability-hardening
+    paths:
+      - "automation/wp3_r/**"
+      - ".github/workflows/wp3_r_candidate_refresh.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp3_r/**"
+      - ".github/workflows/wp3_r_candidate_refresh.yml"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/**"
+      - "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/**"
+      - "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  audit-build-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp3_r/requirements.lock
+
+      - name: Install runtime
+        run: python -m pip install --retries 5 --timeout 30 -r automation/wp3_r/requirements.lock
+
+      - name: Build WP3-R audit and Current products
+        run: python automation/wp3_r/build_candidate_refresh_current.py --repo-root . --as-of 2026-07-26
+
+      - name: Validate scope, truthfulness and zero mutations
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+          paths = {
+              'audit': root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_REFRESH_INPUT_AUDIT_CURRENT.json',
+              'profiles': root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_PROFILE_READINESS_CURRENT.json',
+              'freshness': root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json',
+              'industry': root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_CLASSIFICATION_QUALITY_CURRENT.json',
+              'weekly': root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json',
+              'outcome': root / 'investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json',
+              'operating': root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json',
+              'acceptance': root / 'investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json',
+          }
+          data = {key: json.loads(path.read_text(encoding='utf-8')) for key, path in paths.items()}
+          assert data['audit']['financial_score_rows'] > 5000
+          assert data['audit']['financial_family_score_rows'] > 20000
+          assert data['audit']['historical_shard_count'] == 24
+          assert data['profiles']['general_non_financial_profile_status'] == 'EXISTING_FMDL3CD_SCORE_RETAINED'
+          assert {row['profile'] for row in data['profiles']['financial_profiles']} == {'BANK', 'INSURANCE', 'SECURITIES_AND_BROKERAGE'}
+          assert all(row['composite_score_status'] == 'BLOCKED_INDEPENDENT_PROFILE_INPUTS_INCOMPLETE' for row in data['profiles']['financial_profiles'])
+          assert data['freshness']['status'] == 'PASS_REPORT_PERIOD_AND_AVAILABILITY_AUDITED'
+          assert data['industry']['strategy_sleeve_as_industry_substitute_forbidden'] is True
+          assert data['outcome']['valid_entry_baseline_count'] == 2
+          assert data['outcome']['required_windows'] == [20, 60, 120]
+          assert data['outcome']['alpha_claim_allowed'] is False
+          assert data['operating']['candidate_current_preserved'] is True
+          assert data['acceptance']['wp5_unblocked'] is False
+          for payload in data.values():
+              assert payload.get('trade_authority') == 'NONE' or payload.get('controls', {}).get('trade_authority') == 'NONE'
+          assert data['weekly']['candidate_membership_mutations'] == 0
+          assert data['operating']['candidate_membership_mutations'] == 0
+          assert data['operating']['simulation_trade_mutations'] == 0
+          assert data['operating']['real_account_mutations'] == 0
+          assert data['operating']['orders'] == 0
+          print({
+              'tracked': data['audit']['tracked_security_count_detected'],
+              'weekly_covered': data['weekly'].get('covered_count'),
+              'financial_profiles': data['profiles']['profile_counts'],
+              'freshness': data['freshness']['counts'],
+              'industry_status': data['industry']['status'],
+              'outcomes': data['outcome']['status'],
+              'mutations': 0,
+          })
+          PY
+
+      - name: Prove Candidate Current and portfolio domains unchanged
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+          forbidden = {
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          }
+          leaked = sorted(forbidden.intersection(changed))
+          if leaked:
+              raise SystemExit('FORBIDDEN_WP3R_MUTATION:' + ','.join(leaked))
+          PY
+
+      - name: Publish deterministic WP3-R audit products to R2 branch
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS \
+            investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
+          if git diff --cached --quiet; then
+            echo "WP3-R audit products already committed."
+            exit 0
+          fi
+          git commit -m "R2 WP3-R publish Candidate Refresh audit baseline"
+          git push origin "HEAD:agent/r2-product-capability-hardening"
+
+      - name: Record summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP3-R Candidate Refresh foundation
+          - Existing 2/38/33 Candidate Current preserved
+          - Financial statement profiles audited separately from composite scoring
+          - General non-financial score retained; bank/insurance/broker composite scores fail closed pending critical inputs
+          - Financial report period and availability freshness audited
+          - Industry classification quality measured; strategy sleeves cannot substitute for industry identity
+          - Weekly price screen is observation-only
+          - 20/60/120 outcome windows remain prospective and no alpha claim is allowed
+          - Candidate, portfolio and order mutations: 0
+          - trade_authority: NONE
+          EOF
