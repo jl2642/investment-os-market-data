@@ -12,6 +12,7 @@ on:
       - "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json"
       - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
       - "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md"
+      - "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CONTRACT.json"
       - "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py"
       - ".wp3_5_6_control/**"
 
@@ -59,6 +60,10 @@ jobs:
             --config automation/wp3_5_6/config.json \
             --output-dir "$WP3_5_6_OUTPUT_DIR" \
             2>&1 | tee .wp3_5_6_run/BUILD_RESULT.log
+          python automation/wp3_5_6/harden_candidate_rebuild.py \
+            --repo-root . \
+            --output-dir "$WP3_5_6_OUTPUT_DIR" \
+            2>&1 | tee .wp3_5_6_run/HARDEN_RESULT.log
 
       - name: Run WP3-5 and WP3-6 acceptance tests
         shell: bash
@@ -92,6 +97,7 @@ jobs:
               "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
               "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json",
               "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md",
+              "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CONTRACT.json",
               "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py",
               ".wp3_5_6_control/CI_REPUBLICATION_MARKER.md",
           }
@@ -126,7 +132,8 @@ jobs:
             "$WP3_5_6_OUTPUT_DIR" \
             investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json \
             investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
-            investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md
+            investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md \
+            investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CONTRACT.json
           if git diff --cached --quiet; then
             echo "Deterministic proposal already published."
             exit 0
