@@ -9,19 +9,21 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
 CONFIG = ROOT / "automation/wp3_3_4/config.json"
-ENGINE = ROOT / "automation/wp3_3_4/build_milestone_v3.py"
+ENGINE = ROOT / "automation/wp3_3_4/build_milestone_v4.py"
+OVERRIDES = ROOT / "automation/wp3_3_4/core20_strategy_sleeve_overrides.json"
 
 
 def output_root() -> Path:
     value = os.environ.get(
         "WP3_3_4_OUTPUT_DIR",
-        "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V3",
+        "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V4",
     )
     return ROOT / value
 
 
 def test_contract_is_proposal_only_and_zero_mutation():
     cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+    overrides = json.loads(OVERRIDES.read_text(encoding="utf-8"))
     authority = cfg["authority"]
     assert cfg["contract_version"] == "3.0.0"
     assert set(cfg["strategy_sleeve_gates"]) == {
@@ -30,6 +32,8 @@ def test_contract_is_proposal_only_and_zero_mutation():
         "RESOURCE_CYCLE",
     }
     assert cfg["longlist"]["historical_core20_grandfathering"] is False
+    assert overrides["automatic_candidate_decision"] is False
+    assert overrides["trade_authority"] == "NONE"
     assert authority["investment_ranking"] is False
     assert authority["research_priority_only"] is True
     assert authority["candidate_membership_mutations"] == 0
@@ -40,16 +44,14 @@ def test_contract_is_proposal_only_and_zero_mutation():
     assert authority["trade_authority"] == "NONE"
 
 
-def test_engine_preserves_missing_evidence_and_profile_separation():
+def test_engine_preserves_missing_evidence_profile_separation_and_core20_neutrality():
     text = ENGINE.read_text(encoding="utf-8")
-    assert "PRICE_LINKED_REBASE" in text
-    assert "QUALITY_GROWTH" in text
-    assert "DEFENSIVE_INFRA_YIELD" in text
-    assert "RESOURCE_CYCLE" in text
-    assert "FINANCIAL_SEPARATE_PROFILE" in text
-    assert "SEPARATE_PROFILE_REVIEW_REQUIRED" in text
-    assert "DEFER_PRIOR_REJECTION_REQUIRES_NEW_EVIDENCE" in text
-    assert "CORE20_MANDATORY_REVIEW" in text
+    assert "enhanced_apply_strategy_sleeves" in text
+    assert "core20_strategy_sleeve_overrides.json" in text
+    assert "THESIS_REBUILD_REQUIRED_BEFORE_CANDIDATE_DECISION" in text
+    assert "NOT_AUTOMATIC_REMOVAL" in text
+    assert "automatic_removal" in text
+    assert "automatic_readmission" in text
     assert "candidate_membership_mutation" in text
     assert "trade_authority" in text
 
@@ -59,8 +61,10 @@ def test_generated_manifest_and_outputs():
     manifest = json.loads((root / "WP3_3_4_MANIFEST.json").read_text(encoding="utf-8"))
     assert manifest["status"] == "PROPOSAL_ONLY_PENDING_HUMAN_REVIEW"
     assert manifest["as_of_date"] == "2026-07-24"
+    assert manifest["contract_version"] == "4.0.0"
     assert manifest["method"] == "INDUSTRY_SLEEVE_TIERED_MULTIDIMENSIONAL_RESEARCH_PRIORITY_NOT_INVESTMENT_RANKING"
     assert manifest["valuation_refresh"] == "PRICE_LINKED_REBASE_ONLY_UNDERLYING_FINANCIAL_PERIOD_UNCHANGED"
+    assert manifest["core20_strategy_sleeve_overrides"] == "HISTORICAL_CORE20_REVIEW_ROUTING_ONLY"
     assert manifest["trade_authority"] == "NONE"
     metrics = manifest["metrics"]
     assert metrics["full_market_rows"] == 5525
@@ -120,5 +124,7 @@ def test_generated_full_market_assessment_has_no_forced_neutral_fill():
     if len(financial):
         assert financial["multidimensional_disposition"].eq("SEPARATE_PROFILE_REVIEW_REQUIRED").all()
         assert financial["financial_score"].isna().all()
+    core_overrides = frame[frame["core20_sleeve_override_applied"].astype(str).str.lower().eq("true")]
+    assert len(core_overrides) == 8
     rebased = frame[frame["valuation_price_rebase_status"].eq("PRICE_LINKED_REBASE_FROM_FMDL3E_TO_20260724_CURRENT")]
     assert len(rebased) > 0
