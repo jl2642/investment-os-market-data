@@ -1,5 +1,5 @@
 name: R2 WP3-R Industry Master Diagnostic
-run-name: "R2 WP3-R persist industry master before fail-closed decision"
+run-name: "R2 WP3-R persist industry build evidence before fail-closed decision"
 
 on:
   pull_request:
@@ -29,47 +29,60 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Build full industry master and retain exit status
+      - name: Build full industry master and persist stdout stderr
         id: build
         shell: bash
         run: |
           set +e
-          python automation/wp3_r/refresh_industry_master.py --repo-root .
+          mkdir -p investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER
+          python automation/wp3_r/refresh_industry_master.py --repo-root . \
+            > investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt \
+            2>&1
           status=$?
+          printf '%s\n' "$status" > investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_MASTER_BUILD_EXIT_STATUS_CURRENT.txt
           echo "exit_status=$status" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Validate diagnostic safety boundary
+      - name: Validate any produced diagnostic artifacts
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          path = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/SECURITY_INDUSTRY_MASTER_CURRENT.json')
-          data = json.loads(path.read_text(encoding='utf-8'))
-          assert data['trade_authority'] == 'NONE'
-          assert data['automatic_candidate_mutations'] == 0
-          assert data['orders'] == 0
-          print(json.dumps({
-              'status': data['status'],
-              'market_security_count': data['market_security_count'],
-              'industry_board_count': data['industry_board_count'],
-              'row_count': data['row_count'],
-              'coverage': data['coverage'],
-              'missing_count': data['missing_count'],
-              'duplicates': data['duplicate_industry_assignment_count'],
-              'board_failures': data['board_failure_count'],
-          }, ensure_ascii=False))
+          root = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER')
+          status = int((root / 'INDUSTRY_MASTER_BUILD_EXIT_STATUS_CURRENT.txt').read_text(encoding='utf-8').strip())
+          log = (root / 'INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt').read_text(encoding='utf-8')
+          assert 'trade_authority' not in log.lower() or 'NONE' in log
+          manifest = root / 'SECURITY_INDUSTRY_MASTER_CURRENT.json'
+          if manifest.exists():
+              data = json.loads(manifest.read_text(encoding='utf-8'))
+              assert data['trade_authority'] == 'NONE'
+              assert data['automatic_candidate_mutations'] == 0
+              assert data['orders'] == 0
+              print(json.dumps({
+                  'exit_status': status,
+                  'status': data['status'],
+                  'market_security_count': data['market_security_count'],
+                  'industry_board_count': data['industry_board_count'],
+                  'row_count': data['row_count'],
+                  'coverage': data['coverage'],
+                  'missing_count': data['missing_count'],
+                  'duplicates': data['duplicate_industry_assignment_count'],
+                  'board_failures': data['board_failure_count'],
+              }, ensure_ascii=False))
+          else:
+              assert status != 0
+              print(json.dumps({'exit_status': status, 'manifest': 'NOT_PRODUCED', 'log_tail': log[-4000:]}, ensure_ascii=False))
           PY
 
-      - name: Publish manifest before capability decision
+      - name: Publish build evidence before capability decision
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER
           if git diff --cached --quiet; then
-            echo "Industry manifest already current."
+            echo "Industry build evidence already current."
           else
-            git commit -m "R2 WP3-R persist industry master diagnostic"
+            git commit -m "R2 WP3-R persist industry master build evidence"
             git push origin HEAD:agent/r2-product-capability-hardening
           fi
 
