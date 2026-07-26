@@ -1,25 +1,19 @@
 name: R2 WP3-R Industry Master Diagnostic
-run-name: "R2 WP3-R persist industry build evidence before fail-closed decision"
+run-name: "R2 WP3-R manual industry build diagnostic"
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "automation/wp3_r/refresh_industry_master.py"
-      - "automation/wp3_r/repair_industry_master_source.py"
-      - ".github/workflows/wp3_r_industry_diagnostic.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   TRADE_AUTHORITY: NONE
 
 jobs:
-  diagnose-and-publish:
+  diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
         with:
@@ -30,69 +24,41 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Repair and compile industry source
+      - name: Compile industry source
         run: |
           python automation/wp3_r/repair_industry_master_source.py
           python -m py_compile automation/wp3_r/refresh_industry_master.py
 
-      - name: Build full industry master and persist stdout stderr
-        id: build
+      - name: Run full industry diagnostic without repository mutation
         shell: bash
         run: |
-          set +e
-          mkdir -p investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER
-          python automation/wp3_r/refresh_industry_master.py --repo-root . \
-            > investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt \
-            2>&1
-          status=$?
-          printf '%s\n' "$status" > investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_MASTER_BUILD_EXIT_STATUS_CURRENT.txt
-          echo "exit_status=$status" >> "$GITHUB_OUTPUT"
-          exit 0
-
-      - name: Validate any produced diagnostic artifacts
-        run: |
+          set -Eeuo pipefail
+          python automation/wp3_r/refresh_industry_master.py --repo-root .
           python - <<'PY'
           import json
           from pathlib import Path
           root = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER')
-          status = int((root / 'INDUSTRY_MASTER_BUILD_EXIT_STATUS_CURRENT.txt').read_text(encoding='utf-8').strip())
-          log = (root / 'INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt').read_text(encoding='utf-8')
-          manifest = root / 'SECURITY_INDUSTRY_MASTER_CURRENT.json'
-          if manifest.exists():
-              data = json.loads(manifest.read_text(encoding='utf-8'))
-              assert data['trade_authority'] == 'NONE'
-              assert data['automatic_candidate_mutations'] == 0
-              assert data['orders'] == 0
-              print(json.dumps({
-                  'exit_status': status,
-                  'status': data['status'],
-                  'market_security_count': data['market_security_count'],
-                  'industry_board_count': data['industry_board_count'],
-                  'row_count': data['row_count'],
-                  'coverage': data['coverage'],
-                  'missing_count': data['missing_count'],
-                  'duplicates': data['duplicate_industry_assignment_count'],
-                  'board_failures': data['board_failure_count'],
-              }, ensure_ascii=False))
-          else:
-              assert status != 0
-              print(json.dumps({'exit_status': status, 'manifest': 'NOT_PRODUCED', 'log_tail': log[-4000:]}, ensure_ascii=False))
+          data = json.loads((root / 'SECURITY_INDUSTRY_MASTER_CURRENT.json').read_text(encoding='utf-8'))
+          assert data['trade_authority'] == 'NONE'
+          assert data['automatic_candidate_mutations'] == 0
+          assert data['orders'] == 0
+          print(json.dumps({
+              'status': data['status'],
+              'market_security_count': data['market_security_count'],
+              'row_count': data['row_count'],
+              'coverage': data['coverage'],
+              'missing_count': data['missing_count'],
+              'duplicates': data['duplicate_industry_assignment_count'],
+          }, ensure_ascii=False))
           PY
 
-      - name: Publish build evidence before capability decision
+      - name: Record diagnostic scope
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            automation/wp3_r/refresh_industry_master.py \
-            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER
-          if git diff --cached --quiet; then
-            echo "Industry build evidence already current."
-          else
-            git commit -m "R2 WP3-R persist industry master build evidence"
-            git push origin HEAD:agent/r2-product-capability-hardening
-          fi
-
-      - name: Preserve fail-closed conclusion
-        if: steps.build.outputs.exit_status != '0'
-        run: exit 1
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Manual Industry Master Diagnostic
+          - Read-only diagnostic; no branch publication
+          - Production generation and publication are owned solely by `wp3_r_operating_profiles.yml`
+          - Candidate mutations: 0
+          - Orders: 0
+          - trade_authority: NONE
+          EOF
