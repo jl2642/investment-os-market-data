@@ -18,6 +18,7 @@ jobs:
       - name: Apply exact repair and self-remove
         shell: bash
         run: |
+          set -Eeuo pipefail
           python - <<'PY'
           from pathlib import Path
           path = Path('automation/wp3_r/build_candidate_refresh_current.py')
