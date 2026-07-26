@@ -5,8 +5,7 @@ on:
   push:
     branches: [agent/r2-product-capability-hardening]
     paths:
-      - "automation/wp3_r/refresh_industry_master.py"
-      - "automation/wp3_r/finalize_operating_products.py"
+      - "automation/wp3_r/**"
       - ".github/workflows/wp3_r_operating_profiles.yml"
   pull_request:
     branches: [main]
@@ -26,7 +25,7 @@ env:
 jobs:
   build-and-validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
         with:
@@ -45,30 +44,37 @@ jobs:
       - name: Repair and compile WP3-R sources
         run: |
           python automation/wp3_r/repair_source.py
+          python automation/wp3_r/repair_industry_master_source.py
           python -m py_compile automation/wp3_r/*.py
 
-      - name: Refresh canonical industry Security Master
+      - name: Refresh canonical industry Security Master with full-run retry
         id: industry_refresh
-        continue-on-error: true
-        run: python automation/wp3_r/refresh_industry_master.py --repo-root .
-
-      - name: Publish industry manifest before capability decision
-        if: always() && github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER
-          if git diff --cached --quiet; then
-            echo "Industry manifest already current."
-          else
-            git commit -m "R2 WP3-R persist industry master diagnostic"
-            git push origin HEAD:agent/r2-product-capability-hardening
-          fi
+          set +e
+          dir="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER"
+          mkdir -p "$dir"
+          : > "$dir/INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt"
+          status=1
+          for attempt in 1 2 3; do
+            echo "FULL_BUILD_ATTEMPT=$attempt" >> "$dir/INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt"
+            python automation/wp3_r/refresh_industry_master.py --repo-root . \
+              >> "$dir/INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt" 2>&1
+            status=$?
+            if [ "$status" -eq 0 ]; then
+              break
+            fi
+            sleep $((attempt * 5))
+          done
+          printf '%s\n' "$status" > "$dir/INDUSTRY_MASTER_BUILD_EXIT_STATUS_CURRENT.txt"
+          echo "exit_status=$status" >> "$GITHUB_OUTPUT"
+          tail -n 100 "$dir/INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt" || true
+          exit 0
 
       - name: Enforce industry fail-closed gate
-        if: steps.industry_refresh.outcome != 'success'
+        if: steps.industry_refresh.outputs.exit_status != '0'
         run: |
-          cat investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/SECURITY_INDUSTRY_MASTER_CURRENT.json
+          cat investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt
           exit 1
 
       - name: Build base audit products
@@ -94,13 +100,15 @@ jobs:
           acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
           with (root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_SECTOR_SCREENING/FINANCIAL_SECTOR_SCREENING_SCORE_CURRENT.csv').open(encoding='utf-8') as handle:
               rows = list(csv.DictReader(handle))
+
           assert weekly['status'] == 'PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION'
           assert weekly['tracked_count'] == weekly['covered_count'] == 73
           assert weekly['missing_security_ids'] == []
           assert weekly['stale_security_ids'] == []
           assert industry_manifest['status'] == 'PASS_CANONICAL_INDUSTRY_MASTER_CURRENT'
-          assert industry_manifest['row_count'] >= 5000
+          assert industry_manifest['row_count'] == industry_manifest['market_security_count'] == 5530
           assert industry_manifest['coverage'] >= 0.99
+          assert industry_manifest['duplicate_industry_assignment_count'] == 0
           assert industry['industry_coverage'] >= 0.99
           assert industry['financial_profile_conflict_count'] == 0
           assert industry['status'] == 'PASS_CANONICAL_INDUSTRY_QUALITY_GATE'
@@ -113,7 +121,14 @@ jobs:
           assert operating['orders'] == 0
           assert acceptance['wp5_unblocked'] is False
           assert acceptance['controls']['trade_authority'] == 'NONE'
-          print({'weekly': weekly['covered_count'], 'industry_rows': industry_manifest['row_count'], 'industry_coverage': industry['industry_coverage'], 'financial_rows': financial['row_count'], 'profiles': financial['profile_summaries'], 'mutations': 0})
+          print({
+              'weekly': weekly['covered_count'],
+              'industry_rows': industry_manifest['row_count'],
+              'industry_coverage': industry['industry_coverage'],
+              'financial_rows': financial['row_count'],
+              'profiles': sorted(financial['profile_summaries']),
+              'mutations': 0,
+          })
           PY
 
       - name: Prove accepted Candidate and portfolio states unchanged
@@ -134,9 +149,11 @@ jobs:
               raise SystemExit('FORBIDDEN_WP3R_OPERATING_MUTATION:' + ','.join(leaked))
           PY
 
-      - name: Publish WP3-R operating profile products to R2 branch
+      - name: Publish complete WP3-R operating profile products once
         if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        shell: bash
         run: |
+          set -Eeuo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
@@ -150,6 +167,7 @@ jobs:
             exit 0
           fi
           git commit -m "R2 WP3-R publish industry and financial screening profiles"
+          git pull --rebase origin agent/r2-product-capability-hardening
           git push origin HEAD:agent/r2-product-capability-hardening
 
       - name: Record summary
@@ -157,6 +175,7 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP3-R operating profiles
+          - One workflow owns Industry Master generation and publication; diagnostic workflow is manual-only
           - Canonical industry Security Master is separate from quote Current
           - 73/73 Candidate Core, Shadow and Research Queue names are screened weekly
           - Bank, insurance and brokerage issuers receive profile-internal screening scores only
