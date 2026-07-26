@@ -1,11 +1,11 @@
-name: R2 WP3-R Industry Provider Diagnostic
-run-name: "R2 WP3-R persist industry provider diagnostic"
+name: R2 WP3-R Industry Master Diagnostic
+run-name: "R2 WP3-R persist industry master before fail-closed decision"
 
 on:
-  push:
-    branches: [agent/r2-product-capability-hardening]
+  pull_request:
+    branches: [main]
     paths:
-      - "automation/wp3_r/diagnose_industry_provider.py"
+      - "automation/wp3_r/refresh_industry_master.py"
       - ".github/workflows/wp3_r_industry_diagnostic.yml"
   workflow_dispatch:
 
@@ -18,7 +18,7 @@ env:
 jobs:
   diagnose-and-publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v6
         with:
@@ -29,35 +29,50 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Query provider and persist response shape
-        run: python automation/wp3_r/diagnose_industry_provider.py --repo-root .
+      - name: Build full industry master and retain exit status
+        id: build
+        shell: bash
+        run: |
+          set +e
+          python automation/wp3_r/refresh_industry_master.py --repo-root .
+          status=$?
+          echo "exit_status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
 
       - name: Validate diagnostic safety boundary
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          path = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_PROVIDER_DIAGNOSTIC_CURRENT.json')
+          path = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/SECURITY_INDUSTRY_MASTER_CURRENT.json')
           data = json.loads(path.read_text(encoding='utf-8'))
           assert data['trade_authority'] == 'NONE'
           assert data['automatic_candidate_mutations'] == 0
           assert data['orders'] == 0
           print(json.dumps({
               'status': data['status'],
-              'selected_endpoint': data['selected_endpoint'],
-              'attempts': data['attempts'],
+              'market_security_count': data['market_security_count'],
+              'industry_board_count': data['industry_board_count'],
+              'row_count': data['row_count'],
+              'coverage': data['coverage'],
+              'missing_count': data['missing_count'],
+              'duplicates': data['duplicate_industry_assignment_count'],
+              'board_failures': data['board_failure_count'],
           }, ensure_ascii=False))
           PY
 
-      - name: Publish diagnostic before capability decision
-        if: github.actor != 'github-actions[bot]'
+      - name: Publish manifest before capability decision
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_PROVIDER_DIAGNOSTIC_CURRENT.json
+          git add investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER
           if git diff --cached --quiet; then
-            echo "Industry diagnostic already current."
-            exit 0
+            echo "Industry manifest already current."
+          else
+            git commit -m "R2 WP3-R persist industry master diagnostic"
+            git push origin HEAD:agent/r2-product-capability-hardening
           fi
-          git commit -m "R2 WP3-R persist industry provider diagnostic"
-          git push origin HEAD:agent/r2-product-capability-hardening
+
+      - name: Preserve fail-closed conclusion
+        if: steps.build.outputs.exit_status != '0'
+        run: exit 1
