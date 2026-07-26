@@ -17,7 +17,7 @@ permissions:
 
 env:
   TRADE_AUTHORITY: NONE
-  WP3_3_4_OUTPUT_DIR: .wp3_3_4_run/WP3_3_4_PROPOSAL_20260724
+  WP3_3_4_OUTPUT_DIR: investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V2
 
 jobs:
   build-and-audit:
@@ -45,7 +45,7 @@ jobs:
           set -o pipefail
           mkdir -p .wp3_3_4_run
           rm -rf "$WP3_3_4_OUTPUT_DIR"
-          python automation/wp3_3_4/build_milestone.py \
+          python automation/wp3_3_4/build_milestone_v2.py \
             --repo-root . \
             --config automation/wp3_3_4/config.json \
             --output-dir "$WP3_3_4_OUTPUT_DIR" \
@@ -69,8 +69,10 @@ jobs:
           print()
           print(f"- Full-market assessment: `{m['full_market_rows']}`")
           print(f"- Multidimensional eligible: `{m['multidimensional_eligible_rows']}`")
+          print(f"- A deep dive / B structured / C watch: `{m['deep_dive_rows']} / {m['structured_research_rows']} / {m['watch_rows']}`")
           print(f"- Industry Longlist: `{m['industry_longlist_rows']}`")
           print(f"- Historical Core20 review: `{m['historical_core20_review_rows']}`")
+          print(f"- Unified research workplan: `{m['unified_research_workplan_rows']}`")
           print(f"- Core20 / new Longlist overlap: `{m['core20_longlist_overlap']}`")
           print('- Investment ranking: `false`')
           print('- Candidate / Research Object / account / simulation mutations: `0`')
@@ -84,6 +86,7 @@ jobs:
           name: wp3-3-4-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .wp3_3_4_run/
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V2/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
