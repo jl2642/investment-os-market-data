@@ -6,7 +6,7 @@ on:
     branches:
       - agent/r2-product-capability-hardening
     paths:
-      - "automation/wp2_r/refresh_market_marks.py"
+      - "automation/wp2_r/**"
       - ".github/workflows/wp2_r_market_marks_refresh.yml"
       - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/**"
   pull_request:
@@ -40,13 +40,42 @@ jobs:
           python-version: "3.13"
 
       - name: Build position identity baseline
-        run: python automation/wp2_r/build_portfolio_current.py --repo-root .
+        run: |
+          python automation/wp2_r/build_portfolio_current.py --repo-root .
+          python automation/wp2_r/finalize_account_summaries.py --repo-root .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('.')
+          paths = [
+              root / 'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              root / 'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ]
+          identity = {}
+          for path in paths:
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              identity[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'cost_basis': row['cost_basis'],
+                      'unit_cost': row['unit_cost'],
+                  }
+                  for row in payload['holdings']
+              ]
+          Path('/tmp/wp2r_position_economic_identity.json').write_text(
+              json.dumps(identity, ensure_ascii=False, sort_keys=True), encoding='utf-8'
+          )
+          PY
 
       - name: Refresh all tracked listed prices and fund NAVs
         run: python automation/wp2_r/refresh_market_marks.py --repo-root .
 
       - name: Rebuild Portfolio Current from refreshed marks
-        run: python automation/wp2_r/build_portfolio_current.py --repo-root .
+        run: |
+          python automation/wp2_r/build_portfolio_current.py --repo-root .
+          python automation/wp2_r/finalize_account_summaries.py --repo-root .
 
       - name: Validate complete fresh mark coverage and zero economic mutation
         shell: bash
@@ -61,24 +90,52 @@ jobs:
           sim = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
           run = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json').read_text(encoding='utf-8'))
           candidate = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json').read_text(encoding='utf-8'))
+          before = json.loads(Path('/tmp/wp2r_position_economic_identity.json').read_text(encoding='utf-8'))
+          after = {}
+          for payload in (real, sim):
+              after[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'cost_basis': row['cost_basis'],
+                      'unit_cost': row['unit_cost'],
+                  }
+                  for row in payload['holdings']
+              ]
+
           assert candidate['status'] == 'PASS_COMPLETE'
           assert marks['status'] == 'CURRENT_COMPLETE'
-          assert marks['required_security_count'] == marks['marked_security_count']
+          assert marks['required_security_count'] == marks['marked_security_count'] == 22
           assert marks['missing_security_ids'] == []
+          assert candidate['stale_security_ids'] == []
           assert run['portfolio_marks_fresh'] is True
           assert run['wp4b_position_level_fit_ready'] is True
           assert run['wp5_live_action_ready'] is False
           assert run['economic_transaction_mutations'] == 0
+          assert run['position_or_cost_mutations_from_reconciliation'] == 0
           assert run['orders'] == 0
+          assert before == after
           assert len(real['holdings']) == 7
           assert len(sim['holdings']) == 16
-          assert all(row['mark_freshness_status'] in {'FRESH', 'ACCEPTABLE_LAG'} for row in real['holdings'] + sim['holdings'])
+          assert real['summary']['execution_cash_balance'] == 120.49
+          assert sim['summary']['execution_cash_balance'] == 219533.98
+          assert all(row['mark_freshness_status'] == 'FRESH' for row in real['holdings'] + sim['holdings'])
           assert all(row['broker_verified'] is False for row in real['holdings'])
-          print({'marks': marks['marked_security_count'], 'latest_mark_date': marks['data_watermark']['latest_mark_date'], 'wp4b_ready': True, 'wp5_ready': False})
+          assert run['trade_authority'] == 'NONE'
+          print({
+              'marks': marks['marked_security_count'],
+              'latest_mark_date': marks['data_watermark']['latest_mark_date'],
+              'real_total_assets': real['summary']['account_total_assets'],
+              'simulation_total_assets': sim['summary']['account_total_assets'],
+              'economic_identity_unchanged': True,
+              'wp4b_ready': True,
+              'wp5_ready': False,
+          })
           PY
 
-      - name: Publish refreshed marks to R2 branch
-        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+      - name: Publish refreshed marks to R2 development branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/r2-product-capability-hardening' && github.actor != 'github-actions[bot]'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -98,12 +155,37 @@ jobs:
           git commit -m "R2 WP2-R refresh tracked Portfolio Current marks"
           git push origin "HEAD:agent/r2-product-capability-hardening"
 
+      - name: Publish scheduled mark-only Current on main
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json \
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
+          if git diff --cached --quiet; then
+            echo "Portfolio marks already current."
+            exit 0
+          fi
+          git commit -m "WP2-R automated mark-only Portfolio Current refresh"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
       - name: Record summary
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP2-R tracked market refresh
+          - Schedule: 22:45 Asia/Shanghai on weekdays
           - Requires complete listed-price and official fund-NAV coverage
-          - Market-only refresh cannot change quantity or cost
+          - Market-only refresh must preserve security, quantity, availability, unit cost and cost basis exactly
+          - Execution cash is carried forward; external real-account liquidity remains excluded
+          - Historical mixed-watermark differences are disclosed, never force-reconciled
           - Broker Verification remains separate and false
           - WP4-B Position-level Fit may proceed after fresh coverage
           - WP5 live action remains blocked
