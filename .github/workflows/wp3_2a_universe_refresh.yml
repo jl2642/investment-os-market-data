@@ -15,7 +15,7 @@ on:
         type: choice
         options: [configured, eastmoney_public, sina_public]
       create_pr:
-        description: "Create or update a data-proposal PR after Gate v3 PASS"
+        description: "Create a data-proposal PR after Gate v3 PASS"
         required: true
         default: true
         type: boolean
@@ -50,6 +50,7 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+      actions: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -61,6 +62,7 @@ jobs:
           cache-dependency-path: automation/wp3_2a/requirements.lock
       - name: Install requirements
         run: python -m pip install --retries 5 --timeout 30 -r automation/wp3_2a/requirements.lock
+
       - name: Acquire full universe with finite retries
         id: acquire
         continue-on-error: true
@@ -71,6 +73,7 @@ jobs:
           python automation/wp3_2a/acquire_universe.py \
             --config "$CONFIG" --output-dir "$RUN_DIR" \
             --manual-session "$MANUAL_SESSION" --provider-policy "$PROVIDER_POLICY"
+
       - name: Read acquisition status
         id: status
         shell: bash
@@ -78,12 +81,13 @@ jobs:
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json
           from pathlib import Path
-          p=Path('.wp3_2a_run/ACQUISITION_MANIFEST.json')
-          data=json.loads(p.read_text()) if p.exists() else {'run_status':'FAIL'}
-          print('acquisition_pass=' + ('true' if data.get('run_status')=='PASS' else 'false'))
+          path = Path('.wp3_2a_run/ACQUISITION_MANIFEST.json')
+          data = json.loads(path.read_text()) if path.exists() else {'run_status': 'FAIL'}
+          print('acquisition_pass=' + ('true' if data.get('run_status') == 'PASS' else 'false'))
           print('session=' + str(data.get('session') or 'UNRESOLVED'))
           print('provider=' + str(data.get('selected_provider') or 'NONE'))
           PY
+
       - name: Preserve and summarize acquisition diagnostics
         if: always()
         shell: bash
@@ -109,11 +113,9 @@ jobs:
                   'trade_authority': 'NONE',
               }
               Path('wp3_2a_run_evidence/ACQUISITION_MANIFEST_MISSING.json').write_text(
-                  json.dumps(data, ensure_ascii=False, indent=2) + '\n',
-                  encoding='utf-8',
+                  json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
               )
 
-          print(json.dumps(data, ensure_ascii=False, indent=2))
           lines = [
               '## WP3-2A acquisition diagnostics',
               '',
@@ -140,12 +142,55 @@ jobs:
                       f"`{attempt.get('status')}` rows=`{attempt.get('rows', 0)}` "
                       f"error=`{error or 'NONE'}`"
                   )
-          with summary_path.open('a', encoding='utf-8') as f:
-              f.write('\n'.join(lines) + '\n')
+          with summary_path.open('a', encoding='utf-8') as handle:
+              handle.write('\n'.join(lines) + '\n')
+          print(json.dumps(data, ensure_ascii=False, indent=2))
           PY
+
+      - name: Determine whether a new proposal is needed
+        id: decision
+        if: steps.status.outputs.acquisition_pass == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SESSION: ${{ steps.status.outputs.session }}
+        shell: bash
+        run: |
+          OPEN_COUNT=$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --search "WP3-2A data proposal: ${SESSION} in:title" \
+            --json number \
+            --jq 'length')
+          python automation/wp3_2a/refresh_decision.py \
+            --repo-root . \
+            --session "$SESSION" \
+            --open-proposal-count "$OPEN_COUNT" \
+            --output "$RUN_DIR/REFRESH_DECISION.json"
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          data = json.load(open('.wp3_2a_run/REFRESH_DECISION.json', encoding='utf-8'))
+          print('proceed=' + ('true' if data['proceed'] else 'false'))
+          print('reason=' + data['reason'])
+          PY
+
+      - name: Record successful no-op
+        if: steps.status.outputs.acquisition_pass == 'true' && steps.decision.outputs.proceed == 'false'
+        run: |
+          {
+            echo '## WP3-2A refresh no-op'
+            echo
+            echo '- Outcome: `NO_OP`'
+            echo '- Reason: `${{ steps.decision.outputs.reason }}`'
+            echo '- Incoming session: `${{ steps.status.outputs.session }}`'
+            echo '- Current was not changed.'
+            echo '- Candidate / Research / account / simulation mutations: `0`'
+            echo '- Orders: `0`'
+            echo '- trade_authority: `NONE`'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Run Gate v3
         id: gate
-        if: ${{ always() && steps.acquire.outcome == 'success' && steps.status.outputs.acquisition_pass == 'true' }}
+        if: steps.status.outputs.acquisition_pass == 'true' && steps.decision.outputs.proceed == 'true'
         continue-on-error: true
         env:
           SESSION: ${{ steps.status.outputs.session }}
@@ -165,8 +210,9 @@ jobs:
           set -e
           printf '%s\n' "$rc" > "$RUN_DIR/GATE_V3_EXIT_CODE.txt"
           exit "$rc"
+
       - name: Summarize Gate v3 diagnostics
-        if: ${{ always() && steps.status.outputs.acquisition_pass == 'true' }}
+        if: steps.decision.outputs.proceed == 'true'
         shell: bash
         run: |
           python - <<'PY'
@@ -188,15 +234,11 @@ jobs:
                   report = {
                       'status': 'FAIL',
                       'errors': ['GATE_REPORT_UNREADABLE'],
-                      'runtime_exception': {
-                          'type': type(exc).__name__,
-                          'message': str(exc),
-                      },
+                      'runtime_exception': {'type': type(exc).__name__, 'message': str(exc)},
                       'trade_authority': 'NONE',
                   }
           exit_code = exit_path.read_text(encoding='utf-8').strip() if exit_path.exists() else 'MISSING'
           stderr = stderr_path.read_text(encoding='utf-8', errors='replace').strip() if stderr_path.exists() else ''
-
           lines = [
               '',
               '## WP3-2A Gate v3 diagnostics',
@@ -212,13 +254,14 @@ jobs:
           ]
           if stderr:
               lines.extend(['', '### Gate stderr tail', '', '```text', stderr[-4000:], '```'])
-          with summary_path.open('a', encoding='utf-8') as f:
-              f.write('\n'.join(lines) + '\n')
+          with summary_path.open('a', encoding='utf-8') as handle:
+              handle.write('\n'.join(lines) + '\n')
           print(json.dumps(report or {'status': 'NO_REPORT'}, ensure_ascii=False, indent=2))
           PY
+
       - name: Stage data proposal only
         id: stage
-        if: ${{ always() && steps.status.outputs.acquisition_pass == 'true' && steps.gate.outcome == 'success' }}
+        if: steps.decision.outputs.proceed == 'true' && steps.gate.outcome == 'success'
         env:
           RUN_ID_SAFE: ${{ github.run_id }}_${{ github.run_attempt }}
         run: |
@@ -226,18 +269,23 @@ jobs:
             --repo-root . --run-dir "$RUN_DIR" \
             --gate-result "$RUN_DIR/LINEAGE_ACCEPTANCE.json" \
             --config "$CONFIG" --run-id "$RUN_ID_SAFE" | tee "$RUN_DIR/STAGE_RESULT.json"
+
       - name: Self-test automation
         if: steps.stage.outcome == 'success'
         run: |
           python automation/wp3_2a/self_test.py --repo-root .
           python -m pytest -q automation/wp3_2a/tests
+
       - name: Runtime regression
         if: steps.stage.outcome == 'success'
         working-directory: investment_os_runtime/80_EXECUTABLE_RUNTIME
         run: |
           python -m pip install --retries 5 --timeout 30 -r requirements.lock
           python -m pytest -q
-          PYTHONPATH=src python bin/validate_runtime.py --evaluation-date "${{ steps.status.outputs.session }}" --output "$GITHUB_WORKSPACE/$RUN_DIR/RUNTIME_ACCEPTANCE.json"
+          PYTHONPATH=src python bin/validate_runtime.py \
+            --evaluation-date "${{ steps.status.outputs.session }}" \
+            --output "$GITHUB_WORKSPACE/$RUN_DIR/RUNTIME_ACCEPTANCE.json"
+
       - name: Build PR body
         if: steps.stage.outcome == 'success'
         run: |
@@ -247,13 +295,14 @@ jobs:
           - Provider: `${{ steps.status.outputs.provider }}`
           - Gate v3: `PASS`
           - Runtime: `PASS`
-          - Candidate / Research / account mutations: `0`
+          - Candidate / Research / account / simulation mutations: `0`
           - Orders: `0`
           - trade_authority: `NONE`
 
-          This PR stores a proposal only. It does not replace A_SHARE_CURRENT. Run the manual acceptance workflow after review.
+          This PR stores a proposal only. It does not replace A_SHARE_CURRENT. Run the protected acceptance workflow after review.
           EOF
-      - name: Create or update controlled PR
+
+      - name: Create controlled proposal PR
         if: steps.stage.outcome == 'success' && (github.event_name == 'schedule' || inputs.create_pr)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -264,6 +313,7 @@ jobs:
             "WP3-2A data proposal: ${{ steps.status.outputs.session }}" \
             "$RUN_DIR/PR_BODY.md" \
             "wp3-2a,data-proposal,human-review-required" main
+
       - name: Refresh visible evidence copy after downstream steps
         if: always()
         shell: bash
@@ -272,6 +322,7 @@ jobs:
           if [[ -d "$RUN_DIR" ]]; then
             cp -a "$RUN_DIR"/. "$EVIDENCE_DIR"/
           fi
+
       - name: Upload run evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -281,17 +332,23 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
+
       - name: Upsert blocked-data issue
-        if: ${{ always() && steps.stage.outcome != 'success' }}
+        if: ${{ always() && (steps.status.outputs.acquisition_pass != 'true' || (steps.decision.outputs.proceed == 'true' && steps.stage.outcome != 'success')) }}
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           TITLE="WP3-2A proposal generation blocked"
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}"
-          BODY="Run ${RUN_URL} did not produce a Gate-v3-passed proposal. Download artifact wp3-2a-universe-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT} for acquisition, Gate v3 and runtime evidence. No Current, Candidate, account, simulation or order state changed. trade_authority=NONE."
+          BODY="Run ${RUN_URL} did not produce a Gate-v3-passed proposal. Download artifact wp3-2a-universe-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT} for acquisition, Gate v3 and runtime evidence. No Current, Candidate, Research, account, simulation or order state changed. trade_authority=NONE."
           NUMBER=$(gh issue list --state open --search "$TITLE in:title" --json number,title --jq '.[] | select(.title=="'"$TITLE"'") | .number' | head -1)
-          if [[ -n "$NUMBER" ]]; then gh issue comment "$NUMBER" --body "$BODY"; else gh issue create --title "$TITLE" --body "$BODY" --label "wp3-2a" || gh issue create --title "$TITLE" --body "$BODY"; fi
-      - name: Fail closed when no proposal was produced
-        if: ${{ always() && steps.stage.outcome != 'success' }}
+          if [[ -n "$NUMBER" ]]; then
+            gh issue comment "$NUMBER" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY" --label "wp3-2a" || gh issue create --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: Fail closed when a required proposal was not produced
+        if: ${{ always() && (steps.status.outputs.acquisition_pass != 'true' || (steps.decision.outputs.proceed == 'true' && steps.stage.outcome != 'success')) }}
         run: exit 1

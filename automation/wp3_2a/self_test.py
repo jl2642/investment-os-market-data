@@ -23,10 +23,12 @@ def tracked_repository_paths(repo: Path) -> list[Path]:
         check=False,
     )
     if proc.returncode == 0:
-        return [repo / item.decode("utf-8", errors="surrogateescape") for item in proc.stdout.split(b"\0") if item]
+        return [
+            repo / item.decode("utf-8", errors="surrogateescape")
+            for item in proc.stdout.split(b"\0")
+            if item
+        ]
 
-    # Recovery packages may be tested outside a Git checkout. In that case,
-    # scan package contents while excluding Git internals if present.
     return [
         path
         for path in repo.rglob("*")
@@ -42,16 +44,19 @@ def is_generated_cache_path(path: Path) -> bool:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--repo-root", required=True)
-    args = ap.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo-root", required=True)
+    args = parser.parse_args()
 
     repo = Path(args.repo_root)
-    workflows = sorted((repo / ".github/workflows").glob("wp3_2a_*.yml"))
+    workflows = sorted(
+        set((repo / ".github/workflows").glob("wp3_2a_*.yml"))
+        | set((repo / ".github/workflows").glob("wp3_2b_*.yml"))
+    )
     errors: list[str] = []
 
-    if len(workflows) < 4:
-        errors.append(f"expected at least 4 workflows, found {len(workflows)}")
+    if len(workflows) < 5:
+        errors.append(f"expected at least 5 WP3-2 workflows, found {len(workflows)}")
 
     lineage = repo / ".github/workflows/wp3_2a_lineage_gate.yml"
 
@@ -75,8 +80,8 @@ def main() -> None:
             )
         if "name: WP3-2A / Lineage Gate" not in text:
             errors.append("required lineage job name changed")
-        if "automation/wp3-2a-*" not in text:
-            errors.append("lineage workflow lacks WP3-2A branch-scoped mutation enforcement")
+        if "automation/wp3-2a-*" not in text or "automation/wp3-2b-*" not in text:
+            errors.append("lineage workflow lacks WP3-2A/WP3-2B branch-scoped mutation enforcement")
     else:
         errors.append("missing wp3_2a_lineage_gate.yml")
 

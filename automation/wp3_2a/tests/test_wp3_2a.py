@@ -19,8 +19,11 @@ def test_config_authority():
 def test_workflows_parse_and_count():
     import yaml
 
-    files = list((ROOT / ".github/workflows").glob("wp3_2a_*.yml"))
-    assert len(files) >= 4
+    files = sorted(
+        set((ROOT / ".github/workflows").glob("wp3_2a_*.yml"))
+        | set((ROOT / ".github/workflows").glob("wp3_2b_*.yml"))
+    )
+    assert len(files) >= 5
     for path in files:
         data = yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
         assert "jobs" in data
@@ -34,6 +37,7 @@ def test_required_lineage_check_has_no_path_filter():
     assert "paths-ignore:" not in text
     assert "name: WP3-2A / Lineage Gate" in text
     assert "automation/wp3-2a-*" in text
+    assert "automation/wp3-2b-*" in text
 
 
 def test_generated_cache_patterns_are_ignored():
@@ -107,7 +111,10 @@ def test_screening_never_mutates_candidate(tmp_path):
         json.dumps(
             {
                 "as_of_date": "2026-07-23",
-                "status": "ACCEPTED_IF_AND_ONLY_IF_MERGED_TO_MAIN",
+                "status": "ACCEPTED_ON_MAIN",
+                "accepted_merge_sha": "fixture-main-merge",
+                "datasets": {"universe": {"rows": 1}},
+                "trade_authority": "NONE",
             }
         )
     )
@@ -166,6 +173,9 @@ def test_screening_never_mutates_candidate(tmp_path):
         )
     )[0]
     result = json.loads(manifest.read_text())
+    assert result["work_package"] == "WP3-2B"
+    assert result["eligible_universe_rows"] == 1
+    assert result["workload_queue_rows"] == 1
     assert result["candidate_membership_mutations"] == 0
     assert result["orders"] == 0
     assert result["investment_ranking"] is False

@@ -1,4 +1,6 @@
-name: WP3-2A Governed Screening Proposal
+name: WP3-2B Governed Screening Proposal
+run-name: "WP3-2B screening from accepted Current"
+
 on:
   workflow_dispatch:
     inputs:
@@ -14,11 +16,12 @@ on:
 
 permissions: {}
 concurrency:
-  group: wp3-2a-governed-screening
+  group: wp3-2b-governed-screening
   cancel-in-progress: false
 
 env:
   TRADE_AUTHORITY: NONE
+  RUN_DIR: .wp3_2b_run
 
 jobs:
   proposal-only-screening:
@@ -28,6 +31,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      actions: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -38,40 +42,98 @@ jobs:
           cache: pip
           cache-dependency-path: automation/wp3_2a/requirements.lock
       - run: python -m pip install --retries 5 --timeout 30 -r automation/wp3_2a/requirements.lock
+
       - name: Validate accepted Current
-        run: python automation/wp3_2a/validate_repository_state.py --repo-root .
-      - name: Produce research-workload proposal only
         run: |
+          python automation/wp3_2a/validate_repository_state.py --repo-root .
+          python - <<'PY'
+          import json
+          binding = json.load(open('investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json', encoding='utf-8'))
+          assert binding['status'] == 'ACCEPTED_ON_MAIN', binding['status']
+          assert binding['trade_authority'] == 'NONE'
+          print(binding['as_of_date'])
+          PY
+
+      - name: Produce WP3-2B eligible-universe and research-workload proposal
+        id: produce
+        shell: bash
+        run: |
+          mkdir -p "$RUN_DIR"
           python automation/wp3_2a/governed_screening.py \
             --repo-root . --config automation/wp3_2a/config.json \
             --max-proposals "${{ inputs.max_research_queue }}" \
             --confirmation "${{ inputs.confirmation }}" \
-            --run-id "${{ github.run_id }}_${{ github.run_attempt }}"
+            --run-id "${{ github.run_id }}_${{ github.run_attempt }}" \
+            | tee "$RUN_DIR/SCREENING_RESULT.json"
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          data = json.load(open('.wp3_2b_run/SCREENING_RESULT.json', encoding='utf-8'))
+          print('proposal_id=' + data['proposal_id'])
+          print('session=' + data['session'])
+          print('eligible_rows=' + str(data['eligible_universe_rows']))
+          print('excluded_rows=' + str(data['excluded_rows']))
+          print('queue_rows=' + str(data['workload_queue_rows']))
+          PY
+
       - name: Confirm forbidden domains unchanged
         run: |
           python automation/wp3_2a/self_test.py --repo-root .
           python -m pytest -q automation/wp3_2a/tests
-      - name: Create screening-proposal PR
-        env:
-          GH_TOKEN: ${{ github.token }}
+          python automation/wp3_2a/check_forbidden_mutations.py \
+            --repo-root . --base-ref origin/main \
+            --config automation/wp3_2a/config.json
+
+      - name: Build WP3-2B proposal body
         run: |
-          SESSION=$(python - <<'PY'
-          import json
-          print(json.load(open('investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json'))['as_of_date'])
-          PY
-          )
-          cat > /tmp/wp3_2a_screening_pr.md <<EOF
-          ## WP3-2A governed screening proposal
-          - Accepted universe session: `$SESSION`
-          - Method: market-data readiness and liquidity workload triage only
+          cat > "$RUN_DIR/PR_BODY.md" <<EOF
+          ## WP3-2B governed screening proposal
+          - Accepted universe session: `${{ steps.produce.outputs.session }}`
+          - Full-market method: `DATA_READINESS_AND_LIQUIDITY_ONLY`
+          - Eligible Universe rows: `${{ steps.produce.outputs.eligible_rows }}`
+          - Excluded rows: `${{ steps.produce.outputs.excluded_rows }}`
+          - Research workload queue: `${{ steps.produce.outputs.queue_rows }}`
           - Investment ranking: `false`
           - Research Objects created: `0`
           - Candidate changes: `0`
+          - Account / simulation changes: `0`
           - Orders: `0`
           - trade_authority: `NONE`
+
+          This PR is a research-workload proposal only. Human review is required before any later Research Object or Candidate decision.
           EOF
+
+      - name: Create WP3-2B screening-proposal PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
           automation/wp3_2a/create_or_update_pr.sh \
-            "automation/wp3-2a-screening-$SESSION-${{ github.run_id }}" \
-            "WP3-2A screening proposal: $SESSION" \
-            /tmp/wp3_2a_screening_pr.md \
-            "wp3-2a,screening-proposal,research-only" main
+            "automation/wp3-2b-screening-${{ steps.produce.outputs.session }}" \
+            "WP3-2B screening proposal: ${{ steps.produce.outputs.session }}" \
+            "$RUN_DIR/PR_BODY.md" \
+            "wp3-2b,screening-proposal,research-only,human-review-required" main
+
+      - name: Upload WP3-2B screening evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wp3-2b-screening-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .wp3_2b_run/
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/SCREENING_PROPOSALS/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Record proposal-only authority boundary
+        if: always()
+        run: |
+          {
+            echo '## WP3-2B proposal-only screening'
+            echo
+            echo '- Protected environment: `wp3-2a-screening-approval`'
+            echo '- Investment ranking: `false`'
+            echo '- Research Objects created: `0`'
+            echo '- Candidate / account / simulation mutations: `0`'
+            echo '- Orders: `0`'
+            echo '- trade_authority: `NONE`'
+          } >> "$GITHUB_STEP_SUMMARY"
