@@ -1,9 +1,118 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
+import json
+import math
+from pathlib import Path
 from typing import Any
 
+import numpy as np
+import pandas as pd
+
 import build_core2_hardening as base
+
+
+FACTOR_ALIASES = {
+    "GROWTH_REVENUE_YOY": "FIN_REVENUE_YOY",
+    "GROWTH_NET_PROFIT_YOY": "FIN_PARENT_NI_YOY",
+    "PROFIT_ROE": "FIN_ROE_AVG_PARENT_EQUITY_TTM",
+    "PROFIT_ROA": "FIN_ROA_AVG_ASSETS_TTM",
+    "CASH_OCF_TO_NET_PROFIT": "FIN_CFO_TO_PARENT_NI_TTM",
+    "BALANCE_DEBT_TO_ASSETS": "FIN_LIABILITIES_TO_ASSETS",
+}
+
+
+def json_safe(value: Any) -> Any:
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        return {str(key): json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [json_safe(item) for item in value]
+    if isinstance(value, np.generic):
+        return json_safe(value.item())
+    if isinstance(value, (pd.Timestamp,)):
+        return value.isoformat()
+    if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+        return None
+    return value
+
+
+def write_json(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(json_safe(payload), ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
+
+
+def digest(payload: Any) -> str:
+    raw = json.dumps(
+        json_safe(payload),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def factor_pivot(
+    path: Path,
+    factor_ids: list[str],
+    security_ids: list[str],
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    frame = pd.read_parquet(path)
+    required = {"symbol", "factor_id", "factor_value", "period_end", "as_of_timestamp", "quality_state", "rank_eligibility"}
+    missing_columns = sorted(required - set(frame.columns))
+    if missing_columns:
+        raise ValueError(
+            "WP4B_FACTOR_SCHEMA_MISSING_COLUMNS:"
+            + ",".join(missing_columns)
+            + ":available="
+            + ",".join(map(str, frame.columns))
+        )
+    requested = [FACTOR_ALIASES.get(factor_id, factor_id) for factor_id in factor_ids]
+    frame = frame.copy()
+    frame["security_id"] = frame["symbol"].map(base.security_id)
+    selected = frame[
+        frame["security_id"].isin(security_ids)
+        & frame["factor_id"].isin(requested)
+        & frame["quality_state"].isin(["VALID", "VALID_WITH_WARNING"])
+        & frame["rank_eligibility"].isin(["ELIGIBLE", "CONDITIONAL"])
+    ].copy()
+    selected["factor_value"] = pd.to_numeric(selected["factor_value"], errors="coerce")
+    selected = selected[selected["factor_value"].notna()].copy()
+    if selected.empty:
+        raise ValueError(
+            "WP4B_NO_VALID_CANONICAL_FACTOR_ROWS:requested=" + ",".join(requested)
+        )
+    selected["_as_of_sort"] = pd.to_datetime(selected["as_of_timestamp"], errors="coerce", utc=True)
+    selected["_period_sort"] = pd.to_datetime(selected["period_end"], errors="coerce")
+    selected = selected.sort_values(
+        ["security_id", "factor_id", "_as_of_sort", "_period_sort"],
+        ascending=[True, True, False, False],
+        na_position="last",
+    ).drop_duplicates(["security_id", "factor_id"], keep="first")
+    pivot = selected.pivot_table(
+        index="security_id",
+        columns="factor_id",
+        values="factor_value",
+        aggfunc="first",
+    ).reset_index()
+    periods: dict[str, Any] = {}
+    for sid, group in selected.groupby("security_id"):
+        periods[sid] = {
+            str(row["factor_id"]): {
+                "period_end": None if pd.isna(row["period_end"]) else str(row["period_end"]),
+                "as_of_timestamp": None if pd.isna(row["as_of_timestamp"]) else str(row["as_of_timestamp"]),
+                "quality_state": str(row["quality_state"]),
+                "rank_eligibility": str(row["rank_eligibility"]),
+            }
+            for _, row in group.iterrows()
+        }
+    return pivot, periods
 
 
 def parse_weight(value: Any, default: float) -> float:
@@ -83,7 +192,10 @@ def position_fit(
     }
 
 
+base.factor_pivot = factor_pivot
 base.position_fit = position_fit
+base.write_json = write_json
+base.digest = digest
 
 
 if __name__ == "__main__":
