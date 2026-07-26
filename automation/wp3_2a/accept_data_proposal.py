@@ -93,43 +93,55 @@ def main() -> None:
     if (proposal / "RAW").exists():
         shutil.copytree(proposal / "RAW", current / "RAW")
 
+    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    current_hash = sha(current / "A_SHARE_FULL_UNIVERSE.csv")
+    session_compact = manifest["session"].replace("-", "")
+
     binding_path = repo / "investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json"
     binding = json.loads(binding_path.read_text(encoding="utf-8"))
+    binding.pop("accepted_merge_sha", None)
+    binding.pop("accepted_at", None)
     binding.update(
         {
-            "binding_id": "MARKET_BINDING_A_SHARE_WP3_2A_ACCEPTANCE_CANDIDATE",
-            "status": "ACCEPTED_IF_AND_ONLY_IF_MERGED_TO_MAIN",
+            "binding_id": "MARKET_BINDING_A_SHARE_WP3_2A_CURRENT",
+            "run_id": "WP3_2A_UNIVERSE_CURRENT_" + session_compact,
+            "status": "ACCEPTED_ON_MAIN",
             "as_of_date": manifest["session"],
-            "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+            "generated_at": generated_at,
             "source_provider": manifest["provider"],
             "authority": "DATA_EVIDENCE_RESEARCH_PRIORITY_ONLY",
-            "live_action_scope": "BLOCKED_PENDING_HUMAN_MERGE_AND_SEPARATE_RESEARCH_REVIEW",
+            "promotion_authority": "HUMAN_MERGE_TO_MAIN",
+            "promotion_evidence": "GIT_HISTORY",
+            "live_action_scope": "RESEARCH_AND_PROPOSAL_ONLY_CURRENT_ACCEPTED_NO_AUTOMATIC_ADMISSION_OR_ORDER_EXECUTION",
             "trade_authority": "NONE",
         }
     )
     binding.setdefault("datasets", {})["universe"] = {
         "path": str((current / "A_SHARE_FULL_UNIVERSE.csv").relative_to(repo)),
         "rows": manifest["rows"],
-        "sha256": sha(current / "A_SHARE_FULL_UNIVERSE.csv"),
+        "sha256": current_hash,
         "maximum_age_calendar_days": 7,
         "stale_behavior": "LABEL_AND_RESTRICT",
     }
     binding["datasets"]["daily_market_snapshot"] = {
         "path": str((current / "A_SHARE_FULL_UNIVERSE.csv").relative_to(repo)),
         "rows": manifest["rows"],
-        "sha256": sha(current / "A_SHARE_FULL_UNIVERSE.csv"),
+        "sha256": current_hash,
         "maximum_age_calendar_days": 3,
         "requires_latest_completed_session": True,
         "stale_behavior": "BLOCK",
     }
+    binding.setdefault("capability_summary", {})["full_market_universe"] = manifest["rows"]
 
     scope_record = repo / "investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_SCOPE_EXCEPTIONS_CURRENT.json"
     scope_record.write_text(
         json.dumps(
             {
-                "record_id": "WP3_2A_UNIVERSE_SCOPE_EXCEPTIONS_" + manifest["session"].replace("-", ""),
-                "status": "ACCEPTED_IF_AND_ONLY_IF_MERGED_TO_MAIN",
+                "record_id": "WP3_2A_UNIVERSE_SCOPE_EXCEPTIONS_" + session_compact,
+                "status": "ACCEPTED_ON_MAIN",
                 "session": manifest["session"],
+                "promotion_authority": "HUMAN_MERGE_TO_MAIN",
+                "promotion_evidence": "GIT_HISTORY",
                 "universe_classification": "ORDINARY_A_SHARES",
                 "includes": scope.get("includes", []),
                 "excludes": scope.get("excludes", []),
@@ -171,13 +183,15 @@ def main() -> None:
     record.write_text(
         json.dumps(
             {
-                "record_id": "WP3_2A_UNIVERSE_ACCEPTANCE_" + manifest["session"].replace("-", ""),
-                "status": "ACCEPTED_IF_AND_ONLY_IF_MERGED_TO_MAIN",
+                "record_id": "WP3_2A_UNIVERSE_ACCEPTANCE_" + session_compact,
+                "status": "ACCEPTED_ON_MAIN",
                 "proposal_id": manifest["proposal_id"],
                 "session": manifest["session"],
                 "provider": manifest["provider"],
                 "rows": manifest["rows"],
-                "data_sha256": sha(current / "A_SHARE_FULL_UNIVERSE.csv"),
+                "data_sha256": current_hash,
+                "promotion_authority": "HUMAN_MERGE_TO_MAIN",
+                "promotion_evidence": "GIT_HISTORY",
                 "universe_classification": "ORDINARY_A_SHARES",
                 "scope_exception_count": len(scope_exceptions),
                 "candidate_membership_mutations": 0,
@@ -196,22 +210,62 @@ def main() -> None:
 
     execution_path = repo / "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
     execution = json.loads(execution_path.read_text(encoding="utf-8"))
+    execution.pop("github_merge_sha", None)
     execution.update(
         {
-            "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V3_2A_UNIVERSE_ACCEPTED_ON_MAIN_MERGE",
-            "overall_status": "WP3_IN_PROGRESS_UNIVERSE_ACCEPTED_ON_MAIN_MERGE",
-            "current_step": "WP3-2A_ACCEPTANCE_PR_PENDING_HUMAN_MERGE",
+            "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V3_2B_READY",
+            "status_date": manifest["session"],
+            "overall_status": "WP3_IN_PROGRESS_WP3_2A_CLOSED_WP3_2B_READY",
+            "current_step": "WP3-2B_GOVERNED_SCREENING",
+            "release_id": "INVESTMENT_OS_CURRENT_" + session_compact,
+            "release_sequence": int(execution.get("release_sequence", 0)) + 1,
             "trade_authority": "NONE",
         }
     )
     execution["wp3_status"] = {
         "WP3-1": "COMPLETED_STRATEGY_AND_REBUILD_PREPARATION",
-        "WP3-2": "COMPLETED_IF_ACCEPTANCE_PR_MERGED_TO_MAIN",
-        "WP3-2A": "DATA_ACCEPTED_IF_PR_MERGED_TO_MAIN",
-        "WP3-3": "READY_IF_ACCEPTANCE_PR_MERGED_TO_MAIN",
+        "WP3-2A": "COMPLETED_ACCEPTED_CURRENT",
+        "WP3-2B": "READY_FOR_PROTECTED_PROPOSAL_ONLY_SCREENING",
+        "WP3-3": "PLANNED_AFTER_WP3_2B_REVIEW",
         "WP3-4": "PLANNED",
     }
-    execution["next_task"] = "MERGE_ACCEPTANCE_PR_THEN_RUN_PROPOSAL_ONLY_SCREENING"
+    execution["wp3_2a"] = {
+        "status": "COMPLETED_ACCEPTED_CURRENT",
+        "accepted_session": manifest["session"],
+        "accepted_rows": manifest["rows"],
+        "accepted_provider": manifest["provider"],
+        "accepted_data_sha256": current_hash,
+        "scheduled_acquisition": True,
+        "idempotent_refresh_noop": True,
+        "proposal_pr_stage": True,
+        "protected_acceptance_stage": True,
+        "lineage_gate_v3": True,
+        "bot_pr_required_check_dispatch": True,
+        "candidate_membership_mutations": 0,
+        "research_object_mutations": 0,
+        "simulation_trade_mutations": 0,
+        "real_account_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE",
+        "next_gate": "WP3_2B_PROTECTED_PROPOSAL_ONLY_SCREENING",
+    }
+    execution["wp3_2b"] = {
+        "status": "READY_FOR_PROTECTED_PROPOSAL_ONLY_SCREENING",
+        "input_current_session": manifest["session"],
+        "input_current_rows": manifest["rows"],
+        "protected_environment": "wp3-2a-screening-approval",
+        "confirmation": "RUN_PROPOSAL_ONLY_SCREENING",
+        "default_research_queue_limit": 100,
+        "method": "DATA_READINESS_AND_LIQUIDITY_ONLY",
+        "investment_ranking": False,
+        "research_objects_created": 0,
+        "candidate_membership_mutations": 0,
+        "simulation_trade_mutations": 0,
+        "real_account_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE",
+    }
+    execution["next_task"] = "RUN_WP3_2B_GOVERNED_SCREENING_PROPOSAL"
     execution_path.write_text(
         json.dumps(execution, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
@@ -230,6 +284,8 @@ def main() -> None:
                 "universe_classification": "ORDINARY_A_SHARES",
                 "scope_exception_count": len(scope_exceptions),
                 "changed_investment_objects": changed,
+                "next_task": "RUN_WP3_2B_GOVERNED_SCREENING_PROPOSAL",
+                "trade_authority": "NONE",
             },
             ensure_ascii=False,
         )
