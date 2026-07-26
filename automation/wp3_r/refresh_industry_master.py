@@ -23,7 +23,7 @@ MARKET_FILTER = "m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048"
 FIELDS = "f12,f13,f14,f100"
 
 
-def request_json(params: dict[str, Any], retries: int = 3) -> tuple[dict[str, Any], str]:
+def request_json(params: dict[str, Any], retries: int = 2) -> tuple[dict[str, Any], str]:
     query = urllib.parse.urlencode(params)
     errors: list[str] = []
     for endpoint in ENDPOINTS:
@@ -32,11 +32,11 @@ def request_json(params: dict[str, Any], retries: int = 3) -> tuple[dict[str, An
                 request = urllib.request.Request(
                     f"{endpoint}?{query}",
                     headers={
-                        "User-Agent": "Mozilla/5.0 InvestmentOS-WP3R-IndustryMaster/2.0",
+                        "User-Agent": "Mozilla/5.0 InvestmentOS-WP3R-IndustryMaster/2.1",
                         "Referer": "https://quote.eastmoney.com/center/gridlist.html",
                     },
                 )
-                with urllib.request.urlopen(request, timeout=30) as response:
+                with urllib.request.urlopen(request, timeout=15) as response:
                     payload = json.loads(response.read().decode("utf-8", errors="replace"))
                 if payload.get("data") is None:
                     raise ValueError("PROVIDER_DATA_IS_NULL")
@@ -44,11 +44,11 @@ def request_json(params: dict[str, Any], retries: int = 3) -> tuple[dict[str, An
             except Exception as exc:
                 errors.append(f"{endpoint}:attempt={attempt}:{type(exc).__name__}:{exc}")
                 if attempt < retries:
-                    time.sleep(attempt * 2)
+                    time.sleep(attempt)
     raise RuntimeError("|".join(errors))
 
 
-def paginated_market_rows(page_size: int, max_pages: int = 100) -> tuple[list[dict[str, Any]], int, list[str]]:
+def paginated_market_rows(page_size: int, max_pages: int = 20) -> tuple[list[dict[str, Any]], int, list[str]]:
     rows: list[dict[str, Any]] = []
     total = 0
     selected_endpoints: list[str] = []
@@ -89,9 +89,11 @@ def paginated_market_rows(page_size: int, max_pages: int = 100) -> tuple[list[di
             break
         if new_rows == 0:
             break
-        time.sleep(0.08)
+        time.sleep(0.05)
     else:
         raise RuntimeError(f"PAGINATION_SAFETY_LIMIT_REACHED:rows={len(rows)}:provider_total={total}")
+    if total and len(rows) < min(total, 5000):
+        raise RuntimeError(f"PROVIDER_PAGINATION_INCOMPLETE:rows={len(rows)}:provider_total={total}:page_size={page_size}")
     return rows, total, sorted(set(selected_endpoints))
 
 
@@ -162,7 +164,7 @@ def write_json(path: Path, payload: Any) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
-    parser.add_argument("--page-size", type=int, default=200)
+    parser.add_argument("--page-size", type=int, default=1000)
     args = parser.parse_args()
 
     root = Path(args.repo_root).resolve()
@@ -234,6 +236,7 @@ def main() -> None:
         "provider_endpoints_used": selected_endpoints,
         "market_filter": MARKET_FILTER,
         "requested_fields": FIELDS.split(","),
+        "page_size": args.page_size,
         "provider_total": provider_total,
         "provider_row_count": len(provider_rows),
         "market_security_count": len(market),
