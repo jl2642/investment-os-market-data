@@ -1,0 +1,160 @@
+name: R2 WP2-R Portfolio Current
+run-name: "R2 WP2-R Portfolio Current"
+
+on:
+  push:
+    branches:
+      - agent/r2-product-capability-hardening
+    paths:
+      - "automation/wp2_r/**"
+      - ".github/workflows/wp2_r_portfolio_current.yml"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/portfolio_*"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/transaction_delta_ledger.schema.json"
+      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp2_r/**"
+      - ".github/workflows/wp2_r_portfolio_current.yml"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/portfolio_*"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/transaction_delta_ledger.schema.json"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  build-validate-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp2_r/requirements.lock
+
+      - name: Install validation runtime
+        run: python -m pip install --retries 5 --timeout 30 -r automation/wp2_r/requirements.lock
+
+      - name: Build deterministic Portfolio Current
+        run: python automation/wp2_r/build_portfolio_current.py --repo-root .
+
+      - name: Run WP2-R tests
+        run: python -m pytest -q automation/wp2_r/tests
+
+      - name: Validate schemas and economic boundaries
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          root = Path('.')
+          pairs = [
+              ('investment_os_runtime/20_SCHEMAS_AND_INTERFACES/portfolio_positions_current.schema.json',
+               'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json'),
+              ('investment_os_runtime/20_SCHEMAS_AND_INTERFACES/portfolio_positions_current.schema.json',
+               'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json'),
+              ('investment_os_runtime/20_SCHEMAS_AND_INTERFACES/portfolio_marks_current.schema.json',
+               'investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json'),
+              ('investment_os_runtime/20_SCHEMAS_AND_INTERFACES/transaction_delta_ledger.schema.json',
+               'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json'),
+          ]
+          for schema_path, data_path in pairs:
+              schema = json.loads((root / schema_path).read_text(encoding='utf-8'))
+              data = json.loads((root / data_path).read_text(encoding='utf-8'))
+              errors = sorted(Draft202012Validator(schema).iter_errors(data), key=lambda e: list(e.path))
+              if errors:
+                  raise SystemExit(f'SCHEMA_FAILURE:{data_path}:' + '|'.join(e.message for e in errors))
+
+          real = json.loads((root / pairs[0][1]).read_text(encoding='utf-8'))
+          sim = json.loads((root / pairs[1][1]).read_text(encoding='utf-8'))
+          marks = json.loads((root / pairs[2][1]).read_text(encoding='utf-8'))
+          ledger = json.loads((root / pairs[3][1]).read_text(encoding='utf-8'))
+          run = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+
+          assert len(real['holdings']) == 7
+          assert len(sim['holdings']) == 16
+          assert {'017534.OF', '110017.OF', '217003.OF'} <= {x['security_id'] for x in real['holdings']}
+          assert ledger['entries'] == []
+          assert ledger['continuity_confirmed_through'] == '2026-07-24'
+          assert marks['automatic_position_mutations'] == 0
+          assert run['economic_transaction_mutations'] == 0
+          assert run['orders'] == 0
+          assert acceptance['wp5_unblocked'] is False
+          assert all(x['broker_verified'] is False for x in real['holdings'])
+          assert run['trade_authority'] == marks['trade_authority'] == 'NONE'
+          print({'real': 7, 'simulation': 16, 'delta': 0, 'orders': 0, 'trade_authority': 'NONE'})
+          PY
+
+      - name: Prove legacy position sources and forbidden domains unchanged
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed = subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines()
+          forbidden = {
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          }
+          leaked = sorted(forbidden.intersection(changed))
+          if leaked:
+              raise SystemExit('FORBIDDEN_WP2R_MUTATION:' + ','.join(leaked))
+          PY
+
+      - name: Publish deterministic generated Current to R2 branch
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
+          if git diff --cached --quiet; then
+            echo "WP2-R generated Current already committed."
+            exit 0
+          fi
+          git commit -m "R2 WP2-R publish Portfolio Current baseline"
+          git push origin "HEAD:agent/r2-product-capability-hardening"
+
+      - name: Record summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP2-R Portfolio Current
+          - Real positions: 7
+          - Simulation positions: 16
+          - User transaction Delta: 0
+          - Position/mark watermarks: separated
+          - Broker Verification: separated and false
+          - Automatic quantity/cost mutations: 0
+          - Orders: 0
+          - trade_authority: NONE
+          - WP5: remains blocked
+          EOF
