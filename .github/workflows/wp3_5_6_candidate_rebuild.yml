@@ -49,6 +49,22 @@ jobs:
             -r automation/wp3_3_4/requirements.lock \
             -r automation/wp3_5_6/requirements.lock
 
+      - name: Restore immutable pre-WP3 historical Candidate baseline
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git show origin/main:investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json \
+            > investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json")
+          state = json.loads(path.read_text(encoding="utf-8"))
+          assert state["status"] == "HISTORICAL_CORE20_FROZEN_PENDING_WP3_REBUILD"
+          assert len(state["core_members"]) == 20
+          print({"historical_candidate_state": state["state_id"], "historical_core20": 20})
+          PY
+
       - name: Build Research Object, Entry Baseline and Candidate proposal
         shell: bash
         run: |
