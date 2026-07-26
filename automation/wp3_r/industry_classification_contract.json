@@ -1,0 +1,39 @@
+{
+  "contract_id": "WP3R_INDUSTRY_CLASSIFICATION_QUALITY_V1",
+  "layers": [
+    {
+      "layer": "SECURITY_MASTER_INDUSTRY",
+      "required": true,
+      "purpose": "stable issuer and security classification",
+      "minimum_fields": ["security_id", "industry_code", "industry_name", "classification_source", "effective_date"]
+    },
+    {
+      "layer": "FINANCIAL_STATEMENT_PROFILE",
+      "required": true,
+      "purpose": "financial factor routing",
+      "allowed_values": ["GENERAL_NON_FINANCIAL", "BANK", "INSURANCE", "SECURITIES_AND_BROKERAGE", "UNRESOLVED"]
+    },
+    {
+      "layer": "INVESTMENT_STRATEGY_SLEEVE",
+      "required": true,
+      "purpose": "research and portfolio role; never a substitute for industry identity"
+    }
+  ],
+  "quality_gates": {
+    "security_id_coverage_min": 0.99,
+    "unresolved_industry_max": 0.01,
+    "financial_profile_conflict_max": 0.0,
+    "strategy_sleeve_as_industry_substitute_forbidden": true,
+    "one_security_one_current_industry_required": true,
+    "source_and_effective_date_required": true,
+    "manual_override_requires_reason_and_source": true
+  },
+  "conflict_policy": {
+    "security_master_vs_statement_profile": "FLAG_FOR_REVIEW_DO_NOT_FORCE_ROUTE",
+    "missing_security_master_industry": "BLOCK_INDUSTRY_RELATIVE_RANKING",
+    "unresolved_financial_profile": "BLOCK_FINANCIAL_COMPOSITE_SCORE",
+    "classification_change": "REQUIRE_APPEND_ONLY_LINEAGE"
+  },
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
