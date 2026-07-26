@@ -17,7 +17,7 @@ permissions:
 
 env:
   TRADE_AUTHORITY: NONE
-  WP3_3_4_OUTPUT_DIR: investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V3
+  WP3_3_4_OUTPUT_DIR: investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V4
 
 jobs:
   build-and-audit:
@@ -45,7 +45,7 @@ jobs:
           set -o pipefail
           mkdir -p .wp3_3_4_run
           rm -rf "$WP3_3_4_OUTPUT_DIR"
-          python automation/wp3_3_4/build_milestone_v3.py \
+          python automation/wp3_3_4/build_milestone_v4.py \
             --repo-root . \
             --config automation/wp3_3_4/config.json \
             --output-dir "$WP3_3_4_OUTPUT_DIR" \
@@ -87,7 +87,7 @@ jobs:
           name: wp3-3-4-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .wp3_3_4_run/
-            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V3/
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V4/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
