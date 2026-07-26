@@ -11,7 +11,7 @@ on:
         default: main
         type: string
       enforce_wp3_2a_scope:
-        description: "Enforce WP3-2A/WP3-2B forbidden-mutation rules"
+        description: "Enforce WP3-2 operating-package forbidden-mutation rules"
         required: false
         default: false
         type: boolean
@@ -53,7 +53,7 @@ jobs:
           MANUAL_ENFORCE: ${{ inputs.enforce_wp3_2a_scope || false }}
         run: |
           ENFORCE=false
-          if [[ "$HEAD_REF" == automation/wp3-2a-* || "$HEAD_REF" == automation/wp3-2b-* ]]; then
+          if [[ "$HEAD_REF" == automation/wp3-2-* || "$HEAD_REF" == automation/wp3-2a-* || "$HEAD_REF" == automation/wp3-2b-* ]]; then
             ENFORCE=true
           fi
           if [[ "$MANUAL_ENFORCE" == "true" ]]; then
@@ -140,7 +140,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Reject investment-object mutations for WP3-2A and WP3-2B automation branches
+      - name: Reject investment-object mutations for WP3-2 operating branches
         if: steps.scope.outputs.enforce == 'true'
         env:
           BASE_REF: ${{ github.base_ref || inputs.base_ref || 'main' }}
@@ -154,7 +154,7 @@ jobs:
       - name: Record non-WP3-2 applicability
         if: steps.scope.outputs.enforce != 'true'
         run: |
-          echo "This PR is outside an automation/wp3-2a-* or automation/wp3-2b-* branch."
+          echo "This PR is outside an automation/wp3-2-*, automation/wp3-2a-* or automation/wp3-2b-* branch."
           echo "The required check reports success but does not impose WP3-2 investment-object restrictions."
 
       - name: Validate proposal and Current hashes
