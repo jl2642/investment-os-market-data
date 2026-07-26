@@ -1,0 +1,152 @@
+name: R2 WP3-R Candidate Price Ledger
+run-name: "R2 WP3-R Core candidate daily price ledger"
+
+on:
+  push:
+    branches: [agent/r2-product-capability-hardening]
+    paths:
+      - "automation/wp3_r/refresh_candidate_price_ledger.py"
+      - ".github/workflows/wp3_r_candidate_price_ledger.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp3_r/**"
+      - ".github/workflows/wp3_r_candidate_price_ledger.yml"
+      - "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER*"
+  workflow_dispatch:
+  schedule:
+    - cron: "35 14 * * 1-5"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  refresh-ledger-and-outcomes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp3_r/requirements.lock
+
+      - name: Install runtime
+        run: python -m pip install --retries 5 --timeout 30 -r automation/wp3_r/requirements.lock
+
+      - name: Repair or verify builder
+        run: python automation/wp3_r/repair_source.py
+
+      - name: Refresh Core candidate and CSI 300 ledger
+        run: python automation/wp3_r/refresh_candidate_price_ledger.py --repo-root .
+
+      - name: Rebuild outcome and operating Current
+        run: python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
+
+      - name: Validate append-only price evidence and zero mutations
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('.')
+          ledger_path = root / 'investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER.jsonl'
+          rows = [json.loads(line) for line in ledger_path.read_text(encoding='utf-8').splitlines() if line.strip()]
+          run = json.loads((root / 'investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER_RUN_CURRENT.json').read_text(encoding='utf-8'))
+          outcome = json.loads((root / 'investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json').read_text(encoding='utf-8'))
+          keys = [(row['security_id'], row['trade_date']) for row in rows]
+          assert len(keys) == len(set(keys))
+          assert {'000333.SZ', '600900.SH', '000300.SH'} <= {row['security_id'] for row in rows}
+          assert all(float(row['close']) > 0 for row in rows)
+          assert all(row['trade_authority'] == 'NONE' for row in rows)
+          assert run['valid_core_baseline_count'] == 2
+          assert run['candidate_membership_mutations'] == 0
+          assert run['portfolio_mutations'] == 0
+          assert run['orders'] == 0
+          assert outcome['valid_entry_baseline_count'] == 2
+          assert outcome['required_windows'] == [20, 60, 120]
+          assert outcome['alpha_claim_allowed'] is False
+          print({
+              'ledger_rows': len(rows),
+              'latest_trade_date': run['latest_trade_date'],
+              'outcome_status': outcome['status'],
+              'mutations': 0,
+          })
+          PY
+
+      - name: Prove Candidate Current and portfolios unchanged
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+          forbidden = {
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          }
+          leaked = sorted(forbidden.intersection(changed))
+          if leaked:
+              raise SystemExit('FORBIDDEN_PRICE_LEDGER_MUTATION:' + ','.join(leaked))
+          PY
+
+      - name: Publish branch candidate ledger
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            automation/wp3_r/build_candidate_refresh_current.py \
+            investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER.jsonl \
+            investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER_RUN_CURRENT.json \
+            investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
+          if git diff --cached --quiet; then
+            echo "Candidate price ledger already current."
+            exit 0
+          fi
+          git commit -m "R2 WP3-R seed Core candidate price ledger"
+          git push origin HEAD:agent/r2-product-capability-hardening
+
+      - name: Publish scheduled append-only ledger on main
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER.jsonl \
+            investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER_RUN_CURRENT.json \
+            investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
+          if git diff --cached --quiet; then
+            echo "Candidate price ledger already current."
+            exit 0
+          fi
+          git commit -m "WP3-R automated Core candidate outcome ledger refresh"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Record summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP3-R Candidate Price Ledger
+          - Daily after-close ledger for Midea, Yangtze Power and CSI 300 broad benchmark
+          - One immutable row per security/trading date
+          - 20/60/120 windows complete only after actual trading sessions mature
+          - Primary industry benchmark remains a separate identifier/history gate
+          - No automatic alpha claim, Candidate mutation, portfolio mutation or order
+          - trade_authority: NONE
+          EOF
