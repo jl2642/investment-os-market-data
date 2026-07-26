@@ -55,25 +55,91 @@ jobs:
       - name: Build acceptance PR
         env:
           GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
+          set -Eeuo pipefail
+
           SESSION=$(python - <<'PY'
           import json
           print(json.load(open('investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json'))['as_of_date'])
           PY
           )
+          RUN_KEY="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          BRANCH="automation/wp3-2a-accept-${SESSION}-${RUN_KEY}"
+
           cat > /tmp/wp3_2a_acceptance_pr.md <<EOF
           ## WP3-2A universe acceptance candidate
-          - Session: `$SESSION`
-          - Lineage Gate: `PASS`
+          - Session: \`${SESSION}\`
+          - Lineage Gate: \`PASS\`
           - Human confirmation: supplied through protected environment
-          - Candidate / Research / account mutations: `0`
-          - Orders: `0`
-          - trade_authority: `NONE`
+          - Candidate / Research / account / simulation mutations: \`0\`
+          - Orders: \`0\`
+          - trade_authority: \`NONE\`
 
           Merging this PR is the human-controlled Current promotion.
           EOF
-          automation/wp3_2a/create_or_update_pr.sh \
-            "automation/wp3-2a-accept-$SESSION" \
-            "WP3-2A accept universe: $SESSION" \
-            /tmp/wp3_2a_acceptance_pr.md \
-            "wp3-2a,data-acceptance,human-merge-required" main
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git stash push --include-untracked --message "wp3-2a-acceptance-${RUN_KEY}" >/dev/null || true
+          git fetch origin main
+          git checkout -B "$BRANCH" origin/main
+          if git stash list | grep -q "wp3-2a-acceptance-${RUN_KEY}"; then
+            git stash pop >/dev/null
+          fi
+
+          git add \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT \
+            investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_SCOPE_EXCEPTIONS_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json
+
+          if git diff --cached --quiet; then
+            echo "No governed acceptance changes; PR not created." >&2
+            exit 2
+          fi
+
+          while IFS= read -r path; do
+            case "$path" in
+              investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/*|\
+              investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json|\
+              investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_SCOPE_EXCEPTIONS_CURRENT.json|\
+              investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_ACCEPTANCE_RECORD.json|\
+              investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json)
+                ;;
+              *)
+                echo "Acceptance publication scope violation: $path" >&2
+                exit 3
+                ;;
+            esac
+          done < <(git diff --cached --name-only)
+
+          echo "Staged acceptance paths:"
+          git diff --cached --name-only
+
+          git commit -m "WP3-2A accept universe: ${SESSION}"
+          git push --set-upstream origin "HEAD:refs/heads/${BRANCH}"
+
+          PR_URL=$(gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "WP3-2A accept universe: ${SESSION}" \
+            --body-file /tmp/wp3_2a_acceptance_pr.md)
+          echo "Created acceptance PR: $PR_URL"
+
+          for label in wp3-2a data-acceptance human-merge-required; do
+            gh pr edit "$BRANCH" --add-label "$label" || true
+          done
+
+          {
+            echo "## WP3-2A acceptance PR publication"
+            echo
+            echo "- Session: \`${SESSION}\`"
+            echo "- Branch: \`${BRANCH}\`"
+            echo "- PR: ${PR_URL}"
+            echo "- Candidate / Research / account / simulation mutations: \`0\`"
+            echo "- Orders: \`0\`"
+            echo "- trade_authority: \`NONE\`"
+          } >> "$GITHUB_STEP_SUMMARY"
