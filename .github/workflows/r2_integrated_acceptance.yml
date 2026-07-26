@@ -1,0 +1,128 @@
+name: R2 Integrated Product Capability Acceptance
+run-name: "R2 integrated WP2-R WP3-R WP4-B acceptance"
+
+on:
+  push:
+    branches: [agent/r2-product-capability-hardening]
+    paths:
+      - "automation/r2_integration/**"
+      - ".github/workflows/r2_integrated_acceptance.yml"
+      - "investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/00_CONTROL/WP4_B_CORE2_HARDENING_ACCEPTANCE_RECORD.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/r2_integration/**"
+      - ".github/workflows/r2_integrated_acceptance.yml"
+      - "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/R2_STATUS_CURRENT.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  integrate-validate-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Compile and build integrated R2 closure
+        run: |
+          python -m py_compile automation/r2_integration/finalize_r2.py
+          python automation/r2_integration/finalize_r2.py --repo-root . --mode branch --pr-number 145
+
+      - name: Validate canonical closure and zero economic mutation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('.')
+          r2 = json.loads((root / 'investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json').read_text(encoding='utf-8'))
+          execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          registry = json.loads((root / 'investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
+          gaps = json.loads((root / 'investment_os_runtime/00_CONTROL/WP2_WP4_CAPABILITY_GAP_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          status_text = (root / 'investment_os_runtime/00_CONTROL/R2_STATUS_CURRENT.md').read_text(encoding='utf-8')
+
+          assert r2['status'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_BRANCH_PENDING_MERGE'
+          assert r2['pr_number'] == 145
+          assert r2['merge_sha'] is None
+          assert all(r2['capabilities'].values())
+          assert r2['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          assert r2['wp5_status'] == 'BLOCKED_PENDING_R2_MERGE'
+          assert r2['trade_authority'] == 'NONE'
+          assert execution['r2']['status'] == 'R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE'
+          assert execution['r2']['merge_sha'] is None
+          assert execution['r2']['wp5_status'] == 'BLOCKED_PENDING_R2_MERGE'
+          required_assets = {
+              'real_account_positions_current', 'simulation_positions_current', 'portfolio_marks_current',
+              'candidate_refresh_current', 'security_industry_master_current', 'financial_sector_screening_current',
+              'candidate_outcome_current', 'wp4b_core2_current', 'r2_acceptance', 'r2_status_current'
+          }
+          assert required_assets <= set(registry['assets'])
+          assert gaps['r2_closure']['wp5'] == 'BLOCKED_PENDING_R2_MERGE'
+          assert 'WP3-R: `CONTINUOUS_CANDIDATE_ENGINE_CAPABILITY_ACCEPTED`' in status_text
+          print({'r2': r2['status'], 'assets': len(required_assets), 'wp5': r2['wp5_status'], 'mutations': 0})
+          PY
+
+      - name: Prove accepted portfolio, Candidate and WP4 initial economic states unchanged
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+          forbidden = {
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          }
+          leaked = sorted(forbidden.intersection(changed))
+          if leaked:
+              raise SystemExit('FORBIDDEN_R2_INTEGRATION_MUTATION:' + ','.join(leaked))
+          PY
+
+      - name: Publish integrated R2 closure to Draft branch
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json \
+            investment_os_runtime/00_CONTROL/R2_STATUS_CURRENT.md \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/WP2_WP4_CAPABILITY_GAP_REGISTER_CURRENT.json
+          if git diff --cached --quiet; then
+            echo "R2 integrated closure already current."
+            exit 0
+          fi
+          git commit -m "R2 accept integrated product capability on Draft branch"
+          git push origin HEAD:agent/r2-product-capability-hardening
+
+      - name: Record summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## R2 Integrated Acceptance
+          - Requires WP2-R, WP3-R and WP4-B acceptance records to pass
+          - Updates Execution Register, Authoritative Asset Registry and capability-gap closure
+          - Preserves accepted Real, Simulation, Candidate and WP4 initial economic states
+          - WP5 remains blocked until this Draft PR is merged
+          - User merges once only; post-merge workflow writes the merge SHA automatically
+          - trade_authority: NONE
+          EOF
