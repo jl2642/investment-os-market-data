@@ -41,7 +41,15 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
     plan = MASTER_PLAN.read_text(encoding="utf-8")
     assert register["wp3_status"]["WP3-2A"] == "COMPLETED_ACCEPTED_CURRENT"
     assert register["trade_authority"] == "NONE"
-    assert any(token in plan for token in ("WP3-2A | COMPLETED", "WP3-2A / 2B | COMPLETED", "| WP3 | COMPLETED"))
+    assert any(
+        token in plan
+        for token in (
+            "WP3-2A | COMPLETED",
+            "WP3-2A / 2B | COMPLETED",
+            "| WP3 | COMPLETED",
+            "WP3 | INITIAL CANDIDATE BASELINE COMPLETED",
+        )
+    )
 
     step = register["current_step"]
     if step == "WP3-2B_GOVERNED_SCREENING":
@@ -55,14 +63,21 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
         assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
         assert "WP4 | READY / NOT STARTED" in plan
-    else:
-        assert step == "WP5_PORTFOLIO_MIGRATION_AND_ACTION_REVIEW"
+    elif step == "WP5_PORTFOLIO_MIGRATION_AND_ACTION_REVIEW":
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
         assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
         assert register["wp4"]["status"] == "COMPLETED_CURRENT_IF_PRESENT_ON_MAIN"
         assert register["wp4"]["ready_for_user_decision"] == 0
         assert "WP4 | COMPLETED IF PRESENT ON MAIN" in plan
         assert "0只Ready → NO ACTION" in plan
+    else:
+        assert step == "R2_WP2_WP4_PRODUCT_CAPABILITY_HARDENING"
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp4"]["status"] == "CORE2_INITIAL_PRODUCTION_BASELINE_ACCEPTED_ON_MAIN"
+        assert register["wp5"]["status"] == "BLOCKED_PENDING_R2_PRODUCT_CAPABILITY_HARDENING"
+        assert "WP4 | CORE2 INITIAL PRODUCTION BASELINE ACCEPTED ON MAIN" in plan
+        assert "WP5 | BLOCKED" in plan
 
 
 def test_scheduled_refresh_is_idempotent_and_fail_closed():

@@ -110,12 +110,14 @@ def test_decision_interface_has_no_forced_action():
         assert row["trade_authority"] == "NONE"
 
 
-def test_current_states_and_acceptance_are_merge_semantic_not_post_merge_patch_dependent():
+def test_current_states_and_acceptance_are_merge_semantic_and_maturity_limited():
     research = read_json(ROOT / "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json")
     decision = read_json(ROOT / "investment_os_runtime/30_STATE_CURRENT/50_DECISION_INTERFACE/WP4_DECISION_INTERFACE_CURRENT.json")
     acceptance = read_json(ROOT / "investment_os_runtime/00_CONTROL/WP4_CORE2_DECISION_INTERFACE_ACCEPTANCE_RECORD.json")
+    assert research["status"] in {"CURRENT_IF_PRESENT_ON_MAIN", "ACCEPTED_ON_MAIN_INITIAL_BASELINE"}
+    assert decision["status"] in {"CURRENT_IF_PRESENT_ON_MAIN", "ACCEPTED_ON_MAIN_INITIAL_BASELINE"}
+    assert acceptance["status"] in {"CURRENT_IF_PRESENT_ON_MAIN", "ACCEPTED_ON_MAIN"}
     for state in (research, decision, acceptance):
-        assert state["status"] == "CURRENT_IF_PRESENT_ON_MAIN"
         assert state["promotion_rule"] == "FILES_BECOME_CURRENT_ONLY_WHEN_PRESENT_ON_MAIN_VIA_GOVERNED_USER_MERGE"
         assert state["trade_authority"] == "NONE"
     assert decision["ready_for_user_decision_count"] == 0
@@ -124,18 +126,30 @@ def test_current_states_and_acceptance_are_merge_semantic_not_post_merge_patch_d
     assert acceptance["real_account_mutations"] == 0
     assert acceptance["simulation_trade_mutations"] == 0
     assert acceptance["orders"] == 0
+    if acceptance["status"] == "ACCEPTED_ON_MAIN":
+        assert acceptance["completion_claim"] == "CORE2_INITIAL_PRODUCTION_BASELINE"
+        assert acceptance["full_professional_deep_research_complete"] is False
+        assert acceptance["position_level_portfolio_fit_complete"] is False
+        assert decision["position_sizing_grade"] is False
+        assert decision["wp5_action_review_allowed"] is False
 
 
-def test_manifest_and_operating_state_open_wp5_without_claiming_action():
+def test_manifest_and_operating_state_do_not_force_wp5_action():
     manifest = read_json(OUTPUT / "WP4_MANIFEST.json")
     register = read_json(ROOT / "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json")
     plan = (ROOT / "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md").read_text(encoding="utf-8")
     assert manifest["metrics"]["core_security_count"] == 2
     assert manifest["metrics"]["ready_for_user_decision"] == 0
     assert manifest["metrics"]["orders"] == 0
-    assert register["wp4"]["status"] == "COMPLETED_CURRENT_IF_PRESENT_ON_MAIN"
-    assert register["current_step"] == "WP5_PORTFOLIO_MIGRATION_AND_ACTION_REVIEW"
     assert register["wp4"]["ready_for_user_decision"] == 0
-    assert "WP4 | COMPLETED IF PRESENT ON MAIN" in plan
-    assert "0只Ready → NO ACTION" in plan
+    if register["current_step"] == "WP5_PORTFOLIO_MIGRATION_AND_ACTION_REVIEW":
+        assert register["wp4"]["status"] == "COMPLETED_CURRENT_IF_PRESENT_ON_MAIN"
+        assert "WP4 | COMPLETED IF PRESENT ON MAIN" in plan
+        assert "0只Ready → NO ACTION" in plan
+    else:
+        assert register["current_step"] == "R2_WP2_WP4_PRODUCT_CAPABILITY_HARDENING"
+        assert register["wp4"]["status"] == "CORE2_INITIAL_PRODUCTION_BASELINE_ACCEPTED_ON_MAIN"
+        assert register["wp5"]["status"] == "BLOCKED_PENDING_R2_PRODUCT_CAPABILITY_HARDENING"
+        assert "WP4 | CORE2 INITIAL PRODUCTION BASELINE ACCEPTED ON MAIN" in plan
+        assert "WP5 | BLOCKED" in plan
     assert register["trade_authority"] == "NONE"
