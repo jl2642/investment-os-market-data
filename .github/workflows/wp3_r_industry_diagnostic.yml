@@ -1,0 +1,63 @@
+name: R2 WP3-R Industry Provider Diagnostic
+run-name: "R2 WP3-R persist industry provider diagnostic"
+
+on:
+  push:
+    branches: [agent/r2-product-capability-hardening]
+    paths:
+      - "automation/wp3_r/diagnose_industry_provider.py"
+      - ".github/workflows/wp3_r_industry_diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  diagnose-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: agent/r2-product-capability-hardening
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Query provider and persist response shape
+        run: python automation/wp3_r/diagnose_industry_provider.py --repo-root .
+
+      - name: Validate diagnostic safety boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_PROVIDER_DIAGNOSTIC_CURRENT.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          assert data['trade_authority'] == 'NONE'
+          assert data['automatic_candidate_mutations'] == 0
+          assert data['orders'] == 0
+          print(json.dumps({
+              'status': data['status'],
+              'selected_endpoint': data['selected_endpoint'],
+              'attempts': data['attempts'],
+          }, ensure_ascii=False))
+          PY
+
+      - name: Publish diagnostic before capability decision
+        if: github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_PROVIDER_DIAGNOSTIC_CURRENT.json
+          if git diff --cached --quiet; then
+            echo "Industry diagnostic already current."
+            exit 0
+          fi
+          git commit -m "R2 WP3-R persist industry provider diagnostic"
+          git push origin HEAD:agent/r2-product-capability-hardening
