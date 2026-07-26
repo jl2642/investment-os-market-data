@@ -272,11 +272,15 @@ def industry_quality(
     if profile_col and profile_symbol and len(profiles):
         profile_coverage = float(profiles[profile_col].fillna("").astype(str).str.strip().ne("").mean())
     complete_fields = all([symbol_col, industry_code, industry_name, source_col, effective_col])
+    passes_quality = bool(
+        total
+        and complete_fields
+        and coverage >= float(contract["quality_gates"]["security_id_coverage_min"])
+        and unresolved / total <= float(contract["quality_gates"]["unresolved_industry_max"])
+    )
     status = (
         "PASS_CANONICAL_INDUSTRY_QUALITY_GATE"
-        if complete_fields
-        and coverage >= float(contract["quality_gates"]["security_id_coverage_min"])
-        and unresolved / total <= float(contract["quality_gates"]["unresolved_industry_max"]) if total else False
+        if passes_quality
         else "BLOCKED_SECURITY_MASTER_INDUSTRY_FIELDS_INCOMPLETE"
     )
     return {
