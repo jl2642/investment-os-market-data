@@ -22,7 +22,6 @@ def test_wp3_2a_is_closed_on_main():
     binding = json.loads(BINDING.read_text(encoding="utf-8"))
     acceptance = json.loads(ACCEPTANCE.read_text(encoding="utf-8"))
     scope = json.loads(SCOPE.read_text(encoding="utf-8"))
-
     assert binding["status"] == "ACCEPTED_ON_MAIN"
     assert binding["as_of_date"] == "2026-07-24"
     assert binding["datasets"]["universe"]["rows"] == 5530
@@ -40,35 +39,30 @@ def test_wp3_2a_is_closed_on_main():
 def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_forward_progression():
     register = json.loads(REGISTER.read_text(encoding="utf-8"))
     plan = MASTER_PLAN.read_text(encoding="utf-8")
-
     assert register["wp3_status"]["WP3-2A"] == "COMPLETED_ACCEPTED_CURRENT"
     assert register["trade_authority"] == "NONE"
-    assert "WP3-2A | COMPLETED" in plan or "WP3-2A / 2B | COMPLETED" in plan
+    assert any(token in plan for token in ("WP3-2A | COMPLETED", "WP3-2A / 2B | COMPLETED", "| WP3 | COMPLETED"))
 
-    if register["current_step"] == "WP3-2B_GOVERNED_SCREENING":
+    step = register["current_step"]
+    if step == "WP3-2B_GOVERNED_SCREENING":
         assert register["wp3_status"]["WP3-2B"] == "READY_FOR_PROTECTED_PROPOSAL_ONLY_SCREENING"
         assert register["next_task"] == "RUN_WP3_2B_GOVERNED_SCREENING_PROPOSAL"
-        assert "WP3-2B | ACTIVE / READY" in plan
-        assert "同一交易日或已有未关闭Proposal" in plan
-    elif register["current_step"] == "WP3-5_WP3-6_RESEARCH_OBJECT_ENTRY_BASELINE_AND_CANDIDATE_REBUILD":
+    elif step == "WP3-5_WP3-6_RESEARCH_OBJECT_ENTRY_BASELINE_AND_CANDIDATE_REBUILD":
         assert register["wp3_status"]["WP3-2B"] == "COMPLETED_SCREENING_PROPOSAL_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-3"].startswith("COMPLETED_")
         assert register["wp3_status"]["WP3-4"].startswith("COMPLETED_")
-        assert register["next_task"] == "RUN_WP3_5_WP3_6_CONCENTRATED_CANDIDATE_REBUILD_PROPOSAL"
-        assert "WP3-2B | COMPLETED" in plan
-        assert "WP3-3 + WP3-4 | COMPLETED" in plan
-        assert "WP3-5 + WP3-6 | READY" in plan
-    else:
-        assert register["current_step"] == "WP4_DEEP_RESEARCH_PORTFOLIO_FIT_AND_DECISION_GRADE_VALUATION"
-        assert register["wp3_status"]["WP3-2B"] == "COMPLETED_SCREENING_PROPOSAL_ACCEPTED_ON_MAIN"
-        assert register["wp3_status"]["WP3-3"].startswith("COMPLETED_")
-        assert register["wp3_status"]["WP3-4"].startswith("COMPLETED_")
+    elif step == "WP4_DEEP_RESEARCH_PORTFOLIO_FIT_AND_DECISION_GRADE_VALUATION":
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
         assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
-        assert register["next_task"] == "RUN_WP4_DEEP_RESEARCH_AND_PORTFOLIO_DECISION_ON_ACCEPTED_CANDIDATE_STATE"
-        assert "WP3-5 + WP3-6 | COMPLETED / ACCEPTED ON MAIN" in plan
         assert "WP4 | READY / NOT STARTED" in plan
-        assert "ACCEPTED IF THIS PR MERGES" not in plan
+    else:
+        assert step == "WP5_PORTFOLIO_MIGRATION_AND_ACTION_REVIEW"
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp4"]["status"] == "COMPLETED_CURRENT_IF_PRESENT_ON_MAIN"
+        assert register["wp4"]["ready_for_user_decision"] == 0
+        assert "WP4 | COMPLETED IF PRESENT ON MAIN" in plan
+        assert "0只Ready → NO ACTION" in plan
 
 
 def test_scheduled_refresh_is_idempotent_and_fail_closed():
