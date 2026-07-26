@@ -7,6 +7,7 @@
 - WP3-R: `CONTINUOUS_CANDIDATE_ENGINE_CAPABILITY_ACCEPTED`
 - WP4-B: `CORE2_RESEARCH_HARDENING_ACCEPTED_RESEARCH_ONLY`
 - WP5: `BLOCKED_PENDING_R2_MERGE`
+- Next task: `USER_MERGE_PR_145_TO_MAIN`
 - Real-account mutations: `0`
 - Simulation economic mutations: `0`
 - Candidate membership mutations: `0`
