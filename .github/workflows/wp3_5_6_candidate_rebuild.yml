@@ -61,12 +61,25 @@ jobs:
             2>&1 | tee .wp3_5_6_run/BUILD_RESULT.log
 
       - name: Run WP3-5 and WP3-6 acceptance tests
-        run: python -m pytest -q automation/wp3_5_6/tests
-
-      - name: Run WP3-2A forward-compatibility and runtime regression
+        shell: bash
         run: |
-          python -m pytest -q automation/wp3_2a/tests
-          python -m pytest -q investment_os_runtime/80_EXECUTABLE_RUNTIME/tests
+          set -o pipefail
+          python -m pytest -q automation/wp3_5_6/tests \
+            2>&1 | tee .wp3_5_6_run/WP3_5_6_ACCEPTANCE.log
+
+      - name: Run WP3-2A forward-compatibility regression
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q automation/wp3_2a/tests \
+            2>&1 | tee .wp3_5_6_run/WP3_2A_REGRESSION.log
+
+      - name: Run control-runtime regression
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q investment_os_runtime/80_EXECUTABLE_RUNTIME/tests \
+            2>&1 | tee .wp3_5_6_run/RUNTIME_REGRESSION.log
 
       - name: Enforce governed diff and zero portfolio mutation
         shell: bash
