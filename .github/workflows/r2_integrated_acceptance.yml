@@ -63,6 +63,10 @@ jobs:
           assert r2['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
           assert r2['wp5_status'] == 'BLOCKED_PENDING_R2_MERGE'
           assert r2['trade_authority'] == 'NONE'
+
+          assert execution['current_step'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE'
+          assert execution['next_task'] == 'USER_MERGE_PR_145_TO_MAIN'
+          assert execution['overall_status'] == 'R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE_WP5_BLOCKED'
           assert execution['r2']['status'] == 'R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE'
           assert execution['r2']['merge_sha'] is None
           assert execution['r2']['wp5_status'] == 'BLOCKED_PENDING_R2_MERGE'
@@ -85,9 +89,19 @@ jobs:
           else:
               raise AssertionError(f"Unsupported registry assets type: {type(assets).__name__}")
           assert required_assets <= asset_ids
+          assert registry['registry_status'] == 'R2_CAPABILITY_ASSETS_ACCEPTED_PENDING_MERGE'
+
+          assert gaps['status'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_BRANCH_PENDING_MERGE'
+          assert gaps['next_task'] == 'USER_MERGE_PR_145_TO_MAIN'
+          assert gaps['wp5_gate'] == 'BLOCKED_PENDING_R2_MERGE'
           assert gaps['r2_closure']['wp5'] == 'BLOCKED_PENDING_R2_MERGE'
+          assert gaps['r2_closure']['legacy_r1_gaps_blocking_wp5'] == 0
+          assert all(gap['blocks_wp5'] is False for gap in gaps['gaps'])
+          assert all(gap.get('r2_status') for gap in gaps['gaps'])
+
           assert 'WP3-R: `CONTINUOUS_CANDIDATE_ENGINE_CAPABILITY_ACCEPTED`' in status_text
-          print({'r2': r2['status'], 'assets': len(required_assets), 'wp5': r2['wp5_status'], 'mutations': 0})
+          assert 'Next task: `USER_MERGE_PR_145_TO_MAIN`' in status_text
+          print({'r2': r2['status'], 'assets': len(required_assets), 'wp5': r2['wp5_status'], 'legacy_blocks': 0, 'mutations': 0})
           PY
 
       - name: Prove accepted portfolio, Candidate and WP4 initial economic states unchanged
