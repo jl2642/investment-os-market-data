@@ -1,0 +1,194 @@
+name: R1 WP2-WP4 Canonical Audit Closure
+run-name: "R1 WP2-WP4 canonical audit closure"
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/wp2_wp4_closure/**"
+      - "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py"
+      - "automation/wp4/tests/test_wp4_core2.py"
+      - ".github/workflows/wp2_wp4_canonical_audit_closure.yml"
+      - "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md"
+      - "investment_os_runtime/00_CONTROL/WP4_CORE2_DECISION_INTERFACE_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/00_CONTROL/WP2_WP4_CANONICAL_AUDIT_CLOSURE_RECORD.json"
+      - "investment_os_runtime/00_CONTROL/WP2_WP4_CAPABILITY_GAP_REGISTER_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/50_DECISION_INTERFACE/WP4_DECISION_INTERFACE_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_WP4_AUDIT_CLOSURE/**"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  build-audit-and-publish:
+    if: startsWith(github.head_ref, 'automation/wp2-wp4-canonical-audit-closure-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            automation/wp2_wp4_closure/requirements.lock
+            automation/wp3_2a/requirements.lock
+            automation/wp4/requirements.lock
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --retries 5 --timeout 30 \
+            -r automation/wp2_wp4_closure/requirements.lock \
+            -r automation/wp3_2a/requirements.lock \
+            -r automation/wp4/requirements.lock
+
+      - name: Build deterministic R1 canonical audit closure
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p .wp2_wp4_closure_run
+          python automation/wp2_wp4_closure/build_canonical_audit_closure.py \
+            --repo-root . \
+            --config automation/wp2_wp4_closure/config.json \
+            2>&1 | tee .wp2_wp4_closure_run/BUILD_RESULT.log
+
+      - name: Run R1 closure acceptance tests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q automation/wp2_wp4_closure/tests \
+            2>&1 | tee .wp2_wp4_closure_run/R1_ACCEPTANCE.log
+
+      - name: Run WP3 and WP4 forward-compatibility regressions
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q automation/wp3_2a/tests \
+            2>&1 | tee .wp2_wp4_closure_run/WP3_REGRESSION.log
+          python -m pytest -q automation/wp4/tests \
+            2>&1 | tee .wp2_wp4_closure_run/WP4_REGRESSION.log
+
+      - name: Run control-runtime regression
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q investment_os_runtime/80_EXECUTABLE_RUNTIME/tests \
+            2>&1 | tee .wp2_wp4_closure_run/RUNTIME_REGRESSION.log
+
+      - name: Enforce exact R1 scope and zero portfolio mutation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import subprocess
+
+          allowed_exact = {
+              ".github/workflows/wp2_wp4_canonical_audit_closure.yml",
+              "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py",
+              "automation/wp4/tests/test_wp4_core2.py",
+              "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json",
+              "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json",
+              "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md",
+              "investment_os_runtime/00_CONTROL/WP4_CORE2_DECISION_INTERFACE_ACCEPTANCE_RECORD.json",
+              "investment_os_runtime/00_CONTROL/WP2_WP4_CANONICAL_AUDIT_CLOSURE_RECORD.json",
+              "investment_os_runtime/00_CONTROL/WP2_WP4_CAPABILITY_GAP_REGISTER_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/50_DECISION_INTERFACE/WP4_DECISION_INTERFACE_CURRENT.json",
+          }
+          allowed_prefixes = (
+              "automation/wp2_wp4_closure/",
+              "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_WP4_AUDIT_CLOSURE/",
+          )
+          changed = subprocess.check_output(
+              ["git", "diff", "--name-only", "origin/main"], text=True
+          ).splitlines()
+          forbidden = [
+              path for path in changed
+              if path not in allowed_exact and not path.startswith(allowed_prefixes)
+          ]
+          if forbidden:
+              raise SystemExit("R1_SCOPE_VIOLATION:" + ",".join(sorted(forbidden)))
+
+          immutable_domains = (
+              "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/",
+              "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/",
+              "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/",
+              "investment_os_runtime/30_STATE_CURRENT/80_GOVERNANCE/",
+          )
+          leaked = [path for path in changed if path.startswith(immutable_domains)]
+          if leaked:
+              raise SystemExit("PORTFOLIO_OR_ORDER_MUTATION:" + ",".join(sorted(leaked)))
+
+          print({
+              "changed_paths": changed,
+              "candidate_membership_mutations": 0,
+              "real_account_mutations": 0,
+              "simulation_trade_mutations": 0,
+              "orders": 0,
+              "trade_authority": "NONE",
+          })
+          PY
+
+      - name: Publish deterministic R1 outputs to PR branch
+        if: github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md \
+            investment_os_runtime/00_CONTROL/WP4_CORE2_DECISION_INTERFACE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP2_WP4_CANONICAL_AUDIT_CLOSURE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP2_WP4_CAPABILITY_GAP_REGISTER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/50_DECISION_INTERFACE/WP4_DECISION_INTERFACE_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_WP4_AUDIT_CLOSURE
+          if git diff --cached --quiet; then
+            echo "Deterministic R1 outputs already published."
+            exit 0
+          fi
+          git commit -m "R1 publish WP2-WP4 canonical audit closure"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+
+      - name: Record R1 summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## R1 WP2-WP4 canonical audit closure
+
+          - WP2: baseline completed; recurring Portfolio Current pending
+          - WP3: initial Candidate baseline completed; continuous engine pending
+          - WP4: Core2 initial production baseline accepted; full deep research pending
+          - WP5: blocked pending R2 hardening
+          - Candidate / real account / simulation / orders: `0 / 0 / 0 / 0`
+          - File Library: `PENDING_MANUAL_UPLOAD`
+          - trade_authority: `NONE`
+          EOF
+
+      - name: Upload R1 evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wp2-wp4-r1-closure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .wp2_wp4_closure_run/
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_WP4_AUDIT_CLOSURE/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
