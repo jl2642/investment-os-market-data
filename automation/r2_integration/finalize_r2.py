@@ -235,6 +235,20 @@ R2 adds product capability without rerunning WP2-WP4 screening or changing accep
 """
 
 
+def with_stable_generated_at(path: Path, acceptance_without_timestamp: dict[str, Any]) -> dict[str, Any]:
+    """Preserve generated_at when the acceptance content is otherwise identical."""
+    generated_at = datetime.now(timezone.utc).isoformat()
+    if path.exists():
+        existing = read(path)
+        comparable_existing = dict(existing)
+        existing_generated_at = comparable_existing.pop("generated_at", None)
+        if comparable_existing == acceptance_without_timestamp and existing_generated_at:
+            generated_at = str(existing_generated_at)
+    result = dict(acceptance_without_timestamp)
+    result["generated_at"] = generated_at
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
@@ -247,10 +261,8 @@ def main() -> None:
         raise SystemExit("POST_MERGE_REQUIRES_MERGE_SHA")
 
     wp2, wp3, wp4b = validate_acceptances(root)
-    generated_at = datetime.now(timezone.utc).isoformat()
-    acceptance = {
+    acceptance_without_timestamp = {
         "acceptance_id": "R2_PRODUCT_CAPABILITY_ACCEPTANCE_V1",
-        "generated_at": generated_at,
         "status": (
             "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
             if args.mode == "post-merge"
@@ -297,6 +309,7 @@ def main() -> None:
         ),
         "trade_authority": "NONE",
     }
+    acceptance = with_stable_generated_at(root / R2_ACCEPTANCE, acceptance_without_timestamp)
     write(root / R2_ACCEPTANCE, acceptance)
 
     execution = update_execution_register(
