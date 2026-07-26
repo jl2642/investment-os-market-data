@@ -13,7 +13,7 @@ on:
       - "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md"
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   TRADE_AUTHORITY: NONE
@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
@@ -50,6 +51,9 @@ jobs:
             --config automation/wp3_3_4/config.json \
             --output-dir "$WP3_3_4_OUTPUT_DIR" \
             2>&1 | tee .wp3_3_4_run/BUILD_RESULT.log
+          python automation/wp3_3_4/finalize_milestone_state.py \
+            --repo-root . \
+            --proposal-dir "$WP3_3_4_OUTPUT_DIR"
       - name: Run WP3-3 and WP3-4 acceptance tests
         run: python -m pytest -q automation/wp3_3_4/tests
       - name: Confirm investment domains unchanged
@@ -57,6 +61,23 @@ jobs:
           python automation/wp3_2a/check_forbidden_mutations.py \
             --repo-root . --base-ref origin/main \
             --config automation/wp3_2a/config.json
+      - name: Publish deterministic proposal and operating state
+        if: github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            "$WP3_3_4_OUTPUT_DIR" \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md
+          if git diff --cached --quiet; then
+            echo "Deterministic outputs already published."
+            exit 0
+          fi
+          git commit -m "WP3-3/4 publish deterministic proposal and operating state"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
       - name: Record proposal-only summary
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
