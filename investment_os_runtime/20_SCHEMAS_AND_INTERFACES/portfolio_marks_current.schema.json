@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WP2-R Portfolio Marks Current",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "state_id",
+    "status",
+    "required_security_count",
+    "marked_security_count",
+    "marks",
+    "data_watermark",
+    "automatic_position_mutations",
+    "trade_authority"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "state_id": {"type": "string"},
+    "status": {"type": "string"},
+    "required_security_count": {"type": "integer", "minimum": 0},
+    "marked_security_count": {"type": "integer", "minimum": 0},
+    "missing_security_ids": {"type": "array", "items": {"type": "string"}},
+    "marks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["security_id", "mark", "as_of_date", "provider", "freshness_status"],
+        "additionalProperties": true
+      }
+    },
+    "data_watermark": {
+      "type": "object",
+      "required": ["fresh_for_portfolio_fit", "broker_verification_not_inferred"],
+      "additionalProperties": true
+    },
+    "automatic_position_mutations": {"const": 0},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
