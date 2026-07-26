@@ -71,6 +71,18 @@ jobs:
           tail -n 100 "$dir/INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt" || true
           exit 0
 
+      - name: Upload industry failure diagnostic
+        if: steps.industry_refresh.outputs.exit_status != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp3-r-industry-failure-${{ github.run_id }}
+          path: |
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_MASTER_BUILD_LOG_CURRENT.txt
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/INDUSTRY_MASTER_BUILD_EXIT_STATUS_CURRENT.txt
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/SECURITY_INDUSTRY_MASTER_CURRENT.json
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Enforce industry fail-closed gate
         if: steps.industry_refresh.outputs.exit_status != '0'
         run: |
