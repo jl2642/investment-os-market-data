@@ -142,7 +142,7 @@ def test_master_plan_does_not_overclaim_or_open_wp5():
     assert "WP4 | CORE2 INITIAL PRODUCTION BASELINE ACCEPTED ON MAIN" in plan
     assert "WP5 | BLOCKED" in plan
     assert "Recurring Portfolio Current未完成" in plan
-    assert "Continuous Candidate Engine未完成" in plan
+    assert "持续财务/Candidate刷新及效果验证未完成" in plan
     assert "不等同于完整专业Deep Research" in plan
     assert "R2完成前不进入WP5" in plan
     assert "交易权限：`NONE`" in plan
