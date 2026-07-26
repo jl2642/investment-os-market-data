@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WP2-R Portfolio Positions Current",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "state_id",
+    "account",
+    "status",
+    "position_watermark",
+    "mark_watermark",
+    "broker_verification",
+    "holdings",
+    "summary",
+    "permissions",
+    "trade_authority"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "state_id": {"type": "string", "minLength": 1},
+    "account": {"enum": ["REAL", "SIMULATION"]},
+    "status": {"type": "string", "minLength": 1},
+    "position_watermark": {
+      "type": "object",
+      "required": ["base_state_as_of", "user_delta_continuity_confirmed_through", "position_state_current"],
+      "properties": {
+        "base_state_as_of": {"type": "string"},
+        "user_delta_continuity_confirmed_through": {"type": "string"},
+        "position_state_current": {"type": "boolean"},
+        "applied_delta_count": {"type": "integer", "minimum": 0},
+        "applied_delta_ids": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "mark_watermark": {
+      "type": "object",
+      "required": ["all_positions_marked", "all_marks_fresh_or_acceptable"],
+      "additionalProperties": true
+    },
+    "broker_verification": {
+      "type": "object",
+      "required": ["broker_linked", "broker_verified", "separate_from_market_watermark"],
+      "properties": {
+        "broker_linked": {"type": "boolean"},
+        "broker_verified": {"type": "boolean"},
+        "separate_from_market_watermark": {"const": true}
+      },
+      "additionalProperties": true
+    },
+    "holdings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["account", "security_id", "quantity", "cost_basis", "broker_verified"],
+        "additionalProperties": true
+      }
+    },
+    "summary": {"type": "object"},
+    "permissions": {
+      "type": "object",
+      "required": ["portfolio_fit", "live_action", "order_execution"],
+      "additionalProperties": true
+    },
+    "cash_policy": {"type": "string"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}
