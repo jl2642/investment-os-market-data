@@ -7,6 +7,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "automation/wp4/**"
+      - "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py"
       - ".github/workflows/wp4_core2_decision_interface.yml"
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4/**"
       - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json"
@@ -84,6 +85,7 @@ jobs:
 
           allowed_exact = {
               ".github/workflows/wp4_core2_decision_interface.yml",
+              "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py",
               "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json",
               "investment_os_runtime/30_STATE_CURRENT/50_DECISION_INTERFACE/WP4_DECISION_INTERFACE_CURRENT.json",
               "investment_os_runtime/00_CONTROL/WP4_CORE2_DECISION_INTERFACE_ACCEPTANCE_RECORD.json",
