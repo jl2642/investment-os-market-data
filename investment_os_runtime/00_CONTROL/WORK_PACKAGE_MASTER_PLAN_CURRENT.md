@@ -13,7 +13,7 @@
 | WP3-1 | COMPLETED | 策略、Candidate治理、Entry Baseline与Research Readiness标准完成 |
 | WP3-2A / 2B | COMPLETED | 5530只Current与5525只研究Eligible Universe已接受 |
 | WP3-3 + WP3-4 | COMPLETED | 53只Longlist、20只历史Core重审和73只统一研究计划已接受 |
-| WP3-5 + WP3-6 | ACCEPTED IF THIS PR MERGES | 73只Research Object提案、1只Core、39只Shadow、0只Ready |
+| WP3-5 + WP3-6 | ACCEPTED IF THIS PR MERGES | 73只Research Object提案、2只Core、38只Shadow、0只Ready |
 | WP4 | READY AFTER MERGE | 深研、组合适配和决策级估值 |
 | WP5–WP7 | PLANNED | 组合迁移、周期运营、归因复盘和真实试点 |
 
