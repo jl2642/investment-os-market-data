@@ -1,0 +1,178 @@
+name: WP3-2B Screening Connector Bridge
+run-name: "WP3-2B screening connector ${{ github.event.pull_request.head.ref || github.ref_name }}"
+
+on:
+  push:
+    branches:
+      - "automation/wp3-2b-screen-*"
+    paths:
+      - ".wp3_2a_control/screening_request.json"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - ".wp3_2a_control/screening_request.json"
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: wp3-2b-screening-connector-dispatch
+  cancel-in-progress: false
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  dispatch:
+    if: ${{ startsWith(github.event.pull_request.head.ref || github.ref_name, 'automation/wp3-2b-screen-') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Validate WP3-2B screening request
+        id: request
+        env:
+          TRIGGER_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import os
+          from pathlib import Path
+
+          branch = os.environ['TRIGGER_BRANCH']
+          head_repository = os.environ['HEAD_REPOSITORY']
+          repository = os.environ['GITHUB_REPOSITORY']
+          if not branch.startswith('automation/wp3-2b-screen-'):
+              raise SystemExit(f'unsupported trigger branch: {branch}')
+          if head_repository != repository:
+              raise SystemExit('forked screening requests are not permitted')
+
+          request_path = Path('.wp3_2a_control/screening_request.json')
+          data = json.loads(request_path.read_text(encoding='utf-8'))
+          if set(data) != {'confirmation', 'max_research_queue'}:
+              raise SystemExit('screening request must contain only confirmation and max_research_queue')
+          if data['confirmation'] != 'RUN_PROPOSAL_ONLY_SCREENING':
+              raise SystemExit('confirmation mismatch')
+          maximum = int(data['max_research_queue'])
+          if maximum < 1 or maximum > 500:
+              raise SystemExit('max_research_queue must be between 1 and 500')
+
+          print('confirmation=RUN_PROPOSAL_ONLY_SCREENING')
+          print(f'max_research_queue={maximum}')
+          print('trade_authority=NONE')
+          PY
+
+      - name: Dispatch protected WP3-2B screening and resolve receipt
+        id: dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONFIRMATION: ${{ steps.request.outputs.confirmation }}
+          MAX_RESEARCH_QUEUE: ${{ steps.request.outputs.max_research_queue }}
+        shell: bash
+        run: |
+          started_epoch=$(date -u +%s)
+
+          gh workflow run wp3_2a_governed_screening.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f confirmation="$CONFIRMATION" \
+            -f max_research_queue="$MAX_RESEARCH_QUEUE"
+
+          run_id=""
+          run_url=""
+          run_status=""
+          for _ in $(seq 1 24); do
+            gh run list \
+              --repo "$GITHUB_REPOSITORY" \
+              --workflow wp3_2a_governed_screening.yml \
+              --event workflow_dispatch \
+              --branch main \
+              --limit 20 \
+              --json databaseId,createdAt,status,conclusion,url \
+              > /tmp/wp3_2b_screening_runs.json
+
+            receipt=$(STARTED_EPOCH="$started_epoch" python - <<'PY'
+          import datetime as dt
+          import json
+          import os
+
+          threshold = int(os.environ['STARTED_EPOCH']) - 10
+          candidates = []
+          for run in json.load(open('/tmp/wp3_2b_screening_runs.json', encoding='utf-8')):
+              stamp = str(run.get('createdAt') or '')
+              try:
+                  epoch = int(dt.datetime.fromisoformat(stamp.replace('Z', '+00:00')).timestamp())
+              except Exception:
+                  continue
+              if epoch >= threshold:
+                  candidates.append((epoch, run))
+          if candidates:
+              run = sorted(candidates, key=lambda item: item[0], reverse=True)[0][1]
+              print(f"{run['databaseId']}\t{run['url']}\t{run['status']}")
+          PY
+            )
+            if [[ -n "$receipt" ]]; then
+              IFS=$'\t' read -r run_id run_url run_status <<< "$receipt"
+              break
+            fi
+            sleep 5
+          done
+
+          if [[ -z "$run_id" ]]; then
+            echo "WP3-2B dispatch was accepted but no matching run receipt was resolved." >&2
+            exit 2
+          fi
+
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "run_url=$run_url" >> "$GITHUB_OUTPUT"
+          echo "run_status=$run_status" >> "$GITHUB_OUTPUT"
+
+      - name: Publish screening receipt and close transient PR
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_ID: ${{ steps.dispatch.outputs.run_id }}
+          RUN_URL: ${{ steps.dispatch.outputs.run_url }}
+          RUN_STATUS: ${{ steps.dispatch.outputs.run_status }}
+        shell: bash
+        run: |
+          cat > /tmp/screening_dispatch_receipt.md <<EOF
+          ## WP3-2B protected screening dispatch receipt
+
+          - Screening run: [${RUN_ID}](${RUN_URL})
+          - Initial status: \`${RUN_STATUS}\`
+          - Maximum research queue: \`${{ steps.request.outputs.max_research_queue }}\`
+          - Protected environment: \`wp3-2a-screening-approval\`
+          - Investment ranking: \`false\`
+          - Research Objects created: \`0\`
+          - Candidate / account / simulation mutations: \`0\`
+          - Orders: \`0\`
+          - trade_authority: \`NONE\`
+          EOF
+          gh pr comment "$PR_NUMBER" --body-file /tmp/screening_dispatch_receipt.md
+          gh pr close "$PR_NUMBER" --comment "Transient WP3-2B screening trigger closed after the protected run receipt was recorded. Environment approval remains a human governance gate."
+
+      - name: Record WP3-2B dispatch contract
+        shell: bash
+        run: |
+          {
+            echo '## WP3-2B screening connector dispatch'
+            echo
+            echo "- Trigger branch: \`${{ github.event.pull_request.head.ref || github.ref_name }}\`"
+            echo "- Screening run: [${{ steps.dispatch.outputs.run_id }}](${{ steps.dispatch.outputs.run_url }})"
+            echo "- Initial status: \`${{ steps.dispatch.outputs.run_status }}\`"
+            echo "- Maximum research queue: \`${{ steps.request.outputs.max_research_queue }}\`"
+            echo '- Protected environment: `wp3-2a-screening-approval`'
+            echo '- Investment ranking: `false`'
+            echo '- Candidate / Research / account / simulation mutations: `0`'
+            echo '- Orders: `0`'
+            echo '- trade_authority: `NONE`'
+          } >> "$GITHUB_STEP_SUMMARY"
