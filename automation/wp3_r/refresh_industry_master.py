@@ -5,40 +5,45 @@ import argparse
 import csv
 import hashlib
 import json
-import math
 import time
 import urllib.parse
 import urllib.request
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 from zoneinfo import ZoneInfo
 
 CN = ZoneInfo("Asia/Shanghai")
-ENDPOINTS = [
-    "https://82.push2.eastmoney.com/api/qt/clist/get",
-    "https://7.push2.eastmoney.com/api/qt/clist/get",
-    "https://push2.eastmoney.com/api/qt/clist/get",
+ULIST_ENDPOINTS = [
+    "https://push2.eastmoney.com/api/qt/ulist.np/get",
+    "https://82.push2.eastmoney.com/api/qt/ulist.np/get",
+    "https://7.push2.eastmoney.com/api/qt/ulist.np/get",
 ]
-MARKET_FILTER = "m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048"
+STOCK_ENDPOINTS = [
+    "https://push2.eastmoney.com/api/qt/stock/get",
+    "https://82.push2.eastmoney.com/api/qt/stock/get",
+    "https://7.push2.eastmoney.com/api/qt/stock/get",
+]
 FIELDS = "f12,f13,f14,f100"
 
 
 def request_json(
+    endpoints: list[str],
     params: dict[str, Any],
-    retries: int = 3,
-    timeout_seconds: int = 30,
+    retries: int = 2,
+    timeout_seconds: int = 15,
 ) -> tuple[dict[str, Any], str]:
     query = urllib.parse.urlencode(params)
     errors: list[str] = []
-    for endpoint in ENDPOINTS:
+    for endpoint in endpoints:
         for attempt in range(1, retries + 1):
             try:
                 request = urllib.request.Request(
                     f"{endpoint}?{query}",
                     headers={
-                        "User-Agent": "Mozilla/5.0 InvestmentOS-WP3R-IndustryMaster/2.2",
+                        "User-Agent": "Mozilla/5.0 InvestmentOS-WP3R-IndustryMaster/3.0",
                         "Referer": "https://quote.eastmoney.com/center/gridlist.html",
+                        "Accept": "application/json,text/plain,*/*",
                     },
                 )
                 with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
@@ -53,116 +58,7 @@ def request_json(
     raise RuntimeError("|".join(errors))
 
 
-def paginated_market_rows(page_size: int, hard_page_cap: int = 400) -> tuple[list[dict[str, Any]], int, list[str]]:
-    if page_size < 1:
-        raise ValueError("PAGE_SIZE_MUST_BE_POSITIVE")
-
-    rows: list[dict[str, Any]] = []
-    total = 0
-    selected_endpoints: list[str] = []
-    seen_codes: set[str] = set()
-    expected_page_count: int | None = None
-
-    for page in range(1, hard_page_cap + 1):
-        payload, endpoint = request_json(
-            {
-                "pn": page,
-                "pz": page_size,
-                "po": 0,
-                "np": 1,
-                "fltt": 2,
-                "invt": 2,
-                "fid": "f12",
-                "fs": MARKET_FILTER,
-                "fields": FIELDS,
-            }
-        )
-        selected_endpoints.append(endpoint)
-        data = payload.get("data") or {}
-        diff = data.get("diff") or []
-        if isinstance(diff, dict):
-            diff = list(diff.values())
-
-        provider_total = int(data.get("total") or 0)
-        if provider_total:
-            if total and provider_total != total:
-                raise RuntimeError(f"PROVIDER_TOTAL_CHANGED_DURING_PAGINATION:{total}->{provider_total}")
-            total = provider_total
-            expected_page_count = math.ceil(total / page_size)
-            if expected_page_count > hard_page_cap:
-                raise RuntimeError(
-                    f"PAGINATION_HARD_CAP_TOO_LOW:expected_pages={expected_page_count}:cap={hard_page_cap}:page_size={page_size}"
-                )
-
-        if not diff:
-            break
-
-        new_rows = 0
-        for row in diff:
-            if not isinstance(row, dict):
-                continue
-            code = str(row.get("f12") or "").strip().zfill(6)
-            if not code or code in seen_codes:
-                continue
-            seen_codes.add(code)
-            rows.append(row)
-            new_rows += 1
-
-        if total and len(rows) >= total:
-            break
-        if expected_page_count is not None and page >= expected_page_count:
-            break
-        if new_rows == 0:
-            raise RuntimeError(
-                f"PAGINATION_NO_PROGRESS:page={page}:rows={len(rows)}:provider_total={total}:page_size={page_size}"
-            )
-        time.sleep(0.10)
-    else:
-        raise RuntimeError(f"PAGINATION_SAFETY_LIMIT_REACHED:rows={len(rows)}:provider_total={total}")
-
-    if not total:
-        raise RuntimeError("PROVIDER_TOTAL_MISSING")
-    if len(rows) != total:
-        raise RuntimeError(
-            f"PROVIDER_PAGINATION_INCOMPLETE:rows={len(rows)}:provider_total={total}:page_size={page_size}"
-        )
-    return rows, total, sorted(set(selected_endpoints))
-
-
-def fetch_market_rows_with_page_size_fallback(requested_page_size: int) -> tuple[list[dict[str, Any]], int, list[str], int, list[dict[str, Any]]]:
-    page_sizes: list[int] = []
-    for candidate in (requested_page_size, 200, 100, 50, 20):
-        if candidate > 0 and candidate not in page_sizes:
-            page_sizes.append(candidate)
-
-    attempts: list[dict[str, Any]] = []
-    for page_size in page_sizes:
-        started = time.monotonic()
-        try:
-            rows, total, endpoints = paginated_market_rows(page_size)
-            attempts.append(
-                {
-                    "page_size": page_size,
-                    "status": "SUCCESS",
-                    "provider_total": total,
-                    "provider_row_count": len(rows),
-                    "elapsed_seconds": round(time.monotonic() - started, 3),
-                }
-            )
-            return rows, total, endpoints, page_size, attempts
-        except Exception as exc:
-            attempts.append(
-                {
-                    "page_size": page_size,
-                    "status": "FAILED",
-                    "error": f"{type(exc).__name__}:{exc}",
-                    "elapsed_seconds": round(time.monotonic() - started, 3),
-                }
-            )
-    raise RuntimeError("ALL_PAGE_SIZE_ATTEMPTS_FAILED:" + json.dumps(attempts, ensure_ascii=False, sort_keys=True))
-
-
-def exchange_suffix(code: str, market_id: Any) -> str:
+def exchange_suffix(code: str, market_id: Any = None) -> str:
     if code.startswith(("4", "8", "92")):
         return "BJ"
     if str(market_id) == "1" or code.startswith(("5", "6")):
@@ -173,6 +69,11 @@ def exchange_suffix(code: str, market_id: Any) -> str:
 def normalize_security_id(code: Any, market_id: Any = None) -> str:
     digits = str(code or "").strip().split(".")[0].zfill(6)
     return f"{digits}.{exchange_suffix(digits, market_id)}"
+
+
+def eastmoney_secid(security_id: str) -> str:
+    code, suffix = security_id.split(".", 1)
+    return f"{'1' if suffix == 'SH' else '0'}.{code}"
 
 
 def read_market_universe(path: Path) -> dict[str, str]:
@@ -193,6 +94,190 @@ def read_market_universe(path: Path) -> dict[str, str]:
     if len(result) < 5000:
         raise ValueError(f"A_SHARE_CURRENT_SECURITY_ID_COUNT_TOO_LOW:{len(result)}")
     return result
+
+
+def chunks(values: list[str], size: int) -> Iterable[list[str]]:
+    for start in range(0, len(values), size):
+        yield values[start : start + size]
+
+
+def parse_diff(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    data = payload.get("data") or {}
+    diff = data.get("diff") or []
+    if isinstance(diff, dict):
+        diff = list(diff.values())
+    return [row for row in diff if isinstance(row, dict)]
+
+
+def fetch_ulist_batch(security_ids: list[str]) -> tuple[list[dict[str, Any]], str]:
+    payload, endpoint = request_json(
+        ULIST_ENDPOINTS,
+        {
+            "fltt": 2,
+            "invt": 2,
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "fields": FIELDS,
+            "secids": ",".join(eastmoney_secid(sid) for sid in security_ids),
+        },
+    )
+    return parse_diff(payload), endpoint
+
+
+def fetch_stock(security_id: str) -> tuple[dict[str, Any] | None, str]:
+    payload, endpoint = request_json(
+        STOCK_ENDPOINTS,
+        {
+            "fltt": 2,
+            "invt": 2,
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "fields": FIELDS,
+            "secid": eastmoney_secid(security_id),
+        },
+    )
+    data = payload.get("data")
+    return (data if isinstance(data, dict) else None), endpoint
+
+
+def collect_canonical_industry_rows(
+    market: dict[str, str],
+    batch_size: int,
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]], list[str], int]:
+    security_ids = sorted(market)
+    raw_rows: dict[str, dict[str, Any]] = {}
+    diagnostics: list[dict[str, Any]] = []
+    endpoints_used: set[str] = set()
+    returned_rows = 0
+
+    failed_ids: list[str] = []
+    for batch_number, batch in enumerate(chunks(security_ids, batch_size), start=1):
+        started = time.monotonic()
+        try:
+            rows, endpoint = fetch_ulist_batch(batch)
+            endpoints_used.add(endpoint)
+            returned_rows += len(rows)
+            matched: set[str] = set()
+            for row in rows:
+                sid = normalize_security_id(row.get("f12"), row.get("f13"))
+                if sid in market:
+                    raw_rows[sid] = row
+                    matched.add(sid)
+            missing = sorted(set(batch) - matched)
+            failed_ids.extend(missing)
+            diagnostics.append(
+                {
+                    "route": "ULIST_PRIMARY",
+                    "batch_number": batch_number,
+                    "requested_count": len(batch),
+                    "returned_count": len(rows),
+                    "matched_count": len(matched),
+                    "missing_count": len(missing),
+                    "status": "SUCCESS" if not missing else "PARTIAL",
+                    "elapsed_seconds": round(time.monotonic() - started, 3),
+                }
+            )
+        except Exception as exc:
+            failed_ids.extend(batch)
+            diagnostics.append(
+                {
+                    "route": "ULIST_PRIMARY",
+                    "batch_number": batch_number,
+                    "requested_count": len(batch),
+                    "returned_count": 0,
+                    "matched_count": 0,
+                    "missing_count": len(batch),
+                    "status": "FAILED",
+                    "error": f"{type(exc).__name__}:{exc}",
+                    "elapsed_seconds": round(time.monotonic() - started, 3),
+                }
+            )
+        time.sleep(0.05)
+
+    retry_ids = sorted(set(failed_ids))
+    if retry_ids:
+        for batch_number, batch in enumerate(chunks(retry_ids, 20), start=1):
+            started = time.monotonic()
+            try:
+                rows, endpoint = fetch_ulist_batch(batch)
+                endpoints_used.add(endpoint)
+                returned_rows += len(rows)
+                matched: set[str] = set()
+                for row in rows:
+                    sid = normalize_security_id(row.get("f12"), row.get("f13"))
+                    if sid in market:
+                        raw_rows[sid] = row
+                        matched.add(sid)
+                diagnostics.append(
+                    {
+                        "route": "ULIST_SMALL_BATCH_RETRY",
+                        "batch_number": batch_number,
+                        "requested_count": len(batch),
+                        "returned_count": len(rows),
+                        "matched_count": len(matched),
+                        "missing_count": len(set(batch) - matched),
+                        "status": "SUCCESS" if set(batch) <= matched else "PARTIAL",
+                        "elapsed_seconds": round(time.monotonic() - started, 3),
+                    }
+                )
+            except Exception as exc:
+                diagnostics.append(
+                    {
+                        "route": "ULIST_SMALL_BATCH_RETRY",
+                        "batch_number": batch_number,
+                        "requested_count": len(batch),
+                        "returned_count": 0,
+                        "matched_count": 0,
+                        "missing_count": len(batch),
+                        "status": "FAILED",
+                        "error": f"{type(exc).__name__}:{exc}",
+                        "elapsed_seconds": round(time.monotonic() - started, 3),
+                    }
+                )
+            time.sleep(0.05)
+
+    unresolved_or_blank = [
+        sid
+        for sid in security_ids
+        if sid not in raw_rows or not str(raw_rows[sid].get("f100") or "").strip()
+    ]
+    if len(unresolved_or_blank) <= 100:
+        for sid in unresolved_or_blank:
+            started = time.monotonic()
+            try:
+                row, endpoint = fetch_stock(sid)
+                endpoints_used.add(endpoint)
+                if row:
+                    raw_rows[sid] = row
+                    returned_rows += 1
+                diagnostics.append(
+                    {
+                        "route": "STOCK_GET_FINAL_FALLBACK",
+                        "security_id": sid,
+                        "status": "SUCCESS" if row else "EMPTY",
+                        "elapsed_seconds": round(time.monotonic() - started, 3),
+                    }
+                )
+            except Exception as exc:
+                diagnostics.append(
+                    {
+                        "route": "STOCK_GET_FINAL_FALLBACK",
+                        "security_id": sid,
+                        "status": "FAILED",
+                        "error": f"{type(exc).__name__}:{exc}",
+                        "elapsed_seconds": round(time.monotonic() - started, 3),
+                    }
+                )
+            time.sleep(0.02)
+    elif unresolved_or_blank:
+        diagnostics.append(
+            {
+                "route": "STOCK_GET_FINAL_FALLBACK",
+                "status": "SKIPPED_TOO_MANY_UNRESOLVED",
+                "unresolved_count": len(unresolved_or_blank),
+                "maximum_individual_fallback": 100,
+            }
+        )
+
+    return raw_rows, diagnostics, sorted(endpoints_used), returned_rows
 
 
 def industry_code(industry_name: str) -> str:
@@ -229,25 +314,25 @@ def write_json(path: Path, payload: Any) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
-    parser.add_argument("--page-size", type=int, default=100)
+    parser.add_argument("--batch-size", type=int, default=80)
     args = parser.parse_args()
+    if args.batch_size < 1 or args.batch_size > 100:
+        raise ValueError("BATCH_SIZE_MUST_BE_BETWEEN_1_AND_100")
 
     root = Path(args.repo_root).resolve()
     now = datetime.now(CN)
     market_path = root / "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/A_SHARE_FULL_UNIVERSE.csv"
     market = read_market_universe(market_path)
-    provider_rows, provider_total, selected_endpoints, effective_page_size, fetch_attempts = fetch_market_rows_with_page_size_fallback(
-        args.page_size
+    provider_rows, fetch_diagnostics, endpoints_used, provider_returned_rows = collect_canonical_industry_rows(
+        market, args.batch_size
     )
 
     assignments: dict[str, dict[str, Any]] = {}
     duplicate_assignments: dict[str, list[str]] = {}
-    for item in provider_rows:
-        code = str(item.get("f12") or "").strip().zfill(6)
-        sid = normalize_security_id(code, item.get("f13"))
-        if sid not in market:
-            continue
-        name = str(item.get("f14") or market[sid] or "").strip()
+    for sid, market_name in market.items():
+        item = provider_rows.get(sid) or {}
+        code = sid.split(".")[0]
+        name = str(item.get("f14") or market_name or "").strip()
         industry_name = str(item.get("f100") or "").strip() or "UNRESOLVED"
         candidate = {
             "security_id": sid,
@@ -255,7 +340,7 @@ def main() -> None:
             "security_name": name,
             "industry_code": industry_code(industry_name),
             "industry_name": industry_name,
-            "classification_source": "EASTMONEY_F100_PRIMARY_INDUSTRY" if industry_name != "UNRESOLVED" else "WP3R_EXPLICIT_UNRESOLVED",
+            "classification_source": "EASTMONEY_ULIST_F100_PRIMARY_INDUSTRY" if industry_name != "UNRESOLVED" else "WP3R_EXPLICIT_UNRESOLVED",
             "effective_date": now.date().isoformat(),
             "source_timestamp": now.isoformat(),
             "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
@@ -266,22 +351,6 @@ def main() -> None:
             duplicate_assignments.setdefault(sid, [prior["industry_name"]]).append(candidate["industry_name"])
             continue
         assignments[sid] = candidate
-
-    for sid, security_name in market.items():
-        if sid in assignments:
-            continue
-        assignments[sid] = {
-            "security_id": sid,
-            "security_code": sid.split(".")[0],
-            "security_name": security_name,
-            "industry_code": "UNRESOLVED",
-            "industry_name": "UNRESOLVED",
-            "classification_source": "WP3R_EXPLICIT_UNRESOLVED",
-            "effective_date": now.date().isoformat(),
-            "source_timestamp": now.isoformat(),
-            "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
-            "trade_authority": "NONE",
-        }
 
     final_rows = sorted(assignments.values(), key=lambda row: row["security_id"])
     unresolved_ids = sorted(row["security_id"] for row in final_rows if row["industry_name"] == "UNRESOLVED")
@@ -299,19 +368,16 @@ def main() -> None:
     manifest = {
         "state_id": "WP3R_SECURITY_INDUSTRY_MASTER_CURRENT",
         "generated_at": now.isoformat(),
-        "provider": "EASTMONEY_F100_PRIMARY_INDUSTRY",
-        "provider_endpoints_used": selected_endpoints,
-        "market_filter": MARKET_FILTER,
+        "provider": "EASTMONEY_ULIST_F100_PRIMARY_INDUSTRY",
+        "provider_endpoints_used": endpoints_used,
         "requested_fields": FIELDS.split(","),
-        "requested_page_size": args.page_size,
-        "effective_page_size": effective_page_size,
-        "fetch_attempts": fetch_attempts,
-        "stable_sort_field": "f12",
-        "provider_total": provider_total,
-        "provider_row_count": len(provider_rows),
+        "canonical_batch_size": args.batch_size,
+        "canonical_security_request_count": len(market),
+        "provider_returned_row_count_including_retries": provider_returned_rows,
+        "unique_provider_security_count": len(provider_rows),
+        "fetch_diagnostics": fetch_diagnostics,
         "market_security_count": len(market),
         "industry_board_count": len(industry_names),
-        "provider_constituent_row_count": len(provider_rows),
         "row_count": len(final_rows),
         "industry_count": len(industry_names),
         "resolved_count": resolved_count,
@@ -320,11 +386,10 @@ def main() -> None:
         "coverage": round(coverage, 8),
         "duplicate_industry_assignment_count": duplicate_conflict_count,
         "duplicate_industry_assignments": duplicate_assignments,
-        "board_failure_count": 0,
-        "board_failures": [],
+        "batch_failure_count": sum(1 for item in fetch_diagnostics if item.get("status") == "FAILED"),
         "status": "PASS_CANONICAL_INDUSTRY_MASTER_CURRENT" if passed else "BLOCKED_INDUSTRY_MASTER_COVERAGE_OR_CONFLICT",
         "csv_path": str(csv_path.relative_to(root)),
-        "classification_semantics": "Eastmoney f100 primary industry name captured directly per security; deterministic internal industry code derived from the provider name",
+        "classification_semantics": "Canonical A-share Security Master is queried directly in bounded Eastmoney ulist batches for f100 primary industry; unresolved securities are retained explicitly",
         "unresolved_policy": "EXPLICIT_ROW_RETAINED_AND_INDUSTRY_RELATIVE_RANKING_BLOCKED_FOR_UNRESOLVED_SECURITY",
         "automatic_candidate_mutations": 0,
         "orders": 0,
