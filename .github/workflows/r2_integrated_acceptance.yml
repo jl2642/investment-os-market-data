@@ -66,12 +66,25 @@ jobs:
           assert execution['r2']['status'] == 'R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE'
           assert execution['r2']['merge_sha'] is None
           assert execution['r2']['wp5_status'] == 'BLOCKED_PENDING_R2_MERGE'
-          required_assets = {
-              'real_account_positions_current', 'simulation_positions_current', 'portfolio_marks_current',
-              'candidate_refresh_current', 'security_industry_master_current', 'financial_sector_screening_current',
-              'candidate_outcome_current', 'wp4b_core2_current', 'r2_acceptance', 'r2_status_current'
-          }
-          assert required_assets <= set(registry['assets'])
+
+          assets = registry['assets']
+          if isinstance(assets, list):
+              asset_ids = {item.get('asset_id') for item in assets if isinstance(item, dict)}
+              required_assets = {
+                  'REAL_ACCOUNT_POSITIONS_CURRENT', 'SIMULATION_POSITIONS_CURRENT', 'PORTFOLIO_MARKS_CURRENT',
+                  'CANDIDATE_REFRESH_CURRENT', 'SECURITY_INDUSTRY_MASTER_CURRENT', 'FINANCIAL_SECTOR_SCREENING_CURRENT',
+                  'CANDIDATE_OUTCOME_CURRENT', 'WP4B_CORE2_CURRENT', 'R2_ACCEPTANCE', 'R2_STATUS_CURRENT'
+              }
+          elif isinstance(assets, dict):
+              asset_ids = set(assets)
+              required_assets = {
+                  'real_account_positions_current', 'simulation_positions_current', 'portfolio_marks_current',
+                  'candidate_refresh_current', 'security_industry_master_current', 'financial_sector_screening_current',
+                  'candidate_outcome_current', 'wp4b_core2_current', 'r2_acceptance', 'r2_status_current'
+              }
+          else:
+              raise AssertionError(f"Unsupported registry assets type: {type(assets).__name__}")
+          assert required_assets <= asset_ids
           assert gaps['r2_closure']['wp5'] == 'BLOCKED_PENDING_R2_MERGE'
           assert 'WP3-R: `CONTINUOUS_CANDIDATE_ENGINE_CAPABILITY_ACCEPTED`' in status_text
           print({'r2': r2['status'], 'assets': len(required_assets), 'wp5': r2['wp5_status'], 'mutations': 0})
