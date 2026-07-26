@@ -5,6 +5,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 import time
 import urllib.parse
 import urllib.request
@@ -23,7 +24,11 @@ MARKET_FILTER = "m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048"
 FIELDS = "f12,f13,f14,f100"
 
 
-def request_json(params: dict[str, Any], retries: int = 2) -> tuple[dict[str, Any], str]:
+def request_json(
+    params: dict[str, Any],
+    retries: int = 3,
+    timeout_seconds: int = 30,
+) -> tuple[dict[str, Any], str]:
     query = urllib.parse.urlencode(params)
     errors: list[str] = []
     for endpoint in ENDPOINTS:
@@ -32,11 +37,11 @@ def request_json(params: dict[str, Any], retries: int = 2) -> tuple[dict[str, An
                 request = urllib.request.Request(
                     f"{endpoint}?{query}",
                     headers={
-                        "User-Agent": "Mozilla/5.0 InvestmentOS-WP3R-IndustryMaster/2.1",
+                        "User-Agent": "Mozilla/5.0 InvestmentOS-WP3R-IndustryMaster/2.2",
                         "Referer": "https://quote.eastmoney.com/center/gridlist.html",
                     },
                 )
-                with urllib.request.urlopen(request, timeout=15) as response:
+                with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
                     payload = json.loads(response.read().decode("utf-8", errors="replace"))
                 if payload.get("data") is None:
                     raise ValueError("PROVIDER_DATA_IS_NULL")
@@ -48,21 +53,26 @@ def request_json(params: dict[str, Any], retries: int = 2) -> tuple[dict[str, An
     raise RuntimeError("|".join(errors))
 
 
-def paginated_market_rows(page_size: int, max_pages: int = 20) -> tuple[list[dict[str, Any]], int, list[str]]:
+def paginated_market_rows(page_size: int, hard_page_cap: int = 400) -> tuple[list[dict[str, Any]], int, list[str]]:
+    if page_size < 1:
+        raise ValueError("PAGE_SIZE_MUST_BE_POSITIVE")
+
     rows: list[dict[str, Any]] = []
     total = 0
     selected_endpoints: list[str] = []
     seen_codes: set[str] = set()
-    for page in range(1, max_pages + 1):
+    expected_page_count: int | None = None
+
+    for page in range(1, hard_page_cap + 1):
         payload, endpoint = request_json(
             {
                 "pn": page,
                 "pz": page_size,
-                "po": 1,
+                "po": 0,
                 "np": 1,
                 "fltt": 2,
                 "invt": 2,
-                "fid": "f3",
+                "fid": "f12",
                 "fs": MARKET_FILTER,
                 "fields": FIELDS,
             }
@@ -72,9 +82,21 @@ def paginated_market_rows(page_size: int, max_pages: int = 20) -> tuple[list[dic
         diff = data.get("diff") or []
         if isinstance(diff, dict):
             diff = list(diff.values())
-        total = int(data.get("total") or total or 0)
+
+        provider_total = int(data.get("total") or 0)
+        if provider_total:
+            if total and provider_total != total:
+                raise RuntimeError(f"PROVIDER_TOTAL_CHANGED_DURING_PAGINATION:{total}->{provider_total}")
+            total = provider_total
+            expected_page_count = math.ceil(total / page_size)
+            if expected_page_count > hard_page_cap:
+                raise RuntimeError(
+                    f"PAGINATION_HARD_CAP_TOO_LOW:expected_pages={expected_page_count}:cap={hard_page_cap}:page_size={page_size}"
+                )
+
         if not diff:
             break
+
         new_rows = 0
         for row in diff:
             if not isinstance(row, dict):
@@ -85,16 +107,59 @@ def paginated_market_rows(page_size: int, max_pages: int = 20) -> tuple[list[dic
             seen_codes.add(code)
             rows.append(row)
             new_rows += 1
+
         if total and len(rows) >= total:
             break
-        if new_rows == 0:
+        if expected_page_count is not None and page >= expected_page_count:
             break
-        time.sleep(0.05)
+        if new_rows == 0:
+            raise RuntimeError(
+                f"PAGINATION_NO_PROGRESS:page={page}:rows={len(rows)}:provider_total={total}:page_size={page_size}"
+            )
+        time.sleep(0.10)
     else:
         raise RuntimeError(f"PAGINATION_SAFETY_LIMIT_REACHED:rows={len(rows)}:provider_total={total}")
-    if total and len(rows) < min(total, 5000):
-        raise RuntimeError(f"PROVIDER_PAGINATION_INCOMPLETE:rows={len(rows)}:provider_total={total}:page_size={page_size}")
+
+    if not total:
+        raise RuntimeError("PROVIDER_TOTAL_MISSING")
+    if len(rows) != total:
+        raise RuntimeError(
+            f"PROVIDER_PAGINATION_INCOMPLETE:rows={len(rows)}:provider_total={total}:page_size={page_size}"
+        )
     return rows, total, sorted(set(selected_endpoints))
+
+
+def fetch_market_rows_with_page_size_fallback(requested_page_size: int) -> tuple[list[dict[str, Any]], int, list[str], int, list[dict[str, Any]]]:
+    page_sizes: list[int] = []
+    for candidate in (requested_page_size, 200, 100, 50, 20):
+        if candidate > 0 and candidate not in page_sizes:
+            page_sizes.append(candidate)
+
+    attempts: list[dict[str, Any]] = []
+    for page_size in page_sizes:
+        started = time.monotonic()
+        try:
+            rows, total, endpoints = paginated_market_rows(page_size)
+            attempts.append(
+                {
+                    "page_size": page_size,
+                    "status": "SUCCESS",
+                    "provider_total": total,
+                    "provider_row_count": len(rows),
+                    "elapsed_seconds": round(time.monotonic() - started, 3),
+                }
+            )
+            return rows, total, endpoints, page_size, attempts
+        except Exception as exc:
+            attempts.append(
+                {
+                    "page_size": page_size,
+                    "status": "FAILED",
+                    "error": f"{type(exc).__name__}:{exc}",
+                    "elapsed_seconds": round(time.monotonic() - started, 3),
+                }
+            )
+    raise RuntimeError("ALL_PAGE_SIZE_ATTEMPTS_FAILED:" + json.dumps(attempts, ensure_ascii=False, sort_keys=True))
 
 
 def exchange_suffix(code: str, market_id: Any) -> str:
@@ -164,14 +229,16 @@ def write_json(path: Path, payload: Any) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
-    parser.add_argument("--page-size", type=int, default=1000)
+    parser.add_argument("--page-size", type=int, default=100)
     args = parser.parse_args()
 
     root = Path(args.repo_root).resolve()
     now = datetime.now(CN)
     market_path = root / "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/A_SHARE_FULL_UNIVERSE.csv"
     market = read_market_universe(market_path)
-    provider_rows, provider_total, selected_endpoints = paginated_market_rows(args.page_size)
+    provider_rows, provider_total, selected_endpoints, effective_page_size, fetch_attempts = fetch_market_rows_with_page_size_fallback(
+        args.page_size
+    )
 
     assignments: dict[str, dict[str, Any]] = {}
     duplicate_assignments: dict[str, list[str]] = {}
@@ -236,7 +303,10 @@ def main() -> None:
         "provider_endpoints_used": selected_endpoints,
         "market_filter": MARKET_FILTER,
         "requested_fields": FIELDS.split(","),
-        "page_size": args.page_size,
+        "requested_page_size": args.page_size,
+        "effective_page_size": effective_page_size,
+        "fetch_attempts": fetch_attempts,
+        "stable_sort_field": "f12",
         "provider_total": provider_total,
         "provider_row_count": len(provider_rows),
         "market_security_count": len(market),
