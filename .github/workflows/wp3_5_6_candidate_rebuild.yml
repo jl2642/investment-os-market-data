@@ -1,0 +1,155 @@
+name: WP3-5 + WP3-6 Candidate Rebuild
+run-name: "WP3-5/6 Research Object, Entry Baseline and Candidate rebuild"
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/wp3_5_6/**"
+      - ".github/workflows/wp3_5_6_candidate_rebuild.yml"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_5_6/**"
+      - "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md"
+      - "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py"
+      - ".wp3_5_6_control/**"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  WP3_5_6_OUTPUT_DIR: investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_5_6/PROPOSALS/WP3_5_6_CANDIDATE_REBUILD_20260724_V1
+
+jobs:
+  build-audit-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            automation/wp3_2a/requirements.lock
+            automation/wp3_3_4/requirements.lock
+            automation/wp3_5_6/requirements.lock
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --retries 5 --timeout 30 \
+            -r automation/wp3_2a/requirements.lock \
+            -r automation/wp3_3_4/requirements.lock \
+            -r automation/wp3_5_6/requirements.lock
+
+      - name: Build Research Object, Entry Baseline and Candidate proposal
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p .wp3_5_6_run
+          rm -rf "$WP3_5_6_OUTPUT_DIR"
+          python automation/wp3_5_6/build_candidate_rebuild.py \
+            --repo-root . \
+            --config automation/wp3_5_6/config.json \
+            --output-dir "$WP3_5_6_OUTPUT_DIR" \
+            2>&1 | tee .wp3_5_6_run/BUILD_RESULT.log
+
+      - name: Run WP3-5 and WP3-6 acceptance tests
+        run: python -m pytest -q automation/wp3_5_6/tests
+
+      - name: Run WP3-2A forward-compatibility and runtime regression
+        run: |
+          python -m pytest -q automation/wp3_2a/tests
+          python -m pytest -q investment_os_runtime/80_EXECUTABLE_RUNTIME/tests
+
+      - name: Enforce governed diff and zero portfolio mutation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import subprocess
+          allowed_exact = {
+              ".github/workflows/wp3_5_6_candidate_rebuild.yml",
+              "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+              "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json",
+              "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md",
+              "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py",
+              ".wp3_5_6_control/CI_REPUBLICATION_MARKER.md",
+          }
+          allowed_prefixes = (
+              "automation/wp3_5_6/",
+              "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_5_6/",
+          )
+          changed = subprocess.check_output(["git", "diff", "--name-only", "origin/main"], text=True).splitlines()
+          forbidden = [p for p in changed if p not in allowed_exact and not p.startswith(allowed_prefixes)]
+          if forbidden:
+              raise SystemExit("FORBIDDEN_PATHS:" + ",".join(sorted(forbidden)))
+          hard_forbidden = (
+              "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/",
+              "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/",
+              "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/",
+              "investment_os_runtime/30_STATE_CURRENT/80_GOVERNANCE/",
+          )
+          leaked = [p for p in changed if p.startswith(hard_forbidden)]
+          if leaked:
+              raise SystemExit("INVESTMENT_DOMAIN_MUTATION:" + ",".join(sorted(leaked)))
+          print({"changed_paths": changed, "trade_authority": "NONE"})
+          PY
+
+      - name: Publish deterministic governed proposal to PR branch
+        if: github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            "$WP3_5_6_OUTPUT_DIR" \
+            investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md
+          if git diff --cached --quiet; then
+            echo "Deterministic proposal already published."
+            exit 0
+          fi
+          git commit -m "WP3-5/6 publish governed Candidate rebuild proposal"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+
+      - name: Record milestone summary
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ["WP3_5_6_OUTPUT_DIR"])
+          data = json.loads((root / "WP3_5_6_MANIFEST.json").read_text(encoding="utf-8"))
+          m = data["metrics"]
+          print("## WP3-5 + WP3-6 Candidate rebuild")
+          print()
+          print(f"- Research Object proposals: `{m['research_object_proposals']}`")
+          print(f"- Candidate Core proposed: `{m['candidate_core_proposed']}`")
+          print(f"- Shadow Track proposed: `{m['shadow_track_proposed']}`")
+          print(f"- Ready for User Decision: `{m['ready_for_user_decision_proposed']}`")
+          print(f"- Complete Entry Baselines: `{m['complete_entry_baselines']}`")
+          print(f"- Historical Core20 migrations: `{m['historical_core20_review_rows']}`")
+          print("- Real-account / simulation / orders: `0 / 0 / 0`")
+          print("- Candidate state authority: `USER_MERGE_OF_GOVERNED_PR`")
+          print("- trade_authority: `NONE`")
+          PY
+
+      - name: Upload governed proposal evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wp3-5-6-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .wp3_5_6_run/
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_5_6/PROPOSALS/WP3_5_6_CANDIDATE_REBUILD_20260724_V1/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
