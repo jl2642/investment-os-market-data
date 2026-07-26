@@ -32,12 +32,12 @@ def canonical_security_id(code: str) -> str:
     digits = parts[0].zfill(6)
     if len(parts) > 1 and parts[1] in {"SH", "SZ", "BJ", "OF"}:
         return f"{digits}.{parts[1]}"
-    if digits.startswith(("5", "6", "9")):
+    if digits.startswith(("4", "8", "92")):
+        return f"{digits}.BJ"
+    if digits.startswith(("5", "6")):
         return f"{digits}.SH"
     if digits.startswith(("0", "1", "2", "3")):
         return f"{digits}.SZ"
-    if digits.startswith(("4", "8")):
-        return f"{digits}.BJ"
     return digits
 
 
