@@ -37,18 +37,28 @@ def test_wp3_2a_is_closed_on_main():
     assert acceptance["trade_authority"] == "NONE"
 
 
-def test_execution_register_and_master_plan_enter_wp3_2b():
+def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_forward_progression():
     register = json.loads(REGISTER.read_text(encoding="utf-8"))
     plan = MASTER_PLAN.read_text(encoding="utf-8")
 
-    assert register["current_step"] == "WP3-2B_GOVERNED_SCREENING"
     assert register["wp3_status"]["WP3-2A"] == "COMPLETED_ACCEPTED_CURRENT"
-    assert register["wp3_status"]["WP3-2B"] == "READY_FOR_PROTECTED_PROPOSAL_ONLY_SCREENING"
-    assert register["next_task"] == "RUN_WP3_2B_GOVERNED_SCREENING_PROPOSAL"
     assert register["trade_authority"] == "NONE"
     assert "WP3-2A | COMPLETED" in plan
-    assert "WP3-2B | ACTIVE / READY" in plan
-    assert "同一交易日或已有未关闭Proposal" in plan
+
+    if register["current_step"] == "WP3-2B_GOVERNED_SCREENING":
+        assert register["wp3_status"]["WP3-2B"] == "READY_FOR_PROTECTED_PROPOSAL_ONLY_SCREENING"
+        assert register["next_task"] == "RUN_WP3_2B_GOVERNED_SCREENING_PROPOSAL"
+        assert "WP3-2B | ACTIVE / READY" in plan
+        assert "同一交易日或已有未关闭Proposal" in plan
+    else:
+        assert register["current_step"] == "WP3-5_WP3-6_RESEARCH_OBJECT_ENTRY_BASELINE_AND_CANDIDATE_REBUILD"
+        assert register["wp3_status"]["WP3-2B"] == "COMPLETED_SCREENING_PROPOSAL_ACCEPTED_ON_MAIN"
+        assert register["wp3_status"]["WP3-3"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-4"].startswith("COMPLETED_")
+        assert register["next_task"] == "RUN_WP3_5_WP3_6_CONCENTRATED_CANDIDATE_REBUILD_PROPOSAL"
+        assert "WP3-2B | COMPLETED" in plan
+        assert "WP3-3 + WP3-4 | COMPLETED ON MERGE" in plan
+        assert "WP3-5 + WP3-6 | READY ON MERGE" in plan
 
 
 def test_scheduled_refresh_is_idempotent_and_fail_closed():
@@ -66,7 +76,7 @@ def test_bot_created_pr_dispatches_required_lineage_gate():
     text = PUBLISHER.read_text(encoding="utf-8")
 
     assert "gh workflow run wp3_2a_lineage_gate.yml" in text
-    assert "--ref \"$BRANCH\"" in text
+    assert '--ref "$BRANCH"' in text
     assert "enforce_wp3_2a_scope=true" in text
     assert "--force" not in text
     assert "LINEAGE_DISPATCH_RECEIPT.json" in text
