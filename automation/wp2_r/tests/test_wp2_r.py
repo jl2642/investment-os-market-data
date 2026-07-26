@@ -23,6 +23,7 @@ def test_security_id_normalization() -> None:
     assert BUILDER.canonical_security_id("159352") == "159352.SZ"
     assert BUILDER.canonical_security_id("510500") == "510500.SH"
     assert BUILDER.canonical_security_id("920079") == "920079.SH"
+    assert BUILDER.security_id_for("017534", "BOND_FUND") == "017534.OF"
 
 
 def test_user_confirmation_is_required_for_applied_delta() -> None:
@@ -162,7 +163,7 @@ def test_builder_produces_separate_watermarks_and_zero_orders(tmp_path: Path) ->
                 "freshness_status": "FRESH",
             },
             {
-                "security_id": "017534.SZ",
+                "security_id": "017534.OF",
                 "code": "017534",
                 "security_name": "FUND",
                 "asset_class": "BOND_FUND",
@@ -218,6 +219,7 @@ def test_builder_produces_separate_watermarks_and_zero_orders(tmp_path: Path) ->
     )
     real_out = json.loads((tmp_path / "out/real.json").read_text(encoding="utf-8"))
     run_out = json.loads((tmp_path / "out/run.json").read_text(encoding="utf-8"))
+    assert {row["security_id"] for row in real_out["holdings"]} == {"159352.SZ", "017534.OF"}
     assert real_out["position_watermark"]["position_state_current"] is True
     assert real_out["mark_watermark"]["all_marks_fresh_or_acceptable"] is True
     assert real_out["broker_verification"]["broker_verified"] is False
