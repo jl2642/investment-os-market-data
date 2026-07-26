@@ -85,7 +85,7 @@ jobs:
 
       - name: Build WP3-2B proposal body
         run: |
-          cat > "$RUN_DIR/PR_BODY.md" <<EOF
+          cat > "$RUN_DIR/PR_BODY.md" <<'EOF'
           ## WP3-2B governed screening proposal
           - Accepted universe session: `${{ steps.produce.outputs.session }}`
           - Full-market method: `DATA_READINESS_AND_LIQUIDITY_ONLY`
