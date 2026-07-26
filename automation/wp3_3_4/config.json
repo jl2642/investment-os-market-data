@@ -1,6 +1,6 @@
 {
   "program_id": "WP3-3+WP3-4",
-  "contract_version": "1.0.0",
+  "contract_version": "2.0.0",
   "as_of_date": "2026-07-24",
   "inputs": {
     "accepted_current_binding": "investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json",
@@ -31,8 +31,16 @@
     "minimum_valid_metric_count": 2,
     "moderate_pe_ttm_max": 50.0,
     "high_expectation_pe_ttm_min": 70.0,
-    "positive_fcf_yield_preferred": true,
-    "positive_shareholder_yield_preferred": true
+    "price_linked_rebase": "FMDL3E_OLD_CLOSE_TO_20260724_CURRENT_PRICE",
+    "underlying_financial_period_refresh_claimed": false
+  },
+  "investability_gate": {
+    "institutional_market_cap_floor_cny": 5000000000.0,
+    "deep_dive_market_cap_floor_cny": 10000000000.0,
+    "research_turnover_floor_cny": 50000000.0,
+    "deep_dive_turnover_floor_cny": 100000000.0,
+    "maximum_deep_dive_volatility_60d": 0.8,
+    "maximum_deep_dive_drawdown_120d": -0.4
   },
   "research_priority_weights": {
     "financial_score": 0.25,
@@ -46,10 +54,13 @@
   },
   "longlist": {
     "maximum_rows": 60,
+    "deep_dive_target": 20,
+    "structured_research_target": 20,
     "maximum_per_industry": 6,
-    "maximum_per_board": 18,
+    "maximum_per_board": 24,
     "minimum_target_industries": 12,
-    "historical_core20_review_count": 20
+    "historical_core20_review_count": 20,
+    "historical_core20_grandfathering": false
   },
   "authority": {
     "investment_ranking": false,
