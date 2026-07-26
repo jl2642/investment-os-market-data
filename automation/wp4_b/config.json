@@ -1,0 +1,52 @@
+{
+  "program_id": "WP4B_CORE2_RESEARCH_HARDENING_V1",
+  "status_date": "2026-07-26",
+  "inputs": {
+    "source_facts": "automation/wp4_b/source_facts.json",
+    "market_current": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT/A_SHARE_FULL_UNIVERSE.csv",
+    "financial_factor_current": "outputs/financial_factors/engine/current/FMDL3CB_LATEST_FACTOR_CURRENT.parquet",
+    "financial_family_scores": "outputs/financial_factors/score/current/FMDL3CD_FAMILY_SCORES.parquet",
+    "simulation_positions": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "real_positions": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "candidate_current": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+    "wp4_initial_current": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json",
+    "wp4_initial_research": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4/PROPOSALS/WP4_CORE2_DECISION_INTERFACE_20260726_V1/WP4_DEEP_RESEARCH_CORE2.jsonl",
+    "wp4_initial_sources": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4/PROPOSALS/WP4_CORE2_DECISION_INTERFACE_20260726_V1/WP4_SOURCE_REGISTER.json"
+  },
+  "outputs": {
+    "midea_research": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/000333.SZ/WP4B_RESEARCH_CURRENT.json",
+    "yangtze_research": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/600900.SH/WP4B_RESEARCH_CURRENT.json",
+    "peer_comparison": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_PEER_COMPARISON_CURRENT.json",
+    "scenario_models": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_SCENARIO_MODELS_CURRENT.json",
+    "position_fit": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_POSITION_FIT_CURRENT.json",
+    "event_monitoring": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_EVENT_MONITORING_CURRENT.json",
+    "operating_current": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json",
+    "acceptance": "investment_os_runtime/00_CONTROL/WP4_B_CORE2_HARDENING_ACCEPTANCE_RECORD.json"
+  },
+  "peer_sets": {
+    "000333.SZ": ["000333.SZ", "000651.SZ", "600690.SH", "000921.SZ"],
+    "600900.SH": ["600900.SH", "600025.SH", "600886.SH", "600236.SH"]
+  },
+  "comparison_factor_ids": [
+    "GROWTH_REVENUE_YOY",
+    "GROWTH_NET_PROFIT_YOY",
+    "PROFIT_ROE",
+    "PROFIT_ROA",
+    "CASH_OCF_TO_NET_PROFIT",
+    "BALANCE_DEBT_TO_ASSETS"
+  ],
+  "position_fit_policy": {
+    "core_target_weight": 0.08,
+    "soft_max_weight": 0.10,
+    "single_name_hard_max_weight": 0.12,
+    "minimum_liquidity_coverage_days": 20,
+    "action_authority": "RESEARCH_ONLY"
+  },
+  "authority": {
+    "research_object_mutations": 0,
+    "candidate_membership_mutations": 0,
+    "portfolio_quantity_or_cost_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
