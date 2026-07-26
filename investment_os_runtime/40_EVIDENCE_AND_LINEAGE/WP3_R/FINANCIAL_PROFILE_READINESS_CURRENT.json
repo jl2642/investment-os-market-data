@@ -1,0 +1,110 @@
+{
+  "cross_profile_ranking_forbidden": true,
+  "financial_profiles": [
+    {
+      "composite_score_status": "BLOCKED_INDEPENDENT_PROFILE_INPUTS_INCOMPLETE",
+      "current_metric_coverage": 0.266667,
+      "currently_reusable_metric_count": 4,
+      "general_non_financial_score_substitution_forbidden": true,
+      "issuer_count": 42,
+      "missing_production_metrics": [
+        "CAPITAL_ADEQUACY_RATIO",
+        "CET1_RATIO",
+        "CREDIT_COST",
+        "DIVIDEND_YIELD",
+        "FEE_INCOME_GROWTH",
+        "LIQUIDITY_OR_LOAN_DEPOSIT_RATIO",
+        "NET_INTEREST_MARGIN",
+        "NPL_RATIO",
+        "PB",
+        "PROVISION_COVERAGE",
+        "ROE_TO_PB_CONTEXT"
+      ],
+      "profile": "BANK",
+      "required_metric_count": 15
+    },
+    {
+      "composite_score_status": "BLOCKED_INDEPENDENT_PROFILE_INPUTS_INCOMPLETE",
+      "current_metric_coverage": 0.2,
+      "currently_reusable_metric_count": 2,
+      "general_non_financial_score_substitution_forbidden": true,
+      "issuer_count": 5,
+      "missing_production_metrics": [
+        "COMBINED_RATIO_OR_LAPSE_RATE",
+        "CORE_SOLVENCY_RATIO",
+        "DIVIDEND_YIELD",
+        "EMBEDDED_VALUE_GROWTH",
+        "NBV_GROWTH",
+        "PEV_OR_PB",
+        "TOTAL_INVESTMENT_YIELD",
+        "VNB_MARGIN"
+      ],
+      "profile": "INSURANCE",
+      "required_metric_count": 10
+    },
+    {
+      "composite_score_status": "BLOCKED_INDEPENDENT_PROFILE_INPUTS_INCOMPLETE",
+      "current_metric_coverage": 0.333333,
+      "currently_reusable_metric_count": 4,
+      "general_non_financial_score_substitution_forbidden": true,
+      "issuer_count": 50,
+      "missing_production_metrics": [
+        "DIVIDEND_YIELD",
+        "EARNINGS_VOLATILITY",
+        "FEE_BUSINESS_MIX",
+        "LEVERAGE_RATIO",
+        "LIQUIDITY_COVERAGE",
+        "NET_CAPITAL_RATIO",
+        "PB",
+        "PROPRIETARY_TRADING_DEPENDENCE"
+      ],
+      "profile": "SECURITIES_AND_BROKERAGE",
+      "required_metric_count": 12
+    }
+  ],
+  "general_non_financial_profile_status": "EXISTING_FMDL3CD_SCORE_RETAINED",
+  "profile_counts": {
+    "BANK": 42,
+    "GENERAL_NON_FINANCIAL": 5102,
+    "INSURANCE": 5,
+    "SECURITIES_AND_BROKERAGE": 50,
+    "UNRESOLVED": 329
+  },
+  "score_profile_states": {
+    "BANK": {
+      "rows": 42,
+      "states": {
+        "CONTROLLED_PROFILE_EXCLUSION": 42
+      }
+    },
+    "GENERAL_NON_FINANCIAL": {
+      "rows": 5102,
+      "states": {
+        "INSUFFICIENT_FACTOR_COVERAGE": 10,
+        "INSUFFICIENT_FAMILY_COVERAGE": 108,
+        "SCORE_ACCEPTED": 4452,
+        "SCORE_ACCEPTED_WITH_LIMITED_CONFIDENCE": 532
+      }
+    },
+    "INSURANCE": {
+      "rows": 5,
+      "states": {
+        "CONTROLLED_PROFILE_EXCLUSION": 5
+      }
+    },
+    "SECURITIES_AND_BROKERAGE": {
+      "rows": 50,
+      "states": {
+        "CONTROLLED_PROFILE_EXCLUSION": 50
+      }
+    },
+    "UNRESOLVED": {
+      "rows": 329,
+      "states": {
+        "CONTROLLED_PROFILE_EXCLUSION": 329
+      }
+    }
+  },
+  "status": "PARTIAL_FINANCIAL_PROFILE_CONTRACT_INSTALLED_INPUT_EXTENSION_REQUIRED",
+  "trade_authority": "NONE"
+}
