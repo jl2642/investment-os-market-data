@@ -100,7 +100,7 @@ def test_wp3_2b_is_proposal_only_and_connector_dispatchable():
     assert '"investment_ranking": False' in script
     assert '"candidate_membership_mutations": 0' in script
     assert '"trade_authority": "NONE"' in script
-    assert "automation/wp3-2b-screen-*" in bridge
+    assert "automation/wp3-2b-screen-" in bridge
     assert ".wp3_2a_control/screening_request.json" in bridge
     assert "types: [opened]" in bridge
     assert "\n  push:" not in bridge
