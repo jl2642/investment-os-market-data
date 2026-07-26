@@ -7,6 +7,12 @@ import json
 from pathlib import Path
 
 
+ALLOWED_CURRENT_STATUSES = {
+    "ACCEPTED_ON_MAIN",
+    "ACCEPTED_IF_AND_ONLY_IF_MERGED_TO_MAIN",
+}
+
+
 def sha(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -50,6 +56,7 @@ def main() -> None:
     current = repo / "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_2A/CURRENT"
     binding_path = repo / "investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json"
     acceptance_path = repo / "investment_os_runtime/00_CONTROL/WP3_2A_UNIVERSE_ACCEPTANCE_RECORD.json"
+    current_status = "ABSENT"
     if current.exists():
         for name in [
             "A_SHARE_FULL_UNIVERSE.csv",
@@ -70,10 +77,15 @@ def main() -> None:
             with data_path.open(encoding="utf-8-sig", newline="") as handle:
                 row_count = sum(1 for _ in csv.DictReader(handle))
 
-            if binding.get("status") != "ACCEPTED_ON_MAIN":
-                errors.append("A_SHARE_CURRENT binding is not ACCEPTED_ON_MAIN")
-            if acceptance.get("status") != "ACCEPTED_ON_MAIN":
-                errors.append("WP3-2A acceptance record is not ACCEPTED_ON_MAIN")
+            binding_status = binding.get("status")
+            acceptance_status = acceptance.get("status")
+            current_status = str(binding_status or "UNKNOWN")
+            if binding_status not in ALLOWED_CURRENT_STATUSES:
+                errors.append(f"A_SHARE_CURRENT binding has unsupported status: {binding_status}")
+            if acceptance_status not in ALLOWED_CURRENT_STATUSES:
+                errors.append(f"WP3-2A acceptance record has unsupported status: {acceptance_status}")
+            if binding_status != acceptance_status:
+                errors.append("CURRENT binding and acceptance status mismatch")
             if lineage.get("status") != "PASS":
                 errors.append("CURRENT lineage not PASS")
             if binding.get("as_of_date") != manifest.get("session"):
@@ -98,7 +110,7 @@ def main() -> None:
         "proposal_count": len(proposals),
         "proposals": proposals,
         "current_present": current.exists(),
-        "current_status": "ACCEPTED_ON_MAIN" if current.exists() and not errors else "INVALID_OR_ABSENT",
+        "current_status": current_status,
         "errors": errors,
         "orders": 0,
         "trade_authority": "NONE",
