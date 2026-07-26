@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "ledger_id": "WP2R_USER_TRANSACTION_DELTA_LEDGER_CURRENT",
+  "status": "CURRENT_ZERO_PENDING_DELTA",
+  "base_position_states": {
+    "real_account": {
+      "path": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json",
+      "base_as_of": "2026-07-20_CLOSE",
+      "holding_count": 7
+    },
+    "simulation": {
+      "path": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json",
+      "base_as_of": "2026-07-20_CLOSE",
+      "holding_count": 16
+    }
+  },
+  "continuity_confirmed_through": "2026-07-24",
+  "continuity_authority": "USER_CONFIRMATION_WP2_1_20260724_001",
+  "entries": [],
+  "pending_user_confirmation_count": 0,
+  "applied_delta_count": 0,
+  "policy": {
+    "user_reports_only_economic_transactions": true,
+    "market_marks_never_require_user_delta": true,
+    "quantity_and_cost_change_only_from_confirmed_delta": true,
+    "broker_verification_is_not_inferred_from_market_data": true,
+    "cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED"
+  },
+  "automatic_position_mutations": 0,
+  "orders": 0,
+  "trade_authority": "NONE"
+}
