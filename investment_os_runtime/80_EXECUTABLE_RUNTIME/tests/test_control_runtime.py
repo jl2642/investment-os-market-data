@@ -203,7 +203,13 @@ def test_cadences_are_not_active():
 def test_candidate_alpha_is_blocked():
     contract = read_json(RUNTIME / "70_ATTRIBUTION_AND_CALIBRATION" / "CANDIDATE_OUTCOME_CONTRACT.json")
     assert contract["alpha_claim_allowed"] is False
-    assert contract["current_status"] == "BLOCKED_NO_VALID_CORE20_ENTRY_BASELINES"
+    assert contract["current_status"] in {
+        "BLOCKED_NO_VALID_CORE20_ENTRY_BASELINES",
+        "BLOCKED_INSUFFICIENT_COMPLETED_EVALUATION_WINDOWS",
+    }
+    if contract["current_status"] == "BLOCKED_INSUFFICIENT_COMPLETED_EVALUATION_WINDOWS":
+        assert contract["valid_entry_baseline_count"] == 2
+        assert contract["completed_evaluation_windows"] == []
 
 
 def test_rule_change_is_not_automatic():

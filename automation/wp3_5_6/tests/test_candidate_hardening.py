@@ -44,9 +44,15 @@ def test_candidate_current_semantic_hash_covers_final_payload():
 def test_candidate_alpha_remains_fail_closed_after_baseline_creation():
     contract = read_json(ROOT / "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CONTRACT.json")
     assert contract["alpha_claim_allowed"] is False
-    assert contract["pending_valid_entry_baseline_count_if_pr_merged"] == 2
-    assert contract["pending_status_if_pr_merged"] == "BLOCKED_INSUFFICIENT_COMPLETED_EVALUATION_WINDOWS"
-    assert contract["current_status_remains_fail_closed_until_merge_and_observation"] is True
+    if "valid_entry_baseline_count" in contract:
+        assert contract["valid_entry_baseline_count"] == 2
+        assert contract["current_status"] == "BLOCKED_INSUFFICIENT_COMPLETED_EVALUATION_WINDOWS"
+        assert contract["completed_evaluation_windows"] == []
+        assert contract["fail_closed_until_observation_windows_complete"] is True
+    else:
+        assert contract["pending_valid_entry_baseline_count_if_pr_merged"] == 2
+        assert contract["pending_status_if_pr_merged"] == "BLOCKED_INSUFFICIENT_COMPLETED_EVALUATION_WINDOWS"
+        assert contract["current_status_remains_fail_closed_until_merge_and_observation"] is True
     assert contract["trade_authority"] == "NONE"
 
 
@@ -56,3 +62,6 @@ def test_manifest_records_hardened_core_counts():
     assert manifest["metrics"]["shadow_track_proposed"] == 38
     assert manifest["metrics"]["complete_entry_baselines"] == 2
     assert set(manifest["qualitative_core_retain_codes"]) == {"000333", "600900"}
+    if manifest["status"] == "ACCEPTED_ON_MAIN":
+        assert manifest["acceptance"]["candidate_state_effective"] is True
+        assert manifest["acceptance"]["ready_for_user_decision"] == 0

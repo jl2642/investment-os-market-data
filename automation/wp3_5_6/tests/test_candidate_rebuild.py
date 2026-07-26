@@ -12,15 +12,21 @@ OUTPUT = ROOT / os.environ.get(
     "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_5_6/PROPOSALS/WP3_5_6_CANDIDATE_REBUILD_20260724_V1",
 )
 
+
 def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
+
 
 def read_jsonl(path: Path):
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
+
 def test_manifest_and_authority_boundaries():
     manifest = read_json(OUTPUT / "WP3_5_6_MANIFEST.json")
-    assert manifest["status"] == "CANDIDATE_STATE_CHANGE_PROPOSAL_PENDING_USER_MERGE"
+    assert manifest["status"] in {
+        "CANDIDATE_STATE_CHANGE_PROPOSAL_PENDING_USER_MERGE",
+        "ACCEPTED_ON_MAIN",
+    }
     assert manifest["as_of_date"] == "2026-07-24"
     assert manifest["candidate_state_change_authority"] == "USER_MERGE_OF_GOVERNED_PR"
     assert manifest["metrics"]["unified_workplan_rows"] == 73
@@ -30,6 +36,10 @@ def test_manifest_and_authority_boundaries():
     assert manifest["metrics"]["simulation_trade_mutations"] == 0
     assert manifest["metrics"]["orders"] == 0
     assert manifest["trade_authority"] == "NONE"
+    if manifest["status"] == "ACCEPTED_ON_MAIN":
+        assert manifest["acceptance"]["candidate_state_effective"] is True
+        assert manifest["acceptance"]["trade_authority"] == "NONE"
+
 
 def test_research_objects_are_not_silently_decision_grade():
     rows = read_jsonl(OUTPUT / "WP3_5_RESEARCH_OBJECT_PROPOSALS.jsonl")
@@ -39,6 +49,7 @@ def test_research_objects_are_not_silently_decision_grade():
     assert all(row["trade_authority"] == "NONE" for row in rows)
     assert any(row["lifecycle_state"] == "ACTIVE_RESEARCH" for row in rows)
     assert any(row["research_gaps"] for row in rows)
+
 
 def test_entry_baselines_are_prospective_and_gated():
     rows = read_jsonl(OUTPUT / "WP3_5_ENTRY_BASELINE_PROPOSALS.jsonl")
@@ -53,8 +64,13 @@ def test_entry_baselines_are_prospective_and_gated():
         assert row["thesis_id"]
         assert row["trade_authority"] == "NONE"
 
+
 def test_candidate_rebuild_is_explicit_and_no_ready_overclaim():
-    proposal = pd.read_csv(OUTPUT / "WP3_6_CANDIDATE_REBUILD_PROPOSAL.csv", dtype={"security_code": str}, encoding="utf-8-sig")
+    proposal = pd.read_csv(
+        OUTPUT / "WP3_6_CANDIDATE_REBUILD_PROPOSAL.csv",
+        dtype={"security_code": str},
+        encoding="utf-8-sig",
+    )
     assert len(proposal) == 73
     assert proposal["security_code"].nunique() == 73
     assert proposal["buy_signal"].eq("NO").all()
@@ -66,8 +82,13 @@ def test_candidate_rebuild_is_explicit_and_no_ready_overclaim():
     assert len(core) >= 1
     assert core["entry_baseline_status"].eq("COMPLETE").all()
 
+
 def test_historical_core20_has_no_grandfathering_or_automatic_removal():
-    migration = pd.read_csv(OUTPUT / "WP3_6_HISTORICAL_CORE20_MIGRATION.csv", dtype={"security_code": str}, encoding="utf-8-sig")
+    migration = pd.read_csv(
+        OUTPUT / "WP3_6_HISTORICAL_CORE20_MIGRATION.csv",
+        dtype={"security_code": str},
+        encoding="utf-8-sig",
+    )
     assert len(migration) == 20
     assert migration["security_code"].nunique() == 20
     assert migration["automatic_removal"].astype(str).str.lower().eq("false").all()
@@ -75,9 +96,13 @@ def test_historical_core20_has_no_grandfathering_or_automatic_removal():
     assert migration["user_merge_required"].astype(str).str.lower().eq("true").all()
     assert migration["trade_authority"].eq("NONE").all()
 
-def test_candidate_current_preserves_history_and_requires_user_merge():
+
+def test_candidate_current_preserves_history_and_governed_user_authority():
     state = read_json(ROOT / "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json")
-    assert state["status"] == "ACCEPTED_ON_MAIN_IF_GOVERNED_PR_MERGED"
+    assert state["status"] in {
+        "ACCEPTED_ON_MAIN_IF_GOVERNED_PR_MERGED",
+        "ACCEPTED_ON_MAIN",
+    }
     assert state["candidate_state_change_authority"] == "USER_MERGE_OF_GOVERNED_PR"
     assert state["historical_core20_grandfathering"] is False
     assert len(state["historical_core20_archive"]) == 20
@@ -88,3 +113,6 @@ def test_candidate_current_preserves_history_and_requires_user_merge():
     assert state["state_boundaries"]["simulation_trade_mutations"] == 0
     assert state["state_boundaries"]["orders"] == 0
     assert state["state_boundaries"]["trade_authority"] == "NONE"
+    if state["status"] == "ACCEPTED_ON_MAIN":
+        assert state["accepted_merge_sha"]
+        assert state["state_boundaries"]["candidate_state_transition"] == "GOVERNED_USER_MERGE_APPLIED"

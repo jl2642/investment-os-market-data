@@ -66,8 +66,9 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
         assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
         assert register["next_task"] == "RUN_WP4_DEEP_RESEARCH_AND_PORTFOLIO_DECISION_ON_ACCEPTED_CANDIDATE_STATE"
-        assert "WP3-5 + WP3-6 | ACCEPTED IF THIS PR MERGES" in plan
-        assert "WP4 | READY AFTER MERGE" in plan
+        assert "WP3-5 + WP3-6 | COMPLETED / ACCEPTED ON MAIN" in plan
+        assert "WP4 | READY / NOT STARTED" in plan
+        assert "ACCEPTED IF THIS PR MERGES" not in plan
 
 
 def test_scheduled_refresh_is_idempotent_and_fail_closed():
