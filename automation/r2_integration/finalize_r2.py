@@ -33,15 +33,47 @@ def digest(payload: Any) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
+def canonical_asset_id(key: str) -> str:
+    return key.upper()
+
+
 def add_asset(registry: dict[str, Any], key: str, path: str, role: str, state: str) -> None:
-    registry.setdefault("assets", {})[key] = {
-        "path": path,
-        "role": role,
-        "state": state,
-        "format": Path(path).suffix.lstrip(".").upper() or "DIRECTORY",
-        "authority": "CANONICAL_CURRENT",
-        "trade_authority": "NONE",
-    }
+    """Upsert an R2 asset without changing the Canonical Registry container shape.
+
+    The accepted registry stores `assets` as a list of objects. A dict branch is
+    retained only for forward/backward compatibility with older test fixtures.
+    """
+    assets = registry.setdefault("assets", [])
+    if isinstance(assets, list):
+        asset_id = canonical_asset_id(key)
+        record = {
+            "asset_id": asset_id,
+            "location": path,
+            "role": role,
+            "status": state,
+            "format": Path(path).suffix.lstrip(".").upper() or "DIRECTORY",
+            "authority": "CANONICAL_CURRENT",
+            "trade_authority": "NONE",
+        }
+        for index, existing in enumerate(assets):
+            if isinstance(existing, dict) and existing.get("asset_id") == asset_id:
+                preserved = dict(existing)
+                preserved.update(record)
+                assets[index] = preserved
+                return
+        assets.append(record)
+        return
+    if isinstance(assets, dict):
+        assets[key] = {
+            "path": path,
+            "role": role,
+            "state": state,
+            "format": Path(path).suffix.lstrip(".").upper() or "DIRECTORY",
+            "authority": "CANONICAL_CURRENT",
+            "trade_authority": "NONE",
+        }
+        return
+    raise SystemExit(f"AUTHORITATIVE_ASSET_REGISTRY_ASSETS_UNSUPPORTED_TYPE:{type(assets).__name__}")
 
 
 def validate_acceptances(root: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
