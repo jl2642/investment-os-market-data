@@ -22,7 +22,7 @@ def test_security_id_normalization() -> None:
     assert BUILDER.canonical_security_id("600900") == "600900.SH"
     assert BUILDER.canonical_security_id("159352") == "159352.SZ"
     assert BUILDER.canonical_security_id("510500") == "510500.SH"
-    assert BUILDER.canonical_security_id("920079") == "920079.SH"
+    assert BUILDER.canonical_security_id("920079") == "920079.BJ"
     assert BUILDER.security_id_for("017534", "BOND_FUND") == "017534.OF"
 
 
