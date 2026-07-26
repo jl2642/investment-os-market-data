@@ -164,16 +164,22 @@ def update_execution_register(
     acceptance_hash: str,
 ) -> dict[str, Any]:
     post_merge = mode == "post-merge"
+    next_task = (
+        "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE"
+        if post_merge
+        else "USER_MERGE_PR_145_TO_MAIN"
+    )
+    wp5_status = (
+        "READY_PENDING_EXPLICIT_WP5_START"
+        if post_merge
+        else "BLOCKED_PENDING_R2_MERGE"
+    )
     register["current_step"] = (
         "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         if post_merge
         else "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE"
     )
-    register["next_task"] = (
-        "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE"
-        if post_merge
-        else "USER_MERGE_PR_145_TO_MAIN"
-    )
+    register["next_task"] = next_task
     register["overall_status"] = (
         "R2_ACCEPTED_ON_MAIN_WP5_READY_PENDING_EXPLICIT_START"
         if post_merge
@@ -182,6 +188,30 @@ def update_execution_register(
     if post_merge and merge_sha:
         register["latest_governed_merge_sha"] = merge_sha
         register["github_merge_sha"] = merge_sha
+
+    wp4 = register.setdefault("wp4", {})
+    wp4["r2_b_status"] = "CORE2_RESEARCH_HARDENING_ACCEPTED_RESEARCH_ONLY"
+    wp4["r2_b_research_hardening_complete"] = True
+    wp4["r2_b_position_level_portfolio_fit_complete"] = True
+    wp4["r2_b_event_monitoring_installed"] = True
+    wp4["next_gate"] = next_task
+
+    wp5 = register.setdefault("wp5", {})
+    wp5.update({
+        "status": wp5_status,
+        "next_gate": next_task,
+        "start_allowed": post_merge,
+        "action_review_allowed": False,
+        "forced_action_prohibited": True,
+        "ready_for_user_decision_count": int(wp5.get("ready_for_user_decision_count", 0)),
+        "reason": (
+            "R2_ACCEPTED_ON_MAIN_WP5_REQUIRES_SEPARATE_EXPLICIT_START"
+            if post_merge
+            else "R2_ACCEPTED_ON_BRANCH_USER_MERGE_REQUIRED_BEFORE_WP5_START"
+        ),
+        "trade_authority": "NONE",
+    })
+
     register["r2"] = {
         "program": "R2_PRODUCT_CAPABILITY_HARDENING",
         "workstreams": ["WP2-R", "WP3-R", "WP4-B"],
@@ -195,11 +225,7 @@ def update_execution_register(
         ),
         "acceptance_path": R2_ACCEPTANCE,
         "acceptance_semantic_hash": acceptance_hash,
-        "wp5_status": (
-            "READY_PENDING_EXPLICIT_WP5_START"
-            if post_merge
-            else "BLOCKED_PENDING_R2_MERGE"
-        ),
+        "wp5_status": wp5_status,
         "economic_mutations": {
             "real_account": 0,
             "simulation": 0,
