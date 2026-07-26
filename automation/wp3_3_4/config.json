@@ -1,6 +1,6 @@
 {
   "program_id": "WP3-3+WP3-4",
-  "contract_version": "2.0.0",
+  "contract_version": "3.0.0",
   "as_of_date": "2026-07-24",
   "inputs": {
     "accepted_current_binding": "investment_os_runtime/50_MARKET_CAPABILITY_BINDINGS/A_SHARE_CURRENT.json",
@@ -26,6 +26,35 @@
     "minimum_growth_score": 45.0,
     "minimum_cash_quality_score": 45.0,
     "minimum_balance_sheet_score": 40.0
+  },
+  "strategy_sleeve_gates": {
+    "QUALITY_GROWTH": {
+      "allowed_confidence": ["HIGH", "MEDIUM"],
+      "minimum_financial_score": 60.0,
+      "minimum_profitability_score": 50.0,
+      "minimum_growth_score": 45.0,
+      "minimum_cash_quality_score": 45.0,
+      "minimum_balance_sheet_score": 40.0,
+      "require_positive_shareholder_or_dividend_yield": false
+    },
+    "DEFENSIVE_INFRA_YIELD": {
+      "allowed_confidence": ["HIGH", "MEDIUM"],
+      "minimum_financial_score": 55.0,
+      "minimum_profitability_score": 60.0,
+      "minimum_growth_score": 30.0,
+      "minimum_cash_quality_score": 55.0,
+      "minimum_balance_sheet_score": 10.0,
+      "require_positive_shareholder_or_dividend_yield": true
+    },
+    "RESOURCE_CYCLE": {
+      "allowed_confidence": ["HIGH", "MEDIUM"],
+      "minimum_financial_score": 60.0,
+      "minimum_profitability_score": 70.0,
+      "minimum_growth_score": 30.0,
+      "minimum_cash_quality_score": 55.0,
+      "minimum_balance_sheet_score": 40.0,
+      "require_positive_shareholder_or_dividend_yield": false
+    }
   },
   "valuation_context": {
     "minimum_valid_metric_count": 2,
