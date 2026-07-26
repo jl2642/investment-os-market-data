@@ -42,6 +42,26 @@ jobs:
       - name: Install runtime
         run: python -m pip install --retries 5 --timeout 30 -r automation/wp4_b/requirements.lock
 
+      - name: Snapshot protected R2 economic states
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          paths = [
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json',
+          ]
+          hashes = {
+              path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              for path in paths
+          }
+          Path('/tmp/wp4b_protected_hashes.json').write_text(
+              json.dumps(hashes, sort_keys=True), encoding='utf-8'
+          )
+          PY
+
       - name: Compile and build WP4-B products with diagnostic capture
         id: build
         shell: bash
@@ -62,8 +82,8 @@ jobs:
           tail -n 80 "$diagnostic_dir/WP4B_BUILD_LOG_CURRENT.txt" || true
           exit 0
 
-      - name: Publish WP4-B diagnostic before fail-closed decision
-        if: always() && github.event_name == 'push' && github.actor != 'github-actions[bot]'
+      - name: Publish failed WP4-B diagnostic before fail-closed decision
+        if: steps.build.outputs.exit_status != '0' && github.event_name == 'push' && github.actor != 'github-actions[bot]'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -71,9 +91,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/BUILD_DIAGNOSTIC
           if git diff --cached --quiet; then
-            echo "WP4-B build diagnostic already current."
+            echo "WP4-B failed-build diagnostic already current."
           else
-            git commit -m "R2 WP4-B persist build diagnostic"
+            git commit -m "R2 WP4-B persist failed build diagnostic"
+            git pull --rebase origin agent/r2-product-capability-hardening
             git push origin HEAD:agent/r2-product-capability-hardening
           fi
 
@@ -153,26 +174,38 @@ jobs:
           PY
 
       - name: Prove WP4 initial baseline, Candidate and portfolio economic states unchanged
-        if: github.event_name == 'pull_request'
         shell: bash
         run: |
           set -Eeuo pipefail
-          git fetch origin main
           python - <<'PY'
-          import subprocess
-          changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
-          forbidden = {
-              'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json',
-              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
-              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
-              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
-              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
-              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
-              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          import hashlib, json, subprocess
+          from pathlib import Path
+
+          before = json.loads(Path('/tmp/wp4b_protected_hashes.json').read_text(encoding='utf-8'))
+          after = {
+              path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              for path in before
           }
-          leaked = sorted(forbidden.intersection(changed))
-          if leaked:
-              raise SystemExit('FORBIDDEN_WP4B_MUTATION:' + ','.join(leaked))
+          if before != after:
+              changed = sorted(path for path in before if before[path] != after[path])
+              raise SystemExit('WP4B_PROTECTED_STATE_CHANGED_DURING_BUILD:' + ','.join(changed))
+
+          if '${{ github.event_name }}' == 'pull_request':
+              subprocess.run(['git', 'fetch', 'origin', 'main'], check=True)
+              changed_paths = set(subprocess.check_output(
+                  ['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True
+              ).splitlines())
+              forbidden = {
+                  'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+              }
+              leaked = sorted(forbidden.intersection(changed_paths))
+              if leaked:
+                  raise SystemExit('FORBIDDEN_WP4B_LEGACY_OR_CANDIDATE_MUTATION:' + ','.join(leaked))
+          print({'protected_hashes_unchanged': len(before), 'candidate_mutations': 0, 'position_mutations': 0})
           PY
 
       - name: Publish deterministic WP4-B products to R2 branch
@@ -191,6 +224,7 @@ jobs:
             exit 0
           fi
           git commit -m "R2 WP4-B publish Core2 research hardening products"
+          git pull --rebase origin agent/r2-product-capability-hardening
           git push origin HEAD:agent/r2-product-capability-hardening
 
       - name: Record summary
@@ -204,7 +238,7 @@ jobs:
           - Driver-based Bear/Base/Bull models
           - Position-level Simulation fit using WP2-R Portfolio Current
           - Percent-string and decimal target weights are normalized without changing positions
-          - Explicit event-monitoring rules and thesis-break conditions
-          - Additive to WP4 initial baseline; no Candidate or position mutation
+          - Canonical FMDL3CB quality-state, eligibility and period lineage are enforced
+          - Protected R2 Portfolio Current, Candidate and WP4 initial baseline hashes remain unchanged
           - No automatic recommendation, order or trade authority
           EOF
