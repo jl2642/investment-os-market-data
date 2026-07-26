@@ -1,0 +1,87 @@
+name: R2 Post-Merge Canonical Finalization
+run-name: "R2 write merge SHA and release WP5 start gate"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json"
+      - "automation/r2_integration/**"
+      - ".github/workflows/r2_post_merge_finalize.yml"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  finalize-on-main:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Finalize R2 on main with merge SHA
+        run: |
+          python automation/r2_integration/finalize_r2.py \
+            --repo-root . \
+            --mode post-merge \
+            --pr-number 145 \
+            --merge-sha "${GITHUB_SHA}"
+
+      - name: Validate post-merge canonical status
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path('.')
+          sha = os.environ['GITHUB_SHA']
+          r2 = json.loads((root / 'investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json').read_text(encoding='utf-8'))
+          execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          gaps = json.loads((root / 'investment_os_runtime/00_CONTROL/WP2_WP4_CAPABILITY_GAP_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          assert r2['status'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN'
+          assert r2['merge_sha'] == sha
+          assert r2['wp5_status'] == 'READY_PENDING_EXPLICIT_WP5_START'
+          assert execution['r2']['merge_sha'] == sha
+          assert execution['r2']['status'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN'
+          assert gaps['r2_closure']['wp5'] == 'READY_PENDING_EXPLICIT_WP5_START'
+          assert r2['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          assert r2['trade_authority'] == 'NONE'
+          print({'merge_sha': sha, 'r2': r2['status'], 'wp5': r2['wp5_status'], 'mutations': 0})
+          PY
+
+      - name: Commit canonical post-merge pointers
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json \
+            investment_os_runtime/00_CONTROL/R2_STATUS_CURRENT.md \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/WP2_WP4_CAPABILITY_GAP_REGISTER_CURRENT.json
+          if git diff --cached --quiet; then
+            echo "R2 post-merge pointers already final."
+            exit 0
+          fi
+          git commit -m "R2 finalize canonical merge SHA and WP5 start gate"
+          git push origin HEAD:main
+
+      - name: Record summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## R2 Post-Merge Finalization
+          - Writes the actual main merge SHA to Execution Register and R2 acceptance
+          - Marks R2 accepted on main
+          - Changes WP5 from merge-blocked to ready for a separate explicit WP5 start
+          - Does not create any portfolio, Candidate or order mutation
+          - No second user merge is required
+          EOF
