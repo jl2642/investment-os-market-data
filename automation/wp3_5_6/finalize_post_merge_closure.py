@@ -225,7 +225,7 @@ WP4只能基于已接受的Core、Shadow与Research Queue推进。任何Ready-fo
     master_plan_path.write_text(master_plan, encoding="utf-8")
 
     outcome = read_json(outcome_path)
-    previous_status = outcome["current_status"]
+    previous_status = "BLOCKED_NO_VALID_CORE20_ENTRY_BASELINES"
     for key in (
         "pending_status_if_pr_merged",
         "pending_valid_entry_baseline_count_if_pr_merged",
