@@ -44,8 +44,8 @@ jobs:
 
       - name: Compile and build WP4-B products
         run: |
-          python -m py_compile automation/wp4_b/build_core2_hardening.py
-          python automation/wp4_b/build_core2_hardening.py --repo-root .
+          python -m py_compile automation/wp4_b/build_core2_hardening.py automation/wp4_b/build_core2_hardening_fixed.py
+          python automation/wp4_b/build_core2_hardening_fixed.py --repo-root .
 
       - name: Validate research depth, model integrity and action boundary
         shell: bash
@@ -90,6 +90,10 @@ jobs:
           assert set(fit['positions']) == {'000333.SZ', '600900.SH'}
           assert fit['positions']['000333.SZ']['simulation_position']['quantity'] == 800
           assert fit['positions']['600900.SH']['simulation_position']['quantity'] == 2200
+          assert fit['positions']['000333.SZ']['target_weight_raw'] == '8%'
+          assert fit['positions']['600900.SH']['target_weight_raw'] == '7%'
+          assert fit['positions']['000333.SZ']['target_weight_reference'] == 0.08
+          assert fit['positions']['600900.SH']['target_weight_reference'] == 0.07
           assert 0.06 < fit['positions']['000333.SZ']['current_weight'] < 0.08
           assert 0.06 < fit['positions']['600900.SH']['current_weight'] < 0.08
           assert events['automatic_trade_action'] is False
@@ -163,6 +167,7 @@ jobs:
           - Four-company within-industry peer sets
           - Driver-based Bear/Base/Bull models
           - Position-level Simulation fit using WP2-R Portfolio Current
+          - Percent-string and decimal target weights are normalized without changing positions
           - Explicit event-monitoring rules and thesis-break conditions
           - Additive to WP4 initial baseline; no Candidate or position mutation
           - No automatic recommendation, order or trade authority
