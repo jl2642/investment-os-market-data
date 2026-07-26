@@ -48,7 +48,28 @@ jobs:
           python -m py_compile automation/wp3_r/*.py
 
       - name: Refresh canonical industry Security Master
+        id: industry_refresh
+        continue-on-error: true
         run: python automation/wp3_r/refresh_industry_master.py --repo-root .
+
+      - name: Publish industry manifest before capability decision
+        if: always() && github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER
+          if git diff --cached --quiet; then
+            echo "Industry manifest already current."
+          else
+            git commit -m "R2 WP3-R persist industry master diagnostic"
+            git push origin HEAD:agent/r2-product-capability-hardening
+          fi
+
+      - name: Enforce industry fail-closed gate
+        if: steps.industry_refresh.outcome != 'success'
+        run: |
+          cat investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/SECURITY_INDUSTRY_MASTER_CURRENT.json
+          exit 1
 
       - name: Build base audit products
         run: python automation/wp3_r/build_candidate_refresh_current.py --repo-root . --as-of 2026-07-26
@@ -73,7 +94,6 @@ jobs:
           acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
           with (root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_SECTOR_SCREENING/FINANCIAL_SECTOR_SCREENING_SCORE_CURRENT.csv').open(encoding='utf-8') as handle:
               rows = list(csv.DictReader(handle))
-
           assert weekly['status'] == 'PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION'
           assert weekly['tracked_count'] == weekly['covered_count'] == 73
           assert weekly['missing_security_ids'] == []
@@ -93,14 +113,7 @@ jobs:
           assert operating['orders'] == 0
           assert acceptance['wp5_unblocked'] is False
           assert acceptance['controls']['trade_authority'] == 'NONE'
-          print({
-              'weekly': weekly['covered_count'],
-              'industry_rows': industry_manifest['row_count'],
-              'industry_coverage': industry['industry_coverage'],
-              'financial_rows': financial['row_count'],
-              'profiles': financial['profile_summaries'],
-              'mutations': 0,
-          })
+          print({'weekly': weekly['covered_count'], 'industry_rows': industry_manifest['row_count'], 'industry_coverage': industry['industry_coverage'], 'financial_rows': financial['row_count'], 'profiles': financial['profile_summaries'], 'mutations': 0})
           PY
 
       - name: Prove accepted Candidate and portfolio states unchanged
