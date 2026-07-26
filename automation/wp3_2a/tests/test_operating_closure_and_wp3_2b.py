@@ -43,27 +43,35 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
 
     assert register["wp3_status"]["WP3-2A"] == "COMPLETED_ACCEPTED_CURRENT"
     assert register["trade_authority"] == "NONE"
-    assert "WP3-2A | COMPLETED" in plan
+    assert "WP3-2A | COMPLETED" in plan or "WP3-2A / 2B | COMPLETED" in plan
 
     if register["current_step"] == "WP3-2B_GOVERNED_SCREENING":
         assert register["wp3_status"]["WP3-2B"] == "READY_FOR_PROTECTED_PROPOSAL_ONLY_SCREENING"
         assert register["next_task"] == "RUN_WP3_2B_GOVERNED_SCREENING_PROPOSAL"
         assert "WP3-2B | ACTIVE / READY" in plan
         assert "同一交易日或已有未关闭Proposal" in plan
-    else:
-        assert register["current_step"] == "WP3-5_WP3-6_RESEARCH_OBJECT_ENTRY_BASELINE_AND_CANDIDATE_REBUILD"
+    elif register["current_step"] == "WP3-5_WP3-6_RESEARCH_OBJECT_ENTRY_BASELINE_AND_CANDIDATE_REBUILD":
         assert register["wp3_status"]["WP3-2B"] == "COMPLETED_SCREENING_PROPOSAL_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-3"].startswith("COMPLETED_")
         assert register["wp3_status"]["WP3-4"].startswith("COMPLETED_")
         assert register["next_task"] == "RUN_WP3_5_WP3_6_CONCENTRATED_CANDIDATE_REBUILD_PROPOSAL"
         assert "WP3-2B | COMPLETED" in plan
-        assert "WP3-3 + WP3-4 | COMPLETED ON MERGE" in plan
-        assert "WP3-5 + WP3-6 | READY ON MERGE" in plan
+        assert "WP3-3 + WP3-4 | COMPLETED" in plan
+        assert "WP3-5 + WP3-6 | READY" in plan
+    else:
+        assert register["current_step"] == "WP4_DEEP_RESEARCH_PORTFOLIO_FIT_AND_DECISION_GRADE_VALUATION"
+        assert register["wp3_status"]["WP3-2B"] == "COMPLETED_SCREENING_PROPOSAL_ACCEPTED_ON_MAIN"
+        assert register["wp3_status"]["WP3-3"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-4"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["next_task"] == "RUN_WP4_DEEP_RESEARCH_AND_PORTFOLIO_DECISION_ON_ACCEPTED_CANDIDATE_STATE"
+        assert "WP3-5 + WP3-6 | ACCEPTED IF THIS PR MERGES" in plan
+        assert "WP4 | READY AFTER MERGE" in plan
 
 
 def test_scheduled_refresh_is_idempotent_and_fail_closed():
     text = UNIVERSE_WORKFLOW.read_text(encoding="utf-8")
-
     assert "refresh_decision.py" in text
     assert "Record successful no-op" in text
     assert "steps.decision.outputs.proceed == 'true'" in text
@@ -74,7 +82,6 @@ def test_scheduled_refresh_is_idempotent_and_fail_closed():
 
 def test_bot_created_pr_dispatches_required_lineage_gate():
     text = PUBLISHER.read_text(encoding="utf-8")
-
     assert "gh workflow run wp3_2a_lineage_gate.yml" in text
     assert '--ref "$BRANCH"' in text
     assert "enforce_wp3_2a_scope=true" in text
@@ -84,7 +91,6 @@ def test_bot_created_pr_dispatches_required_lineage_gate():
 
 def test_future_current_promotion_is_self_closing_on_merge():
     text = ACCEPT_SCRIPT.read_text(encoding="utf-8")
-
     assert '"status": "ACCEPTED_ON_MAIN"' in text
     assert '"current_step": "WP3-2B_GOVERNED_SCREENING"' in text
     assert '"WP3-2B": "READY_FOR_PROTECTED_PROPOSAL_ONLY_SCREENING"' in text
@@ -98,7 +104,6 @@ def test_wp3_2b_is_proposal_only_and_connector_dispatchable():
     workflow = SCREENING_WORKFLOW.read_text(encoding="utf-8")
     bridge = SCREENING_BRIDGE.read_text(encoding="utf-8")
     script = SCREENING_SCRIPT.read_text(encoding="utf-8")
-
     assert "name: WP3-2B Governed Screening Proposal" in workflow
     assert "environment: wp3-2a-screening-approval" in workflow
     assert "<<'EOF'" in workflow

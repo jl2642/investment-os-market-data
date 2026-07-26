@@ -1,0 +1,65 @@
+{
+  "program_id": "WP3-5+WP3-6",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-07-24",
+  "inputs": {
+    "wp3_3_4_root": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/PROPOSALS/WP3_3_4_PROPOSAL_20260724_V4",
+    "unified_workplan": "WP3_3_4_UNIFIED_RESEARCH_WORKPLAN.csv",
+    "industry_longlist": "WP3_3_INDUSTRY_LONGLIST.csv",
+    "historical_core20_review": "WP3_4_HISTORICAL_CORE20_REVIEW.csv",
+    "historical_candidate_state": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+    "historical_research_state": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_OBJECTS_CURRENT.json",
+    "historical_thesis_state": "investment_os_runtime/30_STATE_CURRENT/31_RESEARCH/THESIS_CURRENT.json",
+    "fmdl4b_research_objects": "outputs/fmdl4b/research/current/FMDL4B_PUBLIC_EQUITY_RESEARCH_OBJECTS.jsonl"
+  },
+  "research_policy": {
+    "a_bucket_lifecycle": "ACTIVE_RESEARCH",
+    "b_bucket_lifecycle": "TRIAGE",
+    "c_bucket_lifecycle": "IDEA",
+    "core20_lifecycle": "ACTIVE_RESEARCH",
+    "formal_research_object_requires_source_backed_qualitative_evidence": true,
+    "decision_grade_requires_current_source_refresh": true,
+    "prior_rejection_requires_new_evidence": true
+  },
+  "candidate_policy": {
+    "candidate_core_requires": [
+      "PRIOR_GRADUATED_RESEARCH",
+      "ACTIVE_MEMO_OR_SOURCE_BACKED_THESIS",
+      "COMPLETE_ENTRY_BASELINE",
+      "NO_HARD_RESEARCH_GAP",
+      "HUMAN_APPROVAL"
+    ],
+    "ready_for_user_decision_requires": [
+      "CANDIDATE_CORE",
+      "DECISION_GRADE_RESEARCH",
+      "DECISION_GRADE_VALUATION",
+      "THESIS_AND_FALSIFIERS",
+      "PORTFOLIO_FIT",
+      "HUMAN_APPROVAL"
+    ],
+    "historical_core20_grandfathering": false,
+    "automatic_removal": false,
+    "automatic_readmission": false,
+    "default_new_longlist_route": "SHADOW_RESEARCH",
+    "default_core20_route": "CORE20_MANDATORY_REVIEW",
+    "core_retain_priority_disposition": "READMISSION_REVIEW_PRIORITY"
+  },
+  "entry_baseline_policy": {
+    "entry_date": "2026-07-24",
+    "windows": [20, 60, 120],
+    "prospective_only": true,
+    "historical_backfill_prohibited": true,
+    "benchmark_required": true,
+    "valuation_required": true,
+    "thesis_required": true
+  },
+  "authority": {
+    "proposal_only": true,
+    "candidate_membership_mutations_before_human_merge": 0,
+    "research_current_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_trade_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

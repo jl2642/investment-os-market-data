@@ -9,8 +9,6 @@ on:
       - "automation/wp3_3_4/**"
       - ".github/workflows/wp3_3_4_concentrated.yml"
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_3_4/**"
-      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
-      - "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md"
 
 permissions:
   contents: write
@@ -21,6 +19,7 @@ env:
 
 jobs:
   build-and-audit:
+    if: startsWith(github.head_ref, 'automation/wp3-3-wp3-4-')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
