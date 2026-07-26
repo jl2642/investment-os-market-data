@@ -46,8 +46,14 @@ LEGACY_NEW = '''def read_market_ids(path: Path) -> set[str]:
 
 def main() -> None:
     text = PATH.read_text(encoding="utf-8")
-    if "def read_market_universe(path: Path) -> dict[str, str]:" in text and "EASTMONEY_F100_PRIMARY_INDUSTRY" in text:
-        print("WP3R_INDUSTRY_MASTER_V2_ALREADY_VALID")
+    if (
+        "def read_market_universe(path: Path) -> dict[str, str]:" in text
+        and (
+            "EASTMONEY_F100_PRIMARY_INDUSTRY" in text
+            or "EASTMONEY_ULIST_F100_PRIMARY_INDUSTRY" in text
+        )
+    ):
+        print("WP3R_INDUSTRY_MASTER_CURRENT_SOURCE_ALREADY_VALID")
         return
     if LEGACY_OLD in text:
         PATH.write_text(text.replace(LEGACY_OLD, LEGACY_NEW), encoding="utf-8")
