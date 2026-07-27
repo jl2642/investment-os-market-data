@@ -77,6 +77,19 @@ jobs:
             --source-branch "$SOURCE_BRANCH" \
             --source-head-sha "$SOURCE_HEAD_SHA"
 
+      - name: Publish R5 candidate materialization
+        if: github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "R5 products already materialized."
+          else
+            git commit -m "R5 materialize attribution and calibration products"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
+
       - name: Validate R5 products, reconciliation and zero mutation
         run: |
           python -m py_compile automation/r5_attribution_calibration/validate_r5_attribution_calibration.py
@@ -151,18 +164,6 @@ jobs:
               raise SystemExit("R5_PROTECTED_STATE_MUTATION:" + ",".join(leaked))
           print({"changed_paths": len(changed), "scope": "R5_ATTRIBUTION_AND_CALIBRATION_ONLY"})
           PY
-
-      - name: Publish deterministic R5 products to PR branch
-        if: github.actor != 'github-actions[bot]'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --cached --quiet; then
-            echo "R5 products already materialized."
-            exit 0
-          fi
-          git commit -m "R5 materialize attribution and calibration products"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
 
       - name: Record R5 summary
         if: always()
