@@ -1,6 +1,6 @@
 {
   "canonical_acceptance_status": "ACCEPTED_CANONICAL",
-  "current_step": "WP5_PORTFOLIO_DECISION_PHASE_STARTED_ANALYSIS_ONLY_ON_BRANCH",
+  "current_step": "WP5_P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITE_COMPLETE_RESEARCH_ONLY_ON_BRANCH",
   "file_library_promotion_status": "PENDING_MANUAL_UPLOAD",
   "github_main_head_at_wp3_2a_closure": "9305fd210c1729a7227e0e633eed5e29984bc261",
   "github_main_head_at_wp3_3_4_closure": "RESOLVED_BY_GIT_HISTORY_ON_PR_MERGE",
@@ -22,8 +22,8 @@
     "simulation_trade_mutations": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "WP5_P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITE_AND_FRESH_INPUT_REFRESH",
-  "overall_status": "WP5_FULL_POSITION_REVIEW_COMPLETE_P0_EXTERNAL_RESEARCH_PENDING_NO_ACTION",
+  "next_task": "WP5_NEXT_COMPLETED_CLOSE_REFRESH_AND_USER_POSITION_CONTINUITY_CONFIRMATION",
+  "overall_status": "WP5_P0_RESEARCH_COMPLETE_HOLD_NO_ADD_FRESH_CLOSE_AND_USER_CONTINUITY_PENDING",
   "previous_wp1_5d_metadata_sha": "5a7e4f13e8f02eaa56f88ebbd8e924e08ed79124",
   "r2": {
     "acceptance_path": "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json",
@@ -496,15 +496,19 @@
   },
   "wp5": {
     "action_review_allowed": true,
-    "branch": "agent/wp5-portfolio-decision-start",
+    "branch": "agent/wp5-p0-external-reunderwrite",
     "core2_scenario_unit_scale_repaired": true,
     "decision_current_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json",
     "decision_input_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json",
     "forced_action_prohibited": true,
+    "fresh_completed_close_for_action": false,
     "full_position_review_complete": true,
-    "next_gate": "P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITE_FRESH_MARKS_EVENT_STATUS_AND_USER_DELTA",
+    "next_gate": "NEXT_COMPLETED_CLOSE_USER_POSITION_CONTINUITY_AND_15_PERCENT_BASE_CASE_HURDLE",
     "order_execution_allowed": false,
-    "p0_external_primary_source_reunderwrite_complete": false,
+    "p0_action_review_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_P0_ACTION_REVIEW_CURRENT.json",
+    "p0_event_classification_complete": true,
+    "p0_external_primary_source_reunderwrite_complete": true,
+    "p0_external_reunderwrite_path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json",
     "p0_internal_evidence_inventory_complete": true,
     "p0_internal_evidence_inventory_path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE/WP5_P0_INTERNAL_EVIDENCE_INVENTORY_CURRENT.json",
     "p0_reunderwrite_workplan_path": "investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_WORKPLAN_CURRENT.json",
@@ -513,7 +517,7 @@
     "ready_for_user_decision_count": 0,
     "reason": "R2_ACCEPTED_ON_MAIN_WP5_REQUIRES_SEPARATE_EXPLICIT_START",
     "start_allowed": true,
-    "status": "STARTED_ANALYSIS_ONLY_ON_BRANCH",
+    "status": "P0_EXTERNAL_REUNDERWRITE_COMPLETE_RESEARCH_ONLY_ON_BRANCH",
     "trade_authority": "NONE",
     "user_decision_queue_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json"
   }
