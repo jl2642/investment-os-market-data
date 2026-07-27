@@ -482,6 +482,12 @@ R2只完成组合层综合，不改变任何真实账户、模拟盘、Candidate
     execution["github_merge_sha"] = R1_MERGE_SHA
     execution["latest_governed_merge_sha"] = R1_MERGE_SHA
     execution["next_task"] = "R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_AFTER_R2_PRESENT_ON_MAIN"
+    execution["overall_status"] = "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_R3_NOT_STARTED"
+    execution["register_id"] = "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V8_R2_PORTFOLIO_CONSTRUCTION"
+    execution["release_id"] = "INVESTMENT_OS_R18_20260727_R2_PORTFOLIO_CONSTRUCTION"
+    execution["release_sequence"] = 18
+    execution.setdefault("r1_decision_coverage", {})["status"] = "COMPLETED_ON_MAIN"
+    execution["r1_decision_coverage"]["merge_sha"] = R1_MERGE_SHA
     execution.setdefault("development_roadmap", {})["R1"] = {"status": "COMPLETED_ON_MAIN", "source_pr": 153, "merge_sha": R1_MERGE_SHA}
     execution["development_roadmap"]["R2"] = {"status": "CURRENT_IF_PRESENT_ON_MAIN", "source_pr": SOURCE_PR}
     execution["development_roadmap"]["R3"] = {"status": "NOT_STARTED"}
@@ -525,6 +531,11 @@ R2只完成组合层综合，不改变任何真实账户、模拟盘、Candidate
     state["user_decision_pack_delivered"] = False
     contract["current_stage"] = "WP5-3_COMPLETED_CURRENT_IF_PRESENT_ON_MAIN"
     contract["next_stage"] = "WP5-4_POSITION_ACTION_MATRIX"
+    contract["next_task"] = "R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_AFTER_R2_PRESENT_ON_MAIN"
+    contract["status"] = "WP5_3_PORTFOLIO_CONSTRUCTION_SYNTHESIS_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN"
+    contract["source_pr"] = SOURCE_PR
+    contract["source_branch"] = SOURCE_BRANCH
+    contract["source_head_sha"] = "GOVERNED_PR154_MATERIALIZATION"
     contract["trade_authority"] = "NONE"
     write_json(CONTRACT_PATH, contract)
 
