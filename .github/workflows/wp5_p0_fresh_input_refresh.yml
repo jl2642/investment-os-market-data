@@ -1,0 +1,159 @@
+name: WP5 P0 Fresh Portfolio Input Refresh
+run-name: "WP5 refresh completed-close Portfolio Current before P0 re-underwrite"
+
+on:
+  push:
+    branches: [agent/wp5-p0-external-reunderwrite]
+    paths:
+      - ".wp5_p0_refresh_trigger"
+      - ".github/workflows/wp5_p0_fresh_input_refresh.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  WP5_P0_BRANCH: agent/wp5-p0-external-reunderwrite
+
+jobs:
+  refresh-validate-publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Snapshot protected economic identity and governed states
+        run: |
+          python automation/wp2_r/build_portfolio_current.py --repo-root .
+          python automation/wp2_r/finalize_account_summaries.py --repo-root .
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          identity = {}
+          for rel in (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ):
+              payload = json.loads((root / rel).read_text(encoding='utf-8'))
+              identity[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          protected = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          Path('/tmp/wp5_p0_position_identity.json').write_text(json.dumps(identity, sort_keys=True), encoding='utf-8')
+          Path('/tmp/wp5_p0_protected_hashes.json').write_text(json.dumps(protected, sort_keys=True), encoding='utf-8')
+          PY
+
+      - name: Refresh all tracked listed prices and fund NAVs
+        run: python automation/wp2_r/refresh_market_marks.py --repo-root .
+
+      - name: Rebuild Portfolio Current with refreshed marks
+        run: |
+          python automation/wp2_r/build_portfolio_current.py --repo-root .
+          python automation/wp2_r/finalize_account_summaries.py --repo-root .
+
+      - name: Validate fresh completed-close coverage and zero economic mutation
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          marks = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json').read_text(encoding='utf-8'))
+          candidate = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json').read_text(encoding='utf-8'))
+          real = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
+          sim = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
+          run = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json').read_text(encoding='utf-8'))
+          before = json.loads(Path('/tmp/wp5_p0_position_identity.json').read_text(encoding='utf-8'))
+          after = {}
+          for payload in (real, sim):
+              after[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          protected_before = json.loads(Path('/tmp/wp5_p0_protected_hashes.json').read_text(encoding='utf-8'))
+          protected_after = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          assert candidate['status'] == 'PASS_COMPLETE'
+          assert marks['status'] == 'CURRENT_COMPLETE'
+          assert marks['required_security_count'] == marks['marked_security_count'] == 22
+          assert marks['missing_security_ids'] == []
+          assert candidate['stale_security_ids'] == []
+          assert before == after
+          assert protected_before == protected_after
+          assert len(real['holdings']) == 7
+          assert len(sim['holdings']) == 16
+          assert real['summary']['execution_cash_balance'] == 120.49
+          assert sim['summary']['execution_cash_balance'] == 219533.98
+          assert all(row['mark_freshness_status'] == 'FRESH' for row in real['holdings'] + sim['holdings'])
+          assert run['economic_transaction_mutations'] == 0
+          assert run['position_or_cost_mutations_from_reconciliation'] == 0
+          assert run['orders'] == 0
+          assert run['trade_authority'] == 'NONE'
+          latest = marks['data_watermark']['latest_mark_date']
+          assert latest >= '2026-07-27', latest
+          print({
+              'latest_mark_date': latest,
+              'marks': marks['marked_security_count'],
+              'real_total_assets': real['summary']['account_total_assets'],
+              'simulation_total_assets': sim['summary']['account_total_assets'],
+              'economic_identity_unchanged': True,
+              'candidate_unchanged': True,
+              'orders': 0,
+          })
+          PY
+
+      - name: Publish refreshed WP5 P0 input watermark
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .wp5_p0_refresh_trigger
+          git add \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json \
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
+          git commit -m "WP5 refresh Portfolio Current through latest completed close"
+          git pull --rebase origin "${WP5_P0_BRANCH}"
+          git push origin "HEAD:${WP5_P0_BRANCH}"
+
+      - name: Record summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP5 P0 fresh input refresh
+          - Refreshes all 22 tracked securities and fund NAVs
+          - Requires the latest completed listed-security close to be at least 2026-07-27
+          - Preserves security identity, quantity, availability, unit cost and cost basis exactly
+          - Preserves Candidate membership and legacy decisions
+          - Real-account external liquidity remains excluded; only broker execution cash is carried
+          - Orders: 0
+          - trade_authority: NONE
+          EOF
