@@ -1,22 +1,24 @@
 {
   "canonical_acceptance_status": "ACCEPTED_CANONICAL",
-  "current_step": "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT_IF_PRESENT_ON_MAIN",
+  "current_step": "R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_CURRENT_IF_PRESENT_ON_MAIN",
   "development_roadmap": {
     "R0": {
       "name": "PRODUCT_AUTHORITY_FREEZE",
       "status": "COMPLETED_ON_MAIN"
     },
     "R1": {
-      "status": "COMPLETED_ON_MAIN",
+      "merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278",
       "source_pr": 153,
-      "merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278"
+      "status": "COMPLETED_ON_MAIN"
     },
     "R2": {
-      "status": "CURRENT_IF_PRESENT_ON_MAIN",
-      "source_pr": 154
+      "merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
+      "source_pr": 154,
+      "status": "COMPLETED_ON_MAIN"
     },
     "R3": {
-      "status": "NOT_STARTED"
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN"
     },
     "R4": {
       "name": "OPERATING_PRODUCTS",
@@ -34,7 +36,7 @@
   "file_library_promotion_status": "PENDING_MANUAL_UPLOAD",
   "github_main_head_at_wp3_2a_closure": "9305fd210c1729a7227e0e633eed5e29984bc261",
   "github_main_head_at_wp3_3_4_closure": "RESOLVED_BY_GIT_HISTORY_ON_PR_MERGE",
-  "github_merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278",
+  "github_merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
   "historical_wp5_label_map": {
     "WP5-A": "WP5-1_START_AND_INPUT_FREEZE",
     "WP5-B": "WP5-1_FULL_POSITION_DIAGNOSTIC",
@@ -45,9 +47,9 @@
     "WP5-G": "WP5-2_REAL_ACCOUNT_FIRST_PASS_AND_GOVERNANCE_REPAIR",
     "WP5-H": "VOID_NOT_STARTED"
   },
-  "latest_completed_main_merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278",
-  "latest_completed_main_pr": 153,
-  "latest_governed_merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278",
+  "latest_completed_main_merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
+  "latest_completed_main_pr": 154,
+  "latest_governed_merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
   "mutation_proof": {
     "automatic_rule_mutations": 0,
     "automation_activations": "GITHUB_ACTIVE_PROPOSAL_ONLY_HUMAN_GOVERNED",
@@ -64,8 +66,21 @@
     "simulation_trade_mutations": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_AFTER_R2_PRESENT_ON_MAIN",
-  "overall_status": "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_R3_NOT_STARTED",
+  "next_task": "USER_REVIEW_R3_DECISION_PACK_BEFORE_ANY_IMPLEMENTATION_PROPOSAL",
+  "overall_status": "R3_ACTION_MATRIX_AND_USER_DECISION_PACK_READY_CURRENT_IF_PRESENT_ON_MAIN_NO_IMPLEMENTATION",
+  "portfolio_r2": {
+    "r3_started": false,
+    "real_reference_architectures": 3,
+    "simulation_sleeves": 6,
+    "status": "CURRENT_IF_PRESENT_ON_MAIN"
+  },
+  "portfolio_r3": {
+    "decision_items": 7,
+    "implementation_ready": 0,
+    "real_positions": 7,
+    "simulation_positions": 16,
+    "status": "CURRENT_IF_PRESENT_ON_MAIN"
+  },
   "previous_wp1_5d_metadata_sha": "5a7e4f13e8f02eaa56f88ebbd8e924e08ed79124",
   "product_authority": {
     "capability_matrix_path": "investment_os_runtime/00_CONTROL/CAPABILITY_REALITY_MATRIX_CURRENT.md",
@@ -82,6 +97,7 @@
   },
   "r1_decision_coverage": {
     "implementation_ready_count": 0,
+    "merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278",
     "real_product_complete": 7,
     "real_product_total": 7,
     "simulation_complete": 16,
@@ -90,8 +106,7 @@
     "source_head_sha": "2a934babdc463f319977cf64674ccdabd1603430",
     "source_pr": 153,
     "status": "COMPLETED_ON_MAIN",
-    "trade_authority": "NONE",
-    "merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278"
+    "trade_authority": "NONE"
   },
   "r2": {
     "acceptance_path": "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json",
@@ -117,9 +132,9 @@
   },
   "r2_canonical_closure_merge_sha": "17db72e866bff027e1f786a8fd0c051ddfcd6c3a",
   "r2_capability_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
-  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V8_R2_PORTFOLIO_CONSTRUCTION",
-  "release_id": "INVESTMENT_OS_R18_20260727_R2_PORTFOLIO_CONSTRUCTION",
-  "release_sequence": 18,
+  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V9_R3_ACTION_MATRIX",
+  "release_id": "INVESTMENT_OS_R19_20260727_R3_ACTION_MATRIX",
+  "release_sequence": 19,
   "repository": "jl2642/investment-os-market-data",
   "runtime_baseline_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
   "runtime_root": "investment_os_runtime/",
@@ -585,6 +600,7 @@
     "fresh_completed_close_for_action": false,
     "full_position_review_complete": true,
     "historical_labels_deprecated_as_future_plan": true,
+    "implementation_ready_count": 0,
     "next_gate": "NEXT_COMPLETED_CLOSE_USER_POSITION_CONTINUITY_AND_15_PERCENT_BASE_CASE_HURDLE",
     "order_execution_allowed": false,
     "p0_action_review_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_P0_ACTION_REVIEW_CURRENT.json",
@@ -597,7 +613,7 @@
     "p0_merge_sha": "70f651ff042fbf815ad8e0346cabad02693745d9",
     "p0_reunderwrite_workplan_path": "investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_WORKPLAN_CURRENT.json",
     "portfolio_construction_synthesis_complete": true,
-    "position_action_matrix_complete": false,
+    "position_action_matrix_complete": true,
     "position_continuity_interface_accepted_on_main": true,
     "position_continuity_interface_installed": true,
     "position_continuity_interface_merge_sha": "467280d54e4dbe58204e0137e4f9639550c72dca",
@@ -611,7 +627,9 @@
     "post_close_action_gate_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json",
     "post_close_action_gate_status": "BLOCKED_PENDING_NEXT_COMPLETED_CLOSE",
     "promotion_evidence": "GIT_HISTORY_ON_MAIN",
-    "ready_for_user_decision_count": 0,
+    "r2_source_pr": 154,
+    "r3_source_pr": 155,
+    "ready_for_user_decision_count": 7,
     "real_account_lookthrough_complete": true,
     "real_account_lookthrough_path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/REAL_ACCOUNT_LOOKTHROUGH/WP5_REAL_ACCOUNT_LOOKTHROUGH_CURRENT.json",
     "real_account_structure_review_complete": true,
@@ -621,19 +639,11 @@
     "source_pr": 153,
     "sp500_duplicate_exposure_identified": true,
     "start_allowed": true,
-    "status": "PORTFOLIO_CONSTRUCTION_SYNTHESIS_COMPLETE_NO_ACTION_MATRIX",
+    "status": "USER_DECISION_PACK_READY_NO_IMPLEMENTATION",
     "trade_authority": "NONE",
-    "user_decision_pack_complete": false,
+    "user_decision_pack_complete": true,
     "user_decision_queue_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json",
     "user_position_continuity_confirmed": true,
-    "wp5_h_status": "VOID_NOT_STARTED",
-    "r2_source_pr": 154,
-    "implementation_ready_count": 0
-  },
-  "portfolio_r2": {
-    "status": "CURRENT_IF_PRESENT_ON_MAIN",
-    "real_reference_architectures": 3,
-    "simulation_sleeves": 6,
-    "r3_started": false
+    "wp5_h_status": "VOID_NOT_STARTED"
   }
 }

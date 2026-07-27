@@ -1,5 +1,5 @@
 {
-  "active_branch_candidate": "agent/r2-portfolio-construction-synthesis",
+  "active_branch_candidate": "agent/r3-position-action-matrix",
   "assets": [
     {
       "asset_id": "GITHUB_ACTIVE_RUNTIME",
@@ -551,6 +551,66 @@
       "source_pr": 154,
       "status": "CURRENT_IF_PRESENT_ON_MAIN",
       "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_POSITION_ACTION_MATRIX_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_POSITION_ACTION_MATRIX_CURRENT.json",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Machine-readable 23-position action matrix",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "4abab8ed3d6aa2fae31f93e52bbe035416d500ae",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_USER_DECISION_PACK_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_USER_DECISION_PACK_CURRENT.md",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "User-readable Real and Simulation decision pack",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "4abab8ed3d6aa2fae31f93e52bbe035416d500ae",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_USER_DECISION_QUEUE_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_USER_DECISION_QUEUE_CURRENT.json",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Seven-item user decision queue",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "4abab8ed3d6aa2fae31f93e52bbe035416d500ae",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_POSITION_ACTION_MATRIX_ACCEPTANCE",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/00_CONTROL/R3_POSITION_ACTION_MATRIX_ACCEPTANCE_RECORD.json",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Coverage, lineage and zero-mutation acceptance",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "4abab8ed3d6aa2fae31f93e52bbe035416d500ae",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_STATUS_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/00_CONTROL/R3_STATUS_CURRENT.md",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Human-readable R3 status",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "4abab8ed3d6aa2fae31f93e52bbe035416d500ae",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
     }
   ],
   "conversation_memory_authority": "NONE",
@@ -562,12 +622,12 @@
   "r2_canonical_closure_merge_sha": "17db72e866bff027e1f786a8fd0c051ddfcd6c3a",
   "r2_capability_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
   "registry_id": "INVESTMENT_ASSISTANT_AUTHORITATIVE_ASSET_REGISTRY_V10_R0_FREEZE",
-  "registry_status": "R2_PORTFOLIO_CONSTRUCTION_CURRENT_IF_PRESENT_ON_MAIN",
+  "registry_status": "R3_ACTION_MATRIX_AND_USER_DECISION_PACK_CURRENT_IF_PRESENT_ON_MAIN",
   "release_id": "INVESTMENT_OS_R18_20260727_R2_PORTFOLIO_CONSTRUCTION",
   "release_sequence": 18,
   "repository": "jl2642/investment-os-market-data",
   "runtime_baseline_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
-  "status": "GITHUB_CURRENT_IF_PR154_MERGED_R3_NOT_STARTED",
+  "status": "GITHUB_CURRENT_IF_PR155_MERGED_USER_DECISION_PACK_READY_NO_IMPLEMENTATION",
   "trade_authority": "NONE",
   "wp1_5bc_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54"
 }

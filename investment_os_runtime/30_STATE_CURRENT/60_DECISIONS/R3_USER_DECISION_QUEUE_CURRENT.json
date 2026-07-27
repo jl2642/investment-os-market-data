@@ -1,0 +1,75 @@
+{
+  "continuity_confirmed_through": "2026-07-24",
+  "data_watermark": "2026-07-24_CLOSE",
+  "decision_items": [
+    {
+      "decision_id": "R3-D1",
+      "default": true,
+      "implementation_ready": false,
+      "recommendation": "APPROVE",
+      "scope": [
+        "R3-D2",
+        "R3-D3",
+        "R3-D4",
+        "R3-D5",
+        "R3-D6"
+      ],
+      "title": "采用长期稳健成长作为真实账户第一阶段迁移基准"
+    },
+    {
+      "decision_id": "R3-D2",
+      "dependency": "R3-D1",
+      "implementation_ready": false,
+      "recommendation": "APPROVE_CONDITIONAL",
+      "title": "易方达增强回报债券A减持约¥2.4万–¥3.3万"
+    },
+    {
+      "decision_id": "R3-D3",
+      "dependency": "R3-D1",
+      "implementation_ready": false,
+      "recommendation": "APPROVE_CONDITIONAL",
+      "title": "真实账户中证500ETF减持约¥1.9万–¥2.6万"
+    },
+    {
+      "decision_id": "R3-D4",
+      "dependency": "R3-D1",
+      "implementation_ready": false,
+      "recommendation": "APPROVE_CONDITIONAL",
+      "title": "南方中证A500ETF增持约¥3万–¥4万"
+    },
+    {
+      "decision_id": "R3-D5",
+      "dependency": "R3-D1",
+      "implementation_ready": false,
+      "recommendation": "APPROVE_CONDITIONAL",
+      "title": "159612迁移至159655，并向159655新增约¥1.3万–¥1.9万"
+    },
+    {
+      "decision_id": "R3-D6",
+      "dependency": "R3-D1",
+      "implementation_ready": false,
+      "recommendation": "APPROVE",
+      "title": "两只纯防御债基保持、不新增、不机械削减"
+    },
+    {
+      "decision_id": "R3-D7",
+      "default": true,
+      "implementation_ready": false,
+      "recommendation": "APPROVE",
+      "title": "模拟盘保持现有袖套结构，冻结亏损成长子集新增并保留15%–25%研究现金"
+    }
+  ],
+  "implementation_ready_count": 0,
+  "orders": 0,
+  "queue_id": "R3_USER_DECISION_QUEUE_CURRENT_V1",
+  "ready_for_user_decision_count": 7,
+  "required_before_any_implementation_proposal": [
+    "user selects approve/reject/modify for each relevant decision item",
+    "user confirms zero transactions or provides deltas after 2026-07-24",
+    "market marks and fund NAV are refreshed to the latest completed close",
+    "same-session execution-quality checks pass for ETF migrations"
+  ],
+  "source_pr": 155,
+  "status": "READY_FOR_USER_REVIEW_NOT_IMPLEMENTATION_READY",
+  "trade_authority": "NONE"
+}
