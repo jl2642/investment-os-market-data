@@ -1,11 +1,11 @@
 {
   "canonical_acceptance_status": "ACCEPTED_CANONICAL",
-  "current_step": "WP5_P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITE_COMPLETE_RESEARCH_ONLY_ON_BRANCH",
+  "current_step": "WP5_E_POST_CLOSE_ACTION_GATE_INSTALLED_ON_BRANCH",
   "file_library_promotion_status": "PENDING_MANUAL_UPLOAD",
   "github_main_head_at_wp3_2a_closure": "9305fd210c1729a7227e0e633eed5e29984bc261",
   "github_main_head_at_wp3_3_4_closure": "RESOLVED_BY_GIT_HISTORY_ON_PR_MERGE",
-  "github_merge_sha": "17db72e866bff027e1f786a8fd0c051ddfcd6c3a",
-  "latest_governed_merge_sha": "17db72e866bff027e1f786a8fd0c051ddfcd6c3a",
+  "github_merge_sha": "70f651ff042fbf815ad8e0346cabad02693745d9",
+  "latest_governed_merge_sha": "70f651ff042fbf815ad8e0346cabad02693745d9",
   "mutation_proof": {
     "automatic_rule_mutations": 0,
     "automation_activations": "GITHUB_ACTIVE_PROPOSAL_ONLY_HUMAN_GOVERNED",
@@ -22,8 +22,8 @@
     "simulation_trade_mutations": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "WP5_NEXT_COMPLETED_CLOSE_REFRESH_AND_USER_POSITION_CONTINUITY_CONFIRMATION",
-  "overall_status": "WP5_P0_RESEARCH_COMPLETE_HOLD_NO_ADD_FRESH_CLOSE_AND_USER_CONTINUITY_PENDING",
+  "next_task": "USER_MERGE_WP5_E_POST_CLOSE_ACTION_GATE_PR",
+  "overall_status": "WP5_D_ACCEPTED_ON_MAIN_WP5_E_GATE_PENDING_USER_MERGE",
   "previous_wp1_5d_metadata_sha": "5a7e4f13e8f02eaa56f88ebbd8e924e08ed79124",
   "r2": {
     "acceptance_path": "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json",
@@ -496,7 +496,7 @@
   },
   "wp5": {
     "action_review_allowed": true,
-    "branch": "agent/wp5-p0-external-reunderwrite",
+    "branch": "agent/wp5-e-post-close-action-gate",
     "core2_scenario_unit_scale_repaired": true,
     "decision_current_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json",
     "decision_input_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json",
@@ -508,17 +508,23 @@
     "p0_action_review_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_P0_ACTION_REVIEW_CURRENT.json",
     "p0_event_classification_complete": true,
     "p0_external_primary_source_reunderwrite_complete": true,
+    "p0_external_reunderwrite_accepted_on_main": true,
     "p0_external_reunderwrite_path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json",
     "p0_internal_evidence_inventory_complete": true,
     "p0_internal_evidence_inventory_path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE/WP5_P0_INTERNAL_EVIDENCE_INVENTORY_CURRENT.json",
+    "p0_merge_sha": "70f651ff042fbf815ad8e0346cabad02693745d9",
     "p0_reunderwrite_workplan_path": "investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_WORKPLAN_CURRENT.json",
     "position_mutation_allowed": false,
     "position_review_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POSITION_REVIEW_CURRENT.json",
+    "post_close_action_gate_installed": true,
+    "post_close_action_gate_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json",
+    "post_close_action_gate_status": "BLOCKED_PENDING_NEXT_COMPLETED_CLOSE",
     "ready_for_user_decision_count": 0,
     "reason": "R2_ACCEPTED_ON_MAIN_WP5_REQUIRES_SEPARATE_EXPLICIT_START",
     "start_allowed": true,
-    "status": "P0_EXTERNAL_REUNDERWRITE_COMPLETE_RESEARCH_ONLY_ON_BRANCH",
+    "status": "POST_CLOSE_ACTION_GATE_INSTALLED_ON_BRANCH_PENDING_MERGE",
     "trade_authority": "NONE",
-    "user_decision_queue_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json"
+    "user_decision_queue_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json",
+    "user_position_continuity_confirmed": false
   }
 }
