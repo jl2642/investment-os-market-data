@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "WP5_REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT",
+  "as_of": "2026-07-24_CLOSE_WITH_2026-07-27_PRODUCT_RESEARCH",
+  "account_total_assets_rmb": 451176.72742,
+  "decision_posture": "CONDITIONAL_STRUCTURE_REVIEW_NOT_IMPLEMENTATION_READY",
+  "portfolio_character": {
+    "primary_objective_inferred_from_current_structure": "CAPITAL_PRESERVATION_DOMINANT_WITH_LIMITED_EQUITY_GROWTH_SLEEVES",
+    "bond_fund_weight": 0.697824,
+    "a_share_etf_weight": 0.209898,
+    "sp500_etf_weight": 0.092011,
+    "strategic_cash_target": "NONE",
+    "cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED"
+  },
+  "structural_findings": [
+    {
+      "finding_id": "REAL_BOND_3_PRODUCT_OVERLAP",
+      "severity": "AMBER",
+      "finding": "Three active bond funds consume 69.78% of account assets, but current official evidence is insufficient to quantify duration, credit, leverage, convertible and security-level overlap across all three.",
+      "intended_exposure": "Defensive fixed-income anchor and lower account drawdown.",
+      "unwanted_risk": "Hidden duplication, unintended convertible/equity beta, manager-style drift and concentration in similar financial-credit instruments.",
+      "binding_constraint": "110017.OF current Q2 look-through is incomplete; 217003.OF Q2 return attribution and manager-change effects are unresolved.",
+      "conditional_posture": "HOLD_EXISTING_NO_ADD_TO_ANY_BOND_FUND_PENDING_LOOKTHROUGH",
+      "implementation_ready": false,
+      "required_next_evidence": [
+        "2026 Q2 allocation, duration, leverage, credit rating and top holdings for all three funds.",
+        "Security-level overlap matrix and common issuer exposure.",
+        "Convertible-bond and equity beta comparison.",
+        "Fee and redemption-cost comparison at the user's actual holding period."
+      ]
+    },
+    {
+      "finding_id": "REAL_SP500_DUPLICATE_VEHICLES",
+      "severity": "AMBER",
+      "finding": "159612.SZ and 159655.SZ provide substantially the same strategic S&P 500 exposure and together represent 9.20% of account assets.",
+      "intended_exposure": "US large-cap equity beta and geographic diversification.",
+      "unwanted_risk": "Operational duplication without meaningful strategic diversification; premium/discount and tracking differences can create avoidable execution risk.",
+      "binding_constraint": "A single retained vehicle cannot be selected without a same-session comparison of liquidity, bid-ask spread, premium/discount, tracking difference and exit cost.",
+      "conditional_posture": "TREAT_AS_ONE_SLEEVE_STOP_NEW_ADDS_PENDING_SINGLE_VEHICLE_SELECTION",
+      "implementation_ready": false,
+      "selection_rule": [
+        "Prefer the vehicle with lower persistent premium risk and tighter effective spread.",
+        "Require no worse management and custody fees; both current published fee schedules are 0.60% and 0.15%.",
+        "Do not consolidate during an abnormal QDII premium episode.",
+        "Any sale requires explicit user approval and updated transaction continuity."
+      ]
+    },
+    {
+      "finding_id": "REAL_A500_CSI500_ROLE_INVERSION",
+      "severity": "AMBER",
+      "finding": "The CSI 500 satellite sleeve is 13.21% of assets while the A500 broad-core sleeve is 7.78%; for a stable-growth architecture the higher-volatility mid-cap satellite is currently larger than the broad-core sleeve.",
+      "intended_exposure": "A-share broad-market growth plus a measured mid-cap return satellite.",
+      "unwanted_risk": "Portfolio beta is tilted more heavily toward mid-cap, cyclical and higher-volatility exposure than the declared core-satellite structure implies.",
+      "binding_constraint": "No fresh completed close after 2026-07-24 and no user continuity confirmation beyond that date.",
+      "conditional_posture": "FUTURE_CONTRIBUTIONS_FAVOR_A500_NO_NEW_CSI500_ADD_UNTIL_CORE_NOT_SMALLER_THAN_SATELLITE",
+      "implementation_ready": false,
+      "policy_rule": {
+        "core": "159352.SZ A500",
+        "satellite": "510500.SH CSI500",
+        "relationship": "CORE_WEIGHT_GREATER_THAN_OR_EQUAL_TO_SATELLITE_WEIGHT",
+        "fixed_target_weights": false
+      }
+    }
+  ],
+  "decision_queue": [
+    {
+      "priority": "P0",
+      "decision_id": "BOND_FUND_LOOKTHROUGH_COMPLETION",
+      "status": "RESEARCH_REQUIRED",
+      "action": "Complete three-fund overlap, duration, credit and convertible-beta analysis before any add or consolidation decision.",
+      "user_action_required_now": false
+    },
+    {
+      "priority": "P1",
+      "decision_id": "SP500_SINGLE_VEHICLE_SELECTION",
+      "status": "MARKET_EXECUTION_EVIDENCE_REQUIRED",
+      "action": "Compare both ETFs on a completed session and nominate one retained vehicle; no trade is authorized.",
+      "user_action_required_now": false
+    },
+    {
+      "priority": "P1",
+      "decision_id": "A_SHARE_CORE_SATELLITE_REBALANCE_POLICY",
+      "status": "POLICY_READY_EXECUTION_BLOCKED",
+      "action": "Adopt A500 as core and CSI500 as satellite; direct future equity additions to A500 until the core is no smaller than the satellite.",
+      "user_action_required_now": false
+    }
+  ],
+  "recommendation_summary": {
+    "immediate_real_account_trade": "NONE",
+    "immediate_add": "NONE",
+    "immediate_trim": "NONE",
+    "immediate_exit": "NONE",
+    "new_money_rule": "NO_AUTOMATIC_DEPLOYMENT; if user later authorizes A-share additions, prioritize A500 over CSI500 until role inversion is corrected.",
+    "confidence": "MEDIUM",
+    "ready_for_user_decision_count": 0,
+    "implementation_ready_count": 0
+  },
+  "economic_mutations": {
+    "real_account": 0,
+    "simulation": 0,
+    "candidate_membership": 0,
+    "orders": 0
+  },
+  "position_change_authorized": false,
+  "order_authorized": false,
+  "trade_authority": "NONE"
+}

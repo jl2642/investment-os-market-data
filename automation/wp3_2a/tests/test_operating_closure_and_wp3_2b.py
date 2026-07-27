@@ -165,6 +165,20 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
             "WAIT_FOR_NEXT_COMPLETED_CLOSE_AFTER_2026_07_24",
             "RUN_WP5_E_POST_CLOSE_ACTION_GATE_RECALCULATION",
         } or register["next_task"].startswith("USER_CONFIRM_ZERO_OR_REPORT_DELTAS_THROUGH_")
+    elif step == "WP5_G_REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT_IF_PRESENT_ON_MAIN":
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp5"]["status"] == "REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT_IF_PRESENT_ON_MAIN"
+        assert register["wp5"]["source_pr"] == 151
+        assert register["wp5"]["promotion_evidence"] == "GIT_HISTORY_ON_MAIN"
+        assert register["wp5"]["canonical_promotion_semantics_v2"] is True
+        assert register["wp5"]["position_continuity_interface_accepted_on_main"] is True
+        assert register["wp5"]["real_account_lookthrough_complete"] is True
+        assert register["wp5"]["real_account_structure_review_complete"] is True
+        assert register["wp5"]["ready_for_user_decision_count"] == 0
+        assert register["wp5"]["position_mutation_allowed"] is False
+        assert register["wp5"]["order_execution_allowed"] is False
+        assert register["next_task"] == "WP5_H_SIMULATION_NON_P0_RESEARCH_TRIAGE_AFTER_WP5_G_PRESENT_ON_MAIN"
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")

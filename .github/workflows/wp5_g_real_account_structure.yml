@@ -1,0 +1,226 @@
+name: WP5-G Real Account Structure Review
+run-name: "WP5-G durable promotion and real-account structure review"
+
+on:
+  push:
+    branches:
+      - agent/wp5-g-real-account-structure
+    paths:
+      - ".wp5_g_materialize_trigger"
+      - "automation/wp5_portfolio_decision/build_wp5_real_account_structure.py"
+      - ".github/workflows/wp5_g_real_account_structure.yml"
+      - "investment_os_runtime/00_CONTROL/CANONICAL_PROMOTION_SEMANTICS_V2.json"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/REAL_ACCOUNT_LOOKTHROUGH/WP5_REAL_ACCOUNT_LOOKTHROUGH_CURRENT.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp5_portfolio_decision/build_wp5_real_account_structure.py"
+      - ".github/workflows/wp5_g_real_account_structure.yml"
+      - "investment_os_runtime/00_CONTROL/CANONICAL_PROMOTION_SEMANTICS_V2.json"
+      - "investment_os_runtime/00_CONTROL/WP5_G_REAL_ACCOUNT_STRUCTURE_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/REAL_ACCOUNT_LOOKTHROUGH/WP5_REAL_ACCOUNT_LOOKTHROUGH_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json"
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  build-validate:
+    if: github.event_name != 'pull_request_target'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install validation runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest
+
+      - name: Snapshot protected economic and governed states
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          identity = {}
+          for rel in (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ):
+              payload = json.loads((root / rel).read_text(encoding='utf-8'))
+              identity[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          protected = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          Path('/tmp/wp5g_identity.json').write_text(json.dumps(identity, sort_keys=True), encoding='utf-8')
+          Path('/tmp/wp5g_protected.json').write_text(json.dumps(protected, sort_keys=True), encoding='utf-8')
+          PY
+
+      - name: Build structure review and durable Canonical records
+        run: |
+          set -Eeuo pipefail
+          python -m py_compile automation/wp5_portfolio_decision/build_wp5_real_account_structure.py
+          python automation/wp5_portfolio_decision/build_wp5_real_account_structure.py \
+            --repo-root . \
+            --source-head-sha "${{ github.event.pull_request.head.sha || github.sha }}"
+
+      - name: Validate structure, evidence, lineage and zero mutation
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          semantics = json.loads((root / 'investment_os_runtime/00_CONTROL/CANONICAL_PROMOTION_SEMANTICS_V2.json').read_text(encoding='utf-8'))
+          acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_G_REAL_ACCOUNT_STRUCTURE_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          registry = json.loads((root / 'investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
+          lookthrough = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/REAL_ACCOUNT_LOOKTHROUGH/WP5_REAL_ACCOUNT_LOOKTHROUGH_CURRENT.json').read_text(encoding='utf-8'))
+          review = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
+
+          assert semantics['wp5_f_closure']['actual_merge_sha'] == '467280d54e4dbe58204e0137e4f9639550c72dca'
+          assert semantics['prohibitions']['post_merge_commit_required_only_to_write_its_own_sha'] is True
+          assert acceptance['status'] == 'CURRENT_IF_PRESENT_ON_MAIN'
+          assert acceptance['source_pr'] == 151
+          assert acceptance['real_holding_count'] == 7
+          assert acceptance['lookthrough_record_count'] == 7
+          assert acceptance['structural_finding_count'] == 3
+          assert acceptance['ready_for_user_decision_count'] == 0
+          assert acceptance['implementation_ready_count'] == 0
+          assert len(lookthrough['products']) == 7
+          assert abs(sum(v['account_weight'] for v in lookthrough['aggregate_exposures'].values()) - 1.0) < 0.00001
+          assert lookthrough['aggregate_exposures']['sp500_etfs']['economic_duplicate'] is True
+          assert review['recommendation_summary']['immediate_real_account_trade'] == 'NONE'
+          assert review['recommendation_summary']['implementation_ready_count'] == 0
+          assert execution['current_step'] == 'WP5_G_REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT_IF_PRESENT_ON_MAIN'
+          assert execution['wp5']['source_pr'] == 151
+          assert execution['wp5']['canonical_promotion_semantics_v2'] is True
+          assert execution['wp5']['position_mutation_allowed'] is False
+          assert execution['wp5']['order_execution_allowed'] is False
+          assert execution['trade_authority'] == 'NONE'
+          registered = {row['asset_id']: row for row in registry['assets']}
+          for asset_id in (
+              'CANONICAL_PROMOTION_SEMANTICS_V2',
+              'WP5_REAL_ACCOUNT_LOOKTHROUGH_CURRENT',
+              'WP5_REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT',
+              'WP5_G_REAL_ACCOUNT_STRUCTURE_ACCEPTANCE',
+          ):
+              assert registered[asset_id]['status'] == 'CURRENT_IF_PRESENT_ON_MAIN'
+              assert registered[asset_id]['source_pr'] == 151
+
+          before = json.loads(Path('/tmp/wp5g_identity.json').read_text(encoding='utf-8'))
+          after = {}
+          for rel in (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ):
+              payload = json.loads((root / rel).read_text(encoding='utf-8'))
+              after[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          protected_before = json.loads(Path('/tmp/wp5g_protected.json').read_text(encoding='utf-8'))
+          protected_after = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          assert before == after
+          assert protected_before == protected_after
+          assert acceptance['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          print({'real_holdings': 7, 'findings': 3, 'ready': 0, 'mutations': 0, 'orders': 0})
+          PY
+
+      - name: Validate global WP3 lineage regression
+        run: python -m pytest -q automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py
+
+      - name: Publish governed branch materialization
+        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/wp5-g-real-account-structure' && github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .wp5_g_materialize_trigger 2>/dev/null || true
+          git add \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP5_G_REAL_ACCOUNT_STRUCTURE_ACCEPTANCE_RECORD.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "WP5-G materialize durable promotion and Real-account structure review"
+          git pull --rebase origin agent/wp5-g-real-account-structure
+          git push origin HEAD:agent/wp5-g-real-account-structure
+
+      - name: Record summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP5-G
+          - Durable Canonical promotion uses merged PR plus file presence; no self-referential post-merge SHA commit.
+          - Seven Real-account products reviewed as three active-bond products, one duplicated S&P500 sleeve and two A-share benchmark roles.
+          - No Real or Simulation quantity/cost mutation.
+          - No Candidate or legacy-decision mutation.
+          - Ready actions: 0; orders: 0; trade_authority: NONE.
+          EOF
+
+  merged-pr-audit:
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Audit CURRENT_IF_PRESENT_ON_MAIN assets for merged PR
+        env:
+          MERGED_PR: ${{ github.event.pull_request.number }}
+          MERGED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          registry_path = Path('investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json')
+          registry = json.loads(registry_path.read_text(encoding='utf-8'))
+          pr = int(os.environ['MERGED_PR'])
+          head = os.environ['MERGED_HEAD_SHA']
+          rows = [r for r in registry.get('assets', []) if r.get('source_pr') == pr and r.get('status') == 'CURRENT_IF_PRESENT_ON_MAIN']
+          if not rows:
+              print({'merged_pr': pr, 'applicable_assets': 0, 'result': 'NO_CURRENT_IF_PRESENT_ASSETS'})
+              raise SystemExit(0)
+          subprocess.run(['git', 'merge-base', '--is-ancestor', head, 'HEAD'], check=True)
+          missing = [r['location'] for r in rows if not Path(r['location']).exists()]
+          if missing:
+              raise SystemExit(f'Missing governed assets on main: {missing}')
+          print({'merged_pr': pr, 'applicable_assets': len(rows), 'result': 'PASS_GIT_HISTORY_AND_FILE_PRESENCE'})
+          PY
