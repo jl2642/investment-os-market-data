@@ -85,6 +85,8 @@ jobs:
             --source-pr "$SOURCE_PR" \
             --source-branch "$SOURCE_BRANCH" \
             --source-head-sha "$SOURCE_HEAD_SHA"
+          python -m py_compile automation/r5_attribution_calibration/normalize_r5_report.py
+          python automation/r5_attribution_calibration/normalize_r5_report.py
           python - <<'PY'
           from pathlib import Path
           path = Path("investment_os_runtime/00_CONTROL/CAPABILITY_REALITY_MATRIX_CURRENT.md")
@@ -148,6 +150,7 @@ jobs:
               ".github/workflows/r3_position_action_matrix.yml",
               ".github/workflows/r4_operating_products.yml",
               "automation/r5_attribution_calibration/build_r5_attribution_calibration.py",
+              "automation/r5_attribution_calibration/normalize_r5_report.py",
               "automation/r5_attribution_calibration/validate_r5_attribution_calibration.py",
               "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py",
               "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json",
