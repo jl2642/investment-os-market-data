@@ -4,6 +4,7 @@ import argparse
 import subprocess
 from pathlib import Path
 
+# Temporary self-restoring bridge used only to materialize the R3 development-boundary correction.
 ROOT = Path(__file__).resolve().parents[2]
 SELF = Path("automation/r1_decision_coverage/build_r1_decision_coverage.py")
 BRANCH = "agent/r3-position-action-matrix"
