@@ -1,0 +1,100 @@
+{
+  "accepted_decision_watermark": "2026-07-24_CLOSE",
+  "as_of": "2026-07-27",
+  "contract_id": "R5_ATTRIBUTION_AND_CALIBRATION_CONTRACT_V1",
+  "cross_layer_rules": {
+    "calibration_outputs_are_proposals_only": true,
+    "candidate_alpha_claim_requires_mature_windows": true,
+    "external_flows_are_not_return": true,
+    "missing_period_inputs_render_BLOCKED": true,
+    "open_unrealized_pnl_is_not_period_return": true,
+    "rule_mutation_requires_user_approval": true,
+    "trade_or_order_creation": false
+  },
+  "development_mode": true,
+  "historical_assets_reused": {
+    "candidate_outcome_engine": "WP3R_CANDIDATE_OUTCOME_CURRENT",
+    "fmdl7c_rule_proposal_count": 8,
+    "r2_sleeve_structure": "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT"
+  },
+  "layers": [
+    {
+      "layer_id": "SECURITY_SELECTION",
+      "purpose": "Attribute current open mark-to-cost contribution by security.",
+      "required_for_production": [
+        "period start and end positions",
+        "cash-flow ledger",
+        "benchmark history"
+      ],
+      "status": "AVAILABLE_SNAPSHOT_MARK_TO_COST_DIAGNOSTIC_NOT_PERIOD_RETURN"
+    },
+    {
+      "layer_id": "INDUSTRY_AND_SLEEVE",
+      "purpose": "Aggregate security contribution into governed risk sleeves and portfolio roles.",
+      "required_for_production": [
+        "effective-dated industry mapping",
+        "period benchmark returns"
+      ],
+      "status": "AVAILABLE_SNAPSHOT_SLEEVE_DIAGNOSTIC_NOT_PERIOD_ACTIVE_RETURN"
+    },
+    {
+      "layer_id": "POSITION_SIZING",
+      "purpose": "Separate security outcome from the effect of chosen position size.",
+      "required_for_production": [
+        "reference weights at each rebalance",
+        "period returns",
+        "counterfactual policy"
+      ],
+      "status": "PARTIAL_CURRENT_WEIGHT_AND_CONTRIBUTION_AVAILABLE_COUNTERFACTUAL_BLOCKED"
+    },
+    {
+      "layer_id": "TIMING",
+      "purpose": "Measure entry, exit and rebalance timing effects without hindsight fabrication.",
+      "required_for_production": [
+        "complete transaction ledger",
+        "decision timestamps",
+        "daily marks"
+      ],
+      "status": "BLOCKED_NO_COMPLETE_TRANSACTION_AND_PERIOD_BASELINE"
+    },
+    {
+      "layer_id": "CASH",
+      "purpose": "Separate execution cash, research cash and external flows from investment return.",
+      "required_for_production": [
+        "period cash balances",
+        "external-flow ledger",
+        "cash benchmark"
+      ],
+      "status": "PARTIAL_BALANCE_AND_SEMANTICS_AVAILABLE_PERIOD_CASH_RETURN_BLOCKED"
+    },
+    {
+      "layer_id": "CANDIDATE",
+      "purpose": "Evaluate Candidate selection and lifecycle outcomes at 20/60/120 trading-day windows.",
+      "required_for_production": [
+        "mature price windows",
+        "approved entry baseline",
+        "benchmark series"
+      ],
+      "status": "BLOCKED_WINDOWS_NOT_MATURE"
+    },
+    {
+      "layer_id": "RULE",
+      "purpose": "Convert repeated, classified outcomes into governed rule-change proposals.",
+      "required_for_production": [
+        "multiple independent observations",
+        "regression",
+        "human approval"
+      ],
+      "status": "PROPOSALS_ONLY_NOT_APPLIED"
+    }
+  ],
+  "next_authorized_stage": "R6_PRODUCTION_ACCEPTANCE_AFTER_R5_PRESENT_ON_MAIN",
+  "operating_activation": false,
+  "position_continuity_confirmed_through": "2026-07-24",
+  "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+  "source_branch": "agent/r5-attribution-calibration",
+  "source_head_sha": "534e109de78817266e8fef78f02e03387594e129",
+  "source_pr": 159,
+  "status": "DEVELOPMENT_PRODUCT_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_NO_ACTIVATION",
+  "trade_authority": "NONE"
+}

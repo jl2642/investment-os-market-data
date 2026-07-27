@@ -3,7 +3,7 @@
 - 状态日期：2026-07-27
 - 产品权威：`INVESTMENT_ASSISTANT_PRODUCT_CHARTER_CURRENT.md`
 - Canonical状态源：`EXECUTION_REGISTER_CURRENT.json`
-- 最新已完成main合并：PR #157 / `2fbcb84d7a23d5804975fd8319781464c2a18ab2`
+- 最新已完成main合并：PR #158 / `f4c48b1aa07f05f41f3d79cf5f843d84b384a5ec`
 - R0治理来源：PR #152 / `ee9cd9af5122af9506a0da844d837cfce6c57c44`
 - 本轮状态：`CURRENT_IF_PRESENT_ON_MAIN`
 - File Library：`RECOVERY_DISTRIBUTION_ONLY_PENDING_EXPLICIT_PROMOTION`
@@ -17,9 +17,9 @@
 | WP2 | 真实账户、模拟盘、行情、基金净值和用户交易Delta | `CAPABILITY_ACCEPTED_OPERATING_HISTORY_NOT_YET_VALIDATED` |
 | WP3 | 全市场筛选、Candidate生命周期和效果评价 | `ENGINE_ACCEPTED_OUTCOME_WINDOWS_INCOMPLETE` |
 | WP4 | 公司研究、估值、组合适配和事件监控 | `METHOD_ACCEPTED_COVERAGE_PARTIAL` |
-| WP5 | 组合构建、动作矩阵和用户决策包 | `USER_DECISION_PACK_READY_NO_IMPLEMENTATION` |
-| WP6 | 日报、周报、月报、季报和年度运营产品 | `NOT_STARTED_AS_FORMAL_PRODUCT` |
-| WP7 | 收益归因、决策复盘和策略校准 | `NOT_STARTED_AS_FORMAL_PRODUCT` |
+| WP5 | 组合构建、动作矩阵和用户决策包 | `DEVELOPMENT_PRODUCTS_COMPLETE_NO_LIVE_IMPLEMENTATION` |
+| WP6 | 日报、周报、月报、季报和年度运营产品 | `CONTRACT_AND_SAMPLES_COMPLETE_PRODUCTION_NOT_ACCEPTED` |
+| WP7 | 收益归因、决策复盘和策略校准 | `DEVELOPMENT_PRODUCT_COMPLETE_PRODUCTION_WINDOWS_PENDING` |
 
 ## 二、截至R0的实际能力
 
@@ -72,7 +72,7 @@
 
 ### R3｜Position Action Matrix & User Decision Pack
 
-- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#155`。
+- 状态：`DEVELOPMENT_PRODUCT_COMPLETE_ON_MAIN`；纠偏来源PR：`#157`。
 
 - 每个持仓必须归入：增持、持有、减持、退出、观察或等待证据；
 - 明确建议仓位区间、价格条件、基本面条件、风险条件、优先级和不执行后果；
@@ -103,7 +103,7 @@
 
 ## 六、下一任务
 
-`R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_AFTER_R4_PRESENT_ON_MAIN`
+`R6_PRODUCTION_ACCEPTANCE_AFTER_R5_PRESENT_ON_MAIN`
 
 ## 七、历史兼容状态
 
@@ -149,3 +149,13 @@
 - R4不启动Schedule；Operating Activation为`false`。
 - 收益归因仍由R5完成，连续运行和自动激活仍由R6验收。
 - 真实账户、模拟盘、Candidate、旧决策和订单变更均为`0`。
+
+## R5开发验收结果
+
+- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#159`。
+- 已建立个股、行业/袖套、仓位、时点、现金、Candidate和规则共7层归因合同。
+- 真实账户7/7、模拟盘16/16完成当前水位的Mark-to-Cost贡献拆解。
+- 模拟盘完成账户P&L桥接：开放式未实现P&L ¥16,388.90，已平仓/费用/其他残差 ¥-8,450.42，账户总P&L ¥7,938.48。
+- Candidate仅2个Entry Baseline且20/60/120日窗口均未成熟，Alpha Claim继续阻断。
+- 形成8项规则校准提案，实际规则变更、持仓变更、Candidate变更和订单均为`0`。
+- R6完成完整自然月运行、恢复、重跑和正式激活验收前，Operating Activation保持`false`。

@@ -1,0 +1,78 @@
+{
+  "applied_rule_mutations": 0,
+  "as_of": "2026-07-27",
+  "automatic_candidate_mutations": 0,
+  "automatic_portfolio_mutations": 0,
+  "calibration_id": "R5_RULE_CALIBRATION_PROPOSALS_CURRENT_V1",
+  "governance_gate": "REGRESSION_PLUS_MULTIPLE_OBSERVATIONS_PLUS_EXPLICIT_USER_APPROVAL",
+  "orders": 0,
+  "proposal_count": 8,
+  "proposals": [
+    {
+      "evidence_requirement": "LATEST_COMPLETED_CLOSE_PLUS_USER_POSITION_CONTINUITY",
+      "finding": "Position continuity and decision marks are confirmed only through 2026-07-24.",
+      "proposal": "Require fresh completed-close marks and explicit user zero-Delta or transaction Delta before any live action or period attribution.",
+      "proposal_id": "R5-CAL-001",
+      "status": "PROPOSED_NOT_APPLIED",
+      "title": "Current-state and completed-close gate"
+    },
+    {
+      "evidence_requirement": "POSITION_COSTS_MARKS_CASH_AND_ACCOUNT_TOTAL_ASSETS",
+      "finding": "Simulation open P&L ¥16,388.90 differs from account P&L ¥7,938.48 by ¥-8,450.42.",
+      "proposal": "Every review must bridge open unrealized P&L to account P&L through realized, fee and other ledger effects; never force equality.",
+      "proposal_id": "R5-CAL-002",
+      "status": "PROPOSED_NOT_APPLIED",
+      "title": "Simulation P&L bridge is mandatory"
+    },
+    {
+      "evidence_requirement": "PERIOD_START_END_AND_EXTERNAL_FLOW_LEDGER",
+      "finding": "Current mark-to-recorded-cost figures lack a complete period-start baseline and external-flow reconciliation.",
+      "proposal": "Label snapshot contribution separately and block monthly or annual return claims until a reconciled period ledger exists.",
+      "proposal_id": "R5-CAL-003",
+      "status": "PROPOSED_NOT_APPLIED",
+      "title": "Snapshot contribution is not period return"
+    },
+    {
+      "evidence_requirement": "MULTIPLE_PERIOD_SECURITY_AND_SLEEVE_ATTRIBUTION",
+      "finding": "All Simulation sleeves remain inside R2 bands while growth innovation and CSI500 are the principal negative contributors.",
+      "proposal": "Review security selection and entry quality inside a sleeve before changing the entire sleeve architecture.",
+      "proposal_id": "R5-CAL-004",
+      "status": "PROPOSED_NOT_APPLIED",
+      "title": "Diagnose sleeve internals before portfolio overhaul"
+    },
+    {
+      "evidence_requirement": "THESIS_FALSIFIER_VALUATION_AND_REVIEW_LOG",
+      "finding": "Growth names with weak contribution remain subject to R3 evidence and valuation gates.",
+      "proposal": "Do not add merely because a position is below cost; require thesis, cash-flow, valuation and portfolio-fit evidence.",
+      "proposal_id": "R5-CAL-005",
+      "status": "PROPOSED_NOT_APPLIED",
+      "title": "No-add and hard-review controls remain binding"
+    },
+    {
+      "evidence_requirement": "MATURE_20_60_120_DAY_WINDOWS",
+      "finding": "Candidate has two valid entry baselines but zero completed 20/60/120-day windows.",
+      "proposal": "Keep Alpha claims blocked and preserve Candidate membership until governed windows mature and reconcile to benchmarks.",
+      "proposal_id": "R5-CAL-006",
+      "status": "PROPOSED_NOT_APPLIED",
+      "title": "Candidate Alpha claims require mature windows"
+    },
+    {
+      "evidence_requirement": "USER_CASH_POLICY_AND_ACCOUNT_LEDGER",
+      "finding": "Real account execution cash is only ¥120.49 and external liquidity is managed outside the securities account.",
+      "proposal": "Exclude external liquidity from allocation and do not create a fixed strategic cash target for the Real account.",
+      "proposal_id": "R5-CAL-007",
+      "status": "PROPOSED_NOT_APPLIED",
+      "title": "Real-account cash remains execution balance"
+    },
+    {
+      "evidence_requirement": "MULTIPLE_INDEPENDENT_OBSERVATIONS_PLUS_REGRESSION_PLUS_APPROVAL",
+      "finding": "Current conclusions are dominated by one accepted watermark and incomplete prospective outcome windows.",
+      "proposal": "Require repeated observations, failure classification, regression tests and explicit user approval before applying a rule change.",
+      "proposal_id": "R5-CAL-008",
+      "status": "PROPOSED_NOT_APPLIED",
+      "title": "No single snapshot may mutate strategy rules"
+    }
+  ],
+  "status": "PROPOSALS_ONLY_NOT_APPLIED",
+  "trade_authority": "NONE"
+}

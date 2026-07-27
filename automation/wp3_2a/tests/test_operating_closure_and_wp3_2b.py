@@ -235,6 +235,18 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["ready_for_user_decision_count"] == 0
         assert register["implementation_ready_count"] == 0
         assert register["next_task"] == "R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_AFTER_R4_PRESENT_ON_MAIN"
+    elif step == "R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN":
+        assert register["trade_authority"] == "NONE"
+        assert register["development_roadmap"]["R4"]["status"] == "COMPLETED_ON_MAIN"
+        assert register["development_roadmap"]["R5"]["status"] == "CURRENT_IF_PRESENT_ON_MAIN"
+        assert register["development_roadmap"]["R6"]["status"] == "NOT_STARTED_NEXT_AUTHORIZED_STAGE"
+        assert register["attribution_r5"]["layer_count"] == 7
+        assert register["attribution_r5"]["candidate_alpha_claim_allowed"] is False
+        assert register["attribution_r5"]["applied_rule_mutations"] == 0
+        assert register["operating_activation"] is False
+        assert register["ready_for_user_decision_count"] == 0
+        assert register["implementation_ready_count"] == 0
+        assert register["next_task"] == "R6_PRODUCTION_ACCEPTANCE_AFTER_R5_PRESENT_ON_MAIN"
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")

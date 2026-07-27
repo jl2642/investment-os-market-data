@@ -1,0 +1,48 @@
+{
+  "as_of": "2026-07-24_CLOSE",
+  "ledger_id": "R5_RETURN_LEDGER_CURRENT_V1",
+  "real_account": {
+    "account_total_assets_rmb": 451176.73,
+    "cash_semantics": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED",
+    "execution_cash_balance_rmb": 120.49,
+    "identity_check_market_plus_cash": 451176.73,
+    "missing": [
+      "period-start market value",
+      "external flows",
+      "income and fee ledger",
+      "realized P&L ledger"
+    ],
+    "open_mark_to_cost_pnl_rmb": -1326.74,
+    "position_cost_basis_rmb": 452382.98,
+    "position_market_value_rmb": 451056.24,
+    "total_return_status": "BLOCKED_NOT_A_VERIFIED_PERIOD_TOTAL_RETURN"
+  },
+  "reconciliation_rules": [
+    "Market value plus account cash must equal account total assets.",
+    "Simulation open P&L plus closed/fee/other residual must equal account total P&L.",
+    "External transfers must never be counted as investment return.",
+    "Missing components must remain explicit rather than being filled with zero."
+  ],
+  "simulation": {
+    "account_total_assets_rmb": 1007938.48,
+    "account_total_pnl_rmb": 7938.48,
+    "cash_semantics": "SIMULATION_LEDGER_AVAILABLE_CASH",
+    "closed_fee_other_residual_rmb": -8450.42,
+    "identity_check_market_plus_cash": 1007938.48,
+    "missing": [
+      "effective-dated transaction history",
+      "period-start holdings",
+      "daily cash history",
+      "benchmark history"
+    ],
+    "open_unrealized_pnl_rmb": 16388.9,
+    "original_capital_rmb": 1000000.0,
+    "period_return_status": "ACCOUNT_SINCE_INCEPTION_PNL_AVAILABLE_PERIOD_ATTRIBUTION_BLOCKED",
+    "pnl_bridge_check": 7938.48,
+    "position_cost_basis_rmb": 772015.6,
+    "position_market_value_rmb": 788404.5,
+    "research_cash_rmb": 219533.98
+  },
+  "status": "SNAPSHOT_RECONCILED_PERIOD_RETURN_PARTIALLY_BLOCKED",
+  "trade_authority": "NONE"
+}
