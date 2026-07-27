@@ -1,7 +1,9 @@
 # 股票投资助手｜Product Charter CURRENT
 
 - 状态日期：2026-07-27
-- 状态：`R0_PRODUCT_AUTHORITY_FREEZE_BRANCH_CANDIDATE`
+- 状态：`CURRENT_IF_PRESENT_ON_MAIN`
+- 来源PR：`#152`
+- 来源Head：`87d299600bb8a4edca6fc9fab6ad6337a49902dd`
 - 权威仓库：`jl2642/investment-os-market-data`
 - 交易权限：`NONE`
 

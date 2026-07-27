@@ -179,6 +179,15 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["wp5"]["position_mutation_allowed"] is False
         assert register["wp5"]["order_execution_allowed"] is False
         assert register["next_task"] == "WP5_H_SIMULATION_NON_P0_RESEARCH_TRIAGE_AFTER_WP5_G_PRESENT_ON_MAIN"
+    elif step == "R0_PRODUCT_AUTHORITY_FREEZE_CURRENT_IF_PRESENT_ON_MAIN":
+        assert register["trade_authority"] == "NONE"
+        assert register["product_authority"]["source_pr"] == 152
+        assert register["product_authority"]["status"] == "CURRENT_IF_PRESENT_ON_MAIN"
+        assert register["development_roadmap"]["R0"]["status"] == "CURRENT_IF_PRESENT_ON_MAIN"
+        assert register["development_roadmap"]["R1"]["status"] == "NOT_STARTED"
+        assert register["wp5"]["formal_plan"] == "WP5_1_TO_WP5_5"
+        assert register["wp5"]["status"] == "PARTIALLY_COMPLETE_NO_USER_ACTION_PACK"
+        assert register["next_task"] == "R1_DECISION_COVERAGE_COMPLETION_AFTER_R0_PRESENT_ON_MAIN"
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")

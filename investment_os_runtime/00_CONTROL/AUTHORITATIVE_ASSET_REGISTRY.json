@@ -1,13 +1,13 @@
 {
-  "active_branch_candidate": "agent/wp5-g-real-account-structure",
+  "active_branch_candidate": null,
   "assets": [
     {
       "asset_id": "GITHUB_ACTIVE_RUNTIME",
-      "branch_candidate": "agent/wp5-portfolio-decision-start",
-      "latest_governed_merge_sha": "17db72e866bff027e1f786a8fd0c051ddfcd6c3a",
+      "branch_candidate": "agent/r0-product-authority-freeze",
+      "latest_governed_merge_sha": "247203c005b76cfa32a0d04d31390631c304e738",
       "location": "investment_os_runtime/",
       "role": "RULE_STATE_RESEARCH_DECISION_OPERATIONS_AND_CONTROL_RUNTIME",
-      "status": "GITHUB_CURRENT_R2_ACCEPTED_WP5_BRANCH_CANDIDATE_PENDING_MERGE"
+      "status": "GITHUB_MAIN_PR151_CURRENT_R0_AUTHORITY_FREEZE_CONDITIONAL"
     },
     {
       "asset_id": "FULL_RUNTIME_CANONICAL_R10",
@@ -331,22 +331,22 @@
     },
     {
       "asset_id": "WP5_POSITION_CONTINUITY_CONTRACT",
-      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "authority": "CANONICAL_CURRENT",
       "format": "JSON",
       "location": "investment_os_runtime/00_CONTROL/WP5_POSITION_CONTINUITY_CONTRACT.json",
-      "merge_sha": null,
+      "merge_sha": "467280d54e4dbe58204e0137e4f9639550c72dca",
       "role": "User-authoritative zero-delta confirmation and transaction-delta reporting contract",
-      "status": "BRANCH_CANDIDATE_PENDING_MERGE",
+      "status": "CURRENT",
       "trade_authority": "NONE"
     },
     {
       "asset_id": "WP5_POSITION_CONTINUITY_REQUEST_CURRENT",
-      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "authority": "CANONICAL_CURRENT",
       "format": "JSON",
       "location": "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/WP5_POSITION_CONTINUITY_REQUEST_CURRENT.json",
-      "merge_sha": null,
+      "merge_sha": "467280d54e4dbe58204e0137e4f9639550c72dca",
       "role": "Current user confirmation request derived from completed-close and delta-ledger watermarks",
-      "status": "BRANCH_CANDIDATE_PENDING_MERGE",
+      "status": "CURRENT",
       "trade_authority": "NONE"
     },
     {
@@ -396,21 +396,95 @@
       "source_pr": 151,
       "status": "CURRENT_IF_PRESENT_ON_MAIN",
       "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "INVESTMENT_ASSISTANT_PRODUCT_CHARTER_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "format": "MD",
+      "location": "investment_os_runtime/00_CONTROL/INVESTMENT_ASSISTANT_PRODUCT_CHARTER_CURRENT.md",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Top-level product mission, authority and completion contract",
+      "source_head_sha": "87d299600bb8a4edca6fc9fab6ad6337a49902dd",
+      "source_pr": 152,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WORK_PACKAGE_MASTER_PLAN_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "format": "MD",
+      "location": "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Only authorized development roadmap and stage gate",
+      "source_head_sha": "87d299600bb8a4edca6fc9fab6ad6337a49902dd",
+      "source_pr": 152,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "CAPABILITY_REALITY_MATRIX_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "format": "MD",
+      "location": "investment_os_runtime/00_CONTROL/CAPABILITY_REALITY_MATRIX_CURRENT.md",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "User-facing capability, maturity and gap truth table",
+      "source_head_sha": "87d299600bb8a4edca6fc9fab6ad6337a49902dd",
+      "source_pr": 152,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "USER_OPERATING_GUIDE_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "format": "MD",
+      "location": "investment_os_runtime/00_CONTROL/USER_OPERATING_GUIDE_CURRENT.md",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Current usage, required inputs, limitations and expected future products",
+      "source_head_sha": "87d299600bb8a4edca6fc9fab6ad6337a49902dd",
+      "source_pr": 152,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP5_PORTFOLIO_DECISION_CONTRACT_V2",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "format": "JSON",
+      "location": "investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Finite WP5-1 to WP5-5 decision-phase contract",
+      "source_head_sha": "87d299600bb8a4edca6fc9fab6ad6337a49902dd",
+      "source_pr": 152,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R0_PRODUCT_AUTHORITY_FREEZE_ACCEPTANCE",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "format": "JSON",
+      "location": "investment_os_runtime/00_CONTROL/R0_PRODUCT_AUTHORITY_FREEZE_ACCEPTANCE_RECORD.json",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "R0 authority, lineage and zero-mutation acceptance",
+      "source_head_sha": "87d299600bb8a4edca6fc9fab6ad6337a49902dd",
+      "source_pr": 152,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
     }
   ],
   "conversation_memory_authority": "NONE",
   "date": "2026-07-27",
-  "github_merge_sha": "467280d54e4dbe58204e0137e4f9639550c72dca",
-  "latest_governed_merge_sha": "467280d54e4dbe58204e0137e4f9639550c72dca",
+  "github_merge_sha": "247203c005b76cfa32a0d04d31390631c304e738",
+  "latest_completed_main_merge_sha": "247203c005b76cfa32a0d04d31390631c304e738",
+  "latest_completed_main_pr": 151,
+  "latest_governed_merge_sha": "247203c005b76cfa32a0d04d31390631c304e738",
   "r2_canonical_closure_merge_sha": "17db72e866bff027e1f786a8fd0c051ddfcd6c3a",
   "r2_capability_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
-  "registry_id": "WP2_WP4_AUTHORITATIVE_ASSET_REGISTRY_V9",
-  "registry_status": "WP5_G_CURRENT_IF_PRESENT_ON_MAIN",
-  "release_id": "INVESTMENT_OS_R15_20260726_WP2_WP4_CANONICAL_AUDIT_CLOSURE",
-  "release_sequence": 15,
+  "registry_id": "INVESTMENT_ASSISTANT_AUTHORITATIVE_ASSET_REGISTRY_V10_R0_FREEZE",
+  "registry_status": "R0_PRODUCT_AUTHORITY_FREEZE_CURRENT_IF_PRESENT_ON_MAIN",
+  "release_id": "INVESTMENT_OS_R16_20260727_R0_PRODUCT_AUTHORITY_FREEZE",
+  "release_sequence": 16,
   "repository": "jl2642/investment-os-market-data",
   "runtime_baseline_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
-  "status": "GITHUB_CURRENT_IF_PR151_MERGED_FILE_LIBRARY_PENDING",
+  "status": "GITHUB_CURRENT_IF_PR152_MERGED_FILE_LIBRARY_RECOVERY_ONLY",
   "trade_authority": "NONE",
   "wp1_5bc_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54"
 }

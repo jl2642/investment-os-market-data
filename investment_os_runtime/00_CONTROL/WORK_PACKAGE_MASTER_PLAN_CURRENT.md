@@ -1,39 +1,105 @@
 # 股票投资助手｜Work Package Master Plan CURRENT
 
-- 状态日期：2026-07-26
-- Canonical状态源：`investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json`
-- 最新受治理合并：PR #143 / `7b3cd0f154c8bdbab55ffabe149e21d69aa4fe7a`
-- File Library晋级：`PENDING_MANUAL_UPLOAD`
+- 状态日期：2026-07-27
+- 产品权威：`INVESTMENT_ASSISTANT_PRODUCT_CHARTER_CURRENT.md`
+- Canonical状态源：`EXECUTION_REGISTER_CURRENT.json`
+- 最新已完成main合并：PR #151 / `247203c005b76cfa32a0d04d31390631c304e738`
+- 本轮治理来源：PR #152 / `87d299600bb8a4edca6fc9fab6ad6337a49902dd`
+- 本轮状态：`CURRENT_IF_PRESENT_ON_MAIN`
+- File Library：`RECOVERY_DISTRIBUTION_ONLY_PENDING_EXPLICIT_PROMOTION`
 - 交易权限：`NONE`
 
-## 当前阶段
+## 一、固定产品架构
 
-| Work Package | 正式状态 | 成熟度结论 |
+| Work Package | 产品职责 | 当前真实成熟度 |
 |---|---|---|
-| WP1 | COMPLETED | Canonical、规则、Runtime与Clean-Room验收完成 |
-| WP2 | BASELINE COMPLETED | 首次账户/模拟盘Current和诊断完成；Recurring Portfolio Current未完成 |
-| WP3 | INITIAL CANDIDATE BASELINE COMPLETED | 2只Core、38只Shadow、33只Research Queue；持续财务/Candidate刷新及效果验证未完成 |
-| WP4 | CORE2 INITIAL PRODUCTION BASELINE ACCEPTED ON MAIN | 两只Core的初始研究、方向性Portfolio Fit、显式情景估值和Decision Interface完成；完整Deep Research未完成 |
-| R2 | READY / REQUIRED | Portfolio Current、Continuous Candidate Refresh、Core2 Research Hardening |
-| WP5 | BLOCKED | 等待R2完成；不得以0只Ready为由降低门槛或强制生成交易建议 |
-| WP6–WP7 | PLANNED | 正式周期运营、归因复盘和完整自然月实跑验收 |
+| WP1 | 规则、Canonical、Schema、Runtime和恢复 | `COMPLETED` |
+| WP2 | 真实账户、模拟盘、行情、基金净值和用户交易Delta | `CAPABILITY_ACCEPTED_OPERATING_HISTORY_NOT_YET_VALIDATED` |
+| WP3 | 全市场筛选、Candidate生命周期和效果评价 | `ENGINE_ACCEPTED_OUTCOME_WINDOWS_INCOMPLETE` |
+| WP4 | 公司研究、估值、组合适配和事件监控 | `METHOD_ACCEPTED_COVERAGE_PARTIAL` |
+| WP5 | 组合构建、动作矩阵和用户决策包 | `PARTIALLY_COMPLETE_NO_USER_ACTION_PACK` |
+| WP6 | 日报、周报、月报、季报和年度运营产品 | `NOT_STARTED_AS_FORMAL_PRODUCT` |
+| WP7 | 收益归因、决策复盘和策略校准 | `NOT_STARTED_AS_FORMAL_PRODUCT` |
 
-## R1审计结论
+## 二、截至R0的实际能力
 
-### WP2
+- 真实账户：7个持仓Current；第一轮产品结构审查已完成；三只债基完整穿透未完成。
+- 模拟盘：16个持仓Current；2只Core2和3只P0具备较高等级研究；其余11只缺统一决策级覆盖。
+- Candidate：2只Core、38只Shadow、33只Research Queue、0只Ready。
+- 全市场：5,530只A股Canonical范围；Candidate刷新能力已安装，但20/60/120日效果窗口未成熟。
+- 用户决策：当前Ready为0；不存在已授权调仓或订单。
 
-WP2完成的是截至2026-07-24的一次正式状态重建和首次运营诊断。真实账户仍无券商连接，`broker_verified=false`，用户发生交易后必须提供增量确认。旧组合行情刷新流程不是每日滚动的正式Portfolio Current。
+## 三、历史执行映射
 
-### WP3
+| 历史PR/标签 | 实际交付 | 映射后的正式位置 |
+|---|---|---|
+| PR #141 | WP3 Research Objects、Entry Baseline和Candidate重建 | WP3已完成初始Candidate基线 |
+| PR #143 | 美的、长江电力Core2初始研究和Decision Interface | WP4部分覆盖 |
+| PR #144 | R1成熟度纠偏和缺口登记 | 历史审计，不是产品阶段 |
+| PR #145–#146 | WP2-R、WP3-R、WP4-B能力补强及R2收口 | WP2–WP4能力硬化 |
+| PR #147 / WP5-A–C | WP5启动、全持仓初审、P0研究准备 | WP5-1及WP5-2启动 |
+| PR #148 / WP5-D | 汇川、宁德、工业富联P0重审 | WP5-2部分完成 |
+| PR #149 / WP5-E | 完成收盘及条件动作门禁 | 横向运营控制，不是阶段 |
+| PR #150 / WP5-F | 用户持仓连续性接口 | 横向数据控制，不是阶段 |
+| PR #151 / WP5-G | 真实账户第一轮结构审查及晋级语义修复 | WP5-2部分完成 |
+| WP5-H | 未经计划冻结的临时名称 | `VOID_NOT_STARTED` |
 
-WP3完成了首轮全市场筛选、历史Core20重审和Candidate重建。只有全市场行情获取具备Schedule；财务期间刷新、金融行业独立Profile、下游Candidate周期重跑和20/60/120日效果验证尚未完成。
+## 四、冻结后的有限开发路线
 
-### WP4
+### R0｜Product Authority Freeze
 
-PR #143已经合并并形成真实资产，但正确成熟度是`Core2 Initial Production Baseline`。现有5项正式来源、2份研究记录和2份情景估值支持“等待证据或更好价格”，不等同于完整专业Deep Research、驱动式财务模型或仓位级Portfolio Fit。
+- 状态：`CURRENT_IF_PRESENT_ON_MAIN`
+- 交付：Product Charter、Master Plan、Capability Reality Matrix、Execution Register、User Operating Guide。
+- 禁止：新研究、调仓、Candidate变化、订单和架构扩张。
 
-## 下一里程碑
+### R1｜Decision Coverage Completion
 
-`R2 | WP2-R Portfolio Current + WP3-R Continuous Candidate Refresh + WP4-B Core2 Research Hardening`
+- 刷新2只Core2和3只P0，不从头重建；
+- 补齐其余11只模拟盘持仓的基本面、估值、组合角色和退出条件；
+- 完成三只债基穿透、两只标普500ETF执行质量比较及A500/中证500角色确认；
+- 交付全部当前持仓的统一Decision Coverage Pack。
 
-R2完成前不进入WP5。任何Candidate、模拟盘或真实账户状态变化仍须独立受治理Proposal；系统不自动交易。
+### R2｜Portfolio Construction Synthesis
+
+- 汇总真实账户和模拟盘的风险袖套、行业/风格暴露、集中度、重复暴露、现金用途和替代关系；
+- 形成核心—卫星结构和新资金优先顺序；
+- 回答“为什么这些资产应当放在同一个组合中”。
+
+### R3｜Position Action Matrix & User Decision Pack
+
+- 每个持仓必须归入：增持、持有、减持、退出、观察或等待证据；
+- 明确建议仓位区间、价格条件、基本面条件、风险条件、优先级和不执行后果；
+- 交付用户可直接审阅的《真实账户与模拟盘投资决策报告》；
+- 只有用户明确选择后，才可建立独立状态变更Proposal。
+
+### R4｜Operating Products
+
+- 固化日报、周报、月报、季报和年度复盘；
+- 只产品化现有能力，不继续扩张架构。
+
+### R5｜Attribution & Calibration
+
+- 完成个股、行业、仓位、时点、现金、Candidate及规则层归因；
+- 解释模拟盘赚钱或亏钱的原因并形成规则升级建议。
+
+### R6｜Production Acceptance
+
+- 完整自然月实跑；
+- 验收自动刷新、用户Delta、跨对话恢复、周期报告、故障重跑、证据追溯和零越权交易。
+
+## 五、阶段门禁
+
+- 未完成当前阶段的用户可读交付，不得进入下一阶段；
+- 新阶段必须先在本Master Plan中出现并经用户明确同意；
+- 临时缺陷修复归入当前阶段或横向控制，不另起字母轮次；
+- R1完成前不进入R2；R3完成前不得宣称WP5完成；R6完成前不得宣称系统已生产化。
+
+## 六、下一任务
+
+`R1_DECISION_COVERAGE_COMPLETION_AFTER_R0_PRESENT_ON_MAIN`
+
+## 七、历史兼容状态
+
+`WP3 | INITIAL CANDIDATE BASELINE COMPLETED`
+
+该标记仅证明WP3初始Candidate基线历史已完成；当前更高层成熟度仍以本计划中的`ENGINE_ACCEPTED_OUTCOME_WINDOWS_INCOMPLETE`为准。
