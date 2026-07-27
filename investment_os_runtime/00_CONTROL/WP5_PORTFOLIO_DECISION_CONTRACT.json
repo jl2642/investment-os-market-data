@@ -15,11 +15,11 @@
     "ready_for_user_decision_may_legitimately_be_zero": true,
     "user_decision_pack_delivered": true
   },
-  "contract_id": "WP5_PORTFOLIO_DECISION_CONTRACT_V2_R0_FREEZE",
+  "contract_id": "WP5_PORTFOLIO_DECISION_CONTRACT_V2_R2_SYNTHESIS",
   "current_completion_state": {
     "all_current_positions_covered": true,
     "orders_created": 0,
-    "portfolio_construction_synthesis_delivered": false,
+    "portfolio_construction_synthesis_delivered": true,
     "position_action_matrix_delivered": false,
     "user_decision_pack_delivered": false
   },
@@ -41,11 +41,19 @@
       ],
       "name": "DECISION_GRADE_COVERAGE_COMPLETION",
       "remaining": [],
-      "status": "COMPLETED_CURRENT_IF_PRESENT_ON_MAIN"
+      "status": "COMPLETED_ON_MAIN"
     },
     "WP5-3": {
       "name": "PORTFOLIO_CONSTRUCTION_SYNTHESIS",
-      "status": "NOT_STARTED"
+      "status": "COMPLETED_CURRENT_IF_PRESENT_ON_MAIN",
+      "remaining": [],
+      "deliverables": [
+        "REAL_ACCOUNT_REFERENCE_ARCHITECTURES",
+        "SIMULATION_SLEEVE_BUDGETS",
+        "FACTOR_AND_OVERLAP_GUARDRAILS",
+        "CAPITAL_PRIORITY_WATERFALL",
+        "ILLUSTRATIVE_STRESS_SCENARIOS"
+      ]
     },
     "WP5-4": {
       "name": "POSITION_ACTION_MATRIX",
@@ -89,5 +97,7 @@
   "source_head_sha": "2a934babdc463f319977cf64674ccdabd1603430",
   "source_pr": 153,
   "status": "WP5_2_DECISION_GRADE_COVERAGE_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN",
-  "trade_authority": "NONE"
+  "trade_authority": "NONE",
+  "current_stage": "WP5-3_COMPLETED_CURRENT_IF_PRESENT_ON_MAIN",
+  "next_stage": "WP5-4_POSITION_ACTION_MATRIX"
 }

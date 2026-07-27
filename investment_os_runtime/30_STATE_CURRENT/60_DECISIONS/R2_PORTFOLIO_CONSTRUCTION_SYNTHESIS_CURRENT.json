@@ -1,0 +1,414 @@
+{
+  "synthesis_id": "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT_V1",
+  "status": "PORTFOLIO_CONSTRUCTION_SYNTHESIS_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_R3_NOT_STARTED",
+  "as_of": "2026-07-27",
+  "accepted_data_watermark": "2026-07-24_CLOSE",
+  "position_continuity": "USER_CONFIRMED_THROUGH_2026_07_24_ONLY_NO_LATER_CONTINUITY_ASSUMED",
+  "scope": "CURRENT_ACCEPTED_REAL_AND_SIMULATION_POSITIONS_ONLY",
+  "r1_input_complete": {
+    "simulation": 16,
+    "real_products": 7
+  },
+  "real_account": {
+    "total_assets_rmb": 451176.73,
+    "cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED",
+    "risk_adjusted_current_structure": {
+      "pure_defensive_fixed_income": {
+        "security_ids": [
+          "017534.OF",
+          "217003.OF"
+        ],
+        "market_value": 214564.66,
+        "weight": 0.47556678,
+        "unrealized_pnl": 3950.28
+      },
+      "hybrid_enhanced_bond": {
+        "security_ids": [
+          "110017.OF"
+        ],
+        "market_value": 100277.18,
+        "weight": 0.22225698,
+        "unrealized_pnl": 277.18
+      },
+      "a_share_core": {
+        "security_ids": [
+          "159352.SZ"
+        ],
+        "market_value": 35095.9,
+        "weight": 0.07778748,
+        "unrealized_pnl": -2742.3
+      },
+      "a_share_midcap_satellite": {
+        "security_ids": [
+          "510500.SH"
+        ],
+        "market_value": 59605.5,
+        "weight": 0.1321112,
+        "unrealized_pnl": -7212.7
+      },
+      "us_equity_sp500": {
+        "security_ids": [
+          "159612.SZ",
+          "159655.SZ"
+        ],
+        "market_value": 41513.0,
+        "weight": 0.09201051,
+        "unrealized_pnl": 4400.8
+      },
+      "execution_cash": {
+        "market_value": 120.49,
+        "weight": 0.00026706,
+        "unrealized_pnl": 0.0
+      }
+    },
+    "reference_architecture": {
+      "mode": "BALANCED_STABLE_GROWTH_DEFAULT_FOR_R3_COMPARISON_NOT_USER_TARGET",
+      "weights": {
+        "pure_defensive_fixed_income": 0.45,
+        "hybrid_enhanced_bond": 0.15,
+        "a_share_core": 0.175,
+        "a_share_midcap_satellite": 0.075,
+        "us_equity_sp500": 0.15,
+        "strategic_cash": 0.0
+      },
+      "rationale": [
+        "真实证券账户现金只作为执行余额，外部流动性不计入战略资产桶",
+        "纯防御与混合增强债必须分开计量，避免把可转债和权益Beta误记为纯防御",
+        "A500宽基核心必须不小于中证500卫星，规划偏好核心为卫星的1.25至2.0倍",
+        "标普500只保留一个长期载体，R1条件性优先159655.SZ"
+      ]
+    },
+    "alternative_architectures": {
+      "capital_preservation": {
+        "pure_defensive_fixed_income": 0.55,
+        "hybrid_enhanced_bond": 0.15,
+        "a_share_total": 0.2,
+        "us_equity_sp500": 0.1,
+        "strategic_cash": 0.0
+      },
+      "balanced_stable_growth": {
+        "pure_defensive_fixed_income": 0.45,
+        "hybrid_enhanced_bond": 0.15,
+        "a_share_total": 0.25,
+        "us_equity_sp500": 0.15,
+        "strategic_cash": 0.0
+      },
+      "growth_tilt": {
+        "pure_defensive_fixed_income": 0.35,
+        "hybrid_enhanced_bond": 0.15,
+        "a_share_total": 0.3,
+        "us_equity_sp500": 0.2,
+        "strategic_cash": 0.0
+      }
+    },
+    "structural_diagnosis": [
+      "名义69.78%债基不能等同于69.78%纯防御；110017含权益与可转债增强Beta",
+      "纯防御47.56%接近长期稳健成长默认参考，主要结构缺口来自混合增强债偏高",
+      "A股总量接近参考下限，但A500核心7.78%小于中证500卫星13.21%",
+      "标普500合计9.20%略低于默认参考且由两个经济重复载体组成",
+      "证券账户现金只作为执行余额，不设置固定战略现金目标"
+    ],
+    "migration_direction_for_r3_not_orders": [
+      "优先把标普500归并为单一载体159655.SZ，但须通过同日流动性和折溢价门禁",
+      "通过新增资金或受控迁移使A500核心不小于中证500卫星，规划偏好1.25至2.0倍",
+      "混合增强债110017的权益和转债Beta计入风险预算，不再与纯债等额替代",
+      "纯防御仓不因名义债基总比例而机械大幅削减"
+    ],
+    "illustrative_stress_scenarios": {
+      "equity_risk_off": {
+        "illustrative_shocks": {
+          "pure_defensive_fixed_income": 0.01,
+          "hybrid_enhanced_bond": -0.05,
+          "a_share_core": -0.18,
+          "a_share_midcap_satellite": -0.23,
+          "us_equity_sp500": -0.18,
+          "execution_cash": 0.0
+        },
+        "portfolio_return": -0.0673064,
+        "portfolio_pnl_rmb": -30367.08,
+        "forecast": false
+      },
+      "rates_and_credit_shock": {
+        "illustrative_shocks": {
+          "pure_defensive_fixed_income": -0.04,
+          "hybrid_enhanced_bond": -0.1,
+          "a_share_core": -0.1,
+          "a_share_midcap_satellite": -0.15,
+          "us_equity_sp500": -0.1,
+          "execution_cash": 0.0
+        },
+        "portfolio_return": -0.07804485,
+        "portfolio_pnl_rmb": -35212.02,
+        "forecast": false
+      },
+      "china_midcap_specific_shock": {
+        "illustrative_shocks": {
+          "pure_defensive_fixed_income": 0.0,
+          "hybrid_enhanced_bond": -0.03,
+          "a_share_core": -0.1,
+          "a_share_midcap_satellite": -0.25,
+          "us_equity_sp500": -0.05,
+          "execution_cash": 0.0
+        },
+        "portfolio_return": -0.05207478,
+        "portfolio_pnl_rmb": -23494.93,
+        "forecast": false
+      }
+    }
+  },
+  "simulation": {
+    "total_assets_rmb": 1007938.48,
+    "current_structure": {
+      "quality_core": {
+        "security_ids": [
+          "000333.SZ",
+          "600036.SH",
+          "600660.SH",
+          "600690.SH"
+        ],
+        "market_value": 258560.0,
+        "weight": 0.25652359,
+        "unrealized_pnl": 23526.0,
+        "reference_band": [
+          0.25,
+          0.35
+        ],
+        "band_status": "WITHIN_BAND"
+      },
+      "defensive_dividend": {
+        "security_ids": [
+          "600406.SH",
+          "600900.SH",
+          "600941.SH"
+        ],
+        "market_value": 172307.0,
+        "weight": 0.17094992,
+        "unrealized_pnl": 10812.0,
+        "reference_band": [
+          0.15,
+          0.25
+        ],
+        "band_status": "WITHIN_BAND"
+      },
+      "growth_innovation": {
+        "security_ids": [
+          "002463.SZ",
+          "300124.SZ",
+          "300750.SZ",
+          "600276.SH",
+          "601138.SH"
+        ],
+        "market_value": 163395.0,
+        "weight": 0.16210811,
+        "unrealized_pnl": -26397.0,
+        "reference_band": [
+          0.12,
+          0.2
+        ],
+        "band_status": "WITHIN_BAND"
+      },
+      "cyclical_resource": {
+        "security_ids": [
+          "600309.SH",
+          "600938.SH",
+          "601899.SH"
+        ],
+        "market_value": 140573.0,
+        "weight": 0.13946585,
+        "unrealized_pnl": 13638.0,
+        "reference_band": [
+          0.1,
+          0.18
+        ],
+        "band_status": "WITHIN_BAND"
+      },
+      "benchmark_satellite": {
+        "security_ids": [
+          "510500.SH"
+        ],
+        "market_value": 53569.5,
+        "weight": 0.05314759,
+        "unrealized_pnl": -5190.1,
+        "reference_band": [
+          0.05,
+          0.1
+        ],
+        "band_status": "WITHIN_BAND"
+      },
+      "research_cash": {
+        "market_value": 219533.98,
+        "weight": 0.21780494,
+        "unrealized_pnl": 0.0,
+        "reference_band": [
+          0.15,
+          0.25
+        ],
+        "band_status": "WITHIN_BAND",
+        "semantics": "SIMULATION_RESEARCH_AND_REPLACEMENT_RESERVE_NOT_FORCED_DEPLOYMENT"
+      }
+    },
+    "structural_diagnosis": [
+      "五类投资袖套与研究现金全部处于R2参考区间，整体配置无需推倒重来",
+      "质量核心、红利防御和周期资源合计产生正向未实现贡献，成长创新组和中证500Beta构成主要拖累",
+      "当前问题是成长创新组内部标的质量与买入价格，而不是成长袖套总权重失控",
+      "21.78%现金处于15%至25%研究储备区间，不构成强制买入信号"
+    ],
+    "current_unrealized_contribution_diagnostic_not_formal_r5_attribution": {
+      "quality_core": 23526.0,
+      "defensive_dividend": 10812.0,
+      "growth_innovation": -26397.0,
+      "cyclical_resource": 13638.0,
+      "benchmark_satellite": -5190.1,
+      "research_cash": 0.0
+    },
+    "factor_and_overlap_clusters": {
+      "home_appliance_overlap": {
+        "security_ids": [
+          "000333.SZ",
+          "600690.SH"
+        ],
+        "market_value": 106768.0,
+        "weight": 0.1059271,
+        "unrealized_pnl": 8198.0
+      },
+      "dividend_cashflow_factor": {
+        "security_ids": [
+          "600036.SH",
+          "600900.SH",
+          "600938.SH",
+          "600941.SH"
+        ],
+        "market_value": 250021.0,
+        "weight": 0.24805185,
+        "unrealized_pnl": 25230.0
+      },
+      "ai_hardware": {
+        "security_ids": [
+          "002463.SZ",
+          "601138.SH"
+        ],
+        "market_value": 58594.0,
+        "weight": 0.05813252,
+        "unrealized_pnl": -14148.0
+      },
+      "electrification_automation": {
+        "security_ids": [
+          "300124.SZ",
+          "300750.SZ",
+          "600406.SH"
+        ],
+        "market_value": 104485.0,
+        "weight": 0.10366208,
+        "unrealized_pnl": -12993.0
+      },
+      "commodity_cycle": {
+        "security_ids": [
+          "600309.SH",
+          "600938.SH",
+          "601899.SH"
+        ],
+        "market_value": 140573.0,
+        "weight": 0.13946585,
+        "unrealized_pnl": 13638.0
+      }
+    },
+    "guardrails": {
+      "single_position_max": 0.1,
+      "current_largest_position": {
+        "security_id": "600660.SH",
+        "weight": 0.08837047
+      },
+      "theme_cluster_max": 0.25,
+      "dividend_cashflow_cluster": {
+        "weight": 0.24805185,
+        "status": "NEAR_CAP_NO_AUTOMATIC_ADD"
+      },
+      "growth_innovation_band": [
+        0.12,
+        0.2
+      ],
+      "research_cash_band": [
+        0.15,
+        0.25
+      ],
+      "benchmark_top_up": "ONLY_FOR_DELIBERATE_BETA_BUDGET_NOT_TO_FILL_CASH"
+    },
+    "capital_priority_waterfall_for_r3_not_orders": [
+      "保留15%至25%研究现金，直到R3形成用户决策包",
+      "高置信核心只有在最新收盘、持仓连续性、组合簇上限和15%Base收益门槛同时通过后才可进入增持候选",
+      "沪电股份、汇川技术、宁德时代和工业富联组成的亏损成长子集在逻辑与现金流验证前不新增",
+      "福耀玻璃已高于历史角色参考权重，不作为新增资金首选",
+      "中证500ETF只在R2/R3明确需要中盘Beta时使用，不按历史10%标签自动补仓",
+      "周期资源与医药卫星只在各自周期或商业化触发条件通过后使用"
+    ],
+    "illustrative_stress_scenarios": {
+      "broad_risk_off": {
+        "illustrative_shocks": {
+          "quality_core": -0.15,
+          "defensive_dividend": -0.08,
+          "growth_innovation": -0.3,
+          "cyclical_resource": -0.25,
+          "benchmark_satellite": -0.22,
+          "research_cash": 0.0
+        },
+        "portfolio_return": -0.1473459,
+        "portfolio_pnl_rmb": -148515.6,
+        "forecast": false
+      },
+      "growth_reversal": {
+        "illustrative_shocks": {
+          "quality_core": -0.05,
+          "defensive_dividend": 0.0,
+          "growth_innovation": -0.35,
+          "cyclical_resource": -0.08,
+          "benchmark_satellite": -0.12,
+          "research_cash": 0.0
+        },
+        "portfolio_return": -0.087099,
+        "portfolio_pnl_rmb": -87790.43,
+        "forecast": false
+      },
+      "commodity_and_rate_shock": {
+        "illustrative_shocks": {
+          "quality_core": -0.08,
+          "defensive_dividend": -0.1,
+          "growth_innovation": -0.1,
+          "cyclical_resource": -0.25,
+          "benchmark_satellite": -0.12,
+          "research_cash": 0.0
+        },
+        "portfolio_return": -0.09507186,
+        "portfolio_pnl_rmb": -95826.59,
+        "forecast": false
+      }
+    }
+  },
+  "cross_account_findings": [
+    "真实账户与模拟盘均持有510500.SH，经济上形成跨账户中盘Beta叠加；R3必须按账户用途分别处理",
+    "真实账户强调防御与全球宽基，模拟盘承担个股研究和策略验证，不应简单复制同一资产配置",
+    "近期盈亏仅用于诊断，不得替代R5正式收益归因或成为自动交易依据"
+  ],
+  "r3_required_outputs": [
+    "真实账户按长期稳健成长默认情景形成逐产品保留、减持、迁移和新增条件矩阵",
+    "明确三只债基各自的保留角色及110017混合Beta预算",
+    "形成159612向159655条件性归并方案及执行门禁",
+    "形成A500核心与中证500卫星纠偏路径",
+    "模拟盘对16只持仓逐一形成增持、持有、减持、退出、观察或等待证据状态",
+    "将现金部署顺序、替代标的和不执行后果呈现给用户选择"
+  ],
+  "stage_boundary": {
+    "r2_complete": true,
+    "r3_action_matrix_started": false,
+    "user_decision_pack_ready": false,
+    "implementation_ready_count": 0,
+    "ready_for_user_decision_count": 0
+  },
+  "economic_mutations": {
+    "real_account": 0,
+    "simulation": 0,
+    "candidate_membership": 0,
+    "legacy_decisions": 0,
+    "orders": 0
+  },
+  "trade_authority": "NONE"
+}
