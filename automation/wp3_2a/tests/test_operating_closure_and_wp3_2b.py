@@ -198,6 +198,16 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["wp5"]["decision_grade_coverage"]["real_product_complete"] == 7
         assert register["wp5"]["portfolio_construction_synthesis_complete"] is False
         assert register["next_task"] == "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_AFTER_R1_PRESENT_ON_MAIN"
+    elif step == "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT_IF_PRESENT_ON_MAIN":
+        assert register["trade_authority"] == "NONE"
+        assert register["development_roadmap"]["R1"]["status"] == "COMPLETED_ON_MAIN"
+        assert register["development_roadmap"]["R2"]["status"] == "CURRENT_IF_PRESENT_ON_MAIN"
+        assert register["development_roadmap"]["R3"]["status"] == "NOT_STARTED"
+        assert register["wp5"]["formal_plan"] == "WP5_1_TO_WP5_5"
+        assert register["wp5"]["portfolio_construction_synthesis_complete"] is True
+        assert register["wp5"]["position_action_matrix_complete"] is False
+        assert register["wp5"]["user_decision_pack_complete"] is False
+        assert register["next_task"] == "R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_AFTER_R2_PRESENT_ON_MAIN"
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")

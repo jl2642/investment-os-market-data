@@ -3,7 +3,7 @@
 - 状态日期：2026-07-27
 - 产品权威：`INVESTMENT_ASSISTANT_PRODUCT_CHARTER_CURRENT.md`
 - Canonical状态源：`EXECUTION_REGISTER_CURRENT.json`
-- 最新已完成main合并：PR #152 / `42b34c327fa5b1168c4e9d11846ba1e0f6712ac6`
+- 最新已完成main合并：PR #153 / `39cc98578ff0324bb6a5602db527b0dd3e70a278`
 - R0治理来源：PR #152 / `ee9cd9af5122af9506a0da844d837cfce6c57c44`
 - 本轮状态：`CURRENT_IF_PRESENT_ON_MAIN`
 - File Library：`RECOVERY_DISTRIBUTION_ONLY_PENDING_EXPLICIT_PROMOTION`
@@ -54,7 +54,7 @@
 
 ### R1｜Decision Coverage Completion
 
-- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#153`。
+- 状态：`COMPLETED_ON_MAIN`；来源PR：`#153`。
 
 - 刷新2只Core2和3只P0，不从头重建；
 - 补齐其余11只模拟盘持仓的基本面、估值、组合角色和退出条件；
@@ -62,6 +62,9 @@
 - 交付全部当前持仓的统一Decision Coverage Pack。
 
 ### R2｜Portfolio Construction Synthesis
+
+- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#154`。
+
 
 - 汇总真实账户和模拟盘的风险袖套、行业/风格暴露、集中度、重复暴露、现金用途和替代关系；
 - 形成核心—卫星结构和新资金优先顺序；
@@ -98,7 +101,7 @@
 
 ## 六、下一任务
 
-`R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_AFTER_R1_PRESENT_ON_MAIN`
+`R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_AFTER_R2_PRESENT_ON_MAIN`
 
 ## 七、历史兼容状态
 
@@ -113,3 +116,10 @@
 - 真实账户产品覆盖：`7/7`；三只债基形成差异化风险穿透，两只标普500ETF完成条件性单一载体选择，A500/中证500角色确认。
 - R1完成不代表可交易；R2组合构建、R3动作矩阵与用户决策包仍未开始。
 - 实际持仓、Candidate、旧决策和订单变更均为0。
+
+## 九、R2验收结果
+
+- 真实账户形成风险调整后的四袖套结构与三种情景；默认长期稳健成长参考架构为纯防御45%、混合增强债15%、A股25%、美股15%、战略现金0%。
+- 模拟盘五类投资袖套均处于R2参考区间；当前问题集中在成长创新组和中证500Beta的负贡献，而非全组合权重失控。
+- 建立单一持仓、主题簇、现金、A股核心—卫星及标普500单一载体约束。
+- R2不生成R3逐仓动作矩阵，不改变持仓、Candidate、旧决策或订单。
