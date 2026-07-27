@@ -3,7 +3,7 @@
 - 状态日期：2026-07-27
 - 产品权威：`INVESTMENT_ASSISTANT_PRODUCT_CHARTER_CURRENT.md`
 - Canonical状态源：`EXECUTION_REGISTER_CURRENT.json`
-- 最新已完成main合并：PR #158 / `f4c48b1aa07f05f41f3d79cf5f843d84b384a5ec`
+- 最新已完成main合并：PR #159 / `3cb173851eac4388f24785cd7a43cd557c58a3bc`
 - R0治理来源：PR #152 / `ee9cd9af5122af9506a0da844d837cfce6c57c44`
 - 本轮状态：`CURRENT_IF_PRESENT_ON_MAIN`
 - File Library：`RECOVERY_DISTRIBUTION_ONLY_PENDING_EXPLICIT_PROMOTION`
@@ -86,11 +86,13 @@
 
 ### R5｜Attribution & Calibration
 
+- 状态：`COMPLETED_ON_MAIN`；来源PR：`#159`。
 - 完成个股、行业、仓位、时点、现金、Candidate及规则层归因；
 - 解释模拟盘赚钱或亏钱的原因并形成规则升级建议。
 
 ### R6｜Production Acceptance
 
+- 状态：`IN_PROGRESS_CURRENT_IF_PRESENT_ON_MAIN`；完整自然月尚未完成。
 - 完整自然月实跑；
 - 验收自动刷新、用户Delta、跨对话恢复、周期报告、故障重跑、证据追溯和零越权交易。
 
@@ -103,7 +105,7 @@
 
 ## 六、下一任务
 
-`R6_PRODUCTION_ACCEPTANCE_AFTER_R5_PRESENT_ON_MAIN`
+`RUN_R6_SUPERVISED_OPERATING_OBSERVATION_2026_08`
 
 ## 七、历史兼容状态
 
@@ -159,3 +161,12 @@
 - Candidate仅2个Entry Baseline且20/60/120日窗口均未成熟，Alpha Claim继续阻断。
 - 形成8项规则校准提案，实际规则变更、持仓变更、Candidate变更和订单均为`0`。
 - R6完成完整自然月运行、恢复、重跑和正式激活验收前，Operating Activation保持`false`。
+
+## R6启动与生产验收状态
+
+- R5已通过PR `#159`合并至main，Merge SHA为`3cb173851eac4388f24785cd7a43cd557c58a3bc`。
+- R6合同、用户—系统职责矩阵、观察Ledger、恢复重跑Runbook和Activation Gate已经安装。
+- 当前Checkpoint为`1/10`，仅完成Preflight；Operating Activation仍为`false`。
+- 首个可用完整自然月验收窗口为`2026-08-01`至`2026-08-31`。
+- R6最终通过后，固定集中开发路线结束，系统进入正式运营、绩效复盘和受治理持续迭代。
+- 当前真实账户、模拟盘、Candidate、规则、旧决策和订单变更均为`0`。

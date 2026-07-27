@@ -247,6 +247,18 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["ready_for_user_decision_count"] == 0
         assert register["implementation_ready_count"] == 0
         assert register["next_task"] == "R6_PRODUCTION_ACCEPTANCE_AFTER_R5_PRESENT_ON_MAIN"
+    elif step == "R6_PRODUCTION_ACCEPTANCE_IN_PROGRESS_CURRENT_IF_PRESENT_ON_MAIN":
+        assert register["trade_authority"] == "NONE"
+        assert register["development_roadmap"]["R5"]["status"] == "COMPLETED_ON_MAIN"
+        assert register["development_roadmap"]["R5"]["merge_sha"] == "3cb173851eac4388f24785cd7a43cd557c58a3bc"
+        assert register["development_roadmap"]["R6"]["status"] == "IN_PROGRESS_CURRENT_IF_PRESENT_ON_MAIN"
+        assert register["production_acceptance_r6"]["full_month_complete"] is False
+        assert register["production_acceptance_r6"]["checkpoint_passed"] == 1
+        assert register["production_acceptance_r6"]["checkpoint_total"] == 10
+        assert register["operating_activation"] is False
+        assert register["ready_for_user_decision_count"] == 0
+        assert register["implementation_ready_count"] == 0
+        assert register["next_task"] == "RUN_R6_SUPERVISED_OPERATING_OBSERVATION_2026_08"
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")

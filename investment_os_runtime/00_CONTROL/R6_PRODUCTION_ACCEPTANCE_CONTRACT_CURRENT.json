@@ -1,0 +1,122 @@
+{
+  "acceptance_mode": "SUPERVISED_PRODUCTION_ACCEPTANCE",
+  "as_of": "2026-07-27",
+  "contract_id": "R6_PRODUCTION_ACCEPTANCE_CONTRACT_V1",
+  "domain_count": 8,
+  "domains": [
+    {
+      "acceptance_question": "Can any new conversation recover the same Canonical state without relying on memory?",
+      "completion_evidence": [
+        "GitHub main recovery",
+        "Current asset registry",
+        "watermark and lineage reconciliation"
+      ],
+      "domain_id": "AUTHORITY_AND_CURRENT",
+      "initial_status": "READY_FOR_REPLAY_TEST"
+    },
+    {
+      "acceptance_question": "Do governed public-data refreshes complete or fail closed on the expected cadence?",
+      "completion_evidence": [
+        "completed-close equity marks",
+        "fund NAV freshness",
+        "screening refresh receipts",
+        "stale-input blocking"
+      ],
+      "domain_id": "AUTOMATIC_DATA_REFRESH",
+      "initial_status": "PENDING_FULL_MONTH_OBSERVATION"
+    },
+    {
+      "acceptance_question": "Are Real-account changes captured only from explicit user zero-Delta or transaction Delta?",
+      "completion_evidence": [
+        "dated zero-Delta confirmations",
+        "transaction and cash-flow Delta records",
+        "no silence inference"
+      ],
+      "domain_id": "USER_POSITION_DELTA",
+      "initial_status": "PENDING_USER_INPUT_CADENCE"
+    },
+    {
+      "acceptance_question": "Are status, daily, weekly, monthly and event products generated with evidence and blockers?",
+      "completion_evidence": [
+        "daily samples",
+        "weekly samples",
+        "one complete monthly review",
+        "event and stale-data handling"
+      ],
+      "domain_id": "OPERATING_PRODUCTS",
+      "initial_status": "PENDING_FULL_MONTH_OBSERVATION"
+    },
+    {
+      "acceptance_question": "Does the monthly product reconcile period returns, flows and R5 attribution without using snapshot P&L as return?",
+      "completion_evidence": [
+        "month-start baseline",
+        "transaction/flow ledger",
+        "month-end marks",
+        "P&L bridge",
+        "Candidate maturity status"
+      ],
+      "domain_id": "ATTRIBUTION_INTEGRATION",
+      "initial_status": "PENDING_MONTH_END_LEDGER"
+    },
+    {
+      "acceptance_question": "Can failed or missed cycles be recovered deterministically without duplicate economic mutations?",
+      "completion_evidence": [
+        "cross-conversation replay",
+        "missed-run backfill",
+        "duplicate-run idempotence",
+        "recovery log"
+      ],
+      "domain_id": "RECOVERY_AND_RERUN",
+      "initial_status": "READY_FOR_INJECTION_TEST"
+    },
+    {
+      "acceptance_question": "Can every material conclusion be traced to Current data, source timestamp and decision rule?",
+      "completion_evidence": [
+        "source and timestamp",
+        "watermark",
+        "rule reference",
+        "confidence/blocker"
+      ],
+      "domain_id": "EVIDENCE_TRACEABILITY",
+      "initial_status": "READY_FOR_SAMPLE_AUDIT"
+    },
+    {
+      "acceptance_question": "Does the system preserve user control over holdings, Candidate, rules and orders for the whole month?",
+      "completion_evidence": [
+        "zero unauthorized Real mutations",
+        "zero unauthorized Simulation mutations",
+        "zero Candidate/rule mutations",
+        "zero orders"
+      ],
+      "domain_id": "ZERO_AUTHORITY_VIOLATION",
+      "initial_status": "CONTINUOUS_MONITORING_REQUIRED"
+    }
+  ],
+  "observation_window": {
+    "earliest_final_close": "AFTER_2026-08-31_CLOSE_AND_REQUIRED_FUND_NAV_COMPLETION",
+    "end": "2026-08-31",
+    "start": "2026-08-01",
+    "type": "COMPLETE_CALENDAR_MONTH"
+  },
+  "operating_activation": false,
+  "post_acceptance_operating_model": "AUTONOMOUS_RESEARCH_REFRESH_REPORTING_AND_PROPOSALS_WITH_USER_CONTROLLED_PORTFOLIO_STATE",
+  "production_completion_definition": {
+    "all_material_cycles_evidenced": true,
+    "cross_conversation_recovery_passed": true,
+    "full_month_complete": true,
+    "monthly_attribution_reconciled": true,
+    "orders": 0,
+    "recovery_and_rerun_passed": true,
+    "unauthorized_mutations": 0,
+    "user_readable_operating_guide_delivered": true
+  },
+  "r5_final_governed_head_sha": "3e654c2cbbdbc563999799561b9bcf4b5fa7a4ae",
+  "r5_merge_sha": "3cb173851eac4388f24785cd7a43cd557c58a3bc",
+  "r5_source_pr": 159,
+  "schedule_activation_count": 0,
+  "source_branch": "agent/r6-production-acceptance",
+  "source_head_sha": "8067ec7b5b763d3bdb4cee95d8c85da56af89617",
+  "source_pr": 160,
+  "status": "STARTED_CURRENT_IF_PRESENT_ON_MAIN_OBSERVATION_NOT_COMPLETE",
+  "trade_authority": "NONE"
+}
