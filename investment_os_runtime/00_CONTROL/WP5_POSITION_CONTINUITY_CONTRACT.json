@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "WP5_POSITION_CONTINUITY_CONTRACT_V1",
+  "purpose": "Require explicit user authority before extending Real-account or Simulation position continuity beyond the last confirmed transaction date.",
+  "authority": {
+    "continuity_authority": "USER_EXPLICIT_CONFIRMATION_ONLY",
+    "market_data_authority": "MARKS_ONLY_NOT_TRANSACTION_EVIDENCE",
+    "broker_verification": "NOT_AVAILABLE_NOT_INFERRED",
+    "trade_authority": "NONE"
+  },
+  "covered_accounts": [
+    "REAL_ACCOUNT",
+    "SIMULATION"
+  ],
+  "zero_delta_confirmation_scope": [
+    "buys",
+    "sells",
+    "fund conversions",
+    "security conversions or corporate actions that change quantity or cost basis",
+    "cancellations that affected final holdings",
+    "cash transfers that changed broker execution balance",
+    "simulation trades",
+    "Candidate membership changes initiated by the user"
+  ],
+  "delta_entry_required_fields": [
+    "account",
+    "trade_date",
+    "security_id_or_cash",
+    "transaction_type",
+    "quantity_change",
+    "cash_change",
+    "fees_and_taxes",
+    "unit_price_if_applicable"
+  ],
+  "state_transitions": {
+    "WAITING_FOR_NEXT_COMPLETED_CLOSE": "No user response is required because the research baseline has not yet been superseded by a later completed close.",
+    "USER_POSITION_CONTINUITY_CONFIRMATION_REQUIRED": "User must explicitly confirm zero delta or provide all transaction deltas through the latest completed close.",
+    "POSITION_CONTINUITY_CURRENT": "The delta ledger continuity watermark covers the latest completed close and WP5-E may recalculate proposals."
+  },
+  "prohibitions": {
+    "infer_zero_delta_from_silence": true,
+    "infer_broker_positions_from_market_marks": true,
+    "automatic_quantity_or_cost_mutation": true,
+    "automatic_candidate_membership_mutation": true,
+    "automatic_order_creation": true
+  },
+  "economic_mutations": {
+    "real_account": 0,
+    "simulation": 0,
+    "candidate_membership": 0,
+    "orders": 0
+  },
+  "trade_authority": "NONE"
+}
