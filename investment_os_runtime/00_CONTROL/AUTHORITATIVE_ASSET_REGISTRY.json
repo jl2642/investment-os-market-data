@@ -1,13 +1,13 @@
 {
-  "active_branch_candidate": "agent/r2-portfolio-construction-synthesis",
+  "active_branch_candidate": "agent/r3-position-action-matrix",
   "assets": [
     {
       "asset_id": "GITHUB_ACTIVE_RUNTIME",
-      "branch_candidate": "agent/r0-product-authority-freeze",
-      "latest_governed_merge_sha": "247203c005b76cfa32a0d04d31390631c304e738",
+      "branch_candidate": "agent/r3-position-action-matrix",
+      "latest_governed_merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
       "location": "investment_os_runtime/",
       "role": "RULE_STATE_RESEARCH_DECISION_OPERATIONS_AND_CONTROL_RUNTIME",
-      "status": "GITHUB_MAIN_PR151_CURRENT_R0_AUTHORITY_FREEZE_CONDITIONAL"
+      "status": "GITHUB_MAIN_PR154_CURRENT_PR155_R3_CANDIDATE"
     },
     {
       "asset_id": "FULL_RUNTIME_CANONICAL_R10",
@@ -513,10 +513,11 @@
       "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
       "format": "JSON",
       "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+      "merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
       "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
       "role": "Real and Simulation portfolio construction synthesis",
       "source_pr": 154,
-      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "status": "COMPLETED_ON_MAIN",
       "trade_authority": "NONE"
     },
     {
@@ -524,10 +525,11 @@
       "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
       "format": "MD",
       "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SUMMARY_CURRENT.md",
+      "merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
       "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
       "role": "Human-readable R2 portfolio construction product",
       "source_pr": 154,
-      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "status": "COMPLETED_ON_MAIN",
       "trade_authority": "NONE"
     },
     {
@@ -535,10 +537,11 @@
       "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
       "format": "JSON",
       "location": "investment_os_runtime/00_CONTROL/R2_PORTFOLIO_CONSTRUCTION_ACCEPTANCE_RECORD.json",
+      "merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
       "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
       "role": "R2 scope, lineage and zero-mutation acceptance",
       "source_pr": 154,
-      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "status": "COMPLETED_ON_MAIN",
       "trade_authority": "NONE"
     },
     {
@@ -551,23 +554,83 @@
       "source_pr": 154,
       "status": "CURRENT_IF_PRESENT_ON_MAIN",
       "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_POSITION_ACTION_MATRIX_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_POSITION_ACTION_MATRIX_CURRENT.json",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Machine-readable 23-position action matrix",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "25cc5f078d2076bce06ccb4822b5e83f2331ed45",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_USER_DECISION_PACK_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_USER_DECISION_PACK_CURRENT.md",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "User-readable Real and Simulation decision pack",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "25cc5f078d2076bce06ccb4822b5e83f2331ed45",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_USER_DECISION_QUEUE_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_USER_DECISION_QUEUE_CURRENT.json",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Seven-item user decision queue",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "25cc5f078d2076bce06ccb4822b5e83f2331ed45",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_POSITION_ACTION_MATRIX_ACCEPTANCE",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/00_CONTROL/R3_POSITION_ACTION_MATRIX_ACCEPTANCE_RECORD.json",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Coverage, lineage and zero-mutation acceptance",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "25cc5f078d2076bce06ccb4822b5e83f2331ed45",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R3_STATUS_CURRENT",
+      "authority": "CANONICAL_CURRENT_IF_PRESENT_ON_MAIN",
+      "location": "investment_os_runtime/00_CONTROL/R3_STATUS_CURRENT.md",
+      "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+      "role": "Human-readable R3 status",
+      "source_branch": "agent/r3-position-action-matrix",
+      "source_head_sha": "25cc5f078d2076bce06ccb4822b5e83f2331ed45",
+      "source_pr": 155,
+      "status": "CURRENT_IF_PRESENT_ON_MAIN",
+      "trade_authority": "NONE"
     }
   ],
   "conversation_memory_authority": "NONE",
   "date": "2026-07-27",
-  "github_merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278",
-  "latest_completed_main_merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278",
-  "latest_completed_main_pr": 153,
-  "latest_governed_merge_sha": "39cc98578ff0324bb6a5602db527b0dd3e70a278",
+  "github_merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
+  "latest_completed_main_merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
+  "latest_completed_main_pr": 154,
+  "latest_governed_merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
   "r2_canonical_closure_merge_sha": "17db72e866bff027e1f786a8fd0c051ddfcd6c3a",
   "r2_capability_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
-  "registry_id": "INVESTMENT_ASSISTANT_AUTHORITATIVE_ASSET_REGISTRY_V10_R0_FREEZE",
-  "registry_status": "R2_PORTFOLIO_CONSTRUCTION_CURRENT_IF_PRESENT_ON_MAIN",
-  "release_id": "INVESTMENT_OS_R18_20260727_R2_PORTFOLIO_CONSTRUCTION",
-  "release_sequence": 18,
+  "registry_id": "INVESTMENT_ASSISTANT_AUTHORITATIVE_ASSET_REGISTRY_V12_R3_ACTION_MATRIX",
+  "registry_status": "R3_ACTION_MATRIX_AND_USER_DECISION_PACK_CURRENT_IF_PRESENT_ON_MAIN",
+  "release_id": "INVESTMENT_OS_R19_20260727_R3_ACTION_MATRIX",
+  "release_sequence": 19,
   "repository": "jl2642/investment-os-market-data",
   "runtime_baseline_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
-  "status": "GITHUB_CURRENT_IF_PR154_MERGED_R3_NOT_STARTED",
+  "status": "GITHUB_CURRENT_IF_PR155_MERGED_USER_DECISION_PACK_READY_NO_IMPLEMENTATION",
   "trade_authority": "NONE",
   "wp1_5bc_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54"
 }

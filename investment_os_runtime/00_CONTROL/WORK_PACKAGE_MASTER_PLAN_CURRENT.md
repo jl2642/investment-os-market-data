@@ -3,7 +3,7 @@
 - 状态日期：2026-07-27
 - 产品权威：`INVESTMENT_ASSISTANT_PRODUCT_CHARTER_CURRENT.md`
 - Canonical状态源：`EXECUTION_REGISTER_CURRENT.json`
-- 最新已完成main合并：PR #153 / `39cc98578ff0324bb6a5602db527b0dd3e70a278`
+- 最新已完成main合并：PR #154 / `fc57e7a08fee6870130871e8491bb2db59b70e54`
 - R0治理来源：PR #152 / `ee9cd9af5122af9506a0da844d837cfce6c57c44`
 - 本轮状态：`CURRENT_IF_PRESENT_ON_MAIN`
 - File Library：`RECOVERY_DISTRIBUTION_ONLY_PENDING_EXPLICIT_PROMOTION`
@@ -17,7 +17,7 @@
 | WP2 | 真实账户、模拟盘、行情、基金净值和用户交易Delta | `CAPABILITY_ACCEPTED_OPERATING_HISTORY_NOT_YET_VALIDATED` |
 | WP3 | 全市场筛选、Candidate生命周期和效果评价 | `ENGINE_ACCEPTED_OUTCOME_WINDOWS_INCOMPLETE` |
 | WP4 | 公司研究、估值、组合适配和事件监控 | `METHOD_ACCEPTED_COVERAGE_PARTIAL` |
-| WP5 | 组合构建、动作矩阵和用户决策包 | `PARTIALLY_COMPLETE_NO_USER_ACTION_PACK` |
+| WP5 | 组合构建、动作矩阵和用户决策包 | `USER_DECISION_PACK_READY_NO_IMPLEMENTATION` |
 | WP6 | 日报、周报、月报、季报和年度运营产品 | `NOT_STARTED_AS_FORMAL_PRODUCT` |
 | WP7 | 收益归因、决策复盘和策略校准 | `NOT_STARTED_AS_FORMAL_PRODUCT` |
 
@@ -63,7 +63,7 @@
 
 ### R2｜Portfolio Construction Synthesis
 
-- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#154`。
+- 状态：`COMPLETED_ON_MAIN`；来源PR：`#154`。
 
 
 - 汇总真实账户和模拟盘的风险袖套、行业/风格暴露、集中度、重复暴露、现金用途和替代关系；
@@ -71,6 +71,8 @@
 - 回答“为什么这些资产应当放在同一个组合中”。
 
 ### R3｜Position Action Matrix & User Decision Pack
+
+- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#155`。
 
 - 每个持仓必须归入：增持、持有、减持、退出、观察或等待证据；
 - 明确建议仓位区间、价格条件、基本面条件、风险条件、优先级和不执行后果；
@@ -101,7 +103,7 @@
 
 ## 六、下一任务
 
-`R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_AFTER_R2_PRESENT_ON_MAIN`
+`USER_REVIEW_R3_DECISION_PACK_BEFORE_ANY_IMPLEMENTATION_PROPOSAL`
 
 ## 七、历史兼容状态
 
@@ -123,3 +125,11 @@
 - 模拟盘五类投资袖套均处于R2参考区间；当前问题集中在成长创新组和中证500Beta的负贡献，而非全组合权重失控。
 - 建立单一持仓、主题簇、现金、A股核心—卫星及标普500单一载体约束。
 - R2不生成R3逐仓动作矩阵，不改变持仓、Candidate、旧决策或订单。
+
+
+## 十、R3验收结果
+
+- 真实账户7/7、模拟盘16/16形成逐仓动作矩阵。
+- 默认真实账户第一阶段采用自筹资金结构修复：增强债与中证500减持资金转向A500与单一标普500载体。
+- 模拟盘维持袖套结构，冻结沪电、汇川、宁德、工业富联新增资金；研究现金维持15%–25%。
+- 用户决策项7项，Implementation Ready为0；任何持仓、Candidate、旧决策或订单变更均为0。
