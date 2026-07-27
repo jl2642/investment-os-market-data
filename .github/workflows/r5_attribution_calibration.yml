@@ -70,6 +70,15 @@ jobs:
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
           SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          if payload.get("current_step") == "R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN":
+              payload["next_task"] = "R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_AFTER_R4_PRESENT_ON_MAIN"
+              path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
           python -m py_compile automation/r5_attribution_calibration/build_r5_attribution_calibration.py
           python automation/r5_attribution_calibration/build_r5_attribution_calibration.py \
             --repo-root . \
