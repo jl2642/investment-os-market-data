@@ -38,7 +38,7 @@
 - 账户总P&L：¥7,938.48
 - 当前持仓未实现P&L：¥16,388.90
 - 已平仓、费用及其他残差：-¥8,450.42
-- 桥接：¥16,388.90 + -¥8,450.42 = ¥7,938.48
+- 桥接：¥16,388.90 − ¥8,450.42 = ¥7,938.48
 
 ## 三、个股层归因
 
@@ -103,14 +103,14 @@
 
 ## 七、策略校准提案
 
-1. **Current-state and completed-close gate**：Require fresh completed-close marks and explicit user zero-Delta or transaction Delta before any live action or period attribution. 状态：`PROPOSED_NOT_APPLIED`。
-2. **Simulation P&L bridge is mandatory**：Every review must bridge open unrealized P&L to account P&L through realized, fee and other ledger effects; never force equality. 状态：`PROPOSED_NOT_APPLIED`。
-3. **Snapshot contribution is not period return**：Label snapshot contribution separately and block monthly or annual return claims until a reconciled period ledger exists. 状态：`PROPOSED_NOT_APPLIED`。
-4. **Diagnose sleeve internals before portfolio overhaul**：Review security selection and entry quality inside a sleeve before changing the entire sleeve architecture. 状态：`PROPOSED_NOT_APPLIED`。
-5. **No-add and hard-review controls remain binding**：Do not add merely because a position is below cost; require thesis, cash-flow, valuation and portfolio-fit evidence. 状态：`PROPOSED_NOT_APPLIED`。
-6. **Candidate Alpha claims require mature windows**：Keep Alpha claims blocked and preserve Candidate membership until governed windows mature and reconcile to benchmarks. 状态：`PROPOSED_NOT_APPLIED`。
-7. **Real-account cash remains execution balance**：Exclude external liquidity from allocation and do not create a fixed strategic cash target for the Real account. 状态：`PROPOSED_NOT_APPLIED`。
-8. **No single snapshot may mutate strategy rules**：Require repeated observations, failure classification, regression tests and explicit user approval before applying a rule change. 状态：`PROPOSED_NOT_APPLIED`。
+1. **Current与完整收盘门禁**：任何真实动作或期间归因前，必须取得最新完整收盘行情，并由用户确认零Delta或提供全部交易Delta。 状态：`PROPOSED_NOT_APPLIED`。
+2. **模拟盘P&L桥接为强制项**：每次复盘必须将当前持仓未实现P&L，通过已实现盈亏、费用及其他Ledger项目桥接到账户总P&L，不得强行令两者相等。 状态：`PROPOSED_NOT_APPLIED`。
+3. **快照贡献不等于期间收益**：当前持仓相对记录成本的贡献必须单独标识；在期初、期末和资金流Ledger完成前，月度或年度收益结论保持阻断。 状态：`PROPOSED_NOT_APPLIED`。
+4. **先诊断袖套内部，再考虑组合重构**：当袖套仍处于参考区间时，优先审查其内部选股、估值和进入质量，不因局部亏损推倒重建整个组合。 状态：`PROPOSED_NOT_APPLIED`。
+5. **No-add与Hard-review门禁继续有效**：持仓跌破成本不能自动触发补仓；新增资金必须重新通过投资逻辑、现金流、估值及组合适配门禁。 状态：`PROPOSED_NOT_APPLIED`。
+6. **Candidate Alpha必须等待成熟窗口**：在20/60/120个交易日窗口成熟并完成Benchmark对账前，继续禁止Alpha声明，不因短期价格表现自动改变Candidate成员。 状态：`PROPOSED_NOT_APPLIED`。
+7. **真实账户现金仍是执行余额**：外部流动性不纳入证券账户战略配置，不为真实账户设定固定战略现金目标。 状态：`PROPOSED_NOT_APPLIED`。
+8. **单一快照不得修改策略规则**：规则变更必须具备多期独立样本、失败类型归类、回归测试及用户明确批准；当前只形成Proposal。 状态：`PROPOSED_NOT_APPLIED`。
 
 ## 八、R6输入要求
 
