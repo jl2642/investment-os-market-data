@@ -76,6 +76,16 @@ jobs:
             --source-pr "$SOURCE_PR" \
             --source-branch "$SOURCE_BRANCH" \
             --source-head-sha "$SOURCE_HEAD_SHA"
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("investment_os_runtime/00_CONTROL/CAPABILITY_REALITY_MATRIX_CURRENT.md")
+          text = path.read_text(encoding="utf-8")
+          marker = "- 收益归因成熟度：`DEVELOPMENT_PRODUCT_COMPLETE_PRODUCTION_WINDOWS_PENDING`"
+          if marker not in text:
+              anchor = "- 交易权限：`NONE`"
+              text = text.replace(anchor, anchor + "\n" + marker, 1)
+              path.write_text(text, encoding="utf-8")
+          PY
 
       - name: Publish R5 candidate materialization
         if: github.actor != 'github-actions[bot]'
