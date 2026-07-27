@@ -3,8 +3,8 @@
 - 状态日期：2026-07-27
 - 产品权威：`INVESTMENT_ASSISTANT_PRODUCT_CHARTER_CURRENT.md`
 - Canonical状态源：`EXECUTION_REGISTER_CURRENT.json`
-- 最新已完成main合并：PR #151 / `247203c005b76cfa32a0d04d31390631c304e738`
-- 本轮治理来源：PR #152 / `ee9cd9af5122af9506a0da844d837cfce6c57c44`
+- 最新已完成main合并：PR #152 / `42b34c327fa5b1168c4e9d11846ba1e0f6712ac6`
+- R0治理来源：PR #152 / `ee9cd9af5122af9506a0da844d837cfce6c57c44`
 - 本轮状态：`CURRENT_IF_PRESENT_ON_MAIN`
 - File Library：`RECOVERY_DISTRIBUTION_ONLY_PENDING_EXPLICIT_PROMOTION`
 - 交易权限：`NONE`
@@ -48,11 +48,13 @@
 
 ### R0｜Product Authority Freeze
 
-- 状态：`CURRENT_IF_PRESENT_ON_MAIN`
+- 状态：`COMPLETED_ON_MAIN`
 - 交付：Product Charter、Master Plan、Capability Reality Matrix、Execution Register、User Operating Guide。
 - 禁止：新研究、调仓、Candidate变化、订单和架构扩张。
 
 ### R1｜Decision Coverage Completion
+
+- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#153`。
 
 - 刷新2只Core2和3只P0，不从头重建；
 - 补齐其余11只模拟盘持仓的基本面、估值、组合角色和退出条件；
@@ -96,10 +98,18 @@
 
 ## 六、下一任务
 
-`R1_DECISION_COVERAGE_COMPLETION_AFTER_R0_PRESENT_ON_MAIN`
+`R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_AFTER_R1_PRESENT_ON_MAIN`
 
 ## 七、历史兼容状态
 
 `WP3 | INITIAL CANDIDATE BASELINE COMPLETED`
 
 该标记仅证明WP3初始Candidate基线历史已完成；当前更高层成熟度仍以本计划中的`ENGINE_ACCEPTED_OUTCOME_WINDOWS_INCOMPLETE`为准。
+
+
+## 八、R1验收结果
+
+- 模拟盘决策覆盖：`16/16`；其中Core2复用2只、P0复用3只、R1新增标准化覆盖11只。
+- 真实账户产品覆盖：`7/7`；三只债基形成差异化风险穿透，两只标普500ETF完成条件性单一载体选择，A500/中证500角色确认。
+- R1完成不代表可交易；R2组合构建、R3动作矩阵与用户决策包仍未开始。
+- 实际持仓、Candidate、旧决策和订单变更均为0。
