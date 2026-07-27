@@ -61,6 +61,43 @@ jobs:
           python -m py_compile automation/r2_portfolio_construction/build_r2_portfolio_construction.py
           python automation/r2_portfolio_construction/build_r2_portfolio_construction.py
 
+      - name: Patch global lineage gate for R2 forward progression
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py')
+          text = path.read_text(encoding='utf-8')
+          if 'R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT_IF_PRESENT_ON_MAIN' not in text:
+              needle = '''    elif step == "R1_DECISION_COVERAGE_CURRENT_IF_PRESENT_ON_MAIN":
+        assert register["trade_authority"] == "NONE"
+        assert register["development_roadmap"]["R0"]["status"] == "COMPLETED_ON_MAIN"
+        assert register["development_roadmap"]["R1"]["status"] == "CURRENT_IF_PRESENT_ON_MAIN"
+        assert register["development_roadmap"]["R2"]["status"] == "NOT_STARTED"
+        assert register["wp5"]["formal_plan"] == "WP5_1_TO_WP5_5"
+        assert register["wp5"]["decision_grade_coverage"]["simulation_complete"] == 16
+        assert register["wp5"]["decision_grade_coverage"]["real_product_complete"] == 7
+        assert register["wp5"]["portfolio_construction_synthesis_complete"] is False
+        assert register["next_task"] == "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_AFTER_R1_PRESENT_ON_MAIN"
+    else:
+'''
+              replacement = needle[:-10] + '''    elif step == "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT_IF_PRESENT_ON_MAIN":
+        assert register["trade_authority"] == "NONE"
+        assert register["development_roadmap"]["R1"]["status"] == "COMPLETED_ON_MAIN"
+        assert register["development_roadmap"]["R2"]["status"] == "CURRENT_IF_PRESENT_ON_MAIN"
+        assert register["development_roadmap"]["R3"]["status"] == "NOT_STARTED"
+        assert register["wp5"]["formal_plan"] == "WP5_1_TO_WP5_5"
+        assert register["wp5"]["portfolio_construction_synthesis_complete"] is True
+        assert register["wp5"]["position_action_matrix_complete"] is False
+        assert register["wp5"]["user_decision_pack_complete"] is False
+        assert register["next_task"] == "R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_AFTER_R2_PRESENT_ON_MAIN"
+    else:
+'''
+              if needle not in text:
+                  raise SystemExit('R2_LINEAGE_PATCH_NEEDLE_NOT_FOUND')
+              text = text.replace(needle, replacement, 1)
+              path.write_text(text, encoding='utf-8')
+          PY
+
       - name: Validate R2 products and stage boundary
         run: |
           python - <<'PY'
@@ -163,6 +200,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
+            automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py \
             investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
             investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
             investment_os_runtime/00_CONTROL/R2_PORTFOLIO_CONSTRUCTION_ACCEPTANCE_RECORD.json \
