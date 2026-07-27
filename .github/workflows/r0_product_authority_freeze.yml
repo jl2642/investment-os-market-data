@@ -67,6 +67,24 @@ jobs:
             --repo-root . \
             --source-head-sha "${{ github.event.pull_request.head.sha || github.sha }}"
 
+      - name: Preserve explicit WP3 historical lineage status in Master Plan
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md')
+          text = path.read_text(encoding='utf-8').rstrip()
+          marker = '''
+
+## 七、历史兼容状态
+
+`WP3 | INITIAL CANDIDATE BASELINE COMPLETED`
+
+该标记仅证明WP3初始Candidate基线历史已完成；当前更高层成熟度仍以本计划中的`ENGINE_ACCEPTED_OUTCOME_WINDOWS_INCOMPLETE`为准。
+'''
+          if 'WP3 | INITIAL CANDIDATE BASELINE COMPLETED' not in text:
+              path.write_text(text + marker, encoding='utf-8')
+          PY
+
       - name: Validate authority products, finite roadmap and zero mutation
         run: |
           python - <<'PY'
@@ -90,6 +108,7 @@ jobs:
               assert stage in master
           assert 'PR #141' in master and 'PR #151' in master
           assert '其余11只' in master
+          assert 'WP3 | INITIAL CANDIDATE BASELINE COMPLETED' in master
           assert '自动交易 | 永久不提供' in matrix
           assert '当前不应怎样使用' in guide
 
