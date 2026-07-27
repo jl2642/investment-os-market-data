@@ -1,0 +1,221 @@
+name: WP5 P0 External Primary-Source Re-underwrite
+run-name: "WP5-D build three P0 research objects and conditional action review"
+
+on:
+  push:
+    branches: [agent/wp5-p0-external-reunderwrite]
+    paths:
+      - "automation/wp5_portfolio_decision/p0_external_source_facts.json"
+      - "automation/wp5_portfolio_decision/build_wp5_p0_external_reunderwrite.py"
+      - ".github/workflows/wp5_p0_external_reunderwrite.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp5_portfolio_decision/p0_external_source_facts.json"
+      - "automation/wp5_portfolio_decision/build_wp5_p0_external_reunderwrite.py"
+      - ".github/workflows/wp5_p0_external_reunderwrite.yml"
+      - "investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_P0_ACTION_REVIEW_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  WP5_P0_BRANCH: agent/wp5-p0-external-reunderwrite
+
+jobs:
+  build-validate-publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Snapshot protected economic, Candidate and legacy-decision states
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          identity = {}
+          for rel in (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ):
+              payload = json.loads((root / rel).read_text(encoding='utf-8'))
+              identity[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          protected = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          Path('/tmp/wp5d_identity.json').write_text(json.dumps(identity, sort_keys=True), encoding='utf-8')
+          Path('/tmp/wp5d_protected.json').write_text(json.dumps(protected, sort_keys=True), encoding='utf-8')
+          PY
+
+      - name: Build P0 external research, scenarios and conditional action review
+        run: |
+          python -m py_compile automation/wp5_portfolio_decision/build_wp5_p0_external_reunderwrite.py
+          python automation/wp5_portfolio_decision/build_wp5_p0_external_reunderwrite.py --repo-root .
+
+      - name: Validate research depth, scenario integrity, lineage and zero mutation
+        run: |
+          python - <<'PY'
+          import hashlib, json, subprocess
+          from pathlib import Path
+          root = Path('.')
+          combined = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json').read_text(encoding='utf-8'))
+          action = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_P0_ACTION_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
+          queue = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          registry = json.loads((root / 'investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
+          fresh = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE/WP5_P0_FRESH_INPUT_STATUS_CURRENT.json').read_text(encoding='utf-8'))
+          real = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
+          sim = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
+
+          assert combined['status'] == 'THREE_P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITES_COMPLETE_RESEARCH_ONLY'
+          assert combined['research_object_count'] == 3
+          assert set(combined['research_objects']) == {'300124.SZ', '300750.SZ', '601138.SH'}
+          assert combined['implementation_ready_count'] == 0
+          assert combined['intraday_observations_excluded_from_decision_marks'] is True
+          assert fresh['latest_completed_listed_close_date'] == '2026-07-24'
+          assert fresh['implementation_action_mark_ready'] is False
+
+          for sid, research in combined['research_objects'].items():
+              assert research['status'] == 'P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITE_COMPLETE_RESEARCH_ONLY'
+              assert research['source_quality']['source_count'] >= 3
+              assert research['source_quality']['all_primary_documents'] is True
+              assert len(research['driver_based_scenarios']['cases']) == 3
+              assert {row['scenario'] for row in research['driver_based_scenarios']['cases']} == {'BEAR', 'BASE', 'BULL'}
+              prices = [row['implied_price'] for row in research['driver_based_scenarios']['cases']]
+              assert prices[0] < prices[1] < prices[2]
+              assert research['conditional_portfolio_decision']['within_revised_weight_band'] is True
+              assert research['conditional_portfolio_decision']['base_case_hurdle_passed'] is False
+              assert research['implementation_readiness']['implementation_ready'] is False
+              assert research['conditional_portfolio_decision']['position_change_authorized'] is False
+              assert research['conditional_portfolio_decision']['order_authorized'] is False
+              assert research['trade_authority'] == 'NONE'
+
+          assert action['status'] == 'P0_RESEARCH_COMPLETE_ALL_CURRENT_WEIGHTS_WITHIN_REVISED_BANDS_NO_ACTION_READY'
+          assert len(action['positions']) == 3
+          assert action['all_current_weights_within_revised_bands'] is True
+          assert action['base_case_hurdle_pass_count'] == 0
+          assert action['ready_for_user_decision_count'] == 0
+          assert queue['ready_for_user_decision_count'] == 0
+          assert queue['orders'] == 0
+          queue_ids = [row['queue_id'] for row in queue['items']]
+          assert len(queue_ids) == len(set(queue_ids))
+          assert execution['current_step'] == 'WP5_P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITE_COMPLETE_RESEARCH_ONLY_ON_BRANCH'
+          assert execution['wp5']['p0_external_primary_source_reunderwrite_complete'] is True
+          assert execution['wp5']['fresh_completed_close_for_action'] is False
+          assert execution['wp5']['position_mutation_allowed'] is False
+          assert execution['wp5']['order_execution_allowed'] is False
+          assert acceptance['research_object_count'] == 3
+          assert acceptance['scenario_case_count'] == 9
+          assert acceptance['base_case_hurdle_pass_count'] == 0
+          assert acceptance['implementation_ready_count'] == 0
+          assert acceptance['trade_authority'] == 'NONE'
+          asset_ids = {row['asset_id'] for row in registry['assets']}
+          assert {
+              'WP5_P0_FRESH_INPUT_STATUS_CURRENT',
+              'WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT',
+              'WP5_P0_ACTION_REVIEW_CURRENT',
+              'WP5_P0_REUNDERWRITE_ACCEPTANCE',
+          }.issubset(asset_ids)
+
+          before = json.loads(Path('/tmp/wp5d_identity.json').read_text(encoding='utf-8'))
+          after = {}
+          for payload in (real, sim):
+              after[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          assert before == after
+          protected_before = json.loads(Path('/tmp/wp5d_protected.json').read_text(encoding='utf-8'))
+          protected_after = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          assert protected_before == protected_after
+
+          if '${{ github.event_name }}' == 'pull_request':
+              subprocess.run(['git', 'fetch', 'origin', 'main'], check=True)
+              changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+              forbidden = {
+                  'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+              }
+              assert not forbidden.intersection(changed), sorted(forbidden.intersection(changed))
+          print({
+              'research_objects': 3,
+              'scenario_cases': 9,
+              'all_within_revised_bands': True,
+              'base_case_hurdle_pass_count': 0,
+              'ready_for_user_decision': 0,
+              'economic_mutations': 0,
+              'orders': 0,
+          })
+          PY
+
+      - name: Publish governed WP5-D research products
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE \
+            investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_P0_ACTION_REVIEW_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json
+          if git diff --cached --quiet; then
+            echo "WP5-D research products already current."
+            exit 0
+          fi
+          git commit -m "WP5-D publish P0 external re-underwrite and conditional action review"
+          git pull --rebase origin "${WP5_P0_BRANCH}"
+          git push origin "HEAD:${WP5_P0_BRANCH}"
+
+      - name: Record summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP5-D P0 external re-underwrite
+          - Three external primary-source research objects
+          - Nine Bear/Base/Bull scenario cases
+          - Intraday observations excluded from decision marks
+          - All three current position weights tested against revised risk bands
+          - No base case meets the governed 15% action hurdle
+          - Ready for user implementation decision: 0
+          - Real, Simulation, Candidate and legacy decisions economically unchanged
+          - Orders: 0
+          - trade_authority: NONE
+          EOF
