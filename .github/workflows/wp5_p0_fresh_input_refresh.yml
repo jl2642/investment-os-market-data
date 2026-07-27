@@ -30,6 +30,17 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Restore accepted completed-close baseline before provider refresh
+        run: |
+          git fetch origin main
+          git checkout origin/main -- \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json \
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
+
       - name: Snapshot protected economic identity and governed states
         run: |
           python automation/wp2_r/build_portfolio_current.py --repo-root .
@@ -62,22 +73,58 @@ jobs:
           Path('/tmp/wp5_p0_protected_hashes.json').write_text(json.dumps(protected, sort_keys=True), encoding='utf-8')
           PY
 
-      - name: Refresh all tracked listed prices and fund NAVs
+      - name: Refresh completed-close marks and capture intraday observations separately
         run: python automation/wp2_r/refresh_market_marks.py --repo-root .
 
-      - name: Rebuild Portfolio Current with refreshed marks
+      - name: Rebuild Portfolio Current with completed-close marks only
         run: |
           python automation/wp2_r/build_portfolio_current.py --repo-root .
           python automation/wp2_r/finalize_account_summaries.py --repo-root .
 
-      - name: Validate fresh completed-close coverage and zero economic mutation
+      - name: Build WP5 P0 fresh-input status
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          root = Path('.')
+          cn = ZoneInfo('Asia/Shanghai')
+          candidate = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json').read_text(encoding='utf-8'))
+          completed = candidate['latest_completed_listed_close_date']
+          today = datetime.now(cn).date().isoformat()
+          action_ready = completed == today and candidate['intraday_observation_count'] == 0
+          payload = {
+              'state_id': 'WP5_P0_FRESH_INPUT_STATUS_CURRENT',
+              'generated_at': datetime.now(cn).isoformat(),
+              'provider_observation_date': today,
+              'latest_completed_listed_close_date': completed,
+              'intraday_observation_count': candidate['intraday_observation_count'],
+              'status': 'LATEST_COMPLETED_CLOSE_CURRENT' if action_ready else 'INTRADAY_OBSERVED_COMPLETED_CLOSE_PENDING',
+              'research_use_allowed': True,
+              'implementation_action_mark_ready': action_ready,
+              'decision_rule': 'INTRADAY_QUOTES_ARE_NON_DECISION_EVIDENCE_AND_MUST_NOT_REPLACE_COMPLETED_CLOSE_CURRENT',
+              'economic_mutations': {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0},
+              'trade_authority': 'NONE',
+          }
+          path = root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE/WP5_P0_FRESH_INPUT_STATUS_CURRENT.json'
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(payload)
+          PY
+
+      - name: Validate completed-close coverage, intraday separation and zero economic mutation
         run: |
           python - <<'PY'
           import hashlib, json
+          from datetime import datetime
           from pathlib import Path
+          from zoneinfo import ZoneInfo
           root = Path('.')
+          today = datetime.now(ZoneInfo('Asia/Shanghai')).date().isoformat()
           marks = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json').read_text(encoding='utf-8'))
           candidate = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json').read_text(encoding='utf-8'))
+          status = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE/WP5_P0_FRESH_INPUT_STATUS_CURRENT.json').read_text(encoding='utf-8'))
           real = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
           sim = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
           run = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json').read_text(encoding='utf-8'))
@@ -115,20 +162,29 @@ jobs:
           assert run['position_or_cost_mutations_from_reconciliation'] == 0
           assert run['orders'] == 0
           assert run['trade_authority'] == 'NONE'
-          latest = marks['data_watermark']['latest_mark_date']
-          assert latest >= '2026-07-27', latest
+          assert candidate['latest_completed_listed_close_date'] <= today
+          if candidate['intraday_observation_count'] > 0:
+              assert candidate['latest_completed_listed_close_date'] < today
+              assert status['implementation_action_mark_ready'] is False
+              assert status['status'] == 'INTRADAY_OBSERVED_COMPLETED_CLOSE_PENDING'
+              assert all(
+                  not (row.get('as_of_date') == today and str(row.get('as_of_time', '')) < '15:05:00')
+                  for row in marks['marks']
+              )
+          assert status['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          assert status['trade_authority'] == 'NONE'
           print({
-              'latest_mark_date': latest,
+              'latest_completed_close_date': candidate['latest_completed_listed_close_date'],
+              'intraday_observations': candidate['intraday_observation_count'],
+              'implementation_action_mark_ready': status['implementation_action_mark_ready'],
               'marks': marks['marked_security_count'],
-              'real_total_assets': real['summary']['account_total_assets'],
-              'simulation_total_assets': sim['summary']['account_total_assets'],
               'economic_identity_unchanged': True,
               'candidate_unchanged': True,
               'orders': 0,
           })
           PY
 
-      - name: Publish refreshed WP5 P0 input watermark
+      - name: Publish corrected WP5 P0 input watermark
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -139,8 +195,9 @@ jobs:
             investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json \
-            investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
-          git commit -m "WP5 refresh Portfolio Current through latest completed close"
+            investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE/WP5_P0_FRESH_INPUT_STATUS_CURRENT.json
+          git commit -m "WP5 separate intraday observations from completed-close Portfolio Current"
           git pull --rebase origin "${WP5_P0_BRANCH}"
           git push origin "HEAD:${WP5_P0_BRANCH}"
 
@@ -150,7 +207,8 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP5 P0 fresh input refresh
           - Refreshes all 22 tracked securities and fund NAVs
-          - Requires the latest completed listed-security close to be at least 2026-07-27
+          - Publishes only completed-close prices into Portfolio Current
+          - Captures current-session intraday quotes separately as non-decision evidence
           - Preserves security identity, quantity, availability, unit cost and cost basis exactly
           - Preserves Candidate membership and legacy decisions
           - Real-account external liquidity remains excluded; only broker execution cash is carried
