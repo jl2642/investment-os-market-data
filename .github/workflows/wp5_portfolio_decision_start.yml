@@ -1,0 +1,201 @@
+name: WP5 Portfolio Decision Start
+run-name: "WP5 repair Core2 scenario scale and run full proposal-only portfolio review"
+
+on:
+  push:
+    branches: [agent/wp5-portfolio-decision-start]
+    paths:
+      - ".wp5_start_trigger"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp4_b/build_core2_hardening_wp5_fixed.py"
+      - "automation/wp5_portfolio_decision/**"
+      - ".github/workflows/wp5_portfolio_decision_start.yml"
+      - "investment_os_runtime/00_CONTROL/WP5_*"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_*"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/**"
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  WP5_BRANCH: agent/wp5-portfolio-decision-start
+
+jobs:
+  build-validate-publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp4_b/requirements.lock
+
+      - name: Install governed runtime
+        run: python -m pip install --retries 5 --timeout 30 -r automation/wp4_b/requirements.lock
+
+      - name: Snapshot protected economic and membership states
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          paths = [
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          ]
+          hashes = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in paths}
+          Path('/tmp/wp5_protected_hashes.json').write_text(json.dumps(hashes, sort_keys=True), encoding='utf-8')
+          PY
+
+      - name: Repair and rebuild Core2 scenario products
+        run: |
+          python -m py_compile \
+            automation/wp4_b/build_core2_hardening.py \
+            automation/wp4_b/build_core2_hardening_fixed.py \
+            automation/wp4_b/build_core2_hardening_wp5_fixed.py
+          python automation/wp4_b/build_core2_hardening_wp5_fixed.py --repo-root .
+
+      - name: Build WP5 analysis-only start and full position review
+        run: |
+          python -m py_compile \
+            automation/wp5_portfolio_decision/build_wp5_start.py \
+            automation/wp5_portfolio_decision/build_wp5_position_review.py
+          python automation/wp5_portfolio_decision/build_wp5_start.py --repo-root .
+          python automation/wp5_portfolio_decision/build_wp5_position_review.py --repo-root .
+
+      - name: Validate scenario scale, full review, WP5 gates and zero economic mutation
+        run: |
+          python - <<'PY'
+          import hashlib, json, subprocess
+          from pathlib import Path
+          root = Path('.')
+          models = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_SCENARIO_MODELS_CURRENT.json').read_text(encoding='utf-8'))
+          midea = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/000333.SZ/WP4B_RESEARCH_CURRENT.json').read_text(encoding='utf-8'))
+          yangtze = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/600900.SH/WP4B_RESEARCH_CURRENT.json').read_text(encoding='utf-8'))
+          start = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_START_RECORD_CURRENT.json').read_text(encoding='utf-8'))
+          decision_input = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json').read_text(encoding='utf-8'))
+          decision = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json').read_text(encoding='utf-8'))
+          review = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POSITION_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
+          queue = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json').read_text(encoding='utf-8'))
+          execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+
+          m = models['models']['000333.SZ']
+          y = models['models']['600900.SH']
+          assert 600 < m['current_market_cap_rmb_bn'] < 700
+          assert 7 < m['implied_share_count_bn'] < 8.5
+          assert 650 < y['current_market_cap_rmb_bn'] < 760
+          assert 23 < y['implied_share_count_bn'] < 26
+          m_prices = {row['scenario']: row['implied_price'] for row in m['cases']}
+          y_prices = {row['scenario']: row['implied_price'] for row in y['cases']}
+          assert 60 < m_prices['BEAR'] < 75
+          assert 85 < m_prices['BASE'] < 110
+          assert 115 < m_prices['BULL'] < 140
+          assert 18 < y_prices['BEAR'] < 25
+          assert 24 < y_prices['BASE'] < 31
+          assert 30 < y_prices['BULL'] < 38
+          assert midea['driver_based_scenarios'] == m
+          assert yangtze['driver_based_scenarios'] == y
+
+          assert start['status'] == 'WP5_STARTED_ANALYSIS_ONLY_ON_GOVERNED_BRANCH'
+          assert start['implementation_ready'] is False
+          assert start['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          assert decision_input['status'] == 'INPUT_FROZEN_FOR_ANALYSIS_NOT_EXECUTION'
+          assert decision_input['verification']['core2_scenario_unit_scale_validated'] is True
+          assert decision['status'] == 'CONDITIONAL_PORTFOLIO_REVIEW_NOT_IMPLEMENTATION_READY'
+          assert decision['full_position_review_complete'] is True
+          assert decision['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          assert decision['simulation']['core2']['600900.SH']['provisional_judgment'] == 'HOLD_NO_ADD_AT_CURRENT_MARK_UNDER_CURRENT_BASE_ASSUMPTIONS'
+
+          assert review['status'] == 'FULL_POSITION_REVIEW_BASELINE_COMPLETE_NOT_IMPLEMENTATION_READY'
+          assert len(review['real_account']['positions']) == 7
+          assert len(review['simulation']['positions']) == 16
+          assert review['simulation']['wp4b_hardened_position_count'] == 2
+          assert review['simulation']['non_wp4b_position_count'] == 14
+          assert review['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          p0 = [row for row in review['simulation']['positions'] if row['review_priority'].startswith('P0_')]
+          assert {row['security_id'] for row in p0} == {'300124.SZ', '300750.SZ', '601138.SH'}
+          assert all(row['implementation_ready'] is False for row in review['simulation']['positions'])
+          assert all(row['position_change_authorized'] is False for row in review['simulation']['positions'])
+          assert queue['ready_for_user_decision_count'] == 0
+          assert queue['orders'] == 0
+          assert execution['current_step'] == 'WP5_PORTFOLIO_DECISION_PHASE_STARTED_ANALYSIS_ONLY_ON_BRANCH'
+          assert execution['wp5']['full_position_review_complete'] is True
+          assert execution['wp5']['action_review_allowed'] is True
+          assert execution['wp5']['position_mutation_allowed'] is False
+          assert execution['wp5']['order_execution_allowed'] is False
+          assert execution['trade_authority'] == 'NONE'
+
+          before = json.loads(Path('/tmp/wp5_protected_hashes.json').read_text(encoding='utf-8'))
+          after = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in before}
+          assert before == after, sorted(path for path in before if before[path] != after[path])
+
+          if '${{ github.event_name }}' == 'pull_request':
+              subprocess.run(['git', 'fetch', 'origin', 'main'], check=True)
+              changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+              leaked = sorted(set(before).intersection(changed))
+              if leaked:
+                  raise SystemExit('FORBIDDEN_WP5_ECONOMIC_OR_MEMBERSHIP_MUTATION:' + ','.join(leaked))
+          print({
+              'midea_base_price': m_prices['BASE'],
+              'yangtze_base_price': y_prices['BASE'],
+              'real_positions_reviewed': 7,
+              'simulation_positions_reviewed': 16,
+              'p0_reunderwrite': len(p0),
+              'ready_for_user_decision': 0,
+              'mutations': 0,
+              'orders': 0,
+          })
+          PY
+
+      - name: Publish generated WP4-B repair and WP5 products
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .wp5_start_trigger
+          git add \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B \
+            investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP4_B_CORE2_HARDENING_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json \
+            investment_os_runtime/00_CONTROL/WP5_START_RECORD_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POSITION_REVIEW_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json
+          git commit -m "WP5 start analysis-only full portfolio decision review"
+          git pull --rebase origin "${WP5_BRANCH}"
+          git push origin "HEAD:${WP5_BRANCH}"
+
+      - name: Record summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP5 Portfolio Decision Start and Full Position Review
+          - Verifies R2 accepted on main and explicitly starts WP5 analysis-only work
+          - Repairs the WP4-B market-cap unit conversion before scenario use
+          - Freezes Real, Simulation, Candidate and Core2 research inputs
+          - Reviews all 7 Real holdings and 16 Simulation holdings
+          - Separates P0 re-underwrite, research gaps, benchmark role and Core2 conditional review
+          - Applies no fixed strategic cash target to the Real account
+          - Real, Simulation, Candidate membership and legacy decisions remain unchanged
+          - Ready for user decision: 0
+          - Orders: 0
+          - trade_authority: NONE
+          EOF

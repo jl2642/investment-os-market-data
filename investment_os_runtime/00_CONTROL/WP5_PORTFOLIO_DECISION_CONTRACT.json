@@ -1,0 +1,36 @@
+{
+  "authority_boundary": {
+    "automatic_candidate_membership_mutation": false,
+    "automatic_order_creation": false,
+    "automatic_real_account_mutation": false,
+    "automatic_simulation_mutation": false,
+    "trade_authority": "NONE"
+  },
+  "contract_id": "WP5_PORTFOLIO_DECISION_CONTRACT_V1",
+  "hard_gates": {
+    "broker_or_user_verification_before_real_action": true,
+    "current_event_classification_before_core2_action": true,
+    "fresh_market_marks_at_decision_run": true,
+    "position_delta_continuity_at_action_gate": true,
+    "r2_accepted_on_main": true,
+    "scenario_unit_scale_validation": true,
+    "separate_user_approval_before_any_state_mutation": true
+  },
+  "phase": "WP5_PORTFOLIO_DECISION_PHASE",
+  "real_account_cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED_NO_FIXED_STRATEGIC_CASH_TARGET",
+  "required_inputs": [
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_SCENARIO_MODELS_CURRENT.json",
+    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_POSITION_FIT_CURRENT.json",
+    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_EVENT_MONITORING_CURRENT.json"
+  ],
+  "scope": [
+    "freeze current Real, Simulation, Candidate and Core2 research inputs",
+    "produce account-level and position-level conditional recommendations",
+    "separate research judgment, user decision and execution authority",
+    "maintain an explicit user decision queue"
+  ],
+  "status": "ACTIVE_ON_GOVERNED_BRANCH_PENDING_USER_MERGE"
+}

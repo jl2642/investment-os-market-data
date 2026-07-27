@@ -1,0 +1,128 @@
+{
+  "workplan_id": "WP5_P0_REUNDERWRITE_WORKPLAN_V1",
+  "status": "READY_FOR_CURRENT_EVIDENCE_REFRESH_NOT_RESEARCH_COMPLETE",
+  "phase": "WP5_PORTFOLIO_DECISION_PHASE",
+  "purpose": "Re-underwrite the three highest-priority Simulation positions before any trim, exit, hold-add or replacement proposal is allowed.",
+  "source_position_review": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POSITION_REVIEW_CURRENT.json",
+  "source_position_watermark": "2026-07-20_CLOSE",
+  "source_market_mark_watermark": "2026-07-24_CLOSE",
+  "research_objects": [
+    {
+      "security_id": "300124.SZ",
+      "security_name": "汇川技术",
+      "current_position": {
+        "quantity": 400,
+        "market_value": 23740.0,
+        "current_weight": 0.02355302,
+        "unrealized_pnl": -7868.0,
+        "unrealized_pnl_pct": -0.24892432,
+        "legacy_target_label": "reduced"
+      },
+      "current_control_state": "P0_TRIM_OR_EXIT_REUNDERWRITE",
+      "permitted_research_outcomes": [
+        "RETAIN_WITH_REVISED_ROLE_AND_WEIGHT_BAND",
+        "REDUCE_PROPOSAL_PENDING_USER_APPROVAL",
+        "EXIT_PROPOSAL_PENDING_USER_APPROVAL"
+      ],
+      "required_research_dimensions": [
+        "industrial automation demand, orders, market share and competitive intensity",
+        "new-energy-vehicle powertrain and other second-growth-curve revenue and margin quality",
+        "gross margin, operating expense discipline and segment profitability",
+        "operating cash flow, receivables, inventory and cash-conversion quality",
+        "capital expenditure, research spending, ROIC and capital allocation",
+        "current valuation, peer comparison and Bear/Base/Bull scenario returns",
+        "thesis breakers, catalysts and quarterly monitoring thresholds"
+      ],
+      "decision_gate": "NO_POSITION_ACTION_UNTIL_CURRENT_FILINGS_MARKET_MARK_EVENT_REVIEW_AND_USER_DELTA_GATES_PASS"
+    },
+    {
+      "security_id": "300750.SZ",
+      "security_name": "宁德时代",
+      "current_position": {
+        "quantity": 100,
+        "market_value": 38301.0,
+        "current_weight": 0.03799934,
+        "unrealized_pnl": -6925.0,
+        "unrealized_pnl_pct": -0.15311989,
+        "legacy_target_label": "review"
+      },
+      "current_control_state": "P0_FULL_THESIS_REUNDERWRITE",
+      "permitted_research_outcomes": [
+        "RETAIN_WITH_REVISED_ROLE_AND_WEIGHT_BAND",
+        "REDUCE_PROPOSAL_PENDING_USER_APPROVAL",
+        "EXIT_PROPOSAL_PENDING_USER_APPROVAL"
+      ],
+      "required_research_dimensions": [
+        "battery shipment, pricing, utilization, market share and industry supply-demand",
+        "domestic and overseas customer mix, localization and geopolitical exposure",
+        "gross margin, unit economics, warranty risk and technology roadmap",
+        "operating cash flow, working capital, capex intensity and free-cash-flow conversion",
+        "new technologies, energy-storage contribution and return on incremental investment",
+        "current valuation, global peer comparison and Bear/Base/Bull scenario returns",
+        "thesis breakers, catalysts and quarterly monitoring thresholds"
+      ],
+      "decision_gate": "NO_POSITION_ACTION_UNTIL_CURRENT_FILINGS_MARKET_MARK_EVENT_REVIEW_AND_USER_DELTA_GATES_PASS"
+    },
+    {
+      "security_id": "601138.SH",
+      "security_name": "工业富联",
+      "current_position": {
+        "quantity": 1000,
+        "market_value": 36150.0,
+        "current_weight": 0.03586528,
+        "unrealized_pnl": -10098.0,
+        "unrealized_pnl_pct": -0.21834458,
+        "legacy_target_label": "reduced"
+      },
+      "current_control_state": "P0_TRIM_OR_EXIT_REUNDERWRITE",
+      "permitted_research_outcomes": [
+        "RETAIN_WITH_REVISED_ROLE_AND_WEIGHT_BAND",
+        "REDUCE_PROPOSAL_PENDING_USER_APPROVAL",
+        "EXIT_PROPOSAL_PENDING_USER_APPROVAL"
+      ],
+      "required_research_dimensions": [
+        "AI server and network-equipment demand, order visibility and revenue mix",
+        "customer concentration, bargaining power and supply-chain dependency",
+        "gross margin, product-mix improvement and earnings sensitivity to AI infrastructure cycles",
+        "operating cash flow, working capital, capex and cash-conversion quality",
+        "competitive position, technology content and durability of value capture",
+        "current valuation, global peer comparison and Bear/Base/Bull scenario returns",
+        "thesis breakers, catalysts and quarterly monitoring thresholds"
+      ],
+      "decision_gate": "NO_POSITION_ACTION_UNTIL_CURRENT_FILINGS_MARKET_MARK_EVENT_REVIEW_AND_USER_DELTA_GATES_PASS"
+    }
+  ],
+  "common_evidence_requirements": {
+    "primary_sources": [
+      "latest annual and interim filings",
+      "latest earnings releases and official operating disclosures",
+      "official exchange announcements and company investor-relations materials"
+    ],
+    "market_inputs": [
+      "latest completed-close price and market capitalization",
+      "current valuation multiples with period lineage",
+      "relevant peer and benchmark returns"
+    ],
+    "portfolio_inputs": [
+      "confirmed quantity and cost continuity",
+      "current portfolio weight and risk contribution",
+      "replacement candidate opportunity cost"
+    ]
+  },
+  "acceptance_requirements": {
+    "all_three_research_objects_complete": true,
+    "primary_source_lineage_complete": true,
+    "scenario_scale_validated": true,
+    "position_role_and_weight_band_defined": true,
+    "thesis_breakers_and_event_rules_defined": true,
+    "user_decision_required_for_any_position_change": true,
+    "automatic_orders_prohibited": true
+  },
+  "economic_mutations": {
+    "real_account": 0,
+    "simulation": 0,
+    "candidate_membership": 0,
+    "orders": 0
+  },
+  "trade_authority": "NONE"
+}
