@@ -1,5 +1,5 @@
 {
-  "active_branch_candidate": "agent/wp5-e-post-close-action-gate",
+  "active_branch_candidate": "agent/wp5-f-continuity-interface",
   "assets": [
     {
       "asset_id": "GITHUB_ACTIVE_RUNTIME",
@@ -321,27 +321,48 @@
     },
     {
       "asset_id": "WP5_POST_CLOSE_ACTION_GATE_CURRENT",
-      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "authority": "CANONICAL_CURRENT",
       "format": "JSON",
       "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json",
+      "merge_sha": "c2abeb4c0c0a78db6007f2c5683bb84a70947b29",
       "role": "WP5 completed-close, continuity, weight-band and expected-return action gate",
+      "status": "CURRENT",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP5_POSITION_CONTINUITY_CONTRACT",
+      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "format": "JSON",
+      "location": "investment_os_runtime/00_CONTROL/WP5_POSITION_CONTINUITY_CONTRACT.json",
+      "merge_sha": null,
+      "role": "User-authoritative zero-delta confirmation and transaction-delta reporting contract",
+      "status": "BRANCH_CANDIDATE_PENDING_MERGE",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP5_POSITION_CONTINUITY_REQUEST_CURRENT",
+      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "format": "JSON",
+      "location": "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/WP5_POSITION_CONTINUITY_REQUEST_CURRENT.json",
+      "merge_sha": null,
+      "role": "Current user confirmation request derived from completed-close and delta-ledger watermarks",
       "status": "BRANCH_CANDIDATE_PENDING_MERGE",
       "trade_authority": "NONE"
     }
   ],
   "conversation_memory_authority": "NONE",
   "date": "2026-07-27",
-  "github_merge_sha": "70f651ff042fbf815ad8e0346cabad02693745d9",
-  "latest_governed_merge_sha": "70f651ff042fbf815ad8e0346cabad02693745d9",
+  "github_merge_sha": "c2abeb4c0c0a78db6007f2c5683bb84a70947b29",
+  "latest_governed_merge_sha": "c2abeb4c0c0a78db6007f2c5683bb84a70947b29",
   "r2_canonical_closure_merge_sha": "17db72e866bff027e1f786a8fd0c051ddfcd6c3a",
   "r2_capability_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
   "registry_id": "WP2_WP4_AUTHORITATIVE_ASSET_REGISTRY_V9",
-  "registry_status": "WP5_D_ACCEPTED_ON_MAIN_WP5_E_BRANCH_CANDIDATE",
+  "registry_status": "WP5_E_ACCEPTED_ON_MAIN_WP5_F_BRANCH_CANDIDATE",
   "release_id": "INVESTMENT_OS_R15_20260726_WP2_WP4_CANONICAL_AUDIT_CLOSURE",
   "release_sequence": 15,
   "repository": "jl2642/investment-os-market-data",
   "runtime_baseline_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
-  "status": "GITHUB_CURRENT_WP5_D_ACCEPTED_WP5_E_PENDING_MERGE_FILE_LIBRARY_PENDING",
+  "status": "GITHUB_CURRENT_WP5_E_ACCEPTED_WP5_F_PENDING_MERGE_FILE_LIBRARY_PENDING",
   "trade_authority": "NONE",
   "wp1_5bc_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54"
 }

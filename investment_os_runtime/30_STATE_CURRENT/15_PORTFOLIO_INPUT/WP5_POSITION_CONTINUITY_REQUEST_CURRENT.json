@@ -1,0 +1,54 @@
+{
+  "accepted_user_response_modes": [
+    {
+      "mode": "CONFIRM_ZERO_DELTA",
+      "required_statement": "Confirm that no Real-account trades, Simulation trades, security conversions, cancellations affecting holdings, cash transfers affecting broker execution balance, or Candidate membership changes occurred in the requested scope."
+    },
+    {
+      "mode": "REPORT_DELTAS",
+      "required_fields_per_entry": [
+        "account",
+        "trade_date",
+        "security_id_or_cash",
+        "transaction_type",
+        "quantity_change",
+        "cash_change",
+        "fees_and_taxes",
+        "unit_price_if_applicable"
+      ]
+    }
+  ],
+  "continuity_confirmed_through": "2026-07-24",
+  "economic_mutations": {
+    "candidate_membership": 0,
+    "orders": 0,
+    "real_account": 0,
+    "simulation": 0
+  },
+  "fresh_completed_close_after_research": false,
+  "generated_at": "2026-07-27T11:56:44.636986+08:00",
+  "governance": {
+    "broker_verification_not_inferred": true,
+    "continuity_may_not_be_inferred": true,
+    "market_marks_never_create_transaction_deltas": true,
+    "order_authorized": false,
+    "position_change_authorized": false,
+    "quantity_and_cost_change_only_from_user_confirmed_delta": true,
+    "trade_authority": "NONE"
+  },
+  "latest_completed_close_date": "2026-07-24",
+  "next_task": "WAIT_FOR_NEXT_COMPLETED_CLOSE_AFTER_2026_07_24",
+  "request_id": "WP5_POSITION_CONTINUITY_REQUEST_CURRENT",
+  "requested_scope": {
+    "accounts": [
+      "REAL_ACCOUNT",
+      "SIMULATION"
+    ],
+    "end_inclusive": "2026-07-24",
+    "start_exclusive": "2026-07-24"
+  },
+  "research_baseline_close_date": "2026-07-24",
+  "schema_version": "1.0.0",
+  "status": "WAITING_FOR_NEXT_COMPLETED_CLOSE",
+  "user_response_required": false
+}

@@ -138,6 +138,33 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
             "CONTINUE_MONITORING_AND_NON_P0_RESEARCH_TRIAGE",
             "USER_REVIEW_CONDITIONAL_P0_POSITION_PROPOSALS",
         } or register["next_task"].startswith("USER_CONFIRM_POSITION_CONTINUITY_THROUGH_")
+    elif step == "WP5_F_POSITION_CONTINUITY_INTERFACE_INSTALLED_ON_BRANCH":
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp5"]["status"] == "POSITION_CONTINUITY_INTERFACE_INSTALLED_ON_BRANCH_PENDING_MERGE"
+        assert register["wp5"]["post_close_action_gate_accepted_on_main"] is True
+        assert register["wp5"]["post_close_action_gate_merge_sha"] == "c2abeb4c0c0a78db6007f2c5683bb84a70947b29"
+        assert register["wp5"]["position_continuity_interface_installed"] is True
+        assert register["wp5"]["position_continuity_request_status"] in {
+            "WAITING_FOR_NEXT_COMPLETED_CLOSE",
+            "USER_POSITION_CONTINUITY_CONFIRMATION_REQUIRED",
+            "POSITION_CONTINUITY_CURRENT",
+        }
+        assert register["wp5"]["position_mutation_allowed"] is False
+        assert register["wp5"]["order_execution_allowed"] is False
+        assert register["next_task"] == "USER_MERGE_WP5_F_POSITION_CONTINUITY_INTERFACE_PR"
+    elif step == "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN":
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp5"]["status"] == "POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN"
+        assert register["wp5"]["post_close_action_gate_accepted_on_main"] is True
+        assert register["wp5"]["position_continuity_interface_installed"] is True
+        assert register["wp5"]["position_mutation_allowed"] is False
+        assert register["wp5"]["order_execution_allowed"] is False
+        assert register["next_task"] in {
+            "WAIT_FOR_NEXT_COMPLETED_CLOSE_AFTER_2026_07_24",
+            "RUN_WP5_E_POST_CLOSE_ACTION_GATE_RECALCULATION",
+        } or register["next_task"].startswith("USER_CONFIRM_ZERO_OR_REPORT_DELTAS_THROUGH_")
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")

@@ -1,0 +1,297 @@
+name: WP5-F Position Continuity Interface
+run-name: "WP5-F canonical closure and user position continuity request"
+
+on:
+  push:
+    branches:
+      - agent/wp5-f-continuity-interface
+      - main
+    paths:
+      - ".wp5_f_materialize_trigger"
+      - "automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py"
+      - ".github/workflows/wp5_f_position_continuity_interface.yml"
+      - "investment_os_runtime/00_CONTROL/WP5_POSITION_CONTINUITY_CONTRACT.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py"
+      - ".github/workflows/wp5_f_position_continuity_interface.yml"
+      - "investment_os_runtime/00_CONTROL/WP5_POSITION_CONTINUITY_CONTRACT.json"
+      - "investment_os_runtime/00_CONTROL/WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/WP5_POSITION_CONTINUITY_REQUEST_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json"
+  schedule:
+    - cron: "40 15 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  WP5_F_BRANCH: agent/wp5-f-continuity-interface
+
+jobs:
+  build-validate-publish:
+    if: github.event_name != 'push' || github.ref != 'refs/heads/main' || github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install validation runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest
+
+      - name: Snapshot protected economic, Candidate and legacy-decision states
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          identity = {}
+          for rel in (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ):
+              payload = json.loads((root / rel).read_text(encoding='utf-8'))
+              identity[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          protected = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          Path('/tmp/wp5f_identity.json').write_text(json.dumps(identity, sort_keys=True), encoding='utf-8')
+          Path('/tmp/wp5f_protected.json').write_text(json.dumps(protected, sort_keys=True), encoding='utf-8')
+          PY
+
+      - name: Resolve WP5-F run mode
+        id: mode
+        shell: bash
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "mode=post-merge" >> "$GITHUB_OUTPUT"
+          elif [[ ("${GITHUB_EVENT_NAME}" == "schedule" || "${GITHUB_EVENT_NAME}" == "workflow_dispatch") && "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "mode=operating" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=branch" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build Canonical closure and continuity request
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m py_compile automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py
+          MODE="${{ steps.mode.outputs.mode }}"
+          if [[ "$MODE" == "post-merge" ]]; then
+            python automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py \
+              --repo-root . \
+              --mode post-merge \
+              --accepted-pr 150 \
+              --wp5-f-merge-sha "${GITHUB_SHA}"
+          elif [[ "$MODE" == "operating" ]]; then
+            WP5_F_MERGE_SHA="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('investment_os_runtime/00_CONTROL/WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_RECORD.json')
+          payload = json.loads(path.read_text(encoding='utf-8'))
+          print(payload['wp5_f_merge_sha'])
+          PY
+          )"
+            python automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py \
+              --repo-root . \
+              --mode operating \
+              --accepted-pr 150 \
+              --wp5-f-merge-sha "$WP5_F_MERGE_SHA"
+          else
+            python automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py \
+              --repo-root . \
+              --mode branch \
+              --accepted-pr 150
+          fi
+
+      - name: Validate Canonical lineage, continuity states and zero mutation
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          contract = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_POSITION_CONTINUITY_CONTRACT.json').read_text(encoding='utf-8'))
+          request = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/WP5_POSITION_CONTINUITY_REQUEST_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          wp5e = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          gate = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json').read_text(encoding='utf-8'))
+          queue = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json').read_text(encoding='utf-8'))
+          marks = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json').read_text(encoding='utf-8'))
+          ledger = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json').read_text(encoding='utf-8'))
+
+          assert wp5e['accepted_on_main'] is True
+          assert wp5e['accepted_pr'] == 149
+          assert wp5e['merge_sha'] == 'c2abeb4c0c0a78db6007f2c5683bb84a70947b29'
+          assert contract['authority']['continuity_authority'] == 'USER_EXPLICIT_CONFIRMATION_ONLY'
+          assert contract['prohibitions']['infer_zero_delta_from_silence'] is True
+          assert contract['prohibitions']['automatic_quantity_or_cost_mutation'] is True
+          assert request['latest_completed_close_date'] == marks['data_watermark']['latest_mark_date']
+          assert request['continuity_confirmed_through'] == ledger['continuity_confirmed_through']
+          assert request['status'] in {
+              'WAITING_FOR_NEXT_COMPLETED_CLOSE',
+              'USER_POSITION_CONTINUITY_CONFIRMATION_REQUIRED',
+              'POSITION_CONTINUITY_CURRENT',
+          }
+          if request['latest_completed_close_date'] <= '2026-07-24':
+              assert request['status'] == 'WAITING_FOR_NEXT_COMPLETED_CLOSE'
+              assert request['user_response_required'] is False
+          elif request['continuity_confirmed_through'] < request['latest_completed_close_date']:
+              assert request['status'] == 'USER_POSITION_CONTINUITY_CONFIRMATION_REQUIRED'
+              assert request['user_response_required'] is True
+          else:
+              assert request['status'] == 'POSITION_CONTINUITY_CURRENT'
+              assert request['user_response_required'] is False
+
+          mode = '${{ steps.mode.outputs.mode }}'
+          if mode == 'branch':
+              assert acceptance['status'] == 'WP5_F_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE'
+              assert acceptance['accepted_on_main'] is False
+              assert acceptance['accepted_pr'] is None
+              assert execution['current_step'] == 'WP5_F_POSITION_CONTINUITY_INTERFACE_INSTALLED_ON_BRANCH'
+              assert execution['next_task'] == 'USER_MERGE_WP5_F_POSITION_CONTINUITY_INTERFACE_PR'
+          else:
+              assert acceptance['status'] == 'WP5_F_ACCEPTED_ON_MAIN'
+              assert acceptance['accepted_on_main'] is True
+              assert acceptance['accepted_pr'] == 150
+              assert acceptance['wp5_f_merge_sha']
+              assert execution['current_step'] == 'WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN'
+
+          assert gate['implementation_ready_count'] == 0
+          assert queue['ready_for_user_decision_count'] == 0
+          assert queue['orders'] == 0
+          assert execution['wp5']['position_mutation_allowed'] is False
+          assert execution['wp5']['order_execution_allowed'] is False
+          assert execution['trade_authority'] == 'NONE'
+          assert acceptance['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+
+          before = json.loads(Path('/tmp/wp5f_identity.json').read_text(encoding='utf-8'))
+          after = {}
+          for rel in (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ):
+              payload = json.loads((root / rel).read_text(encoding='utf-8'))
+              after[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          protected_before = json.loads(Path('/tmp/wp5f_protected.json').read_text(encoding='utf-8'))
+          protected_after = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          assert before == after
+          assert protected_before == protected_after
+          print({
+              'mode': mode,
+              'request_status': request['status'],
+              'latest_completed_close': request['latest_completed_close_date'],
+              'continuity_confirmed_through': request['continuity_confirmed_through'],
+              'ready_for_user_decision': 0,
+              'mutations': 0,
+              'orders': 0,
+          })
+          PY
+
+      - name: Validate global WP3 lineage regression
+        run: python -m pytest -q automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py
+
+      - name: Publish branch materialization
+        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/wp5-f-continuity-interface' && github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .wp5_f_materialize_trigger 2>/dev/null || true
+          git add \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/WP5_POSITION_CONTINUITY_REQUEST_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "WP5-F materialize position continuity interface candidate"
+          git pull --rebase origin "${WP5_F_BRANCH}"
+          git push origin "HEAD:${WP5_F_BRANCH}"
+
+      - name: Publish post-merge Canonical closure
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/WP5_POSITION_CONTINUITY_REQUEST_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "WP5-F finalize post-merge Canonical continuity interface"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Publish scheduled continuity request state
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/WP5_POSITION_CONTINUITY_REQUEST_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "WP5-F refresh user position continuity request"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Record summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP5-F Position Continuity Interface
+          - Closes PR #149 Canonical lineage using its actual merge SHA
+          - Derives the user confirmation request from completed-close and delta-ledger watermarks
+          - Never infers zero transactions from silence or from market marks
+          - Supports explicit zero-delta confirmation or structured transaction-delta reporting
+          - Preserves Real, Simulation, Candidate and legacy-decision economic identity
+          - Ready for user decision: 0
+          - Orders: 0
+          - trade_authority: NONE
+          EOF
