@@ -4,33 +4,86 @@
     "automatic_order_creation": false,
     "automatic_real_account_mutation": false,
     "automatic_simulation_mutation": false,
+    "separate_user_approval_before_any_state_mutation": true,
     "trade_authority": "NONE"
   },
-  "contract_id": "WP5_PORTFOLIO_DECISION_CONTRACT_V1",
+  "completion_definition": {
+    "all_current_positions_covered": true,
+    "orders_created": 0,
+    "portfolio_construction_synthesis_delivered": true,
+    "position_action_matrix_delivered": true,
+    "ready_for_user_decision_may_legitimately_be_zero": true,
+    "user_decision_pack_delivered": true
+  },
+  "contract_id": "WP5_PORTFOLIO_DECISION_CONTRACT_V2_R0_FREEZE",
+  "fixed_workstreams": {
+    "WP5-1": {
+      "evidence": [
+        "PR_147_FULL_POSITION_REVIEW_7_REAL_16_SIMULATION"
+      ],
+      "name": "PORTFOLIO_BASELINE_AND_FULL_DIAGNOSTIC",
+      "status": "COMPLETED"
+    },
+    "WP5-2": {
+      "completed": [
+        "CORE2_2",
+        "P0_SIMULATION_3",
+        "REAL_ACCOUNT_FIRST_PASS_7"
+      ],
+      "name": "DECISION_GRADE_COVERAGE_COMPLETION",
+      "remaining": [
+        "SIMULATION_DECISION_GRADE_11",
+        "BOND_FUND_FULL_LOOKTHROUGH_3",
+        "SP500_SINGLE_VEHICLE_SELECTION",
+        "A500_CSI500_ROLE_CONFIRMATION"
+      ],
+      "status": "PARTIALLY_COMPLETE"
+    },
+    "WP5-3": {
+      "name": "PORTFOLIO_CONSTRUCTION_SYNTHESIS",
+      "status": "NOT_STARTED"
+    },
+    "WP5-4": {
+      "name": "POSITION_ACTION_MATRIX",
+      "status": "NOT_STARTED"
+    },
+    "WP5-5": {
+      "name": "USER_DECISION_AND_GOVERNED_IMPLEMENTATION",
+      "status": "NOT_STARTED"
+    }
+  },
+  "formal_plan": "WP5_1_TO_WP5_5",
   "hard_gates": {
     "broker_or_user_verification_before_real_action": true,
-    "current_event_classification_before_core2_action": true,
+    "complete_user_readable_action_pack_before_wp5_completion": true,
+    "current_event_classification_before_action": true,
     "fresh_market_marks_at_decision_run": true,
+    "master_plan_update_and_user_approval_before_new_stage": true,
     "position_delta_continuity_at_action_gate": true,
-    "r2_accepted_on_main": true,
-    "scenario_unit_scale_validation": true,
-    "separate_user_approval_before_any_state_mutation": true
+    "scenario_unit_scale_validation": true
   },
+  "historical_label_map": {
+    "WP5-A": "WP5-1_START_AND_INPUT_FREEZE",
+    "WP5-B": "WP5-1_FULL_POSITION_DIAGNOSTIC",
+    "WP5-C": "WP5-2_P0_RESEARCH_PREPARATION",
+    "WP5-D": "WP5-2_P0_RESEARCH_COMPLETION",
+    "WP5-E": "HORIZONTAL_COMPLETED_CLOSE_ACTION_GATE",
+    "WP5-F": "HORIZONTAL_POSITION_CONTINUITY_CONTROL",
+    "WP5-G": "WP5-2_REAL_ACCOUNT_FIRST_PASS_AND_GOVERNANCE_REPAIR",
+    "WP5-H": "VOID_NOT_STARTED"
+  },
+  "horizontal_controls": {
+    "canonical_promotion_semantics_v2": "INSTALLED_PR151",
+    "classification": "OPERATING_CONTROLS_NOT_SEPARATE_WP5_STAGES",
+    "completed_close_gate": "INSTALLED_PR149",
+    "user_position_continuity": "INSTALLED_PR150"
+  },
+  "next_task": "R1_DECISION_COVERAGE_COMPLETION_AFTER_R0_PRESENT_ON_MAIN",
   "phase": "WP5_PORTFOLIO_DECISION_PHASE",
+  "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
   "real_account_cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED_NO_FIXED_STRATEGIC_CASH_TARGET",
-  "required_inputs": [
-    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
-    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
-    "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
-    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_SCENARIO_MODELS_CURRENT.json",
-    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_POSITION_FIT_CURRENT.json",
-    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_EVENT_MONITORING_CURRENT.json"
-  ],
-  "scope": [
-    "freeze current Real, Simulation, Candidate and Core2 research inputs",
-    "produce account-level and position-level conditional recommendations",
-    "separate research judgment, user decision and execution authority",
-    "maintain an explicit user decision queue"
-  ],
-  "status": "ACTIVE_ON_GOVERNED_BRANCH_PENDING_USER_MERGE"
+  "source_head_sha": "ee9cd9af5122af9506a0da844d837cfce6c57c44",
+  "source_pr": 152,
+  "status": "PARTIALLY_COMPLETE_NO_USER_ACTION_PACK",
+  "trade_authority": "NONE"
 }
