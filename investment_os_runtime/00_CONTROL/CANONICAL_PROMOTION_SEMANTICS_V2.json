@@ -1,0 +1,48 @@
+{
+  "schema_version": "2.0.0",
+  "contract_id": "CANONICAL_PROMOTION_SEMANTICS_V2",
+  "purpose": "Remove the requirement for a post-merge bot commit merely to prove that governed assets are Current.",
+  "authority_order": [
+    "FILE_PRESENT_ON_MAIN",
+    "SOURCE_PR_MERGED",
+    "SOURCE_HEAD_SHA_IN_MAIN_HISTORY",
+    "EXPLICIT_ASSET_STATUS"
+  ],
+  "current_semantics": {
+    "CURRENT_IF_PRESENT_ON_MAIN": "An asset carrying this status is Canonical Current when the exact governed file is present on main and the recorded source PR is merged. No second mutable post-merge commit is required.",
+    "CURRENT": "The asset is present on main and has no unresolved promotion condition.",
+    "BRANCH_CANDIDATE_PENDING_MERGE": "The asset is not Current until the governing PR is merged."
+  },
+  "required_lineage_fields": [
+    "source_pr",
+    "source_head_sha",
+    "promotion_evidence",
+    "trade_authority"
+  ],
+  "promotion_evidence_values": [
+    "GIT_HISTORY_ON_MAIN",
+    "MERGED_PR_AND_FILE_PRESENCE",
+    "EXPLICIT_ACCEPTANCE_RECORD_ON_MAIN"
+  ],
+  "prohibitions": {
+    "post_merge_commit_required_only_to_write_its_own_sha": true,
+    "conversation_memory_as_authority": true,
+    "automatic_economic_state_mutation": true,
+    "automatic_candidate_membership_mutation": true,
+    "automatic_order_creation": true
+  },
+  "wp5_f_closure": {
+    "source_pr": 150,
+    "source_head_sha": "64dac158ed8e9d2900da66645ea18fe03df7dff3",
+    "actual_merge_sha": "467280d54e4dbe58204e0137e4f9639550c72dca",
+    "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
+    "status": "ACCEPTED_ON_MAIN"
+  },
+  "economic_mutations": {
+    "real_account": 0,
+    "simulation": 0,
+    "candidate_membership": 0,
+    "orders": 0
+  },
+  "trade_authority": "NONE"
+}
