@@ -66,6 +66,19 @@ jobs:
             --repo-root . \
             --source-head-sha "$R1_VALIDATED_SOURCE_HEAD"
 
+      - name: Normalize Master Plan idempotently
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md')
+          text = path.read_text(encoding='utf-8')
+          line = '- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#153`。'
+          while f'{line}\n\n{line}' in text:
+              text = text.replace(f'{line}\n\n{line}', line)
+          assert text.count(line) == 1
+          path.write_text(text, encoding='utf-8')
+          PY
+
       - name: Validate coverage completeness, stage boundary and zero mutation
         run: |
           python - <<'PY'
@@ -81,6 +94,7 @@ jobs:
           contract = json.loads((control / 'WP5_PORTFOLIO_DECISION_CONTRACT.json').read_text(encoding='utf-8'))
           registry = json.loads((control / 'AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
           status = (control / 'R1_STATUS_CURRENT.md').read_text(encoding='utf-8')
+          master = (control / 'WORK_PACKAGE_MASTER_PLAN_CURRENT.md').read_text(encoding='utf-8')
 
           assert pack['status'] == 'DECISION_COVERAGE_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_NOT_IMPLEMENTATION_READY'
           assert pack['source_head_sha'] == '2a934babdc463f319977cf64674ccdabd1603430'
@@ -136,6 +150,7 @@ jobs:
           assert acceptance['implementation_ready_count'] == 0
           assert acceptance['next_authorized_stage'] == 'R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS'
           assert 'R1只完成研究与条件覆盖' in status
+          assert master.count('- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#153`。') == 1
 
           registered = {row['asset_id']: row for row in registry['assets']}
           for asset_id in ('R1_DECISION_COVERAGE_PACK_CURRENT', 'R1_DECISION_COVERAGE_SUMMARY_CURRENT', 'R1_DECISION_COVERAGE_ACCEPTANCE', 'R1_STATUS_CURRENT'):
@@ -218,6 +233,7 @@ jobs:
           - Simulation decision coverage: 16/16
           - Real product decision coverage: 7/7
           - Core2 reused: 2; P0 reused: 3; new standardized coverage: 11
+          - Master Plan materialization: idempotent
           - WP5-2 complete; WP5-3 / R2 not started
           - Implementation ready / mutations / orders: 0 / 0 / 0
           - trade_authority: NONE
