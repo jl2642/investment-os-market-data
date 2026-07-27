@@ -146,7 +146,7 @@ def test_wp3_2b_is_proposal_only_and_connector_dispatchable():
     assert "environment: wp3-2a-screening-approval" in workflow
     assert "<<'EOF'" in workflow
     assert "Accepted universe session:" in workflow
-    assert "Eligible Universe rows:" in script
+    assert "Eligible Universe rows:" in workflow
     assert "SCREENING_EXCLUSIONS.csv" in script
     assert "WP3_2B_SCREENING_PROPOSAL" in script
     assert '"investment_ranking": False' in script
