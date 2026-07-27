@@ -12,7 +12,7 @@
     "status": "CURRENT_IF_PRESENT_ON_MAIN"
   },
   "canonical_acceptance_status": "ACCEPTED_CANONICAL",
-  "current_step": "R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN",
+  "current_step": "R6_PRODUCTION_ACCEPTANCE_IN_PROGRESS_CURRENT_IF_PRESENT_ON_MAIN",
   "development_roadmap": {
     "R0": {
       "name": "PRODUCT_AUTHORITY_FREEZE",
@@ -41,20 +41,27 @@
       "status": "COMPLETED_ON_MAIN"
     },
     "R5": {
+      "merge_sha": "3cb173851eac4388f24785cd7a43cd557c58a3bc",
       "name": "ATTRIBUTION_AND_CALIBRATION",
-      "source_head_sha": "534e109de78817266e8fef78f02e03387594e129",
+      "source_head_sha": "3e654c2cbbdbc563999799561b9bcf4b5fa7a4ae",
       "source_pr": 159,
-      "status": "CURRENT_IF_PRESENT_ON_MAIN"
+      "status": "COMPLETED_ON_MAIN"
     },
     "R6": {
+      "checkpoint_passed": 1,
+      "checkpoint_total": 10,
       "name": "PRODUCTION_ACCEPTANCE",
-      "status": "NOT_STARTED_NEXT_AUTHORIZED_STAGE"
+      "observation_end": "2026-08-31",
+      "observation_start": "2026-08-01",
+      "source_head_sha": "8067ec7b5b763d3bdb4cee95d8c85da56af89617",
+      "source_pr": 160,
+      "status": "IN_PROGRESS_CURRENT_IF_PRESENT_ON_MAIN"
     }
   },
   "file_library_promotion_status": "PENDING_MANUAL_UPLOAD",
   "github_main_head_at_wp3_2a_closure": "9305fd210c1729a7227e0e633eed5e29984bc261",
   "github_main_head_at_wp3_3_4_closure": "RESOLVED_BY_GIT_HISTORY_ON_PR_MERGE",
-  "github_merge_sha": "f4c48b1aa07f05f41f3d79cf5f843d84b384a5ec",
+  "github_merge_sha": "3cb173851eac4388f24785cd7a43cd557c58a3bc",
   "historical_wp5_label_map": {
     "WP5-A": "WP5-1_START_AND_INPUT_FREEZE",
     "WP5-B": "WP5-1_FULL_POSITION_DIAGNOSTIC",
@@ -66,9 +73,9 @@
     "WP5-H": "VOID_NOT_STARTED"
   },
   "implementation_ready_count": 0,
-  "latest_completed_main_merge_sha": "f4c48b1aa07f05f41f3d79cf5f843d84b384a5ec",
-  "latest_completed_main_pr": 158,
-  "latest_governed_merge_sha": "f4c48b1aa07f05f41f3d79cf5f843d84b384a5ec",
+  "latest_completed_main_merge_sha": "3cb173851eac4388f24785cd7a43cd557c58a3bc",
+  "latest_completed_main_pr": 159,
+  "latest_governed_merge_sha": "3cb173851eac4388f24785cd7a43cd557c58a3bc",
   "mutation_proof": {
     "automatic_rule_mutations": 0,
     "automation_activations": "GITHUB_ACTIVE_PROPOSAL_ONLY_HUMAN_GOVERNED",
@@ -85,7 +92,7 @@
     "simulation_trade_mutations": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "R6_PRODUCTION_ACCEPTANCE_AFTER_R5_PRESENT_ON_MAIN",
+  "next_task": "RUN_R6_SUPERVISED_OPERATING_OBSERVATION_2026_08",
   "operating_activation": false,
   "operating_products_r4": {
     "development_samples": 7,
@@ -96,7 +103,7 @@
     "status": "CURRENT_IF_PRESENT_ON_MAIN",
     "unified_status": true
   },
-  "overall_status": "R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_NO_ACTIVATION",
+  "overall_status": "R6_PRODUCTION_ACCEPTANCE_IN_PROGRESS_NOT_PRODUCTION_COMPLETE",
   "portfolio_r2": {
     "merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
     "r3_started": true,
@@ -128,6 +135,18 @@
     "source_pr": 152,
     "status": "CURRENT_IF_PRESENT_ON_MAIN",
     "user_guide_path": "investment_os_runtime/00_CONTROL/USER_OPERATING_GUIDE_CURRENT.md"
+  },
+  "production_acceptance_r6": {
+    "acceptance_mode": "SUPERVISED_PRODUCTION_ACCEPTANCE",
+    "checkpoint_passed": 1,
+    "checkpoint_total": 10,
+    "full_month_complete": false,
+    "observation_end": "2026-08-31",
+    "observation_start": "2026-08-01",
+    "operating_activation": false,
+    "schedule_activation_count": 0,
+    "source_pr": 160,
+    "status": "IN_PROGRESS_CURRENT_IF_PRESENT_ON_MAIN"
   },
   "r1_decision_coverage": {
     "implementation_ready_count": 0,
@@ -167,9 +186,9 @@
   "r2_canonical_closure_merge_sha": "17db72e866bff027e1f786a8fd0c051ddfcd6c3a",
   "r2_capability_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
   "ready_for_user_decision_count": 0,
-  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V12_R5_ATTRIBUTION_CALIBRATION",
-  "release_id": "INVESTMENT_OS_R22_20260727_R5_ATTRIBUTION_CALIBRATION",
-  "release_sequence": 22,
+  "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V13_R6_PRODUCTION_ACCEPTANCE",
+  "release_id": "INVESTMENT_OS_R23_20260727_R6_PRODUCTION_ACCEPTANCE_START",
+  "release_sequence": 23,
   "repository": "jl2642/investment-os-market-data",
   "runtime_baseline_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
   "runtime_root": "investment_os_runtime/",

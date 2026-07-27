@@ -1,7 +1,7 @@
 # 股票投资助手｜User Operating Guide CURRENT
 
 - 状态日期：2026-07-27
-- 当前阶段：`R5完成，R6待开始`
+- 当前阶段：`R6生产验收进行中`
 - Operating Activation：`false`
 - 交易权限：`NONE`
 
@@ -55,3 +55,7 @@
 `R6_PRODUCTION_ACCEPTANCE_AFTER_R5_PRESENT_ON_MAIN`
 
 R6必须完成完整自然月实跑，验收自动刷新、用户Delta、跨对话恢复、周期报告、归因嵌入、故障重跑、证据追溯及零越权交易。R6通过前，Operating Activation保持`false`。
+
+## 六、R6之后的正式使用方式
+
+股票投资助手最终采用“系统自主研究与运营、用户控制投资状态”的模式。系统自主刷新公开数据、筛选Candidate、更新研究、生成周期产品、执行归因并形成Proposal；用户仅持续提供真实账户零Delta或交易Delta、无法自动取得的私有事实、关键约束及对持仓/Candidate/规则变化的明确批准。详细边界以`R6_USER_SYSTEM_RESPONSIBILITY_MATRIX_CURRENT.md`为准。

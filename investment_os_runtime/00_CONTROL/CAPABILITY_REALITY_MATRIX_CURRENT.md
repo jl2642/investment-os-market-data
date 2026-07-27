@@ -1,8 +1,8 @@
 # 股票投资助手｜Capability Reality Matrix CURRENT
 
 - 状态日期：2026-07-27
-- 当前阶段：`R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN`
-- 下一阶段：`R6_PRODUCTION_ACCEPTANCE_AFTER_R5_PRESENT_ON_MAIN`
+- 当前阶段：`R6_PRODUCTION_ACCEPTANCE_IN_PROGRESS_CURRENT_IF_PRESENT_ON_MAIN`
+- 下一阶段：`完成完整自然月验收后进入正式运营与持续迭代`
 - Operating Activation：`false`
 - 交易权限：`NONE`
 - 收益归因成熟度：`DEVELOPMENT_PRODUCT_COMPLETE_PRODUCTION_WINDOWS_PENDING`
@@ -35,3 +35,10 @@
 - 不能声称Candidate已经证明20/60/120日Alpha；
 - 不能认为日报、周报和归因已经完成自然月生产验收；
 - 不能自动改变规则、Candidate、持仓或订单。
+
+## R6生产验收边界
+
+- 已完成：R5 main晋级、R6验收合同、职责矩阵、观察Ledger、恢复重跑计划及Activation Gate安装。
+- 尚未完成：`2026-08-01`至`2026-08-31`完整自然月运行、月末归因、跨对话恢复及漏跑重跑实证。
+- 当前运行模式是监督式生产验收，不是已激活的无人值守生产。
+- R6通过后系统自主完成研究、公开数据刷新、报告、归因和Proposal；用户继续负责真实账户Delta、关键约束、状态变更批准和交易执行。
