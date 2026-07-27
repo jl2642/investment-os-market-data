@@ -58,6 +58,10 @@ def main() -> int:
     assert unified["operating_activation"] is False
     assert unified["real_account"]["holdings"] == 7
     assert unified["simulation"]["holdings"] == 16
+    assert unified["simulation"]["cash_rmb"] == 219533.98
+    assert unified["simulation"]["unrealized_pnl_rmb"] == 16388.9
+    assert unified["simulation"]["cash_source_field"] == "summary.execution_cash_balance"
+    assert unified["simulation"]["unrealized_pnl_source_field"] == "summary.open_unrealized_pnl"
     assert unified["candidate"]["core"] == 2
     assert unified["candidate"]["shadow_track"] == 38
     assert unified["candidate"]["research_queue"] == 33
@@ -91,9 +95,12 @@ def main() -> int:
     assert registry["latest_completed_main_pr"] == 157
     assert registry["release_sequence"] == 21
 
+    daily = (samples / "R4_DAILY_OPERATING_BRIEF_SAMPLE.md").read_text(encoding="utf-8")
     monthly = (samples / "R4_MONTHLY_INVESTMENT_REVIEW_SAMPLE.md").read_text(encoding="utf-8")
     annual = (samples / "R4_ANNUAL_STRATEGY_REVIEW_SAMPLE.md").read_text(encoding="utf-8")
     event = (samples / "R4_EVENT_ALERT_SAMPLE.md").read_text(encoding="utf-8")
+    assert "研究现金约¥219,533.98" in daily
+    assert "当前未实现盈亏约¥16,388.90" in monthly
     assert "NOT_AVAILABLE_UNTIL_R5" in monthly
     assert "NOT_AVAILABLE_UNTIL_R5_AND_R6" in annual
     assert "不得创建订单" in event
@@ -113,6 +120,7 @@ def main() -> int:
     allowed = {
         ".github/workflows/r4_operating_products.yml",
         "automation/r4_operating_products/build_r4_operating_products.py",
+        "automation/r4_operating_products/normalize_r4_samples.py",
         "automation/r4_operating_products/patch_forward_lineage.py",
         "automation/r4_operating_products/validate_r4_operating_products.py",
         "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py",
@@ -144,6 +152,8 @@ def main() -> int:
     print({
         "products": 7,
         "samples": 7,
+        "simulation_cash_rmb": 219533.98,
+        "simulation_open_unrealized_pnl_rmb": 16388.9,
         "operating_activation": False,
         "schedule_activation_count": 0,
         "R5_started": False,
