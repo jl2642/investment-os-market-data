@@ -1,0 +1,191 @@
+name: R2 Portfolio Construction Synthesis
+run-name: "R2 synthesize portfolio architecture and risk budgets"
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/r2_portfolio_construction/**"
+      - ".github/workflows/r2_portfolio_construction.yml"
+      - "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py"
+      - "investment_os_runtime/00_CONTROL/R2_*"
+      - "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md"
+      - "investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json"
+      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  build-validate-publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install validation runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest
+
+      - name: Snapshot protected states
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          paths = [
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          ]
+          Path('/tmp/r2_protected.json').write_text(json.dumps({p: hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in paths}, sort_keys=True), encoding='utf-8')
+          PY
+
+      - name: Build R2 portfolio construction synthesis
+        run: |
+          python -m py_compile automation/r2_portfolio_construction/build_r2_portfolio_construction.py
+          python automation/r2_portfolio_construction/build_r2_portfolio_construction.py
+
+      - name: Validate R2 products and stage boundary
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          control = root / 'investment_os_runtime/00_CONTROL'
+          state = root / 'investment_os_runtime/30_STATE_CURRENT'
+          synthesis = json.loads((state / '60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads((control / 'R2_PORTFOLIO_CONSTRUCTION_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          execution = json.loads((control / 'EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          contract = json.loads((control / 'WP5_PORTFOLIO_DECISION_CONTRACT.json').read_text(encoding='utf-8'))
+          registry = json.loads((control / 'AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
+          summary = (state / '60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SUMMARY_CURRENT.md').read_text(encoding='utf-8')
+
+          assert synthesis['status'] == 'PORTFOLIO_CONSTRUCTION_SYNTHESIS_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_R3_NOT_STARTED'
+          assert synthesis['accepted_data_watermark'] == '2026-07-24_CLOSE'
+          assert synthesis['r1_input_complete'] == {'simulation': 16, 'real_products': 7}
+          assert len(synthesis['real_account']['alternative_architectures']) == 3
+          assert abs(sum(synthesis['real_account']['reference_architecture']['weights'].values()) - 1.0) < 1e-9
+          assert len(synthesis['simulation']['current_structure']) == 6
+          assert all(row['band_status'] == 'WITHIN_BAND' for row in synthesis['simulation']['current_structure'].values())
+          assert synthesis['stage_boundary']['r2_complete'] is True
+          assert synthesis['stage_boundary']['r3_action_matrix_started'] is False
+          assert synthesis['stage_boundary']['implementation_ready_count'] == 0
+          assert synthesis['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'legacy_decisions': 0, 'orders': 0}
+          assert synthesis['trade_authority'] == 'NONE'
+
+          assert acceptance['portfolio_construction_synthesis_complete'] is True
+          assert acceptance['position_action_matrix_complete'] is False
+          assert acceptance['next_authorized_stage'] == 'R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK'
+          assert execution['current_step'] == 'R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT_IF_PRESENT_ON_MAIN'
+          assert execution['latest_completed_main_pr'] == 153
+          assert execution['latest_completed_main_merge_sha'] == '39cc98578ff0324bb6a5602db527b0dd3e70a278'
+          assert execution['development_roadmap']['R1']['status'] == 'COMPLETED_ON_MAIN'
+          assert execution['development_roadmap']['R2']['status'] == 'CURRENT_IF_PRESENT_ON_MAIN'
+          assert execution['development_roadmap']['R3']['status'] == 'NOT_STARTED'
+          assert execution['wp5']['portfolio_construction_synthesis_complete'] is True
+          assert execution['wp5']['position_action_matrix_complete'] is False
+          assert execution['next_task'] == 'R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_AFTER_R2_PRESENT_ON_MAIN'
+          assert execution['trade_authority'] == 'NONE'
+
+          assert contract['fixed_workstreams']['WP5-3']['status'] == 'COMPLETED_CURRENT_IF_PRESENT_ON_MAIN'
+          assert contract['fixed_workstreams']['WP5-4']['status'] == 'NOT_STARTED'
+          assert contract['current_completion_state']['portfolio_construction_synthesis_delivered'] is True
+          assert contract['current_completion_state']['position_action_matrix_delivered'] is False
+          registered = {row['asset_id']: row for row in registry['assets']}
+          for asset_id in ('R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT', 'R2_PORTFOLIO_CONSTRUCTION_SUMMARY_CURRENT', 'R2_PORTFOLIO_CONSTRUCTION_ACCEPTANCE', 'R2_STATUS_CURRENT'):
+              assert registered[asset_id]['status'] == 'CURRENT_IF_PRESENT_ON_MAIN'
+              assert registered[asset_id]['source_pr'] == 154
+          assert '五类袖套和现金均处于区间' in summary
+
+          before = json.loads(Path('/tmp/r2_protected.json').read_text(encoding='utf-8'))
+          after = {p: hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in before}
+          assert before == after, sorted(p for p in before if before[p] != after[p])
+          assert acceptance['protected_state_hashes']['real_account_positions_sha256'] == before['investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json']
+          assert acceptance['protected_state_hashes']['simulation_positions_sha256'] == before['investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json']
+          print({'real_architectures': 3, 'simulation_sleeves': 6, 'r2': 'complete', 'r3': 'not_started', 'mutations': 0, 'orders': 0})
+          PY
+
+      - name: Validate global lineage forward compatibility
+        run: python -m pytest -q automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py
+
+      - name: Enforce exact R2 scope
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+          allowed = {
+              '.github/workflows/r2_portfolio_construction.yml',
+              'automation/r2_portfolio_construction/build_r2_portfolio_construction.py',
+              'automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py',
+              'investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json',
+              'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json',
+              'investment_os_runtime/00_CONTROL/R2_PORTFOLIO_CONSTRUCTION_ACCEPTANCE_RECORD.json',
+              'investment_os_runtime/00_CONTROL/R2_STATUS_CURRENT.md',
+              'investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md',
+              'investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SUMMARY_CURRENT.md',
+          }
+          forbidden = sorted(changed - allowed)
+          if forbidden:
+              raise SystemExit('R2_SCOPE_VIOLATION:' + ','.join(forbidden))
+          protected = {
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          }
+          leaked = sorted(changed & protected)
+          if leaked:
+              raise SystemExit('R2_PROTECTED_STATE_MUTATION:' + ','.join(leaked))
+          print({'changed_paths': sorted(changed), 'scope': 'R2_PORTFOLIO_CONSTRUCTION_ONLY'})
+          PY
+
+      - name: Publish deterministic R2 products to PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/R2_PORTFOLIO_CONSTRUCTION_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/R2_STATUS_CURRENT.md \
+            investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md \
+            investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SUMMARY_CURRENT.md
+          if git diff --cached --quiet; then
+            echo "R2 products already materialized."
+            exit 0
+          fi
+          git commit -m "R2 materialize portfolio construction synthesis"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+
+      - name: Record R2 summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## R2 Portfolio Construction Synthesis
+          - Real reference architectures: 3
+          - Simulation sleeves including research cash: 6
+          - WP5-3 complete; WP5-4 / R3 not started
+          - Implementation ready / mutations / orders: 0 / 0 / 0
+          - trade_authority: NONE
+          EOF
