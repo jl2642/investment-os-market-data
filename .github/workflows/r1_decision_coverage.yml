@@ -24,6 +24,7 @@ permissions:
 
 env:
   TRADE_AUTHORITY: NONE
+  R1_VALIDATED_SOURCE_HEAD: 2a934babdc463f319977cf64674ccdabd1603430
 
 jobs:
   build-validate-publish:
@@ -63,7 +64,7 @@ jobs:
           python -m py_compile automation/r1_decision_coverage/build_r1_decision_coverage.py
           python automation/r1_decision_coverage/build_r1_decision_coverage.py \
             --repo-root . \
-            --source-head-sha "${{ github.event.pull_request.head.sha || github.sha }}"
+            --source-head-sha "$R1_VALIDATED_SOURCE_HEAD"
 
       - name: Validate coverage completeness, stage boundary and zero mutation
         run: |
@@ -82,6 +83,7 @@ jobs:
           status = (control / 'R1_STATUS_CURRENT.md').read_text(encoding='utf-8')
 
           assert pack['status'] == 'DECISION_COVERAGE_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_NOT_IMPLEMENTATION_READY'
+          assert pack['source_head_sha'] == '2a934babdc463f319977cf64674ccdabd1603430'
           assert pack['simulation']['holding_count'] == 16
           assert pack['simulation']['reused_core2_count'] == 2
           assert pack['simulation']['reused_p0_count'] == 3
@@ -128,6 +130,7 @@ jobs:
           assert contract['current_completion_state']['position_action_matrix_delivered'] is False
           assert contract['current_completion_state']['user_decision_pack_delivered'] is False
 
+          assert acceptance['source_head_sha'] == '2a934babdc463f319977cf64674ccdabd1603430'
           assert acceptance['simulation_coverage_complete'] == 16
           assert acceptance['real_product_coverage_complete'] == 7
           assert acceptance['implementation_ready_count'] == 0
@@ -211,6 +214,7 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## R1 Decision Coverage Completion
+          - Validated source head: 2a934babdc463f319977cf64674ccdabd1603430
           - Simulation decision coverage: 16/16
           - Real product decision coverage: 7/7
           - Core2 reused: 2; P0 reused: 3; new standardized coverage: 11
