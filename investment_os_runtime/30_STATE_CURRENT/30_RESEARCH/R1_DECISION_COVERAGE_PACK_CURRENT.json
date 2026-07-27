@@ -1,0 +1,1130 @@
+{
+  "as_of": "2026-07-27",
+  "coverage_definition": {
+    "action_matrix_deferred_to_r3": true,
+    "coverage_is_not_execution": true,
+    "portfolio_synthesis_deferred_to_r2": true,
+    "required_fields": [
+      "portfolio_role",
+      "posture",
+      "add_conditions",
+      "trim_conditions",
+      "exit_conditions",
+      "evidence_gaps_or_limits"
+    ]
+  },
+  "economic_mutations": {
+    "candidate_membership": 0,
+    "legacy_decisions": 0,
+    "orders": 0,
+    "real_account": 0,
+    "simulation": 0
+  },
+  "implementation_ready_count": 0,
+  "pack_id": "R1_DECISION_COVERAGE_PACK_CURRENT_V1",
+  "r0_merge_sha": "42b34c327fa5b1168c4e9d11846ba1e0f6712ac6",
+  "ready_for_user_decision_count": 0,
+  "real_account": {
+    "a_share_core_satellite_roles": {
+      "159352.SZ": {
+        "policy": "FUTURE_A_SHARE_CONTRIBUTIONS_FAVOR_A500_UNTIL_CORE_NOT_SMALLER_THAN_SATELLITE",
+        "role": "A股宽基核心"
+      },
+      "510500.SH": {
+        "policy": "NO_NEW_ADD_UNTIL_A500_CORE_WEIGHT_NOT_SMALLER_AND_R2_CONFIRMS_SATELLITE_BUDGET",
+        "role": "中盘卫星与基准工具"
+      }
+    },
+    "a_share_etf_count": 2,
+    "bond_fund_count": 3,
+    "holding_count": 7,
+    "records": [
+      {
+        "add_conditions": [
+          "cross-fund duration, credit and security overlap are acceptable",
+          "R2 confirms defensive-sleeve need",
+          "user approval"
+        ],
+        "asset_class": "BOND_FUND",
+        "coverage_source": "OFFICIAL_FUND_REPORT_AND_PRODUCT_DISCLOSURE",
+        "coverage_status": "DECISION_GRADE_LOOKTHROUGH_COMPLETE_WITH_DISCLOSED_SECURITY_OVERLAP_LIMITATION",
+        "current_weight": 0.25233425,
+        "exit_conditions": [
+          "mandate drift or persistent risk-adjusted underperformance after full-cycle review"
+        ],
+        "implementation_ready": false,
+        "lookthrough": {
+          "equity_weight_pct": 0.0,
+          "fixed_income_asset_pct": 98.21,
+          "latest_report": "2026Q2"
+        },
+        "mark_as_of": "2026-07-24",
+        "market_value": 113847.34257,
+        "order_authorized": false,
+        "portfolio_role": "纯固定收益防御锚",
+        "position_change_authorized": false,
+        "posture": "HOLD_NO_ADD_PENDING_CROSS_FUND_DURATION_CREDIT_OVERLAP",
+        "residual_evidence_limit": "Latest security-level common-holding percentage is not reliably quantified for all three funds; R1 therefore prohibits adding and passes aggregation risk to R2.",
+        "risk_style": "PURE_FIXED_INCOME_CREDIT_AND_DURATION",
+        "security_id": "017534.OF",
+        "security_name": "富国天利增长债券C",
+        "source_urls": [
+          "https://www.fullgoal.com.cn/noticedetails/106783/index.html",
+          "https://www.fullgoal.com.cn/fundDetail/017534/index.html?isdividend=1"
+        ],
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "overlap is high without differentiated role",
+          "duration/credit/equity beta exceeds R2 budget",
+          "inferior risk-adjusted role versus retained fund"
+        ]
+      },
+      {
+        "add_conditions": [
+          "cross-fund duration, credit and security overlap are acceptable",
+          "R2 confirms defensive-sleeve need",
+          "user approval"
+        ],
+        "asset_class": "BOND_FUND",
+        "coverage_source": "OFFICIAL_FUND_REPORT_AND_PRODUCT_DISCLOSURE",
+        "coverage_status": "DECISION_GRADE_LOOKTHROUGH_COMPLETE_WITH_DISCLOSED_SECURITY_OVERLAP_LIMITATION",
+        "current_weight": 0.22225698,
+        "exit_conditions": [
+          "mandate drift or persistent risk-adjusted underperformance after full-cycle review"
+        ],
+        "implementation_ready": false,
+        "lookthrough": {
+          "latest_report": "2026Q2_DISCLOSURE_CONFIRMED_DETAIL_FALLBACK_2026Q1_AND_PRODUCT_DOCUMENT"
+        },
+        "mark_as_of": "2026-07-24",
+        "market_value": 100277.17596,
+        "order_authorized": false,
+        "portfolio_role": "信用债与可转债增强收益",
+        "position_change_authorized": false,
+        "posture": "HOLD_NO_ADD_PENDING_LATEST_HOLDING_OVERLAP_AND_EQUITY_BETA_CONFIRMATION",
+        "residual_evidence_limit": "Latest security-level common-holding percentage is not reliably quantified for all three funds; R1 therefore prohibits adding and passes aggregation risk to R2.",
+        "risk_style": "ENHANCED_BOND_WITH_CONVERTIBLE_AND_EQUITY_OPTIONALITY",
+        "security_id": "110017.OF",
+        "security_name": "易方达增强回报债券A",
+        "source_urls": [
+          "https://cdn.efunds.com.cn/owch/data/bulletin/20260422/%E6%98%93%E6%96%B9%E8%BE%BE%E5%A2%9E%E5%BC%BA%E5%9B%9E%E6%8A%A5%E5%80%BA%E5%88%B8%E5%9E%8B%E8%AF%81%E5%88%B8%E6%8A%95%E8%B5%84%E5%9F%BA%E9%87%912026%E5%B9%B4%E7%AC%AC1%E5%AD%A3%E5%BA%A6%E6%8A%A5%E5%91%8A.pdf?from=org",
+          "https://cdn.efunds.com.cn/owch/data/bulletin/20251118/%E6%98%93%E6%96%B9%E8%BE%BE%E5%A2%9E%E5%BC%BA%E5%9B%9E%E6%8A%A5%E5%80%BA%E5%88%B8%E5%9E%8B%E8%AF%81%E5%88%B8%E6%8A%95%E8%B5%84%E5%9F%BA%E9%87%91%EF%BC%88%E6%98%93%E6%96%B9%E8%BE%BE%E5%A2%9E%E5%BC%BA%E5%9B%9E%E6%8A%A5%E5%80%BA%E5%88%B8A%EF%BC%89%E5%9F%BA%E9%87%91%E4%BA%A7%E5%93%81%E8%B5%84%E6%96%99%E6%A6%82%E8%A6%81%E6%9B%B4%E6%96%B0.pdf"
+        ],
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "overlap is high without differentiated role",
+          "duration/credit/equity beta exceeds R2 budget",
+          "inferior risk-adjusted role versus retained fund"
+        ]
+      },
+      {
+        "add_conditions": [
+          "R2 confirms total A-share equity budget",
+          "A500 core is not smaller than CSI500 satellite before further CSI500 adds",
+          "user approval"
+        ],
+        "asset_class": "A_SHARE_ETF",
+        "coverage_source": "R1_A_SHARE_CORE_SATELLITE_ROLE_CONFIRMATION",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_ROLE_CONFIRMED",
+        "current_weight": 0.07778748,
+        "exit_conditions": [
+          "the portfolio architecture no longer requires this sleeve"
+        ],
+        "implementation_ready": false,
+        "mark_as_of": "2026-07-24",
+        "market_value": 35095.9,
+        "order_authorized": false,
+        "portfolio_role": "A股宽基核心",
+        "position_change_authorized": false,
+        "posture": "FUTURE_A_SHARE_CONTRIBUTIONS_FAVOR_A500_UNTIL_CORE_NOT_SMALLER_THAN_SATELLITE",
+        "security_id": "159352.SZ",
+        "security_name": "南方中证A500ETF",
+        "source_urls": [],
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "R2 lowers the sleeve budget or identifies excessive duplication"
+        ]
+      },
+      {
+        "asset_class": "QDII_ETF",
+        "conditions_before_consolidation": [
+          "同一完整交易日比较成交额和买卖价差",
+          "比较实时折溢价和跟踪偏离",
+          "确认申赎状态和交易成本",
+          "用户明确批准"
+        ],
+        "coverage_source": "OFFICIAL_ETF_DISCLOSURE_AND_CURRENT_PCF_WITH_MARKET_LIQUIDITY_COMPARISON",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_SINGLE_VEHICLE_SELECTION_CONDITIONAL",
+        "current_weight": 0.04442383,
+        "economic_duplicate": true,
+        "fee_tie": {
+          "custody_fee_pct": 0.15,
+          "management_fee_pct": 0.6
+        },
+        "implementation_ready": false,
+        "mark_as_of": "2026-07-24",
+        "market_value": 20043.0,
+        "order_authorized": false,
+        "portfolio_role": "单一标普500美国大盘权益袖套",
+        "position_change_authorized": false,
+        "posture": "CONDITIONAL_CONSOLIDATION_SOURCE_VEHICLE",
+        "preferred_vehicle": false,
+        "security_id": "159612.SZ",
+        "security_name": "标普500ETF国泰",
+        "selection_reasons": [
+          "2026-06-30规模和份额显著高于159612",
+          "公开交易数据表明成交活跃度更高",
+          "2026-07-27官方PCF可用并披露申赎上限",
+          "两只产品均可能出现二级市场溢价，合并不得在异常溢价时执行"
+        ],
+        "source_urls": [
+          "https://www.chinaamc.com/product/getPortfolioCompositionFile.do?fundcode=159655",
+          "https://www.chinaamc.com/product/publishGgList.do?fundcode=159655",
+          "https://www.gtfund.com/Etrade/Report/fundreport/",
+          "https://e.gtfund.com/Etrade/Jijin/view/id/159612"
+        ],
+        "trade_authority": "NONE"
+      },
+      {
+        "asset_class": "QDII_ETF",
+        "conditions_before_consolidation": [
+          "同一完整交易日比较成交额和买卖价差",
+          "比较实时折溢价和跟踪偏离",
+          "确认申赎状态和交易成本",
+          "用户明确批准"
+        ],
+        "coverage_source": "OFFICIAL_ETF_DISCLOSURE_AND_CURRENT_PCF_WITH_MARKET_LIQUIDITY_COMPARISON",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_SINGLE_VEHICLE_SELECTION_CONDITIONAL",
+        "current_weight": 0.04758667,
+        "economic_duplicate": true,
+        "fee_tie": {
+          "custody_fee_pct": 0.15,
+          "management_fee_pct": 0.6
+        },
+        "implementation_ready": false,
+        "mark_as_of": "2026-07-24",
+        "market_value": 21470.0,
+        "order_authorized": false,
+        "portfolio_role": "单一标普500美国大盘权益袖套",
+        "position_change_authorized": false,
+        "posture": "CONDITIONAL_RETAIN_AS_SINGLE_VEHICLE",
+        "preferred_vehicle": true,
+        "security_id": "159655.SZ",
+        "security_name": "标普500ETF华夏",
+        "selection_reasons": [
+          "2026-06-30规模和份额显著高于159612",
+          "公开交易数据表明成交活跃度更高",
+          "2026-07-27官方PCF可用并披露申赎上限",
+          "两只产品均可能出现二级市场溢价，合并不得在异常溢价时执行"
+        ],
+        "source_urls": [
+          "https://www.chinaamc.com/product/getPortfolioCompositionFile.do?fundcode=159655",
+          "https://www.chinaamc.com/product/publishGgList.do?fundcode=159655",
+          "https://www.gtfund.com/Etrade/Report/fundreport/",
+          "https://e.gtfund.com/Etrade/Jijin/view/id/159612"
+        ],
+        "trade_authority": "NONE"
+      },
+      {
+        "add_conditions": [
+          "cross-fund duration, credit and security overlap are acceptable",
+          "R2 confirms defensive-sleeve need",
+          "user approval"
+        ],
+        "asset_class": "BOND_FUND",
+        "coverage_source": "OFFICIAL_FUND_REPORT_AND_PRODUCT_DISCLOSURE",
+        "coverage_status": "DECISION_GRADE_LOOKTHROUGH_COMPLETE_WITH_DISCLOSED_SECURITY_OVERLAP_LIMITATION",
+        "current_weight": 0.22323252,
+        "exit_conditions": [
+          "mandate drift or persistent risk-adjusted underperformance after full-cycle review"
+        ],
+        "implementation_ready": false,
+        "lookthrough": {
+          "benchmark": "中证国债指数收益率*95%+同业存款利率*5%",
+          "latest_report": "2026Q2",
+          "q2_return_pct": 4.65
+        },
+        "mark_as_of": "2026-07-24",
+        "market_value": 100717.31889,
+        "order_authorized": false,
+        "portfolio_role": "国债基准导向的主动债券防御仓",
+        "position_change_authorized": false,
+        "posture": "HOLD_NO_ADD_PENDING_SECURITY_LEVEL_OVERLAP_AND_DURATION_CONFIRMATION",
+        "residual_evidence_limit": "Latest security-level common-holding percentage is not reliably quantified for all three funds; R1 therefore prohibits adding and passes aggregation risk to R2.",
+        "risk_style": "GOVERNMENT_BOND_BENCHMARK_ACTIVE_BOND",
+        "security_id": "217003.OF",
+        "security_name": "招商安泰债券A",
+        "source_urls": [
+          "https://static.cmfchina.com/web/fundDetail/217003/index.html",
+          "https://static.cmfchina.com/web/noticedetails/224777/index.html"
+        ],
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "overlap is high without differentiated role",
+          "duration/credit/equity beta exceeds R2 budget",
+          "inferior risk-adjusted role versus retained fund"
+        ]
+      },
+      {
+        "add_conditions": [
+          "R2 confirms total A-share equity budget",
+          "A500 core is not smaller than CSI500 satellite before further CSI500 adds",
+          "user approval"
+        ],
+        "asset_class": "A_SHARE_ETF",
+        "coverage_source": "R1_A_SHARE_CORE_SATELLITE_ROLE_CONFIRMATION",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_ROLE_CONFIRMED",
+        "current_weight": 0.1321112,
+        "exit_conditions": [
+          "the portfolio architecture no longer requires this sleeve"
+        ],
+        "implementation_ready": false,
+        "mark_as_of": "2026-07-24",
+        "market_value": 59605.5,
+        "order_authorized": false,
+        "portfolio_role": "中盘卫星与基准工具",
+        "position_change_authorized": false,
+        "posture": "NO_NEW_ADD_UNTIL_A500_CORE_WEIGHT_NOT_SMALLER_AND_R2_CONFIRMS_SATELLITE_BUDGET",
+        "security_id": "510500.SH",
+        "security_name": "南方中证500ETF",
+        "source_urls": [],
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "R2 lowers the sleeve budget or identifies excessive duplication"
+        ]
+      }
+    ],
+    "sp500_single_vehicle_selection": {
+      "conditions_before_consolidation": [
+        "同一完整交易日比较成交额和买卖价差",
+        "比较实时折溢价和跟踪偏离",
+        "确认申赎状态和交易成本",
+        "用户明确批准"
+      ],
+      "fee_tie": {
+        "custody_fee_pct": 0.15,
+        "management_fee_pct": 0.6
+      },
+      "preference_status": "CONDITIONAL_PREFERRED_SINGLE_VEHICLE_NOT_TRADE_READY",
+      "preferred_vehicle": "159655.SZ",
+      "reasons": [
+        "2026-06-30规模和份额显著高于159612",
+        "公开交易数据表明成交活跃度更高",
+        "2026-07-27官方PCF可用并披露申赎上限",
+        "两只产品均可能出现二级市场溢价，合并不得在异常溢价时执行"
+      ],
+      "source_urls": [
+        "https://www.chinaamc.com/product/getPortfolioCompositionFile.do?fundcode=159655",
+        "https://www.chinaamc.com/product/publishGgList.do?fundcode=159655",
+        "https://www.gtfund.com/Etrade/Report/fundreport/",
+        "https://e.gtfund.com/Etrade/Jijin/view/id/159612"
+      ],
+      "strategic_exposure": "S&P500_US_LARGE_CAP"
+    },
+    "sp500_vehicle_count": 2
+  },
+  "simulation": {
+    "holding_count": 16,
+    "r1_new_standardized_count": 11,
+    "records": [
+      {
+        "add_conditions": [
+          "fresh completed close",
+          "current event classification",
+          "user position continuity",
+          "Base scenario expected return >=15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "confidence": "HIGH_FOR_COVERAGE_NOT_EXECUTION",
+        "coverage_source": "REUSED_WP4B_CORE2_HARDENED_RESEARCH",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_REUSED_NOT_REBUILT",
+        "current_mark": 84.5,
+        "current_unrealized_pnl_pct": 0.09201344,
+        "current_weight": 0.06706759,
+        "evidence_gaps": [
+          "fresh decision-date valuation and portfolio synthesis remain R2/R3 gates"
+        ],
+        "exit_conditions": [
+          "core thesis structurally invalidated"
+        ],
+        "implementation_ready": false,
+        "mark_as_of": "2026-07-24",
+        "market_value": 67600.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Core",
+        "portfolio_role": "稳健制造复利",
+        "position_change_authorized": false,
+        "posture": "HOLD_ADD_REVIEW_ONLY_AFTER_FRESH_MARK_EVENT_USER_GATES_AND_15_PERCENT_HURDLE",
+        "security_id": "000333.SZ",
+        "security_name": "美的集团",
+        "source_urls": [
+          "https://www.midea.com.cn/content/dam/mideacn-aem/%E6%8A%95%E8%B5%84%E8%80%85%E5%85%B3%E7%B3%BB/2025%E5%B9%B4%E5%BA%A6%E6%8A%A5%E5%91%8A.pdf.coredownload.inline.pdf",
+          "https://static.cninfo.com.cn/finalpage/2026-04-30/1225259066.PDF",
+          "https://www.reuters.com/world/asia-pacific/china-allocates-89-billion-fund-2026-consumer-goods-trade-in-scheme-2025-12-30/",
+          "https://www.reuters.com/business/electrolux-reports-surprise-q1-operating-loss-2026-04-24/"
+        ],
+        "thesis_summary": "2025年营业总收入4585亿元，归母净利润439.5亿元；海外收入1959亿元，同比增长16%；ToB收入1228亿元，同比增长17.5%。2026Q1营业总收入1315.81亿元，归母净利润126.75亿元。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "thesis deterioration",
+          "portfolio role or risk budget breach"
+        ],
+        "valuation_reference": {
+          "stale_pb": 2.73,
+          "stale_pe": 12.5
+        }
+      },
+      {
+        "add_conditions": [
+          "订单与高阶PCB产能兑现",
+          "盈利质量和经营现金流改善",
+          "Base情景预期收益不低于15%",
+          "重新满足Candidate准入"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-24_CLOSE",
+        "candidate_lane": "NOT_FOUND_OR_ETF",
+        "confidence": "MEDIUM_LOW",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 112.22,
+        "current_unrealized_pnl_pct": -0.1528648,
+        "current_weight": 0.02226723,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "核心客户或技术代际竞争力被证伪",
+          "连续报告期增长与现金流同时失速"
+        ],
+        "implementation_ready": false,
+        "key_risk": null,
+        "mark_as_of": "2026-07-24",
+        "market_value": 22444.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Growth/AI_PCB",
+        "portfolio_role": "AI服务器与高速通信PCB成长卫星",
+        "position_change_authorized": false,
+        "posture": "HOLD_NO_ADD_PENDING_THESIS_AND_VALUATION_REFRESH",
+        "security_id": "002463.SZ",
+        "security_name": "沪电股份",
+        "source_urls": [],
+        "thesis_summary": "Candidate evidence exists but remains insufficient for implementation-ready action.",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "AI/网络设备需求或订单可见度下修",
+          "毛利率持续弱于研究假设",
+          "组合内AI硬件暴露超过R2风险预算"
+        ],
+        "valuation_reference": {
+          "stale_pb": null,
+          "stale_pe": null,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "fresh completed close",
+          "current weight inside governed band",
+          "Base scenario expected return >=15%",
+          "user approval"
+        ],
+        "base_case_hurdle": 0.15,
+        "confidence": "HIGH_FOR_COVERAGE_NOT_EXECUTION",
+        "coverage_source": "REUSED_WP5_P0_PRIMARY_SOURCE_REUNDERWRITE",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_REUSED_NOT_REBUILT",
+        "current_mark": 59.35,
+        "current_unrealized_pnl_pct": -0.24892432,
+        "current_weight": 0.02355302,
+        "evidence_gaps": [
+          "fresh action-date mark and user continuity remain mandatory"
+        ],
+        "exit_conditions": [
+          "primary thesis invalidated"
+        ],
+        "implementation_ready": false,
+        "mark_as_of": "2026-07-24",
+        "market_value": 23740.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Growth",
+        "portfolio_role": "Growth",
+        "position_change_authorized": false,
+        "posture": "HOLD_REDUCED_OBSERVATION_POSITION_NO_ADD",
+        "security_id": "300124.SZ",
+        "security_name": "汇川技术",
+        "source_urls": [],
+        "thesis_summary": "Existing WP5 P0 primary-source re-underwrite remains governing.",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "weight exceeds governed band",
+          "research kill trigger"
+        ],
+        "valuation_reference": {
+          "stale_pb": null,
+          "stale_pe": null
+        }
+      },
+      {
+        "add_conditions": [
+          "fresh completed close",
+          "current weight inside governed band",
+          "Base scenario expected return >=15%",
+          "user approval"
+        ],
+        "base_case_hurdle": 0.15,
+        "confidence": "HIGH_FOR_COVERAGE_NOT_EXECUTION",
+        "coverage_source": "REUSED_WP5_P0_PRIMARY_SOURCE_REUNDERWRITE",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_REUSED_NOT_REBUILT",
+        "current_mark": 383.01,
+        "current_unrealized_pnl_pct": -0.15311989,
+        "current_weight": 0.03799934,
+        "evidence_gaps": [
+          "fresh action-date mark and user continuity remain mandatory"
+        ],
+        "exit_conditions": [
+          "primary thesis invalidated"
+        ],
+        "implementation_ready": false,
+        "mark_as_of": "2026-07-24",
+        "market_value": 38301.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Growth",
+        "portfolio_role": "Growth",
+        "position_change_authorized": false,
+        "posture": "HOLD_VALIDATION_POSITION_NO_ADD",
+        "security_id": "300750.SZ",
+        "security_name": "宁德时代",
+        "source_urls": [
+          "https://www.reuters.com/world/asia-pacific/china-allocates-89-billion-fund-2026-consumer-goods-trade-in-scheme-2025-12-30/",
+          "https://apnews.com/article/4bce218f337534299f230c510917b84c",
+          "https://www.reuters.com/world/asia-pacific/chinas-producer-inflation-hits-near-4-year-high-june-2026-07-09/"
+        ],
+        "thesis_summary": "全球电池技术与规模领先，长期渗透逻辑成立；模拟盘大幅亏损和海外监管风险要求降级验证而非真实迁移。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "weight exceeds governed band",
+          "research kill trigger"
+        ],
+        "valuation_reference": {
+          "stale_pb": 5.59,
+          "stale_pe": 22.02
+        }
+      },
+      {
+        "add_conditions": [
+          "R2确认中盘卫星预算",
+          "A500核心权重不低于中证500卫星",
+          "估值与风险溢价具备吸引力"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-24_CLOSE",
+        "candidate_lane": "NOT_FOUND_OR_ETF",
+        "confidence": "HIGH",
+        "coverage_source": "R1_ETF_ROLE_COVERAGE",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 7.545,
+        "current_unrealized_pnl_pct": -0.08832769,
+        "current_weight": 0.05314759,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "组合不再需要中盘卫星或基准工具"
+        ],
+        "implementation_ready": false,
+        "key_risk": null,
+        "mark_as_of": "2026-07-24",
+        "market_value": 53569.5,
+        "order_authorized": false,
+        "portfolio_bucket": "Benchmark ETF",
+        "portfolio_role": "A股中盘卫星与组合基准工具",
+        "position_change_authorized": false,
+        "posture": "HOLD_NO_AUTOMATIC_TOP_UP_PENDING_R2_SATELLITE_BUDGET",
+        "security_id": "510500.SH",
+        "security_name": "南方中证500ETF",
+        "source_urls": [],
+        "thesis_summary": "中证500提供A股中盘卫星与基准暴露，不是因历史目标权重而自动补仓。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "与主动中盘持仓或真实账户中证500形成过度重复",
+          "R2降低中盘风险预算"
+        ],
+        "valuation_reference": {
+          "stale_pb": null,
+          "stale_pe": null,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "净息差企稳",
+          "不良率与拨备覆盖率保持稳健",
+          "财富管理收入恢复",
+          "Base情景预期收益不低于15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-20",
+        "candidate_lane": "CANDIDATE_CORE",
+        "confidence": "MEDIUM_HIGH",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 39.2,
+        "current_unrealized_pnl_pct": 0.10671937,
+        "current_weight": 0.06222602,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "资产质量和资本回报长期性被证伪"
+        ],
+        "implementation_ready": false,
+        "key_risk": "净息差、地产/零售资产质量和财富管理恢复。",
+        "mark_as_of": "2026-07-24",
+        "market_value": 62720.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Core/Financial",
+        "portfolio_role": "优质零售银行与防御金融核心",
+        "position_change_authorized": false,
+        "posture": "HOLD_ADD_ONLY_AFTER_NIM_ASSET_QUALITY_AND_HURDLE_PASS",
+        "security_id": "600036.SH",
+        "security_name": "招商银行",
+        "source_urls": [
+          "https://s3gw.cmbchina.com/lb5001-cmbweb-prd-1255000097/cmbir/20260123/721c99c0-1b86-47f7-ab46-e4b6aa68da0e.pdf",
+          "https://s3gw.cmbimg.com/lb5001-cmbweb-prd-1255000097/cmbir/20260428/f5389af9-f24a-49ff-8952-258f5dcb7bcf.pdf",
+          "https://www.reuters.com/world/china/fitch-raises-china-major-state-banks-ratings-2025-04-08/",
+          "https://www.reuters.com/world/china/china-breaks-step-with-global-markets-investors-buy-2026-07-07/"
+        ],
+        "thesis_summary": "2025年业绩快报披露营业收入3375.32亿元、归母净利润1501.81亿元。2026Q1营业收入869.40亿元，同比增长3.81%；归母净利润378.52亿元，同比增长1.52%；净息差1.83%；不良贷款率0.94%，拨备覆盖率387.76%。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "净息差恶化超过假设",
+          "零售或地产资产质量显著恶化",
+          "与银行ETF或红利金融暴露重复"
+        ],
+        "valuation_reference": {
+          "stale_pb": 0.88,
+          "stale_pe": 6.55,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "核心管线临床或审批里程碑兑现",
+          "新品放量和海外授权改善利润质量",
+          "Base情景预期收益不低于15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-20",
+        "candidate_lane": "CANDIDATE_CORE",
+        "confidence": "MEDIUM",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 53.45,
+        "current_unrealized_pnl_pct": 0.0632584,
+        "current_weight": 0.04242322,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "研发平台与核心产品竞争力被系统性证伪"
+        ],
+        "implementation_ready": false,
+        "key_risk": "研发失败、医保定价、授权兑现和估值。",
+        "mark_as_of": "2026-07-24",
+        "market_value": 42760.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Growth/Medical",
+        "portfolio_role": "创新药研发与商业化成长卫星",
+        "position_change_authorized": false,
+        "posture": "HOLD_ADD_ONLY_AFTER_PIPELINE_COMMERCIALIZATION_AND_HURDLE_PASS",
+        "security_id": "600276.SH",
+        "security_name": "恒瑞医药",
+        "source_urls": [
+          "https://www.reuters.com/business/healthcare-pharmaceuticals/china-adds-second-glp-1-diabetes-drug-essential-medicine-list-2026-07-09/"
+        ],
+        "thesis_summary": "创新药管线和授权交易环境改善，模拟盘表现较强；政策与研发兑现风险仍要求模拟验证。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "关键管线失败或商业化低于预期",
+          "研发费用上升但产出效率下降",
+          "估值透支中期增长"
+        ],
+        "valuation_reference": {
+          "stale_pb": 5.16,
+          "stale_pe": 35.25,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "MDI及新材料盈利处于周期中枢以下但供需改善",
+          "资本开支和现金流可控",
+          "Base情景预期收益不低于15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-20",
+        "candidate_lane": "CANDIDATE_CORE",
+        "confidence": "MEDIUM",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 73.75,
+        "current_unrealized_pnl_pct": 0.05342094,
+        "current_weight": 0.0512184,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "成本优势、技术壁垒或资本纪律被证伪"
+        ],
+        "implementation_ready": false,
+        "key_risk": "化工价差、原料成本、扩产周期。",
+        "mark_as_of": "2026-07-24",
+        "market_value": 51625.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Cycle",
+        "portfolio_role": "化工周期中的全球成本与技术领先者",
+        "position_change_authorized": false,
+        "posture": "HOLD_ADD_ONLY_AT_CYCLE_NORMALIZED_MARGIN_AND_VALUATION",
+        "security_id": "600309.SH",
+        "security_name": "万华化学",
+        "source_urls": [
+          "https://www.reuters.com/world/asia-pacific/chinas-producer-inflation-hits-near-4-year-high-june-2026-07-09/",
+          "https://www.reuters.com/business/energy/fuel-markets-flash-supply-crunch-despite-calmer-oil-prices-2026-07-09/"
+        ],
+        "thesis_summary": "一体化化工龙头和成本优势明显；当前原料价格与需求传导对利润率的影响需重估。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "产品价差处于高位且估值同步扩张",
+          "大额资本开支导致自由现金流和杠杆恶化",
+          "全球需求显著下修"
+        ],
+        "valuation_reference": {
+          "stale_pb": 2.09,
+          "stale_pe": 15.09,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "电网投资与订单持续增长",
+          "应收和经营现金流匹配收入增长",
+          "Base情景预期收益不低于15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-20",
+        "candidate_lane": "CANDIDATE_CORE",
+        "confidence": "MEDIUM_HIGH",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 23.58,
+        "current_unrealized_pnl_pct": 0.04428698,
+        "current_weight": 0.04210971,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "核心电网自动化竞争地位被证伪"
+        ],
+        "implementation_ready": false,
+        "key_risk": "电网投资节奏、订单利润率和估值。",
+        "mark_as_of": "2026-07-24",
+        "market_value": 42444.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Defensive",
+        "portfolio_role": "电网自动化与新型电力系统防御成长",
+        "position_change_authorized": false,
+        "posture": "HOLD_ADD_ONLY_AFTER_ORDER_CASH_CONVERSION_AND_HURDLE_PASS",
+        "security_id": "600406.SH",
+        "security_name": "国电南瑞",
+        "source_urls": [
+          "https://www.reuters.com/world/asia-pacific/china-allocates-89-billion-fund-2026-consumer-goods-trade-in-scheme-2025-12-30/",
+          "https://apnews.com/article/4bce218f337534299f230c510917b84c",
+          "https://www.reuters.com/world/asia-pacific/chinas-producer-inflation-hits-near-4-year-high-june-2026-07-09/"
+        ],
+        "thesis_summary": "电网自动化和数字化龙头，受益电网投资；需验证订单、利润率和估值。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "电网投资或订单执行明显放缓",
+          "现金转化恶化",
+          "估值显著高于增长中枢"
+        ],
+        "valuation_reference": {
+          "stale_pb": 3.49,
+          "stale_pe": 64.7,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "全球产能扩张与SAM渗透兑现",
+          "海外盈利和自由现金流改善",
+          "组合权重回到R2上限以内",
+          "Base情景预期收益不低于15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-20",
+        "candidate_lane": "CANDIDATE_CORE",
+        "confidence": "MEDIUM_HIGH",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 55.67,
+        "current_unrealized_pnl_pct": 0.11630239,
+        "current_weight": 0.08837047,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "全球成本优势与客户粘性被证伪"
+        ],
+        "implementation_ready": false,
+        "key_risk": "汽车周期、美国贸易与海外产能。",
+        "mark_as_of": "2026-07-24",
+        "market_value": 89072.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Core",
+        "portfolio_role": "全球汽车玻璃与高附加值制造核心",
+        "position_change_authorized": false,
+        "posture": "HOLD_NO_ADD_WHILE_ABOVE_REFERENCE_ROLE_WEIGHT",
+        "security_id": "600660.SH",
+        "security_name": "福耀玻璃",
+        "source_urls": [
+          "https://www.reuters.com/world/asia-pacific/china-allocates-89-billion-fund-2026-consumer-goods-trade-in-scheme-2025-12-30/",
+          "https://www.reuters.com/business/electrolux-reports-surprise-q1-operating-loss-2026-04-24/"
+        ],
+        "thesis_summary": "全球汽车玻璃龙头、成本与客户壁垒较强；需核验海外产能、汽车周期和贸易风险。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "海外关税或美国运营显著侵蚀利润率",
+          "当前权重超过R2核心仓上限",
+          "汽车周期下行超过假设"
+        ],
+        "valuation_reference": {
+          "stale_pb": 3.79,
+          "stale_pe": 19.96,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "R2确认与美的集团的角色差异和总家电风险预算",
+          "海外份额、利润率和现金流改善",
+          "Base情景预期收益不低于15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-20",
+        "candidate_lane": "CANDIDATE_CORE",
+        "confidence": "MEDIUM",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 21.76,
+        "current_unrealized_pnl_pct": 0.0682376,
+        "current_weight": 0.03885951,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "全球品牌与效率提升逻辑被证伪且存在更优替代"
+        ],
+        "implementation_ready": false,
+        "key_risk": "海外需求、汇率、关税和利润率。",
+        "mark_as_of": "2026-07-24",
+        "market_value": 39168.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Core",
+        "portfolio_role": "全球家电品牌与运营效率核心",
+        "position_change_authorized": false,
+        "posture": "HOLD_UNDERWEIGHT_NO_ADD_BEFORE_MIDEA_OVERLAP_REVIEW",
+        "security_id": "600690.SH",
+        "security_name": "海尔智家",
+        "source_urls": [
+          "https://www.reuters.com/world/asia-pacific/china-allocates-89-billion-fund-2026-consumer-goods-trade-in-scheme-2025-12-30/",
+          "https://www.reuters.com/business/electrolux-reports-surprise-q1-operating-loss-2026-04-24/"
+        ],
+        "thesis_summary": "全球品牌和高端化能力较强，与美的构成家电双标比较；需验证利润率和海外需求。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "与美的集团形成无补偿的重复暴露",
+          "海外盈利能力下滑",
+          "估值不再补偿增长差异"
+        ],
+        "valuation_reference": {
+          "stale_pb": 1.58,
+          "stale_pe": 10.65,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "fresh completed close",
+          "current event classification",
+          "user position continuity",
+          "Base scenario expected return >=15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "confidence": "HIGH_FOR_COVERAGE_NOT_EXECUTION",
+        "coverage_source": "REUSED_WP4B_CORE2_HARDENED_RESEARCH",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_REUSED_NOT_REBUILT",
+        "current_mark": 28.9,
+        "current_unrealized_pnl_pct": 0.06016141,
+        "current_weight": 0.06307925,
+        "evidence_gaps": [
+          "fresh decision-date valuation and portfolio synthesis remain R2/R3 gates"
+        ],
+        "exit_conditions": [
+          "core thesis structurally invalidated"
+        ],
+        "implementation_ready": false,
+        "mark_as_of": "2026-07-24",
+        "market_value": 63580.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Core/Dividend",
+        "portfolio_role": "低波公用事业",
+        "position_change_authorized": false,
+        "posture": "HOLD_NO_ADD_AT_CURRENT_MARK_UNDER_CURRENT_BASE_ASSUMPTIONS",
+        "security_id": "600900.SH",
+        "security_name": "长江电力",
+        "source_urls": [
+          "https://static.cninfo.com.cn/finalpage/2026-04-30/1225262036.PDF",
+          "https://pdf.dfcfw.com/pdf/H3_AP202605021821935430_1.pdf?1777912268000.pdf=",
+          "https://www.reuters.com/business/energy/fuel-markets-flash-supply-crunch-despite-calmer-oil-prices-2026-07-09/",
+          "https://www.reuters.com/world/china/china-breaks-step-with-global-markets-investors-buy-2026-07-07/"
+        ],
+        "thesis_summary": "2025年营业收入862.42亿元，同比增长2.07%；归母净利润345.03亿元，同比增长6.17%；境内六座梯级电站发电量3071.94亿千瓦时，同比增长3.82%；2025年度每10股派现10元，分红比例约71%，并规划2026-2030年每年现金分红不低于归母净利润70%。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "thesis deterioration",
+          "portfolio role or risk budget breach"
+        ],
+        "valuation_reference": {
+          "stale_pb": 3.04,
+          "stale_pe": 25.59
+        }
+      },
+      {
+        "add_conditions": [
+          "油价和产量假设下仍具备15%以上Base收益",
+          "自由现金流覆盖资本开支和股息",
+          "R2能源周期预算允许"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-20",
+        "candidate_lane": "CANDIDATE_CORE",
+        "confidence": "MEDIUM_HIGH",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 31.91,
+        "current_unrealized_pnl_pct": 0.21515613,
+        "current_weight": 0.05698562,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "低成本资源、储量接替或股息政策被证伪"
+        ],
+        "implementation_ready": false,
+        "key_risk": "油价、地缘、资源税和资本开支。",
+        "mark_as_of": "2026-07-24",
+        "market_value": 57438.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Cycle/Dividend",
+        "portfolio_role": "油气周期、低成本资源与股息卫星",
+        "position_change_authorized": false,
+        "posture": "HOLD_NO_CHASE_TRIM_ON_CYCLE_OR_DIVIDEND_DETERIORATION",
+        "security_id": "600938.SH",
+        "security_name": "中国海油",
+        "source_urls": [
+          "https://www.reuters.com/business/energy/fuel-markets-flash-supply-crunch-despite-calmer-oil-prices-2026-07-09/",
+          "https://www.reuters.com/world/china/china-breaks-step-with-global-markets-investors-buy-2026-07-07/"
+        ],
+        "thesis_summary": "低成本上游资产和分红能力较强；当前油价地缘波动使其保持价值但不适合追涨。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "油价或实现价格低于中期假设",
+          "资本开支上升侵蚀自由现金流",
+          "能源周期暴露过高"
+        ],
+        "valuation_reference": {
+          "stale_pb": 1.89,
+          "stale_pe": 10.13,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "主营收入和利润恢复增长",
+          "资本开支纪律与自由现金流稳定",
+          "股息可持续",
+          "Base情景预期收益不低于15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-20",
+        "candidate_lane": "CANDIDATE_CORE",
+        "confidence": "MEDIUM_HIGH",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 94.69,
+        "current_unrealized_pnl_pct": 0.08876624,
+        "current_weight": 0.06576096,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "现金流与股息核心逻辑被证伪"
+        ],
+        "implementation_ready": false,
+        "key_risk": "主营增长放缓、资本开支和红利ETF替代。",
+        "mark_as_of": "2026-07-24",
+        "market_value": 66283.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Core/Dividend",
+        "portfolio_role": "高股息通信现金流与数字基础设施核心",
+        "position_change_authorized": false,
+        "posture": "HOLD_ADD_ONLY_AFTER_PROFIT_FCF_DIVIDEND_AND_HURDLE_PASS",
+        "security_id": "600941.SH",
+        "security_name": "中国移动",
+        "source_urls": [
+          "https://file.finance.sina.com.cn/211.154.219.97%3A9494/MRGG/CNSESH_STOCK/2026/2026-3/2026-03-27/12022999.PDF",
+          "https://stockmc.xueqiu.com/202604/600941_20260421_7CDU.pdf",
+          "https://www.reuters.com/world/china/china-prepares-295-billion-plan-fund-nationwide-ai-buildout-bloomberg-news-2026-06-09/",
+          "https://www.reuters.com/world/china/chinas-deepseek-developing-its-own-ai-chip-sources-say-2026-07-07/"
+        ],
+        "thesis_summary": "2025年营运利润1489亿元，股东应占利润1371亿元；2025年全年股息合计每股5.27港元。2026Q1营业收入2665亿元，同比增长1.0%；主营业务收入2199亿元，同比下降1.1%；归母净利润293亿元，同比下降4.2%。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "主营与利润持续下滑",
+          "资本开支抬升但回报不足",
+          "估值不再补偿低增长或与红利ETF重复"
+        ],
+        "valuation_reference": {
+          "stale_pb": 1.45,
+          "stale_pe": 17.57,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      },
+      {
+        "add_conditions": [
+          "fresh completed close",
+          "current weight inside governed band",
+          "Base scenario expected return >=15%",
+          "user approval"
+        ],
+        "base_case_hurdle": 0.15,
+        "confidence": "HIGH_FOR_COVERAGE_NOT_EXECUTION",
+        "coverage_source": "REUSED_WP5_P0_PRIMARY_SOURCE_REUNDERWRITE",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_REUSED_NOT_REBUILT",
+        "current_mark": 60.25,
+        "current_unrealized_pnl_pct": -0.21834458,
+        "current_weight": 0.03586528,
+        "evidence_gaps": [
+          "fresh action-date mark and user continuity remain mandatory"
+        ],
+        "exit_conditions": [
+          "primary thesis invalidated"
+        ],
+        "implementation_ready": false,
+        "mark_as_of": "2026-07-24",
+        "market_value": 36150.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Growth/AI_Hardware",
+        "portfolio_role": "Growth/AI_Hardware",
+        "position_change_authorized": false,
+        "posture": "HOLD_REDUCED_WEIGHT_NO_ADD",
+        "security_id": "601138.SH",
+        "security_name": "工业富联",
+        "source_urls": [
+          "https://www.reuters.com/world/china/china-prepares-295-billion-plan-fund-nationwide-ai-buildout-bloomberg-news-2026-06-09/",
+          "https://www.reuters.com/world/china/chinas-deepseek-developing-its-own-ai-chip-sources-say-2026-07-07/"
+        ],
+        "thesis_summary": "AI服务器和数据中心需求提供景气弹性；模拟盘仍明显亏损，估值与客户集中风险要求继续验证。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "weight exceeds governed band",
+          "research kill trigger"
+        ],
+        "valuation_reference": {
+          "stale_pb": 7.9,
+          "stale_pe": 32.84
+        }
+      },
+      {
+        "add_conditions": [
+          "核心项目投产和成本兑现",
+          "铜金中期价格假设支持",
+          "杠杆与资本开支可控",
+          "Base情景预期收益不低于15%"
+        ],
+        "base_case_hurdle": 0.15,
+        "candidate_evidence_as_of": "2026-07-20",
+        "candidate_lane": "CANDIDATE_CORE",
+        "confidence": "MEDIUM",
+        "coverage_source": "R1_STANDARDIZED_FROM_CANDIDATE_PRIMARY_SOURCE_EVIDENCE_AND_PORTFOLIO_POLICY",
+        "coverage_status": "DECISION_COVERAGE_COMPLETE_NOT_IMPLEMENTATION_READY",
+        "current_mark": 31.51,
+        "current_unrealized_pnl_pct": 0.02772342,
+        "current_weight": 0.03126183,
+        "evidence_gaps": [
+          "fresh scenario valuation",
+          "R2 portfolio risk budget",
+          "R3 unified action comparison"
+        ],
+        "exit_conditions": [
+          "资源质量、项目执行或资本纪律被证伪"
+        ],
+        "implementation_ready": false,
+        "key_risk": "金铜价格、海外政治和项目执行。",
+        "mark_as_of": "2026-07-24",
+        "market_value": 31510.0,
+        "order_authorized": false,
+        "portfolio_bucket": "Cycle",
+        "portfolio_role": "铜金资源成长与商品周期卫星",
+        "position_change_authorized": false,
+        "posture": "HOLD_ADD_ONLY_AFTER_PROJECT_COST_COMMODITY_AND_HURDLE_PASS",
+        "security_id": "601899.SH",
+        "security_name": "紫金矿业",
+        "source_urls": [
+          "https://www.reuters.com/world/asia-pacific/chinas-producer-inflation-hits-near-4-year-high-june-2026-07-09/",
+          "https://www.reuters.com/business/energy/fuel-markets-flash-supply-crunch-despite-calmer-oil-prices-2026-07-09/"
+        ],
+        "thesis_summary": "多金属资源平台和全球化执行力优于多数矿业同业；商品价格高波动要求只保留核心资源样本。",
+        "trade_authority": "NONE",
+        "trim_conditions": [
+          "铜金价格或成本假设下修",
+          "项目延期或资本开支超支",
+          "商品风险预算超限"
+        ],
+        "valuation_reference": {
+          "stale_pb": 3.92,
+          "stale_pe": 9.63,
+          "valuation_posture": "REQUIRES_FRESH_SCENARIO_AT_R3_ACTION_GATE"
+        }
+      }
+    ],
+    "reused_core2_count": 2,
+    "reused_p0_count": 3
+  },
+  "source_branch": "agent/r1-decision-coverage-completion",
+  "source_head_sha": "2a934babdc463f319977cf64674ccdabd1603430",
+  "source_pr": 153,
+  "status": "DECISION_COVERAGE_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_NOT_IMPLEMENTATION_READY",
+  "trade_authority": "NONE"
+}

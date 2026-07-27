@@ -16,6 +16,13 @@
     "user_decision_pack_delivered": true
   },
   "contract_id": "WP5_PORTFOLIO_DECISION_CONTRACT_V2_R0_FREEZE",
+  "current_completion_state": {
+    "all_current_positions_covered": true,
+    "orders_created": 0,
+    "portfolio_construction_synthesis_delivered": false,
+    "position_action_matrix_delivered": false,
+    "user_decision_pack_delivered": false
+  },
   "fixed_workstreams": {
     "WP5-1": {
       "evidence": [
@@ -26,18 +33,15 @@
     },
     "WP5-2": {
       "completed": [
-        "CORE2_2",
-        "P0_SIMULATION_3",
-        "REAL_ACCOUNT_FIRST_PASS_7"
-      ],
-      "name": "DECISION_GRADE_COVERAGE_COMPLETION",
-      "remaining": [
-        "SIMULATION_DECISION_GRADE_11",
-        "BOND_FUND_FULL_LOOKTHROUGH_3",
-        "SP500_SINGLE_VEHICLE_SELECTION",
+        "SIMULATION_DECISION_COVERAGE_16_OF_16",
+        "REAL_PRODUCT_DECISION_COVERAGE_7_OF_7",
+        "BOND_FUND_DECISION_GRADE_LOOKTHROUGH_3_WITH_DISCLOSED_SECURITY_OVERLAP_LIMITATION",
+        "SP500_SINGLE_VEHICLE_CONDITIONAL_SELECTION_159655",
         "A500_CSI500_ROLE_CONFIRMATION"
       ],
-      "status": "PARTIALLY_COMPLETE"
+      "name": "DECISION_GRADE_COVERAGE_COMPLETION",
+      "remaining": [],
+      "status": "COMPLETED_CURRENT_IF_PRESENT_ON_MAIN"
     },
     "WP5-3": {
       "name": "PORTFOLIO_CONSTRUCTION_SYNTHESIS",
@@ -78,12 +82,12 @@
     "completed_close_gate": "INSTALLED_PR149",
     "user_position_continuity": "INSTALLED_PR150"
   },
-  "next_task": "R1_DECISION_COVERAGE_COMPLETION_AFTER_R0_PRESENT_ON_MAIN",
+  "next_task": "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_AFTER_R1_PRESENT_ON_MAIN",
   "phase": "WP5_PORTFOLIO_DECISION_PHASE",
   "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
   "real_account_cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED_NO_FIXED_STRATEGIC_CASH_TARGET",
-  "source_head_sha": "ee9cd9af5122af9506a0da844d837cfce6c57c44",
-  "source_pr": 152,
-  "status": "PARTIALLY_COMPLETE_NO_USER_ACTION_PACK",
+  "source_head_sha": "2a934babdc463f319977cf64674ccdabd1603430",
+  "source_pr": 153,
+  "status": "WP5_2_DECISION_GRADE_COVERAGE_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN",
   "trade_authority": "NONE"
 }

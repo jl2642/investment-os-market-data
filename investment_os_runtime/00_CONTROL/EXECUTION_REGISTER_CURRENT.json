@@ -1,14 +1,14 @@
 {
   "canonical_acceptance_status": "ACCEPTED_CANONICAL",
-  "current_step": "R0_PRODUCT_AUTHORITY_FREEZE_CURRENT_IF_PRESENT_ON_MAIN",
+  "current_step": "R1_DECISION_COVERAGE_CURRENT_IF_PRESENT_ON_MAIN",
   "development_roadmap": {
     "R0": {
       "name": "PRODUCT_AUTHORITY_FREEZE",
-      "status": "CURRENT_IF_PRESENT_ON_MAIN"
+      "status": "COMPLETED_ON_MAIN"
     },
     "R1": {
       "name": "DECISION_COVERAGE_COMPLETION",
-      "status": "NOT_STARTED"
+      "status": "CURRENT_IF_PRESENT_ON_MAIN"
     },
     "R2": {
       "name": "PORTFOLIO_CONSTRUCTION_SYNTHESIS",
@@ -34,7 +34,7 @@
   "file_library_promotion_status": "PENDING_MANUAL_UPLOAD",
   "github_main_head_at_wp3_2a_closure": "9305fd210c1729a7227e0e633eed5e29984bc261",
   "github_main_head_at_wp3_3_4_closure": "RESOLVED_BY_GIT_HISTORY_ON_PR_MERGE",
-  "github_merge_sha": "247203c005b76cfa32a0d04d31390631c304e738",
+  "github_merge_sha": "42b34c327fa5b1168c4e9d11846ba1e0f6712ac6",
   "historical_wp5_label_map": {
     "WP5-A": "WP5-1_START_AND_INPUT_FREEZE",
     "WP5-B": "WP5-1_FULL_POSITION_DIAGNOSTIC",
@@ -45,9 +45,9 @@
     "WP5-G": "WP5-2_REAL_ACCOUNT_FIRST_PASS_AND_GOVERNANCE_REPAIR",
     "WP5-H": "VOID_NOT_STARTED"
   },
-  "latest_completed_main_merge_sha": "247203c005b76cfa32a0d04d31390631c304e738",
-  "latest_completed_main_pr": 151,
-  "latest_governed_merge_sha": "247203c005b76cfa32a0d04d31390631c304e738",
+  "latest_completed_main_merge_sha": "42b34c327fa5b1168c4e9d11846ba1e0f6712ac6",
+  "latest_completed_main_pr": 152,
+  "latest_governed_merge_sha": "42b34c327fa5b1168c4e9d11846ba1e0f6712ac6",
   "mutation_proof": {
     "automatic_rule_mutations": 0,
     "automation_activations": "GITHUB_ACTIVE_PROPOSAL_ONLY_HUMAN_GOVERNED",
@@ -64,8 +64,8 @@
     "simulation_trade_mutations": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "R1_DECISION_COVERAGE_COMPLETION_AFTER_R0_PRESENT_ON_MAIN",
-  "overall_status": "PRODUCT_AUTHORITY_FROZEN_CURRENT_IF_PRESENT_ON_MAIN_DEVELOPMENT_PAUSED",
+  "next_task": "R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_AFTER_R1_PRESENT_ON_MAIN",
+  "overall_status": "R1_DECISION_COVERAGE_COMPLETE_CONDITIONAL_ON_PR153_MERGE_R2_NOT_STARTED",
   "previous_wp1_5d_metadata_sha": "5a7e4f13e8f02eaa56f88ebbd8e924e08ed79124",
   "product_authority": {
     "capability_matrix_path": "investment_os_runtime/00_CONTROL/CAPABILITY_REALITY_MATRIX_CURRENT.md",
@@ -79,6 +79,18 @@
     "source_pr": 152,
     "status": "CURRENT_IF_PRESENT_ON_MAIN",
     "user_guide_path": "investment_os_runtime/00_CONTROL/USER_OPERATING_GUIDE_CURRENT.md"
+  },
+  "r1_decision_coverage": {
+    "implementation_ready_count": 0,
+    "real_product_complete": 7,
+    "real_product_total": 7,
+    "simulation_complete": 16,
+    "simulation_total": 16,
+    "source_branch": "agent/r1-decision-coverage-completion",
+    "source_head_sha": "2a934babdc463f319977cf64674ccdabd1603430",
+    "source_pr": 153,
+    "status": "CURRENT_IF_PRESENT_ON_MAIN",
+    "trade_authority": "NONE"
   },
   "r2": {
     "acceptance_path": "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json",
@@ -558,11 +570,13 @@
     "core2_scenario_unit_scale_repaired": true,
     "decision_current_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json",
     "decision_grade_coverage": {
-      "bond_fund_full_lookthrough_complete": false,
-      "real_account_first_pass_complete": 7,
-      "simulation_higher_grade_complete": 5,
-      "simulation_remaining": 11,
-      "simulation_total": 16
+      "a_share_core_satellite_role_confirmed": true,
+      "bond_fund_lookthrough_status": "DECISION_GRADE_COMPLETE_WITH_RESIDUAL_SECURITY_OVERLAP_LIMITATION",
+      "real_product_complete": 7,
+      "real_product_total": 7,
+      "simulation_complete": 16,
+      "simulation_total": 16,
+      "sp500_preferred_vehicle": "159655.SZ_CONDITIONAL"
     },
     "decision_input_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json",
     "forced_action_prohibited": true,
@@ -602,11 +616,11 @@
     "real_account_structure_review_complete": true,
     "real_account_structure_review_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT.json",
     "reason": "R2_ACCEPTED_ON_MAIN_WP5_REQUIRES_SEPARATE_EXPLICIT_START",
-    "source_head_sha": "ee9cd9af5122af9506a0da844d837cfce6c57c44",
-    "source_pr": 152,
+    "source_head_sha": "2a934babdc463f319977cf64674ccdabd1603430",
+    "source_pr": 153,
     "sp500_duplicate_exposure_identified": true,
     "start_allowed": true,
-    "status": "PARTIALLY_COMPLETE_NO_USER_ACTION_PACK",
+    "status": "WP5_2_DECISION_GRADE_COVERAGE_COMPLETE_NO_USER_ACTION_PACK",
     "trade_authority": "NONE",
     "user_decision_pack_complete": false,
     "user_decision_queue_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json",

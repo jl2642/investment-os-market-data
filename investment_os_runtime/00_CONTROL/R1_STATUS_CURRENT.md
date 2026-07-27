@@ -1,0 +1,40 @@
+# 股票投资助手｜R1 Decision Coverage CURRENT
+
+- 状态：`CURRENT_IF_PRESENT_ON_MAIN`
+- 来源PR：`#153`
+- R0合并SHA：`42b34c327fa5b1168c4e9d11846ba1e0f6712ac6`
+- 模拟盘覆盖：`16/16`
+- 真实账户产品覆盖：`7/7`
+- Implementation Ready：`0`
+- 交易权限：`NONE`
+
+## 模拟盘统一覆盖
+
+| 代码 | 标的 | 组合角色 | 当前条件判断 | 置信度 |
+|---|---|---|---|---|
+| 000333.SZ | 美的集团 | 稳健制造复利 | `HOLD_ADD_REVIEW_ONLY_AFTER_FRESH_MARK_EVENT_USER_GATES_AND_15_PERCENT_HURDLE` | HIGH_FOR_COVERAGE_NOT_EXECUTION |
+| 002463.SZ | 沪电股份 | AI服务器与高速通信PCB成长卫星 | `HOLD_NO_ADD_PENDING_THESIS_AND_VALUATION_REFRESH` | MEDIUM_LOW |
+| 300124.SZ | 汇川技术 | Growth | `HOLD_REDUCED_OBSERVATION_POSITION_NO_ADD` | HIGH_FOR_COVERAGE_NOT_EXECUTION |
+| 300750.SZ | 宁德时代 | Growth | `HOLD_VALIDATION_POSITION_NO_ADD` | HIGH_FOR_COVERAGE_NOT_EXECUTION |
+| 510500.SH | 南方中证500ETF | A股中盘卫星与组合基准工具 | `HOLD_NO_AUTOMATIC_TOP_UP_PENDING_R2_SATELLITE_BUDGET` | HIGH |
+| 600036.SH | 招商银行 | 优质零售银行与防御金融核心 | `HOLD_ADD_ONLY_AFTER_NIM_ASSET_QUALITY_AND_HURDLE_PASS` | MEDIUM_HIGH |
+| 600276.SH | 恒瑞医药 | 创新药研发与商业化成长卫星 | `HOLD_ADD_ONLY_AFTER_PIPELINE_COMMERCIALIZATION_AND_HURDLE_PASS` | MEDIUM |
+| 600309.SH | 万华化学 | 化工周期中的全球成本与技术领先者 | `HOLD_ADD_ONLY_AT_CYCLE_NORMALIZED_MARGIN_AND_VALUATION` | MEDIUM |
+| 600406.SH | 国电南瑞 | 电网自动化与新型电力系统防御成长 | `HOLD_ADD_ONLY_AFTER_ORDER_CASH_CONVERSION_AND_HURDLE_PASS` | MEDIUM_HIGH |
+| 600660.SH | 福耀玻璃 | 全球汽车玻璃与高附加值制造核心 | `HOLD_NO_ADD_WHILE_ABOVE_REFERENCE_ROLE_WEIGHT` | MEDIUM_HIGH |
+| 600690.SH | 海尔智家 | 全球家电品牌与运营效率核心 | `HOLD_UNDERWEIGHT_NO_ADD_BEFORE_MIDEA_OVERLAP_REVIEW` | MEDIUM |
+| 600900.SH | 长江电力 | 低波公用事业 | `HOLD_NO_ADD_AT_CURRENT_MARK_UNDER_CURRENT_BASE_ASSUMPTIONS` | HIGH_FOR_COVERAGE_NOT_EXECUTION |
+| 600938.SH | 中国海油 | 油气周期、低成本资源与股息卫星 | `HOLD_NO_CHASE_TRIM_ON_CYCLE_OR_DIVIDEND_DETERIORATION` | MEDIUM_HIGH |
+| 600941.SH | 中国移动 | 高股息通信现金流与数字基础设施核心 | `HOLD_ADD_ONLY_AFTER_PROFIT_FCF_DIVIDEND_AND_HURDLE_PASS` | MEDIUM_HIGH |
+| 601138.SH | 工业富联 | Growth/AI_Hardware | `HOLD_REDUCED_WEIGHT_NO_ADD` | HIGH_FOR_COVERAGE_NOT_EXECUTION |
+| 601899.SH | 紫金矿业 | 铜金资源成长与商品周期卫星 | `HOLD_ADD_ONLY_AFTER_PROJECT_COST_COMMODITY_AND_HURDLE_PASS` | MEDIUM |
+
+## 真实账户结论
+
+- 三只债基不是同一种风险：富国天利为纯固定收益锚；易方达增强回报含显著股票和可转债增强；招商安泰为国债基准导向的主动债券仓。当前统一为持有、不新增，逐券重合度限制转交R2聚合。
+- `159655.SZ`列为标普500条件性优先保留载体；在同日价差、折溢价、跟踪偏离和申赎状态未复核前，不形成合并交易。
+- `159352.SZ`为A股宽基核心，`510500.SH`为中盘卫星；未来A股新增资金优先A500，直至核心不小于卫星。
+
+## 阶段边界
+
+R1只完成研究与条件覆盖。R2尚未开始组合风险聚合，R3尚未形成统一动作矩阵和用户决策包，因此当前不产生交易建议或订单。
