@@ -95,11 +95,12 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["wp5"]["action_review_allowed"] is True
         assert register["wp5"]["position_mutation_allowed"] is False
         assert register["wp5"]["order_execution_allowed"] is False
-        expected_next_task = (
-            "WP5_P0_REUNDERWRITE_AND_FRESH_INPUT_REFRESH"
-            if register["wp5"].get("full_position_review_complete") is True
-            else "WP5_FRESH_INPUT_REFRESH_AND_FULL_POSITION_LEVEL_ACTION_REVIEW"
-        )
+        if register["wp5"].get("p0_internal_evidence_inventory_complete") is True:
+            expected_next_task = "WP5_P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITE_AND_FRESH_INPUT_REFRESH"
+        elif register["wp5"].get("full_position_review_complete") is True:
+            expected_next_task = "WP5_P0_REUNDERWRITE_AND_FRESH_INPUT_REFRESH"
+        else:
+            expected_next_task = "WP5_FRESH_INPUT_REFRESH_AND_FULL_POSITION_LEVEL_ACTION_REVIEW"
         assert register["next_task"] == expected_next_task
         assert register["r2"]["status"] == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
     else:
