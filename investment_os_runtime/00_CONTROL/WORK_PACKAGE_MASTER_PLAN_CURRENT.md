@@ -3,7 +3,7 @@
 - 状态日期：2026-07-27
 - 产品权威：`INVESTMENT_ASSISTANT_PRODUCT_CHARTER_CURRENT.md`
 - Canonical状态源：`EXECUTION_REGISTER_CURRENT.json`
-- 最新已完成main合并：PR #154 / `fc57e7a08fee6870130871e8491bb2db59b70e54`
+- 最新已完成main合并：PR #157 / `2fbcb84d7a23d5804975fd8319781464c2a18ab2`
 - R0治理来源：PR #152 / `ee9cd9af5122af9506a0da844d837cfce6c57c44`
 - 本轮状态：`CURRENT_IF_PRESENT_ON_MAIN`
 - File Library：`RECOVERY_DISTRIBUTION_ONLY_PENDING_EXPLICIT_PROMOTION`
@@ -103,7 +103,7 @@
 
 ## 六、下一任务
 
-`R4_OPERATING_PRODUCTS_DEVELOPMENT`
+`R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_AFTER_R4_PRESENT_ON_MAIN`
 
 ## 七、历史兼容状态
 
@@ -140,3 +140,12 @@
 - R3仅为开发验收产品，7项决策为能力验证场景，不构成当前真实调仓请求。
 - 当前Ready for User Decision为`0`，Implementation Ready为`0`，Operating Activation为`false`。
 - 下一阶段固定为`R4_OPERATING_PRODUCTS_DEVELOPMENT`；R4、R5、R6完成并通过生产验收后，才进入运营观察期。
+
+## R4开发验收结果
+
+- 状态：`CURRENT_IF_PRESENT_ON_MAIN`；来源PR：`#158`。
+- 已固化统一状态、日报、周报、月报、季报、年度复盘和事件警报共7类产品。
+- 每类产品具备固定节奏、必填输入、必备章节、Fail-Closed规则和开发验收样例。
+- R4不启动Schedule；Operating Activation为`false`。
+- 收益归因仍由R5完成，连续运行和自动激活仍由R6验收。
+- 真实账户、模拟盘、Candidate、旧决策和订单变更均为`0`。

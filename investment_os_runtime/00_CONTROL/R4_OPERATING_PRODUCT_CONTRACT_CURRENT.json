@@ -1,0 +1,285 @@
+{
+  "as_of": "2026-07-27",
+  "contract_id": "R4_OPERATING_PRODUCT_CONTRACT_V1",
+  "cross_product_rules": {
+    "R5_owns_full_attribution": true,
+    "R6_owns_activation_and_continuous_run_acceptance": true,
+    "development_samples_are_not_live_reports": true,
+    "no_silent_continuity_inference": true,
+    "no_trade_or_order_creation": true,
+    "single_authority": "EXECUTION_REGISTER_CURRENT and product-specific Current inputs",
+    "stale_or_missing_sections_must_render_BLOCKED_with_reason": true
+  },
+  "development_mode": true,
+  "operating_activation": false,
+  "product_count": 7,
+  "products": [
+    {
+      "cadence": "Whenever any upstream Current changes; no schedule is activated in R4",
+      "development_sample_required": true,
+      "fail_closed_when": [
+        "position continuity does not cover the report watermark",
+        "required equity close or fund NAV is missing or stale",
+        "Candidate snapshot is older than the stated report period",
+        "a conclusion has no traceable evidence path",
+        "the product would imply a trade or order without separate user approval"
+      ],
+      "operating_activation": false,
+      "product_id": "R4-STATUS",
+      "purpose": "Show authoritative watermarks, product readiness, blockers and the sole next operating step.",
+      "required_inputs": [
+        "REAL_ACCOUNT_POSITIONS_CURRENT",
+        "SIMULATION_POSITIONS_CURRENT",
+        "CANDIDATE_CURRENT",
+        "latest completed-close equity marks",
+        "latest available fund NAV",
+        "explicit user position-delta continuity",
+        "R1 decision coverage",
+        "R2 portfolio construction synthesis",
+        "R3 development action matrix"
+      ],
+      "required_sections": [
+        "authority and watermark",
+        "Real account status",
+        "Simulation status",
+        "Candidate status",
+        "research and decision status",
+        "blockers",
+        "next step"
+      ],
+      "title": "统一运营状态页"
+    },
+    {
+      "cadence": "Development default: trading days 23:15 Asia/Shanghai after portfolio/NAV refresh",
+      "development_sample_required": true,
+      "fail_closed_when": [
+        "position continuity does not cover the report watermark",
+        "required equity close or fund NAV is missing or stale",
+        "Candidate snapshot is older than the stated report period",
+        "a conclusion has no traceable evidence path",
+        "the product would imply a trade or order without separate user approval"
+      ],
+      "operating_activation": false,
+      "product_id": "R4-DAILY",
+      "purpose": "Surface state changes, material events, abnormal moves, stale inputs and required follow-up without full attribution.",
+      "required_inputs": [
+        "REAL_ACCOUNT_POSITIONS_CURRENT",
+        "SIMULATION_POSITIONS_CURRENT",
+        "CANDIDATE_CURRENT",
+        "latest completed-close equity marks",
+        "latest available fund NAV",
+        "explicit user position-delta continuity",
+        "R1 decision coverage",
+        "R2 portfolio construction synthesis",
+        "R3 development action matrix",
+        "same-day event evidence"
+      ],
+      "required_sections": [
+        "data watermark",
+        "Real and Simulation snapshot",
+        "material events",
+        "Candidate changes",
+        "risk and freshness alerts",
+        "action gate",
+        "next check"
+      ],
+      "title": "日度运营简报"
+    },
+    {
+      "cadence": "Development default: Saturday 09:30 Asia/Shanghai after Friday close and NAV completion",
+      "development_sample_required": true,
+      "fail_closed_when": [
+        "position continuity does not cover the report watermark",
+        "required equity close or fund NAV is missing or stale",
+        "Candidate snapshot is older than the stated report period",
+        "a conclusion has no traceable evidence path",
+        "the product would imply a trade or order without separate user approval"
+      ],
+      "operating_activation": false,
+      "product_id": "R4-WEEKLY",
+      "purpose": "Review sleeve drift, position exceptions, Candidate lifecycle changes and unresolved evidence gaps.",
+      "required_inputs": [
+        "REAL_ACCOUNT_POSITIONS_CURRENT",
+        "SIMULATION_POSITIONS_CURRENT",
+        "CANDIDATE_CURRENT",
+        "latest completed-close equity marks",
+        "latest available fund NAV",
+        "explicit user position-delta continuity",
+        "R1 decision coverage",
+        "R2 portfolio construction synthesis",
+        "R3 development action matrix",
+        "weekly benchmark marks"
+      ],
+      "required_sections": [
+        "weekly market context",
+        "portfolio sleeve review",
+        "position exception list",
+        "Candidate changes",
+        "research progress",
+        "risk register",
+        "next-week priorities"
+      ],
+      "title": "周度组合与候选池审查"
+    },
+    {
+      "cadence": "Development default: T+1 10:00 after month-end close, NAV and transaction continuity are complete",
+      "development_sample_required": true,
+      "fail_closed_when": [
+        "position continuity does not cover the report watermark",
+        "required equity close or fund NAV is missing or stale",
+        "Candidate snapshot is older than the stated report period",
+        "a conclusion has no traceable evidence path",
+        "the product would imply a trade or order without separate user approval",
+        "month-start or month-end baseline is incomplete"
+      ],
+      "operating_activation": false,
+      "product_id": "R4-MONTHLY",
+      "purpose": "Provide portfolio performance, structural drift, decision history and a clearly separated R5 attribution placeholder.",
+      "required_inputs": [
+        "REAL_ACCOUNT_POSITIONS_CURRENT",
+        "SIMULATION_POSITIONS_CURRENT",
+        "CANDIDATE_CURRENT",
+        "latest completed-close equity marks",
+        "latest available fund NAV",
+        "explicit user position-delta continuity",
+        "R1 decision coverage",
+        "R2 portfolio construction synthesis",
+        "R3 development action matrix",
+        "month-start baseline",
+        "month-end benchmark and FX marks"
+      ],
+      "required_sections": [
+        "executive summary",
+        "performance snapshot",
+        "portfolio structure",
+        "position review",
+        "Candidate review",
+        "decision log",
+        "R5 attribution placeholder",
+        "next-month plan"
+      ],
+      "title": "月度投资复盘"
+    },
+    {
+      "cadence": "Development default: after quarter-end portfolio/NAV close and required financial refresh; target T+5 10:00",
+      "development_sample_required": true,
+      "fail_closed_when": [
+        "position continuity does not cover the report watermark",
+        "required equity close or fund NAV is missing or stale",
+        "Candidate snapshot is older than the stated report period",
+        "a conclusion has no traceable evidence path",
+        "the product would imply a trade or order without separate user approval",
+        "required financial period evidence is incomplete"
+      ],
+      "operating_activation": false,
+      "product_id": "R4-QUARTERLY",
+      "purpose": "Re-underwrite portfolio roles, financial evidence, valuation ranges and Candidate promotions or removals.",
+      "required_inputs": [
+        "REAL_ACCOUNT_POSITIONS_CURRENT",
+        "SIMULATION_POSITIONS_CURRENT",
+        "CANDIDATE_CURRENT",
+        "latest completed-close equity marks",
+        "latest available fund NAV",
+        "explicit user position-delta continuity",
+        "R1 decision coverage",
+        "R2 portfolio construction synthesis",
+        "R3 development action matrix",
+        "quarterly financial evidence",
+        "valuation refresh"
+      ],
+      "required_sections": [
+        "quarter summary",
+        "financial and valuation refresh",
+        "portfolio construction review",
+        "Candidate lifecycle review",
+        "risk scenarios",
+        "rule exceptions",
+        "next-quarter agenda"
+      ],
+      "title": "季度组合与候选池重估"
+    },
+    {
+      "cadence": "Development default: within the first ten trading days after year-end data completeness",
+      "development_sample_required": true,
+      "fail_closed_when": [
+        "position continuity does not cover the report watermark",
+        "required equity close or fund NAV is missing or stale",
+        "Candidate snapshot is older than the stated report period",
+        "a conclusion has no traceable evidence path",
+        "the product would imply a trade or order without separate user approval",
+        "annual baseline or decision history is incomplete"
+      ],
+      "operating_activation": false,
+      "product_id": "R4-ANNUAL",
+      "purpose": "Review annual portfolio outcomes, research process, Candidate conversion and strategy governance; R5 supplies final attribution.",
+      "required_inputs": [
+        "REAL_ACCOUNT_POSITIONS_CURRENT",
+        "SIMULATION_POSITIONS_CURRENT",
+        "CANDIDATE_CURRENT",
+        "latest completed-close equity marks",
+        "latest available fund NAV",
+        "explicit user position-delta continuity",
+        "R1 decision coverage",
+        "R2 portfolio construction synthesis",
+        "R3 development action matrix",
+        "year-start baseline",
+        "year-end marks",
+        "complete annual decision history"
+      ],
+      "required_sections": [
+        "annual executive summary",
+        "portfolio outcomes",
+        "Candidate outcomes",
+        "research quality",
+        "decision governance",
+        "R5 attribution integration",
+        "strategy changes",
+        "next-year priorities"
+      ],
+      "title": "年度策略复盘"
+    },
+    {
+      "cadence": "On evidence ingest; development fallback is no more frequent than hourly when later activated",
+      "development_sample_required": true,
+      "fail_closed_when": [
+        "position continuity does not cover the report watermark",
+        "required equity close or fund NAV is missing or stale",
+        "Candidate snapshot is older than the stated report period",
+        "a conclusion has no traceable evidence path",
+        "the product would imply a trade or order without separate user approval",
+        "event source or timestamp cannot be verified"
+      ],
+      "operating_activation": false,
+      "product_id": "R4-EVENT",
+      "purpose": "Classify material company, portfolio, market and data-quality events and route them to the correct review gate.",
+      "required_inputs": [
+        "REAL_ACCOUNT_POSITIONS_CURRENT",
+        "SIMULATION_POSITIONS_CURRENT",
+        "CANDIDATE_CURRENT",
+        "latest completed-close equity marks",
+        "latest available fund NAV",
+        "explicit user position-delta continuity",
+        "R1 decision coverage",
+        "R2 portfolio construction synthesis",
+        "R3 development action matrix",
+        "event evidence with source timestamp"
+      ],
+      "required_sections": [
+        "severity",
+        "event timestamp",
+        "affected assets",
+        "evidence",
+        "thesis/valuation/portfolio impact",
+        "required review",
+        "prohibited actions"
+      ],
+      "title": "事件与异常警报"
+    }
+  ],
+  "source_branch": "agent/r4-operating-products",
+  "source_head_sha": "2a512707388af7e515c229e9073b095c250885ed",
+  "source_pr": 158,
+  "status": "DEVELOPMENT_PRODUCT_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_NO_ACTIVATION",
+  "timezone": "Asia/Shanghai",
+  "trade_authority": "NONE"
+}
