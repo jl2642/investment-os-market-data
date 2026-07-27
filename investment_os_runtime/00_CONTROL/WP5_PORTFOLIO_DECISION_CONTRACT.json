@@ -23,8 +23,9 @@
     "position_action_matrix_delivered": true,
     "user_decision_pack_delivered": true
   },
-  "current_stage": "WP5-5_USER_DECISION_REVIEW",
+  "current_stage": "R3_DEVELOPMENT_PRODUCT_COMPLETE",
   "decision_queue_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_USER_DECISION_QUEUE_CURRENT.json",
+  "development_decision_scenario_count": 7,
   "fixed_workstreams": {
     "WP5-1": {
       "evidence": [
@@ -64,13 +65,14 @@
         "R3_POSITION_ACTION_MATRIX_CURRENT",
         "R3_USER_DECISION_QUEUE_CURRENT"
       ],
+      "merge_sha": "8682e4ae8ecd5860e1957efc12ba50645767c545",
       "name": "POSITION_ACTION_MATRIX",
       "source_pr": 155,
-      "status": "COMPLETED_CURRENT_IF_PRESENT_ON_MAIN"
+      "status": "DEVELOPMENT_PRODUCT_COMPLETE_ON_MAIN"
     },
     "WP5-5": {
       "name": "USER_DECISION_AND_GOVERNED_IMPLEMENTATION",
-      "status": "USER_DECISION_PACK_READY_PENDING_USER_SELECTION"
+      "status": "DEVELOPMENT_INTERFACE_COMPLETE_OPERATING_ACTIVATION_DEFERRED_UNTIL_R6"
     }
   },
   "formal_plan": "WP5_1_TO_WP5_5",
@@ -100,17 +102,18 @@
     "user_position_continuity": "INSTALLED_PR150"
   },
   "implementation_ready_count": 0,
-  "next_stage": "GOVERNED_IMPLEMENTATION_PROPOSAL_ONLY_AFTER_USER_SELECTION",
-  "next_task": "USER_REVIEW_R3_DECISION_PACK_BEFORE_ANY_IMPLEMENTATION_PROPOSAL",
+  "next_stage": "R4_OPERATING_PRODUCTS_DEVELOPMENT",
+  "next_task": "R4_OPERATING_PRODUCTS_DEVELOPMENT",
+  "operating_activation": false,
   "phase": "WP5_PORTFOLIO_DECISION_PHASE",
   "position_action_matrix_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_POSITION_ACTION_MATRIX_CURRENT.json",
   "promotion_evidence": "MERGED_PR_AND_FILE_PRESENCE",
-  "ready_for_user_decision_count": 7,
+  "ready_for_user_decision_count": 0,
   "real_account_cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED_NO_FIXED_STRATEGIC_CASH_TARGET",
-  "source_branch": "agent/r3-position-action-matrix",
-  "source_head_sha": "25cc5f078d2076bce06ccb4822b5e83f2331ed45",
-  "source_pr": 155,
-  "status": "WP5_USER_DECISION_PACK_READY_NO_IMPLEMENTATION",
+  "source_branch": "agent/r3-development-boundary-correction",
+  "source_head_sha": "343361f94e8dee4a8cae6ee1d5c0adf5c89b8a9e",
+  "source_pr": 157,
+  "status": "R3_DEVELOPMENT_PRODUCT_COMPLETE_R4_NEXT_NO_OPERATING_ACTIVATION",
   "trade_authority": "NONE",
   "user_decision_pack_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_USER_DECISION_PACK_CURRENT.md"
 }

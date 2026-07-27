@@ -103,7 +103,7 @@
 
 ## 六、下一任务
 
-`USER_REVIEW_R3_DECISION_PACK_BEFORE_ANY_IMPLEMENTATION_PROPOSAL`
+`R4_OPERATING_PRODUCTS_DEVELOPMENT`
 
 ## 七、历史兼容状态
 
@@ -133,3 +133,10 @@
 - 默认真实账户第一阶段采用自筹资金结构修复：增强债与中证500减持资金转向A500与单一标普500载体。
 - 模拟盘维持袖套结构，冻结沪电、汇川、宁德、工业富联新增资金；研究现金维持15%–25%。
 - 用户决策项7项，Implementation Ready为0；任何持仓、Candidate、旧决策或订单变更均为0。
+
+
+## R3阶段边界纠正
+
+- R3仅为开发验收产品，7项决策为能力验证场景，不构成当前真实调仓请求。
+- 当前Ready for User Decision为`0`，Implementation Ready为`0`，Operating Activation为`false`。
+- 下一阶段固定为`R4_OPERATING_PRODUCTS_DEVELOPMENT`；R4、R5、R6完成并通过生产验收后，才进入运营观察期。
