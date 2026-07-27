@@ -1,0 +1,71 @@
+name: WP5 PR Materialization Bridge
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp4_b/build_core2_hardening_wp5_fixed.py"
+      - "automation/wp5_portfolio_decision/**"
+      - ".github/workflows/wp5_pr_materialize.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    if: github.event.pull_request.head.ref == 'agent/wp5-portfolio-decision-start' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp4_b/requirements.lock
+
+      - run: python -m pip install --retries 5 --timeout 30 -r automation/wp4_b/requirements.lock
+
+      - name: Materialize repaired WP4-B and WP5 start products
+        run: |
+          python automation/wp4_b/build_core2_hardening_wp5_fixed.py --repo-root .
+          python automation/wp5_portfolio_decision/build_wp5_start.py --repo-root .
+
+      - name: Validate before publication
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('.')
+          models = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2/WP4B_SCENARIO_MODELS_CURRENT.json').read_text(encoding='utf-8'))
+          start = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_START_RECORD_CURRENT.json').read_text(encoding='utf-8'))
+          decision = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json').read_text(encoding='utf-8'))
+          assert 600 < models['models']['000333.SZ']['current_market_cap_rmb_bn'] < 700
+          assert 650 < models['models']['600900.SH']['current_market_cap_rmb_bn'] < 760
+          assert start['status'] == 'WP5_STARTED_ANALYSIS_ONLY_ON_GOVERNED_BRANCH'
+          assert decision['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          assert decision['trade_authority'] == 'NONE'
+          PY
+
+      - name: Commit generated products and remove temporary bridge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/workflows/wp5_pr_materialize.yml .wp5_start_trigger || true
+          git add \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B \
+            investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP4_B_CORE2_HARDENING_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json \
+            investment_os_runtime/00_CONTROL/WP5_START_RECORD_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json
+          git commit -m "WP5 materialize analysis-only start products"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
