@@ -1,0 +1,64 @@
+name: R2 WP3-R Industry Master Diagnostic
+run-name: "R2 WP3-R manual industry build diagnostic"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: agent/r2-product-capability-hardening
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Compile industry source
+        run: |
+          python automation/wp3_r/repair_industry_master_source.py
+          python -m py_compile automation/wp3_r/refresh_industry_master.py
+
+      - name: Run full industry diagnostic without repository mutation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python automation/wp3_r/refresh_industry_master.py --repo-root .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER')
+          data = json.loads((root / 'SECURITY_INDUSTRY_MASTER_CURRENT.json').read_text(encoding='utf-8'))
+          assert data['trade_authority'] == 'NONE'
+          assert data['automatic_candidate_mutations'] == 0
+          assert data['orders'] == 0
+          print(json.dumps({
+              'status': data['status'],
+              'market_security_count': data['market_security_count'],
+              'row_count': data['row_count'],
+              'coverage': data['coverage'],
+              'missing_count': data['missing_count'],
+              'duplicates': data['duplicate_industry_assignment_count'],
+          }, ensure_ascii=False))
+          PY
+
+      - name: Record diagnostic scope
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Manual Industry Master Diagnostic
+          - Read-only diagnostic; no branch publication
+          - Production generation and publication are owned solely by `wp3_r_operating_profiles.yml`
+          - Candidate mutations: 0
+          - Orders: 0
+          - trade_authority: NONE
+          EOF

@@ -1,0 +1,151 @@
+{
+  "cross_profile_ranking_forbidden": true,
+  "financial_profiles": [
+    {
+      "composite_score_status": "PARTIAL_SCREENING_INPUTS",
+      "current_metric_coverage": 0.266667,
+      "currently_reusable_metric_count": 4,
+      "general_non_financial_score_substitution_forbidden": true,
+      "issuer_count": 42,
+      "missing_production_metrics": [
+        "CAPITAL_ADEQUACY_RATIO",
+        "CET1_RATIO",
+        "CREDIT_COST",
+        "DIVIDEND_YIELD",
+        "FEE_INCOME_GROWTH",
+        "LIQUIDITY_OR_LOAN_DEPOSIT_RATIO",
+        "NET_INTEREST_MARGIN",
+        "NPL_RATIO",
+        "PB",
+        "PROVISION_COVERAGE",
+        "ROE_TO_PB_CONTEXT"
+      ],
+      "profile": "BANK",
+      "required_metric_count": 15,
+      "research_grade_profile_status": "BLOCKED_SPECIALIZED_FINANCIAL_METRICS_INCOMPLETE",
+      "screening_score_coverage": 0.0
+    },
+    {
+      "composite_score_status": "PARTIAL_SCREENING_INPUTS",
+      "current_metric_coverage": 0.2,
+      "currently_reusable_metric_count": 2,
+      "general_non_financial_score_substitution_forbidden": true,
+      "issuer_count": 5,
+      "missing_production_metrics": [
+        "COMBINED_RATIO_OR_LAPSE_RATE",
+        "CORE_SOLVENCY_RATIO",
+        "DIVIDEND_YIELD",
+        "EMBEDDED_VALUE_GROWTH",
+        "NBV_GROWTH",
+        "PEV_OR_PB",
+        "TOTAL_INVESTMENT_YIELD",
+        "VNB_MARGIN"
+      ],
+      "profile": "INSURANCE",
+      "required_metric_count": 10,
+      "research_grade_profile_status": "BLOCKED_SPECIALIZED_FINANCIAL_METRICS_INCOMPLETE",
+      "screening_score_coverage": 0.0
+    },
+    {
+      "composite_score_status": "PARTIAL_SCREENING_INPUTS",
+      "current_metric_coverage": 0.333333,
+      "currently_reusable_metric_count": 4,
+      "general_non_financial_score_substitution_forbidden": true,
+      "issuer_count": 50,
+      "missing_production_metrics": [
+        "DIVIDEND_YIELD",
+        "EARNINGS_VOLATILITY",
+        "FEE_BUSINESS_MIX",
+        "LEVERAGE_RATIO",
+        "LIQUIDITY_COVERAGE",
+        "NET_CAPITAL_RATIO",
+        "PB",
+        "PROPRIETARY_TRADING_DEPENDENCE"
+      ],
+      "profile": "SECURITIES_AND_BROKERAGE",
+      "required_metric_count": 12,
+      "research_grade_profile_status": "BLOCKED_SPECIALIZED_FINANCIAL_METRICS_INCOMPLETE",
+      "screening_score_coverage": 0.0
+    }
+  ],
+  "general_non_financial_profile_status": "EXISTING_FMDL3CD_SCORE_RETAINED",
+  "profile_counts": {
+    "BANK": 42,
+    "GENERAL_NON_FINANCIAL": 5102,
+    "INSURANCE": 5,
+    "SECURITIES_AND_BROKERAGE": 50,
+    "UNRESOLVED": 329
+  },
+  "score_profile_states": {
+    "BANK": {
+      "rows": 42,
+      "states": {
+        "CONTROLLED_PROFILE_EXCLUSION": 42
+      }
+    },
+    "GENERAL_NON_FINANCIAL": {
+      "rows": 5102,
+      "states": {
+        "INSUFFICIENT_FACTOR_COVERAGE": 10,
+        "INSUFFICIENT_FAMILY_COVERAGE": 108,
+        "SCORE_ACCEPTED": 4452,
+        "SCORE_ACCEPTED_WITH_LIMITED_CONFIDENCE": 532
+      }
+    },
+    "INSURANCE": {
+      "rows": 5,
+      "states": {
+        "CONTROLLED_PROFILE_EXCLUSION": 5
+      }
+    },
+    "SECURITIES_AND_BROKERAGE": {
+      "rows": 50,
+      "states": {
+        "CONTROLLED_PROFILE_EXCLUSION": 50
+      }
+    },
+    "UNRESOLVED": {
+      "rows": 329,
+      "states": {
+        "CONTROLLED_PROFILE_EXCLUSION": 329
+      }
+    }
+  },
+  "screening_profile_v1": {
+    "candidate_promotion_authorized": false,
+    "cross_profile_ranking_allowed": false,
+    "csv_path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_SECTOR_SCREENING/FINANCIAL_SECTOR_SCREENING_SCORE_CURRENT.csv",
+    "orders": 0,
+    "profile_summaries": {
+      "BANK": {
+        "coverage": 0.0,
+        "issuer_count": 42,
+        "research_grade_status": "BLOCKED_SPECIALIZED_FINANCIAL_METRICS_INCOMPLETE",
+        "screening_score_ready_count": 0,
+        "screening_status": "PARTIAL_SCREENING_INPUTS"
+      },
+      "INSURANCE": {
+        "coverage": 0.0,
+        "issuer_count": 5,
+        "research_grade_status": "BLOCKED_SPECIALIZED_FINANCIAL_METRICS_INCOMPLETE",
+        "screening_score_ready_count": 0,
+        "screening_status": "PARTIAL_SCREENING_INPUTS"
+      },
+      "SECURITIES_AND_BROKERAGE": {
+        "coverage": 0.0,
+        "issuer_count": 50,
+        "research_grade_status": "BLOCKED_SPECIALIZED_FINANCIAL_METRICS_INCOMPLETE",
+        "screening_score_ready_count": 0,
+        "screening_status": "PARTIAL_SCREENING_INPUTS"
+      }
+    },
+    "research_grade_underwriting_allowed": false,
+    "row_count": 97,
+    "scoring_scope": "PROFILE_INTERNAL_SCREENING_ONLY",
+    "state_id": "WP3R_FINANCIAL_SECTOR_SCREENING_SCORE_CURRENT",
+    "status": "PARTIAL_INDEPENDENT_FINANCIAL_PROFILE_SCREENING_V1",
+    "trade_authority": "NONE"
+  },
+  "status": "INDEPENDENT_FINANCIAL_SCREENING_PROFILE_ACTIVE_RESEARCH_GRADE_INPUTS_PENDING",
+  "trade_authority": "NONE"
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WP2-R User Transaction Delta Ledger",
+  "type": "object",
+  "required": ["schema_version", "ledger_id", "continuity_confirmed_through", "entries", "policy", "trade_authority"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "ledger_id": {"type": "string"},
+    "continuity_confirmed_through": {"type": "string"},
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["delta_id", "account", "security_id", "action", "status"],
+        "properties": {
+          "delta_id": {"type": "string"},
+          "account": {"enum": ["REAL", "SIMULATION"]},
+          "security_id": {"type": "string"},
+          "action": {"enum": ["BUY", "SELL", "TRANSFER_IN", "TRANSFER_OUT", "COST_ADJUSTMENT"]},
+          "status": {"enum": ["PENDING_USER_CONFIRMATION", "CONFIRMED_BY_USER", "APPLIED_TO_POSITION_CURRENT", "REJECTED"]},
+          "confirmation_authority": {"type": ["string", "null"], "enum": ["USER", null]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["user_reports_only_economic_transactions", "market_marks_never_require_user_delta"],
+      "additionalProperties": true
+    },
+    "trade_authority": {"const": "NONE"}
+  },
+  "additionalProperties": true
+}

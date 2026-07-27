@@ -70,14 +70,31 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["wp4"]["ready_for_user_decision"] == 0
         assert "WP4 | COMPLETED IF PRESENT ON MAIN" in plan
         assert "0只Ready → NO ACTION" in plan
-    else:
-        assert step == "R2_WP2_WP4_PRODUCT_CAPABILITY_HARDENING"
+    elif step == "R2_WP2_WP4_PRODUCT_CAPABILITY_HARDENING":
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
         assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
         assert register["wp4"]["status"] == "CORE2_INITIAL_PRODUCTION_BASELINE_ACCEPTED_ON_MAIN"
         assert register["wp5"]["status"] == "BLOCKED_PENDING_R2_PRODUCT_CAPABILITY_HARDENING"
         assert "WP4 | CORE2 INITIAL PRODUCTION BASELINE ACCEPTED ON MAIN" in plan
         assert "WP5 | BLOCKED" in plan
+    elif step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE":
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp4"]["status"] == "CORE2_INITIAL_PRODUCTION_BASELINE_ACCEPTED_ON_MAIN"
+        assert register["wp4"]["r2_b_status"] == "CORE2_RESEARCH_HARDENING_ACCEPTED_RESEARCH_ONLY"
+        assert register["wp5"]["status"] == "BLOCKED_PENDING_R2_MERGE"
+        assert register["wp5"]["start_allowed"] is False
+        assert register["next_task"] == "USER_MERGE_PR_145_TO_MAIN"
+        assert register["r2"]["status"] == "R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE"
+    else:
+        assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp4"]["r2_b_status"] == "CORE2_RESEARCH_HARDENING_ACCEPTED_RESEARCH_ONLY"
+        assert register["wp5"]["status"] == "READY_PENDING_EXPLICIT_WP5_START"
+        assert register["wp5"]["start_allowed"] is True
+        assert register["next_task"] == "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE"
+        assert register["r2"]["status"] == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
 
 
 def test_scheduled_refresh_is_idempotent_and_fail_closed():

@@ -1,0 +1,56 @@
+name: WP3-R targeted syntax repair
+
+on:
+  push:
+    branches: [agent/r2-product-capability-hardening]
+    paths: [.github/workflows/wp3_r_syntax_repair.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: agent/r2-product-capability-hardening
+      - name: Apply exact repair and self-remove
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('automation/wp3_r/build_candidate_refresh_current.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''    status = (
+              "PASS_CANONICAL_INDUSTRY_QUALITY_GATE"
+              if complete_fields
+              and coverage >= float(contract["quality_gates"]["security_id_coverage_min"])
+              and unresolved / total <= float(contract["quality_gates"]["unresolved_industry_max"]) if total else False
+              else "BLOCKED_SECURITY_MASTER_INDUSTRY_FIELDS_INCOMPLETE"
+          )'''
+          new = '''    passes_quality = bool(
+              total
+              and complete_fields
+              and coverage >= float(contract["quality_gates"]["security_id_coverage_min"])
+              and unresolved / total <= float(contract["quality_gates"]["unresolved_industry_max"])
+          )
+          status = (
+              "PASS_CANONICAL_INDUSTRY_QUALITY_GATE"
+              if passes_quality
+              else "BLOCKED_SECURITY_MASTER_INDUSTRY_FIELDS_INCOMPLETE"
+          )'''
+          if old not in text:
+              raise SystemExit('TARGET_SNIPPET_NOT_FOUND')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+          python -m py_compile automation/wp3_r/build_candidate_refresh_current.py
+          git rm .github/workflows/wp3_r_syntax_repair.yml
+      - name: Commit repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add automation/wp3_r/build_candidate_refresh_current.py
+          git commit -m "R2 WP3-R repair industry quality predicate"
+          git push origin HEAD:agent/r2-product-capability-hardening

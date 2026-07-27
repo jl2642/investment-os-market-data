@@ -1,0 +1,35 @@
+{
+  "wp2r_id": "WP2R_RECURRING_PORTFOLIO_CURRENT_V1",
+  "status_date": "2026-07-26",
+  "position_continuity_confirmed_through": "2026-07-24",
+  "trade_authority": "NONE",
+  "source_paths": {
+    "real_legacy": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json",
+    "simulation_legacy": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json",
+    "delta_ledger": "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json",
+    "marks_candidate": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json"
+  },
+  "output_paths": {
+    "real_positions": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation_positions": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "portfolio_marks": "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json",
+    "run_current": "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json",
+    "acceptance": "investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json"
+  },
+  "freshness": {
+    "listed_security_max_calendar_days": 3,
+    "fund_nav_max_calendar_days": 4
+  },
+  "providers": {
+    "listed": "SINA_PUBLIC_TRACKED_QUOTES",
+    "fund_nav": "EASTMONEY_PUBLIC_NET_WORTH_TREND"
+  },
+  "policies": {
+    "broker_verification_separate_from_market_watermark": true,
+    "market_refresh_may_not_change_quantity_or_cost": true,
+    "user_confirmation_required_only_for_economic_transaction_delta": true,
+    "portfolio_fit_allowed_when_marks_fresh_and_positions_continuous": true,
+    "live_action_requires_broker_verification_and_separate_governed_proposal": true,
+    "external_liquidity_excluded": true
+  }
+}

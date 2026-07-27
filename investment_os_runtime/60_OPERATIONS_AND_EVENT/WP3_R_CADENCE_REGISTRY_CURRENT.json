@@ -1,0 +1,37 @@
+{
+  "registry_id": "WP3R_CADENCE_REGISTRY_CURRENT",
+  "status": "WP3R_CADENCE_REGISTRY_ACTIVE",
+  "timezone": "Asia/Shanghai",
+  "cadences": {
+    "daily_core_candidate_price_ledger": {
+      "schedule": "WEEKDAYS_22_35_ASIA_SHANGHAI",
+      "workflow": ".github/workflows/wp3_r_candidate_price_ledger.yml",
+      "scope": "MIDEA_YANGTZE_CSI300_APPEND_ONLY_PRICE_EVIDENCE",
+      "automatic_candidate_mutation": false
+    },
+    "weekly_price_screen": {
+      "schedule": "FRIDAY_23_05_ASIA_SHANGHAI",
+      "workflow": ".github/workflows/wp3_r_weekly_screen.yml",
+      "scope": "CANDIDATE_CORE_SHADOW_RESEARCH_QUEUE_73",
+      "automatic_candidate_mutation": false
+    },
+    "monthly_candidate_review": {
+      "schedule": "EVERY_MONDAY_23_15_ASIA_SHANGHAI_WITH_MONTH_IDEMPOTENCY_GATE",
+      "workflow": ".github/workflows/wp3_r_monthly_review.yml",
+      "scope": "ONE_REVIEW_PRODUCT_PER_CALENDAR_MONTH",
+      "automatic_candidate_mutation": false
+    },
+    "quarterly_financial_rescreen": {
+      "schedule": "MONTHLY_5TH_23_25_ASIA_SHANGHAI_WITH_NEW_REPORT_WATERMARK_GATE",
+      "workflow": ".github/workflows/wp3_r_quarterly_rescreen.yml",
+      "scope": "FULL_MARKET_PROPOSAL_ONLY_WHEN_NEW_FINANCIAL_REPORT_PERIOD_IS_OBSERVED",
+      "automatic_candidate_mutation": false,
+      "human_merge_required": true
+    }
+  },
+  "outcome_windows_trading_days": [20, 60, 120],
+  "candidate_membership_mutations": 0,
+  "portfolio_mutations": 0,
+  "orders": 0,
+  "trade_authority": "NONE"
+}

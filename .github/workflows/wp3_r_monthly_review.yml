@@ -1,0 +1,86 @@
+name: WP3-R Monthly Candidate Review
+run-name: "WP3-R monthly Candidate review with idempotency gate"
+
+on:
+  schedule:
+    - cron: "15 15 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  monthly-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp3_r/requirements.lock
+
+      - name: Install runtime
+        run: python -m pip install --retries 5 --timeout 30 -r automation/wp3_r/requirements.lock
+
+      - name: Refresh Current inputs and produce monthly review
+        run: |
+          python automation/wp3_r/repair_source.py
+          python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
+          python automation/wp3_r/finalize_operating_products.py --repo-root .
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode monthly
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance
+
+      - name: Validate one review per month and zero automatic decisions
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime
+          from pathlib import Path
+          root = Path('.')
+          review = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/MONTHLY_CANDIDATE_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          assert review['review_month'] == datetime.utcnow().strftime('%Y-%m')
+          assert review['status'] in {'MONTHLY_REVIEW_COMPLETE_NO_AUTOMATIC_MEMBERSHIP_CHANGE', 'NOOP_ALREADY_REVIEWED_THIS_MONTH'}
+          assert review['human_review_required_for_membership_change'] is True
+          assert review['automatic_candidate_membership_mutations'] == 0
+          assert review['automatic_research_object_mutations'] == 0
+          assert review['portfolio_mutations'] == 0
+          assert review['orders'] == 0
+          assert review['trade_authority'] == 'NONE'
+          assert acceptance['wp5_unblocked'] is False
+          print({'review_month': review['review_month'], 'status': review['status'], 'mutations': 0})
+          PY
+
+      - name: Publish monthly review Current
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/MONTHLY_CANDIDATE_REVIEW_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
+          if git diff --cached --quiet; then
+            echo "Monthly Candidate review already current."
+            exit 0
+          fi
+          git commit -m "WP3-R automated monthly Candidate review"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Record summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP3-R Monthly Candidate Review
+          - Idempotent: at most one Current review per calendar month
+          - Reviews Core pricing/valuation, financial freshness, industry quality and outcome-window status
+          - Issues are surfaced for human review
+          - No automatic Candidate membership, Research Object, portfolio or order mutation
+          EOF

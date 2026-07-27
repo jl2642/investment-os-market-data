@@ -1,0 +1,244 @@
+name: R2 WP4-B Core2 Research Hardening
+run-name: "R2 WP4-B Midea and Yangtze Power research hardening"
+
+on:
+  push:
+    branches: [agent/r2-product-capability-hardening]
+    paths:
+      - "automation/wp4_b/**"
+      - ".github/workflows/wp4_b_core2_hardening.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp4_b/**"
+      - ".github/workflows/wp4_b_core2_hardening.yml"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/**"
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/WP4_B_CORE2_HARDENING_ACCEPTANCE_RECORD.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  build-validate-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: automation/wp4_b/requirements.lock
+
+      - name: Install runtime
+        run: python -m pip install --retries 5 --timeout 30 -r automation/wp4_b/requirements.lock
+
+      - name: Snapshot protected R2 economic states
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          paths = [
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json',
+          ]
+          hashes = {
+              path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              for path in paths
+          }
+          Path('/tmp/wp4b_protected_hashes.json').write_text(
+              json.dumps(hashes, sort_keys=True), encoding='utf-8'
+          )
+          PY
+
+      - name: Compile and build WP4-B products with diagnostic capture
+        id: build
+        shell: bash
+        run: |
+          set +e
+          diagnostic_dir="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/BUILD_DIAGNOSTIC"
+          mkdir -p "$diagnostic_dir"
+          python -m py_compile automation/wp4_b/build_core2_hardening.py automation/wp4_b/build_core2_hardening_fixed.py \
+            > "$diagnostic_dir/WP4B_BUILD_LOG_CURRENT.txt" 2>&1
+          status=$?
+          if [ "$status" -eq 0 ]; then
+            python automation/wp4_b/build_core2_hardening_fixed.py --repo-root . \
+              >> "$diagnostic_dir/WP4B_BUILD_LOG_CURRENT.txt" 2>&1
+            status=$?
+          fi
+          printf '%s\n' "$status" > "$diagnostic_dir/WP4B_BUILD_EXIT_STATUS_CURRENT.txt"
+          echo "exit_status=$status" >> "$GITHUB_OUTPUT"
+          tail -n 80 "$diagnostic_dir/WP4B_BUILD_LOG_CURRENT.txt" || true
+          exit 0
+
+      - name: Publish failed WP4-B diagnostic before fail-closed decision
+        if: steps.build.outputs.exit_status != '0' && github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/BUILD_DIAGNOSTIC
+          if git diff --cached --quiet; then
+            echo "WP4-B failed-build diagnostic already current."
+          else
+            git commit -m "R2 WP4-B persist failed build diagnostic"
+            git pull --rebase origin agent/r2-product-capability-hardening
+            git push origin HEAD:agent/r2-product-capability-hardening
+          fi
+
+      - name: Enforce WP4-B build fail-closed gate
+        if: steps.build.outputs.exit_status != '0'
+        run: |
+          cat investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/BUILD_DIAGNOSTIC/WP4B_BUILD_LOG_CURRENT.txt
+          exit 1
+
+      - name: Validate research depth, model integrity and action boundary
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('.')
+          base = root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B/CORE2'
+          midea = json.loads((base / '000333.SZ/WP4B_RESEARCH_CURRENT.json').read_text(encoding='utf-8'))
+          yangtze = json.loads((base / '600900.SH/WP4B_RESEARCH_CURRENT.json').read_text(encoding='utf-8'))
+          peers = json.loads((base / 'WP4B_PEER_COMPARISON_CURRENT.json').read_text(encoding='utf-8'))
+          models = json.loads((base / 'WP4B_SCENARIO_MODELS_CURRENT.json').read_text(encoding='utf-8'))
+          fit = json.loads((base / 'WP4B_POSITION_FIT_CURRENT.json').read_text(encoding='utf-8'))
+          events = json.loads((base / 'WP4B_EVENT_MONITORING_CURRENT.json').read_text(encoding='utf-8'))
+          current = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP4_B_CORE2_HARDENING_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+
+          for research in (midea, yangtze):
+              assert research['status'] == 'WP4B_RESEARCH_HARDENED_RESEARCH_ONLY'
+              assert research['additive_to_wp4_initial_baseline'] is True
+              assert len(research['business_and_competition']['revenue_engines']) >= 4
+              assert len(research['business_and_competition']['competitive_advantages']) >= 4
+              assert len(research['management_governance_and_capital_allocation']['governance_watch_items']) >= 4
+              history = research['historical_financial_trend_and_cash_quality']
+              assert len(history['history']) == 3
+              assert history['revenue_cagr'] is not None
+              assert history['net_profit_cagr'] is not None
+              assert len(research['driver_based_scenarios']['cases']) == 3
+              assert {row['scenario'] for row in research['driver_based_scenarios']['cases']} == {'BEAR', 'BASE', 'BULL'}
+              assert len(research['event_monitoring_rules']) >= 5
+              assert research['position_level_portfolio_fit']['position_change_authorized'] is False
+              assert research['research_conclusion']['automatic_buy_or_sell_signal'] is False
+              assert research['orders'] == 0
+              assert research['trade_authority'] == 'NONE'
+
+          assert peers['status'] == 'COMPLETE'
+          assert len(peers['peer_sets']['000333.SZ']['rows']) == 4
+          assert len(peers['peer_sets']['600900.SH']['rows']) == 4
+          assert set(models['models']) == {'000333.SZ', '600900.SH'}
+          assert set(fit['positions']) == {'000333.SZ', '600900.SH'}
+          assert fit['positions']['000333.SZ']['simulation_position']['quantity'] == 800
+          assert fit['positions']['600900.SH']['simulation_position']['quantity'] == 2200
+          assert fit['positions']['000333.SZ']['target_weight_raw'] == '8%'
+          assert fit['positions']['600900.SH']['target_weight_raw'] == '7%'
+          assert fit['positions']['000333.SZ']['target_weight_reference'] == 0.08
+          assert fit['positions']['600900.SH']['target_weight_reference'] == 0.07
+          assert 0.06 < fit['positions']['000333.SZ']['current_weight'] < 0.08
+          assert 0.06 < fit['positions']['600900.SH']['current_weight'] < 0.08
+          assert events['automatic_trade_action'] is False
+          assert current['peer_comparison_complete'] is True
+          assert current['driver_based_scenarios_complete'] is True
+          assert current['position_level_fit_complete'] is True
+          assert acceptance['status'] == 'WP4B_CORE2_RESEARCH_HARDENING_ACCEPTED_RESEARCH_ONLY'
+          assert acceptance['wp5_research_gate_candidate'] is True
+          assert acceptance['wp5_unblocked'] is False
+          assert acceptance['controls']['portfolio_quantity_or_cost_mutations'] == 0
+          assert acceptance['controls']['orders'] == 0
+          assert acceptance['controls']['trade_authority'] == 'NONE'
+          print({
+              'midea_weight': fit['positions']['000333.SZ']['current_weight'],
+              'yangtze_weight': fit['positions']['600900.SH']['current_weight'],
+              'peer_sets': 2,
+              'scenario_cases': 6,
+              'event_rules': len(midea['event_monitoring_rules']) + len(yangtze['event_monitoring_rules']),
+              'orders': 0,
+          })
+          PY
+
+      - name: Prove WP4 initial baseline, Candidate and portfolio economic states unchanged
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import hashlib, json, subprocess
+          from pathlib import Path
+
+          before = json.loads(Path('/tmp/wp4b_protected_hashes.json').read_text(encoding='utf-8'))
+          after = {
+              path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              for path in before
+          }
+          if before != after:
+              changed = sorted(path for path in before if before[path] != after[path])
+              raise SystemExit('WP4B_PROTECTED_STATE_CHANGED_DURING_BUILD:' + ','.join(changed))
+
+          if '${{ github.event_name }}' == 'pull_request':
+              subprocess.run(['git', 'fetch', 'origin', 'main'], check=True)
+              changed_paths = set(subprocess.check_output(
+                  ['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True
+              ).splitlines())
+              forbidden = {
+                  'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+              }
+              leaked = sorted(forbidden.intersection(changed_paths))
+              if leaked:
+                  raise SystemExit('FORBIDDEN_WP4B_LEGACY_OR_CANDIDATE_MUTATION:' + ','.join(leaked))
+          print({'protected_hashes_unchanged': len(before), 'candidate_mutations': 0, 'position_mutations': 0})
+          PY
+
+      - name: Publish deterministic WP4-B products to R2 branch
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP4_B \
+            investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP4_B_CORE2_HARDENING_ACCEPTANCE_RECORD.json
+          if git diff --cached --quiet; then
+            echo "WP4-B products already committed."
+            exit 0
+          fi
+          git commit -m "R2 WP4-B publish Core2 research hardening products"
+          git pull --rebase origin agent/r2-product-capability-hardening
+          git push origin HEAD:agent/r2-product-capability-hardening
+
+      - name: Record summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP4-B Core2 Research Hardening
+          - Midea and Yangtze Power: business, competition, governance and capital allocation
+          - Three-year financial trend and cash-conversion quality
+          - Four-company within-industry peer sets
+          - Driver-based Bear/Base/Bull models
+          - Position-level Simulation fit using WP2-R Portfolio Current
+          - Percent-string and decimal target weights are normalized without changing positions
+          - Canonical FMDL3CB quality-state, eligibility and period lineage are enforced
+          - Protected R2 Portfolio Current, Candidate and WP4 initial baseline hashes remain unchanged
+          - No automatic recommendation, order or trade authority
+          EOF

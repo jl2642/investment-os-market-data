@@ -79,6 +79,123 @@
       "location": "00_CONTROL/WP2_WP4_CANONICAL_AUDIT_CLOSURE_RECORD.json",
       "role": "POST_WP4_MATURITY_RECLASSIFICATION_GAP_REGISTER_AND_WP5_GATE",
       "status": "CURRENT_IF_PRESENT_ON_MAIN"
+    },
+    {
+      "asset_id": "REAL_ACCOUNT_POSITIONS_CURRENT",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+      "role": "WP2-R real-account Position Current",
+      "status": "CURRENT",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "SIMULATION_POSITIONS_CURRENT",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+      "role": "WP2-R simulation Position Current",
+      "status": "CURRENT",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "PORTFOLIO_MARKS_CURRENT",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json",
+      "role": "WP2-R tracked marks Current",
+      "status": "CURRENT",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP2_R_ACCEPTANCE",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json",
+      "role": "WP2-R acceptance",
+      "status": "ACCEPTED",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "CANDIDATE_REFRESH_CURRENT",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json",
+      "role": "WP3-R continuous Candidate operating Current",
+      "status": "CURRENT",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "SECURITY_INDUSTRY_MASTER_CURRENT",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/INDUSTRY_MASTER/SECURITY_INDUSTRY_MASTER_CURRENT.json",
+      "role": "WP3-R A-share industry Security Master",
+      "status": "CURRENT",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "FINANCIAL_SECTOR_SCREENING_CURRENT",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_SECTOR_SCREENING/FINANCIAL_SECTOR_SCREENING_SCORE_CURRENT.json",
+      "role": "WP3-R independent financial-sector screening",
+      "status": "CURRENT_RESEARCH_LIMITED",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "CANDIDATE_OUTCOME_CURRENT",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json",
+      "role": "WP3-R prospective 20/60/120 Candidate outcomes",
+      "status": "CURRENT_PROSPECTIVE",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP3_R_ACCEPTANCE",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json",
+      "role": "WP3-R acceptance",
+      "status": "ACCEPTED",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP4B_CORE2_CURRENT",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json",
+      "role": "WP4-B hardened Core2 research Current",
+      "status": "CURRENT_RESEARCH_ONLY",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP4B_ACCEPTANCE",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/00_CONTROL/WP4_B_CORE2_HARDENING_ACCEPTANCE_RECORD.json",
+      "role": "WP4-B acceptance",
+      "status": "ACCEPTED_RESEARCH_ONLY",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R2_ACCEPTANCE",
+      "authority": "CANONICAL_CURRENT",
+      "format": "JSON",
+      "location": "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json",
+      "role": "Integrated R2 product-capability acceptance",
+      "status": "ACCEPTED",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "R2_STATUS_CURRENT",
+      "authority": "CANONICAL_CURRENT",
+      "format": "MD",
+      "location": "investment_os_runtime/00_CONTROL/R2_STATUS_CURRENT.md",
+      "role": "Human-readable R2 status pointer",
+      "status": "CURRENT",
+      "trade_authority": "NONE"
     }
   ],
   "conversation_memory_authority": "NONE",
@@ -86,6 +203,7 @@
   "github_merge_sha": "7b3cd0f154c8bdbab55ffabe149e21d69aa4fe7a",
   "latest_governed_merge_sha": "7b3cd0f154c8bdbab55ffabe149e21d69aa4fe7a",
   "registry_id": "WP2_WP4_AUTHORITATIVE_ASSET_REGISTRY_V9",
+  "registry_status": "R2_CAPABILITY_ASSETS_ACCEPTED_PENDING_MERGE",
   "release_id": "INVESTMENT_OS_R15_20260726_WP2_WP4_CANONICAL_AUDIT_CLOSURE",
   "release_sequence": 15,
   "repository": "jl2642/investment-os-market-data",
