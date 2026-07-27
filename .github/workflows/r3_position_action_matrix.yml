@@ -1,5 +1,5 @@
-name: R3 Position Action Matrix and User Decision Pack
-run-name: "R3 build and validate position action matrix"
+name: R3 Development Boundary Correction
+run-name: "R3 development product only; R4 next"
 
 on:
   pull_request:
@@ -33,17 +33,13 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-
       - name: Install validation runtime
         run: python -m pip install --retries 5 --timeout 30 pytest
-
-      - name: Validate deterministic R3 products
+      - name: Validate corrected R3 boundary
         run: |
-          python -m py_compile automation/r3_position_action_matrix/build_r3_position_action_matrix.py
           python -m py_compile automation/r3_position_action_matrix/normalize_r3_control.py
           python -m py_compile automation/r3_position_action_matrix/patch_forward_lineage.py
           python - <<'PY'
@@ -52,83 +48,66 @@ jobs:
           root = Path('.')
           control = root / 'investment_os_runtime/00_CONTROL'
           state = root / 'investment_os_runtime/30_STATE_CURRENT'
-          matrix = json.loads((state / '60_DECISIONS/R3_POSITION_ACTION_MATRIX_CURRENT.json').read_text(encoding='utf-8'))
-          queue = json.loads((state / '60_DECISIONS/R3_USER_DECISION_QUEUE_CURRENT.json').read_text(encoding='utf-8'))
-          acceptance = json.loads((control / 'R3_POSITION_ACTION_MATRIX_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
-          execution = json.loads((control / 'EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
-          contract = json.loads((control / 'WP5_PORTFOLIO_DECISION_CONTRACT.json').read_text(encoding='utf-8'))
-          registry = json.loads((control / 'AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
-          pack = (state / '60_DECISIONS/R3_USER_DECISION_PACK_CURRENT.md').read_text(encoding='utf-8')
+          matrix = json.loads((state / '60_DECISIONS/R3_POSITION_ACTION_MATRIX_CURRENT.json').read_text())
+          queue = json.loads((state / '60_DECISIONS/R3_USER_DECISION_QUEUE_CURRENT.json').read_text())
+          acceptance = json.loads((control / 'R3_POSITION_ACTION_MATRIX_ACCEPTANCE_RECORD.json').read_text())
+          execution = json.loads((control / 'EXECUTION_REGISTER_CURRENT.json').read_text())
+          contract = json.loads((control / 'WP5_PORTFOLIO_DECISION_CONTRACT.json').read_text())
+          registry = json.loads((control / 'AUTHORITATIVE_ASSET_REGISTRY.json').read_text())
+          pack = (state / '60_DECISIONS/R3_USER_DECISION_PACK_CURRENT.md').read_text()
 
-          assert matrix['status'] == 'R3_ACTION_MATRIX_AND_USER_DECISION_PACK_READY_CURRENT_IF_PRESENT_ON_MAIN_NO_IMPLEMENTATION'
+          assert matrix['development_mode'] is True
+          assert matrix['operating_activation'] is False
+          assert matrix['development_decision_scenario_count'] == 7
+          assert matrix['ready_for_user_decision_count'] == 0
+          assert matrix['implementation_ready_count'] == 0
+          assert matrix['next_stage'] == 'R4_OPERATING_PRODUCTS_DEVELOPMENT'
           assert len(matrix['real_account']['actions']) == 7
           assert len(matrix['simulation']['actions']) == 16
-          assert len({r['security_id'] for r in matrix['real_account']['actions']}) == 7
-          assert len({r['security_id'] for r in matrix['simulation']['actions']}) == 16
-          assert matrix['ready_for_user_decision_count'] == 7
-          assert matrix['implementation_ready_count'] == 0
-          assert all(not r['implementation_ready'] for r in matrix['real_account']['actions'] + matrix['simulation']['actions'])
-          assert matrix['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'legacy_decisions': 0, 'orders': 0}
-          assert matrix['trade_authority'] == 'NONE'
+          assert all(r['development_scenario_only'] and not r['ready_for_user_decision'] for r in matrix['real_account']['actions'] + matrix['simulation']['actions'])
 
-          assert queue['ready_for_user_decision_count'] == 7
+          assert queue['status'] == 'DEVELOPMENT_SCENARIO_LIBRARY_NOT_LIVE_USER_QUEUE'
+          assert queue['ready_for_user_decision_count'] == 0
           assert queue['implementation_ready_count'] == 0
-          assert queue['orders'] == 0
-          assert acceptance['real_holding_coverage'] == 7
-          assert acceptance['simulation_holding_coverage'] == 16
-          assert acceptance['position_action_matrix_complete'] is True
-          assert acceptance['user_decision_pack_complete'] is True
-          assert acceptance['governed_implementation_started'] is False
-          assert acceptance['control_metadata_normalized'] is True
-          assert execution['current_step'] == 'R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_CURRENT_IF_PRESENT_ON_MAIN'
-          assert execution['development_roadmap']['R2']['status'] == 'COMPLETED_ON_MAIN'
-          assert execution['development_roadmap']['R3']['status'] == 'CURRENT_IF_PRESENT_ON_MAIN'
-          assert execution['portfolio_r2']['status'] == 'COMPLETED_ON_MAIN'
-          assert execution['portfolio_r2']['merge_sha'] == 'fc57e7a08fee6870130871e8491bb2db59b70e54'
-          assert execution['wp5']['branch'] == 'agent/r3-position-action-matrix'
-          assert execution['wp5']['source_pr'] == 155
-          assert execution['wp5']['user_decision_queue_path'].endswith('R3_USER_DECISION_QUEUE_CURRENT.json')
-          assert execution['wp5']['ready_for_user_decision_count'] == 7
-          assert execution['wp5']['implementation_ready_count'] == 0
-          assert execution['next_task'] == 'USER_REVIEW_R3_DECISION_PACK_BEFORE_ANY_IMPLEMENTATION_PROPOSAL'
-          assert contract['fixed_workstreams']['WP5-3']['status'] == 'COMPLETED_ON_MAIN'
-          assert contract['fixed_workstreams']['WP5-4']['status'] == 'COMPLETED_CURRENT_IF_PRESENT_ON_MAIN'
-          assert contract['fixed_workstreams']['WP5-5']['status'] == 'USER_DECISION_PACK_READY_PENDING_USER_SELECTION'
-          assert contract['decision_queue_path'].endswith('R3_USER_DECISION_QUEUE_CURRENT.json')
-          assert contract['ready_for_user_decision_count'] == 7
-          assert contract['implementation_ready_count'] == 0
-          registered = {row['asset_id']: row for row in registry['assets']}
-          assert registered['GITHUB_ACTIVE_RUNTIME']['branch_candidate'] == 'agent/r3-position-action-matrix'
-          assert registered['GITHUB_ACTIVE_RUNTIME']['latest_governed_merge_sha'] == 'fc57e7a08fee6870130871e8491bb2db59b70e54'
-          assert registered['R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT']['status'] == 'COMPLETED_ON_MAIN'
-          assert registry['latest_completed_main_pr'] == 154
-          assert registry['release_sequence'] == 19
-          assert '易方达增强回报债券A减持约¥2.4万–¥3.3万' in pack
-          assert '模拟盘不整体推倒重来' in pack
+          assert queue['next_stage'] == 'R4_OPERATING_PRODUCTS_DEVELOPMENT'
+          assert all(not item['approval_required_now'] for item in queue['decision_items'])
 
-          for rel, expected in acceptance['protected_state_hashes'].items():
-              path_map = {
+          assert acceptance['development_stage'] is True
+          assert acceptance['operating_activation'] is False
+          assert acceptance['next_authorized_step'] == 'R4_OPERATING_PRODUCTS_DEVELOPMENT'
+          assert execution['development_roadmap']['R3']['status'] == 'DEVELOPMENT_PRODUCT_COMPLETE_ON_MAIN'
+          assert execution['development_roadmap']['R4']['status'] == 'NOT_STARTED_NEXT_AUTHORIZED_STAGE'
+          assert execution['next_task'] == 'R4_OPERATING_PRODUCTS_DEVELOPMENT'
+          assert execution['wp5']['ready_for_user_decision_count'] == 0
+          assert execution['wp5']['operating_activation'] is False
+          assert contract['ready_for_user_decision_count'] == 0
+          assert contract['operating_activation'] is False
+          assert contract['next_stage'] == 'R4_OPERATING_PRODUCTS_DEVELOPMENT'
+          assert registry['latest_completed_main_pr'] == 155
+          assert registry['latest_completed_main_merge_sha'] == '8682e4ae8ecd5860e1957efc12ba50645767c545'
+          assert '> **开发阶段说明**' in pack
+          assert '当前Ready for User Decision：`0`' in pack
+
+          for key, expected in acceptance['protected_state_hashes'].items():
+              paths = {
                   'real_account_positions_sha256': state / '10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
                   'simulation_positions_sha256': state / '20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
                   'candidate_current_sha256': state / '40_CANDIDATE/CANDIDATE_CURRENT.json',
                   'legacy_decisions_sha256': state / '60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
               }
-              assert hashlib.sha256(path_map[rel].read_bytes()).hexdigest() == expected
-          print({'real': 7, 'simulation': 16, 'decisions': 7, 'implementation_ready': 0, 'mutations': 0, 'orders': 0, 'control_metadata': 'normalized'})
+              assert hashlib.sha256(paths[key].read_bytes()).hexdigest() == expected
+          print({'development_scenarios': 7, 'live_decisions': 0, 'operating_activation': False, 'next_stage': 'R4_OPERATING_PRODUCTS_DEVELOPMENT', 'mutations': 0, 'orders': 0})
           PY
-
       - name: Validate forward lineage
         run: python -m pytest -q automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py
-
-      - name: Enforce exact R3 scope
+      - name: Enforce correction-only scope
         run: |
           git fetch origin main
           python - <<'PY'
           import subprocess
-          changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+          changed = set(subprocess.check_output(['git','diff','--name-only','origin/main...HEAD'], text=True).splitlines())
           allowed = {
               '.github/workflows/r3_position_action_matrix.yml',
-              'automation/r3_position_action_matrix/build_r3_position_action_matrix.py',
               'automation/r3_position_action_matrix/normalize_r3_control.py',
               'automation/r3_position_action_matrix/patch_forward_lineage.py',
               'automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py',
@@ -144,15 +123,13 @@ jobs:
           }
           forbidden = sorted(changed - allowed)
           if forbidden:
-              raise SystemExit('R3_SCOPE_VIOLATION:' + ','.join(forbidden))
+              raise SystemExit('R3_CORRECTION_SCOPE_VIOLATION:' + ','.join(forbidden))
           protected = {
               'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
               'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
               'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
               'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
           }
-          leaked = sorted(changed & protected)
-          if leaked:
-              raise SystemExit('R3_PROTECTED_STATE_MUTATION:' + ','.join(leaked))
-          print({'changed_paths': sorted(changed), 'scope': 'R3_ACTION_MATRIX_AND_USER_DECISION_PACK_ONLY'})
+          assert not (changed & protected)
+          print({'scope': 'R3_DEVELOPMENT_BOUNDARY_CORRECTION_ONLY', 'files': sorted(changed)})
           PY

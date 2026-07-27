@@ -17,12 +17,13 @@
       "status": "COMPLETED_ON_MAIN"
     },
     "R3": {
+      "merge_sha": "8682e4ae8ecd5860e1957efc12ba50645767c545",
       "source_pr": 155,
-      "status": "CURRENT_IF_PRESENT_ON_MAIN"
+      "status": "DEVELOPMENT_PRODUCT_COMPLETE_ON_MAIN"
     },
     "R4": {
       "name": "OPERATING_PRODUCTS",
-      "status": "NOT_STARTED"
+      "status": "NOT_STARTED_NEXT_AUTHORIZED_STAGE"
     },
     "R5": {
       "name": "ATTRIBUTION_AND_CALIBRATION",
@@ -66,8 +67,8 @@
     "simulation_trade_mutations": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "USER_REVIEW_R3_DECISION_PACK_BEFORE_ANY_IMPLEMENTATION_PROPOSAL",
-  "overall_status": "R3_ACTION_MATRIX_AND_USER_DECISION_PACK_READY_CURRENT_IF_PRESENT_ON_MAIN_NO_IMPLEMENTATION",
+  "next_task": "R4_OPERATING_PRODUCTS_DEVELOPMENT",
+  "overall_status": "R3_DEVELOPMENT_PRODUCT_COMPLETE_NO_OPERATING_ACTIVATION_R4_NEXT",
   "portfolio_r2": {
     "merge_sha": "fc57e7a08fee6870130871e8491bb2db59b70e54",
     "r3_started": true,
@@ -77,11 +78,14 @@
     "status": "COMPLETED_ON_MAIN"
   },
   "portfolio_r3": {
-    "decision_items": 7,
+    "development_decision_scenarios": 7,
     "implementation_ready": 0,
+    "next_stage": "R4_OPERATING_PRODUCTS_DEVELOPMENT",
+    "operating_activation": false,
+    "ready_for_user_decision": 0,
     "real_positions": 7,
     "simulation_positions": 16,
-    "status": "CURRENT_IF_PRESENT_ON_MAIN"
+    "status": "DEVELOPMENT_PRODUCT_COMPLETE_ON_MAIN"
   },
   "previous_wp1_5d_metadata_sha": "5a7e4f13e8f02eaa56f88ebbd8e924e08ed79124",
   "product_authority": {
@@ -583,7 +587,7 @@
     "a_share_core_satellite_role_defined": true,
     "action_review_allowed": true,
     "bond_fund_lookthrough_complete": false,
-    "branch": "agent/r3-position-action-matrix",
+    "branch": "agent/r3-development-boundary-correction",
     "canonical_promotion_semantics_v2": true,
     "core2_scenario_unit_scale_repaired": true,
     "decision_current_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json",
@@ -597,6 +601,7 @@
       "sp500_preferred_vehicle": "159655.SZ_CONDITIONAL"
     },
     "decision_input_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json",
+    "development_decision_scenario_count": 7,
     "forced_action_prohibited": true,
     "formal_plan": "WP5_1_TO_WP5_5",
     "fresh_completed_close_for_action": false,
@@ -605,7 +610,8 @@
     "implementation_blocked_pending_post_2026_07_24_delta_confirmation": true,
     "implementation_ready_count": 0,
     "latest_accepted_decision_watermark": "2026-07-24_CLOSE",
-    "next_gate": "USER_REVIEW_THEN_FRESH_MARKS_POSITION_CONTINUITY_AND_GOVERNED_IMPLEMENTATION_PROPOSAL",
+    "next_gate": "R4_OPERATING_PRODUCTS_DEVELOPMENT",
+    "operating_activation": false,
     "order_execution_allowed": false,
     "p0_action_review_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_P0_ACTION_REVIEW_CURRENT.json",
     "p0_event_classification_complete": true,
@@ -636,17 +642,17 @@
     "r3_action_matrix_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_POSITION_ACTION_MATRIX_CURRENT.json",
     "r3_source_pr": 155,
     "r3_user_decision_pack_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_USER_DECISION_PACK_CURRENT.md",
-    "ready_for_user_decision_count": 7,
+    "ready_for_user_decision_count": 0,
     "real_account_lookthrough_complete": true,
     "real_account_lookthrough_path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/REAL_ACCOUNT_LOOKTHROUGH/WP5_REAL_ACCOUNT_LOOKTHROUGH_CURRENT.json",
     "real_account_structure_review_complete": true,
     "real_account_structure_review_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_REAL_ACCOUNT_STRUCTURE_REVIEW_CURRENT.json",
-    "reason": "R3_USER_DECISION_PACK_READY_AWAITING_USER_SELECTION_FRESH_MARKS_AND_POSITION_CONTINUITY",
-    "source_head_sha": "25cc5f078d2076bce06ccb4822b5e83f2331ed45",
-    "source_pr": 155,
+    "reason": "R3_CAPABILITY_ACCEPTED_OPERATING_ACTIVATION_DEFERRED_UNTIL_R6",
+    "source_head_sha": "343361f94e8dee4a8cae6ee1d5c0adf5c89b8a9e",
+    "source_pr": 157,
     "sp500_duplicate_exposure_identified": true,
     "start_allowed": true,
-    "status": "USER_DECISION_PACK_READY_NO_IMPLEMENTATION",
+    "status": "R3_DEVELOPMENT_PRODUCT_COMPLETE_R4_NEXT_NO_OPERATING_ACTIVATION",
     "trade_authority": "NONE",
     "user_decision_pack_complete": true,
     "user_decision_queue_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_USER_DECISION_QUEUE_CURRENT.json",

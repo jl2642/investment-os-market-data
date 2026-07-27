@@ -3,8 +3,10 @@
   "data_watermark": "2026-07-24_CLOSE",
   "decision_items": [
     {
+      "approval_required_now": false,
       "decision_id": "R3-D1",
       "default": true,
+      "development_scenario_only": true,
       "implementation_ready": false,
       "recommendation": "APPROVE",
       "scope": [
@@ -17,59 +19,77 @@
       "title": "采用长期稳健成长作为真实账户第一阶段迁移基准"
     },
     {
+      "approval_required_now": false,
       "decision_id": "R3-D2",
       "dependency": "R3-D1",
+      "development_scenario_only": true,
       "implementation_ready": false,
       "recommendation": "APPROVE_CONDITIONAL",
       "title": "易方达增强回报债券A减持约¥2.4万–¥3.3万"
     },
     {
+      "approval_required_now": false,
       "decision_id": "R3-D3",
       "dependency": "R3-D1",
+      "development_scenario_only": true,
       "implementation_ready": false,
       "recommendation": "APPROVE_CONDITIONAL",
       "title": "真实账户中证500ETF减持约¥1.9万–¥2.6万"
     },
     {
+      "approval_required_now": false,
       "decision_id": "R3-D4",
       "dependency": "R3-D1",
+      "development_scenario_only": true,
       "implementation_ready": false,
       "recommendation": "APPROVE_CONDITIONAL",
       "title": "南方中证A500ETF增持约¥3万–¥4万"
     },
     {
+      "approval_required_now": false,
       "decision_id": "R3-D5",
       "dependency": "R3-D1",
+      "development_scenario_only": true,
       "implementation_ready": false,
       "recommendation": "APPROVE_CONDITIONAL",
       "title": "159612迁移至159655，并向159655新增约¥1.3万–¥1.9万"
     },
     {
+      "approval_required_now": false,
       "decision_id": "R3-D6",
       "dependency": "R3-D1",
+      "development_scenario_only": true,
       "implementation_ready": false,
       "recommendation": "APPROVE",
       "title": "两只纯防御债基保持、不新增、不机械削减"
     },
     {
+      "approval_required_now": false,
       "decision_id": "R3-D7",
       "default": true,
+      "development_scenario_only": true,
       "implementation_ready": false,
       "recommendation": "APPROVE",
       "title": "模拟盘保持现有袖套结构，冻结亏损成长子集新增并保留15%–25%研究现金"
     }
   ],
+  "development_decision_scenario_count": 7,
+  "development_mode": true,
   "implementation_ready_count": 0,
+  "next_stage": "R4_OPERATING_PRODUCTS_DEVELOPMENT",
+  "operating_activation": false,
   "orders": 0,
   "queue_id": "R3_USER_DECISION_QUEUE_CURRENT_V1",
-  "ready_for_user_decision_count": 7,
+  "ready_for_user_decision_count": 0,
   "required_before_any_implementation_proposal": [
-    "user selects approve/reject/modify for each relevant decision item",
-    "user confirms zero transactions or provides deltas after 2026-07-24",
-    "market marks and fund NAV are refreshed to the latest completed close",
-    "same-session execution-quality checks pass for ETF migrations"
+    "R4 operating products are complete",
+    "R5 attribution and calibration are complete",
+    "R6 production acceptance passes",
+    "the system is explicitly activated for operating observation",
+    "a fresh live decision pack is regenerated from then-current positions, marks and evidence",
+    "the user explicitly approves that future live decision pack"
   ],
   "source_pr": 155,
-  "status": "READY_FOR_USER_REVIEW_NOT_IMPLEMENTATION_READY",
+  "status": "DEVELOPMENT_SCENARIO_LIBRARY_NOT_LIVE_USER_QUEUE",
   "trade_authority": "NONE"
 }
