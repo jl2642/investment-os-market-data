@@ -15,13 +15,16 @@
     "real_account": 0,
     "simulation": 0
   },
-  "generated_at": "2026-07-27T01:45:39.461143+00:00",
+  "full_position_review_complete": true,
+  "full_position_review_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POSITION_REVIEW_CURRENT.json",
+  "generated_at": "2026-07-27T01:52:38.486172+00:00",
   "readiness_blockers": [
     "NEXT_COMPLETED_A_SHARE_CLOSE_MARK_REFRESH_REQUIRED",
     "USER_TRANSACTION_DELTA_CONTINUITY_CONFIRMATION_REQUIRED_AT_ACTION_GATE",
     "REAL_ACCOUNT_BROKER_OR_USER_POSITION_VERIFICATION_REQUIRED",
     "CORE2_CURRENT_EVENT_CLASSIFICATION_REQUIRED",
-    "FULL_POSITION_LEVEL_THESIS_AND_RISK_REVIEW_REQUIRED_BEFORE_SIMULATION_CHANGES"
+    "P0_AND_NON_CORE2_RESEARCH_REUNDERWRITE_REQUIRED_BEFORE_SIMULATION_CHANGES",
+    "REAL_ACCOUNT_OVERLAP_AND_LOOKTHROUGH_REVIEW_REQUIRED_BEFORE_REAL_CHANGES"
   ],
   "real_account": {
     "account_total_assets": 451176.72742,
@@ -119,7 +122,18 @@
     "execution_cash_weight": 0.21780494,
     "holding_count": 16,
     "implementation_ready": false,
-    "provisional_judgment": "OBSERVE_AND_REVIEW_POSITION_LEVEL_THESIS_NO_AUTOMATIC_REBALANCE"
+    "non_wp4b_position_count": 14,
+    "provisional_judgment": "OBSERVE_AND_REVIEW_POSITION_LEVEL_THESIS_NO_AUTOMATIC_REBALANCE",
+    "review_priority_counts": {
+      "P0_FULL_THESIS_REUNDERWRITE": 1,
+      "P0_TRIM_OR_EXIT_REUNDERWRITE": 2,
+      "P1_CORE2_CONDITIONAL": 2,
+      "P1_LOSS_AND_THESIS_REVIEW": 1,
+      "P2_BENCHMARK_ROLE_REVIEW": 1,
+      "P2_HOLD_REVIEW": 8,
+      "P2_UNDERWEIGHT_REVIEW": 1
+    },
+    "wp4b_hardened_position_count": 2
   },
   "state_id": "WP5_PORTFOLIO_DECISION_CURRENT",
   "status": "CONDITIONAL_PORTFOLIO_REVIEW_NOT_IMPLEMENTATION_READY",
