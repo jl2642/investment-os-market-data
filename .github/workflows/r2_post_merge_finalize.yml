@@ -8,12 +8,14 @@ on:
       - "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json"
       - "automation/r2_integration/**"
       - ".github/workflows/r2_post_merge_finalize.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 env:
   TRADE_AUTHORITY: NONE
+  R2_MERGE_SHA: 33a5484f2ca919e80eef96a6750f801f751f8bdf
 
 jobs:
   finalize-on-main:
@@ -29,13 +31,18 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Finalize R2 on main with merge SHA
+      - name: Verify governed R2 merge SHA exists on main
+        run: |
+          git merge-base --is-ancestor "${R2_MERGE_SHA}" HEAD
+          test "$(git show -s --format=%s "${R2_MERGE_SHA}")" = "R2: Portfolio Current, Candidate Refresh and Core2 hardening (#145)"
+
+      - name: Finalize R2 on main with governed merge SHA
         run: |
           python automation/r2_integration/finalize_r2.py \
             --repo-root . \
             --mode post-merge \
             --pr-number 145 \
-            --merge-sha "${GITHUB_SHA}"
+            --merge-sha "${R2_MERGE_SHA}"
 
       - name: Validate post-merge canonical status
         run: |
@@ -43,7 +50,7 @@ jobs:
           import json, os
           from pathlib import Path
           root = Path('.')
-          sha = os.environ['GITHUB_SHA']
+          sha = os.environ['R2_MERGE_SHA']
           r2 = json.loads((root / 'investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json').read_text(encoding='utf-8'))
           execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
           registry = json.loads((root / 'investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
@@ -64,6 +71,9 @@ jobs:
           assert execution['r2']['merge_sha'] == sha
           assert execution['r2']['status'] == 'R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN'
           assert execution['r2']['wp5_status'] == 'READY_PENDING_EXPLICIT_WP5_START'
+          assert execution['wp5']['status'] == 'READY_PENDING_EXPLICIT_WP5_START'
+          assert execution['wp5']['start_allowed'] is True
+          assert execution['wp5']['action_review_allowed'] is False
 
           assert registry['registry_status'] == 'R2_CAPABILITY_ASSETS_ACCEPTED_ON_MAIN'
           assert registry['latest_governed_merge_sha'] == sha
@@ -102,7 +112,7 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## R2 Post-Merge Finalization
-          - Writes the actual main merge SHA to Execution Register, Asset Registry and R2 acceptance
+          - Writes the actual PR #145 merge SHA to Execution Register, Asset Registry and R2 acceptance
           - Marks R2 accepted on main
           - Changes WP5 from merge-blocked to ready for a separate explicit WP5 start
           - Converts legacy R1 gaps from WP5 blockers to closed or explicitly governed operating limits
