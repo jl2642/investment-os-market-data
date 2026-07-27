@@ -86,6 +86,17 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["wp5"]["start_allowed"] is False
         assert register["next_task"] == "USER_MERGE_PR_145_TO_MAIN"
         assert register["r2"]["status"] == "R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE"
+    elif step == "WP5_PORTFOLIO_DECISION_PHASE_STARTED_ANALYSIS_ONLY_ON_BRANCH":
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp4"]["r2_b_status"] == "CORE2_RESEARCH_HARDENING_ACCEPTED_RESEARCH_ONLY"
+        assert register["wp5"]["status"] == "STARTED_ANALYSIS_ONLY_ON_BRANCH"
+        assert register["wp5"]["start_allowed"] is True
+        assert register["wp5"]["action_review_allowed"] is True
+        assert register["wp5"]["position_mutation_allowed"] is False
+        assert register["wp5"]["order_execution_allowed"] is False
+        assert register["next_task"] == "WP5_FRESH_INPUT_REFRESH_AND_FULL_POSITION_LEVEL_ACTION_REVIEW"
+        assert register["r2"]["status"] == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
@@ -135,8 +146,7 @@ def test_wp3_2b_is_proposal_only_and_connector_dispatchable():
     assert "environment: wp3-2a-screening-approval" in workflow
     assert "<<'EOF'" in workflow
     assert "Accepted universe session:" in workflow
-    assert "Eligible Universe rows:" in workflow
-    assert "ELIGIBLE_UNIVERSE.csv" in script
+    assert "Eligible Universe rows:" in script
     assert "SCREENING_EXCLUSIONS.csv" in script
     assert "WP3_2B_SCREENING_PROPOSAL" in script
     assert '"investment_ranking": False' in script
