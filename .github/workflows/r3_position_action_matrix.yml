@@ -44,6 +44,7 @@ jobs:
       - name: Validate deterministic R3 products
         run: |
           python -m py_compile automation/r3_position_action_matrix/build_r3_position_action_matrix.py
+          python -m py_compile automation/r3_position_action_matrix/normalize_r3_control.py
           python -m py_compile automation/r3_position_action_matrix/patch_forward_lineage.py
           python - <<'PY'
           import hashlib, json
@@ -56,6 +57,7 @@ jobs:
           acceptance = json.loads((control / 'R3_POSITION_ACTION_MATRIX_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
           execution = json.loads((control / 'EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
           contract = json.loads((control / 'WP5_PORTFOLIO_DECISION_CONTRACT.json').read_text(encoding='utf-8'))
+          registry = json.loads((control / 'AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
           pack = (state / '60_DECISIONS/R3_USER_DECISION_PACK_CURRENT.md').read_text(encoding='utf-8')
 
           assert matrix['status'] == 'R3_ACTION_MATRIX_AND_USER_DECISION_PACK_READY_CURRENT_IF_PRESENT_ON_MAIN_NO_IMPLEMENTATION'
@@ -77,14 +79,30 @@ jobs:
           assert acceptance['position_action_matrix_complete'] is True
           assert acceptance['user_decision_pack_complete'] is True
           assert acceptance['governed_implementation_started'] is False
+          assert acceptance['control_metadata_normalized'] is True
           assert execution['current_step'] == 'R3_POSITION_ACTION_MATRIX_AND_USER_DECISION_PACK_CURRENT_IF_PRESENT_ON_MAIN'
           assert execution['development_roadmap']['R2']['status'] == 'COMPLETED_ON_MAIN'
           assert execution['development_roadmap']['R3']['status'] == 'CURRENT_IF_PRESENT_ON_MAIN'
+          assert execution['portfolio_r2']['status'] == 'COMPLETED_ON_MAIN'
+          assert execution['portfolio_r2']['merge_sha'] == 'fc57e7a08fee6870130871e8491bb2db59b70e54'
+          assert execution['wp5']['branch'] == 'agent/r3-position-action-matrix'
+          assert execution['wp5']['source_pr'] == 155
+          assert execution['wp5']['user_decision_queue_path'].endswith('R3_USER_DECISION_QUEUE_CURRENT.json')
           assert execution['wp5']['ready_for_user_decision_count'] == 7
           assert execution['wp5']['implementation_ready_count'] == 0
           assert execution['next_task'] == 'USER_REVIEW_R3_DECISION_PACK_BEFORE_ANY_IMPLEMENTATION_PROPOSAL'
+          assert contract['fixed_workstreams']['WP5-3']['status'] == 'COMPLETED_ON_MAIN'
           assert contract['fixed_workstreams']['WP5-4']['status'] == 'COMPLETED_CURRENT_IF_PRESENT_ON_MAIN'
           assert contract['fixed_workstreams']['WP5-5']['status'] == 'USER_DECISION_PACK_READY_PENDING_USER_SELECTION'
+          assert contract['decision_queue_path'].endswith('R3_USER_DECISION_QUEUE_CURRENT.json')
+          assert contract['ready_for_user_decision_count'] == 7
+          assert contract['implementation_ready_count'] == 0
+          registered = {row['asset_id']: row for row in registry['assets']}
+          assert registered['GITHUB_ACTIVE_RUNTIME']['branch_candidate'] == 'agent/r3-position-action-matrix'
+          assert registered['GITHUB_ACTIVE_RUNTIME']['latest_governed_merge_sha'] == 'fc57e7a08fee6870130871e8491bb2db59b70e54'
+          assert registered['R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT']['status'] == 'COMPLETED_ON_MAIN'
+          assert registry['latest_completed_main_pr'] == 154
+          assert registry['release_sequence'] == 19
           assert '易方达增强回报债券A减持约¥2.4万–¥3.3万' in pack
           assert '模拟盘不整体推倒重来' in pack
 
@@ -96,7 +114,7 @@ jobs:
                   'legacy_decisions_sha256': state / '60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
               }
               assert hashlib.sha256(path_map[rel].read_bytes()).hexdigest() == expected
-          print({'real': 7, 'simulation': 16, 'decisions': 7, 'implementation_ready': 0, 'mutations': 0, 'orders': 0})
+          print({'real': 7, 'simulation': 16, 'decisions': 7, 'implementation_ready': 0, 'mutations': 0, 'orders': 0, 'control_metadata': 'normalized'})
           PY
 
       - name: Validate forward lineage
@@ -111,6 +129,7 @@ jobs:
           allowed = {
               '.github/workflows/r3_position_action_matrix.yml',
               'automation/r3_position_action_matrix/build_r3_position_action_matrix.py',
+              'automation/r3_position_action_matrix/normalize_r3_control.py',
               'automation/r3_position_action_matrix/patch_forward_lineage.py',
               'automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py',
               'investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json',
