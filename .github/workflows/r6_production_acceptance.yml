@@ -109,6 +109,7 @@ jobs:
           changed |= set(subprocess.check_output(["git", "diff", "--name-only", "origin/main...HEAD"], text=True).splitlines())
           exact = {
               ".github/workflows/r6_production_acceptance.yml",
+              "automation/r6_production_acceptance/R6_SCOPE_NOTE.md",
               "automation/r6_production_acceptance/build_r6_production_acceptance.py",
               "automation/r6_production_acceptance/validate_r6_production_acceptance.py",
               "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py",
