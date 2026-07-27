@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "WP5_E_POST_CLOSE_ACTION_GATE_CONTRACT_V1",
+  "purpose": "Recalculate proposal-only P0 action posture after a new completed close while preserving human confirmation and execution boundaries.",
+  "inputs": [
+    "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_P0_ACTION_REVIEW_CURRENT.json"
+  ],
+  "gates": {
+    "completed_close": "Latest completed close must be later than the research baseline close.",
+    "position_continuity": "User-confirmed transaction continuity must extend through the latest completed close.",
+    "weight_band": "Current Simulation weight is compared with the governed revised band.",
+    "expected_return": "Base-case expected return is recalculated from the latest completed close and compared with a 15% hurdle.",
+    "human_decision": "Any add or trim result is a proposal pending user approval, never an automatic position change.",
+    "execution": "No order can be produced or executed; trade_authority remains NONE."
+  },
+  "operating_schedule": {
+    "upstream_marks_refresh": "22:45 Asia/Shanghai weekdays",
+    "post_close_gate": "23:30 Asia/Shanghai weekdays",
+    "reason": "Run after the existing Portfolio Current refresh and official fund-NAV availability window."
+  },
+  "economic_mutations": {
+    "real_account": 0,
+    "simulation": 0,
+    "candidate_membership": 0,
+    "orders": 0
+  },
+  "trade_authority": "NONE"
+}
