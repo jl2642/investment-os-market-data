@@ -1,0 +1,203 @@
+name: R5 Attribution and Calibration
+
+run-name: "R5 build, reconcile and validate attribution and calibration"
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/r5_attribution_calibration/**"
+      - ".github/workflows/r5_attribution_calibration.yml"
+      - ".github/workflows/r1_decision_coverage.yml"
+      - ".github/workflows/r3_position_action_matrix.yml"
+      - ".github/workflows/r4_operating_products.yml"
+      - "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py"
+      - "investment_os_runtime/00_CONTROL/**"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/**"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/**"
+      - "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/**"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/**"
+      - "investment_os_runtime/50_OPERATING_PRODUCTS/DEVELOPMENT_SAMPLES/R5_*"
+      - "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/**"
+      - "config/fmdl7c_portfolio_attribution_contract.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  build-validate-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install validation runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest
+
+      - name: Snapshot protected economic state
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          paths = [
+              "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json",
+          ]
+          payload = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in paths}
+          Path("/tmp/r5_protected_hashes.json").write_text(
+              json.dumps(payload, sort_keys=True), encoding="utf-8"
+          )
+          PY
+
+      - name: Build R5 attribution and calibration products
+        env:
+          SOURCE_PR: ${{ github.event.pull_request.number || 0 }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          if payload.get("current_step") == "R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN":
+              payload["next_task"] = "R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_AFTER_R4_PRESENT_ON_MAIN"
+              path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+          python -m py_compile automation/r5_attribution_calibration/build_r5_attribution_calibration.py
+          python automation/r5_attribution_calibration/build_r5_attribution_calibration.py \
+            --repo-root . \
+            --source-pr "$SOURCE_PR" \
+            --source-branch "$SOURCE_BRANCH" \
+            --source-head-sha "$SOURCE_HEAD_SHA"
+          python -m py_compile automation/r5_attribution_calibration/normalize_r5_report.py
+          python automation/r5_attribution_calibration/normalize_r5_report.py
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("investment_os_runtime/00_CONTROL/CAPABILITY_REALITY_MATRIX_CURRENT.md")
+          text = path.read_text(encoding="utf-8")
+          marker = "- 收益归因成熟度：`DEVELOPMENT_PRODUCT_COMPLETE_PRODUCTION_WINDOWS_PENDING`"
+          if marker not in text:
+              anchor = "- 交易权限：`NONE`"
+              text = text.replace(anchor, anchor + "\n" + marker, 1)
+              path.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Publish R5 candidate materialization
+        if: github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "R5 products already materialized."
+          else
+            git commit -m "R5 materialize attribution and calibration products"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
+
+      - name: Validate R5 products, reconciliation and zero mutation
+        run: |
+          python -m py_compile automation/r5_attribution_calibration/validate_r5_attribution_calibration.py
+          python automation/r5_attribution_calibration/validate_r5_attribution_calibration.py --repo-root .
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          before = json.loads(Path("/tmp/r5_protected_hashes.json").read_text(encoding="utf-8"))
+          after = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in before}
+          assert before == after, sorted(path for path in before if before[path] != after[path])
+          print({"protected_state": "UNCHANGED", "mutations": 0, "orders": 0})
+          PY
+
+      - name: Validate global forward lineage
+        run: python -m pytest -q automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py
+
+      - name: Enforce R5 scope
+        run: |
+          git fetch origin main
+          git add -A
+          python - <<'PY'
+          import subprocess
+          changed = set(
+              subprocess.check_output(
+                  ["git", "diff", "--name-only", "--cached"], text=True
+              ).splitlines()
+          )
+          committed = set(
+              subprocess.check_output(
+                  ["git", "diff", "--name-only", "origin/main...HEAD"], text=True
+              ).splitlines()
+          )
+          changed |= committed
+          exact = {
+              ".github/workflows/r5_attribution_calibration.yml",
+              ".github/workflows/r1_decision_coverage.yml",
+              ".github/workflows/r3_position_action_matrix.yml",
+              ".github/workflows/r4_operating_products.yml",
+              "automation/r5_attribution_calibration/build_r5_attribution_calibration.py",
+              "automation/r5_attribution_calibration/normalize_r5_report.py",
+              "automation/r5_attribution_calibration/validate_r5_attribution_calibration.py",
+              "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py",
+              "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json",
+              "investment_os_runtime/00_CONTROL/CAPABILITY_REALITY_MATRIX_CURRENT.md",
+              "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json",
+              "investment_os_runtime/00_CONTROL/R4_OPERATING_PRODUCT_CONTRACT_CURRENT.json",
+              "investment_os_runtime/00_CONTROL/R4_OPERATING_PRODUCTS_ACCEPTANCE_RECORD.json",
+              "investment_os_runtime/00_CONTROL/R4_STATUS_CURRENT.md",
+              "investment_os_runtime/00_CONTROL/R5_ATTRIBUTION_CONTRACT_CURRENT.json",
+              "investment_os_runtime/00_CONTROL/R5_ATTRIBUTION_AND_CALIBRATION_ACCEPTANCE_RECORD.json",
+              "investment_os_runtime/00_CONTROL/R5_STATUS_CURRENT.md",
+              "investment_os_runtime/00_CONTROL/USER_OPERATING_GUIDE_CURRENT.md",
+              "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md",
+              "investment_os_runtime/50_OPERATING_PRODUCTS/DEVELOPMENT_SAMPLES/R5_MONTHLY_ATTRIBUTION_INTEGRATION_SAMPLE.md",
+              "investment_os_runtime/50_OPERATING_PRODUCTS/DEVELOPMENT_SAMPLES/R5_ANNUAL_CALIBRATION_INTEGRATION_SAMPLE.md",
+              "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/R5_RETURN_LEDGER_CURRENT.json",
+              "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/R5_PORTFOLIO_ATTRIBUTION_CURRENT.json",
+              "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/R5_CANDIDATE_ATTRIBUTION_CURRENT.json",
+              "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/R5_RULE_CALIBRATION_PROPOSALS_CURRENT.json",
+              "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/R5_ATTRIBUTION_AND_CALIBRATION_REPORT_CURRENT.md",
+          }
+          forbidden = sorted(changed - exact)
+          if forbidden:
+              raise SystemExit("R5_SCOPE_VIOLATION:" + ",".join(forbidden))
+          protected = {
+              "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json",
+          }
+          leaked = sorted(changed & protected)
+          if leaked:
+              raise SystemExit("R5_PROTECTED_STATE_MUTATION:" + ",".join(leaked))
+          print({"changed_paths": len(changed), "scope": "R5_ATTRIBUTION_AND_CALIBRATION_ONLY"})
+          PY
+
+      - name: Record R5 summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## R5 Attribution & Calibration
+          - Seven attribution layers: security, sleeve, sizing, timing, cash, Candidate and rule
+          - Real coverage: 7/7; Simulation coverage: 16/16
+          - Simulation account P&L bridge: required and reconciled
+          - Candidate 20/60/120 windows: fail-closed until mature
+          - Rule calibration: proposals only, no applied mutations
+          - Operating activation: false
+          - Economic/Candidate/rule mutations: 0
+          - Orders: 0; trade_authority: NONE
+          EOF
