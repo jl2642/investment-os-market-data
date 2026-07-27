@@ -1,0 +1,220 @@
+name: R1 Decision Coverage Completion
+run-name: "R1 complete all current-position decision coverage"
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/r1_decision_coverage/**"
+      - ".github/workflows/r1_decision_coverage.yml"
+      - "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py"
+      - "investment_os_runtime/00_CONTROL/R1_*"
+      - "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md"
+      - "investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json"
+      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json"
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/R1_*"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R1_*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  build-validate-publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install validation runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest
+
+      - name: Snapshot protected economic, Candidate and legacy-decision states
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          paths = [
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          ]
+          hashes = {p: hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in paths}
+          Path('/tmp/r1_protected_hashes.json').write_text(json.dumps(hashes, sort_keys=True), encoding='utf-8')
+          PY
+
+      - name: Build unified R1 decision coverage
+        run: |
+          python -m py_compile automation/r1_decision_coverage/build_r1_decision_coverage.py
+          python automation/r1_decision_coverage/build_r1_decision_coverage.py \
+            --repo-root . \
+            --source-head-sha "${{ github.event.pull_request.head.sha || github.sha }}"
+
+      - name: Validate coverage completeness, stage boundary and zero mutation
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          control = root / 'investment_os_runtime/00_CONTROL'
+          state = root / 'investment_os_runtime/30_STATE_CURRENT'
+          pack = json.loads((state / '30_RESEARCH/R1_DECISION_COVERAGE_PACK_CURRENT.json').read_text(encoding='utf-8'))
+          summary = json.loads((state / '60_DECISIONS/R1_DECISION_COVERAGE_SUMMARY_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads((control / 'R1_DECISION_COVERAGE_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          execution = json.loads((control / 'EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          contract = json.loads((control / 'WP5_PORTFOLIO_DECISION_CONTRACT.json').read_text(encoding='utf-8'))
+          registry = json.loads((control / 'AUTHORITATIVE_ASSET_REGISTRY.json').read_text(encoding='utf-8'))
+          status = (control / 'R1_STATUS_CURRENT.md').read_text(encoding='utf-8')
+
+          assert pack['status'] == 'DECISION_COVERAGE_COMPLETE_CURRENT_IF_PRESENT_ON_MAIN_NOT_IMPLEMENTATION_READY'
+          assert pack['simulation']['holding_count'] == 16
+          assert pack['simulation']['reused_core2_count'] == 2
+          assert pack['simulation']['reused_p0_count'] == 3
+          assert pack['simulation']['r1_new_standardized_count'] == 11
+          assert pack['real_account']['holding_count'] == 7
+          assert pack['real_account']['bond_fund_count'] == 3
+          assert pack['real_account']['sp500_vehicle_count'] == 2
+          assert pack['real_account']['a_share_etf_count'] == 2
+          assert len(pack['simulation']['records']) == 16
+          assert len(pack['real_account']['records']) == 7
+          assert all(row['implementation_ready'] is False for row in pack['simulation']['records'])
+          assert all(row['position_change_authorized'] is False for row in pack['simulation']['records'])
+          assert all(row['order_authorized'] is False for row in pack['simulation']['records'])
+          assert all(row['coverage_status'].startswith('DECISION_COVERAGE_COMPLETE') for row in pack['simulation']['records'])
+          real_statuses = {row['coverage_status'] for row in pack['real_account']['records']}
+          assert all(value.startswith('DECISION_') for value in real_statuses)
+          assert pack['real_account']['sp500_single_vehicle_selection']['preferred_vehicle'] == '159655.SZ'
+          assert pack['implementation_ready_count'] == 0
+          assert pack['ready_for_user_decision_count'] == 0
+          assert pack['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'legacy_decisions': 0, 'orders': 0}
+
+          assert summary['status'] == 'R1_COMPLETE_COVERAGE_ONLY_R2_NOT_STARTED'
+          assert summary['simulation_coverage']['complete'] == 16
+          assert summary['real_product_coverage']['complete'] == 7
+          assert execution['current_step'] == 'R1_DECISION_COVERAGE_CURRENT_IF_PRESENT_ON_MAIN'
+          assert execution['latest_completed_main_pr'] == 152
+          assert execution['latest_completed_main_merge_sha'] == '42b34c327fa5b1168c4e9d11846ba1e0f6712ac6'
+          assert execution['development_roadmap']['R0']['status'] == 'COMPLETED_ON_MAIN'
+          assert execution['development_roadmap']['R1']['status'] == 'CURRENT_IF_PRESENT_ON_MAIN'
+          assert execution['development_roadmap']['R2']['status'] == 'NOT_STARTED'
+          assert execution['wp5']['decision_grade_coverage']['simulation_complete'] == 16
+          assert execution['wp5']['decision_grade_coverage']['real_product_complete'] == 7
+          assert execution['wp5']['portfolio_construction_synthesis_complete'] is False
+          assert execution['wp5']['position_action_matrix_complete'] is False
+          assert execution['wp5']['user_decision_pack_complete'] is False
+          assert execution['next_task'] == 'R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_AFTER_R1_PRESENT_ON_MAIN'
+          assert execution['trade_authority'] == 'NONE'
+
+          assert contract['fixed_workstreams']['WP5-2']['status'] == 'COMPLETED_CURRENT_IF_PRESENT_ON_MAIN'
+          assert contract['fixed_workstreams']['WP5-2']['remaining'] == []
+          assert contract['fixed_workstreams']['WP5-3']['status'] == 'NOT_STARTED'
+          assert contract['current_completion_state']['all_current_positions_covered'] is True
+          assert contract['current_completion_state']['portfolio_construction_synthesis_delivered'] is False
+          assert contract['current_completion_state']['position_action_matrix_delivered'] is False
+          assert contract['current_completion_state']['user_decision_pack_delivered'] is False
+
+          assert acceptance['simulation_coverage_complete'] == 16
+          assert acceptance['real_product_coverage_complete'] == 7
+          assert acceptance['implementation_ready_count'] == 0
+          assert acceptance['next_authorized_stage'] == 'R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS'
+          assert 'R1只完成研究与条件覆盖' in status
+
+          registered = {row['asset_id']: row for row in registry['assets']}
+          for asset_id in ('R1_DECISION_COVERAGE_PACK_CURRENT', 'R1_DECISION_COVERAGE_SUMMARY_CURRENT', 'R1_DECISION_COVERAGE_ACCEPTANCE', 'R1_STATUS_CURRENT'):
+              assert registered[asset_id]['status'] == 'CURRENT_IF_PRESENT_ON_MAIN'
+              assert registered[asset_id]['source_pr'] == 153
+
+          before = json.loads(Path('/tmp/r1_protected_hashes.json').read_text(encoding='utf-8'))
+          after = {p: hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in before}
+          assert before == after, sorted(p for p in before if before[p] != after[p])
+          assert acceptance['protected_state_hashes']['real_account_positions_sha256'] == before['investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json']
+          assert acceptance['protected_state_hashes']['simulation_positions_sha256'] == before['investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json']
+          print({'simulation': '16/16', 'real_products': '7/7', 'wp5_2': 'complete', 'r2': 'not_started', 'mutations': 0, 'orders': 0})
+          PY
+
+      - name: Validate global lineage forward compatibility
+        run: python -m pytest -q automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py
+
+      - name: Enforce exact R1 scope
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+          allowed = {
+              '.github/workflows/r1_decision_coverage.yml',
+              'automation/r1_decision_coverage/build_r1_decision_coverage.py',
+              'automation/r1_decision_coverage/r1_external_facts.json',
+              'automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py',
+              'investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json',
+              'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json',
+              'investment_os_runtime/00_CONTROL/R1_DECISION_COVERAGE_ACCEPTANCE_RECORD.json',
+              'investment_os_runtime/00_CONTROL/R1_STATUS_CURRENT.md',
+              'investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md',
+              'investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json',
+              'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/R1_DECISION_COVERAGE_PACK_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R1_DECISION_COVERAGE_SUMMARY_CURRENT.json',
+          }
+          forbidden = sorted(changed - allowed)
+          if forbidden:
+              raise SystemExit('R1_SCOPE_VIOLATION:' + ','.join(forbidden))
+          protected = {
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json',
+          }
+          leaked = sorted(changed & protected)
+          if leaked:
+              raise SystemExit('R1_PROTECTED_STATE_MUTATION:' + ','.join(leaked))
+          print({'changed_paths': sorted(changed), 'scope': 'R1_DECISION_COVERAGE_ONLY'})
+          PY
+
+      - name: Publish deterministic R1 products to PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/R1_DECISION_COVERAGE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/R1_STATUS_CURRENT.md \
+            investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md \
+            investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json \
+            investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/R1_DECISION_COVERAGE_PACK_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R1_DECISION_COVERAGE_SUMMARY_CURRENT.json
+          if git diff --cached --quiet; then
+            echo "R1 products already materialized."
+            exit 0
+          fi
+          git commit -m "R1 materialize complete decision coverage"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+
+      - name: Record R1 summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## R1 Decision Coverage Completion
+          - Simulation decision coverage: 16/16
+          - Real product decision coverage: 7/7
+          - Core2 reused: 2; P0 reused: 3; new standardized coverage: 11
+          - WP5-2 complete; WP5-3 / R2 not started
+          - Implementation ready / mutations / orders: 0 / 0 / 0
+          - trade_authority: NONE
+          EOF
