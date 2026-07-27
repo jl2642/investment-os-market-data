@@ -1,0 +1,183 @@
+{
+  "conditional_portfolio_decision": {
+    "action_posture": "HOLD_WITHIN_REVISED_BAND_NO_ADD",
+    "base_case_expected_return": -0.0105559,
+    "base_case_hurdle_passed": false,
+    "current_weight": 0.02355302,
+    "implementation_ready": false,
+    "order_authorized": false,
+    "position_change_authorized": false,
+    "proposed_weight_band": {
+      "max": 0.03,
+      "min": 0.015
+    },
+    "reduce_or_exit_triggers": [
+      "adjusted_parent_profit declines for a second consecutive quarter without a temporary investment explanation",
+      "operating cash flow to parent profit remains below 0.8x while receivables or inventory rise materially",
+      "industrial automation order or market-share evidence weakens materially",
+      "NEV business growth fails to convert into sustainable segment margin"
+    ],
+    "research_judgment": "RETAIN_CURRENT_REDUCED_OBSERVATION_POSITION_NO_ADD",
+    "trade_authority": "NONE",
+    "upgrade_triggers": [
+      "adjusted parent profit returns to positive year-on-year growth",
+      "rolling cash conversion recovers above 1.0x",
+      "general automation and NEV margin quality are independently verified"
+    ],
+    "within_revised_weight_band": true
+  },
+  "current_event_classification": {
+    "capital_allocation": "AMBER_R_AND_D_AND_CAPACITY_INVESTMENT_RETURN_REQUIRES_TRACKING",
+    "cash_conversion": "RED_Q1_OPERATING_CASH_FLOW_DECLINE",
+    "earnings_quality": "RED_Q1_PROFIT_DECLINE",
+    "operating_growth": "GREEN_REVENUE_AND_MULTI_BUSINESS_GROWTH",
+    "overall": "AMBER_RETAIN_AT_REDUCED_OBSERVATION_WEIGHT_NO_ADD"
+  },
+  "driver_based_scenarios": {
+    "base_case_hurdle_passed": false,
+    "cases": [
+      {
+        "exit_pe": 24.0,
+        "implied_market_cap_rmb_bn": 108.0,
+        "implied_price": 39.887665,
+        "net_profit_rmb_bn": 4.5,
+        "return_vs_completed_close": -0.32792476,
+        "scenario": "BEAR"
+      },
+      {
+        "exit_pe": 30.0,
+        "implied_market_cap_rmb_bn": 159.0,
+        "implied_price": 58.723507,
+        "net_profit_rmb_bn": 5.3,
+        "return_vs_completed_close": -0.0105559,
+        "scenario": "BASE"
+      },
+      {
+        "exit_pe": 36.0,
+        "implied_market_cap_rmb_bn": 223.2,
+        "implied_price": 82.434508,
+        "net_profit_rmb_bn": 6.2,
+        "return_vs_completed_close": 0.38895549,
+        "scenario": "BULL"
+      }
+    ],
+    "completed_close_mark": 59.35,
+    "governed_expected_return_hurdle": 0.15,
+    "limitations": [
+      "Scenario values are research interfaces, not statutory forecasts",
+      "Intraday quotes are excluded from valuation returns",
+      "No scenario authorizes a position change or order"
+    ],
+    "model": "2026E_PARENT_NET_PROFIT_EXIT_PE",
+    "shares_outstanding_bn": 2.707603944
+  },
+  "economic_mutations": {
+    "candidate_membership": 0,
+    "orders": 0,
+    "real_account": 0,
+    "simulation": 0
+  },
+  "generated_at": "2026-07-27T02:55:27.915456+00:00",
+  "implementation_readiness": {
+    "broker_verified": false,
+    "fresh_completed_close_for_action": false,
+    "implementation_ready": false,
+    "research_complete": true,
+    "user_position_continuity_confirmed": false
+  },
+  "internal_evidence_reference": {
+    "candidate_record_count": 0,
+    "gap_flags": [
+      "NO_INTERNAL_QUALITY_AND_SCREENING_FIELDS"
+    ],
+    "workplan_decision_gate": "NO_POSITION_ACTION_UNTIL_CURRENT_FILINGS_MARKET_MARK_EVENT_REVIEW_AND_USER_DELTA_GATES_PASS"
+  },
+  "official_financial_and_operating_facts": {
+    "2025": {
+      "adjusted_parent_net_profit_rmb_bn": 4.950505397,
+      "adjusted_parent_net_profit_yoy": 0.2266,
+      "eps": 1.87,
+      "operating_cash_flow_rmb_bn": 6.681025417,
+      "operating_cash_flow_yoy": -0.0721,
+      "parent_net_profit_rmb_bn": 5.05000209,
+      "parent_net_profit_yoy": 0.1784,
+      "revenue_rmb_bn": 45.1048442,
+      "revenue_yoy": 0.2177,
+      "roe": 0.1634
+    },
+    "2026Q1": {
+      "adjusted_parent_net_profit_rmb_bn": 1.04568747,
+      "adjusted_parent_net_profit_yoy": -0.1525,
+      "business_revenue_rmb_bn": {
+        "elevator": 1.031,
+        "general_automation": 4.252,
+        "industrial_automation_and_digitalization": 5.311,
+        "new_energy_vehicle_systems": 4.237,
+        "robot_and_digital_energy": 0.489
+      },
+      "operating_cash_flow_rmb_bn": 0.094051225,
+      "operating_cash_flow_yoy": -0.6418,
+      "parent_net_profit_rmb_bn": 1.013451152,
+      "parent_net_profit_yoy": -0.2339,
+      "revenue_rmb_bn": 10.143223378,
+      "revenue_yoy": 0.1298
+    }
+  },
+  "portfolio_role_under_review": "INDUSTRIAL_AUTOMATION_AND_NEV_GROWTH_OBSERVATION",
+  "position_context": {
+    "completed_close_date": "2026-07-24",
+    "completed_close_mark": 59.35,
+    "cost_basis": 31608.0,
+    "current_weight": 0.02355302,
+    "intraday_observation": {
+      "decision_grade": false,
+      "intraday_quote": 59.61,
+      "observation_date": "2026-07-27",
+      "observation_time": "10:47:21",
+      "previous_completed_close": 59.35,
+      "security_id": "300124.SZ",
+      "security_name": "汇川技术",
+      "source_role": "INTRADAY_OBSERVATION_NOT_PORTFOLIO_CURRENT"
+    },
+    "intraday_observation_decision_grade": false,
+    "market_value": 23740.0,
+    "quantity": 400.0,
+    "unit_cost": 79.02,
+    "unrealized_pnl": -7868.0,
+    "unrealized_pnl_pct": -0.24892432
+  },
+  "research_id": "WP5_P0_REUNDERWRITE_300124.SZ",
+  "security_id": "300124.SZ",
+  "security_name": "汇川技术",
+  "semantic_hash": "80b8b201abb43cd7764c0ab4f218d962042cbb75cc78736863f43b8bd64cd0af",
+  "source_quality": {
+    "all_primary_documents": true,
+    "external_primary_source_reunderwrite_complete": true,
+    "source_count": 3
+  },
+  "sources": [
+    {
+      "primary_document": true,
+      "publication_date": "2026-04-28",
+      "source_id": "INOVANCE_2025_ANNUAL_REPORT",
+      "source_type": "FILED_ANNUAL_REPORT",
+      "url": "https://vip.stock.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12222830&stockid=300124"
+    },
+    {
+      "primary_document": true,
+      "publication_date": "2026-04-28",
+      "source_id": "INOVANCE_2026_Q1_REPORT",
+      "source_type": "FILED_QUARTERLY_REPORT",
+      "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12222824&stockid=300124"
+    },
+    {
+      "primary_document": true,
+      "publication_date": "2026-05-22",
+      "source_id": "INOVANCE_OFFICIAL_DISCLOSURE_PAGE",
+      "source_type": "COMPANY_IR",
+      "url": "https://www.inovance.com/investor/informationDisclosure"
+    }
+  ],
+  "status": "P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITE_COMPLETE_RESEARCH_ONLY",
+  "trade_authority": "NONE"
+}

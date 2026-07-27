@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T01:52:38.486172+00:00",
+  "generated_at": "2026-07-27T02:55:27.915456+00:00",
   "items": [
     {
       "queue_id": "WP5-Q1",
@@ -9,8 +9,8 @@
     },
     {
       "queue_id": "WP5-Q2",
-      "required_evidence": "Refresh all tracked positions after the next completed A-share close following 2026-07-24",
-      "status": "PENDING",
+      "required_evidence": "Publish the next completed A-share close after the 2026-07-27 intraday observation; intraday quotes are not decision marks",
+      "status": "PENDING_NEXT_COMPLETED_CLOSE",
       "subject": "Fresh market marks"
     },
     {
@@ -21,8 +21,8 @@
     },
     {
       "queue_id": "WP5-Q4A",
-      "required_evidence": "Re-underwrite positions carrying legacy target labels reduced or review before any trim, exit or add proposal",
-      "status": "PENDING",
+      "required_evidence": "External primary-source re-underwrite completed for Inovance, CATL and FII; implementation gates remain closed",
+      "status": "RESEARCH_COMPLETE_IMPLEMENTATION_NOT_READY",
       "subject": "Simulation P0 re-underwrite"
     },
     {
@@ -38,29 +38,19 @@
       "subject": "Real account overlap review"
     },
     {
-      "queue_id": "WP5-Q4A",
-      "required_evidence": "Re-underwrite positions carrying legacy target labels reduced or review before any trim, exit or add proposal",
+      "queue_id": "WP5-Q6",
+      "required_evidence": "A fresh completed close, position continuity and a governed base-case expected return at or above 15% are required before any add/trim/exit proposal can be implementation-ready",
       "status": "PENDING",
-      "subject": "Simulation P0 re-underwrite"
-    },
-    {
-      "queue_id": "WP5-Q4B",
-      "required_evidence": "Prioritize the remaining non-WP4B holdings by loss, weight gap, candidate lane and portfolio role",
-      "status": "PENDING",
-      "subject": "Simulation non-Core2 research triage"
-    },
-    {
-      "queue_id": "WP5-Q5",
-      "required_evidence": "Review three bond funds, duplicate S&P 500 ETFs and A500/CSI500 role overlap before any simplification proposal",
-      "status": "PENDING",
-      "subject": "Real account overlap review"
+      "subject": "P0 action hurdle"
     }
   ],
   "orders": 0,
+  "p0_action_review_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_P0_ACTION_REVIEW_CURRENT.json",
+  "p0_external_reunderwrite_path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json",
   "p0_internal_evidence_inventory_path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE/WP5_P0_INTERNAL_EVIDENCE_INVENTORY_CURRENT.json",
   "p0_reunderwrite_workplan_path": "investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_WORKPLAN_CURRENT.json",
   "ready_for_user_decision_count": 0,
   "state_id": "WP5_USER_DECISION_QUEUE_CURRENT",
-  "status": "P0_INTERNAL_EVIDENCE_INVENTORY_COMPLETE_EXTERNAL_REUNDERWRITE_PENDING_NO_IMPLEMENTATION_READY_ITEMS",
+  "status": "P0_EXTERNAL_REUNDERWRITE_COMPLETE_NO_IMPLEMENTATION_READY_ITEMS",
   "trade_authority": "NONE"
 }

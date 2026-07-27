@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse, json, re, time, urllib.request
+import argparse
+import json
+import re
+import time
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -10,6 +14,7 @@ from zoneinfo import ZoneInfo
 CN = ZoneInfo("Asia/Shanghai")
 SINA_URL = "https://hq.sinajs.cn/list={symbols}"
 FUND_URL = "https://fund.eastmoney.com/pingzhongdata/{code}.js?v={ts}"
+COMPLETED_CLOSE_CUTOFF = "15:05:00"
 
 
 def read(path: Path) -> dict[str, Any]:
@@ -68,7 +73,7 @@ def required_positions(root: Path, cfg: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def request_text(url: str, encoding: str, retries: int = 3) -> str:
-    headers = {"User-Agent": "Mozilla/5.0 InvestmentOS-WP2R/1.0", "Referer": "https://finance.sina.com.cn/"}
+    headers = {"User-Agent": "Mozilla/5.0 InvestmentOS-WP2R/1.1", "Referer": "https://finance.sina.com.cn/"}
     errors = []
     for attempt in range(1, retries + 1):
         try:
@@ -87,13 +92,18 @@ def freshness(as_of: str, max_days: int) -> str:
     return "FRESH" if age <= max_days else "STALE"
 
 
-def listed_marks(rows: list[dict[str, Any]], max_days: int) -> tuple[list[dict[str, Any]], list[str]]:
+def listed_marks(
+    rows: list[dict[str, Any]],
+    max_days: int,
+    existing_by_id: dict[str, dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[str], list[dict[str, Any]]]:
     if not rows:
-        return [], []
+        return [], [], []
     symbols = {sina_symbol(row["code"]): row for row in rows}
     text = request_text(SINA_URL.format(symbols=",".join(symbols)), "gbk")
     pattern = re.compile(r'var hq_str_(?P<symbol>\w+)="(?P<body>[^"]*)";')
-    marks, errors, observed = [], [], set()
+    marks, errors, observations, observed = [], [], [], set()
+    today_cn = datetime.now(CN).date().isoformat()
     for match in pattern.finditer(text):
         symbol = match.group("symbol")
         if symbol not in symbols:
@@ -103,22 +113,56 @@ def listed_marks(rows: list[dict[str, Any]], max_days: int) -> tuple[list[dict[s
         try:
             if len(fields) < 32 or not fields[0]:
                 raise ValueError("EMPTY_OR_SHORT_QUOTE")
-            mark = float(fields[3] or 0) or float(fields[2] or 0)
-            as_of, as_time = fields[30], fields[31]
-            if mark <= 0 or not as_of:
-                raise ValueError("NON_POSITIVE_MARK_OR_MISSING_DATE")
+            previous_close = float(fields[2] or 0)
+            current_quote = float(fields[3] or 0) or previous_close
+            quote_date, quote_time = fields[30], fields[31]
+            if previous_close <= 0 or current_quote <= 0 or not quote_date or not quote_time:
+                raise ValueError("NON_POSITIVE_QUOTE_OR_MISSING_TIMESTAMP")
+
+            is_intraday = quote_date == today_cn and quote_time < COMPLETED_CLOSE_CUTOFF
+            if is_intraday:
+                prior = existing_by_id.get(row["security_id"])
+                if not prior or str(prior.get("as_of_date", "")) >= quote_date:
+                    raise ValueError("INTRADAY_WITHOUT_PRIOR_COMPLETED_CLOSE_BASELINE")
+                mark = previous_close
+                as_of = str(prior["as_of_date"])
+                as_time = str(prior.get("as_of_time") or "15:00:00")
+                mark_type = "LATEST_COMPLETED_CLOSE_PRIOR_SESSION"
+                observations.append({
+                    "security_id": row["security_id"],
+                    "security_name": row.get("security_name") or fields[0],
+                    "observation_date": quote_date,
+                    "observation_time": quote_time,
+                    "intraday_quote": current_quote,
+                    "previous_completed_close": previous_close,
+                    "decision_grade": False,
+                    "source_role": "INTRADAY_OBSERVATION_NOT_PORTFOLIO_CURRENT",
+                })
+            else:
+                mark = current_quote
+                as_of = quote_date
+                as_time = quote_time
+                mark_type = "LATEST_COMPLETED_CLOSE"
+
             marks.append({
-                "security_id": row["security_id"], "code": row["code"], "security_name": row.get("security_name") or fields[0],
-                "asset_class": row.get("asset_class", "LISTED_SECURITY"), "mark": mark, "mark_type": "LATEST_COMPLETED_OR_LAST",
-                "as_of_date": as_of, "as_of_time": as_time, "provider": "SINA_PUBLIC_TRACKED_QUOTES",
-                "freshness_status": freshness(as_of, max_days), "source_role": "AUTOMATED_MARK_REFRESH",
+                "security_id": row["security_id"],
+                "code": row["code"],
+                "security_name": row.get("security_name") or fields[0],
+                "asset_class": row.get("asset_class", "LISTED_SECURITY"),
+                "mark": mark,
+                "mark_type": mark_type,
+                "as_of_date": as_of,
+                "as_of_time": as_time,
+                "provider": "SINA_PUBLIC_TRACKED_QUOTES",
+                "freshness_status": freshness(as_of, max_days),
+                "source_role": "AUTOMATED_COMPLETED_CLOSE_REFRESH",
             })
         except Exception as exc:
             errors.append(f"{row['security_id']}:{type(exc).__name__}:{exc}")
     for symbol, row in symbols.items():
         if symbol not in observed:
             errors.append(f"{row['security_id']}:MISSING_PROVIDER_ROW")
-    return marks, errors
+    return marks, errors, observations
 
 
 def fund_mark(row: dict[str, Any], max_days: int) -> dict[str, Any]:
@@ -146,25 +190,49 @@ def main() -> None:
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--config", default="automation/wp2_r/config.json")
     args = parser.parse_args()
-    root, cfg = Path(args.repo_root).resolve(), read(Path(args.repo_root).resolve() / args.config)
+    root = Path(args.repo_root).resolve()
+    cfg = read(root / args.config)
     rows = required_positions(root, cfg)
-    listed, funds = [x for x in rows if x.get("asset_class") != "BOND_FUND"], [x for x in rows if x.get("asset_class") == "BOND_FUND"]
-    all_marks, errors = listed_marks(listed, cfg["freshness"]["listed_security_max_calendar_days"])
-    for row in funds:
+    marks_current_path = root / cfg["output_paths"]["portfolio_marks"]
+    existing_payload = read(marks_current_path) if marks_current_path.exists() else {"marks": []}
+    existing_by_id = {row["security_id"]: row for row in existing_payload.get("marks", [])}
+
+    listed_rows = [x for x in rows if x.get("asset_class") != "BOND_FUND"]
+    fund_rows = [x for x in rows if x.get("asset_class") == "BOND_FUND"]
+    all_marks, errors, intraday_observations = listed_marks(
+        listed_rows,
+        cfg["freshness"]["listed_security_max_calendar_days"],
+        existing_by_id,
+    )
+    for row in fund_rows:
         try:
             all_marks.append(fund_mark(row, cfg["freshness"]["fund_nav_max_calendar_days"]))
         except Exception as exc:
             errors.append(f"{row['security_id']}:{type(exc).__name__}:{exc}")
-    required_ids, marked_ids = {x["security_id"] for x in rows}, {x["security_id"] for x in all_marks}
+
+    required_ids = {x["security_id"] for x in rows}
+    marked_ids = {x["security_id"] for x in all_marks}
     missing = sorted(required_ids - marked_ids)
     stale = sorted(x["security_id"] for x in all_marks if x.get("freshness_status") != "FRESH")
     complete = not errors and not missing and not stale
+    listed_dates = [x["as_of_date"] for x in all_marks if x.get("asset_class") != "BOND_FUND"]
     payload = {
-        "schema_version": "1.0.0", "refresh_id": f"WP2R_PORTFOLIO_MARKS_REFRESH_{datetime.now(CN).strftime('%Y%m%dT%H%M%S%z')}",
-        "generated_at": datetime.now(CN).isoformat(), "status": "PASS_COMPLETE" if complete else "BLOCKED_PARTIAL_OR_STALE",
-        "required_security_count": len(required_ids), "marked_security_count": len(marked_ids), "missing_security_ids": missing,
-        "stale_security_ids": stale, "errors": errors, "marks": sorted(all_marks, key=lambda x: x["security_id"]),
-        "automatic_quantity_or_cost_mutations": 0, "orders": 0, "trade_authority": "NONE",
+        "schema_version": "1.1.0",
+        "refresh_id": f"WP2R_PORTFOLIO_MARKS_REFRESH_{datetime.now(CN).strftime('%Y%m%dT%H%M%S%z')}",
+        "generated_at": datetime.now(CN).isoformat(),
+        "status": "PASS_COMPLETE" if complete else "BLOCKED_PARTIAL_OR_STALE",
+        "required_security_count": len(required_ids),
+        "marked_security_count": len(marked_ids),
+        "missing_security_ids": missing,
+        "stale_security_ids": stale,
+        "errors": errors,
+        "latest_completed_listed_close_date": max(listed_dates) if listed_dates else None,
+        "intraday_observation_count": len(intraday_observations),
+        "intraday_observations": sorted(intraday_observations, key=lambda x: x["security_id"]),
+        "marks": sorted(all_marks, key=lambda x: x["security_id"]),
+        "automatic_quantity_or_cost_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE",
     }
     write(root / cfg["source_paths"]["marks_candidate"], payload)
     print(json.dumps(payload, ensure_ascii=False, sort_keys=True))
