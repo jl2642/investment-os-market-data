@@ -1,11 +1,11 @@
 {
   "canonical_acceptance_status": "ACCEPTED_CANONICAL",
-  "current_step": "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE",
+  "current_step": "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN",
   "file_library_promotion_status": "PENDING_MANUAL_UPLOAD",
   "github_main_head_at_wp3_2a_closure": "9305fd210c1729a7227e0e633eed5e29984bc261",
   "github_main_head_at_wp3_3_4_closure": "RESOLVED_BY_GIT_HISTORY_ON_PR_MERGE",
-  "github_merge_sha": "7b3cd0f154c8bdbab55ffabe149e21d69aa4fe7a",
-  "latest_governed_merge_sha": "7b3cd0f154c8bdbab55ffabe149e21d69aa4fe7a",
+  "github_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
+  "latest_governed_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
   "mutation_proof": {
     "automatic_rule_mutations": 0,
     "automation_activations": "GITHUB_ACTIVE_PROPOSAL_ONLY_HUMAN_GOVERNED",
@@ -22,12 +22,12 @@
     "simulation_trade_mutations": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "USER_MERGE_PR_145_TO_MAIN",
-  "overall_status": "R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE_WP5_BLOCKED",
+  "next_task": "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE",
+  "overall_status": "R2_ACCEPTED_ON_MAIN_WP5_READY_PENDING_EXPLICIT_START",
   "previous_wp1_5d_metadata_sha": "5a7e4f13e8f02eaa56f88ebbd8e924e08ed79124",
   "r2": {
     "acceptance_path": "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json",
-    "acceptance_semantic_hash": "d0c73ea9a3a3c0e535450bec5479b6a0895ed53adc7a8bc2ebd9d16bb2188dc1",
+    "acceptance_semantic_hash": "7a3194efeb0f67cf2d87f2fe73917f3c0bcd311b936481ed21021925d2d7dd86",
     "branch": "agent/r2-product-capability-hardening",
     "economic_mutations": {
       "candidate_membership": 0,
@@ -35,17 +35,17 @@
       "real_account": 0,
       "simulation": 0
     },
-    "merge_sha": null,
+    "merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
     "pr_number": 145,
     "program": "R2_PRODUCT_CAPABILITY_HARDENING",
-    "status": "R2_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE",
+    "status": "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN",
     "trade_authority": "NONE",
     "workstreams": [
       "WP2-R",
       "WP3-R",
       "WP4-B"
     ],
-    "wp5_status": "BLOCKED_PENDING_R2_MERGE"
+    "wp5_status": "READY_PENDING_EXPLICIT_WP5_START"
   },
   "register_id": "INVESTMENT_ASSISTANT_EXECUTION_REGISTER_V5_R1_AUDIT_CLOSURE",
   "release_id": "INVESTMENT_OS_R15_20260726_WP2_WP4_CANONICAL_AUDIT_CLOSURE",
@@ -476,7 +476,7 @@
     "deep_research_records": 2,
     "full_professional_deep_research_complete": false,
     "milestone_id": "WP4_CORE2_DECISION_INTERFACE_20260726_V1",
-    "next_gate": "USER_MERGE_PR_145_TO_MAIN",
+    "next_gate": "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE",
     "orders": 0,
     "portfolio_fit_records": 2,
     "position_level_portfolio_fit_complete": false,
@@ -495,11 +495,11 @@
   "wp5": {
     "action_review_allowed": false,
     "forced_action_prohibited": true,
-    "next_gate": "USER_MERGE_PR_145_TO_MAIN",
+    "next_gate": "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE",
     "ready_for_user_decision_count": 0,
-    "reason": "R2_ACCEPTED_ON_BRANCH_USER_MERGE_REQUIRED_BEFORE_WP5_START",
-    "start_allowed": false,
-    "status": "BLOCKED_PENDING_R2_MERGE",
+    "reason": "R2_ACCEPTED_ON_MAIN_WP5_REQUIRES_SEPARATE_EXPLICIT_START",
+    "start_allowed": true,
+    "status": "READY_PENDING_EXPLICIT_WP5_START",
     "trade_authority": "NONE"
   }
 }
