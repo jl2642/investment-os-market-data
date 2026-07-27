@@ -1,5 +1,5 @@
 name: WP5 Portfolio Decision Start
-run-name: "WP5 repair Core2 scenario scale and start proposal-only portfolio review"
+run-name: "WP5 repair Core2 scenario scale and run full proposal-only portfolio review"
 
 on:
   push:
@@ -69,12 +69,15 @@ jobs:
             automation/wp4_b/build_core2_hardening_wp5_fixed.py
           python automation/wp4_b/build_core2_hardening_wp5_fixed.py --repo-root .
 
-      - name: Build WP5 analysis-only start state
+      - name: Build WP5 analysis-only start and full position review
         run: |
-          python -m py_compile automation/wp5_portfolio_decision/build_wp5_start.py
+          python -m py_compile \
+            automation/wp5_portfolio_decision/build_wp5_start.py \
+            automation/wp5_portfolio_decision/build_wp5_position_review.py
           python automation/wp5_portfolio_decision/build_wp5_start.py --repo-root .
+          python automation/wp5_portfolio_decision/build_wp5_position_review.py --repo-root .
 
-      - name: Validate scenario scale, WP5 gates and zero economic mutation
+      - name: Validate scenario scale, full review, WP5 gates and zero economic mutation
         run: |
           python - <<'PY'
           import hashlib, json, subprocess
@@ -86,6 +89,7 @@ jobs:
           start = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_START_RECORD_CURRENT.json').read_text(encoding='utf-8'))
           decision_input = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json').read_text(encoding='utf-8'))
           decision = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json').read_text(encoding='utf-8'))
+          review = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POSITION_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
           queue = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json').read_text(encoding='utf-8'))
           execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
 
@@ -112,11 +116,24 @@ jobs:
           assert decision_input['status'] == 'INPUT_FROZEN_FOR_ANALYSIS_NOT_EXECUTION'
           assert decision_input['verification']['core2_scenario_unit_scale_validated'] is True
           assert decision['status'] == 'CONDITIONAL_PORTFOLIO_REVIEW_NOT_IMPLEMENTATION_READY'
+          assert decision['full_position_review_complete'] is True
           assert decision['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
           assert decision['simulation']['core2']['600900.SH']['provisional_judgment'] == 'HOLD_NO_ADD_AT_CURRENT_MARK_UNDER_CURRENT_BASE_ASSUMPTIONS'
+
+          assert review['status'] == 'FULL_POSITION_REVIEW_BASELINE_COMPLETE_NOT_IMPLEMENTATION_READY'
+          assert len(review['real_account']['positions']) == 7
+          assert len(review['simulation']['positions']) == 16
+          assert review['simulation']['wp4b_hardened_position_count'] == 2
+          assert review['simulation']['non_wp4b_position_count'] == 14
+          assert review['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          p0 = [row for row in review['simulation']['positions'] if row['review_priority'].startswith('P0_')]
+          assert {row['security_id'] for row in p0} == {'300124.SZ', '300750.SZ', '601138.SH'}
+          assert all(row['implementation_ready'] is False for row in review['simulation']['positions'])
+          assert all(row['position_change_authorized'] is False for row in review['simulation']['positions'])
           assert queue['ready_for_user_decision_count'] == 0
           assert queue['orders'] == 0
           assert execution['current_step'] == 'WP5_PORTFOLIO_DECISION_PHASE_STARTED_ANALYSIS_ONLY_ON_BRANCH'
+          assert execution['wp5']['full_position_review_complete'] is True
           assert execution['wp5']['action_review_allowed'] is True
           assert execution['wp5']['position_mutation_allowed'] is False
           assert execution['wp5']['order_execution_allowed'] is False
@@ -135,14 +152,16 @@ jobs:
           print({
               'midea_base_price': m_prices['BASE'],
               'yangtze_base_price': y_prices['BASE'],
-              'wp5': start['status'],
+              'real_positions_reviewed': 7,
+              'simulation_positions_reviewed': 16,
+              'p0_reunderwrite': len(p0),
               'ready_for_user_decision': 0,
               'mutations': 0,
               'orders': 0,
           })
           PY
 
-      - name: Publish generated WP4-B repair and WP5 start products
+      - name: Publish generated WP4-B repair and WP5 products
         if: github.event_name == 'push'
         run: |
           git config user.name "github-actions[bot]"
@@ -156,10 +175,11 @@ jobs:
             investment_os_runtime/00_CONTROL/WP5_START_RECORD_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POSITION_REVIEW_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json \
             investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
             investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json
-          git commit -m "WP5 start analysis-only portfolio decision phase"
+          git commit -m "WP5 start analysis-only full portfolio decision review"
           git pull --rebase origin "${WP5_BRANCH}"
           git push origin "HEAD:${WP5_BRANCH}"
 
@@ -167,13 +187,15 @@ jobs:
         if: always()
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          ## WP5 Portfolio Decision Start
+          ## WP5 Portfolio Decision Start and Full Position Review
           - Verifies R2 accepted on main and explicitly starts WP5 analysis-only work
           - Repairs the WP4-B market-cap unit conversion before scenario use
           - Freezes Real, Simulation, Candidate and Core2 research inputs
-          - Produces a conditional portfolio decision baseline and user decision queue
+          - Reviews all 7 Real holdings and 16 Simulation holdings
+          - Separates P0 re-underwrite, research gaps, benchmark role and Core2 conditional review
           - Applies no fixed strategic cash target to the Real account
           - Real, Simulation, Candidate membership and legacy decisions remain unchanged
+          - Ready for user decision: 0
           - Orders: 0
           - trade_authority: NONE
           EOF
