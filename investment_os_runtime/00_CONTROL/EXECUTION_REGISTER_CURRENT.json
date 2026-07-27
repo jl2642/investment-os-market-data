@@ -1,6 +1,6 @@
 {
   "canonical_acceptance_status": "ACCEPTED_CANONICAL",
-  "current_step": "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN",
+  "current_step": "WP5_PORTFOLIO_DECISION_PHASE_STARTED_ANALYSIS_ONLY_ON_BRANCH",
   "file_library_promotion_status": "PENDING_MANUAL_UPLOAD",
   "github_main_head_at_wp3_2a_closure": "9305fd210c1729a7227e0e633eed5e29984bc261",
   "github_main_head_at_wp3_3_4_closure": "RESOLVED_BY_GIT_HISTORY_ON_PR_MERGE",
@@ -22,8 +22,8 @@
     "simulation_trade_mutations": 0,
     "trade_authority": "NONE"
   },
-  "next_task": "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE",
-  "overall_status": "R2_ACCEPTED_ON_MAIN_WP5_READY_PENDING_EXPLICIT_START",
+  "next_task": "WP5_FRESH_INPUT_REFRESH_AND_FULL_POSITION_LEVEL_ACTION_REVIEW",
+  "overall_status": "WP5_STARTED_ANALYSIS_ONLY_NO_ACTION_PENDING_GOVERNED_MERGE",
   "previous_wp1_5d_metadata_sha": "5a7e4f13e8f02eaa56f88ebbd8e924e08ed79124",
   "r2": {
     "acceptance_path": "investment_os_runtime/00_CONTROL/R2_PRODUCT_CAPABILITY_ACCEPTANCE_CURRENT.json",
@@ -64,7 +64,7 @@
     "simulation_holdings": 16,
     "state_source_as_of": "2026-07-20_CLOSE"
   },
-  "status_date": "2026-07-26",
+  "status_date": "2026-07-27",
   "trade_authority": "NONE",
   "wp1_5b": {
     "active_rule_count": 111,
@@ -493,13 +493,19 @@
     "trade_authority": "NONE"
   },
   "wp5": {
-    "action_review_allowed": false,
+    "action_review_allowed": true,
+    "core2_scenario_unit_scale_repaired": true,
+    "decision_current_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json",
+    "decision_input_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json",
     "forced_action_prohibited": true,
-    "next_gate": "EXPLICITLY_START_WP5_PORTFOLIO_DECISION_PHASE",
+    "next_gate": "FRESH_MARKS_EVENT_STATUS_USER_DELTA_AND_FULL_POSITION_REVIEW",
+    "order_execution_allowed": false,
+    "position_mutation_allowed": false,
     "ready_for_user_decision_count": 0,
     "reason": "R2_ACCEPTED_ON_MAIN_WP5_REQUIRES_SEPARATE_EXPLICIT_START",
     "start_allowed": true,
-    "status": "READY_PENDING_EXPLICIT_WP5_START",
-    "trade_authority": "NONE"
+    "status": "STARTED_ANALYSIS_ONLY_ON_BRANCH",
+    "trade_authority": "NONE",
+    "user_decision_queue_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json"
   }
 }

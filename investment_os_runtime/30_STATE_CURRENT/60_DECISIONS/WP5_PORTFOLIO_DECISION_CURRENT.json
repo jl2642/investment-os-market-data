@@ -1,0 +1,127 @@
+{
+  "candidate": {
+    "core_security_ids": [
+      "000333.SZ",
+      "600900.SH"
+    ],
+    "membership_mutations": 0,
+    "ready_for_user_decision_count": 0,
+    "status": "CORE2_RESEARCH_AVAILABLE_WP5_ACTION_GATES_NOT_YET_PASSED"
+  },
+  "decision_mode": "POSITION_SIZING_AND_PORTFOLIO_ACTION_REVIEW_PROPOSAL_ONLY",
+  "economic_mutations": {
+    "candidate_membership": 0,
+    "orders": 0,
+    "real_account": 0,
+    "simulation": 0
+  },
+  "generated_at": "2026-07-27T01:40:34.247193+00:00",
+  "readiness_blockers": [
+    "NEXT_COMPLETED_A_SHARE_CLOSE_MARK_REFRESH_REQUIRED",
+    "USER_TRANSACTION_DELTA_CONTINUITY_CONFIRMATION_REQUIRED_AT_ACTION_GATE",
+    "REAL_ACCOUNT_BROKER_OR_USER_POSITION_VERIFICATION_REQUIRED",
+    "CORE2_CURRENT_EVENT_CLASSIFICATION_REQUIRED",
+    "FULL_POSITION_LEVEL_THESIS_AND_RISK_REVIEW_REQUIRED_BEFORE_SIMULATION_CHANGES"
+  ],
+  "real_account": {
+    "account_total_assets": 451176.72742,
+    "asset_class_market_values": {
+      "A_SHARE_ETF": 94701.4,
+      "BOND_FUND": 314841.83742,
+      "QDII_ETF": 41513.0
+    },
+    "asset_class_weights": {
+      "A_SHARE_ETF": 0.20989868,
+      "BOND_FUND": 0.69782375,
+      "QDII_ETF": 0.09201051
+    },
+    "cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED",
+    "execution_cash_balance": 120.49,
+    "fixed_cash_target_applied": false,
+    "holding_count": 7,
+    "implementation_ready": false,
+    "provisional_judgment": "HOLD_EXISTING_STRUCTURE_PENDING_FRESH_DECISION_RUN_AND_USER_VERIFICATION"
+  },
+  "simulation": {
+    "account_total_assets": 1007938.48,
+    "core2": {
+      "000333.SZ": {
+        "binding_constraints": [
+          "2026Q1_ADJUSTED_PARENT_PROFIT_DECLINE_REQUIRES_MONITORING",
+          "BROKER_OR_USER_POSITION_VERIFICATION_REQUIRED_AT_ACTION_GATE",
+          "FRESH_COMPLETED_CLOSE_REQUIRED"
+        ],
+        "current_mark": 84.5,
+        "current_weight": 0.06706759,
+        "implementation_ready": false,
+        "market_value_gap_to_reference": 13035.0784,
+        "order_authorized": false,
+        "provisional_judgment": "HOLD_ADD_REVIEW_ONLY_AFTER_FRESH_MARK_EVENT_AND_USER_GATES",
+        "reference_target_weight": 0.08,
+        "scenario_prices": {
+          "BASE": {
+            "exit_pe": 16.0,
+            "implied_price": 96.447064,
+            "price_return_vs_current": 0.14138537
+          },
+          "BEAR": {
+            "exit_pe": 13.0,
+            "implied_price": 67.468648,
+            "price_return_vs_current": -0.20155446
+          },
+          "BULL": {
+            "exit_pe": 19.0,
+            "implied_price": 127.610384,
+            "price_return_vs_current": 0.51018206
+          }
+        },
+        "security_id": "000333.SZ",
+        "security_name": "美的集团",
+        "trade_authority": "NONE"
+      },
+      "600900.SH": {
+        "binding_constraints": [
+          "BASE_CASE_IMPLIED_RETURN_IS_NEGATIVE_AT_CURRENT_MARK",
+          "HYDROLOGY_TARIFF_FINANCE_AND_DIVIDEND_EVENT_CLASSIFICATION_REQUIRED",
+          "BROKER_OR_USER_POSITION_VERIFICATION_REQUIRED_AT_ACTION_GATE",
+          "FRESH_COMPLETED_CLOSE_REQUIRED"
+        ],
+        "current_mark": 28.9,
+        "current_weight": 0.06307925,
+        "implementation_ready": false,
+        "market_value_gap_to_reference": 6975.6936,
+        "order_authorized": false,
+        "provisional_judgment": "HOLD_NO_ADD_AT_CURRENT_MARK_UNDER_CURRENT_BASE_ASSUMPTIONS",
+        "reference_target_weight": 0.07,
+        "scenario_prices": {
+          "BASE": {
+            "exit_pe": 19.0,
+            "implied_price": 27.590991,
+            "price_return_vs_current": -0.04529443
+          },
+          "BEAR": {
+            "exit_pe": 17.0,
+            "implied_price": 22.020275,
+            "price_return_vs_current": -0.23805275
+          },
+          "BULL": {
+            "exit_pe": 21.0,
+            "implied_price": 33.263569,
+            "price_return_vs_current": 0.15098855
+          }
+        },
+        "security_id": "600900.SH",
+        "security_name": "长江电力",
+        "trade_authority": "NONE"
+      }
+    },
+    "execution_cash_balance": 219533.98,
+    "execution_cash_weight": 0.21780494,
+    "holding_count": 16,
+    "implementation_ready": false,
+    "provisional_judgment": "OBSERVE_AND_REVIEW_POSITION_LEVEL_THESIS_NO_AUTOMATIC_REBALANCE"
+  },
+  "state_id": "WP5_PORTFOLIO_DECISION_CURRENT",
+  "status": "CONDITIONAL_PORTFOLIO_REVIEW_NOT_IMPLEMENTATION_READY",
+  "trade_authority": "NONE"
+}

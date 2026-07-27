@@ -196,6 +196,51 @@
       "role": "Human-readable R2 status pointer",
       "status": "CURRENT",
       "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP5_CONTRACT",
+      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "format": "JSON",
+      "location": "investment_os_runtime/00_CONTROL/WP5_PORTFOLIO_DECISION_CONTRACT.json",
+      "role": "WP5 governed portfolio-decision contract",
+      "status": "CURRENT",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP5_START",
+      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "format": "JSON",
+      "location": "investment_os_runtime/00_CONTROL/WP5_START_RECORD_CURRENT.json",
+      "role": "WP5 explicit analysis-only start record",
+      "status": "CURRENT_BRANCH_CANDIDATE",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP5_DECISION_INPUT_CURRENT",
+      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "format": "JSON",
+      "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_DECISION_INPUT_CURRENT.json",
+      "role": "WP5 frozen decision input snapshot",
+      "status": "CURRENT_BRANCH_CANDIDATE",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP5_PORTFOLIO_DECISION_CURRENT",
+      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "format": "JSON",
+      "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json",
+      "role": "WP5 conditional portfolio decision baseline",
+      "status": "CURRENT_BRANCH_CANDIDATE",
+      "trade_authority": "NONE"
+    },
+    {
+      "asset_id": "WP5_USER_DECISION_QUEUE_CURRENT",
+      "authority": "GOVERNED_BRANCH_CANDIDATE",
+      "format": "JSON",
+      "location": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json",
+      "role": "WP5 governed user decision queue",
+      "status": "CURRENT_BRANCH_CANDIDATE",
+      "trade_authority": "NONE"
     }
   ],
   "conversation_memory_authority": "NONE",
@@ -203,12 +248,12 @@
   "github_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
   "latest_governed_merge_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
   "registry_id": "WP2_WP4_AUTHORITATIVE_ASSET_REGISTRY_V9",
-  "registry_status": "R2_CAPABILITY_ASSETS_ACCEPTED_ON_MAIN",
+  "registry_status": "WP5_ANALYSIS_ONLY_ASSETS_REGISTERED_ON_BRANCH_PENDING_MERGE",
   "release_id": "INVESTMENT_OS_R15_20260726_WP2_WP4_CANONICAL_AUDIT_CLOSURE",
   "release_sequence": 15,
   "repository": "jl2642/investment-os-market-data",
   "runtime_baseline_merge_sha": "3ee7be7912377c002ebeb7292e35e679f79ae8b3",
-  "status": "GITHUB_CURRENT_R2_CAPABILITY_ACCEPTED_WP5_READY_PENDING_EXPLICIT_START_FILE_LIBRARY_PENDING",
+  "status": "GITHUB_CURRENT_R2_ACCEPTED_WP5_STARTED_ON_BRANCH_ANALYSIS_ONLY_FILE_LIBRARY_PENDING",
   "trade_authority": "NONE",
   "wp1_5bc_merge_sha": "8e3c362eda68e83548407d0eaf51657ebf650c54"
 }
