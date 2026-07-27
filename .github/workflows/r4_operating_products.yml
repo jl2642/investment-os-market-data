@@ -1,0 +1,51 @@
+name: R4 Operating Products
+run-name: "R4 build and validate operating products"
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/r4_operating_products/**"
+      - ".github/workflows/r4_operating_products.yml"
+      - "automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py"
+      - "investment_os_runtime/00_CONTROL/R4_*"
+      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/WORK_PACKAGE_MASTER_PLAN_CURRENT.md"
+      - "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/CAPABILITY_REALITY_MATRIX_CURRENT.md"
+      - "investment_os_runtime/00_CONTROL/USER_OPERATING_GUIDE_CURRENT.md"
+      - "investment_os_runtime/50_OPERATING_PRODUCTS/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install validation runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest
+
+      - name: Validate R4 products and boundaries
+        run: |
+          git fetch origin main
+          python -m py_compile automation/r4_operating_products/build_r4_operating_products.py
+          python -m py_compile automation/r4_operating_products/patch_forward_lineage.py
+          python -m py_compile automation/r4_operating_products/validate_r4_operating_products.py
+          python automation/r4_operating_products/validate_r4_operating_products.py
