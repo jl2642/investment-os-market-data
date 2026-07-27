@@ -116,6 +116,28 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["wp5"]["ready_for_user_decision_count"] == 0
         assert register["next_task"] == "WP5_NEXT_COMPLETED_CLOSE_REFRESH_AND_USER_POSITION_CONTINUITY_CONFIRMATION"
         assert register["r2"]["status"] == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
+    elif step == "WP5_E_POST_CLOSE_ACTION_GATE_INSTALLED_ON_BRANCH":
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp5"]["status"] == "POST_CLOSE_ACTION_GATE_INSTALLED_ON_BRANCH_PENDING_MERGE"
+        assert register["wp5"]["p0_external_reunderwrite_accepted_on_main"] is True
+        assert register["wp5"]["p0_merge_sha"] == "70f651ff042fbf815ad8e0346cabad02693745d9"
+        assert register["wp5"]["post_close_action_gate_installed"] is True
+        assert register["wp5"]["position_mutation_allowed"] is False
+        assert register["wp5"]["order_execution_allowed"] is False
+        assert register["next_task"] == "USER_MERGE_WP5_E_POST_CLOSE_ACTION_GATE_PR"
+    elif step == "WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTED_ON_MAIN":
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp5"]["status"] == "POST_CLOSE_ACTION_GATE_ACCEPTED_ON_MAIN"
+        assert register["wp5"]["post_close_action_gate_installed"] is True
+        assert register["wp5"]["position_mutation_allowed"] is False
+        assert register["wp5"]["order_execution_allowed"] is False
+        assert register["next_task"] in {
+            "WAIT_FOR_NEXT_COMPLETED_CLOSE_AFTER_2026_07_24",
+            "CONTINUE_MONITORING_AND_NON_P0_RESEARCH_TRIAGE",
+            "USER_REVIEW_CONDITIONAL_P0_POSITION_PROPOSALS",
+        } or register["next_task"].startswith("USER_CONFIRM_POSITION_CONTINUITY_THROUGH_")
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
