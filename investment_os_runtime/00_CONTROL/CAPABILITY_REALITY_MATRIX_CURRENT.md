@@ -5,6 +5,7 @@
 - 下一阶段：`R6_PRODUCTION_ACCEPTANCE_AFTER_R5_PRESENT_ON_MAIN`
 - Operating Activation：`false`
 - 交易权限：`NONE`
+- 收益归因成熟度：`DEVELOPMENT_PRODUCT_COMPLETE_PRODUCTION_WINDOWS_PENDING`
 
 | 能力 | 当前真实成熟度 | 已完成 | 关键剩余缺口 |
 |---|---|---|---|
