@@ -2,6 +2,11 @@ name: R2 Portfolio Construction Synthesis
 run-name: "R2 synthesize portfolio architecture and risk budgets"
 
 on:
+  push:
+    branches: [agent/r2-portfolio-construction-synthesis]
+    paths:
+      - "automation/r2_portfolio_construction/**"
+      - ".github/workflows/r2_portfolio_construction.yml"
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
@@ -214,7 +219,9 @@ jobs:
             exit 0
           fi
           git commit -m "R2 materialize portfolio construction synthesis"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH="${{ github.event.pull_request.head.ref }}"
+          if [ -z "$TARGET_BRANCH" ]; then TARGET_BRANCH="$GITHUB_REF_NAME"; fi
+          git push origin HEAD:"$TARGET_BRANCH"
 
       - name: Record R2 summary
         if: always()
