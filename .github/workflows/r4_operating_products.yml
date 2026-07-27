@@ -46,6 +46,7 @@ jobs:
         run: |
           git fetch origin main
           python -m py_compile automation/r4_operating_products/build_r4_operating_products.py
+          python -m py_compile automation/r4_operating_products/normalize_r4_samples.py
           python -m py_compile automation/r4_operating_products/patch_forward_lineage.py
           python -m py_compile automation/r4_operating_products/validate_r4_operating_products.py
           python automation/r4_operating_products/validate_r4_operating_products.py
