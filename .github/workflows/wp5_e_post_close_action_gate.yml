@@ -1,0 +1,238 @@
+name: WP5-E Post-Close Action Gate
+run-name: "WP5-E completed-close, continuity and conditional proposal gate"
+
+on:
+  push:
+    branches:
+      - agent/wp5-e-post-close-action-gate
+      - main
+    paths:
+      - ".wp5_e_materialize_trigger"
+      - "automation/wp5_portfolio_decision/build_wp5_post_close_action_gate.py"
+      - ".github/workflows/wp5_e_post_close_action_gate.yml"
+      - "investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_CONTRACT.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/wp5_portfolio_decision/build_wp5_post_close_action_gate.py"
+      - ".github/workflows/wp5_e_post_close_action_gate.yml"
+      - "investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_CONTRACT.json"
+      - "investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json"
+  schedule:
+    - cron: "30 15 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  WP5_E_BRANCH: agent/wp5-e-post-close-action-gate
+
+jobs:
+  build-validate-publish:
+    if: github.event_name != 'push' || github.ref != 'refs/heads/main' || github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Snapshot protected economic, Candidate and legacy-decision states
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          identity = {}
+          for rel in (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ):
+              payload = json.loads((root / rel).read_text(encoding='utf-8'))
+              identity[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          protected = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          Path('/tmp/wp5e_identity.json').write_text(json.dumps(identity, sort_keys=True), encoding='utf-8')
+          Path('/tmp/wp5e_protected.json').write_text(json.dumps(protected, sort_keys=True), encoding='utf-8')
+          PY
+
+      - name: Resolve WP5-E run mode
+        id: mode
+        shell: bash
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "mode=post-merge" >> "$GITHUB_OUTPUT"
+          elif [[ ("${GITHUB_EVENT_NAME}" == "schedule" || "${GITHUB_EVENT_NAME}" == "workflow_dispatch") && "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "mode=operating" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=branch" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build WP5-E post-close action gate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m py_compile automation/wp5_portfolio_decision/build_wp5_post_close_action_gate.py
+          if [[ "${{ steps.mode.outputs.mode }}" == "post-merge" ]]; then
+            python automation/wp5_portfolio_decision/build_wp5_post_close_action_gate.py \
+              --repo-root . \
+              --mode post-merge \
+              --wp5-e-merge-sha "${GITHUB_SHA}"
+          else
+            python automation/wp5_portfolio_decision/build_wp5_post_close_action_gate.py \
+              --repo-root . \
+              --mode "${{ steps.mode.outputs.mode }}"
+          fi
+
+      - name: Validate gate logic, lineage and zero mutation
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.')
+          gate = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json').read_text(encoding='utf-8'))
+          queue = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json').read_text(encoding='utf-8'))
+          execution = json.loads((root / 'investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json').read_text(encoding='utf-8'))
+          p0_acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          e_acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+
+          assert p0_acceptance['accepted_on_main'] is True
+          assert p0_acceptance['accepted_pr'] == 148
+          assert p0_acceptance['merge_sha'] == '70f651ff042fbf815ad8e0346cabad02693745d9'
+          assert len(gate['positions']) == 3
+          assert {row['security_id'] for row in gate['positions']} == {'300124.SZ', '300750.SZ', '601138.SH'}
+          assert all(row['implementation_ready'] is False for row in gate['positions'])
+          assert all(row['position_change_authorized'] is False for row in gate['positions'])
+          assert all(row['order_authorized'] is False for row in gate['positions'])
+          assert gate['implementation_ready_count'] == 0
+          assert gate['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          assert queue['orders'] == 0
+          assert execution['trade_authority'] == 'NONE'
+          assert execution['wp5']['position_mutation_allowed'] is False
+          assert execution['wp5']['order_execution_allowed'] is False
+          assert e_acceptance['economic_mutations'] == {'real_account': 0, 'simulation': 0, 'candidate_membership': 0, 'orders': 0}
+          assert e_acceptance['implementation_ready_count'] == 0
+
+          before = json.loads(Path('/tmp/wp5e_identity.json').read_text(encoding='utf-8'))
+          after = {}
+          for rel in (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ):
+              payload = json.loads((root / rel).read_text(encoding='utf-8'))
+              after[payload['account']] = [
+                  {
+                      'security_id': row['security_id'],
+                      'quantity': row['quantity'],
+                      'available_quantity': row['available_quantity'],
+                      'unit_cost': row['unit_cost'],
+                      'cost_basis': row['cost_basis'],
+                  }
+                  for row in payload['holdings']
+              ]
+          protected_before = json.loads(Path('/tmp/wp5e_protected.json').read_text(encoding='utf-8'))
+          protected_after = {
+              'candidate': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_bytes()).hexdigest(),
+              'legacy_decisions': hashlib.sha256((root / 'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json').read_bytes()).hexdigest(),
+          }
+          assert before == after
+          assert protected_before == protected_after
+          print({
+              'gate_status': gate['status'],
+              'latest_completed_close': gate['latest_completed_close_date'],
+              'continuity_confirmed': gate['user_position_continuity_confirmed_for_latest_close'],
+              'ready_for_user_decision': gate['ready_for_user_decision_count'],
+              'mutations': 0,
+              'orders': 0,
+          })
+          PY
+
+      - name: Validate WP3 lineage regression
+        run: python -m pytest -q automation/wp3_2a/tests/test_operating_closure_and_wp3_2b.py
+
+      - name: Publish branch materialization
+        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/wp5-e-post-close-action-gate'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .wp5_e_materialize_trigger
+          git add \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json
+          git commit -m "WP5-E materialize post-close action gate candidate"
+          git pull --rebase origin "${WP5_E_BRANCH}"
+          git push origin "HEAD:${WP5_E_BRANCH}"
+
+      - name: Publish post-merge Canonical closure
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "WP5-E finalize post-merge Canonical action gate"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Publish scheduled operating gate state
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json \
+            investment_os_runtime/00_CONTROL/WP5_P0_REUNDERWRITE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_QUEUE_CURRENT.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "WP5-E refresh post-close conditional action gate"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Record summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP5-E Post-Close Action Gate
+          - Runs after the governed Portfolio Current refresh
+          - Requires a completed close later than the P0 research baseline
+          - Requires user-confirmed transaction continuity through that close
+          - Recalculates P0 weights and Base-case expected returns against a 15% hurdle
+          - Produces conditional proposals only; no position mutation or order is authorized
+          - Candidate Current and legacy decisions remain unchanged
+          - trade_authority: NONE
+          EOF
