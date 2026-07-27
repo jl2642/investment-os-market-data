@@ -5,6 +5,8 @@
 - R3纠偏合并SHA：`2fbcb84d7a23d5804975fd8319781464c2a18ab2`
 - 产品合同：`7/7`
 - 开发样例：`7/7`
+- 模拟盘现金字段：`summary.execution_cash_balance`
+- 模拟盘未实现盈亏字段：`summary.open_unrealized_pnl`
 - Operating Activation：`false`
 - Schedule Activation：`0`
 - Ready for User Decision：`0`
