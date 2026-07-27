@@ -103,6 +103,19 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
             expected_next_task = "WP5_FRESH_INPUT_REFRESH_AND_FULL_POSITION_LEVEL_ACTION_REVIEW"
         assert register["next_task"] == expected_next_task
         assert register["r2"]["status"] == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
+    elif step == "WP5_P0_EXTERNAL_PRIMARY_SOURCE_REUNDERWRITE_COMPLETE_RESEARCH_ONLY_ON_BRANCH":
+        assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
+        assert register["wp3_status"]["WP3-6"].startswith("COMPLETED_")
+        assert register["wp4"]["r2_b_status"] == "CORE2_RESEARCH_HARDENING_ACCEPTED_RESEARCH_ONLY"
+        assert register["wp5"]["status"] == "P0_EXTERNAL_REUNDERWRITE_COMPLETE_RESEARCH_ONLY_ON_BRANCH"
+        assert register["wp5"]["p0_external_primary_source_reunderwrite_complete"] is True
+        assert register["wp5"]["p0_event_classification_complete"] is True
+        assert register["wp5"]["fresh_completed_close_for_action"] is False
+        assert register["wp5"]["position_mutation_allowed"] is False
+        assert register["wp5"]["order_execution_allowed"] is False
+        assert register["wp5"]["ready_for_user_decision_count"] == 0
+        assert register["next_task"] == "WP5_NEXT_COMPLETED_CLOSE_REFRESH_AND_USER_POSITION_CONTINUITY_CONFIRMATION"
+        assert register["r2"]["status"] == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
