@@ -29,6 +29,19 @@ def stable_id(prefix: str, payload: dict[str, Any]) -> str:
     raw=json.dumps(payload,ensure_ascii=False,sort_keys=True,separators=(",",":")).encode()
     return f"{prefix}_{hashlib.sha256(raw).hexdigest()[:16]}"
 
+def authority_values(value: Any) -> list[Any]:
+    out: list[Any] = []
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if key == "trade_authority":
+                out.append(item)
+            else:
+                out.extend(authority_values(item))
+    elif isinstance(value, list):
+        for item in value:
+            out.extend(authority_values(item))
+    return out
+
 def validate(repo: Path) -> dict[str, Any]:
     errors:list[Any]=[]; blockers:list[Any]=[]; facts:dict[str,Any]={}
     for name in REQUIRED_NEW:
@@ -53,7 +66,8 @@ def validate(repo: Path) -> dict[str, Any]:
         return {"status":"FAIL","errors":errors,"blockers":blockers,"facts":facts,"trade_authority":"NONE"}
     execution=load(repo/REQUIRED_EXISTING[0]); r4=load(repo/REQUIRED_EXISTING[1]); r5=load(repo/REQUIRED_EXISTING[2]); r6=load(repo/REQUIRED_EXISTING[3]); ledger=load(repo/REQUIRED_EXISTING[4]); real=load(repo/REQUIRED_EXISTING[5]); sim=load(repo/REQUIRED_EXISTING[6]); cand=load(repo/REQUIRED_EXISTING[7])
     for label,d in [("execution",execution),("r4",r4),("r5",r5),("r6",r6),("ledger",ledger),("real",real),("simulation",sim),("candidate",cand)]:
-        if d.get("trade_authority")!="NONE": errors.append(f"CANONICAL_TRADE_AUTHORITY_VIOLATION:{label}")
+        bad=[value for value in authority_values(d) if value != "NONE"]
+        if bad: errors.append(f"CANONICAL_TRADE_AUTHORITY_VIOLATION:{label}:{bad}")
     counts={"real":len(real.get("holdings",[])),"simulation":len(sim.get("holdings",[])),"candidate_core":cand.get("counts",{}).get("candidate_core"),"research_queue":cand.get("counts",{}).get("research_queue"),"shadow_track":cand.get("counts",{}).get("shadow_track"),"ready":cand.get("counts",{}).get("ready_for_user_decision")}
     facts.update(counts)
     if counts["real"]!=7: errors.append(f"REAL_HOLDING_COUNT:{counts['real']}")
@@ -87,7 +101,7 @@ def write_or_print(payload:dict[str,Any], path:str|None) -> None:
 def main() -> int:
     ap=argparse.ArgumentParser(); sub=ap.add_subparsers(dest="cmd",required=True)
     v=sub.add_parser("validate"); v.add_argument("--repo-root",default="."); v.add_argument("--output")
-    r=sub.add_parser("build-run-manifest")
+    r=sub.add_parser("build-run-manifest");
     for n in ["workflow-name","trigger-type","started-at","completed-at","commit-before","commit-after","idempotency-key","status"]: r.add_argument("--"+n,required=True)
     r.add_argument("--market-watermark"); r.add_argument("--position-watermark"); r.add_argument("--input",action="append",default=[]); r.add_argument("--output-asset",action="append",default=[]); r.add_argument("--exception",action="append",default=[]); r.add_argument("--output")
     q=sub.add_parser("build-report-manifest"); q.add_argument("--report-type",choices=["STATUS","DAILY","WEEKLY","MONTHLY","QUARTERLY","ANNUAL","EVENT"],required=True); q.add_argument("--period-start",required=True); q.add_argument("--period-end",required=True); q.add_argument("--generated-at",default=datetime.now(timezone.utc).isoformat()); q.add_argument("--commit",required=True); q.add_argument("--market-watermark"); q.add_argument("--position-watermark"); q.add_argument("--candidate-watermark"); q.add_argument("--completeness",type=float,required=True); q.add_argument("--input",action="append",default=[]); q.add_argument("--exception",action="append",default=[]); q.add_argument("--output")
