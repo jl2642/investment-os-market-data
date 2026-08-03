@@ -1,0 +1,181 @@
+name: P0-I1 Operating Observation
+run-name: "P0-I1 observe WP2-R, persist manifests, snapshots and run ledger"
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/p0_i1_operating_observation/**"
+      - ".github/workflows/p0_i1_operating_observation.yml"
+      - "investment_os_runtime/00_CONTROL/P0_I1_*"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/portfolio_eod_snapshot.schema.json"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/operating_run_ledger.schema.json"
+      - "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/R6_PRODUCTION_RUNBOOK_CURRENT.md"
+  workflow_run:
+    workflows: ["R2 WP2-R Market Marks Refresh"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      publish_evidence:
+        description: "Persist a manual current-state observation to main"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: p0-i1-operating-observation
+  cancel-in-progress: false
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Synchronize main for operating observation
+        if: github.event_name != 'pull_request'
+        run: git pull --ff-only origin main
+
+      - name: Snapshot protected economic state
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          paths = [
+              "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json",
+          ]
+          payload = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in paths}
+          Path("/tmp/p0_i1_protected_hashes.json").write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+          PY
+
+      - name: Resolve observation metadata
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id || github.run_id }}
+          EVENT_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt || github.run_attempt }}
+          EVENT_CONCLUSION: ${{ github.event.workflow_run.conclusion || 'success' }}
+          EVENT_STARTED_AT: ${{ github.event.workflow_run.created_at || '' }}
+          EVENT_COMPLETED_AT: ${{ github.event.workflow_run.updated_at || '' }}
+          EVENT_RUN_URL: ${{ github.event.workflow_run.html_url || '' }}
+          EVENT_WORKFLOW: ${{ github.event.workflow_run.name || 'P0-I1 current-state validation' }}
+        run: |
+          set -Eeuo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            OUTPUT_ROOT="/tmp/p0_i1_observation"
+            TRIGGER_TYPE="pull_request"
+          elif [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            OUTPUT_ROOT="."
+            TRIGGER_TYPE="workflow_run"
+          else
+            if [[ "${{ inputs.publish_evidence }}" == "true" ]]; then OUTPUT_ROOT="."; else OUTPUT_ROOT="/tmp/p0_i1_observation"; fi
+            TRIGGER_TYPE="workflow_dispatch"
+          fi
+          echo "P0_I1_OUTPUT_ROOT=$OUTPUT_ROOT" >> "$GITHUB_ENV"
+          echo "P0_I1_SOURCE_COMMIT=$SOURCE_COMMIT" >> "$GITHUB_ENV"
+          echo "P0_I1_TRIGGER_TYPE=$TRIGGER_TYPE" >> "$GITHUB_ENV"
+          echo "P0_I1_RUN_ID=$EVENT_RUN_ID" >> "$GITHUB_ENV"
+          echo "P0_I1_RUN_ATTEMPT=$EVENT_RUN_ATTEMPT" >> "$GITHUB_ENV"
+          echo "P0_I1_CONCLUSION=$EVENT_CONCLUSION" >> "$GITHUB_ENV"
+          echo "P0_I1_STARTED_AT=${EVENT_STARTED_AT:-$NOW}" >> "$GITHUB_ENV"
+          echo "P0_I1_COMPLETED_AT=${EVENT_COMPLETED_AT:-$NOW}" >> "$GITHUB_ENV"
+          echo "P0_I1_RUN_URL=$EVENT_RUN_URL" >> "$GITHUB_ENV"
+          echo "P0_I1_WORKFLOW=$EVENT_WORKFLOW" >> "$GITHUB_ENV"
+          echo "P0_I1_OBSERVED_AT=$NOW" >> "$GITHUB_ENV"
+
+      - name: Build manifests, immutable EOD snapshots and observation products
+        run: |
+          python -m py_compile automation/p0_i1_operating_observation/observe.py
+          python automation/p0_i1_operating_observation/observe.py build \
+            --repo-root . \
+            --output-root "$P0_I1_OUTPUT_ROOT" \
+            --upstream-workflow "$P0_I1_WORKFLOW" \
+            --upstream-run-id "$P0_I1_RUN_ID" \
+            --upstream-run-attempt "$P0_I1_RUN_ATTEMPT" \
+            --upstream-conclusion "$P0_I1_CONCLUSION" \
+            --upstream-started-at "$P0_I1_STARTED_AT" \
+            --upstream-completed-at "$P0_I1_COMPLETED_AT" \
+            --upstream-run-url "$P0_I1_RUN_URL" \
+            --source-commit "$P0_I1_SOURCE_COMMIT" \
+            --trigger-type "$P0_I1_TRIGGER_TYPE" \
+            --observed-at "$P0_I1_OBSERVED_AT" \
+            --summary-output /tmp/p0_i1_summary.json
+          python automation/p0_i1_operating_observation/observe.py validate --output-root "$P0_I1_OUTPUT_ROOT"
+
+      - name: Run positive and fail-closed tests
+        run: python -m unittest discover -s automation/p0_i1_operating_observation/tests -p 'test_*.py'
+
+      - name: Validate new schemas
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for name in ["portfolio_eod_snapshot.schema.json", "operating_run_ledger.schema.json"]:
+              path = Path("investment_os_runtime/20_SCHEMAS_AND_INTERFACES") / name
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              assert payload["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+              assert payload["type"] == "object"
+          print({"schemas": 2, "status": "PASS"})
+          PY
+
+      - name: Enforce zero protected-state mutation
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          before = json.loads(Path("/tmp/p0_i1_protected_hashes.json").read_text(encoding="utf-8"))
+          after = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in before}
+          assert before == after, sorted(path for path in before if before[path] != after[path])
+          print({"protected_state": "UNCHANGED", "mutations": 0, "orders": 0, "trade_authority": "NONE"})
+          PY
+
+      - name: Publish observation evidence to main
+        if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.publish_evidence)
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION \
+            investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1
+          if git diff --cached --quiet; then
+            echo "P0-I1 observation is idempotent; no evidence change."
+            exit 0
+          fi
+          git commit -m "P0-I1 record WP2-R operating observation"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Record summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## P0-I1 Operating Observation
+          - Follows the existing WP2-R schedule; adds no new market-data schedule
+          - Persists Canonical Run Manifest, Real/Simulation EOD snapshots, STATUS/DAILY observation products and report manifests
+          - Records success, failure, blockers and idempotency in a consolidated run ledger
+          - Does not alter positions, Candidate, decisions, rules or orders
+          - Operating activation remains false; R6 remains in supervised acceptance
+          - trade_authority: NONE
+          EOF
