@@ -2,7 +2,6 @@
   "as_of": "2026-08-03",
   "canonical_main_head_audited": "d899b815809b12d9fc5be091deb5a74c670ce853",
   "draft_pr": 162,
-  "github_validation_run": 30802735483,
   "items": [
     {
       "assessment": "Existing CORE is durable; constitution index and maturity overlay added.",
@@ -61,11 +60,11 @@
       "remote_status": "RUNTIME_LEDGER_PENDING"
     },
     {
-      "assessment": "GitHub Actions validation, positive tests, fail-closed tests and zero-mutation gate passed.",
+      "assessment": "Required PR checks validate the current PR head; run IDs are evidence links, not Canonical fields, so the register does not become stale after its own validation commit.",
       "id": "P0-09",
       "local_status": "PASS_LOCAL",
       "name": "Acceptance tests",
-      "remote_status": "GITHUB_ACTIONS_PASS"
+      "remote_status": "LATEST_REQUIRED_PR_CHECKS_MUST_PASS_ON_CURRENT_HEAD"
     },
     {
       "assessment": "Draft PR is open and validated; R6 remains 1/10 and cannot be closed by this PR.",
@@ -79,5 +78,11 @@
   "overall_status": "PASS_PR_VALIDATION_WITH_PRODUCTION_BLOCKERS",
   "protected_state_mutations": 0,
   "register_id": "P0_OPERATIONAL_REMEDIATION_ACCEPTANCE_V1",
-  "trade_authority": "NONE"
+  "trade_authority": "NONE",
+  "validation_evidence": {
+    "authoritative_semantics": "LATEST_SUCCESSFUL_REQUIRED_CHECKS_ON_CURRENT_PR_HEAD",
+    "lineage_check": "WP3-2A Lineage Gate",
+    "p0_check": "P0 Operational Remediation Validation",
+    "run_ids_are_non_authoritative": true
+  }
 }
