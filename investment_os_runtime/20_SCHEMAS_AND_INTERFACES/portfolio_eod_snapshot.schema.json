@@ -1,0 +1,28 @@
+{
+  "$id": "portfolio_eod_snapshot.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Portfolio EOD Snapshot",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "snapshot_id": {"type": "string", "minLength": 1},
+    "account": {"type": "string", "minLength": 1},
+    "as_of": {"type": ["string", "null"]},
+    "canonical_source_commit": {"type": "string", "minLength": 7},
+    "positions": {"type": "array"},
+    "position_count": {"type": "integer", "minimum": 0},
+    "execution_cash": {"type": ["number", "null"]},
+    "external_flows": {"type": "object"},
+    "income_and_fees": {"type": "object"},
+    "corporate_actions": {"type": "object"},
+    "market_data_watermark": {"type": ["string", "null"]},
+    "position_watermark": {"type": ["string", "null"]},
+    "total_assets": {"type": ["number", "null"]},
+    "tie_out_difference": {"type": ["number", "null"]},
+    "quality_status": {"enum": ["PROVISIONAL_INPUT_GAPS", "BLOCKED_TIE_OUT", "BLOCKED_UPSTREAM_OR_MARKS"]},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "orders": {"const": 0},
+    "trade_authority": {"const": "NONE"}
+  },
+  "required": ["snapshot_id", "account", "as_of", "canonical_source_commit", "positions", "position_count", "execution_cash", "external_flows", "income_and_fees", "corporate_actions", "market_data_watermark", "position_watermark", "total_assets", "tie_out_difference", "quality_status", "blockers", "orders", "trade_authority"]
+}
