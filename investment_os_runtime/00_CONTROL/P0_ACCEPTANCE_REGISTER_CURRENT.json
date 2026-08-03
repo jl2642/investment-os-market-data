@@ -1,0 +1,81 @@
+{
+  "as_of": "2026-08-03",
+  "canonical_main_head_audited": "d899b815809b12d9fc5be091deb5a74c670ce853",
+  "items": [
+    {
+      "assessment": "Existing CORE is durable; constitution index and maturity overlay added.",
+      "id": "P0-01",
+      "local_status": "PASS_WITH_LIMITED_REMEDIATION",
+      "name": "CORE rule separation",
+      "remote_status": "PENDING_PR_MERGE"
+    },
+    {
+      "assessment": "Schema and deterministic builder added; actual workflows not all emitting manifests.",
+      "id": "P0-02",
+      "local_status": "PASS_LOCAL_CONTRACT",
+      "name": "Canonical I/O contract",
+      "remote_status": "PENDING_WORKFLOW_INTEGRATION"
+    },
+    {
+      "assessment": "Completed-close and NAV gates exist; FX/corporate actions/benchmarks not unified.",
+      "id": "P0-03",
+      "local_status": "PARTIAL_EXISTING",
+      "name": "Market-data EOD gate",
+      "remote_status": "LIVE_GAPS_REMAIN"
+    },
+    {
+      "assessment": "Current positions and marks exist; immutable snapshots with flows/actions pending.",
+      "id": "P0-04",
+      "local_status": "PARTIAL_EXISTING",
+      "name": "Portfolio snapshots",
+      "remote_status": "FORMAL_EOD_SERIES_PENDING"
+    },
+    {
+      "assessment": "R5 diagnostics exist; complete period inputs not yet available.",
+      "id": "P0-05",
+      "local_status": "PARTIAL_EXISTING",
+      "name": "Performance and attribution",
+      "remote_status": "EXACT_PERIOD_RETURN_BLOCKED"
+    },
+    {
+      "assessment": "R4 products exist; common persisted manifest not yet consumed by all products.",
+      "id": "P0-06",
+      "local_status": "PASS_LOCAL_CONTRACT",
+      "name": "Unified report Manifest",
+      "remote_status": "PENDING_PRODUCT_INTEGRATION"
+    },
+    {
+      "assessment": "Full-market and 73-name operations exist; rejection distribution contract not unified.",
+      "id": "P0-07",
+      "local_status": "PARTIAL_EXISTING",
+      "name": "Research funnel evidence",
+      "remote_status": "SINGLE_FUNNEL_MANIFEST_PENDING"
+    },
+    {
+      "assessment": "Distributed logs exist; consolidated run ledger and alert SLA pending.",
+      "id": "P0-08",
+      "local_status": "PASS_LOCAL_CONTRACT",
+      "name": "Observability and alerts",
+      "remote_status": "RUNTIME_LEDGER_PENDING"
+    },
+    {
+      "assessment": "Positive and fail-closed tests pass locally.",
+      "id": "P0-09",
+      "local_status": "PASS_LOCAL",
+      "name": "Acceptance tests",
+      "remote_status": "PENDING_GITHUB_ACTIONS"
+    },
+    {
+      "assessment": "R6 remains 1/10 and cannot be closed by this PR.",
+      "id": "P0-10",
+      "local_status": "IN_PROGRESS",
+      "name": "Publication and R6 ledger",
+      "remote_status": "PENDING_DRAFT_PR_AND_LIVE_EVIDENCE"
+    }
+  ],
+  "orders": 0,
+  "overall_status": "PASS_LOCAL_CONTRACTS_WITH_PRODUCTION_BLOCKERS",
+  "protected_state_mutations": 0,
+  "register_id": "P0_OPERATIONAL_REMEDIATION_ACCEPTANCE_V1",
+  "trade_authority": "NONE"
+}
