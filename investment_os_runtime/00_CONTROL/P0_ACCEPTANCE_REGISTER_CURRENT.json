@@ -1,20 +1,22 @@
 {
   "as_of": "2026-08-03",
   "canonical_main_head_audited": "d899b815809b12d9fc5be091deb5a74c670ce853",
+  "draft_pr": 162,
+  "github_validation_run": 30802735483,
   "items": [
     {
       "assessment": "Existing CORE is durable; constitution index and maturity overlay added.",
       "id": "P0-01",
       "local_status": "PASS_WITH_LIMITED_REMEDIATION",
       "name": "CORE rule separation",
-      "remote_status": "PENDING_PR_MERGE"
+      "remote_status": "DRAFT_PR_VALIDATED_PENDING_MERGE"
     },
     {
       "assessment": "Schema and deterministic builder added; actual workflows not all emitting manifests.",
       "id": "P0-02",
       "local_status": "PASS_LOCAL_CONTRACT",
       "name": "Canonical I/O contract",
-      "remote_status": "PENDING_WORKFLOW_INTEGRATION"
+      "remote_status": "PR_VALIDATION_PASS_WORKFLOW_INTEGRATION_PENDING"
     },
     {
       "assessment": "Completed-close and NAV gates exist; FX/corporate actions/benchmarks not unified.",
@@ -59,22 +61,22 @@
       "remote_status": "RUNTIME_LEDGER_PENDING"
     },
     {
-      "assessment": "Positive and fail-closed tests pass locally.",
+      "assessment": "GitHub Actions validation, positive tests, fail-closed tests and zero-mutation gate passed.",
       "id": "P0-09",
       "local_status": "PASS_LOCAL",
       "name": "Acceptance tests",
-      "remote_status": "PENDING_GITHUB_ACTIONS"
+      "remote_status": "GITHUB_ACTIONS_PASS"
     },
     {
-      "assessment": "R6 remains 1/10 and cannot be closed by this PR.",
+      "assessment": "Draft PR is open and validated; R6 remains 1/10 and cannot be closed by this PR.",
       "id": "P0-10",
       "local_status": "IN_PROGRESS",
       "name": "Publication and R6 ledger",
-      "remote_status": "PENDING_DRAFT_PR_AND_LIVE_EVIDENCE"
+      "remote_status": "DRAFT_PR_OPEN_LIVE_EVIDENCE_PENDING"
     }
   ],
   "orders": 0,
-  "overall_status": "PASS_LOCAL_CONTRACTS_WITH_PRODUCTION_BLOCKERS",
+  "overall_status": "PASS_PR_VALIDATION_WITH_PRODUCTION_BLOCKERS",
   "protected_state_mutations": 0,
   "register_id": "P0_OPERATIONAL_REMEDIATION_ACCEPTANCE_V1",
   "trade_authority": "NONE"
