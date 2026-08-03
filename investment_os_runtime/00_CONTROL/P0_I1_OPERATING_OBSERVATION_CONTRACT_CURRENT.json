@@ -1,0 +1,42 @@
+{
+  "contract_id": "P0_I1_OPERATING_OBSERVATION_CONTRACT_V1",
+  "as_of": "2026-08-03",
+  "status": "WORKFLOW_IMPLEMENTED_PENDING_FIRST_POST_MERGE_UPSTREAM_OBSERVATION",
+  "upstream_workflow": ".github/workflows/wp2_r_market_marks_refresh.yml",
+  "upstream_workflow_name": "R2 WP2-R Market Marks Refresh",
+  "observer_workflow": ".github/workflows/p0_i1_operating_observation.yml",
+  "trigger": "workflow_run.completed",
+  "schedule_policy": {
+    "adds_new_schedule": false,
+    "follows_existing_wp2_r_schedule": true,
+    "existing_wp2_r_schedule": "WEEKDAYS_22_45_ASIA_SHANGHAI"
+  },
+  "outputs": {
+    "canonical_run_manifests": "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/",
+    "immutable_eod_snapshots": "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/EOD_SNAPSHOTS/",
+    "report_manifests": "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/REPORT_MANIFESTS/",
+    "run_ledger_current": "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/OPERATING_RUN_LEDGER_CURRENT.json",
+    "status_observation_current": "investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/STATUS_CURRENT.json",
+    "daily_observation_current": "investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/DAILY_CURRENT.json"
+  },
+  "fail_closed_rules": [
+    "upstream workflow failure is recorded and produces no EOD snapshot",
+    "missing or non-NONE trade_authority fails validation",
+    "Candidate declared counts must match actual lane members",
+    "asset tie-out failure blocks the report manifest",
+    "position continuity lag is explicitly reported",
+    "corporate actions, income and fees remain explicit blockers until unified"
+  ],
+  "known_remaining_blockers": [
+    "exchange-calendar-based missed-run detection is not yet complete",
+    "corporate actions, income, fees, FX and benchmarks are not yet unified",
+    "R4 weekly/monthly/quarterly/annual products are not yet live",
+    "R5 exact period attribution remains blocked by incomplete period inputs",
+    "R6 full-month observation remains incomplete"
+  ],
+  "operating_activation": false,
+  "schedule_activation_count": 0,
+  "economic_state_mutations": 0,
+  "orders": 0,
+  "trade_authority": "NONE"
+}

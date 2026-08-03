@@ -1,0 +1,20 @@
+{
+  "$id": "operating_run_ledger.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Operating Run Ledger",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "ledger_id": {"type": "string", "minLength": 1},
+    "status": {"type": "string", "minLength": 1},
+    "entries": {"type": "array"},
+    "run_count": {"type": "integer", "minimum": 0},
+    "success_count": {"type": "integer", "minimum": 0},
+    "failure_count": {"type": "integer", "minimum": 0},
+    "blocked_or_exception_count": {"type": "integer", "minimum": 0},
+    "operating_activation": {"const": false},
+    "orders": {"const": 0},
+    "trade_authority": {"const": "NONE"}
+  },
+  "required": ["ledger_id", "status", "entries", "run_count", "success_count", "failure_count", "blocked_or_exception_count", "operating_activation", "orders", "trade_authority"]
+}
