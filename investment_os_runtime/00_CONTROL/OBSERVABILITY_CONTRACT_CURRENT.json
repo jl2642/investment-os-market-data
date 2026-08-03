@@ -1,0 +1,38 @@
+{
+  "contract_id": "OBSERVABILITY_CONTRACT_V1_INTEGRATED",
+  "current_status": "DISTRIBUTED_WORKFLOW_LOGS_EXIST_CONSOLIDATED_LEDGER_AND_ALERT_SLA_PENDING",
+  "required_alerts": [
+    "schedule_missed",
+    "stale_market_data",
+    "missing_instrument",
+    "snapshot_tie_out_failed",
+    "canonical_write_failed",
+    "report_blocked",
+    "research_scan_missed",
+    "unrecovered_failure",
+    "authority_violation"
+  ],
+  "required_metrics": [
+    "scheduled_runs_expected",
+    "scheduled_runs_completed",
+    "runs_delayed",
+    "runs_failed",
+    "runs_recovered",
+    "duplicate_runs",
+    "no_op_runs",
+    "market_data_coverage",
+    "portfolio_tie_out_rate",
+    "report_generation_rate",
+    "canonical_writeback_rate",
+    "research_scan_coverage",
+    "manual_interventions"
+  ],
+  "required_run_evidence": "CANONICAL_IO_CONTRACT_CURRENT",
+  "retention": {
+    "artifacts_days": 30,
+    "canonical_run_manifests": "PERMANENT",
+    "workflow_logs_days": 90
+  },
+  "schema_version": "1.0.0",
+  "trade_authority": "NONE"
+}

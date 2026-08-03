@@ -1,0 +1,96 @@
+{
+  "as_of": "2026-08-03",
+  "authoritative_rule_registry": "investment_os_runtime/10_CORE_STATIC/ACTIVE_RULE_REGISTRY.csv",
+  "catalog_id": "CORE_RULE_MATURITY_OVERLAY_V1",
+  "maturity_states": [
+    "DRAFT",
+    "SHADOW",
+    "PROVISIONAL",
+    "VALIDATED",
+    "RETIRED"
+  ],
+  "policy_families": [
+    {
+      "effective_date": "2026-07-27",
+      "evidence": [
+        "monthly portfolio review",
+        "quarterly stress review"
+      ],
+      "maturity": "PROVISIONAL",
+      "owner": "USER_AND_INVESTMENT_POLICY",
+      "policy_id": "POLICY-REAL-ALLOCATION",
+      "promotion_criteria": "complete R6 month with reproducible portfolio and attribution evidence",
+      "retirement_criteria": "user replacement or evidence of unsuitable risk/return behavior",
+      "review_date": "2026-08-31",
+      "scope": "real_account_allocation",
+      "source_rule_ids": [
+        "STR-006",
+        "STR-007",
+        "POR-001",
+        "POR-002"
+      ]
+    },
+    {
+      "effective_date": "2026-07-27",
+      "evidence": [
+        "simulation sleeve review",
+        "drawdown and concentration tests"
+      ],
+      "maturity": "PROVISIONAL",
+      "owner": "USER_AND_RISK_POLICY",
+      "policy_id": "POLICY-SIM-RISK-BANDS",
+      "promotion_criteria": "R6 observation and multi-period replay",
+      "retirement_criteria": "bands fail to constrain portfolio risk or are superseded",
+      "review_date": "2026-08-31",
+      "scope": "simulation_risk_bands",
+      "source_rule_ids": [
+        "SIM-001",
+        "SIM-004",
+        "POR-003"
+      ]
+    },
+    {
+      "effective_date": "2026-07-26",
+      "evidence": [
+        "entry baselines",
+        "research objects",
+        "20/60/120-day outcome windows"
+      ],
+      "maturity": "PROVISIONAL",
+      "owner": "RESEARCH_POLICY_AND_USER",
+      "policy_id": "POLICY-CANDIDATE-PROMOTION",
+      "promotion_criteria": "multiple mature cohorts with false-positive and false-negative review",
+      "retirement_criteria": "no decision separation or user-approved successor",
+      "review_date": "2026-09-30",
+      "scope": "candidate_lifecycle",
+      "source_rule_ids": [
+        "CAN-001",
+        "CAN-002",
+        "CAN-003",
+        "CAN-004"
+      ]
+    },
+    {
+      "effective_date": "2026-07-26",
+      "evidence": [
+        "provider coverage",
+        "failure rate",
+        "cross-source reconciliation"
+      ],
+      "maturity": "PROVISIONAL",
+      "owner": "DATA_PLANE",
+      "policy_id": "POLICY-DATA-PROVIDERS",
+      "promotion_criteria": "five consecutive trading-day preflight plus full R6 month",
+      "retirement_criteria": "provider degradation, licensing change or better validated route",
+      "review_date": "2026-08-31",
+      "scope": "market_data_provider_and_freshness",
+      "source_rule_ids": [
+        "DAT-002",
+        "DAT-004",
+        "DAT-006"
+      ]
+    }
+  ],
+  "role": "MACHINE_READABLE_MATURITY_OVERLAY_NOT_A_REPLACEMENT_FOR_ACTIVE_RULE_REGISTRY",
+  "trade_authority": "NONE"
+}

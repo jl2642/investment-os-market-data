@@ -1,0 +1,25 @@
+{
+  "$id": "canonical_run_manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "canonical_commit_after": {"minLength": 7, "type": "string"},
+    "canonical_commit_before": {"minLength": 7, "type": "string"},
+    "completed_at": {"type": "string"},
+    "exceptions": {"type": "array"},
+    "idempotency_key": {"minLength": 1, "type": "string"},
+    "inputs": {"items": {"type": "string"}, "type": "array"},
+    "market_data_watermark": {"type": ["string", "null"]},
+    "outputs": {"items": {"type": "string"}, "type": "array"},
+    "position_watermark": {"type": ["string", "null"]},
+    "run_id": {"minLength": 1, "type": "string"},
+    "started_at": {"type": "string"},
+    "status": {"enum": ["PASS", "PASS_WITH_EXCEPTIONS", "FAIL", "BLOCKED", "NO_OP"], "type": "string"},
+    "trade_authority": {"const": "NONE"},
+    "trigger_type": {"enum": ["schedule", "workflow_dispatch", "pull_request", "push", "workflow_run", "manual"], "type": "string"},
+    "workflow_name": {"minLength": 1, "type": "string"}
+  },
+  "required": ["run_id", "workflow_name", "trigger_type", "started_at", "completed_at", "canonical_commit_before", "canonical_commit_after", "market_data_watermark", "position_watermark", "inputs", "outputs", "exceptions", "idempotency_key", "status", "trade_authority"],
+  "title": "Canonical Run Manifest",
+  "type": "object"
+}

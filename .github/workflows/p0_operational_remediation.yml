@@ -1,0 +1,74 @@
+name: P0 Operational Remediation Validation
+run-name: "P0 integrated contracts, manifests and zero-mutation validation"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/p0_operational_remediation/**"
+      - "investment_os_runtime/00_CONTROL/*P0*"
+      - "investment_os_runtime/00_CONTROL/CORE_STATIC_CONSTITUTION_CURRENT.md"
+      - "investment_os_runtime/00_CONTROL/CORE_RULE_CATALOG_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/CANONICAL_IO_CONTRACT_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/MARKET_DATA_EOD_CONTRACT_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/PORTFOLIO_SNAPSHOT_CONTRACT_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/PERFORMANCE_ATTRIBUTION_CONTRACT_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/REPORTING_MANIFEST_CONTRACT_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/RESEARCH_FUNNEL_CONTRACT_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/OBSERVABILITY_CONTRACT_CURRENT.json"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/canonical_run_manifest.schema.json"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/report_manifest.schema.json"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/p0_acceptance_register.schema.json"
+      - ".github/workflows/p0_operational_remediation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Validate integrated P0 state
+        run: python automation/p0_operational_remediation/p0_operational.py validate --repo-root . --output /tmp/p0_validation.json
+      - name: Run positive and fail-closed tests
+        run: python -m unittest discover -s automation/p0_operational_remediation/tests -p 'test_*.py'
+      - name: Enforce zero protected-state mutation
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main
+          changed="$(git diff --name-only origin/main...HEAD)"
+          protected='^(investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json|investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json|investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json|investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json)$'
+          if printf '%s\n' "$changed" | grep -E "$protected"; then
+            echo 'P0_PROTECTED_STATE_MUTATION'
+            exit 2
+          fi
+          if git ls-files | grep -E '(^|/)(__pycache__/|.*\.pyc$)' | grep -q .; then
+            echo 'P0_COMPILED_ARTIFACT_PRESENT'
+            exit 2
+          fi
+          echo '{"protected_state_mutations":0,"orders":0,"trade_authority":"NONE"}'
+      - name: Summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## P0 Operational Remediation
+          - Integrated with existing CORE, FMDL, WP2-R, WP3-R, R4, R5 and R6 architecture
+          - No new schedule activated
+          - No market provider replaced
+          - Protected Real, Simulation, Candidate and decision state unchanged
+          - Local contract pass does not close R6 production acceptance
+          - Orders: 0; trade_authority: NONE
+          EOF

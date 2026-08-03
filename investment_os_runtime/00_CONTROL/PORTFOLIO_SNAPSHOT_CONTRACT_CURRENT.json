@@ -1,0 +1,39 @@
+{
+  "contract_id": "PORTFOLIO_SNAPSHOT_CONTRACT_V1_INTEGRATED",
+  "current_sources": {
+    "delta_ledger": "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json",
+    "marks": "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json",
+    "real": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+  },
+  "current_status": "POSITION_CURRENT_EXISTS_FORMAL_IMMUTABLE_EOD_SNAPSHOT_SERIES_PENDING",
+  "gates": [
+    "explicit position continuity",
+    "quantity and cost immutability during mark refresh",
+    "cash reconciliation",
+    "market-data completeness",
+    "corporate-action application",
+    "asset tie-out"
+  ],
+  "required_snapshot_fields": [
+    "snapshot_id",
+    "account",
+    "as_of",
+    "canonical_commit",
+    "positions",
+    "execution_cash",
+    "external_flows",
+    "income_and_fees",
+    "corporate_actions",
+    "market_data_watermark",
+    "position_watermark",
+    "total_assets",
+    "tie_out_difference",
+    "quality_status"
+  ],
+  "schema_version": "1.0.0",
+  "tolerance": {
+    "asset_tie_out_absolute_cny": 0.01
+  },
+  "trade_authority": "NONE"
+}

@@ -1,0 +1,23 @@
+{
+  "$id": "report_manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "candidate_watermark": {"type": ["string", "null"]},
+    "canonical_commit_sha": {"type": "string"},
+    "exceptions": {"type": "array"},
+    "generated_at": {"type": "string"},
+    "input_assets": {"items": {"type": "string"}, "type": "array"},
+    "market_data_watermark": {"type": ["string", "null"]},
+    "period_end": {"type": "string"},
+    "period_start": {"type": "string"},
+    "position_watermark": {"type": ["string", "null"]},
+    "publication_status": {"enum": ["FORMAL", "PROVISIONAL", "DEGRADED", "BLOCKED"], "type": "string"},
+    "report_id": {"type": "string"},
+    "report_type": {"enum": ["STATUS", "DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "ANNUAL", "EVENT"], "type": "string"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "required": ["report_id", "report_type", "period_start", "period_end", "generated_at", "canonical_commit_sha", "market_data_watermark", "position_watermark", "candidate_watermark", "input_assets", "exceptions", "publication_status", "trade_authority"],
+  "title": "Report Manifest",
+  "type": "object"
+}

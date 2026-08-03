@@ -1,0 +1,23 @@
+{
+  "$id": "p0_acceptance_register.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "as_of": {"type": "string"},
+    "items": {
+      "items": {
+        "required": ["id", "name", "local_status", "remote_status", "assessment"],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "orders": {"const": 0},
+    "overall_status": {"type": "string"},
+    "protected_state_mutations": {"const": 0},
+    "register_id": {"type": "string"},
+    "trade_authority": {"const": "NONE"}
+  },
+  "required": ["register_id", "as_of", "overall_status", "items", "protected_state_mutations", "orders", "trade_authority"],
+  "title": "P0 Acceptance Register",
+  "type": "object"
+}
