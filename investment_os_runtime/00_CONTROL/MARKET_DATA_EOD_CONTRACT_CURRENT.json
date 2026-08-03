@@ -1,0 +1,34 @@
+{
+  "contract_id": "MARKET_DATA_EOD_CONTRACT_V1_INTEGRATED",
+  "covered_now": [
+    "A-share completed-close marks",
+    "ETF completed-close marks",
+    "tracked public fund NAV",
+    "intraday/completed-close separation",
+    "missing and stale tracked-instrument blocking"
+  ],
+  "current_blockers": [
+    "FX_NOT_IN_UNIFIED_EOD_GATE",
+    "CORPORATE_ACTIONS_NOT_IN_UNIFIED_EOD_GATE",
+    "BENCHMARKS_NOT_IN_UNIFIED_EOD_GATE",
+    "FIVE_CONSECUTIVE_TRADING_DAY_EVIDENCE_NOT_COMPLETE"
+  ],
+  "existing_implementations": [
+    "FMDL data plane",
+    "automation/wp2_r/refresh_market_marks.py",
+    ".github/workflows/wp2_r_market_marks_refresh.yml"
+  ],
+  "integration_policy": "EXTEND_EXISTING_FMDL_AND_WP2R_ROUTES_DO_NOT_REPLACE_WITH_GENERIC_PROVIDER_COMMAND",
+  "required_for_production": [
+    "trading calendar/session completion",
+    "required instrument completeness",
+    "duplicate/non-positive/outlier checks",
+    "fund NAV lag policy",
+    "FX when exposure or benchmark requires it",
+    "corporate-action resolution",
+    "benchmark marks",
+    "source timestamps and lineage"
+  ],
+  "schema_version": "1.0.0",
+  "trade_authority": "NONE"
+}
