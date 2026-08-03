@@ -17,7 +17,7 @@ class P0Tests(unittest.TestCase):
         dump(p/"R6_OBSERVATION_LEDGER_CURRENT.json",{"checkpoint_passed":1,"checkpoint_total":10,"trade_authority":"NONE"})
         dump(st/"10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",{"holdings":[{}]*7,"trade_authority":"NONE"})
         dump(st/"20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",{"holdings":[{}]*16,"trade_authority":"NONE"})
-        dump(st/"40_CANDIDATE/CANDIDATE_CURRENT.json",{"counts":{"candidate_core":2,"research_queue":33,"shadow_track":38,"ready_for_user_decision":0},"trade_authority":"NONE"})
+        dump(st/"40_CANDIDATE/CANDIDATE_CURRENT.json",{"counts":{"candidate_core":2,"research_queue":33,"shadow_track":38,"ready_for_user_decision":0},"candidate_core_members":[{"trade_authority":"NONE"}]})
     def test_validate_pass_with_blockers(self):
         with tempfile.TemporaryDirectory() as td:
             self.make_repo(Path(td)); p=self.run_cli("validate","--repo-root",td); self.assertEqual(p.returncode,0,p.stdout+p.stderr); self.assertEqual(json.loads(p.stdout)["status"],"PASS_WITH_BLOCKERS")
