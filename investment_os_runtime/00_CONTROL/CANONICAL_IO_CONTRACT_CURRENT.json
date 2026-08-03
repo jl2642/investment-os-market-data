@@ -1,0 +1,43 @@
+{
+  "allowed_status": [
+    "PASS",
+    "PASS_WITH_EXCEPTIONS",
+    "FAIL",
+    "BLOCKED",
+    "NO_OP"
+  ],
+  "authority": "GITHUB_MAIN_MERGED_PR_AND_GOVERNED_FILE_PRESENCE",
+  "contract_id": "CANONICAL_IO_CONTRACT_V1_INTEGRATED",
+  "integration_status": {
+    "contract_and_builder": "IMPLEMENTED_IN_P0_PR",
+    "existing_workflows": "PENDING_INCREMENTAL_INTEGRATION",
+    "production_writeback": "NOT_ACCEPTED"
+  },
+  "manifest_schema": "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/canonical_run_manifest.schema.json",
+  "required_fields": [
+    "run_id",
+    "workflow_name",
+    "trigger_type",
+    "started_at",
+    "completed_at",
+    "canonical_commit_before",
+    "canonical_commit_after",
+    "market_data_watermark",
+    "position_watermark",
+    "inputs",
+    "outputs",
+    "exceptions",
+    "idempotency_key",
+    "status",
+    "trade_authority"
+  ],
+  "schema_version": "1.0.0",
+  "trade_authority": "NONE",
+  "write_policy": {
+    "branch_or_governed_workflow_required": true,
+    "direct_position_mutation": false,
+    "failed_run_may_replace_current": false,
+    "idempotency_key_required": true,
+    "last_known_good_preserved": true
+  }
+}
