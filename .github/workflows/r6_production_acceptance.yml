@@ -28,6 +28,7 @@ env:
 
 jobs:
   build-validate-publish:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'agent/r6-')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
