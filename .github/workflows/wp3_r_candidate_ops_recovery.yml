@@ -4,7 +4,7 @@ run-name: "WP3-R one-time Candidate operating refresh and publication acceptance
 on:
   push:
     branches: [main]
-    paths:
+    paths: &candidate_recovery_paths
       - ".github/workflows/wp3_r_candidate_ops_recovery.yml"
       - ".github/workflows/wp3_r_candidate_price_ledger.yml"
       - ".github/workflows/wp3_r_weekly_screen.yml"
@@ -13,6 +13,9 @@ on:
       - "automation/wp3_r/publish_current_safely.sh"
       - "automation/wp3_r/rebuild_operating_current.sh"
       - "automation/wp3_r/refresh_candidate_market_screen.py"
+  pull_request:
+    branches: [main]
+    paths: *candidate_recovery_paths
   workflow_dispatch:
 
 permissions:
@@ -130,9 +133,11 @@ jobs:
               'orders': 0,
           })
           PY
+          git fetch origin main
           git diff --exit-code origin/main -- investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
 
       - name: Publish recovered Candidate operating Current products
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         run: |
           bash automation/wp3_r/publish_current_safely.sh \
             "WP3-R recover Candidate operating Current through latest market close" \
