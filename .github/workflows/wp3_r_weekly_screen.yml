@@ -32,25 +32,30 @@ jobs:
 
       - name: Rebuild audit and weekly operating products
         run: |
-          python automation/wp3_r/repair_source.py
-          python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
-          python automation/wp3_r/finalize_operating_products.py --repo-root .
-          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance
+          AS_OF="$(date -u +%F)"
+          bash automation/wp3_r/rebuild_operating_current.sh "$AS_OF"
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance --as-of "$AS_OF"
 
       - name: Validate full weekly coverage and zero mutations
         run: |
           python - <<'PY'
           import json
+          from datetime import date
           from pathlib import Path
           root = Path('.')
           weekly = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          market_run = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json').read_text(encoding='utf-8'))
           acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          session = date.fromisoformat(weekly['as_of_date'])
           assert weekly['status'] == 'PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION'
           assert weekly['tracked_count'] == weekly['covered_count'] == 73
+          assert weekly['as_of_date'] == market_run['accepted_session']
+          assert 0 <= (date.today() - session).days <= 4
           assert weekly['candidate_membership_mutations'] == 0
           assert weekly['research_object_mutations'] == 0
           assert weekly['orders'] == 0
           assert weekly['trade_authority'] == 'NONE'
+          assert market_run['portfolio_mutations'] == 0
           assert acceptance['wp5_unblocked'] is False
           print({'covered': 73, 'as_of': weekly['as_of_date'], 'mutations': 0})
           PY
@@ -62,6 +67,7 @@ jobs:
             "WP3-R automated weekly Candidate price screen" \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json \
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
 

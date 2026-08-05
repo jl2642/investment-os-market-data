@@ -32,22 +32,26 @@ jobs:
 
       - name: Refresh Current inputs and produce monthly review
         run: |
-          python automation/wp3_r/repair_source.py
-          python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
-          python automation/wp3_r/finalize_operating_products.py --repo-root .
-          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode monthly
-          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance
+          AS_OF="$(date -u +%F)"
+          bash automation/wp3_r/rebuild_operating_current.sh "$AS_OF"
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode monthly --as-of "$AS_OF"
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance --as-of "$AS_OF"
 
       - name: Validate one review per month and zero automatic decisions
         run: |
           python - <<'PY'
           import json
-          from datetime import datetime
+          from datetime import date
           from pathlib import Path
           root = Path('.')
           review = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/MONTHLY_CANDIDATE_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
+          weekly = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          market_run = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json').read_text(encoding='utf-8'))
           acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
-          assert review['review_month'] == datetime.utcnow().strftime('%Y-%m')
+          session = date.fromisoformat(weekly['as_of_date'])
+          assert review['review_month'] == date.today().strftime('%Y-%m')
+          assert weekly['as_of_date'] == market_run['accepted_session']
+          assert 0 <= (date.today() - session).days <= 4
           assert review['status'] in {'MONTHLY_REVIEW_COMPLETE_NO_AUTOMATIC_MEMBERSHIP_CHANGE', 'NOOP_ALREADY_REVIEWED_THIS_MONTH'}
           assert review['human_review_required_for_membership_change'] is True
           assert review['automatic_candidate_membership_mutations'] == 0
@@ -56,7 +60,7 @@ jobs:
           assert review['orders'] == 0
           assert review['trade_authority'] == 'NONE'
           assert acceptance['wp5_unblocked'] is False
-          print({'review_month': review['review_month'], 'status': review['status'], 'mutations': 0})
+          print({'review_month': review['review_month'], 'weekly_as_of': weekly['as_of_date'], 'status': review['status'], 'mutations': 0})
           PY
 
       - name: Publish monthly review Current
@@ -64,8 +68,11 @@ jobs:
         run: |
           bash automation/wp3_r/publish_current_safely.sh \
             "WP3-R automated monthly Candidate review" \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/MONTHLY_CANDIDATE_REVIEW_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json \
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
 
       - name: Record summary

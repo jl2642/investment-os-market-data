@@ -4,13 +4,18 @@ run-name: "WP3-R one-time Candidate operating refresh and publication acceptance
 on:
   push:
     branches: [main]
-    paths:
+    paths: &candidate_recovery_paths
       - ".github/workflows/wp3_r_candidate_ops_recovery.yml"
       - ".github/workflows/wp3_r_candidate_price_ledger.yml"
       - ".github/workflows/wp3_r_weekly_screen.yml"
       - ".github/workflows/wp3_r_monthly_review.yml"
       - ".github/workflows/wp3_r_quarterly_rescreen.yml"
       - "automation/wp3_r/publish_current_safely.sh"
+      - "automation/wp3_r/rebuild_operating_current.sh"
+      - "automation/wp3_r/refresh_candidate_market_screen.py"
+  pull_request:
+    branches: [main]
+    paths: *candidate_recovery_paths
   workflow_dispatch:
 
 permissions:
@@ -43,18 +48,18 @@ jobs:
 
       - name: Refresh Core ledger and all Candidate operating Current products
         run: |
-          python automation/wp3_r/repair_source.py
+          AS_OF="$(date -u +%F)"
           python automation/wp3_r/refresh_candidate_price_ledger.py --repo-root .
-          python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
-          python automation/wp3_r/finalize_operating_products.py --repo-root .
-          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode monthly
+          bash automation/wp3_r/rebuild_operating_current.sh "$AS_OF"
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode monthly --as-of "$AS_OF"
 
       - name: Evaluate financial-report watermark
         id: gate
         shell: bash
         run: |
           set -Eeuo pipefail
-          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode quarterly-gate
+          AS_OF="$(date -u +%F)"
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode quarterly-gate --as-of "$AS_OF"
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json
           from pathlib import Path
@@ -68,6 +73,7 @@ jobs:
       - name: Build governed full-market rescreen proposal when a new report watermark exists
         if: steps.gate.outputs.run_rescreen == 'true'
         run: |
+          AS_OF="$(date -u +%F)"
           python automation/wp3_3_4/build_milestone_v4.py \
             --repo-root . \
             --config automation/wp3_3_4/config.json \
@@ -75,42 +81,48 @@ jobs:
           python automation/wp3_r/build_candidate_cadence.py \
             --repo-root . \
             --mode quarterly-complete \
+            --as-of "$AS_OF" \
             --proposal-dir "${{ steps.gate.outputs.proposal_dir }}"
 
       - name: Finalize acceptance and validate recovery boundary
         run: |
-          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance
+          AS_OF="$(date -u +%F)"
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance --as-of "$AS_OF"
           python - <<'PY'
           import json
-          from datetime import datetime
+          from datetime import date
           from pathlib import Path
 
           root = Path('.')
           candidate = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_text(encoding='utf-8'))
           run = json.loads((root / 'investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER_RUN_CURRENT.json').read_text(encoding='utf-8'))
           weekly = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          market_run = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json').read_text(encoding='utf-8'))
           monthly = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/MONTHLY_CANDIDATE_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
           quarterly = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json').read_text(encoding='utf-8'))
           outcome = json.loads((root / 'investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json').read_text(encoding='utf-8'))
 
+          session = date.fromisoformat(weekly['as_of_date'])
           assert candidate['counts']['candidate_core'] == 2
           assert candidate['counts']['research_queue'] == 33
           assert candidate['counts']['shadow_track'] == 38
           assert candidate['counts']['ready_for_user_decision'] == 0
-          assert run['latest_trade_date'] >= '2026-08-04'
+          assert run['latest_trade_date'] == market_run['accepted_session']
+          assert 0 <= (date.today() - session).days <= 4
           assert run['candidate_membership_mutations'] == 0
           assert run['portfolio_mutations'] == 0
           assert run['orders'] == 0
           assert weekly['tracked_count'] == weekly['covered_count'] == 73
-          assert weekly['as_of_date'] >= '2026-08-04'
+          assert weekly['as_of_date'] == market_run['accepted_session']
           assert weekly['candidate_membership_mutations'] == 0
-          assert monthly['review_month'] == datetime.utcnow().strftime('%Y-%m')
+          assert monthly['review_month'] == date.today().strftime('%Y-%m')
           assert monthly['automatic_candidate_membership_mutations'] == 0
+          assert quarterly['as_of_date'] == date.today().isoformat()
           assert quarterly['candidate_membership_mutations'] == 0
           assert quarterly['portfolio_mutations'] == 0
           assert outcome['alpha_claim_allowed'] is False
           assert outcome['required_windows'] == [20, 60, 120]
-          assert all(obj.get('trade_authority') == 'NONE' for obj in (run, weekly, monthly, quarterly, outcome))
+          assert all(obj.get('trade_authority') == 'NONE' for obj in (run, weekly, market_run, monthly, quarterly, outcome))
           print({
               'candidate_counts': candidate['counts'],
               'latest_trade_date': run['latest_trade_date'],
@@ -121,9 +133,11 @@ jobs:
               'orders': 0,
           })
           PY
+          git fetch origin main
           git diff --exit-code origin/main -- investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
 
       - name: Publish recovered Candidate operating Current products
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         run: |
           bash automation/wp3_r/publish_current_safely.sh \
             "WP3-R recover Candidate operating Current through latest market close" \
@@ -134,6 +148,7 @@ jobs:
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/MONTHLY_CANDIDATE_REVIEW_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json \
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json \
             "${{ steps.gate.outputs.proposal_dir }}"
@@ -142,7 +157,7 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP3-R Candidate Operations Limited Recovery
-          - Rebuilt the Core daily ledger, 73-name weekly screen, monthly review and report-watermark gate
+          - Rebuilt the Core daily ledger, dated 73-name market screen, monthly review and report-watermark gate
           - Generated a full-market rescreen proposal only if a new financial-report watermark was detected
           - Published only governed operating Current and evidence products
           - Candidate membership, Research Objects, portfolios and orders remained unchanged
