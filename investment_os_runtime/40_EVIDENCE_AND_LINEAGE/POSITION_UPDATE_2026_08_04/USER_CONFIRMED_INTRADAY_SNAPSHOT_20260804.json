@@ -1,19 +1,61 @@
 {
-  "evidence_id": "POSITION_UPDATE_20260804_USER_CONFIRMED_INTRADAY",
-  "captured_at": "2026-08-05T09:15:00+08:00",
-  "source_snapshot_times": {
-    "real": "2026-08-04T09:51:00+08:00",
-    "simulation": "2026-08-04T09:52:00+08:00"
-  },
-  "snapshot_type": "USER_CONFIRMED_INTRADAY",
-  "eod_status": "NOT_EOD_DO_NOT_APPEND_TO_FORMAL_EOD_SERIES",
-  "input_files": [
-    "canonical_position_update_2026-08-04.json",
-    "持仓更新与风险复核_2026-08-04.xlsx"
-  ],
-  "input_reconciliation": "JSON_STRUCTURE_AND_WORKBOOK_VALUES_MATCHED",
   "canonical_commit_before": "84544c3ec464c008e5ef023b5ddf6c916d19c5af",
-  "economic_state_commit": "2481b307c01bc18716208fa5b9493a01ac4449df",
+  "captured_at": "2026-08-05T09:15:00+08:00",
+  "compatibility_controls": {
+    "legacy_source_interface_preserved": true,
+    "specialized_position_validator": "PASS",
+    "standard_current_interface_preserved": true,
+    "wp2_r_unit_tests": "PASS"
+  },
+  "economic_state_commit": "PENDING_PR_MERGE",
+  "economic_state_commit_role": "TO_BE_RESOLVED_BY_PULL_REQUEST_MERGE",
+  "eod_status": "NOT_EOD_DO_NOT_APPEND_TO_FORMAL_EOD_SERIES",
+  "evidence_id": "POSITION_UPDATE_20260804_USER_CONFIRMED_INTRADAY",
+  "exceptions": [
+    {
+      "amount": 237.5,
+      "id": "REAL_STOCK_TOTAL_MINUS_LINE_SUM",
+      "status": "OPEN"
+    },
+    {
+      "amount": -43.0,
+      "id": "SIM_TOP_MV_MINUS_LINE_SUM",
+      "status": "OPEN"
+    },
+    {
+      "id": "JOVO_CURRENT_BATCH_IDENTITY",
+      "status": "OPEN"
+    },
+    {
+      "id": "JOVO_SECOND_BATCH_SETTLEMENT",
+      "status": "OPEN"
+    }
+  ],
+  "input_evidence": [
+    {
+      "scope": "STRUCTURED_FACTS_AND_NUMERIC_VALUES_IN_CHAT",
+      "status": "AVAILABLE_AND_USED",
+      "type": "USER_PASTED_HANDOFF_TEXT"
+    },
+    {
+      "name": "canonical_position_update_2026-08-04.json",
+      "status": "NOT_MOUNTED_NOT_INSPECTED_IN_CURRENT_CONVERSATION",
+      "type": "REFERENCED_FILE"
+    },
+    {
+      "name": "持仓更新与风险复核_2026-08-04.xlsx",
+      "status": "NOT_MOUNTED_NOT_INSPECTED_IN_CURRENT_CONVERSATION",
+      "type": "REFERENCED_FILE"
+    }
+  ],
+  "input_reconciliation": "NOT_PERFORMED_REFERENCED_FILES_NOT_MOUNTED; USER_PASTED_HANDOFF_USED",
+  "non_mutation_scope": {
+    "candidate": "UNCHANGED",
+    "decision": "UNCHANGED",
+    "orders": "ZERO",
+    "trade_authority": "NONE"
+  },
+  "orders": 0,
   "outputs": [
     "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json",
     "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
@@ -23,24 +65,10 @@
     "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json",
     "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
   ],
-  "compatibility_controls": {
-    "legacy_source_interface_preserved": true,
-    "standard_current_interface_preserved": true,
-    "wp2_r_unit_tests": "PASS",
-    "specialized_position_validator": "PASS"
+  "snapshot_type": "USER_CONFIRMED_INTRADAY",
+  "source_snapshot_times": {
+    "real": "2026-08-04T09:51:00+08:00",
+    "simulation": "2026-08-04T09:52:00+08:00"
   },
-  "exceptions": [
-    {"id":"REAL_STOCK_TOTAL_MINUS_LINE_SUM","amount":237.5,"status":"OPEN"},
-    {"id":"SIM_TOP_MV_MINUS_LINE_SUM","amount":-43.0,"status":"OPEN"},
-    {"id":"JOVO_CURRENT_BATCH_IDENTITY","status":"OPEN"},
-    {"id":"JOVO_SECOND_BATCH_SETTLEMENT","status":"OPEN"}
-  ],
-  "non_mutation_scope": {
-    "candidate": "UNCHANGED",
-    "decision": "UNCHANGED",
-    "orders": "ZERO",
-    "trade_authority": "NONE"
-  },
-  "orders": 0,
   "trade_authority": "NONE"
 }
