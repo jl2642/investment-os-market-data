@@ -104,20 +104,13 @@ jobs:
           git diff --exit-code origin/main -- investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
 
       - name: Publish gate state and proposal evidence
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
+          bash automation/wp3_r/publish_current_safely.sh \
+            "WP3-R report-watermark gated quarterly rescreen evidence" \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/QUARTERLY_PROPOSALS \
-            investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json 2>/dev/null || true
-          if git diff --cached --quiet; then
-            echo "Quarterly report-watermark state already current."
-            exit 0
-          fi
-          git commit -m "WP3-R report-watermark gated quarterly rescreen evidence"
-          git pull --rebase origin main
-          git push origin HEAD:main
+            investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
 
       - name: Record summary
         run: |
