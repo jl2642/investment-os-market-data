@@ -36,16 +36,16 @@ jobs:
 
       - name: Refresh financial report-period audit
         run: |
-          python automation/wp3_r/repair_source.py
-          python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
-          python automation/wp3_r/finalize_operating_products.py --repo-root .
+          AS_OF="$(date -u +%F)"
+          bash automation/wp3_r/rebuild_operating_current.sh "$AS_OF"
 
       - name: Evaluate new-report watermark
         id: gate
         shell: bash
         run: |
           set -Eeuo pipefail
-          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode quarterly-gate
+          AS_OF="$(date -u +%F)"
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode quarterly-gate --as-of "$AS_OF"
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json
           from pathlib import Path
@@ -60,6 +60,7 @@ jobs:
       - name: Build full-market rescreen proposal only for new report watermark
         if: steps.gate.outputs.run_rescreen == 'true'
         run: |
+          AS_OF="$(date -u +%F)"
           python automation/wp3_3_4/build_milestone_v4.py \
             --repo-root . \
             --config automation/wp3_3_4/config.json \
@@ -67,18 +68,23 @@ jobs:
           python automation/wp3_r/build_candidate_cadence.py \
             --repo-root . \
             --mode quarterly-complete \
+            --as-of "$AS_OF" \
             --proposal-dir "${{ steps.gate.outputs.proposal_dir }}"
 
       - name: Finalize capability acceptance
-        run: python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance
+        run: python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance --as-of "$(date -u +%F)"
 
       - name: Validate proposal-only boundary
         run: |
           python - <<'PY'
           import json
+          from datetime import date
           from pathlib import Path
           state = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          weekly = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json').read_text(encoding='utf-8'))
           acceptance = json.loads(Path('investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          assert state['as_of_date'] == date.today().isoformat()
+          assert weekly['as_of_date'] == date.today().isoformat()
           assert state['status'] in {
               'BASELINE_INSTALLED_NO_RETROACTIVE_RERUN',
               'NO_NEW_FINANCIAL_WATERMARK_NO_RERUN',
@@ -92,6 +98,7 @@ jobs:
           assert acceptance['wp5_unblocked'] is False
           print({
               'latest_report_period': state['latest_report_period_observed'],
+              'as_of': state['as_of_date'],
               'status': state['status'],
               'proposal_path': state.get('last_proposal_path'),
               'automatic_mutations': 0,
@@ -108,7 +115,10 @@ jobs:
         run: |
           bash automation/wp3_r/publish_current_safely.sh \
             "WP3-R report-watermark gated quarterly rescreen evidence" \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/QUARTERLY_PROPOSALS \
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
 
