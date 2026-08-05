@@ -1,0 +1,57 @@
+name: Bootstrap Audited Position Update
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  install:
+    if: startsWith(github.head_ref, 'agent/2026-08-04-position-equity-comp-update')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install audited Current and evidence files
+        run: python automation/canonical_position_update/bootstrap_install.py
+
+      - name: Validate generated state before push
+        run: python automation/canonical_position_update/validate.py
+
+      - name: Commit generated files to the agent branch
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            .github/workflows/canonical-position-update-validation.yml \
+            automation/canonical_position_update/validate.py \
+            investment_os_runtime/20_SCHEMAS_AND_INTERFACES/SCHEMA_REGISTRY.json \
+            investment_os_runtime/20_SCHEMAS_AND_INTERFACES/equity_compensation_state.schema.json \
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04
+          if git diff --cached --quiet; then
+            echo "Audited position update already materialized."
+            exit 0
+          fi
+          git commit -m "Install audited 2026-08-04 intraday position state"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
