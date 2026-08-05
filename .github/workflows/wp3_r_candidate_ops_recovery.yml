@@ -18,6 +18,12 @@ on:
     branches: [main]
     paths: *candidate_recovery_paths
   workflow_dispatch:
+    inputs:
+      validation_only:
+        description: "Validate the frozen generated Candidate Current on this exact Head without reacquiring market data"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   actions: write
@@ -49,6 +55,7 @@ jobs:
           python -m pip install --retries 5 --timeout 30 -r automation/wp3_3_4/requirements.lock
 
       - name: Refresh Core ledger and all Candidate operating Current products
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.validation_only != true }}
         run: |
           AS_OF="$(date -u +%F)"
           python automation/wp3_r/refresh_candidate_price_ledger.py --repo-root .
@@ -56,6 +63,7 @@ jobs:
           python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode monthly --as-of "$AS_OF"
 
       - name: Evaluate financial-report watermark
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.validation_only != true }}
         id: gate
         shell: bash
         run: |
@@ -73,7 +81,7 @@ jobs:
           PY
 
       - name: Build governed full-market rescreen proposal when a new report watermark exists
-        if: steps.gate.outputs.run_rescreen == 'true'
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.validation_only != true) && steps.gate.outputs.run_rescreen == 'true' }}
         run: |
           AS_OF="$(date -u +%F)"
           python automation/wp3_3_4/build_milestone_v4.py \
@@ -86,7 +94,8 @@ jobs:
             --as-of "$AS_OF" \
             --proposal-dir "${{ steps.gate.outputs.proposal_dir }}"
 
-      - name: Finalize acceptance and validate recovery boundary
+      - name: Finalize refreshed products and validate recovery boundary
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.validation_only != true }}
         run: |
           AS_OF="$(date -u +%F)"
           python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance --as-of "$AS_OF"
@@ -126,6 +135,7 @@ jobs:
           assert outcome['required_windows'] == [20, 60, 120]
           assert all(obj.get('trade_authority') == 'NONE' for obj in (run, weekly, market_run, monthly, quarterly, outcome))
           print({
+              'mode': 'LIVE_REFRESH_AND_VALIDATE',
               'candidate_counts': candidate['counts'],
               'latest_trade_date': run['latest_trade_date'],
               'weekly_as_of': weekly['as_of_date'],
@@ -138,8 +148,90 @@ jobs:
           git fetch origin main
           git diff --exit-code origin/main -- investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
 
+      - name: Validate frozen generated Candidate Current on exact Head
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.validation_only == true }}
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import date
+          from pathlib import Path
+
+          root = Path('.')
+          load = lambda path: json.loads((root / path).read_text(encoding='utf-8'))
+          candidate = load('investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json')
+          run = load('investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER_RUN_CURRENT.json')
+          weekly = load('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json')
+          market_run = load('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json')
+          monthly = load('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/MONTHLY_CANDIDATE_REVIEW_CURRENT.json')
+          quarterly = load('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json')
+          outcome = load('investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json')
+          acceptance = load('investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json')
+
+          session = date.fromisoformat(weekly['as_of_date'])
+          quarterly_date = date.fromisoformat(quarterly['as_of_date'])
+          assert candidate['counts']['candidate_core'] == 2
+          assert candidate['counts']['research_queue'] == 33
+          assert candidate['counts']['shadow_track'] == 38
+          assert candidate['counts']['ready_for_user_decision'] == 0
+          assert run['status'] == 'PASS_PRICE_LEDGER_CURRENT'
+          assert run['latest_trade_date'] == market_run['accepted_session'] == weekly['as_of_date']
+          assert 0 <= (date.today() - session).days <= 4
+          assert market_run['status'] == 'PASS_CANDIDATE_MARKET_SCREEN_CURRENT'
+          assert market_run['tracked_count'] == market_run['covered_count'] == 73
+          assert weekly['status'] == 'PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION'
+          assert weekly['tracked_count'] == weekly['covered_count'] == 73
+          assert monthly['review_month'] == date.today().strftime('%Y-%m')
+          assert monthly['status'] in {'MONTHLY_REVIEW_COMPLETE_NO_AUTOMATIC_MEMBERSHIP_CHANGE', 'NOOP_ALREADY_REVIEWED_THIS_MONTH'}
+          assert 0 <= (date.today() - quarterly_date).days <= 4
+          assert quarterly['status'] in {
+              'BASELINE_INSTALLED_NO_RETROACTIVE_RERUN',
+              'NO_NEW_FINANCIAL_WATERMARK_NO_RERUN',
+              'READY_FOR_QUARTERLY_FULL_RESCREEN_PROPOSAL',
+              'QUARTERLY_FULL_RESCREEN_PROPOSAL_COMPLETE_HUMAN_MERGE_REQUIRED',
+          }
+          assert outcome['alpha_claim_allowed'] is False
+          assert outcome['required_windows'] == [20, 60, 120]
+          assert acceptance['status'] == 'WP3R_CONTINUOUS_CANDIDATE_ENGINE_CAPABILITY_ACCEPTED'
+          assert acceptance['continuous_candidate_engine_complete'] is True
+          assert acceptance['wp4b_unblocked'] is True
+          assert acceptance['wp5_unblocked'] is False
+
+          objects = (run, weekly, market_run, monthly, quarterly, outcome, acceptance)
+          assert all(obj.get('trade_authority') == 'NONE' for obj in objects)
+          assert run['candidate_membership_mutations'] == 0
+          assert run['portfolio_mutations'] == 0
+          assert run['orders'] == 0
+          assert weekly['candidate_membership_mutations'] == 0
+          assert market_run['candidate_membership_mutations'] == 0
+          assert market_run['research_object_mutations'] == 0
+          assert market_run['portfolio_mutations'] == 0
+          assert monthly['automatic_candidate_membership_mutations'] == 0
+          assert monthly['automatic_research_object_mutations'] == 0
+          assert monthly['portfolio_mutations'] == 0
+          assert quarterly['candidate_membership_mutations'] == 0
+          assert quarterly['research_object_mutations'] == 0
+          assert quarterly['portfolio_mutations'] == 0
+          assert acceptance['candidate_membership_mutations'] == 0
+          assert acceptance['research_object_mutations'] == 0
+          assert acceptance['portfolio_mutations'] == 0
+          assert all(obj.get('orders') == 0 for obj in objects)
+
+          print({
+              'mode': 'FROZEN_EXACT_HEAD_VALIDATION_NO_NETWORK',
+              'candidate_counts': candidate['counts'],
+              'accepted_session': market_run['accepted_session'],
+              'coverage': market_run['covered_count'],
+              'acceptance_status': acceptance['status'],
+              'mutations': 0,
+              'orders': 0,
+              'trade_authority': 'NONE',
+          })
+          PY
+          git fetch origin main
+          git diff --exit-code origin/main -- investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
+
       - name: Publish recovered Candidate operating Current products
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && inputs.validation_only != true }}
         run: |
           bash automation/wp3_r/publish_current_safely.sh \
             "WP3-R recover Candidate operating Current through latest market close" \
@@ -156,7 +248,7 @@ jobs:
             "${{ steps.gate.outputs.proposal_dir }}"
 
       - name: Dispatch governed Candidate Current promotion
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && inputs.validation_only != true }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -168,10 +260,9 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP3-R Candidate Operations Limited Recovery
-          - Rebuilt the Core daily ledger, dated 73-name market screen, monthly review and report-watermark gate
-          - Generated a full-market rescreen proposal only if a new financial-report watermark was detected
-          - Published only governed operating Current and evidence products to the rolling automation branch
-          - Explicitly dispatched the protected-main PR promotion workflow
-          - Candidate membership, Research Objects, portfolios and orders remained unchanged
+          - Live refresh mode rebuilds the Core ledger, dated 73-name market screen, monthly review and report-watermark gate.
+          - Frozen validation mode verifies the exact generated Head without reacquiring market data.
+          - Generated products publish only to the rolling automation branch and enter protected main through a governed PR.
+          - Candidate membership, Research Objects, portfolios and orders remain unchanged.
           - trade_authority: NONE
           EOF
