@@ -32,21 +32,22 @@ jobs:
 
       - name: Rebuild audit and weekly operating products
         run: |
-          python automation/wp3_r/repair_source.py
-          python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
-          python automation/wp3_r/finalize_operating_products.py --repo-root .
-          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance
+          AS_OF="$(date -u +%F)"
+          bash automation/wp3_r/rebuild_operating_current.sh "$AS_OF"
+          python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance --as-of "$AS_OF"
 
       - name: Validate full weekly coverage and zero mutations
         run: |
           python - <<'PY'
           import json
+          from datetime import date
           from pathlib import Path
           root = Path('.')
           weekly = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json').read_text(encoding='utf-8'))
           acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
           assert weekly['status'] == 'PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION'
           assert weekly['tracked_count'] == weekly['covered_count'] == 73
+          assert weekly['as_of_date'] == date.today().isoformat()
           assert weekly['candidate_membership_mutations'] == 0
           assert weekly['research_object_mutations'] == 0
           assert weekly['orders'] == 0
