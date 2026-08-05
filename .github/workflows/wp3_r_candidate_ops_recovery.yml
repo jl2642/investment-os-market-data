@@ -214,7 +214,9 @@ jobs:
           assert acceptance['candidate_membership_mutations'] == 0
           assert acceptance['research_object_mutations'] == 0
           assert acceptance['portfolio_mutations'] == 0
-          assert all(obj.get('orders') == 0 for obj in objects)
+          order_objects = (run, weekly, market_run, monthly, quarterly, acceptance)
+          assert all(obj['orders'] == 0 for obj in order_objects)
+          assert 'orders' not in outcome
 
           print({
               'mode': 'FROZEN_EXACT_HEAD_VALIDATION_NO_NETWORK',
