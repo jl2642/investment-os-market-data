@@ -1,0 +1,198 @@
+name: WP3-R Candidate Current Governed Promotion
+run-name: "WP3-R governed Candidate Current promotion"
+
+on:
+  push:
+    branches:
+      - automation/wp3-r-candidate-current
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: wp3-r-candidate-current-promotion
+  cancel-in-progress: true
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  BASE_BRANCH: main
+  PUBLISH_BRANCH: automation/wp3-r-candidate-current
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  promote-candidate-current:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.PUBLISH_BRANCH }}
+          fetch-depth: 0
+
+      - name: Validate governed publication scope
+        id: scope
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "$BASE_BRANCH"
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          allowed_exact = {
+              "investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json",
+              "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/MONTHLY_CANDIDATE_REVIEW_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json",
+              "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json",
+              "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json",
+              "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json",
+              "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json",
+              "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER.jsonl",
+              "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER_RUN_CURRENT.json",
+          }
+          allowed_prefixes = (
+              "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/QUARTERLY_PROPOSALS/",
+          )
+          changed = [
+              line.strip()
+              for line in subprocess.check_output(
+                  ["git", "diff", "--name-only", "origin/main...HEAD"], text=True
+              ).splitlines()
+              if line.strip()
+          ]
+          if not changed:
+              raise SystemExit("NO_GENERATED_CANDIDATE_CURRENT_CHANGES")
+          forbidden = [
+              path for path in changed
+              if path not in allowed_exact and not path.startswith(allowed_prefixes)
+          ]
+          if forbidden:
+              raise SystemExit(f"FORBIDDEN_GENERATED_PUBLICATION_PATHS: {forbidden}")
+          protected_fragments = (
+              "/40_CANDIDATE/CANDIDATE_CURRENT.json",
+              "/10_REAL_ACCOUNT/",
+              "/20_SIMULATION/",
+              "/50_DECISION/",
+              "/ORDERS/",
+          )
+          contaminated = [path for path in changed if any(fragment in path for fragment in protected_fragments)]
+          if contaminated:
+              raise SystemExit(f"PROTECTED_INVESTMENT_OBJECT_MUTATION: {contaminated}")
+          print({"changed_paths": changed, "count": len(changed), "trade_authority": "NONE"})
+          PY
+
+      - name: Open or reuse Draft promotion PR
+        id: pr
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          pr_url="$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "$BASE_BRANCH" \
+            --head "$PUBLISH_BRANCH" \
+            --state open \
+            --json url \
+            --jq '.[0].url // empty')"
+          if [[ -z "$pr_url" ]]; then
+            pr_url="$(gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base "$BASE_BRANCH" \
+              --head "$PUBLISH_BRANCH" \
+              --draft \
+              --title "WP3-R: publish generated Candidate operating Current" \
+              --body $'## Scope\n\nPromote generated WP3-R Candidate operating Current and evidence through the protected-branch PR gate.\n\n## Boundaries\n\n- Candidate membership unchanged;\n- Research Objects unchanged;\n- Real and Simulation unchanged;\n- orders = 0;\n- trade_authority = NONE;\n- no automatic buy signal or alpha claim.\n\nThe promotion workflow validates the generated-file allowlist, runs the Candidate recovery acceptance and the required WP3-2A Lineage Gate on the exact head SHA, then merges only after both pass.')"
+          fi
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+          echo "number=$(gh pr view "$pr_url" --repo "$GITHUB_REPOSITORY" --json number --jq .number)" >> "$GITHUB_OUTPUT"
+          echo "PROMOTION_PR=$pr_url"
+
+      - name: Dispatch exact-head acceptance gates
+        id: dispatch
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          dispatch_and_wait() {
+            local workflow="$1"
+            shift
+            gh workflow run "$workflow" \
+              --repo "$GITHUB_REPOSITORY" \
+              --ref "$PUBLISH_BRANCH" \
+              "$@"
+
+            local run_id=""
+            for _ in $(seq 1 60); do
+              run_id="$(gh run list \
+                --repo "$GITHUB_REPOSITORY" \
+                --workflow "$workflow" \
+                --branch "$PUBLISH_BRANCH" \
+                --event workflow_dispatch \
+                --limit 20 \
+                --json databaseId,headSha,createdAt \
+                --jq '.[] | select(.headSha == "'"$GITHUB_SHA"'") | .databaseId' \
+                | head -n 1)"
+              [[ -n "$run_id" ]] && break
+              sleep 5
+            done
+            if [[ -z "$run_id" ]]; then
+              echo "DISPATCHED_RUN_NOT_FOUND: $workflow" >&2
+              return 1
+            fi
+            echo "$workflow run_id=$run_id"
+            gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          }
+
+          dispatch_and_wait wp3_r_candidate_ops_recovery.yml
+          dispatch_and_wait wp3_2a_lineage_gate.yml \
+            -f base_ref="$BASE_BRANCH" \
+            -f enforce_wp3_2a_scope=false
+
+      - name: Verify PR head and unresolved-thread gate
+        shell: bash
+        env:
+          PR_URL: ${{ steps.pr.outputs.url }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: |
+          set -Eeuo pipefail
+          pr_head="$(gh pr view "$PR_URL" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)"
+          test "$pr_head" = "$GITHUB_SHA"
+          unresolved="$(gh api graphql \
+            -f query='query($owner:String!,$repo:String!,$number:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$number){reviewThreads(first:100){nodes{isResolved}}}}}' \
+            -f owner="${GITHUB_REPOSITORY%/*}" \
+            -f repo="${GITHUB_REPOSITORY#*/}" \
+            -F number="$PR_NUMBER" \
+            --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')"
+          test "$unresolved" = "0"
+          echo "HEAD_SHA=$pr_head"
+          echo "UNRESOLVED_REVIEW_THREADS=$unresolved"
+
+      - name: Mark Ready and merge through protected main
+        shell: bash
+        env:
+          PR_URL: ${{ steps.pr.outputs.url }}
+        run: |
+          set -Eeuo pipefail
+          is_draft="$(gh pr view "$PR_URL" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)"
+          if [[ "$is_draft" == "true" ]]; then
+            gh pr ready "$PR_URL" --repo "$GITHUB_REPOSITORY"
+          fi
+          gh pr merge "$PR_URL" \
+            --repo "$GITHUB_REPOSITORY" \
+            --squash \
+            --subject "WP3-R: publish governed Candidate operating Current" \
+            --body "Generated Current and evidence only; Candidate membership, portfolios, orders and trade authority unchanged."
+
+      - name: Record governed promotion summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## WP3-R Governed Candidate Current Promotion
+          - Generated products were restricted to the explicit publication allowlist.
+          - Candidate recovery acceptance and WP3-2A Lineage Gate ran on the exact promotion head SHA.
+          - The Draft PR was marked Ready and merged only after both gates passed.
+          - Candidate membership, Research Objects, Real, Simulation and orders remained unchanged.
+          - trade_authority: NONE
+          EOF

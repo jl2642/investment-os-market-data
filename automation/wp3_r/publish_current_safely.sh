@@ -8,6 +8,8 @@ fi
 
 commit_message="$1"
 shift
+publish_branch="${WP3R_PUBLISH_BRANCH:-automation/wp3-r-candidate-current}"
+base_branch="${WP3R_BASE_BRANCH:-main}"
 
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -33,14 +35,26 @@ git diff --cached --name-only
 git commit -m "$commit_message"
 
 # Candidate builders also refresh diagnostic products that are intentionally
-# outside each workflow's publication boundary. A dirty worktree makes
-# `git pull --rebase` exit 128. Keep the committed Current products and remove
-# every non-published tracked/untracked by-product before rebasing.
+# outside each workflow's publication boundary. Keep only the governed commit
+# before rebasing it on the latest Canonical base.
 echo "NON_PUBLISHED_WORKTREE_CHANGES_BEFORE_CLEANUP"
 git status --short || true
 git reset --hard HEAD
 git clean -fd
 
-git fetch origin main
-git rebase origin/main
-git push origin HEAD:main
+git fetch origin "$base_branch"
+git rebase "origin/$base_branch"
+
+# Main is protected and requires PR + Lineage Gate. Publish generated Current
+# products to one rolling automation branch. The dedicated promotion workflow
+# creates/updates the governed PR and dispatches the actual required gate.
+if git ls-remote --exit-code --heads origin "$publish_branch" >/dev/null 2>&1; then
+  git fetch origin "$publish_branch:refs/remotes/origin/$publish_branch"
+  git push --force-with-lease="refs/heads/$publish_branch:refs/remotes/origin/$publish_branch" \
+    origin "HEAD:refs/heads/$publish_branch"
+else
+  git push origin "HEAD:refs/heads/$publish_branch"
+fi
+
+echo "PUBLISHED_BRANCH=$publish_branch"
+echo "GOVERNED_PR_PROMOTION_DELEGATED=true"
