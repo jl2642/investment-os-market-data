@@ -105,7 +105,7 @@ jobs:
               --head "$PUBLISH_BRANCH" \
               --draft \
               --title "WP3-R: publish generated Candidate operating Current" \
-              --body $'## Scope\n\nPromote generated WP3-R Candidate operating Current and evidence through the protected-branch PR gate.\n\n## Boundaries\n\n- Candidate membership unchanged;\n- Research Objects unchanged;\n- Real and Simulation unchanged;\n- orders = 0;\n- trade_authority = NONE;\n- no automatic buy signal or alpha claim.\n\nThe promotion workflow validates the generated-file allowlist, runs the Candidate recovery acceptance and the required WP3-2A Lineage Gate on the exact head SHA, then merges only after both pass.')"
+              --body $'## Scope\n\nPromote generated WP3-R Candidate operating Current and evidence through the protected-branch PR gate.\n\n## Boundaries\n\n- Candidate membership unchanged;\n- Research Objects unchanged;\n- Real and Simulation unchanged;\n- orders = 0;\n- trade_authority = NONE;\n- no automatic buy signal or alpha claim.\n\nThe promotion workflow validates the generated-file allowlist, validates the frozen Candidate products and the required WP3-2A Lineage Gate on the exact head SHA, then merges only after both pass.')"
           fi
           echo "url=$pr_url" >> "$GITHUB_OUTPUT"
           echo "number=$(gh pr view "$pr_url" --repo "$GITHUB_REPOSITORY" --json number --jq .number)" >> "$GITHUB_OUTPUT"
@@ -149,7 +149,8 @@ jobs:
             gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
           }
 
-          dispatch_and_wait wp3_r_candidate_ops_recovery.yml
+          dispatch_and_wait wp3_r_candidate_ops_recovery.yml \
+            -f validation_only=true
           dispatch_and_wait wp3_2a_lineage_gate.yml \
             -f base_ref="$BASE_BRANCH" \
             -f enforce_wp3_2a_scope=false
@@ -195,7 +196,8 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP3-R Governed Candidate Current Promotion
           - Generated products were restricted to the explicit publication allowlist.
-          - Candidate recovery acceptance and WP3-2A Lineage Gate ran on the rolling publication branch Head SHA.
+          - Frozen Candidate acceptance and WP3-2A Lineage Gate ran on the rolling publication branch Head SHA.
+          - Exact-head validation did not reacquire market data or mutate the generated snapshot.
           - The Draft PR was marked Ready and merged only after both gates passed.
           - Candidate membership, Research Objects, Real, Simulation and orders remained unchanged.
           - trade_authority: NONE
