@@ -50,13 +50,18 @@ jobs:
           python -m py_compile automation/canonical_position_update/repair_audit_findings.py
           python automation/canonical_position_update/repair_audit_findings.py
 
-      - name: Persist audit repairs to the agent branch
+      - name: Apply post-merge evidence closure when authorized
+        run: |
+          python -m py_compile automation/canonical_position_update/apply_post_merge_closure.py
+          python automation/canonical_position_update/apply_post_merge_closure.py
+
+      - name: Persist audit and closure repairs to the agent branch
         if: github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.head_ref, 'agent/')
         shell: bash
         run: |
           set -Eeuo pipefail
           if git diff --quiet; then
-            echo "Audit repair is idempotent; no branch update required."
+            echo "Audit and closure repair are idempotent; no branch update required."
             exit 0
           fi
           git config user.name "github-actions[bot]"
@@ -73,7 +78,7 @@ jobs:
             investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/OPERATING_RUN_LEDGER_CURRENT.json \
             investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/REPORT_MANIFESTS/POSITION_UPDATE_20260804_USER_INTRADAY.json \
             investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/POSITION_UPDATE_20260804_USER_INTRADAY.json
-          git commit -m "Repair audited position-update reconciliations and evidence boundary"
+          git commit -m "Close audited position-update evidence chain"
           git push origin "HEAD:${GITHUB_HEAD_REF}"
 
       - name: Compile validator
@@ -82,9 +87,10 @@ jobs:
       - name: Validate legacy sources, standard Current and equity subledger
         run: python automation/canonical_position_update/validate.py
 
-      - name: Re-run idempotent audit repair as validation
+      - name: Re-run idempotent audit and closure as validation
         run: |
           python automation/canonical_position_update/repair_audit_findings.py
+          python automation/canonical_position_update/apply_post_merge_closure.py
           git diff --exit-code
 
       - name: Run existing WP2-R unit tests
@@ -106,6 +112,7 @@ jobs:
               Path("investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"),
               Path("investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json"),
               Path("investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json"),
+              Path("investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/POSITION_UPDATE_POST_MERGE_CLOSURE_CURRENT.json"),
           ]
           for path in paths:
               json.loads(path.read_text(encoding="utf-8"))
@@ -120,3 +127,4 @@ jobs:
           echo "formal_EOD_mutations=0"
           echo "candidate_mutations=0"
           echo "decision_mutations=0"
+          echo "post_merge_economic_state_mutations=0"
