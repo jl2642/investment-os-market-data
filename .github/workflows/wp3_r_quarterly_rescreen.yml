@@ -82,9 +82,12 @@ jobs:
           from pathlib import Path
           state = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json').read_text(encoding='utf-8'))
           weekly = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json').read_text(encoding='utf-8'))
+          market_run = json.loads(Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json').read_text(encoding='utf-8'))
           acceptance = json.loads(Path('investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+          session = date.fromisoformat(weekly['as_of_date'])
           assert state['as_of_date'] == date.today().isoformat()
-          assert weekly['as_of_date'] == date.today().isoformat()
+          assert weekly['as_of_date'] == market_run['accepted_session']
+          assert 0 <= (date.today() - session).days <= 4
           assert state['status'] in {
               'BASELINE_INSTALLED_NO_RETROACTIVE_RERUN',
               'NO_NEW_FINANCIAL_WATERMARK_NO_RERUN',
@@ -99,6 +102,7 @@ jobs:
           print({
               'latest_report_period': state['latest_report_period_observed'],
               'as_of': state['as_of_date'],
+              'market_session': weekly['as_of_date'],
               'status': state['status'],
               'proposal_path': state.get('last_proposal_path'),
               'automatic_mutations': 0,
@@ -118,6 +122,7 @@ jobs:
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/QUARTERLY_FINANCIAL_RESCREEN_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/QUARTERLY_PROPOSALS \
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
