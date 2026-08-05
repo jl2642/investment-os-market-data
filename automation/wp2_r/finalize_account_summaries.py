@@ -76,9 +76,9 @@ def account_summary(
         ),
         "reconciliation_explanation": (
             "WP2-R uses the current automated listed-security close and official fund NAV set. "
-            "Historical WP2-3 used its own accepted mixed watermark. Source-level unallocated "
-            "reconciliation exceptions are preserved explicitly and are never forced into a security, "
-            "quantity, cost or cash mutation."
+            "Historical WP2-3 used its own accepted mixed watermark. Persistent source-level "
+            "unallocated reconciliation exceptions are preserved explicitly and are never forced "
+            "into a security, quantity, cost or cash mutation."
         ),
     }
     if reconciliation_exception_field:
@@ -113,7 +113,7 @@ def main() -> None:
     real_cash = num(real_source_summary.get("brokerage_available_cash"))
     sim_cash = num(sim_source_summary.get("available_cash"))
     real_reconciliation_exception = num(real_source_summary.get("broker_reconciliation_exception_amount"))
-    sim_reconciliation_exception = num(sim_source_summary.get("market_value_reconciliation_exception_amount"))
+    sim_snapshot_timing_exception = num(sim_source_summary.get("market_value_reconciliation_exception_amount"))
     sim_source_total_assets = num(sim_source_summary.get("total_assets"))
     sim_source_total_pnl = num(sim_source_summary.get("total_pnl"))
     original_capital = sim_source_total_assets - sim_source_total_pnl
@@ -138,8 +138,10 @@ def main() -> None:
         historical_total_assets=num(sim_hist.get("total_assets")) if sim_hist.get("total_assets") is not None else None,
         historical_watermark=sim_hist.get("watermark"),
         original_capital=original_capital,
-        reconciliation_exception=sim_reconciliation_exception,
-        reconciliation_exception_field="market_value_reconciliation_exception_amount",
+    )
+    sim["summary"]["source_snapshot_timing_exception_amount"] = sim_snapshot_timing_exception
+    sim["summary"]["source_snapshot_timing_exception_policy"] = (
+        "DISCLOSE_ONLY_NOT_CARRIED_INTO_LATER_AUTOMATED_MARK_TOTALS"
     )
 
     run["account_summaries_finalized_at"] = datetime.now(timezone.utc).isoformat()
@@ -151,9 +153,9 @@ def main() -> None:
     run["simulation_available_cash"] = sim["summary"]["execution_cash_balance"]
     run["simulation_total_pnl"] = sim["summary"]["account_total_pnl"]
     run["simulation_difference_vs_historical_wp2_3"] = sim["summary"]["difference_vs_historical_wp2_3"]
-    run["simulation_reconciliation_exception_amount"] = sim_reconciliation_exception
+    run["simulation_source_snapshot_timing_exception_amount"] = sim_snapshot_timing_exception
     run["historical_baseline_comparison_policy"] = "DISCLOSE_DIFFERENCE_DO_NOT_FORCE_RECONCILIATION"
-    run["reported_total_reconciliation_exception_policy"] = "PRESERVE_UNALLOCATED_EXCEPTION_DO_NOT_ASSIGN_TO_SECURITY"
+    run["reported_total_reconciliation_exception_policy"] = "PRESERVE_PERSISTENT_REAL_EXCEPTION; DISCLOSE_SIMULATION_SECOND_LEVEL_TIMING_EXCEPTION"
     run["position_or_cost_mutations_from_reconciliation"] = 0
 
     write(root / outputs["real_positions"], real)
@@ -167,9 +169,10 @@ def main() -> None:
         "historical_wp2_3_preserved_as_non_comparable_baseline": True,
         "reported_total_reconciliation_exceptions_preserved": True,
         "real_reconciliation_exception_amount": real_reconciliation_exception,
-        "simulation_reconciliation_exception_amount": sim_reconciliation_exception,
+        "simulation_source_snapshot_timing_exception_amount": sim_snapshot_timing_exception,
         "real_reported_total_formula": "POSITION_MARKET_VALUE_PLUS_EXECUTION_CASH_PLUS_UNALLOCATED_EXCEPTION",
-        "simulation_reported_total_formula": "POSITION_MARKET_VALUE_PLUS_EXECUTION_CASH_PLUS_UNALLOCATED_EXCEPTION",
+        "simulation_automated_mark_total_formula": "POSITION_MARKET_VALUE_PLUS_EXECUTION_CASH",
+        "simulation_snapshot_exception_policy": "DISCLOSE_ONLY_NOT_CARRIED_INTO_LATER_AUTOMATED_MARK_TOTALS",
         "forced_reconciliation_mutations": 0,
         "real_difference_disclosed": real["summary"]["difference_vs_historical_wp2_3"],
         "simulation_difference_disclosed": sim["summary"]["difference_vs_historical_wp2_3"],
@@ -190,7 +193,7 @@ def main() -> None:
                 "real_reconciliation_exception": real_reconciliation_exception,
                 "real_historical_difference": real["summary"]["difference_vs_historical_wp2_3"],
                 "simulation_total_assets": sim["summary"]["account_total_assets"],
-                "simulation_reconciliation_exception": sim_reconciliation_exception,
+                "simulation_source_snapshot_timing_exception": sim_snapshot_timing_exception,
                 "simulation_total_pnl": sim["summary"]["account_total_pnl"],
                 "simulation_historical_difference": sim["summary"]["difference_vs_historical_wp2_3"],
                 "forced_mutations": 0,
