@@ -134,7 +134,7 @@ jobs:
 
           assert real['summary']['execution_cash_balance'] == 769.45
           assert sim['summary']['execution_cash_balance'] == 221661.98
-          assert real['summary']['account_total_assets'] == round(real['summary']['position_market_value'] + real['summary']['execution_cash_balance'], 6)
+          assert real['summary']['account_total_assets'] == round(real['summary']['position_market_value'] + real['summary']['execution_cash_balance'] + real['summary']['broker_reconciliation_exception_amount'], 6)
           assert sim['summary']['account_total_assets'] == round(sim['summary']['position_market_value'] + sim['summary']['execution_cash_balance'], 6)
           assert real_source['summary']['brokerage_total_assets'] == 615390.25
           assert real_source['summary']['broker_reconciliation_exception_amount'] == 237.50
