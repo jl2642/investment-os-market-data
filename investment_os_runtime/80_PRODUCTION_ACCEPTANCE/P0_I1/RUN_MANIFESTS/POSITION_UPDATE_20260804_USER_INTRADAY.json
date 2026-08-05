@@ -1,0 +1,82 @@
+{
+  "candidate_mutations": 0,
+  "canonical_commit_after": "PENDING_PR_MERGE",
+  "canonical_commit_after_role": "TO_BE_RESOLVED_BY_PULL_REQUEST_MERGE",
+  "canonical_commit_before": "84544c3ec464c008e5ef023b5ddf6c916d19c5af",
+  "compatibility_repair_commit": "2481b307c01bc18716208fa5b9493a01ac4449df",
+  "completed_at": "2026-08-05T02:00:17Z",
+  "decision_mutations": 0,
+  "evidence_boundary": "REFERENCED_FILES_NOT_MOUNTED; USER_PASTED_HANDOFF_USED",
+  "exceptions": [
+    {
+      "amount_cny": 237.5,
+      "exception_id": "REAL_STOCK_TOTAL_MINUS_LINE_SUM_20260804_INTRADAY",
+      "status": "OPEN",
+      "treatment": "PRESERVE_BROKER_TOTAL_DO_NOT_ALLOCATE"
+    },
+    {
+      "amount_cny": -43.0,
+      "exception_id": "SIMULATION_TOP_MARKET_VALUE_MINUS_LINE_SUM_20260804_INTRADAY",
+      "status": "OPEN",
+      "treatment": "PRESERVE_TOP_TOTAL_DO_NOT_ALLOCATE"
+    },
+    {
+      "exception_id": "605090_SETTLED_BATCH_IDENTITY_UNKNOWN",
+      "quantity": 4950,
+      "status": "OPEN",
+      "treatment": "CURRENT_ORDINARY_SHARES_WITH_UNKNOWN_BATCH_IDENTITY"
+    },
+    {
+      "exception_id": "605090_SECOND_BATCH_PENDING_SETTLEMENT",
+      "quantity": 4950,
+      "recognized_market_value_cny": 0.0,
+      "status": "OPEN",
+      "treatment": "PENDING_ENTITLEMENT_NOT_CURRENT_HOLDING"
+    },
+    {
+      "exception_id": "REFERENCED_INPUT_FILES_NOT_MOUNTED",
+      "status": "OPEN_EVIDENCE_BOUNDARY",
+      "treatment": "USE_USER_PASTED_HANDOFF; DO_NOT_CLAIM_FILE_RECONCILIATION"
+    }
+  ],
+  "formal_eod_snapshot_written": false,
+  "idempotency_key": "position-update-2026-08-04-user-intraday-v1",
+  "inputs": [
+    "USER_PASTED_HANDOFF_TEXT_2026-08-05",
+    "REFERENCED_NOT_MOUNTED:canonical_position_update_2026-08-04.json",
+    "REFERENCED_NOT_MOUNTED:持仓更新与风险复核_2026-08-04.xlsx",
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json@84544c3",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json@84544c3",
+    "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json@84544c3"
+  ],
+  "legacy_source_interface_preserved": true,
+  "market_data_watermark": "2026-08-04T09:52:00+08:00",
+  "materialization_commit": "1635c9b188d5c187227dcc0bddf28e305016bd77",
+  "orders": 0,
+  "ordinary_605090_quantity": 4950,
+  "outputs": [
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json",
+    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json",
+    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/USER_CONFIRMED_INTRADAY_SNAPSHOT_20260804.json"
+  ],
+  "pending_605090_quantity": 4950,
+  "position_watermark": "2026-08-04T09:52:00+08:00",
+  "real_holding_count": 8,
+  "run_id": "POSITION_UPDATE_20260804_USER_INTRADAY",
+  "schema_version": "1.0.0",
+  "simulation_holding_count": 16,
+  "snapshot_type": "USER_CONFIRMED_INTRADAY",
+  "standard_current_interface_preserved": true,
+  "started_at": "2026-08-05T01:37:02Z",
+  "status": "PASS_WITH_EXCEPTIONS",
+  "trade_authority": "NONE",
+  "trigger_type": "pull_request",
+  "workflow_name": "Canonical Position Update / User-Confirmed Intraday / WP2-R Compatible"
+}

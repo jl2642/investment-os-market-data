@@ -1,32 +1,117 @@
 {
-  "schema_version": "1.0.0",
-  "ledger_id": "WP2R_USER_TRANSACTION_DELTA_LEDGER_CURRENT",
-  "status": "CURRENT_ZERO_PENDING_DELTA",
-  "base_position_states": {
-    "real_account": {
-      "path": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json",
-      "base_as_of": "2026-07-20_CLOSE",
-      "holding_count": 7
-    },
-    "simulation": {
-      "path": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json",
-      "base_as_of": "2026-07-20_CLOSE",
-      "holding_count": 16
-    }
-  },
-  "continuity_confirmed_through": "2026-07-24",
-  "continuity_authority": "USER_CONFIRMATION_WP2_1_20260724_001",
-  "entries": [],
-  "pending_user_confirmation_count": 0,
   "applied_delta_count": 0,
-  "policy": {
-    "user_reports_only_economic_transactions": true,
-    "market_marks_never_require_user_delta": true,
-    "quantity_and_cost_change_only_from_confirmed_delta": true,
-    "broker_verification_is_not_inferred_from_market_data": true,
-    "cash_policy": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED"
-  },
-  "automatic_position_mutations": 0,
+  "as_of": "2026-08-04T09:51:00+08:00",
+  "continuity_confirmed_through": "2026-08-04T09:52:00+08:00",
+  "entries": [
+    {
+      "account": "REAL",
+      "action": "TRANSFER_IN",
+      "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
+      "cash_economic_cost": 86922.0,
+      "confirmation_authority": "USER",
+      "current_position_effect": 0,
+      "delta_id": "JOVO_2025_STOCK_INCENTIVE_CLOSED",
+      "event_type": "HISTORICAL_CLOSED_BATCH",
+      "evidence_status": "USER_CONFIRMED",
+      "note": "Received and sold in 2025; excluded from current holdings.",
+      "quantity": 6600,
+      "rejection_reason": "Historical 2025 batch is closed and fully sold; evidence is retained but no Current mutation is permitted.",
+      "security_code": "605090",
+      "security_id": "605090.SH",
+      "status": "REJECTED"
+    },
+    {
+      "account": "REAL",
+      "action": "TRANSFER_IN",
+      "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
+      "cash_economic_cost": 131142.0,
+      "confirmation_authority": "USER",
+      "current_position_effect": 0,
+      "delta_id": "JOVO_2025_OPTION_EXERCISE_CLOSED",
+      "event_type": "HISTORICAL_CLOSED_BATCH",
+      "evidence_status": "USER_CONFIRMED",
+      "note": "Exercised, received and sold in 2025; excluded from current holdings.",
+      "quantity": 6600,
+      "rejection_reason": "Historical 2025 exercised batch is closed and fully sold; evidence is retained but no Current mutation is permitted.",
+      "security_code": "605090",
+      "security_id": "605090.SH",
+      "status": "REJECTED"
+    },
+    {
+      "account": "REAL",
+      "action": "COST_ADJUSTMENT",
+      "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
+      "cash_amount": 95139.0,
+      "confirmation_authority": "USER",
+      "delta_id": "JOVO_2026_OPTION_EXERCISE_PAYMENT",
+      "event_type": "EQUITY_COMPENSATION_CASH_PAYMENT",
+      "evidence_status": "USER_CONFIRMED",
+      "note": "Economic cash payment tracked separately from broker execution cash.",
+      "quantity": 4950,
+      "real_account_execution_cash_effect": 0,
+      "rejection_reason": "Cash economic cost belongs to the equity-compensation subledger and must not mutate broker execution cash or ordinary holdings.",
+      "security_code": "605090",
+      "security_id": "605090.SH",
+      "status": "REJECTED",
+      "taxes_and_fees_included": false
+    },
+    {
+      "account": "REAL",
+      "action": "TRANSFER_IN",
+      "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
+      "batch_identity": "UNKNOWN_STOCK_INCENTIVE_OR_OPTION",
+      "confirmation_authority": "USER",
+      "current_position_effect": 4950,
+      "delta_id": "JOVO_2026_SETTLED_ORDINARY_SHARES_UNKNOWN_BATCH",
+      "event_type": "POSITION_SETTLEMENT",
+      "evidence_status": "USER_CONFIRMED",
+      "note": "Visible and available as ordinary shares in the user-confirmed broker screenshot.",
+      "quantity": 4950,
+      "rejection_reason": "The settled 4,950 shares are already reflected in the user-confirmed Real source baseline; applying this row again would double count.",
+      "security_code": "605090",
+      "security_id": "605090.SH",
+      "status": "REJECTED"
+    },
+    {
+      "account": "REAL",
+      "action": "TRANSFER_IN",
+      "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
+      "confirmation_authority": "USER",
+      "current_position_effect": 0,
+      "delta_id": "JOVO_2026_PENDING_ENTITLEMENT",
+      "event_type": "PENDING_SETTLEMENT",
+      "evidence_status": "USER_CONFIRMED",
+      "market_value_effect": 0.0,
+      "note": "Not included in ordinary holdings or total assets.",
+      "quantity": 4950,
+      "rejection_reason": "Pending entitlement is not a current ordinary holding and has zero recognized market value.",
+      "security_code": "605090",
+      "security_id": "605090.SH",
+      "status": "REJECTED"
+    }
+  ],
+  "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260804",
   "orders": 0,
-  "trade_authority": "NONE"
+  "policy": {
+    "apply_only_status": "APPLIED_TO_POSITION_CURRENT",
+    "evidence_entries_never_apply_position_mutation": true,
+    "market_marks_never_require_user_delta": true,
+    "note": "User-confirmed evidence rows are rejected for WP2-R mutation when historical, already reflected in the source baseline, cash-only, or a pending entitlement.",
+    "pending_entitlements_market_value_zero": true,
+    "technical_entitlement_codes_not_assets": true,
+    "trade_authority": "NONE",
+    "unconfirmed_delta_action": "REJECT_AND_BLOCK_POSITION_MUTATION",
+    "user_reports_only_economic_transactions": true
+  },
+  "rejected_for_position_engine_count": 5,
+  "schema_version": "1.0.0",
+  "snapshot_type": "USER_CONFIRMED_INTRADAY",
+  "status": "USER_CONFIRMED_EVIDENCE_RECORDED_ZERO_WP2_R_MUTATIONS",
+  "trade_authority": "NONE",
+  "unapplied_delta_count": 5,
+  "unresolved_exception_count": 2,
+  "unresolved_exceptions": [
+    "CURRENT_4950_BATCH_IDENTITY_UNKNOWN",
+    "SECOND_4950_PENDING_SETTLEMENT"
+  ]
 }

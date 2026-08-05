@@ -1,0 +1,60 @@
+{
+  "candidate_mutations": 0,
+  "canonical_commit_before": "84544c3ec464c008e5ef023b5ddf6c916d19c5af",
+  "decision_mutations": 0,
+  "economic_state_commit": "PENDING_PR_MERGE",
+  "economic_state_commit_role": "TO_BE_RESOLVED_BY_PULL_REQUEST_MERGE",
+  "evidence_boundary": "REFERENCED_FILES_NOT_MOUNTED; USER_PASTED_HANDOFF_USED",
+  "exceptions": [
+    {
+      "amount_cny": 237.5,
+      "exception_id": "REAL_STOCK_TOTAL_MINUS_LINE_SUM_20260804_INTRADAY",
+      "status": "OPEN",
+      "treatment": "PRESERVE_BROKER_TOTAL_DO_NOT_ALLOCATE"
+    },
+    {
+      "amount_cny": -43.0,
+      "exception_id": "SIMULATION_TOP_MARKET_VALUE_MINUS_LINE_SUM_20260804_INTRADAY",
+      "status": "OPEN",
+      "treatment": "PRESERVE_TOP_TOTAL_DO_NOT_ALLOCATE"
+    },
+    {
+      "exception_id": "605090_SETTLED_BATCH_IDENTITY_UNKNOWN",
+      "quantity": 4950,
+      "status": "OPEN",
+      "treatment": "CURRENT_ORDINARY_SHARES_WITH_UNKNOWN_BATCH_IDENTITY"
+    },
+    {
+      "exception_id": "605090_SECOND_BATCH_PENDING_SETTLEMENT",
+      "quantity": 4950,
+      "recognized_market_value_cny": 0.0,
+      "status": "OPEN",
+      "treatment": "PENDING_ENTITLEMENT_NOT_CURRENT_HOLDING"
+    },
+    {
+      "exception_id": "REFERENCED_INPUT_FILES_NOT_MOUNTED",
+      "status": "OPEN_EVIDENCE_BOUNDARY",
+      "treatment": "USE_USER_PASTED_HANDOFF; DO_NOT_CLAIM_FILE_RECONCILIATION"
+    }
+  ],
+  "formal_eod_snapshot_written": false,
+  "generated_at": "2026-08-05T02:00:17Z",
+  "orders": 0,
+  "product_id": "POSITION_UPDATE_STATUS_20260804_USER_INTRADAY",
+  "product_type": "STATUS",
+  "real_account": {
+    "holding_count": 8,
+    "ordinary_605090_quantity": 4950,
+    "pending_605090_quantity_included": 0,
+    "total_assets_cny": 615390.25
+  },
+  "schema_version": "1.0.0",
+  "simulation": {
+    "holding_count": 16,
+    "new_confirmed_trades": 0,
+    "total_assets_cny": 1021157.08
+  },
+  "snapshot_type": "USER_CONFIRMED_INTRADAY",
+  "trade_authority": "NONE",
+  "wp2_r_compatibility_status": "PASS"
+}

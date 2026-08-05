@@ -1,0 +1,122 @@
+name: Canonical Position Update Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/canonical_position_update/**"
+      - ".github/workflows/canonical-position-update-validation.yml"
+      - ".github/workflows/wp2_r_portfolio_current.yml"
+      - "investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/equity_compensation_state.schema.json"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/SCHEMA_REGISTRY.json"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/**"
+      - "investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/STATUS/POSITION_UPDATE_STATUS_20260804_USER_INTRADAY.json"
+      - "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/**"
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    name: Position Update / Reconciliation and Authority Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Apply idempotent audit repairs
+        run: |
+          python -m py_compile automation/canonical_position_update/repair_audit_findings.py
+          python automation/canonical_position_update/repair_audit_findings.py
+
+      - name: Persist audit repairs to the agent branch
+        if: github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.head_ref, 'agent/')
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if git diff --quiet; then
+            echo "Audit repair is idempotent; no branch update required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json \
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/USER_CONFIRMED_INTRADAY_SNAPSHOT_20260804.json \
+            investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/STATUS/POSITION_UPDATE_STATUS_20260804_USER_INTRADAY.json \
+            investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/OPERATING_RUN_LEDGER_CURRENT.json \
+            investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/REPORT_MANIFESTS/POSITION_UPDATE_20260804_USER_INTRADAY.json \
+            investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/POSITION_UPDATE_20260804_USER_INTRADAY.json
+          git commit -m "Repair audited position-update reconciliations and evidence boundary"
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
+
+      - name: Compile validator
+        run: python -m py_compile automation/canonical_position_update/validate.py
+
+      - name: Validate legacy sources, standard Current and equity subledger
+        run: python automation/canonical_position_update/validate.py
+
+      - name: Re-run idempotent audit repair as validation
+        run: |
+          python automation/canonical_position_update/repair_audit_findings.py
+          git diff --exit-code
+
+      - name: Run existing WP2-R unit tests
+        run: |
+          python -m pip install --retries 5 --timeout 30 -r automation/wp2_r/requirements.lock
+          pytest -q automation/wp2_r/tests
+
+      - name: Validate governed JSON syntax
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          paths = [
+              Path("investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json"),
+          ]
+          for path in paths:
+              json.loads(path.read_text(encoding="utf-8"))
+          print({"json_files": len(paths), "status": "PASS"})
+          PY
+
+      - name: Record authority boundary
+        run: |
+          echo "trade_authority=NONE"
+          echo "orders=0"
+          echo "snapshot_type=USER_CONFIRMED_INTRADAY"
+          echo "formal_EOD_mutations=0"
+          echo "candidate_mutations=0"
+          echo "decision_mutations=0"

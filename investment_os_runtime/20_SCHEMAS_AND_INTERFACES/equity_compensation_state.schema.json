@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "equity_compensation_state.schema.json",
+  "title": "Equity Compensation State",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "state_id",
+    "as_of",
+    "snapshot_type",
+    "status",
+    "issuer",
+    "programs",
+    "historical_closed_batches",
+    "current_recognition",
+    "cost_basis_policy",
+    "double_counting_controls",
+    "unresolved_items",
+    "orders",
+    "trade_authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "state_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "as_of": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshot_type": {
+      "const": "USER_CONFIRMED_INTRADAY"
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "issuer": {
+      "type": "object",
+      "required": [
+        "name",
+        "security_code",
+        "canonical_security_id"
+      ]
+    },
+    "programs": {
+      "type": "array",
+      "minItems": 2
+    },
+    "historical_closed_batches": {
+      "type": "array"
+    },
+    "current_recognition": {
+      "type": "object",
+      "required": [
+        "ordinary_share_position",
+        "pending_entitlement",
+        "technical_entitlement_codes"
+      ],
+      "properties": {
+        "ordinary_share_position": {
+          "type": "object",
+          "required": [
+            "quantity",
+            "market_value",
+            "included_in_real_account_current",
+            "batch_identity"
+          ]
+        },
+        "pending_entitlement": {
+          "type": "object",
+          "required": [
+            "quantity",
+            "market_value",
+            "included_in_real_account_current",
+            "included_in_total_assets",
+            "status"
+          ]
+        },
+        "technical_entitlement_codes": {
+          "type": "array",
+          "minItems": 2
+        }
+      }
+    },
+    "cost_basis_policy": {
+      "type": "object"
+    },
+    "double_counting_controls": {
+      "type": "array",
+      "minItems": 5
+    },
+    "unresolved_items": {
+      "type": "array"
+    },
+    "orders": {
+      "const": 0
+    },
+    "trade_authority": {
+      "const": "NONE"
+    }
+  }
+}
