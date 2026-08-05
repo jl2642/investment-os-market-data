@@ -175,7 +175,7 @@ jobs:
           echo "HEAD_SHA=$pr_head"
           echo "UNRESOLVED_REVIEW_THREADS=$unresolved"
 
-      - name: Mark Ready and merge through protected main
+      - name: Mark Ready and complete protected-main auto-merge
         shell: bash
         env:
           PR_URL: ${{ steps.pr.outputs.url }}
@@ -187,9 +187,26 @@ jobs:
           fi
           gh pr merge "$PR_URL" \
             --repo "$GITHUB_REPOSITORY" \
+            --auto \
             --squash \
             --subject "WP3-R: publish governed Candidate operating Current" \
             --body "Generated Current and evidence only; Candidate membership, portfolios, orders and trade authority unchanged."
+
+          for _ in $(seq 1 60); do
+            merged="$(gh pr view "$PR_URL" --repo "$GITHUB_REPOSITORY" --json mergedAt --jq '.mergedAt != null')"
+            state="$(gh pr view "$PR_URL" --repo "$GITHUB_REPOSITORY" --json state --jq .state)"
+            if [[ "$merged" == "true" ]]; then
+              echo "PROTECTED_MAIN_PROMOTION_MERGED"
+              exit 0
+            fi
+            if [[ "$state" != "OPEN" ]]; then
+              echo "PROMOTION_PR_CLOSED_WITHOUT_MERGE" >&2
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "PROMOTION_AUTO_MERGE_TIMEOUT" >&2
+          exit 1
 
       - name: Record governed promotion summary
         run: |
@@ -198,7 +215,7 @@ jobs:
           - Generated products were restricted to the explicit publication allowlist.
           - Frozen Candidate acceptance and WP3-2A Lineage Gate ran on the rolling publication branch Head SHA.
           - Exact-head validation did not reacquire market data or mutate the generated snapshot.
-          - The Draft PR was marked Ready and merged only after both gates passed.
+          - The Draft PR was marked Ready, registered for protected-main auto-merge and observed through actual merge completion.
           - Candidate membership, Research Objects, Real, Simulation and orders remained unchanged.
           - trade_authority: NONE
           EOF
