@@ -4,6 +4,8 @@
   "continuity_confirmed_through": "2026-08-04T09:52:00+08:00",
   "entries": [
     {
+      "account": "REAL",
+      "action": "TRANSFER_IN",
       "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
       "cash_economic_cost": 86922.0,
       "confirmation_authority": "USER",
@@ -15,9 +17,12 @@
       "quantity": 6600,
       "rejection_reason": "Historical 2025 batch is closed and fully sold; evidence is retained but no Current mutation is permitted.",
       "security_code": "605090",
+      "security_id": "605090.SH",
       "status": "REJECTED"
     },
     {
+      "account": "REAL",
+      "action": "TRANSFER_IN",
       "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
       "cash_economic_cost": 131142.0,
       "confirmation_authority": "USER",
@@ -29,9 +34,12 @@
       "quantity": 6600,
       "rejection_reason": "Historical 2025 exercised batch is closed and fully sold; evidence is retained but no Current mutation is permitted.",
       "security_code": "605090",
+      "security_id": "605090.SH",
       "status": "REJECTED"
     },
     {
+      "account": "REAL",
+      "action": "COST_ADJUSTMENT",
       "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
       "cash_amount": 95139.0,
       "confirmation_authority": "USER",
@@ -43,10 +51,13 @@
       "real_account_execution_cash_effect": 0,
       "rejection_reason": "Cash economic cost belongs to the equity-compensation subledger and must not mutate broker execution cash or ordinary holdings.",
       "security_code": "605090",
+      "security_id": "605090.SH",
       "status": "REJECTED",
       "taxes_and_fees_included": false
     },
     {
+      "account": "REAL",
+      "action": "TRANSFER_IN",
       "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
       "batch_identity": "UNKNOWN_STOCK_INCENTIVE_OR_OPTION",
       "confirmation_authority": "USER",
@@ -58,9 +69,12 @@
       "quantity": 4950,
       "rejection_reason": "The settled 4,950 shares are already reflected in the user-confirmed Real source baseline; applying this row again would double count.",
       "security_code": "605090",
+      "security_id": "605090.SH",
       "status": "REJECTED"
     },
     {
+      "account": "REAL",
+      "action": "TRANSFER_IN",
       "application_decision": "NOT_APPLICABLE_TO_WP2_R_POSITION_MUTATION",
       "confirmation_authority": "USER",
       "current_position_effect": 0,
@@ -72,12 +86,18 @@
       "quantity": 4950,
       "rejection_reason": "Pending entitlement is not a current ordinary holding and has zero recognized market value.",
       "security_code": "605090",
+      "security_id": "605090.SH",
       "status": "REJECTED"
     }
   ],
   "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260804",
   "orders": 0,
-  "policy": "USER_REPORTS_ECONOMIC_TRANSACTIONS_SYSTEM_DOES_NOT_INFER_FROM_MARK_CHANGES",
+  "policy": {
+    "apply_only_status": "APPLIED_TO_POSITION_CURRENT",
+    "note": "User-confirmed evidence rows are rejected for WP2-R mutation when historical, already reflected in the source baseline, cash-only, or a pending entitlement.",
+    "trade_authority": "NONE",
+    "unconfirmed_delta_action": "REJECT_AND_BLOCK_POSITION_MUTATION"
+  },
   "rejected_for_position_engine_count": 5,
   "schema_version": "1.0.0",
   "snapshot_type": "USER_CONFIRMED_INTRADAY",
