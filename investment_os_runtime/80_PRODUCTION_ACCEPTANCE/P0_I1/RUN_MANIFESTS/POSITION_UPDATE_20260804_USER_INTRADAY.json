@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "POSITION_UPDATE_20260804_USER_INTRADAY",
+  "workflow_name": "Canonical Position Update / User-Confirmed Intraday",
+  "trigger_type": "pull_request",
+  "started_at": "2026-08-05T01:42:47Z",
+  "completed_at": "2026-08-05T01:46:34Z",
+  "canonical_commit_before": "84544c3ec464c008e5ef023b5ddf6c916d19c5af",
+  "canonical_commit_after": "1635c9b188d5c187227dcc0bddf28e305016bd77",
+  "canonical_commit_after_role": "ECONOMIC_STATE_MUTATION_COMMIT",
+  "market_data_watermark": "2026-08-04T09:52:00+08:00",
+  "position_watermark": "2026-08-04T09:52:00+08:00",
+  "inputs": [
+    "canonical_position_update_2026-08-04.json",
+    "持仓更新与风险复核_2026-08-04.xlsx",
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json@84544c3",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json@84544c3",
+    "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json@84544c3"
+  ],
+  "outputs": [
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json",
+    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/USER_CONFIRMED_INTRADAY_SNAPSHOT_20260804.json"
+  ],
+  "exceptions": [
+    {
+      "exception_id": "REAL_STOCK_TOTAL_MINUS_LINE_SUM_20260804_INTRADAY",
+      "status": "OPEN",
+      "amount_cny": 237.5,
+      "treatment": "PRESERVE_BROKER_TOTAL_DO_NOT_ALLOCATE"
+    },
+    {
+      "exception_id": "SIMULATION_TOP_MARKET_VALUE_MINUS_LINE_SUM_20260804_INTRADAY",
+      "status": "OPEN",
+      "amount_cny": -43.0,
+      "treatment": "PRESERVE_TOP_TOTAL_DO_NOT_ALLOCATE"
+    },
+    {
+      "exception_id": "605090_SETTLED_BATCH_IDENTITY_UNKNOWN",
+      "status": "OPEN",
+      "quantity": 4950,
+      "treatment": "CURRENT_ORDINARY_SHARES_WITH_UNKNOWN_BATCH_IDENTITY"
+    },
+    {
+      "exception_id": "605090_SECOND_BATCH_PENDING_SETTLEMENT",
+      "status": "OPEN",
+      "quantity": 4950,
+      "recognized_market_value_cny": 0.0,
+      "treatment": "PENDING_ENTITLEMENT_NOT_CURRENT_HOLDING"
+    }
+  ],
+  "idempotency_key": "position-update-2026-08-04-user-intraday-v1",
+  "status": "PASS_WITH_EXCEPTIONS",
+  "snapshot_type": "USER_CONFIRMED_INTRADAY",
+  "formal_eod_snapshot_written": false,
+  "real_holding_count": 8,
+  "simulation_holding_count": 16,
+  "ordinary_605090_quantity": 4950,
+  "pending_605090_quantity": 4950,
+  "candidate_mutations": 0,
+  "decision_mutations": 0,
+  "orders": 0,
+  "trade_authority": "NONE"
+}

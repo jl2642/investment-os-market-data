@@ -1,0 +1,65 @@
+name: Canonical Position Update Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/canonical_position_update/**"
+      - ".github/workflows/canonical-position-update-validation.yml"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/equity_compensation_state.schema.json"
+      - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/SCHEMA_REGISTRY.json"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/**"
+      - "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/**"
+
+permissions:
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    name: Position Update / Reconciliation and Authority Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Compile validator
+        run: python -m py_compile automation/canonical_position_update/validate.py
+
+      - name: Validate Current, equity subledger and zero double counting
+        run: python automation/canonical_position_update/validate.py
+
+      - name: Validate JSON syntax
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          paths = [
+              Path("investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json"),
+          ]
+          for path in paths:
+              json.loads(path.read_text(encoding="utf-8"))
+          print({"json_files": len(paths), "status": "PASS"})
+          PY
+
+      - name: Record authority boundary
+        run: |
+          echo "trade_authority=NONE"
+          echo "orders=0"
+          echo "snapshot_type=USER_CONFIRMED_INTRADAY"
+          echo "formal_EOD_mutations=0"

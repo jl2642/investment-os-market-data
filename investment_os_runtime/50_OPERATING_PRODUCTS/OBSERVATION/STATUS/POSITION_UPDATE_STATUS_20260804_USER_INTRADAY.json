@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "product_id": "POSITION_UPDATE_STATUS_20260804_USER_INTRADAY",
+  "product_type": "STATUS",
+  "generated_at": "2026-08-05T01:46:34Z",
+  "snapshot_type": "USER_CONFIRMED_INTRADAY",
+  "formal_eod_snapshot_written": false,
+  "canonical_commit_before": "84544c3ec464c008e5ef023b5ddf6c916d19c5af",
+  "economic_state_commit": "1635c9b188d5c187227dcc0bddf28e305016bd77",
+  "real_account": {
+    "total_assets_cny": 615390.25,
+    "holding_count": 8,
+    "ordinary_605090_quantity": 4950,
+    "pending_605090_quantity_included": 0
+  },
+  "simulation": {
+    "total_assets_cny": 1021157.08,
+    "holding_count": 16,
+    "new_confirmed_trades": 0
+  },
+  "exceptions": [
+    {
+      "exception_id": "REAL_STOCK_TOTAL_MINUS_LINE_SUM_20260804_INTRADAY",
+      "status": "OPEN",
+      "amount_cny": 237.5,
+      "treatment": "PRESERVE_BROKER_TOTAL_DO_NOT_ALLOCATE"
+    },
+    {
+      "exception_id": "SIMULATION_TOP_MARKET_VALUE_MINUS_LINE_SUM_20260804_INTRADAY",
+      "status": "OPEN",
+      "amount_cny": -43.0,
+      "treatment": "PRESERVE_TOP_TOTAL_DO_NOT_ALLOCATE"
+    },
+    {
+      "exception_id": "605090_SETTLED_BATCH_IDENTITY_UNKNOWN",
+      "status": "OPEN",
+      "quantity": 4950,
+      "treatment": "CURRENT_ORDINARY_SHARES_WITH_UNKNOWN_BATCH_IDENTITY"
+    },
+    {
+      "exception_id": "605090_SECOND_BATCH_PENDING_SETTLEMENT",
+      "status": "OPEN",
+      "quantity": 4950,
+      "recognized_market_value_cny": 0.0,
+      "treatment": "PENDING_ENTITLEMENT_NOT_CURRENT_HOLDING"
+    }
+  ],
+  "candidate_mutations": 0,
+  "decision_mutations": 0,
+  "orders": 0,
+  "trade_authority": "NONE"
+}
