@@ -38,8 +38,9 @@ jobs:
         run: |
           set -Eeuo pipefail
           git fetch origin "$BASE_BRANCH"
+          publish_head_sha="$(git rev-parse HEAD)"
+          echo "head_sha=$publish_head_sha" >> "$GITHUB_OUTPUT"
           python - <<'PY'
-          from pathlib import Path
           import subprocess
 
           allowed_exact = {
@@ -113,6 +114,8 @@ jobs:
       - name: Dispatch exact-head acceptance gates
         id: dispatch
         shell: bash
+        env:
+          PUBLISH_HEAD_SHA: ${{ steps.scope.outputs.head_sha }}
         run: |
           set -Eeuo pipefail
 
@@ -133,7 +136,7 @@ jobs:
                 --event workflow_dispatch \
                 --limit 20 \
                 --json databaseId,headSha,createdAt \
-                --jq '.[] | select(.headSha == "'"$GITHUB_SHA"'") | .databaseId' \
+                --jq '.[] | select(.headSha == "'"$PUBLISH_HEAD_SHA"'") | .databaseId' \
                 | head -n 1)"
               [[ -n "$run_id" ]] && break
               sleep 5
@@ -156,10 +159,11 @@ jobs:
         env:
           PR_URL: ${{ steps.pr.outputs.url }}
           PR_NUMBER: ${{ steps.pr.outputs.number }}
+          PUBLISH_HEAD_SHA: ${{ steps.scope.outputs.head_sha }}
         run: |
           set -Eeuo pipefail
           pr_head="$(gh pr view "$PR_URL" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)"
-          test "$pr_head" = "$GITHUB_SHA"
+          test "$pr_head" = "$PUBLISH_HEAD_SHA"
           unresolved="$(gh api graphql \
             -f query='query($owner:String!,$repo:String!,$number:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$number){reviewThreads(first:100){nodes{isResolved}}}}}' \
             -f owner="${GITHUB_REPOSITORY%/*}" \
@@ -191,7 +195,7 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP3-R Governed Candidate Current Promotion
           - Generated products were restricted to the explicit publication allowlist.
-          - Candidate recovery acceptance and WP3-2A Lineage Gate ran on the exact promotion head SHA.
+          - Candidate recovery acceptance and WP3-2A Lineage Gate ran on the rolling publication branch Head SHA.
           - The Draft PR was marked Ready and merged only after both gates passed.
           - Candidate membership, Research Objects, Real, Simulation and orders remained unchanged.
           - trade_authority: NONE
