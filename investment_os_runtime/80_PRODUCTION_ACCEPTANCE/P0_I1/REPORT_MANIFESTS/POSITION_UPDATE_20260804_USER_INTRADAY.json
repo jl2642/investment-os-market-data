@@ -4,56 +4,39 @@
   "report_type": "STATUS",
   "period_start": "2026-08-04T09:51:00+08:00",
   "period_end": "2026-08-04T09:52:00+08:00",
-  "generated_at": "2026-08-05T01:46:34Z",
-  "canonical_commit_sha": "1635c9b188d5c187227dcc0bddf28e305016bd77",
-  "canonical_commit_sha_role": "ECONOMIC_STATE_MUTATION_COMMIT",
+  "generated_at": "2026-08-05T02:00:17Z",
+  "canonical_commit_sha": "2481b307c01bc18716208fa5b9493a01ac4449df",
+  "canonical_commit_sha_role": "ECONOMIC_STATE_AND_WP2_R_COMPATIBILITY_COMMIT",
   "market_data_watermark": "2026-08-04T09:52:00+08:00",
   "position_watermark": "2026-08-04T09:52:00+08:00",
   "candidate_watermark": null,
   "input_assets": [
     "canonical_position_update_2026-08-04.json",
     "持仓更新与风险复核_2026-08-04.xlsx",
-    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json@84544c3",
-    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json@84544c3",
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json@84544c3",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json@84544c3",
     "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json@84544c3"
   ],
   "output_assets": [
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json",
     "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
     "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json",
     "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json",
     "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
-    "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json",
-    "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/USER_CONFIRMED_INTRADAY_SNAPSHOT_20260804.json"
+    "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json"
   ],
   "exceptions": [
-    {
-      "exception_id": "REAL_STOCK_TOTAL_MINUS_LINE_SUM_20260804_INTRADAY",
-      "status": "OPEN",
-      "amount_cny": 237.5,
-      "treatment": "PRESERVE_BROKER_TOTAL_DO_NOT_ALLOCATE"
-    },
-    {
-      "exception_id": "SIMULATION_TOP_MARKET_VALUE_MINUS_LINE_SUM_20260804_INTRADAY",
-      "status": "OPEN",
-      "amount_cny": -43.0,
-      "treatment": "PRESERVE_TOP_TOTAL_DO_NOT_ALLOCATE"
-    },
-    {
-      "exception_id": "605090_SETTLED_BATCH_IDENTITY_UNKNOWN",
-      "status": "OPEN",
-      "quantity": 4950,
-      "treatment": "CURRENT_ORDINARY_SHARES_WITH_UNKNOWN_BATCH_IDENTITY"
-    },
-    {
-      "exception_id": "605090_SECOND_BATCH_PENDING_SETTLEMENT",
-      "status": "OPEN",
-      "quantity": 4950,
-      "recognized_market_value_cny": 0.0,
-      "treatment": "PENDING_ENTITLEMENT_NOT_CURRENT_HOLDING"
-    }
+    {"exception_id":"REAL_STOCK_TOTAL_MINUS_LINE_SUM_20260804_INTRADAY","status":"OPEN","amount_cny":237.5,"treatment":"PRESERVE_BROKER_TOTAL_DO_NOT_ALLOCATE"},
+    {"exception_id":"SIMULATION_TOP_MARKET_VALUE_MINUS_LINE_SUM_20260804_INTRADAY","status":"OPEN","amount_cny":-43.0,"treatment":"PRESERVE_TOP_TOTAL_DO_NOT_ALLOCATE"},
+    {"exception_id":"605090_SETTLED_BATCH_IDENTITY_UNKNOWN","status":"OPEN","quantity":4950,"treatment":"CURRENT_ORDINARY_SHARES_WITH_UNKNOWN_BATCH_IDENTITY"},
+    {"exception_id":"605090_SECOND_BATCH_PENDING_SETTLEMENT","status":"OPEN","quantity":4950,"recognized_market_value_cny":0.0,"treatment":"PENDING_ENTITLEMENT_NOT_CURRENT_HOLDING"}
   ],
   "publication_status": "PROVISIONAL",
   "snapshot_type": "USER_CONFIRMED_INTRADAY",
   "formal_eod_snapshot_written": false,
+  "legacy_source_interface_preserved": true,
+  "standard_current_interface_preserved": true,
   "trade_authority": "NONE"
 }

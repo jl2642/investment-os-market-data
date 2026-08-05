@@ -6,13 +6,18 @@ on:
     paths:
       - "automation/canonical_position_update/**"
       - ".github/workflows/canonical-position-update-validation.yml"
+      - "investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json"
       - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/equity_compensation_state.schema.json"
       - "investment_os_runtime/20_SCHEMAS_AND_INTERFACES/SCHEMA_REGISTRY.json"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json"
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/**"
       - "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/**"
 
@@ -37,19 +42,27 @@ jobs:
       - name: Compile validator
         run: python -m py_compile automation/canonical_position_update/validate.py
 
-      - name: Validate Current, equity subledger and zero double counting
+      - name: Validate legacy sources, standard Current and equity subledger
         run: python automation/canonical_position_update/validate.py
 
-      - name: Validate JSON syntax
+      - name: Run existing WP2-R unit tests
+        run: |
+          python -m pip install --retries 5 --timeout 30 -r automation/wp2_r/requirements.lock
+          pytest -q automation/wp2_r/tests
+
+      - name: Validate governed JSON syntax
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           paths = [
+              Path("investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json"),
               Path("investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"),
               Path("investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json"),
               Path("investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json"),
               Path("investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json"),
               Path("investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json"),
           ]
           for path in paths:
