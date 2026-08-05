@@ -14,7 +14,12 @@ on:
     paths:
       - "automation/wp2_r/**"
       - ".github/workflows/wp2_r_market_marks_refresh.yml"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/**"
+      - "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/**"
       - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/**"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/**"
+      - "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/**"
+      - "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/**"
   workflow_dispatch:
   schedule:
     - cron: "45 14 * * 1-5"
@@ -46,14 +51,14 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
+
           root = Path('.')
-          paths = [
-              root / 'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
-              root / 'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
-          ]
           identity = {}
-          for path in paths:
-              payload = json.loads(path.read_text(encoding='utf-8'))
+          for relative in [
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+          ]:
+              payload = json.loads((root / relative).read_text(encoding='utf-8'))
               identity[payload['account']] = [
                   {
                       'security_id': row['security_id'],
@@ -65,7 +70,8 @@ jobs:
                   for row in payload['holdings']
               ]
           Path('/tmp/wp2r_position_economic_identity.json').write_text(
-              json.dumps(identity, ensure_ascii=False, sort_keys=True), encoding='utf-8'
+              json.dumps(identity, ensure_ascii=False, sort_keys=True),
+              encoding='utf-8',
           )
           PY
 
@@ -84,6 +90,7 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
+
           root = Path('.')
           marks = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json').read_text(encoding='utf-8'))
           real = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
@@ -91,6 +98,7 @@ jobs:
           run = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json').read_text(encoding='utf-8'))
           candidate = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json').read_text(encoding='utf-8'))
           before = json.loads(Path('/tmp/wp2r_position_economic_identity.json').read_text(encoding='utf-8'))
+
           after = {}
           for payload in (real, sim):
               after[payload['account']] = [
@@ -104,9 +112,17 @@ jobs:
                   for row in payload['holdings']
               ]
 
+          required_ids = {
+              row['security_id']
+              for row in real['holdings'] + sim['holdings']
+          }
+          marked_ids = {row['security_id'] for row in marks['marks']}
+
           assert candidate['status'] == 'PASS_COMPLETE'
           assert marks['status'] == 'CURRENT_COMPLETE'
-          assert marks['required_security_count'] == marks['marked_security_count'] == 22
+          assert marks['required_security_count'] == len(required_ids)
+          assert marks['marked_security_count'] == len(marked_ids)
+          assert required_ids == marked_ids
           assert marks['missing_security_ids'] == []
           assert candidate['stale_security_ids'] == []
           assert run['portfolio_marks_fresh'] is True
@@ -116,21 +132,35 @@ jobs:
           assert run['position_or_cost_mutations_from_reconciliation'] == 0
           assert run['orders'] == 0
           assert before == after
-          assert len(real['holdings']) == 7
+          assert len(real['holdings']) == 8
           assert len(sim['holdings']) == 16
-          assert real['summary']['execution_cash_balance'] == 120.49
-          assert sim['summary']['execution_cash_balance'] == 219533.98
+          assert real['summary']['execution_cash_balance'] == 769.45
+          assert sim['summary']['execution_cash_balance'] == 221661.98
+          assert real['summary']['account_total_assets'] == round(
+              real['summary']['position_market_value']
+              + real['summary']['execution_cash_balance']
+              + real['summary']['broker_reconciliation_exception_amount'],
+              6,
+          )
+          assert sim['summary']['account_total_assets'] == round(
+              sim['summary']['position_market_value']
+              + sim['summary']['execution_cash_balance'],
+              6,
+          )
           assert all(row['mark_freshness_status'] == 'FRESH' for row in real['holdings'] + sim['holdings'])
           assert all(row['broker_verified'] is False for row in real['holdings'])
-          assert run['trade_authority'] == 'NONE'
+          assert run['trade_authority'] == marks['trade_authority'] == 'NONE'
+
           print({
               'marks': marks['marked_security_count'],
               'latest_mark_date': marks['data_watermark']['latest_mark_date'],
+              'real_holdings': len(real['holdings']),
+              'simulation_holdings': len(sim['holdings']),
               'real_total_assets': real['summary']['account_total_assets'],
               'simulation_total_assets': sim['summary']['account_total_assets'],
               'economic_identity_unchanged': True,
-              'wp4b_ready': True,
-              'wp5_ready': False,
+              'orders': 0,
+              'trade_authority': 'NONE',
           })
           PY
 
@@ -181,13 +211,11 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP2-R tracked market refresh
-          - Schedule: 22:45 Asia/Shanghai on weekdays
-          - Requires complete listed-price and official fund-NAV coverage
-          - Market-only refresh must preserve security, quantity, availability, unit cost and cost basis exactly
-          - Execution cash is carried forward; external real-account liquidity remains excluded
-          - Historical mixed-watermark differences are disclosed, never force-reconciled
-          - Broker Verification remains separate and false
-          - WP4-B Position-level Fit may proceed after fresh coverage
+          - Dynamic coverage for every current Real and Simulation security
+          - Market-only refresh preserves security, quantity, availability, unit cost and cost basis
+          - Explicit source reconciliation exceptions remain unallocated
+          - Broker verification remains separate and false
           - WP5 live action remains blocked
+          - Orders: 0
           - trade_authority: NONE
           EOF
