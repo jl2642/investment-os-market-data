@@ -1,0 +1,30 @@
+name: Manual Portfolio Daily Return 2026-08-05
+on:
+  push:
+    branches:
+      - agent/r2-product-capability-hardening
+    paths:
+      - ".github/workflows/manual-portfolio-daily-return-20260805.yml"
+permissions:
+  contents: read
+jobs:
+  daily-return:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch listed closes and prior closes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, re, urllib.request
+          codes=['sz159352','sz159612','sz159655','sh510500','sh605090','sh600406','sh600938','sh600660','sh600690','sh600036','sz000333','sh600941','sz300124','sh600309','sz002463','sh600276','sz300750','sh601899','sh601138','sh600900']
+          url='https://hq.sinajs.cn/list='+','.join(codes)
+          req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 InvestmentOS/1.0','Referer':'https://finance.sina.com.cn/'})
+          text=urllib.request.urlopen(req,timeout=20).read().decode('gbk','replace')
+          out=[]
+          for m in re.finditer(r'var hq_str_(\w+)="([^"]*)";',text):
+              f=m.group(2).split(',')
+              if len(f)>=32 and f[0]:
+                  prev=float(f[2]); close=float(f[3]) or prev
+                  out.append({'symbol':m.group(1),'name':f[0],'previous_close':prev,'close':close,'change':close-prev,'change_pct':(close/prev-1)*100,'date':f[30],'time':f[31]})
+          print('PORTFOLIO_DAILY_JSON='+json.dumps(out,ensure_ascii=False,sort_keys=True))
+          PY
