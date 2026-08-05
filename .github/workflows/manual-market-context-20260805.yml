@@ -1,0 +1,29 @@
+name: Manual Market Context 2026-08-05
+on:
+  push:
+    branches:
+      - agent/r2-product-capability-hardening
+    paths:
+      - ".github/workflows/manual-market-context-20260805.yml"
+permissions:
+  contents: read
+jobs:
+  market-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch major China index closes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, re, urllib.request
+          symbols = ['s_sh000001','s_sz399001','s_sz399006','s_sh000300','s_sh000905','s_sh000510']
+          url = 'https://hq.sinajs.cn/list=' + ','.join(symbols)
+          req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0 InvestmentOS/1.0','Referer':'https://finance.sina.com.cn/'})
+          text = urllib.request.urlopen(req, timeout=20).read().decode('gbk','replace')
+          out=[]
+          for m in re.finditer(r'var hq_str_(\w+)="([^"]*)";', text):
+              fields=m.group(2).split(',')
+              if len(fields)>=6 and fields[0]:
+                  out.append({'symbol':m.group(1),'name':fields[0],'close':float(fields[1]),'change':float(fields[2]),'change_pct':float(fields[3]),'volume_wan_shares':float(fields[4]),'turnover_wan_cny':float(fields[5])})
+          print('MARKET_CONTEXT_JSON=' + json.dumps(out, ensure_ascii=False, sort_keys=True))
+          PY
