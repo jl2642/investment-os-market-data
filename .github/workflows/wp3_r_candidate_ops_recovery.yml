@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths: &candidate_recovery_paths
       - ".github/workflows/wp3_r_candidate_ops_recovery.yml"
+      - ".github/workflows/wp3_r_candidate_current_promotion.yml"
       - ".github/workflows/wp3_r_candidate_price_ledger.yml"
       - ".github/workflows/wp3_r_weekly_screen.yml"
       - ".github/workflows/wp3_r_monthly_review.yml"
@@ -19,6 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
 
 env:
@@ -153,13 +155,23 @@ jobs:
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json \
             "${{ steps.gate.outputs.proposal_dir }}"
 
+      - name: Dispatch governed Candidate Current promotion
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run wp3_r_candidate_current_promotion.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main
+
       - name: Record recovery summary
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP3-R Candidate Operations Limited Recovery
           - Rebuilt the Core daily ledger, dated 73-name market screen, monthly review and report-watermark gate
           - Generated a full-market rescreen proposal only if a new financial-report watermark was detected
-          - Published only governed operating Current and evidence products
+          - Published only governed operating Current and evidence products to the rolling automation branch
+          - Explicitly dispatched the protected-main PR promotion workflow
           - Candidate membership, Research Objects, portfolios and orders remained unchanged
           - trade_authority: NONE
           EOF
