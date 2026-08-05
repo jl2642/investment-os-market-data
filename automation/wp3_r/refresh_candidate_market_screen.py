@@ -90,9 +90,55 @@ def as_float(value: Any) -> float | None:
         return None
 
 
+def read_status(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    return read_json(path).get("status")
+
+
+def reconcile_operating_current(root: Path, config: dict[str, Any], market_run: dict[str, Any]) -> None:
+    outputs = config["outputs"]
+    operating_path = root / outputs["operating_current"]
+    if not operating_path.exists():
+        return
+    operating = read_json(operating_path)
+    operating.update(
+        {
+            "as_of_date": market_run["accepted_session"],
+            "weekly_price_screen_status": "PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION",
+            "candidate_market_screen_status": market_run["status"],
+            "candidate_market_screen_as_of": market_run["accepted_session"],
+            "financial_freshness_status": read_status(root / outputs["financial_freshness"]),
+            "financial_profile_status": read_status(root / outputs["financial_profile_readiness"]),
+            "industry_classification_status": read_status(root / outputs["industry_quality"]),
+            "candidate_current_preserved": True,
+            "candidate_membership_mutations": 0,
+            "real_account_mutations": 0,
+            "simulation_trade_mutations": 0,
+            "orders": 0,
+            "trade_authority": "NONE",
+        }
+    )
+    completed_install_actions = {
+        "INSTALL_DAILY_CANDIDATE_PRICE_LEDGER",
+        "INSTALL_WEEKLY_MONTHLY_QUARTERLY_CADENCE_WORKFLOWS",
+    }
+    next_actions = [
+        action
+        for action in operating.get("next_required_actions", [])
+        if action not in completed_install_actions
+    ]
+    maintenance_action = "MAINTAIN_SCHEDULED_CANDIDATE_MARKET_AND_OUTCOME_REFRESH"
+    if maintenance_action not in next_actions:
+        next_actions.append(maintenance_action)
+    operating["next_required_actions"] = next_actions
+    write_json(operating_path, operating)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
+    parser.add_argument("--config", default="automation/wp3_r/config.json")
     parser.add_argument("--candidate-current", default="investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json")
     parser.add_argument("--output", default="investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json")
     parser.add_argument("--run-output", default="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json")
@@ -100,6 +146,7 @@ def main() -> None:
     args = parser.parse_args()
 
     root = Path(args.repo_root).resolve()
+    config = read_json(root / args.config)
     candidate = read_json(root / args.candidate_current)
     tracked = tracked_candidates(candidate)
     if len(tracked) != 73:
@@ -186,6 +233,7 @@ def main() -> None:
         "trade_authority": "NONE",
     }
     write_json(root / args.run_output, run)
+    reconcile_operating_current(root, config, run)
     print(json.dumps(run, ensure_ascii=False, sort_keys=True))
 
 
