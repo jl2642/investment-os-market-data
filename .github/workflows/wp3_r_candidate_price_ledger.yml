@@ -49,7 +49,7 @@ jobs:
         run: python automation/wp3_r/refresh_candidate_price_ledger.py --repo-root .
 
       - name: Rebuild outcome and operating Current
-        run: python automation/wp3_r/build_candidate_refresh_current.py --repo-root .
+        run: python automation/wp3_r/build_candidate_refresh_current.py --repo-root . --as-of "$(date -u +%F)"
 
       - name: Validate append-only price evidence and zero mutations
         shell: bash
