@@ -26,8 +26,8 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install audited Current and evidence files
-        run: python automation/canonical_position_update/bootstrap_install.py
+      - name: Install hash-verified audited Current and evidence files
+        run: python automation/canonical_position_update/bootstrap_runner.py
 
       - name: Validate generated state before push
         run: python automation/canonical_position_update/validate.py
