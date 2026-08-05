@@ -46,11 +46,14 @@ git fetch origin "$base_branch"
 git rebase "origin/$base_branch"
 
 # Main is protected and requires PR + Lineage Gate. Publish generated Current
-# products to one rolling automation branch. The dedicated promotion workflow
-# creates/updates the governed PR and dispatches the actual required gate.
+# products to one rolling automation branch. This branch is dedicated and
+# rebuildable; force-with-lease protects against overwriting an unexpected
+# concurrent update while allowing each new publication to replace old history.
 if git ls-remote --exit-code --heads origin "$publish_branch" >/dev/null 2>&1; then
   git fetch origin "$publish_branch:refs/remotes/origin/$publish_branch"
-  git push --force-with-lease="refs/heads/$publish_branch:refs/remotes/origin/$publish_branch" \
+  expected_remote_sha="$(git rev-parse "refs/remotes/origin/$publish_branch")"
+  git push \
+    --force-with-lease="refs/heads/$publish_branch:$expected_remote_sha" \
     origin "HEAD:refs/heads/$publish_branch"
 else
   git push origin "HEAD:refs/heads/$publish_branch"
