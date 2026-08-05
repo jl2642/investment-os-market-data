@@ -1,0 +1,49 @@
+{
+  "evidence_id": "POSITION_UPDATE_20260804_USER_CONFIRMED_INTRADAY",
+  "captured_at": "2026-08-05T09:15:00+08:00",
+  "source_snapshot_times": {
+    "real": "2026-08-04T09:51:00+08:00",
+    "simulation": "2026-08-04T09:52:00+08:00"
+  },
+  "snapshot_type": "USER_CONFIRMED_INTRADAY",
+  "eod_status": "NOT_EOD_DO_NOT_APPEND_TO_FORMAL_EOD_SERIES",
+  "input_files": [
+    "canonical_position_update_2026-08-04.json",
+    "持仓更新与风险复核_2026-08-04.xlsx"
+  ],
+  "input_reconciliation": "JSON_STRUCTURE_AND_WORKBOOK_VALUES_MATCHED",
+  "outputs": [
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+  ],
+  "exceptions": [
+    {
+      "id": "REAL_STOCK_TOTAL_MINUS_LINE_SUM",
+      "amount": 237.5,
+      "status": "OPEN"
+    },
+    {
+      "id": "SIM_TOP_MV_MINUS_LINE_SUM",
+      "amount": -43.0,
+      "status": "OPEN"
+    },
+    {
+      "id": "JOVO_CURRENT_BATCH_IDENTITY",
+      "status": "OPEN"
+    },
+    {
+      "id": "JOVO_SECOND_BATCH_SETTLEMENT",
+      "status": "OPEN"
+    }
+  ],
+  "non_mutation_scope": {
+    "candidate": "UNCHANGED",
+    "decision": "UNCHANGED",
+    "orders": "ZERO",
+    "trade_authority": "NONE"
+  },
+  "orders": 0,
+  "trade_authority": "NONE"
+}
