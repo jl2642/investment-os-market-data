@@ -56,21 +56,14 @@ jobs:
           PY
 
       - name: Publish observation-only weekly Current
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
+          bash automation/wp3_r/publish_current_safely.sh \
+            "WP3-R automated weekly Candidate price screen" \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json \
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
-          if git diff --cached --quiet; then
-            echo "Weekly Candidate screen already current."
-            exit 0
-          fi
-          git commit -m "WP3-R automated weekly Candidate price screen"
-          git pull --rebase origin main
-          git push origin HEAD:main
 
       - name: Record summary
         run: |
