@@ -112,10 +112,7 @@ jobs:
                   for row in payload['holdings']
               ]
 
-          required_ids = {
-              row['security_id']
-              for row in real['holdings'] + sim['holdings']
-          }
+          required_ids = {row['security_id'] for row in real['holdings'] + sim['holdings']}
           marked_ids = {row['security_id'] for row in marks['marks']}
 
           assert candidate['status'] == 'PASS_COMPLETE'
@@ -185,13 +182,31 @@ jobs:
           git commit -m "R2 WP2-R refresh tracked Portfolio Current marks"
           git push origin "HEAD:agent/r2-product-capability-hardening"
 
-      - name: Publish scheduled mark-only Current on main
+      - name: Upload immutable validated WP2-R result
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp2r-eod-${{ github.run_id }}-a${{ github.run_attempt }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json
+            investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json
+            investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json
+            investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
+
+      - name: Publish scheduled result to governed run branch
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         shell: bash
+        env:
+          RESULT_BRANCH: automation/wp2r-eod-${{ github.run_id }}-a${{ github.run_attempt }}
         run: |
           set -Eeuo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
           git add \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP2_R/PORTFOLIO_MARKS_REFRESH_CANDIDATE.json \
             investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
@@ -199,20 +214,26 @@ jobs:
             investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json \
             investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
-          if git diff --cached --quiet; then
-            echo "Portfolio marks already current."
-            exit 0
+          if ! git diff --cached --quiet; then
+            git commit -m "WP2-R stage validated EOD marks for governed promotion"
           fi
-          git commit -m "WP2-R automated mark-only Portfolio Current refresh"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          git push origin "HEAD:$RESULT_BRANCH"
+          {
+            echo "### Governed publication handoff"
+            echo "- result_branch: \`$RESULT_BRANCH\`"
+            echo "- direct_main_push: disabled"
+            echo "- next_gate: Draft PR + WP3-2A / Lineage Gate"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Record summary
+        if: always()
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP2-R tracked market refresh
           - Dynamic coverage for every current Real and Simulation security
           - Market-only refresh preserves security, quantity, availability, unit cost and cost basis
+          - Scheduled results are stored as immutable artifacts and governed run branches
+          - Protected main is never pushed directly; Canonical promotion requires PR gates
           - Explicit source reconciliation exceptions remain unallocated
           - Broker verification remains separate and false
           - WP5 live action remains blocked

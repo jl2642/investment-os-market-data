@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
     inputs:
       publish_evidence:
-        description: "Persist a manual current-state observation to main"
+        description: "Persist a manual current-state observation to a governed branch"
         required: false
         default: false
         type: boolean
@@ -27,7 +27,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: p0-i1-operating-observation
+  group: p0-i1-operating-observation-${{ github.event.workflow_run.id || github.run_id }}-${{ github.event.workflow_run.run_attempt || github.run_attempt }}
   cancel-in-progress: false
 
 env:
@@ -47,9 +47,67 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Synchronize main for operating observation
-        if: github.event_name != 'pull_request'
-        run: git pull --ff-only origin main
+      - name: Resolve observation metadata and governed branch
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id || github.run_id }}
+          EVENT_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt || github.run_attempt }}
+          EVENT_CONCLUSION: ${{ github.event.workflow_run.conclusion || 'success' }}
+          EVENT_STARTED_AT: ${{ github.event.workflow_run.created_at || '' }}
+          EVENT_COMPLETED_AT: ${{ github.event.workflow_run.updated_at || '' }}
+          EVENT_RUN_URL: ${{ github.event.workflow_run.html_url || '' }}
+          EVENT_WORKFLOW: ${{ github.event.workflow_run.name || 'P0-I1 current-state validation' }}
+        run: |
+          set -Eeuo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            OUTPUT_ROOT="/tmp/p0_i1_observation"
+            TRIGGER_TYPE="pull_request"
+            PUBLICATION_BRANCH=""
+          elif [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            OUTPUT_ROOT="."
+            TRIGGER_TYPE="workflow_run"
+            PUBLICATION_BRANCH="automation/wp2r-eod-${EVENT_RUN_ID}-a${EVENT_RUN_ATTEMPT}"
+          else
+            TRIGGER_TYPE="workflow_dispatch"
+            if [[ "${{ inputs.publish_evidence }}" == "true" ]]; then
+              OUTPUT_ROOT="."
+              PUBLICATION_BRANCH="automation/p0i1-observation-${GITHUB_RUN_ID}-a${GITHUB_RUN_ATTEMPT}"
+            else
+              OUTPUT_ROOT="/tmp/p0_i1_observation"
+              PUBLICATION_BRANCH=""
+            fi
+          fi
+          echo "P0_I1_OUTPUT_ROOT=$OUTPUT_ROOT" >> "$GITHUB_ENV"
+          echo "P0_I1_TRIGGER_TYPE=$TRIGGER_TYPE" >> "$GITHUB_ENV"
+          echo "P0_I1_RUN_ID=$EVENT_RUN_ID" >> "$GITHUB_ENV"
+          echo "P0_I1_RUN_ATTEMPT=$EVENT_RUN_ATTEMPT" >> "$GITHUB_ENV"
+          echo "P0_I1_CONCLUSION=$EVENT_CONCLUSION" >> "$GITHUB_ENV"
+          echo "P0_I1_STARTED_AT=${EVENT_STARTED_AT:-$NOW}" >> "$GITHUB_ENV"
+          echo "P0_I1_COMPLETED_AT=${EVENT_COMPLETED_AT:-$NOW}" >> "$GITHUB_ENV"
+          echo "P0_I1_RUN_URL=$EVENT_RUN_URL" >> "$GITHUB_ENV"
+          echo "P0_I1_WORKFLOW=$EVENT_WORKFLOW" >> "$GITHUB_ENV"
+          echo "P0_I1_OBSERVED_AT=$NOW" >> "$GITHUB_ENV"
+          echo "P0_I1_PUBLICATION_BRANCH=$PUBLICATION_BRANCH" >> "$GITHUB_ENV"
+
+      - name: Checkout governed upstream result branch or create failure branch
+        if: github.event_name != 'pull_request' && env.P0_I1_OUTPUT_ROOT == '.'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [[ -n "$P0_I1_PUBLICATION_BRANCH" ]] && git ls-remote --exit-code origin "refs/heads/$P0_I1_PUBLICATION_BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$P0_I1_PUBLICATION_BRANCH"
+            git checkout -B "$P0_I1_PUBLICATION_BRANCH" FETCH_HEAD
+          else
+            FALLBACK_BRANCH="automation/p0i1-failure-${P0_I1_RUN_ID}-a${P0_I1_RUN_ATTEMPT}"
+            git checkout -B "$FALLBACK_BRANCH" origin/main
+            echo "P0_I1_PUBLICATION_BRANCH=$FALLBACK_BRANCH" >> "$GITHUB_ENV"
+            echo "P0_I1_UPSTREAM_BRANCH_MISSING=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Resolve source commit after governed checkout
+        run: echo "P0_I1_SOURCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Snapshot protected economic state
         run: |
@@ -66,45 +124,17 @@ jobs:
           Path("/tmp/p0_i1_protected_hashes.json").write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
           PY
 
-      - name: Resolve observation metadata
+      - name: Build normal observation evidence
+        id: normal_build
+        continue-on-error: true
         shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_RUN_ID: ${{ github.event.workflow_run.id || github.run_id }}
-          EVENT_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt || github.run_attempt }}
-          EVENT_CONCLUSION: ${{ github.event.workflow_run.conclusion || 'success' }}
-          EVENT_STARTED_AT: ${{ github.event.workflow_run.created_at || '' }}
-          EVENT_COMPLETED_AT: ${{ github.event.workflow_run.updated_at || '' }}
-          EVENT_RUN_URL: ${{ github.event.workflow_run.html_url || '' }}
-          EVENT_WORKFLOW: ${{ github.event.workflow_run.name || 'P0-I1 current-state validation' }}
         run: |
-          set -Eeuo pipefail
-          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          SOURCE_COMMIT="$(git rev-parse HEAD)"
-          if [[ "$EVENT_NAME" == "pull_request" ]]; then
-            OUTPUT_ROOT="/tmp/p0_i1_observation"
-            TRIGGER_TYPE="pull_request"
-          elif [[ "$EVENT_NAME" == "workflow_run" ]]; then
-            OUTPUT_ROOT="."
-            TRIGGER_TYPE="workflow_run"
-          else
-            if [[ "${{ inputs.publish_evidence }}" == "true" ]]; then OUTPUT_ROOT="."; else OUTPUT_ROOT="/tmp/p0_i1_observation"; fi
-            TRIGGER_TYPE="workflow_dispatch"
+          set +e
+          if [[ "${P0_I1_UPSTREAM_BRANCH_MISSING:-false}" == "true" ]]; then
+            echo "Governed upstream result branch is missing; normal observation is not allowed to read stale main inputs." > /tmp/p0_i1_build.log
+            cat /tmp/p0_i1_build.log
+            exit 2
           fi
-          echo "P0_I1_OUTPUT_ROOT=$OUTPUT_ROOT" >> "$GITHUB_ENV"
-          echo "P0_I1_SOURCE_COMMIT=$SOURCE_COMMIT" >> "$GITHUB_ENV"
-          echo "P0_I1_TRIGGER_TYPE=$TRIGGER_TYPE" >> "$GITHUB_ENV"
-          echo "P0_I1_RUN_ID=$EVENT_RUN_ID" >> "$GITHUB_ENV"
-          echo "P0_I1_RUN_ATTEMPT=$EVENT_RUN_ATTEMPT" >> "$GITHUB_ENV"
-          echo "P0_I1_CONCLUSION=$EVENT_CONCLUSION" >> "$GITHUB_ENV"
-          echo "P0_I1_STARTED_AT=${EVENT_STARTED_AT:-$NOW}" >> "$GITHUB_ENV"
-          echo "P0_I1_COMPLETED_AT=${EVENT_COMPLETED_AT:-$NOW}" >> "$GITHUB_ENV"
-          echo "P0_I1_RUN_URL=$EVENT_RUN_URL" >> "$GITHUB_ENV"
-          echo "P0_I1_WORKFLOW=$EVENT_WORKFLOW" >> "$GITHUB_ENV"
-          echo "P0_I1_OBSERVED_AT=$NOW" >> "$GITHUB_ENV"
-
-      - name: Build manifests, immutable EOD snapshots and observation products
-        run: |
           python -m py_compile automation/p0_i1_operating_observation/observe.py
           python automation/p0_i1_operating_observation/observe.py build \
             --repo-root . \
@@ -119,8 +149,40 @@ jobs:
             --source-commit "$P0_I1_SOURCE_COMMIT" \
             --trigger-type "$P0_I1_TRIGGER_TYPE" \
             --observed-at "$P0_I1_OBSERVED_AT" \
+            --summary-output /tmp/p0_i1_summary.json \
+            > /tmp/p0_i1_build.log 2>&1
+          RC=$?
+          cat /tmp/p0_i1_build.log
+          exit "$RC"
+
+      - name: Fail PR validation when normal observation build fails
+        if: github.event_name == 'pull_request' && steps.normal_build.outcome == 'failure'
+        run: |
+          echo "Normal P0-I1 build failed on a pull request; fallback must not mask a code regression."
+          exit 1
+
+      - name: Persist minimal fail-closed evidence
+        if: github.event_name != 'pull_request' && steps.normal_build.outcome == 'failure'
+        run: |
+          python -m py_compile automation/p0_i1_operating_observation/record_failure.py
+          python automation/p0_i1_operating_observation/record_failure.py \
+            --output-root "$P0_I1_OUTPUT_ROOT" \
+            --upstream-workflow "$P0_I1_WORKFLOW" \
+            --upstream-run-id "$P0_I1_RUN_ID" \
+            --upstream-run-attempt "$P0_I1_RUN_ATTEMPT" \
+            --upstream-conclusion "$P0_I1_CONCLUSION" \
+            --upstream-started-at "$P0_I1_STARTED_AT" \
+            --upstream-completed-at "$P0_I1_COMPLETED_AT" \
+            --upstream-run-url "$P0_I1_RUN_URL" \
+            --source-commit "$P0_I1_SOURCE_COMMIT" \
+            --trigger-type "$P0_I1_TRIGGER_TYPE" \
+            --observed-at "$P0_I1_OBSERVED_AT" \
+            --error-file /tmp/p0_i1_build.log \
             --summary-output /tmp/p0_i1_summary.json
-          python automation/p0_i1_operating_observation/observe.py validate --output-root "$P0_I1_OUTPUT_ROOT"
+
+      - name: Validate observation evidence
+        if: steps.normal_build.outcome == 'success' || github.event_name != 'pull_request'
+        run: python automation/p0_i1_operating_observation/observe.py validate --output-root "$P0_I1_OUTPUT_ROOT"
 
       - name: Run positive and fail-closed tests
         run: python -m unittest discover -s automation/p0_i1_operating_observation/tests -p 'test_*.py'
@@ -149,7 +211,18 @@ jobs:
           print({"protected_state": "UNCHANGED", "mutations": 0, "orders": 0, "trade_authority": "NONE"})
           PY
 
-      - name: Publish observation evidence to main
+      - name: Upload immutable observation evidence
+        if: github.event_name != 'pull_request' && env.P0_I1_OUTPUT_ROOT == '.'
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-i1-observation-${{ github.event.workflow_run.id || github.run_id }}-a${{ github.event.workflow_run.run_attempt || github.run_attempt }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION
+            investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1
+
+      - name: Publish observation evidence to governed branch
         if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.publish_evidence)
         shell: bash
         run: |
@@ -159,13 +232,17 @@ jobs:
           git add \
             investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION \
             investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1
-          if git diff --cached --quiet; then
-            echo "P0-I1 observation is idempotent; no evidence change."
-            exit 0
+          if ! git diff --cached --quiet; then
+            git commit -m "P0-I1 stage operating observation for governed promotion"
           fi
-          git commit -m "P0-I1 record WP2-R operating observation"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          git push origin "HEAD:$P0_I1_PUBLICATION_BRANCH"
+          {
+            echo "### Governed observation handoff"
+            echo "- publication_branch: \`$P0_I1_PUBLICATION_BRANCH\`"
+            echo "- normal_build_outcome: \`${{ steps.normal_build.outcome }}\`"
+            echo "- direct_main_push: disabled"
+            echo "- next_gate: Draft PR + WP3-2A / Lineage Gate"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Record summary
         if: always()
@@ -173,8 +250,9 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## P0-I1 Operating Observation
           - Follows the existing WP2-R schedule; adds no new market-data schedule
-          - Persists Canonical Run Manifest, Real/Simulation EOD snapshots, STATUS/DAILY observation products and report manifests
-          - Records success, failure, blockers and idempotency in a consolidated run ledger
+          - Persists Run Manifest, EOD snapshots when eligible, STATUS/DAILY products, report manifests and run ledger
+          - If the normal observer cannot read real inputs, a minimal fail-closed record is still persisted
+          - Scheduled evidence is stored in immutable artifacts and governed branches, never pushed directly to protected main
           - Does not alter positions, Candidate, decisions, rules or orders
           - Operating activation remains false; R6 remains in supervised acceptance
           - trade_authority: NONE
