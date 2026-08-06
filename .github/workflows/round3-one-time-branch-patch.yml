@@ -34,7 +34,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rm automation/cross_market/apply_round3_v2_patch.py .github/workflows/round3-one-time-branch-patch.yml
+          git rm -f automation/cross_market/apply_round3_v2_patch.py .github/workflows/round3-one-time-branch-patch.yml
           git add -A
           git commit -m "round3: unify initial and backfill pools with SEC web retrieval queue"
           git push origin HEAD:agent/round3-hk-us-limited-production
