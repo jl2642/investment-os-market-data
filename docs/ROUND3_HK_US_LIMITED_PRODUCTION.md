@@ -17,7 +17,7 @@ Round 3 converts the accepted FMDL-5 Hong Kong Stock Connect overlay and the acc
 - The accepted Security Master contains 8,785 securities, but Round 3 does not pretend to refresh the whole US market every week.
 - Seven benchmark members are observed each operating day: AAPL, MSFT, NVDA, JPM, BRK.B, XOM and QQQ.
 - A deterministic 64-security market-data batch and an eight-issuer official SEC retrieval queue rotate each weekday. Five days therefore cover a bounded research cohort, not all 8,785 securities.
-- US market buckets use the same exact-session gate and require at least 300 weekly rotation attempts, an 80% rotation success ratio and at least five successful benchmark members before market rotation can close.
+- US market buckets use the same exact-session gate and require at least 300 weekly rotation attempts, an 80% rotation success ratio and at least five successful benchmark members before market rotation can close. Successful benchmark quotes alone cannot close a rotation bucket.
 - The 7,419-issuer filing mother pool is reconstructed from the accepted filing evidence, issuer backfill queue and FMDL-6 identity lineage. Queue rows without a stored CIK use the truthful route `canonical_issuer_id → accepted representative ticker → official SEC company-ticker mapping → CIK → Submissions and CompanyFacts`.
 - Yahoo dual-route market evidence remains `NON_DECISION_GRADE_FALLBACK`. GitHub Hosted Runner is not authorized to claim SEC retrieval success because the accepted FMDL-6 contract records repeatable 403 responses. The workflow therefore emits an eight-issuer queue for ChatGPT web-controlled retrieval from official SEC sources; official evidence remains research-only and does not authorize an investment conclusion.
 - Formal cross-sectional ranking, US Candidate promotion, simulation admission and real-account admission remain disabled.
@@ -36,10 +36,22 @@ A date enters the no-op ledger only after completed sessions are captured for bo
 
 The GitHub workflow publishes only to `automation/cross-market-limited-<run_id>-a<attempt>`. `main` remains the sole Canonical and requires a governed PR.
 
+## Official SEC observer closure
+
+The official web observer writes exactly one `ROUND3_SEC_OBSERVER_INBOX.json` into the matching governed result branch. The permanent workflow then:
+
+1. validates that every success or failure belongs to the original eight-issuer queue;
+2. requires a timezone-aware retrieval timestamp, a valid 10-digit CIK, the declared CIK-resolution route and official SEC URLs only;
+3. rejects unqueued issuers, duplicate evidence, non-official sources, missing Submissions or CompanyFacts endpoints, any order field above zero and any authority other than `NONE`;
+4. writes normalized `ROUND3_SEC_OFFICIAL_RETRIEVAL_RESULT.json` and `ROUND3_SEC_OBSERVER_MANIFEST.json` evidence;
+5. updates the weekly ledger, current run and research proposal without touching Candidate, simulation, real-account or decision state.
+
+The result branch still requires a governed Draft PR, full diff review and lineage review before it can update Canonical `main`. The workflow does not retrieve SEC data itself and does not convert official filing evidence into a buy or sell recommendation.
+
 ## Acceptance state
 
 - `ROUND3_OPERATING_OBSERVATION`: engineering is installed or fewer than three completed weekly rotations have passed.
-- `ROUND3_LIMITED_PRODUCTION_ACCEPTED`: at least three completed weekly rotations pass all completed-session, source-quality, coverage, official-SEC, scope and authority gates, including at least 30 official SEC issuer refreshes per accepted week through the ChatGPT web-controlled observer.
+- `ROUND3_LIMITED_PRODUCTION_ACCEPTED`: at least three completed weekly rotations pass all completed-session, source-quality, coverage, official-SEC, scope and authority gates, including at least 30 unique official SEC issuer refreshes per accepted week through the ChatGPT web-controlled observer.
 
 This acceptance means the bounded operating cadence works. It does not mean full Hong Kong or US market production, decision-grade Yahoo data, persistent alpha, automatic Candidate mutation or trading authority.
 
