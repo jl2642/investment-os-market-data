@@ -50,18 +50,18 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Fetch full official SSE and SZSE lists with bounded retry
+      - name: First official fetch with bounded retry
         run: |
-          rm -rf work/hkcu1/source
+          rm -rf work/hkcu1/replay_1
           for attempt in 1 2 3 4; do
-            echo "official fetch attempt ${attempt}/4"
+            echo "replay_1 official fetch attempt ${attempt}/4"
             python pipeline/hkcu1_fetch_official_lists.py \
               --registry config/hkcu1_official_source_registry.json \
-              --output-dir work/hkcu1/source \
+              --output-dir work/hkcu1/replay_1 \
               --allow-partial
             if python - <<'PY'
           import json
-          d=json.load(open('work/hkcu1/source/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
+          d=json.load(open('work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
           raise SystemExit(0 if d['status']=='PASS' else 1)
           PY
             then
@@ -69,25 +69,87 @@ jobs:
             fi
             if [ "$attempt" -lt 4 ]; then sleep $((attempt * 5)); fi
           done
-      - name: Render source-level evidence
+      - name: Second independent official fetch with bounded retry
         run: |
-          cat work/hkcu1/source/HKCU1_FETCH_DECISION.json
-          cat work/hkcu1/source/HKCU1_SOURCE_LEDGER.json
-      - name: Enforce count and source gates
+          rm -rf work/hkcu1/replay_2
+          for attempt in 1 2 3 4; do
+            echo "replay_2 official fetch attempt ${attempt}/4"
+            python pipeline/hkcu1_fetch_official_lists.py \
+              --registry config/hkcu1_official_source_registry.json \
+              --output-dir work/hkcu1/replay_2 \
+              --allow-partial
+            if python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
+          raise SystemExit(0 if d['status']=='PASS' else 1)
+          PY
+            then
+              break
+            fi
+            if [ "$attempt" -lt 4 ]; then sleep $((attempt * 5)); fi
+          done
+      - name: Enforce dual-source counts and deterministic replay
         run: |
           python - <<'PY'
+          import hashlib
           import json
-          d=json.load(open('work/hkcu1/source/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
-          assert d['status']=='PASS', d
-          rows=d['source_rows']
-          assert rows.get('SSE_SH_SOUTHBOUND_BUY_LIST',0)>=100, rows
-          assert rows.get('SZSE_SZ_SOUTHBOUND_BUY_LIST',0)>=100, rows
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path('work/hkcu1')
+          decisions=[]
+          frames=[]
+          for replay in ('replay_1','replay_2'):
+              decision=json.loads((root/replay/'HKCU1_FETCH_DECISION.json').read_text(encoding='utf-8'))
+              assert decision['status']=='PASS', {replay:decision}
+              rows=decision['source_rows']
+              assert rows.get('SSE_SH_SOUTHBOUND_BUY_LIST')==651, {replay:rows}
+              assert rows.get('SZSE_SZ_SOUTHBOUND_BUY_LIST')==651, {replay:rows}
+              decisions.append(decision)
+              frames.append(pd.read_csv(root/replay/'HKCU1_OFFICIAL_LIST_ROWS.csv',dtype=str))
+
+          def codes(df, channel):
+              return sorted(set(df.loc[df['channel']==channel,'security_code'].dropna().astype(str).str.zfill(5)))
+          def digest(values):
+              return hashlib.sha256(('\n'.join(values)+'\n').encode()).hexdigest()
+
+          replay_hashes={}
+          for idx,df in enumerate(frames,1):
+              replay_hashes[f'replay_{idx}']={c:digest(codes(df,c)) for c in ('SH','SZ')}
+          assert replay_hashes['replay_1']==replay_hashes['replay_2'], replay_hashes
+
+          sh=codes(frames[0],'SH'); sz=codes(frames[0],'SZ')
+          sh_set=set(sh); sz_set=set(sz)
+          diff={
+              'as_of_date':'2026-08-06',
+              'status':'PASS',
+              'deterministic_replay':True,
+              'normalized_hashes':replay_hashes,
+              'sh_count':len(sh),
+              'sz_count':len(sz),
+              'intersection_count':len(sh_set & sz_set),
+              'sh_only_count':len(sh_set-sz_set),
+              'sz_only_count':len(sz_set-sh_set),
+              'sh_only_codes':sorted(sh_set-sz_set),
+              'sz_only_codes':sorted(sz_set-sh_set),
+              'trade_authority':'NONE'
+          }
+          (root/'HKCU1_R2B_REPLAY_AND_CHANNEL_DIFF.json').write_text(
+              json.dumps(diff,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(diff,ensure_ascii=False,indent=2))
           PY
+      - name: Render source-level evidence
+        run: |
+          cat work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json
+          cat work/hkcu1/replay_1/HKCU1_SOURCE_LEDGER.json
+          cat work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json
+          cat work/hkcu1/replay_2/HKCU1_SOURCE_LEDGER.json
+          cat work/hkcu1/HKCU1_R2B_REPLAY_AND_CHANNEL_DIFF.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: hkcu1-official-fetch-evidence
-          path: work/hkcu1/source/**
+          name: hkcu1-official-fetch-replay-evidence
+          path: work/hkcu1/**
           if-no-files-found: error
 
   endpoint-discovery-evidence:
