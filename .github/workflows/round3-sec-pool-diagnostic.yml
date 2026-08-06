@@ -1,0 +1,66 @@
+name: Round 3 SEC pool diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/round3-sec-pool-diagnostic.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Inspect real SEC pool keys
+        shell: bash
+        run: |
+          PYTHONPATH=. python - <<'PY'
+          from collections import Counter
+          from pathlib import Path
+          from automation.cross_market.build_round3_limited_production import read_csv, read_jsonl_gz, first_value, sec_cik, sec_symbol, US_SEC_INITIAL, US_SEC_QUEUE
+
+          root = Path('.')
+          initial = read_csv(root / US_SEC_INITIAL)
+          queue = read_jsonl_gz(root / US_SEC_QUEUE)
+          rows = initial + queue
+          print({'initial_count': len(initial), 'queue_count': len(queue), 'combined_rows': len(rows)})
+          print({'initial_keys': sorted(initial[0].keys()) if initial else [], 'queue_keys': sorted(queue[0].keys()) if queue else []})
+          print({'queue_samples': queue[:5]})
+
+          candidate_fields = (
+              'canonical_issuer_id','issuer_id','canonical_security_id','security_id',
+              'cik','cik10','cik_str','issuer_cik','sec_cik','CIK',
+              'symbol','ticker','selected_symbol','primary_symbol','symbols','tickers'
+          )
+          print({'field_presence': {field: sum(1 for row in rows if row.get(field) not in (None, '', [])) for field in candidate_fields}})
+          print({'parsed_symbol_count': sum(bool(sec_symbol(row)) for row in rows), 'parsed_cik_count': sum(bool(sec_cik(row)) for row in rows)})
+
+          for mode in ('current', 'issuer', 'cik', 'security'):
+              keys = []
+              for row in rows:
+                  symbol = sec_symbol(row)
+                  cik = sec_cik(row)
+                  if mode == 'current':
+                      key = first_value(row, ('canonical_issuer_id','issuer_id')) or cik or symbol
+                  elif mode == 'issuer':
+                      key = first_value(row, ('canonical_issuer_id','issuer_id'))
+                  elif mode == 'cik':
+                      key = cik
+                  else:
+                      key = first_value(row, ('canonical_security_id','security_id'))
+                  if key:
+                      keys.append(key)
+              counts = Counter(keys)
+              duplicates = {k:v for k,v in counts.items() if v > 1}
+              print({mode: {'unique': len(counts), 'missing': len(rows)-len(keys), 'duplicate_key_count': len(duplicates), 'duplicate_rows': sum(v-1 for v in duplicates.values()), 'duplicate_samples': list(sorted(duplicates.items()))[:10]}})
+          PY
