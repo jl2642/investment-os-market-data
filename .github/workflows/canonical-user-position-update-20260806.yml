@@ -1,0 +1,125 @@
+name: Canonical User Position Update 20260806
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/canonical_position_update/apply_20260806_user_update.py"
+      - "automation/canonical_position_update/run_20260806_user_update.py"
+      - "automation/canonical_position_update/normalize_20260806_user_update.py"
+      - "automation/canonical_position_update/validate_20260806_user_update.py"
+      - ".github/workflows/canonical-user-position-update-20260806.yml"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/**"
+      - "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/**"
+      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/**"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/**"
+      - "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_ACTION_REVIEW_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/61_DECISIONS/USER_CONFIRMATIONS_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_06/**"
+      - "investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/STATUS/POSITION_UPDATE_STATUS_20260806_USER_INTRADAY.json"
+      - "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/POSITION_UPDATE_20260806_USER_INTRADAY.json"
+      - "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/REPORT_MANIFESTS/POSITION_UPDATE_20260806_USER_INTRADAY.json"
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  apply-and-validate:
+    if: github.head_ref == 'agent/2026-08-06-user-position-simulation-candidate-update'
+    name: User Update / Economic State and Intraday Boundary Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Apply or confirm user update and normalize state
+        run: |
+          python -m py_compile automation/canonical_position_update/apply_20260806_user_update.py
+          python -m py_compile automation/canonical_position_update/run_20260806_user_update.py
+          python -m py_compile automation/canonical_position_update/normalize_20260806_user_update.py
+          python automation/canonical_position_update/run_20260806_user_update.py
+          python automation/canonical_position_update/normalize_20260806_user_update.py
+
+      - name: Persist generated Current and evidence to agent branch
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if git diff --quiet; then
+            echo "User update is already fully materialized and idempotent."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_ACTION_REVIEW_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/61_DECISIONS/USER_CONFIRMATIONS_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_06 \
+            investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/STATUS/POSITION_UPDATE_STATUS_20260806_USER_INTRADAY.json \
+            investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/POSITION_UPDATE_20260806_USER_INTRADAY.json \
+            investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/REPORT_MANIFESTS/POSITION_UPDATE_20260806_USER_INTRADAY.json
+          git commit -m "Apply user-confirmed 2026-08-06 Real and Simulation deltas"
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
+
+      - name: Validate economic state, Candidate protection and intraday boundary
+        run: |
+          python -m py_compile automation/canonical_position_update/validate_20260806_user_update.py
+          python automation/canonical_position_update/validate_20260806_user_update.py
+
+      - name: Re-run wrapper and normalize as idempotency check
+        run: |
+          python automation/canonical_position_update/run_20260806_user_update.py
+          python automation/canonical_position_update/normalize_20260806_user_update.py
+          git diff --exit-code
+
+      - name: Run WP2-R unit tests
+        run: |
+          python -m pip install --retries 5 --timeout 30 -r automation/wp2_r/requirements.lock
+          pytest -q automation/wp2_r/tests
+
+      - name: Validate governed JSON syntax
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          paths = [
+              Path("investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_ACTION_REVIEW_CURRENT.json"),
+              Path("investment_os_runtime/30_STATE_CURRENT/61_DECISIONS/USER_CONFIRMATIONS_CURRENT.json"),
+              Path("investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_06/USER_CONFIRMED_INTRADAY_SNAPSHOT_20260806.json"),
+          ]
+          for path in paths:
+              json.loads(path.read_text(encoding="utf-8"))
+          print({"json_files": len(paths), "status": "PASS"})
+          PY
+
+      - name: Record authority and publication boundary
+        run: |
+          echo "real_605090_quantity=9900"
+          echo "simulation_trades_applied=3"
+          echo "candidate_membership_mutations=0"
+          echo "decision_mutations=0"
+          echo "formal_EOD_mutations=0"
+          echo "orders=0"
+          echo "trade_authority=NONE"

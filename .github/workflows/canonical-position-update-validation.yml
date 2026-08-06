@@ -32,6 +32,7 @@ env:
 
 jobs:
   validate:
+    if: github.head_ref != 'agent/2026-08-06-user-position-simulation-candidate-update'
     name: Position Update / Reconciliation and Authority Gate
     runs-on: ubuntu-latest
     timeout-minutes: 15

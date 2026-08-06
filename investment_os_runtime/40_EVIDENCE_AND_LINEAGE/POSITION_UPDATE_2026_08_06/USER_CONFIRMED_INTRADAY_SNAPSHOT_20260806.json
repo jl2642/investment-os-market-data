@@ -1,0 +1,97 @@
+{
+  "candidate": {
+    "market_watermark_preserved": "2026-08-05_CLOSE",
+    "membership_mutations": 0,
+    "portfolio_linkage_recorded": true
+  },
+  "canonical_commit_after": "PENDING_PR_MERGE",
+  "canonical_commit_before": "46e22203928d886203e21ad860b7ff55777da48b",
+  "captured_at": "2026-08-06T11:03:00+08:00",
+  "confirmed_deltas": [
+    "REAL_605090_SECOND_4950_SETTLEMENT_20260806",
+    "SIM_20260806_SELL_002463_200",
+    "SIM_20260806_SELL_300124_200",
+    "SIM_20260806_BUY_300012_1000"
+  ],
+  "eod_status": "NOT_EOD_DO_NOT_APPEND_TO_FORMAL_EOD_SERIES",
+  "evidence_id": "POSITION_UPDATE_20260806_USER_INTRADAY",
+  "exceptions": [
+    {
+      "amount": -71.9,
+      "id": "REAL_INTRADAY_STOCK_LINE_TIMING",
+      "status": "OPEN_UNALLOCATED"
+    },
+    {
+      "amount": -73.4,
+      "id": "SIM_INTRADAY_MARKET_VALUE_LINE_TIMING",
+      "status": "OPEN_UNALLOCATED"
+    },
+    {
+      "amount": 33.39,
+      "id": "SIM_AGGREGATE_FEES_AND_TIMING",
+      "status": "RECORDED_NOT_ALLOCATED"
+    },
+    {
+      "id": "REAL_605090_TAX_AND_FEES",
+      "status": "OPEN"
+    }
+  ],
+  "input_evidence": [
+    {
+      "count": 8,
+      "status": "AVAILABLE_AND_INSPECTED",
+      "type": "USER_UPLOADED_BROKER_SCREENSHOT"
+    }
+  ],
+  "non_mutation_scope": {
+    "candidate_membership": "UNCHANGED",
+    "formal_decisions": "UNCHANGED",
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "real_account": {
+    "account_total_assets_intraday": 790928.83,
+    "ordinary_605090_quantity": 9900,
+    "other_position_changes": 0,
+    "pending_605090_quantity": 0
+  },
+  "schema_version": "1.0.0",
+  "simulation": {
+    "cash_after": 244332.59,
+    "holding_count_after": 16,
+    "total_assets_intraday": 1020846.99,
+    "trades": [
+      {
+        "action": "SELL",
+        "amount": 23978.0,
+        "code": "002463",
+        "delta_id": "SIM_20260806_SELL_002463_200",
+        "name": "沪电股份",
+        "price": 119.89,
+        "quantity": 200,
+        "time": "11:00:35"
+      },
+      {
+        "action": "SELL",
+        "amount": 12806.0,
+        "code": "300124",
+        "delta_id": "SIM_20260806_SELL_300124_200",
+        "name": "汇川技术",
+        "price": 64.03,
+        "quantity": 200,
+        "time": "11:00:48"
+      },
+      {
+        "action": "BUY",
+        "amount": 14080.0,
+        "code": "300012",
+        "delta_id": "SIM_20260806_BUY_300012_1000",
+        "name": "华测检测",
+        "price": 14.08,
+        "quantity": 1000,
+        "time": "11:01:54"
+      }
+    ]
+  },
+  "snapshot_type": "USER_CONFIRMED_INTRADAY"
+}

@@ -1,7 +1,7 @@
 {
-  "applied_delta_count": 0,
-  "as_of": "2026-08-04T09:51:00+08:00",
-  "continuity_confirmed_through": "2026-08-04T09:52:00+08:00",
+  "applied_delta_count": 4,
+  "as_of": "2026-08-06T11:03:00+08:00",
+  "continuity_confirmed_through": "2026-08-06T11:03:00+08:00",
   "entries": [
     {
       "account": "REAL",
@@ -88,9 +88,80 @@
       "security_code": "605090",
       "security_id": "605090.SH",
       "status": "REJECTED"
+    },
+    {
+      "account": "REAL",
+      "action": "TRANSFER_IN",
+      "application_decision": "APPLIED_TO_POSITION_CURRENT",
+      "applied_run_id": "POSITION_UPDATE_20260806_USER_INTRADAY",
+      "confirmation_authority": "USER",
+      "current_position_effect": 4950,
+      "delta_id": "REAL_605090_SECOND_4950_SETTLEMENT_20260806",
+      "event_type": "POSITION_SETTLEMENT",
+      "evidence_status": "USER_SCREENSHOT_CONFIRMED",
+      "market_value_effect": 166468.5,
+      "note": "Remaining 4,950 2026 equity-compensation shares are visible and available as ordinary shares; aggregate ordinary holding is now 9,900.",
+      "quantity": 4950,
+      "security_code": "605090",
+      "security_id": "605090.SH",
+      "status": "APPLIED_TO_POSITION_CURRENT"
+    },
+    {
+      "account": "SIMULATION",
+      "action": "SELL",
+      "application_decision": "APPLIED_TO_POSITION_CURRENT",
+      "applied_run_id": "POSITION_UPDATE_20260806_USER_INTRADAY",
+      "confirmation_authority": "USER",
+      "delta_id": "SIM_20260806_SELL_002463_200",
+      "event_type": "SIMULATION_TRADE",
+      "evidence_status": "USER_SCREENSHOT_CONFIRMED",
+      "execution_time": "2026-08-06T11:00:35+08:00",
+      "gross_amount": 23978.0,
+      "note": "User-executed simulation trade recorded from transaction screenshot; not an automated order.",
+      "price": 119.89,
+      "quantity": 200,
+      "security_code": "002463",
+      "security_id": "002463.SZ",
+      "status": "APPLIED_TO_POSITION_CURRENT"
+    },
+    {
+      "account": "SIMULATION",
+      "action": "SELL",
+      "application_decision": "APPLIED_TO_POSITION_CURRENT",
+      "applied_run_id": "POSITION_UPDATE_20260806_USER_INTRADAY",
+      "confirmation_authority": "USER",
+      "delta_id": "SIM_20260806_SELL_300124_200",
+      "event_type": "SIMULATION_TRADE",
+      "evidence_status": "USER_SCREENSHOT_CONFIRMED",
+      "execution_time": "2026-08-06T11:00:48+08:00",
+      "gross_amount": 12806.0,
+      "note": "User-executed simulation trade recorded from transaction screenshot; not an automated order.",
+      "price": 64.03,
+      "quantity": 200,
+      "security_code": "300124",
+      "security_id": "300124.SZ",
+      "status": "APPLIED_TO_POSITION_CURRENT"
+    },
+    {
+      "account": "SIMULATION",
+      "action": "BUY",
+      "application_decision": "APPLIED_TO_POSITION_CURRENT",
+      "applied_run_id": "POSITION_UPDATE_20260806_USER_INTRADAY",
+      "confirmation_authority": "USER",
+      "delta_id": "SIM_20260806_BUY_300012_1000",
+      "event_type": "SIMULATION_TRADE",
+      "evidence_status": "USER_SCREENSHOT_CONFIRMED",
+      "execution_time": "2026-08-06T11:01:54+08:00",
+      "gross_amount": 14080.0,
+      "note": "User-executed simulation trade recorded from transaction screenshot; not an automated order.",
+      "price": 14.08,
+      "quantity": 1000,
+      "security_code": "300012",
+      "security_id": "300012.SZ",
+      "status": "APPLIED_TO_POSITION_CURRENT"
     }
   ],
-  "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260804",
+  "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260806",
   "orders": 0,
   "policy": {
     "apply_only_status": "APPLIED_TO_POSITION_CURRENT",
@@ -106,12 +177,11 @@
   "rejected_for_position_engine_count": 5,
   "schema_version": "1.0.0",
   "snapshot_type": "USER_CONFIRMED_INTRADAY",
-  "status": "USER_CONFIRMED_EVIDENCE_RECORDED_ZERO_WP2_R_MUTATIONS",
+  "status": "FOUR_USER_CONFIRMED_DELTAS_APPLIED_INTRADAY_NOT_EOD",
   "trade_authority": "NONE",
-  "unapplied_delta_count": 5,
-  "unresolved_exception_count": 2,
+  "unapplied_delta_count": 0,
+  "unresolved_exception_count": 1,
   "unresolved_exceptions": [
-    "CURRENT_4950_BATCH_IDENTITY_UNKNOWN",
-    "SECOND_4950_PENDING_SETTLEMENT"
+    "2026_TAX_AND_FEES_PENDING"
   ]
 }
