@@ -47,7 +47,7 @@ def queue_key(row: dict[str, Any]) -> str:
     return str(row.get("canonical_issuer_id") or row.get("symbol") or row.get("cik") or "").strip()
 
 
-def validate_official_sources(sources: Any, cik: str, resolution_source: str) -> list[str]:
+def validate_official_sources(sources: Any, source_sha256: Any, cik: str, resolution_source: str) -> tuple[list[str], dict[str, str]]:
     if not isinstance(sources, list) or not sources:
         raise SystemExit("ROUND3_SEC_OBSERVER_OFFICIAL_SOURCES_REQUIRED")
     values = sorted({str(value).strip() for value in sources if str(value).strip()})
@@ -61,7 +61,12 @@ def validate_official_sources(sources: Any, cik: str, resolution_source: str) ->
         raise SystemExit("ROUND3_SEC_OBSERVER_REQUIRED_SEC_ENDPOINT_MISSING")
     if resolution_source == "SEC_COMPANY_TICKERS" and not any(value.startswith("https://www.sec.gov/files/company_tickers") for value in values):
         raise SystemExit("ROUND3_SEC_OBSERVER_TICKER_MAP_SOURCE_MISSING")
-    return values
+    if not isinstance(source_sha256, dict) or set(source_sha256) != set(values):
+        raise SystemExit("ROUND3_SEC_OBSERVER_SOURCE_SHA256_REQUIRED_OR_MISMATCH")
+    hashes = {str(source): str(source_sha256[source]).strip().lower() for source in values}
+    if any(not HEX64.fullmatch(value) for value in hashes.values()):
+        raise SystemExit("ROUND3_SEC_OBSERVER_SOURCE_SHA256_INVALID")
+    return values, hashes
 
 
 def validate_inbox(inbox: dict[str, Any], queue_payload: dict[str, Any]) -> dict[str, Any]:
@@ -126,7 +131,12 @@ def validate_inbox(inbox: dict[str, Any], queue_payload: dict[str, Any]) -> dict
         taxonomy_count = int(row.get("companyfacts_taxonomy_count", 0))
         if taxonomy_count < 0:
             raise SystemExit("ROUND3_SEC_OBSERVER_TAXONOMY_COUNT_INVALID")
-        sources = validate_official_sources(row.get("official_sources"), cik, resolution_source)
+        sources, source_sha256 = validate_official_sources(
+            row.get("official_sources"),
+            row.get("official_source_sha256"),
+            cik,
+            resolution_source,
+        )
         normalized_issuers.append({
             "canonical_issuer_id": issuer_id,
             "symbol": symbol,
@@ -136,6 +146,7 @@ def validate_inbox(inbox: dict[str, Any], queue_payload: dict[str, Any]) -> dict
             "latest_filing_date": filing_date,
             "companyfacts_taxonomy_count": taxonomy_count,
             "official_sources": sources,
+            "official_source_sha256": source_sha256,
             "status": "PASS_OFFICIAL_SEC_REFRESH",
             "decision_grade": False,
         })
@@ -146,9 +157,16 @@ def validate_inbox(inbox: dict[str, Any], queue_payload: dict[str, Any]) -> dict
         if not key or key not in queue_map or key in seen:
             raise SystemExit("ROUND3_SEC_OBSERVER_FAILURE_NOT_QUEUED_OR_DUPLICATE")
         seen.add(key)
+        queued = queue_map[key]
+        issuer_id = str(row.get("canonical_issuer_id") or "").strip()
+        symbol = str(row.get("symbol") or "").strip().upper()
+        if issuer_id != str(queued.get("canonical_issuer_id") or "").strip():
+            raise SystemExit("ROUND3_SEC_OBSERVER_FAILURE_ISSUER_ID_MISMATCH")
+        if symbol != str(queued.get("symbol") or "").strip().upper():
+            raise SystemExit("ROUND3_SEC_OBSERVER_FAILURE_SYMBOL_MISMATCH")
         normalized_failures.append({
-            "canonical_issuer_id": str(row.get("canonical_issuer_id") or "").strip(),
-            "symbol": str(row.get("symbol") or "").strip().upper(),
+            "canonical_issuer_id": issuer_id,
+            "symbol": symbol,
             "status": "SEC_DATA_GAP",
             "reason": str(row.get("reason") or "UNSPECIFIED_OFFICIAL_RETRIEVAL_FAILURE").strip()[:500],
         })

@@ -31,6 +31,7 @@ def official_row(queued: dict) -> dict:
         "latest_filing_date": "2026-08-01",
         "companyfacts_taxonomy_count": 1,
         "official_sources": sources,
+        "official_source_sha256": {source: "a" * 64 for source in sources},
         "status": "PASS_OFFICIAL_SEC_REFRESH",
     }
 
@@ -83,6 +84,30 @@ def test_official_observer_results_complete_cycle_and_accept_operating_state(tmp
     assert (evidence_dir / "ROUND3_SEC_OFFICIAL_RETRIEVAL_RESULT.json").exists()
     assert (evidence_dir / "ROUND3_SEC_OBSERVER_MANIFEST.json").exists()
     assert validate(run_current, proposal, ledger, configured)["status"] == "ROUND3_OUTPUTS_VALID"
+
+
+def test_observer_rejects_missing_official_response_hashes(tmp_path: Path) -> None:
+    _, evidence_dir = prepare_completed_market_cycle(tmp_path)
+    queue = json.loads((evidence_dir / "ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json").read_text())
+    row = official_row(queue["queue"][0])
+    row.pop("official_source_sha256")
+    inbox = {
+        "schema_version": "1.0.0",
+        "run_id": queue["run_id"],
+        "as_of_date": queue["as_of_date"],
+        "retrieval_environment": "CHATGPT_WEB_CONTROLLED_OFFICIAL_RETRIEVAL",
+        "retrieved_at": "2026-08-08T10:30:00+08:00",
+        "issuers": [row],
+        "failures": [],
+        "orders": 0,
+        "trade_authority": "NONE",
+    }
+    try:
+        validate_inbox(inbox, queue)
+    except SystemExit as exc:
+        assert "SOURCE_SHA256_REQUIRED_OR_MISMATCH" in str(exc)
+    else:
+        raise AssertionError("missing official response hashes must fail")
 
 
 def test_observer_rejects_unqueued_issuer_and_authority_escalation(tmp_path: Path) -> None:
