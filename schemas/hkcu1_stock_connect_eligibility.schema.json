@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/hkcu1_stock_connect_eligibility.schema.json",
+  "title": "HKCU-1 Stock Connect Eligibility Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "as_of_date",
+    "security_id",
+    "stock_code_5d",
+    "sh_buy_eligible",
+    "sz_buy_eligible",
+    "southbound_buy_eligible",
+    "sell_only",
+    "eligibility_status",
+    "effective_from",
+    "source_authority",
+    "source_url",
+    "retrieved_at",
+    "source_sha256",
+    "trade_authority"
+  ],
+  "properties": {
+    "as_of_date": {"type": "string", "format": "date"},
+    "security_id": {"type": "string", "pattern": "^HKEX:[0-9]{5}$"},
+    "stock_code_5d": {"type": "string", "pattern": "^[0-9]{5}$"},
+    "official_security_name": {"type": ["string", "null"]},
+    "sh_buy_eligible": {"type": "boolean"},
+    "sz_buy_eligible": {"type": "boolean"},
+    "southbound_buy_eligible": {"type": "boolean"},
+    "sell_only": {"type": "boolean"},
+    "eligibility_status": {
+      "enum": [
+        "BUY_ELIGIBLE_BOTH",
+        "BUY_ELIGIBLE_SH_ONLY",
+        "BUY_ELIGIBLE_SZ_ONLY",
+        "SELL_ONLY",
+        "NOT_ELIGIBLE",
+        "UNKNOWN_BLOCKED"
+      ]
+    },
+    "effective_from": {"type": "string", "format": "date"},
+    "effective_to": {"type": ["string", "null"], "format": "date"},
+    "announcement_date": {"type": ["string", "null"], "format": "date"},
+    "source_authority": {
+      "enum": [
+        "SSE_SOUTHBOUND_OFFICIAL",
+        "SZSE_SOUTHBOUND_OFFICIAL",
+        "HKEX_STOCK_CONNECT_CROSS_CHECK",
+        "MULTI_SOURCE_RECONCILED"
+      ]
+    },
+    "source_document_type": {
+      "enum": ["FULL_ELIGIBLE_LIST", "ADJUSTMENT_NOTICE", "SELL_ONLY_NOTICE", "CROSS_CHECK_SNAPSHOT"]
+    },
+    "source_url": {"type": "string", "format": "uri"},
+    "retrieved_at": {"type": "string", "format": "date-time"},
+    "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "conflict_flag": {"type": "boolean", "default": false},
+    "exclusion_reason": {"type": ["string", "null"]},
+    "trade_authority": {"const": "NONE"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"southbound_buy_eligible": {"const": true}}},
+      "then": {
+        "properties": {"eligibility_status": {"enum": ["BUY_ELIGIBLE_BOTH", "BUY_ELIGIBLE_SH_ONLY", "BUY_ELIGIBLE_SZ_ONLY"]}},
+        "not": {"properties": {"sell_only": {"const": true}}}
+      }
+    },
+    {
+      "if": {"properties": {"sell_only": {"const": true}}},
+      "then": {
+        "properties": {
+          "southbound_buy_eligible": {"const": false},
+          "eligibility_status": {"const": "SELL_ONLY"}
+        }
+      }
+    }
+  ]
+}
