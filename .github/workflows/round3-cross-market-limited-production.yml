@@ -18,6 +18,11 @@ on:
       - "docs/ROUND3_HK_US_LIMITED_PRODUCTION.md"
       - "investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/**"
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/**"
+  push:
+    branches:
+      - "automation/cross-market-limited-*"
+    paths:
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/**/ROUND3_SEC_OBSERVER_INBOX.json"
 
 permissions:
   actions: read
@@ -33,7 +38,7 @@ env:
 jobs:
   deterministic-validation:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,18 +49,20 @@ jobs:
           python-version: "3.13"
       - name: Install test runtime
         run: python -m pip install --retries 5 --timeout 30 pytest
-      - name: Compile and test bounded cross-market engine
+      - name: Compile and test bounded cross-market system
         run: |
-          python -m py_compile \
-            automation/cross_market/build_round3_limited_production.py \
-            automation/cross_market/validate_round3_outputs.py
-          pytest -q automation/cross_market/tests/test_round3_limited_production.py
+          python -m py_compile automation/cross_market/*.py
+          pytest -q automation/cross_market/tests
       - name: Validate real Canonical input compatibility
         run: |
           PYTHONPATH=. python - <<'PY'
           from datetime import date, timedelta
           from pathlib import Path
-          from automation.cross_market.build_round3_limited_production import plan_batches, read_json
+          from automation.cross_market.build_round3_limited_production import (
+              build_sec_retrieval_queue,
+              plan_batches,
+              read_json,
+          )
 
           root = Path('.')
           policy = read_json(root / 'automation/cross_market/round3_policy.json')
@@ -70,8 +77,15 @@ jobs:
           assert len(hk_ids) == 644
           assert {plan['us_rotation_pool_count'] for plan in plans} == {8785}
           assert all(len(plan['us_selected']) == 64 for plan in plans)
+          assert all(all(row['symbol'] for row in plan['us_selected']) for plan in plans)
           assert {plan['us_sec_pool_count'] for plan in plans} == {7419}
           assert all(len(plan['us_sec_selected']) == 8 for plan in plans)
+          assert all(all(row['symbol'] for row in plan['us_sec_selected']) for plan in plans)
+          queues = [
+              build_sec_retrieval_queue(plan['us_sec_selected'], start + timedelta(days=offset))
+              for offset, plan in enumerate(plans)
+          ]
+          assert all(all(row['required_sources'] for row in queue) for queue in queues)
           assert all(len(plan['us_benchmark']) == 7 for plan in plans)
           print({
               'hk_universe': len(hk_ids),
@@ -80,6 +94,7 @@ jobs:
               'us_issuer_pool': plans[0]['us_sec_pool_count'],
               'sec_daily_queue': len(plans[0]['us_sec_selected']),
               'benchmark_daily': len(plans[0]['us_benchmark']),
+              'sec_identity_enrichment': 'PASS',
           })
           PY
 
@@ -180,6 +195,7 @@ jobs:
           print(f"due={'true' if data.get('due') else 'false'}")
           print(f"run_id={data.get('run_id', '')}")
           print(f"status={data.get('status', '')}")
+          print(f"capture_status={data.get('capture_status', '')}")
           print(f"operating_state={data.get('operating_state', '')}")
           PY
       - name: Validate generated operating products
@@ -225,12 +241,13 @@ jobs:
             echo "- run_id: \`${{ steps.operate.outputs.run_id }}\`"
             echo "- as_of: \`${{ steps.market_date.outputs.as_of }}\`"
             echo "- status: \`${{ steps.operate.outputs.status }}\`"
+            echo "- capture_status: \`${{ steps.operate.outputs.capture_status }}\`"
             echo "- operating_state: \`${{ steps.operate.outputs.operating_state }}\`"
             echo "- HK scope: Southbound Stock Connect only"
             echo "- US scope: seven-name daily benchmark plus bounded 64-name rotation and eight-issuer official SEC retrieval queue"
             echo "- Candidate / simulation / real account / decisions / orders: 0 / 0 / 0 / 0 / 0"
             echo "- trade_authority: NONE"
-            echo "- next gate: Draft PR, complete diff and lineage review"
+            echo "- next gate: official SEC observer inbox, Draft PR, complete diff and lineage review"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Record no-op or observation state
         if: always()
@@ -239,9 +256,117 @@ jobs:
           ## Round 3 HK and US Limited Production
           - as_of: ${{ steps.market_date.outputs.as_of }}
           - status: ${{ steps.operate.outputs.status }}
+          - capture_status: ${{ steps.operate.outputs.capture_status }}
           - operating_state: ${{ steps.operate.outputs.operating_state }}
-          - same market date replay is a no-op
+          - stale or missing completed sessions remain retryable and do not close a bucket
           - no full-HKEX or full-US weekly coverage claim
           - no Candidate, simulation, real-account, decision or order authority
           - trade_authority: NONE
           EOF
+
+  ingest-sec-observer:
+    if: github.event_name == 'push'
+    needs: deterministic-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout governed result branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+      - name: Resolve exactly one newly committed observer inbox
+        id: inbox
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mapfile -t inboxes < <(
+            git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" \
+              | grep -E '^investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/[^/]+/ROUND3_SEC_OBSERVER_INBOX\.json$' \
+              || true
+          )
+          if [[ ${#inboxes[@]} -ne 1 ]]; then
+            printf 'ROUND3_OBSERVER_EXPECTED_ONE_NEW_INBOX count=%s\n' "${#inboxes[@]}" >&2
+            printf '%s\n' "${inboxes[@]}" >&2
+            exit 1
+          fi
+          inbox="${inboxes[0]}"
+          run_id="$(basename "$(dirname "$inbox")")"
+          echo "inbox=$inbox" >> "$GITHUB_OUTPUT"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+      - name: Apply official SEC observer evidence
+        id: apply
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          result="$(python automation/cross_market/apply_round3_sec_observer_results.py \
+            --repo-root . \
+            --inbox '${{ steps.inbox.outputs.inbox }}')"
+          echo "$result"
+          python - "$result" <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          data = json.loads(sys.argv[1])
+          print(f"status={data.get('status', '')}")
+          print(f"cycle_id={data.get('cycle_id', '')}")
+          print(f"cycle_completed={'true' if data.get('cycle_completed') else 'false'}")
+          print(f"sec_completed={data.get('sec_official_completed_issuer_count', 0)}")
+          print(f"operating_state={data.get('operating_state', '')}")
+          PY
+      - name: Validate updated operating state
+        run: |
+          root=investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS
+          python automation/cross_market/validate_round3_outputs.py \
+            --run "$root/CROSS_MARKET_LIMITED_RUN_CURRENT.json" \
+            --proposal "$root/CROSS_MARKET_RESEARCH_PROPOSAL_CURRENT.json" \
+            --ledger "$root/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json"
+      - name: Enforce observer output firewall
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - '${{ steps.inbox.outputs.run_id }}' <<'PY'
+          import subprocess
+          import sys
+
+          run_id = sys.argv[1]
+          allowed = {
+              'investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_RUN_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_RESEARCH_PROPOSAL_CURRENT.json',
+              f'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/{run_id}/ROUND3_SEC_OFFICIAL_RETRIEVAL_RESULT.json',
+              f'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/{run_id}/ROUND3_SEC_OBSERVER_MANIFEST.json',
+          }
+          changed = subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines()
+          forbidden = [path for path in changed if path not in allowed]
+          if forbidden:
+              raise SystemExit('ROUND3_OBSERVER_SCOPE_VIOLATION:' + ','.join(forbidden))
+          print({'observer_generated_paths': changed, 'orders': 0, 'trade_authority': 'NONE'})
+          PY
+      - name: Commit governed observer outputs to the same result branch
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/${{ steps.inbox.outputs.run_id }}/ROUND3_SEC_OFFICIAL_RETRIEVAL_RESULT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/${{ steps.inbox.outputs.run_id }}/ROUND3_SEC_OBSERVER_MANIFEST.json
+          if git diff --cached --quiet; then
+            echo "No new observer outputs to commit."
+            exit 0
+          fi
+          git commit -m "cross-market: apply official SEC observer evidence"
+          git push origin "HEAD:${{ github.ref_name }}"
+          {
+            echo "## Round 3 SEC observer ingestion"
+            echo "- branch: \`${{ github.ref_name }}\`"
+            echo "- run_id: \`${{ steps.inbox.outputs.run_id }}\`"
+            echo "- status: \`${{ steps.apply.outputs.status }}\`"
+            echo "- cycle_id: \`${{ steps.apply.outputs.cycle_id }}\`"
+            echo "- cycle_completed: \`${{ steps.apply.outputs.cycle_completed }}\`"
+            echo "- official SEC completed issuers in cycle: \`${{ steps.apply.outputs.sec_completed }}\`"
+            echo "- operating_state: \`${{ steps.apply.outputs.operating_state }}\`"
+            echo "- Candidate / simulation / real account / decisions / orders: 0 / 0 / 0 / 0 / 0"
+            echo "- trade_authority: NONE"
+            echo "- next gate: governed Draft PR, full diff and lineage review"
+          } >> "$GITHUB_STEP_SUMMARY"
