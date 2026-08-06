@@ -36,6 +36,7 @@ jobs:
           rows = list(initial) + list(queue)
           print({'initial_count': len(initial), 'queue_count': len(queue), 'combined_rows': len(rows)})
           print({'initial_keys': sorted(initial[0].keys()) if initial else [], 'queue_keys': sorted(queue[0].keys()) if queue else []})
+          print({'queue_samples': queue[:3]})
 
           key_fields = ('canonical_security_id', 'security_id', 'security_key')
           pools = {}
