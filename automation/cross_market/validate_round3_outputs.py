@@ -47,6 +47,24 @@ def validate(run: dict[str, Any], proposal: dict[str, Any], ledger: dict[str, An
         raise SystemExit("ROUND3_RUN_HK_OVERCLAIM")
     if run.get("united_states", {}).get("full_universe_market_history_claimed") is not False:
         raise SystemExit("ROUND3_RUN_US_OVERCLAIM")
+    us_run = run.get("united_states", {})
+    if us_run.get("sec_execution_mode") != "QUEUE_FOR_CHATGPT_WEB_OFFICIAL_RETRIEVAL":
+        raise SystemExit("ROUND3_SEC_EXECUTION_ENVIRONMENT_MISMATCH")
+    if us_run.get("sec_official_success_claimed") is not False:
+        raise SystemExit("ROUND3_FALSE_SEC_SUCCESS_CLAIM")
+    if int(us_run.get("rotation_pool_count", 0)) != int(policy["united_states"]["expected_security_master_count"]):
+        raise SystemExit("ROUND3_US_ROTATION_POOL_COUNT_MISMATCH")
+    if int(us_run.get("sec_pool_count", 0)) != int(policy["united_states"]["expected_issuer_count"]):
+        raise SystemExit("ROUND3_US_SEC_POOL_COUNT_MISMATCH")
+    if proposal.get("sec_official_retrieval_status") not in {
+        "PENDING_CHATGPT_WEB_OFFICIAL_RETRIEVAL",
+        "PARTIAL_CHATGPT_WEB_OFFICIAL_RETRIEVAL",
+        "PASS_CHATGPT_WEB_OFFICIAL_RETRIEVAL",
+    }:
+        raise SystemExit("ROUND3_SEC_RETRIEVAL_STATUS_INVALID")
+    for cycle in ledger.get("weekly_cycles", {}).values():
+        if cycle.get("completed") and int(cycle.get("sec_official_completed_issuer_count", 0)) < int(policy["united_states"]["minimum_weekly_official_sec_completed_count"]):
+            raise SystemExit("ROUND3_WEEKLY_ACCEPTANCE_WITHOUT_SEC_EVIDENCE")
     if authority.get("trade_authority") != "NONE" or authority.get("orders") != 0:
         raise SystemExit("ROUND3_POLICY_AUTHORITY_INVALID")
     return {"status": "ROUND3_OUTPUTS_VALID", "proposal_count": len(seen), "orders": 0, "trade_authority": "NONE"}

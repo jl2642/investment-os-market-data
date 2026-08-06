@@ -15,8 +15,8 @@ Round 3 converts the accepted FMDL-5 Hong Kong Stock Connect overlay and the acc
 
 - The accepted Security Master contains 8,785 securities, but Round 3 does not pretend to refresh the whole US market every week.
 - Seven benchmark members are observed each operating day: AAPL, MSFT, NVDA, JPM, BRK.B, XOM and QQQ.
-- A deterministic 64-security market-data batch and an eight-issuer official SEC batch rotate each weekday. Five days therefore cover a bounded research cohort, not all 8,785 securities.
-- Yahoo dual-route market evidence remains `NON_DECISION_GRADE_FALLBACK`. SEC submissions and company facts are official research evidence, but neither source alone authorizes an investment conclusion.
+- A deterministic 64-security market-data batch and an eight-issuer official SEC retrieval queue rotate each weekday. Five days therefore cover a bounded research cohort, not all 8,785 securities.
+- Yahoo dual-route market evidence remains `NON_DECISION_GRADE_FALLBACK`. GitHub Hosted Runner is not authorized to claim SEC retrieval success because the accepted FMDL-6 contract records repeatable 403 responses. The workflow therefore emits an eight-issuer queue for ChatGPT web-controlled retrieval from official SEC submissions and company facts; official evidence remains research-only and does not authorize an investment conclusion.
 - Formal cross-sectional ranking, US Candidate promotion, simulation admission and real-account admission remain disabled.
 
 ## Operating outputs
@@ -33,7 +33,7 @@ The GitHub workflow publishes only to `automation/cross-market-limited-<run_id>-
 ## Acceptance state
 
 - `ROUND3_OPERATING_OBSERVATION`: engineering is installed or fewer than three completed weekly rotations have passed.
-- `ROUND3_LIMITED_PRODUCTION_ACCEPTED`: at least three completed weekly rotations pass all source, scope and authority gates.
+- `ROUND3_LIMITED_PRODUCTION_ACCEPTED`: at least three completed weekly rotations pass all source, scope and authority gates, including at least 30 official SEC issuer refreshes per accepted week through the ChatGPT web-controlled observer.
 
 This acceptance means the bounded operating cadence works. It does not mean full Hong Kong or US market production, decision-grade Yahoo data, persistent alpha, automatic Candidate mutation or trading authority.
 

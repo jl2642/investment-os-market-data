@@ -19,7 +19,9 @@ HK_UNIVERSE = Path("outputs/fmdl5a/current/FMDL5A_CANONICAL_UNIVERSE.csv")
 HK_LONGLIST = Path("outputs/fmdl5e/current/FMDL5E_RESEARCH_LONGLIST.csv")
 HK_DUPLICATION = Path("outputs/fmdl5g/integration/current/FMDL5G_CROSS_MARKET_DUPLICATION_REVIEW.csv")
 US_BENCHMARK = Path("outputs/fmdl6x3/current/screening_research_cards/FMDL6X3E_US_BENCHMARK_POOL.json")
+US_MARKET_INITIAL = Path("outputs/fmdl6x2/current/market_reference/FMDL6X2D_INITIAL_COHORT.json")
 US_MARKET_QUEUE = Path("outputs/fmdl6x2/current/market_reference/FMDL6X2D_BACKFILL_QUEUE.jsonl.gz")
+US_SEC_INITIAL = Path("evidence/fmdl6x2e/2026-07-22/FMDL6X2E_FILINGS.csv")
 US_SEC_QUEUE = Path("outputs/fmdl6x2/current/sec_filings_facts/FMDL6X2E_BACKFILL_QUEUE.jsonl.gz")
 OPS_ROOT = Path("investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS")
 EVIDENCE_ROOT = Path("investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED")
@@ -146,13 +148,13 @@ def fetch_dual_route_market(market: str, symbol: str, as_of: date, fetcher: Fetc
 
 
 def sec_cik(row: dict[str, Any]) -> str:
-    raw = first_value(row, ("cik", "cik_str", "issuer_cik", "sec_cik", "CIK"))
+    raw = first_value(row, ("cik", "cik10", "cik_str", "issuer_cik", "sec_cik", "CIK"))
     digits = "".join(ch for ch in raw if ch.isdigit())
     return digits.zfill(10) if digits else ""
 
 
 def sec_symbol(row: dict[str, Any]) -> str:
-    return first_value(row, ("symbol", "ticker", "primary_symbol", "listing_symbol", "security_symbol")).upper()
+    return first_value(row, ("symbol", "ticker", "selected_symbol", "primary_symbol", "primary_ticker", "listing_symbol", "security_symbol")).upper()
 
 
 def fetch_sec_metadata(row: dict[str, Any], fetcher: Fetcher) -> dict[str, Any]:
@@ -202,26 +204,31 @@ def plan_batches(root: Path, policy: dict[str, Any], as_of: date) -> dict[str, A
     hk_rows = read_csv(root / HK_UNIVERSE)
     hk_selected = [row for row in hk_rows if stable_bucket(first_value(row, ("canonical_security_id", "stock_code")), 5) == bucket]
 
-    us_queue = read_jsonl_gz(root / US_MARKET_QUEUE)
-    normalized_us = []
-    for row in us_queue:
+    initial_payload = read_json(root / US_MARKET_INITIAL)
+    initial_market_rows = initial_payload.get("securities", []) if isinstance(initial_payload, dict) else initial_payload
+    market_sources = list(initial_market_rows) + read_jsonl_gz(root / US_MARKET_QUEUE)
+    market_pool: dict[str, dict[str, Any]] = {}
+    for row in market_sources:
         symbol = sec_symbol(row)
         security_id = first_value(row, ("canonical_security_id", "security_id", "security_key")) or symbol
-        if symbol:
-            normalized_us.append({**row, "symbol": symbol, "_security_key": security_id})
+        if symbol and security_id:
+            market_pool[security_id] = {**row, "symbol": symbol, "_security_key": security_id}
+    normalized_us = list(market_pool.values())
     bucket_rows = sorted((row for row in normalized_us if stable_bucket(row["_security_key"], 5) == bucket), key=lambda row: row["_security_key"])
     iso_year, iso_week, _ = as_of.isocalendar()
     week_index = iso_year * 53 + iso_week
     us_size = int(policy["united_states"]["daily_rotation_batch_size"])
     us_selected = circular_slice(bucket_rows, us_size, week_index * us_size)
 
-    sec_queue = read_jsonl_gz(root / US_SEC_QUEUE)
-    normalized_sec = []
-    for row in sec_queue:
+    sec_sources = read_csv(root / US_SEC_INITIAL) + read_jsonl_gz(root / US_SEC_QUEUE)
+    sec_pool: dict[str, dict[str, Any]] = {}
+    for row in sec_sources:
         symbol = sec_symbol(row)
-        key = first_value(row, ("canonical_issuer_id", "issuer_id", "cik", "security_id")) or symbol
-        if symbol or sec_cik(row):
-            normalized_sec.append({**row, "symbol": symbol, "_issuer_key": key})
+        cik = sec_cik(row)
+        key = first_value(row, ("canonical_issuer_id", "issuer_id")) or cik or symbol
+        if key and (symbol or cik):
+            sec_pool[key] = {**row, "symbol": symbol, "cik": cik, "_issuer_key": key}
+    normalized_sec = list(sec_pool.values())
     sec_bucket = sorted((row for row in normalized_sec if stable_bucket(row["_issuer_key"], 5) == bucket), key=lambda row: row["_issuer_key"])
     sec_size = int(policy["united_states"]["daily_sec_batch_size"])
     sec_selected = circular_slice(sec_bucket, sec_size, week_index * sec_size)
@@ -232,13 +239,33 @@ def plan_batches(root: Path, policy: dict[str, Any], as_of: date) -> dict[str, A
         "bucket": bucket,
         "hk_universe_count": len(hk_rows),
         "hk_selected": hk_selected,
-        "us_queue_count": len(us_queue),
+        "us_rotation_pool_count": len(normalized_us),
         "us_selected": us_selected,
-        "us_sec_queue_count": len(sec_queue),
+        "us_sec_pool_count": len(normalized_sec),
         "us_sec_selected": sec_selected,
         "us_benchmark": benchmark,
     }
 
+
+def build_sec_retrieval_queue(rows: list[dict[str, Any]], as_of: date) -> list[dict[str, Any]]:
+    queue: list[dict[str, Any]] = []
+    for row in rows:
+        symbol = sec_symbol(row)
+        cik = sec_cik(row)
+        issuer_id = first_value(row, ("canonical_issuer_id", "issuer_id"))
+        queue.append({
+            "symbol": symbol,
+            "cik": cik,
+            "canonical_issuer_id": issuer_id,
+            "as_of_date": as_of.isoformat(),
+            "status": "PENDING_CHATGPT_WEB_OFFICIAL_RETRIEVAL",
+            "required_sources": ["SEC_SUBMISSIONS", "SEC_COMPANYFACTS"],
+            "data_grade_required": "OFFICIAL_SEC_RESEARCH_EVIDENCE",
+            "candidate_pool_mutation_authorized": False,
+            "trade_authority": "NONE",
+        })
+    queue.sort(key=lambda row: (row["symbol"], row["cik"], row["canonical_issuer_id"]))
+    return queue
 
 def execute_market_rows(
     market: str,
@@ -308,9 +335,11 @@ def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[d
         "us_rotation_attempted": 0,
         "us_rotation_success": 0,
         "us_benchmark_success_symbols": [],
-        "sec_attempted": 0,
-        "sec_success": 0,
+        "sec_queued": 0,
+        "sec_official_completed_issuer_count": 0,
+        "sec_official_retrieval_status": "PENDING_CHATGPT_WEB_OFFICIAL_RETRIEVAL",
         "observations": {"HK": {}, "US": {}, "SEC": {}},
+        "market_rotation_completed": False,
         "completed": False,
     })
     if bucket not in cycle["hk_buckets"]:
@@ -324,30 +353,33 @@ def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[d
         rotation_fail = [row for row in us_fail if row["symbol"] not in benchmark_symbols]
         cycle["us_rotation_attempted"] += len(rotation) + len(rotation_fail)
         cycle["us_rotation_success"] += len(rotation)
+        cycle["sec_queued"] += len(sec_rows)
     for row in hk_ok:
         cycle["observations"]["HK"][row["symbol"]] = row
     for row in us_ok:
         cycle["observations"]["US"][row["symbol"]] = row
         if row["symbol"] in benchmark_symbols and row["symbol"] not in cycle["us_benchmark_success_symbols"]:
             cycle["us_benchmark_success_symbols"].append(row["symbol"])
-    if new_us_bucket:
-        cycle["sec_attempted"] += len(sec_rows)
-        cycle["sec_success"] += sum(row.get("status") == "PASS_OFFICIAL_SEC_REFRESH" for row in sec_rows)
     for row in sec_rows:
-        cycle["observations"]["SEC"][row.get("symbol") or row.get("cik") or "UNKNOWN"] = row
+        cycle["observations"]["SEC"][row.get("symbol") or row.get("cik") or row.get("canonical_issuer_id") or "UNKNOWN"] = row
     hk_ratio = cycle["hk_success"] / cycle["hk_attempted"] if cycle["hk_attempted"] else 0.0
     cycle["hk_success_ratio"] = round(hk_ratio, 6)
-    cycle["completed"] = (
+    cycle["market_rotation_completed"] = (
         sorted(cycle["hk_buckets"]) == [0, 1, 2, 3, 4]
         and sorted(cycle["us_buckets"]) == [0, 1, 2, 3, 4]
         and cycle["hk_attempted"] >= int(policy["hong_kong"]["minimum_weekly_attempted_count"])
         and hk_ratio >= float(policy["hong_kong"]["minimum_weekly_success_ratio"])
         and cycle["us_rotation_attempted"] >= int(policy["united_states"]["minimum_weekly_rotation_attempted_count"])
         and len(cycle["us_benchmark_success_symbols"]) >= int(policy["united_states"]["minimum_weekly_benchmark_success_count"])
+        and cycle["sec_queued"] >= int(policy["united_states"]["minimum_weekly_sec_queued_count"])
+    )
+    cycle["completed"] = (
+        cycle["market_rotation_completed"]
+        and cycle.get("sec_official_completed_issuer_count", 0) >= int(policy["united_states"]["minimum_weekly_official_sec_completed_count"])
     )
     ledger["completed_weekly_cycle_count"] = sum(bool(item.get("completed")) for item in ledger["weekly_cycles"].values())
+    ledger["market_rotation_completed_weekly_cycle_count"] = sum(bool(item.get("market_rotation_completed")) for item in ledger["weekly_cycles"].values())
     return cycle
-
 
 def parse_rank(row: dict[str, str]) -> int:
     raw = first_value(row, ("overall_rank", "rank", "research_rank", "longlist_rank"))
@@ -445,9 +477,15 @@ def build_proposal(root: Path, cycle: dict[str, Any], benchmark: list[dict[str, 
         "policy_id": policy["policy_id"],
         "cycle_id": cycle["cycle_id"],
         "cycle_completed": bool(cycle["completed"]),
-        "status": "WEEKLY_RESEARCH_REVIEW_READY" if cycle["completed"] else "DAILY_BATCH_CAPTURED_NO_WEEKLY_PROPOSAL_YET",
-        "hong_kong": hk_rows if cycle["completed"] else [],
-        "united_states": us_rows if cycle["completed"] else [],
+        "market_rotation_completed": bool(cycle["market_rotation_completed"]),
+        "sec_official_retrieval_status": cycle.get("sec_official_retrieval_status", "PENDING_CHATGPT_WEB_OFFICIAL_RETRIEVAL"),
+        "status": (
+            "WEEKLY_RESEARCH_REVIEW_READY" if cycle["completed"]
+            else "WEEKLY_RESEARCH_REVIEW_READY_SEC_ENRICHMENT_PENDING" if cycle["market_rotation_completed"]
+            else "DAILY_BATCH_CAPTURED_NO_WEEKLY_PROPOSAL_YET"
+        ),
+        "hong_kong": hk_rows if cycle["market_rotation_completed"] else [],
+        "united_states": us_rows if cycle["market_rotation_completed"] else [],
         "scope_boundaries": {
             "hong_kong_scope": "SOUTHBOUND_STOCK_CONNECT_ONLY",
             "full_hkex_market_claimed": False,
@@ -471,13 +509,15 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
     ledger = load_ledger(root / LEDGER_PATH)
     prior = next((item for item in ledger.get("daily_runs", []) if item.get("as_of_date") == as_of.isoformat()), None)
     if prior:
+        cycle = ledger.get("weekly_cycles", {}).get(prior["cycle_id"], {})
         return {
             "due": False,
             "run_id": prior["run_id"],
             "status": "NOOP_ALREADY_CAPTURED",
             "operating_state": prior["operating_state"],
             "cycle_id": prior["cycle_id"],
-            "cycle_completed": bool(ledger.get("weekly_cycles", {}).get(prior["cycle_id"], {}).get("completed")),
+            "cycle_completed": bool(cycle.get("completed")),
+            "market_rotation_completed": bool(cycle.get("market_rotation_completed")),
             "orders": 0,
             "trade_authority": "NONE",
         }
@@ -491,7 +531,7 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
     if sleep_seconds:
         time.sleep(sleep_seconds)
     us_ok, us_fail = execute_market_rows("US", us_symbols, as_of, fetcher, max_workers=10)
-    sec_rows = execute_sec_rows(plan["us_sec_selected"], fetcher, max_workers=2)
+    sec_rows = build_sec_retrieval_queue(plan["us_sec_selected"], as_of)
 
     cycle = update_cycle(ledger, as_of, plan["bucket"], hk_ok, hk_fail, us_ok, us_fail, sec_rows, benchmark_symbols, policy)
     run_id = f"ROUND3_{as_of.isoformat()}_B{plan['bucket']}_{hashlib.sha256((as_of.isoformat()+str(plan['bucket'])).encode()).hexdigest()[:10]}"
@@ -504,8 +544,23 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
         "bucket": plan["bucket"],
         "operating_state": operating_state,
         "completed_weekly_cycle_count": ledger["completed_weekly_cycle_count"],
+        "market_rotation_completed_weekly_cycle_count": ledger.get("market_rotation_completed_weekly_cycle_count", 0),
         "hong_kong": {"scope": "SOUTHBOUND_STOCK_CONNECT_ONLY", "universe_count": plan["hk_universe_count"], "attempted": len(hk_ok) + len(hk_fail), "success": len(hk_ok), "failures": len(hk_fail), "full_hkex_market_claimed": False},
-        "united_states": {"scope": "BOUNDED_ROTATION", "security_master_reference_count": policy["united_states"]["expected_security_master_count"], "rotation_queue_count": plan["us_queue_count"], "rotation_attempted": len(rotation_symbols), "market_success": len(us_ok), "market_failures": len(us_fail), "benchmark_attempted": len(benchmark_symbols), "sec_queue_count": plan["us_sec_queue_count"], "sec_attempted": len(sec_rows), "sec_success": sum(row.get("status") == "PASS_OFFICIAL_SEC_REFRESH" for row in sec_rows), "full_universe_market_history_claimed": False},
+        "united_states": {
+            "scope": "BOUNDED_ROTATION",
+            "security_master_reference_count": policy["united_states"]["expected_security_master_count"],
+            "rotation_pool_count": plan["us_rotation_pool_count"],
+            "rotation_attempted": len(rotation_symbols),
+            "market_success": len(us_ok),
+            "market_failures": len(us_fail),
+            "benchmark_attempted": len(benchmark_symbols),
+            "issuer_reference_count": policy["united_states"]["expected_issuer_count"],
+            "sec_pool_count": plan["us_sec_pool_count"],
+            "sec_queued": len(sec_rows),
+            "sec_execution_mode": policy["united_states"]["sec_execution_mode"],
+            "sec_official_success_claimed": False,
+            "full_universe_market_history_claimed": False,
+        },
         "controls": policy["authority"],
         "canonical_authority": "MERGE_OF_GOVERNED_PR_ONLY",
     }
@@ -518,27 +573,30 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
     write_json(root / RUN_PATH, run_record)
     write_json(root / PROPOSAL_PATH, proposal)
     evidence_dir = root / EVIDENCE_ROOT / run_id
-    write_json(evidence_dir / "ROUND3_RUN_EVIDENCE.json", {"run": run_record, "hk_market_successes": hk_ok, "hk_market_failures": hk_fail, "us_market_successes": us_ok, "us_market_failures": us_fail, "us_sec_results": sec_rows})
+    write_json(evidence_dir / "ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json", {"run_id": run_id, "as_of_date": as_of.isoformat(), "execution_environment_required": "CHATGPT_WEB_CONTROLLED_OFFICIAL_RETRIEVAL", "queue": sec_rows, "orders": 0, "trade_authority": "NONE"})
+    write_json(evidence_dir / "ROUND3_RUN_EVIDENCE.json", {"run": run_record, "hk_market_successes": hk_ok, "hk_market_failures": hk_fail, "us_market_successes": us_ok, "us_market_failures": us_fail, "us_sec_retrieval_queue": sec_rows})
     manifest = {
         "run_id": run_id,
         "policy_sha256": sha256_file(root / policy_path),
         "input_sha256": {
             str(HK_UNIVERSE): sha256_file(root / HK_UNIVERSE),
             str(US_BENCHMARK): sha256_file(root / US_BENCHMARK),
+            str(US_MARKET_INITIAL): sha256_file(root / US_MARKET_INITIAL),
             str(US_MARKET_QUEUE): sha256_file(root / US_MARKET_QUEUE),
+            str(US_SEC_INITIAL): sha256_file(root / US_SEC_INITIAL),
             str(US_SEC_QUEUE): sha256_file(root / US_SEC_QUEUE),
         },
         "output_sha256": {
             str(LEDGER_PATH): sha256_file(root / LEDGER_PATH),
             str(RUN_PATH): sha256_file(root / RUN_PATH),
             str(PROPOSAL_PATH): sha256_file(root / PROPOSAL_PATH),
+            str(evidence_dir / "ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json"): sha256_file(evidence_dir / "ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json"),
         },
         "orders": 0,
         "trade_authority": "NONE",
     }
     write_json(evidence_dir / "ROUND3_MANIFEST.json", manifest)
-    return {"due": True, "run_id": run_id, "status": proposal["status"], "operating_state": operating_state, "cycle_id": cycle["cycle_id"], "cycle_completed": cycle["completed"], "hk_success": len(hk_ok), "us_success": len(us_ok), "sec_success": run_record["united_states"]["sec_success"], "orders": 0, "trade_authority": "NONE"}
-
+    return {"due": True, "run_id": run_id, "status": proposal["status"], "operating_state": operating_state, "cycle_id": cycle["cycle_id"], "cycle_completed": cycle["completed"], "market_rotation_completed": cycle["market_rotation_completed"], "hk_success": len(hk_ok), "us_success": len(us_ok), "sec_queued": len(sec_rows), "orders": 0, "trade_authority": "NONE"}
 
 def main() -> None:
     parser = argparse.ArgumentParser()

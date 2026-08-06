@@ -30,7 +30,7 @@ def policy() -> dict:
     return {
         "policy_id": "ROUND3_HK_US_LIMITED_PRODUCTION_V1",
         "hong_kong": {"expected_universe_count": 10, "minimum_weekly_attempted_count": 8, "minimum_weekly_success_ratio": 0.8},
-        "united_states": {"expected_security_master_count": 100, "daily_rotation_batch_size": 4, "daily_sec_batch_size": 2, "minimum_weekly_rotation_attempted_count": 15, "minimum_weekly_benchmark_success_count": 2},
+        "united_states": {"expected_security_master_count": 100, "expected_issuer_count": 30, "daily_rotation_batch_size": 4, "daily_sec_batch_size": 2, "minimum_weekly_rotation_attempted_count": 15, "minimum_weekly_benchmark_success_count": 2, "minimum_weekly_sec_queued_count": 8, "minimum_weekly_official_sec_completed_count": 8, "sec_execution_mode": "QUEUE_FOR_CHATGPT_WEB_OFFICIAL_RETRIEVAL"},
         "research": {"allowed_labels": ["RESEARCH_PRIORITY", "WATCH_FOR_ENTRY", "OFFICIAL_FILING_REFRESH_PRIORITY", "MARKET_RISK_SANDBOX_OBSERVATION", "DUPLICATION_REVIEW", "DATA_GAP", "REMOVE_FROM_RESEARCH_REVIEW"], "forbidden_labels": ["BUY_CANDIDATE", "SIMULATION_ENTRY_PROPOSED"], "maximum_hk_weekly_research_proposals": 10, "maximum_us_weekly_research_proposals": 10},
         "acceptance": {"completed_weekly_cycles_for_limited_production_acceptance": 3},
         "authority": {"candidate_pool_mutations": 0, "simulation_mutations": 0, "real_account_mutations": 0, "decision_mutations": 0, "orders": 0, "trade_authority": "NONE"},
@@ -64,8 +64,17 @@ def install(root: Path) -> None:
         {"symbol": "QQQ", "canonical_security_id": "USSEC-QQQ", "pool_layer": "BENCHMARK_REFERENCE_INSTRUMENT"},
     ]}
     write_json(root / "outputs/fmdl6x3/current/screening_research_cards/FMDL6X3E_US_BENCHMARK_POOL.json", benchmark)
-    market_rows = [{"symbol": f"T{idx:03d}", "canonical_security_id": f"USSEC-{idx:03d}"} for idx in range(100)]
-    sec_rows = [{"symbol": f"T{idx:03d}", "canonical_issuer_id": f"USISS-{idx:03d}", "cik": str(1000000 + idx)} for idx in range(30)]
+    initial_market = {"cohort_size": 4, "securities": [{"selected_symbol": f"T{idx:03d}", "canonical_security_id": f"USSEC-{idx:03d}"} for idx in range(4)]}
+    write_json(root / "outputs/fmdl6x2/current/market_reference/FMDL6X2D_INITIAL_COHORT.json", initial_market)
+    market_rows = [{"symbol": f"T{idx:03d}", "canonical_security_id": f"USSEC-{idx:03d}"} for idx in range(4, 100)]
+    sec_initial = root / "evidence/fmdl6x2e/2026-07-22/FMDL6X2E_FILINGS.csv"
+    sec_initial.parent.mkdir(parents=True, exist_ok=True)
+    with sec_initial.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["symbol", "cik10"])
+        writer.writeheader()
+        for idx in range(2):
+            writer.writerow({"symbol": f"T{idx:03d}", "cik10": str(1000000 + idx)})
+    sec_rows = [{"symbol": f"T{idx:03d}", "canonical_issuer_id": f"USISS-{idx:03d}", "cik": str(1000000 + idx)} for idx in range(2, 30)]
     write_jsonl_gz(root / "outputs/fmdl6x2/current/market_reference/FMDL6X2D_BACKFILL_QUEUE.jsonl.gz", market_rows)
     write_jsonl_gz(root / "outputs/fmdl6x2/current/sec_filings_facts/FMDL6X2E_BACKFILL_QUEUE.jsonl.gz", sec_rows)
 
@@ -104,10 +113,14 @@ def test_five_day_cycle_creates_research_only_proposal(tmp_path: Path) -> None:
     proposal = json.loads((tmp_path / "investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_RESEARCH_PROPOSAL_CURRENT.json").read_text())
     ledger = json.loads((tmp_path / "investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json").read_text())
     run_current = json.loads((tmp_path / "investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_RUN_CURRENT.json").read_text())
-    assert proposal["cycle_completed"] is True
+    assert proposal["market_rotation_completed"] is True
+    assert proposal["cycle_completed"] is False
+    assert proposal["sec_official_retrieval_status"] == "PENDING_CHATGPT_WEB_OFFICIAL_RETRIEVAL"
     assert proposal["controls"]["candidate_pool_mutations"] == 0
     assert all(row["label"] != "BUY_CANDIDATE" for row in proposal["hong_kong"] + proposal["united_states"])
     assert run_current["operating_state"] == "ROUND3_OPERATING_OBSERVATION"
+    assert run_current["united_states"]["sec_queued"] == 2
+    assert run_current["united_states"]["sec_official_success_claimed"] is False
     assert validate(run_current, proposal, ledger, policy())["status"] == "ROUND3_OUTPUTS_VALID"
 
 
