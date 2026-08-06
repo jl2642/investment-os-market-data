@@ -49,52 +49,30 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-      - run: pip install -r requirements.txt
-      - name: First official fetch with bounded retry
+      - run: |
+          pip install -r requirements.txt
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Browser-assisted SSE official workbook fetch
         run: |
-          rm -rf work/hkcu1/replay_1
-          passed=0
-          for attempt in 1 2 3 4 5 6; do
-            echo "replay_1 official fetch attempt ${attempt}/6"
-            python pipeline/hkcu1_fetch_official_lists.py \
-              --registry config/hkcu1_official_source_registry.json \
-              --output-dir work/hkcu1/replay_1 \
-              --allow-partial
-            if python - <<'PY'
-          import json
-          d=json.load(open('work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
-          raise SystemExit(0 if d['status']=='PASS' else 1)
-          PY
-            then
-              passed=1
-              break
-            fi
-            if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
-          done
-          test "$passed" -eq 1
-      - name: Second independent official fetch with bounded retry
+          rm -rf work/hkcu1
+          mkdir -p work/hkcu1/browser
+          python pipeline/hkcu1_fetch_sse_browser.py \
+            --output-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
+            --evidence-file work/hkcu1/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json
+      - name: First deterministic parse and SZSE official fetch
         run: |
-          rm -rf work/hkcu1/replay_2
-          passed=0
-          for attempt in 1 2 3 4 5 6; do
-            echo "replay_2 official fetch attempt ${attempt}/6"
-            python pipeline/hkcu1_fetch_official_lists.py \
-              --registry config/hkcu1_official_source_registry.json \
-              --output-dir work/hkcu1/replay_2 \
-              --allow-partial
-            if python - <<'PY'
-          import json
-          d=json.load(open('work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
-          raise SystemExit(0 if d['status']=='PASS' else 1)
-          PY
-            then
-              passed=1
-              break
-            fi
-            if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
-          done
-          test "$passed" -eq 1
-      - name: Enforce dual-source counts and deterministic replay
+          python pipeline/hkcu1_fetch_official_lists.py \
+            --registry config/hkcu1_official_source_registry.json \
+            --output-dir work/hkcu1/replay_1 \
+            --sse-raw-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls
+      - name: Second deterministic parse of the same SSE raw file
+        run: |
+          python pipeline/hkcu1_fetch_official_lists.py \
+            --registry config/hkcu1_official_source_registry.json \
+            --output-dir work/hkcu1/replay_2 \
+            --sse-raw-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls
+      - name: Enforce counts, raw integrity and deterministic normalized output
         run: |
           python - <<'PY'
           import hashlib
@@ -103,14 +81,22 @@ jobs:
           import pandas as pd
 
           root=Path('work/hkcu1')
+          browser=json.loads((root/'browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json').read_text(encoding='utf-8'))
+          assert browser['status']=='PASS', browser
+          raw=(root/'browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls').read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==browser['sha256'], browser
+
           frames=[]
+          ledgers=[]
           for replay in ('replay_1','replay_2'):
               decision=json.loads((root/replay/'HKCU1_FETCH_DECISION.json').read_text(encoding='utf-8'))
               assert decision['status']=='PASS', {replay:decision}
               rows=decision['source_rows']
               assert rows.get('SSE_SH_SOUTHBOUND_BUY_LIST')==651, {replay:rows}
               assert rows.get('SZSE_SZ_SOUTHBOUND_BUY_LIST')==651, {replay:rows}
+              assert decision['acquisition_modes']['SSE_SH_SOUTHBOUND_BUY_LIST']=='BROWSER_SESSION_OFFICIAL_FETCH'
               frames.append(pd.read_csv(root/replay/'HKCU1_OFFICIAL_LIST_ROWS.csv',dtype=str))
+              ledgers.append(json.loads((root/replay/'HKCU1_SOURCE_LEDGER.json').read_text(encoding='utf-8')))
 
           def codes(df, channel):
               return sorted(set(df.loc[df['channel']==channel,'security_code'].dropna().astype(str).str.zfill(5)))
@@ -119,41 +105,49 @@ jobs:
 
           replay_hashes={}
           for idx,df in enumerate(frames,1):
-              replay_hashes[f'replay_{idx}']={c:digest(codes(df,c)) for c in ('SH','SZ')}
+              replay_hashes[f'replay_{idx}']={channel:digest(codes(df,channel)) for channel in ('SH','SZ')}
           assert replay_hashes['replay_1']==replay_hashes['replay_2'], replay_hashes
 
-          sh=codes(frames[0],'SH'); sz=codes(frames[0],'SZ')
-          sh_set=set(sh); sz_set=set(sz)
-          diff={
+          sse_hashes=[]
+          for ledger in ledgers:
+              sse=next(row for row in ledger if row['source_id']=='SSE_SH_SOUTHBOUND_BUY_LIST')
+              sse_hashes.append(sse['sha256'])
+          assert sse_hashes==[browser['sha256'],browser['sha256']], sse_hashes
+
+          sh=set(codes(frames[0],'SH')); sz=set(codes(frames[0],'SZ'))
+          result={
               'as_of_date':'2026-08-06',
               'status':'PASS',
-              'deterministic_replay':True,
+              'sse_acquisition_mode':'BROWSER_SESSION_OFFICIAL_FETCH',
+              'same_raw_double_parse':True,
+              'deterministic_normalized_output':True,
+              'raw_sha256':browser['sha256'],
               'normalized_hashes':replay_hashes,
               'sh_count':len(sh),
               'sz_count':len(sz),
-              'intersection_count':len(sh_set & sz_set),
-              'sh_only_count':len(sh_set-sz_set),
-              'sz_only_count':len(sz_set-sh_set),
-              'sh_only_codes':sorted(sh_set-sz_set),
-              'sz_only_codes':sorted(sz_set-sh_set),
+              'intersection_count':len(sh & sz),
+              'sh_only_count':len(sh-sz),
+              'sz_only_count':len(sz-sh),
+              'sh_only_codes':sorted(sh-sz),
+              'sz_only_codes':sorted(sz-sh),
               'trade_authority':'NONE'
           }
-          (root/'HKCU1_R2B_REPLAY_AND_CHANNEL_DIFF.json').write_text(
-              json.dumps(diff,ensure_ascii=False,indent=2),encoding='utf-8')
-          print(json.dumps(diff,ensure_ascii=False,indent=2))
+          (root/'HKCU1_R2B_R1_BROWSER_AND_DETERMINISM_DECISION.json').write_text(
+              json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
           PY
-      - name: Render source-level evidence
+      - name: Render evidence
         if: always()
         run: |
+          test ! -f work/hkcu1/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json || cat work/hkcu1/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json
           test ! -f work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json || cat work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json
           test ! -f work/hkcu1/replay_1/HKCU1_SOURCE_LEDGER.json || cat work/hkcu1/replay_1/HKCU1_SOURCE_LEDGER.json
           test ! -f work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json || cat work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json
-          test ! -f work/hkcu1/replay_2/HKCU1_SOURCE_LEDGER.json || cat work/hkcu1/replay_2/HKCU1_SOURCE_LEDGER.json
-          test ! -f work/hkcu1/HKCU1_R2B_REPLAY_AND_CHANNEL_DIFF.json || cat work/hkcu1/HKCU1_R2B_REPLAY_AND_CHANNEL_DIFF.json
+          test ! -f work/hkcu1/HKCU1_R2B_R1_BROWSER_AND_DETERMINISM_DECISION.json || cat work/hkcu1/HKCU1_R2B_R1_BROWSER_AND_DETERMINISM_DECISION.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: hkcu1-official-fetch-replay-evidence
+          name: hkcu1-r2b-r1-browser-determinism-evidence
           path: work/hkcu1/**
           if-no-files-found: error
 
@@ -185,15 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-      - run: pip install -r requirements.txt
-      - name: Fetch official evidence
-        run: python pipeline/hkcu1_fetch_official_lists.py --registry config/hkcu1_official_source_registry.json --output-dir work/hkcu1/source
-      - name: Stop before publication without sell-only and cross-check closure
+      - name: Stop before publication without sell-only and HKEX cross-check closure
         run: |
-          test -s work/hkcu1/source/HKCU1_SOURCE_LEDGER.csv
-          echo 'Full buy-list fetch passed. Sell-only ingestion, HKEX cross-check and independent release validation remain mandatory.'
+          echo 'Buy-list acquisition passed only after R2B-R1. Sell-only ingestion and HKEX cross-check remain mandatory.'
           exit 2
