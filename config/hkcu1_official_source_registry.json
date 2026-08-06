@@ -1,0 +1,49 @@
+{
+  "registry_version": "1.0.0",
+  "program_id": "HKCU-1",
+  "sources": [
+    {
+      "source_id": "SSE_SOUTHBOUND_OFFICIAL",
+      "authority_rank": 1,
+      "publisher": "Shanghai Stock Exchange / China Investment Information Services Limited",
+      "scope": "Shanghai-Hong Kong Stock Connect southbound eligible securities and adjustment notices",
+      "official_domains": ["sse.com.cn"],
+      "accepted_document_types": ["FULL_ELIGIBLE_LIST", "ADJUSTMENT_NOTICE", "SELL_ONLY_NOTICE"],
+      "decision_role": "PRIMARY_FOR_SH_CHANNEL",
+      "required_fields": ["stock_code_5d", "effective_from", "eligibility_direction", "source_url", "retrieved_at", "source_sha256"]
+    },
+    {
+      "source_id": "SZSE_SOUTHBOUND_OFFICIAL",
+      "authority_rank": 1,
+      "publisher": "Shenzhen Stock Exchange / China Innovation Market Service Company Limited",
+      "scope": "Shenzhen-Hong Kong Stock Connect southbound eligible securities and adjustment notices",
+      "official_domains": ["szse.cn"],
+      "accepted_document_types": ["FULL_ELIGIBLE_LIST", "ADJUSTMENT_NOTICE", "SELL_ONLY_NOTICE"],
+      "decision_role": "PRIMARY_FOR_SZ_CHANNEL",
+      "required_fields": ["stock_code_5d", "effective_from", "eligibility_direction", "source_url", "retrieved_at", "source_sha256"]
+    },
+    {
+      "source_id": "HKEX_STOCK_CONNECT_CROSS_CHECK",
+      "authority_rank": 2,
+      "publisher": "Hong Kong Exchanges and Clearing Limited",
+      "scope": "View All Eligible Securities and downloadable southbound eligible-security lists",
+      "official_domains": ["hkex.com.hk"],
+      "accepted_document_types": ["FULL_ELIGIBLE_LIST", "CROSS_CHECK_SNAPSHOT"],
+      "decision_role": "CROSS_CHECK_NOT_SILENT_OVERRIDE",
+      "required_fields": ["stock_code_5d", "channel", "list_date", "source_url", "retrieved_at", "source_sha256"]
+    }
+  ],
+  "conflict_policy": {
+    "same_channel_primary_vs_cross_check": "PRIMARY_WINS_ONLY_IF_EFFECTIVE_DATE_AND_DOCUMENT_IDENTITY_ARE_EXPLICIT; OTHERWISE_UNKNOWN_BLOCKED",
+    "sh_vs_sz_difference": "PRESERVE_CHANNEL_SPECIFIC_STATUS",
+    "missing_primary_source": "UNKNOWN_BLOCKED",
+    "stale_cached_status": "DO_NOT_CARRY_FORWARD_SILENTLY"
+  },
+  "prohibited_sources_for_eligibility_decision": [
+    "SEARCH_ENGINE_SNIPPET",
+    "BROKER_LIST",
+    "FINANCIAL_PORTAL",
+    "MARKET_DATA_VENDOR",
+    "USER_MEMORY_OR_MANUAL_ASSERTION_WITHOUT_OFFICIAL_DOCUMENT"
+  ]
+}
