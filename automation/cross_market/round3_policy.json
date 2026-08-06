@@ -1,0 +1,58 @@
+{
+  "policy_id": "ROUND3_HK_US_LIMITED_PRODUCTION_V1",
+  "schema_version": "1.0.0",
+  "business_timezone": "Asia/Shanghai",
+  "hong_kong": {
+    "scope": "SOUTHBOUND_STOCK_CONNECT_ONLY",
+    "expected_universe_count": 644,
+    "rotation_bucket_count": 5,
+    "minimum_weekly_attempted_count": 600,
+    "minimum_weekly_success_ratio": 0.85,
+    "market_data_grade": "UNOFFICIAL_FREE_VENDOR_RESEARCH_ONLY",
+    "full_hkex_market_claim_allowed": false
+  },
+  "united_states": {
+    "scope": "SECURITY_MASTER_WITH_BOUNDED_ROTATION",
+    "expected_security_master_count": 8785,
+    "benchmark_symbols": ["AAPL", "MSFT", "NVDA", "JPM", "BRK.B", "XOM", "QQQ"],
+    "rotation_bucket_count": 5,
+    "daily_rotation_batch_size": 64,
+    "daily_sec_batch_size": 8,
+    "minimum_weekly_rotation_attempted_count": 300,
+    "minimum_weekly_benchmark_success_count": 5,
+    "market_data_grade": "NON_DECISION_GRADE_FALLBACK",
+    "sec_data_grade": "OFFICIAL_SEC_RESEARCH_EVIDENCE",
+    "full_universe_market_history_claim_allowed": false,
+    "formal_cross_section_rank_allowed": false
+  },
+  "research": {
+    "allowed_labels": [
+      "RESEARCH_PRIORITY",
+      "WATCH_FOR_ENTRY",
+      "OFFICIAL_FILING_REFRESH_PRIORITY",
+      "MARKET_RISK_SANDBOX_OBSERVATION",
+      "DUPLICATION_REVIEW",
+      "DATA_GAP",
+      "REMOVE_FROM_RESEARCH_REVIEW"
+    ],
+    "forbidden_labels": [
+      "BUY_CANDIDATE",
+      "SIMULATION_ENTRY_PROPOSED",
+      "ADD_ON_WEAKNESS",
+      "AUTO_PROMOTE_CANDIDATE"
+    ],
+    "maximum_hk_weekly_research_proposals": 10,
+    "maximum_us_weekly_research_proposals": 10
+  },
+  "acceptance": {
+    "completed_weekly_cycles_for_limited_production_acceptance": 3
+  },
+  "authority": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
