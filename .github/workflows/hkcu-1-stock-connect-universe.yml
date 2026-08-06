@@ -54,7 +54,12 @@ jobs:
         run: |
           python pipeline/hkcu1_fetch_official_lists.py \
             --registry config/hkcu1_official_source_registry.json \
-            --output-dir work/hkcu1/source
+            --output-dir work/hkcu1/source \
+            --allow-partial
+      - name: Render source-level evidence
+        run: |
+          cat work/hkcu1/source/HKCU1_FETCH_DECISION.json
+          cat work/hkcu1/source/HKCU1_SOURCE_LEDGER.json
       - name: Enforce count and source gates
         run: |
           python - <<'PY'
