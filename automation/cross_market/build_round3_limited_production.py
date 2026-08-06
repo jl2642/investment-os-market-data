@@ -9,6 +9,8 @@ import json
 import os
 import time
 import urllib.request
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -125,6 +127,11 @@ def fetch_dual_route_market(market: str, symbol: str, as_of: date, fetcher: Fetc
     left, right = parsed
     if left["trade_date"] != right["trade_date"] or abs(left["close"] - right["close"]) > max(1e-8, left["close"] * 1e-8):
         raise ValueError("dual Yahoo routes diverged")
+    trade_date = date.fromisoformat(left["trade_date"])
+    if trade_date > as_of:
+        raise ValueError("future market observation")
+    if (as_of - trade_date).days > 4:
+        raise ValueError("stale market observation")
     return {
         "market": market,
         "symbol": symbol,
@@ -233,15 +240,46 @@ def plan_batches(root: Path, policy: dict[str, Any], as_of: date) -> dict[str, A
     }
 
 
-def execute_market_rows(market: str, symbols: list[str], as_of: date, fetcher: Fetcher) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+def execute_market_rows(
+    market: str,
+    symbols: list[str],
+    as_of: date,
+    fetcher: Fetcher,
+    max_workers: int = 12,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     successes: list[dict[str, Any]] = []
     failures: list[dict[str, Any]] = []
-    for symbol in symbols:
-        try:
-            successes.append(fetch_dual_route_market(market, symbol, as_of, fetcher))
-        except Exception as exc:
-            failures.append({"market": market, "symbol": symbol, "status": "DATA_GAP", "reason": str(exc)[:300]})
+    with ThreadPoolExecutor(max_workers=max(1, min(max_workers, len(symbols) or 1))) as executor:
+        futures = {executor.submit(fetch_dual_route_market, market, symbol, as_of, fetcher): symbol for symbol in symbols}
+        for future in as_completed(futures):
+            symbol = futures[future]
+            try:
+                successes.append(future.result())
+            except Exception as exc:
+                failures.append({"market": market, "symbol": symbol, "status": "DATA_GAP", "reason": str(exc)[:300]})
+    successes.sort(key=lambda row: row["symbol"])
+    failures.sort(key=lambda row: row["symbol"])
     return successes, failures
+
+
+def execute_sec_rows(rows: list[dict[str, Any]], fetcher: Fetcher, max_workers: int = 2) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    with ThreadPoolExecutor(max_workers=max(1, min(max_workers, len(rows) or 1))) as executor:
+        futures = {executor.submit(fetch_sec_metadata, row, fetcher): row for row in rows}
+        for future in as_completed(futures):
+            source = futures[future]
+            try:
+                results.append(future.result())
+            except Exception as exc:
+                results.append({
+                    "symbol": sec_symbol(source),
+                    "cik": sec_cik(source),
+                    "status": "SEC_DATA_GAP",
+                    "reason": str(exc)[:300],
+                    "data_grade": "OFFICIAL_SEC_RESEARCH_EVIDENCE",
+                })
+    results.sort(key=lambda row: (str(row.get("symbol") or ""), str(row.get("cik") or "")))
+    return results
 
 
 def load_ledger(path: Path) -> dict[str, Any]:
@@ -279,7 +317,8 @@ def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[d
         cycle["hk_buckets"].append(bucket)
         cycle["hk_attempted"] += len(hk_ok) + len(hk_fail)
         cycle["hk_success"] += len(hk_ok)
-    if bucket not in cycle["us_buckets"]:
+    new_us_bucket = bucket not in cycle["us_buckets"]
+    if new_us_bucket:
         cycle["us_buckets"].append(bucket)
         rotation = [row for row in us_ok if row["symbol"] not in benchmark_symbols]
         rotation_fail = [row for row in us_fail if row["symbol"] not in benchmark_symbols]
@@ -291,8 +330,9 @@ def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[d
         cycle["observations"]["US"][row["symbol"]] = row
         if row["symbol"] in benchmark_symbols and row["symbol"] not in cycle["us_benchmark_success_symbols"]:
             cycle["us_benchmark_success_symbols"].append(row["symbol"])
-    cycle["sec_attempted"] += len(sec_rows)
-    cycle["sec_success"] += sum(row.get("status") == "PASS_OFFICIAL_SEC_REFRESH" for row in sec_rows)
+    if new_us_bucket:
+        cycle["sec_attempted"] += len(sec_rows)
+        cycle["sec_success"] += sum(row.get("status") == "PASS_OFFICIAL_SEC_REFRESH" for row in sec_rows)
     for row in sec_rows:
         cycle["observations"]["SEC"][row.get("symbol") or row.get("cik") or "UNKNOWN"] = row
     hk_ratio = cycle["hk_success"] / cycle["hk_attempted"] if cycle["hk_attempted"] else 0.0
@@ -447,16 +487,11 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
     rotation_symbols = [row["symbol"] for row in plan["us_selected"] if row["symbol"] not in benchmark_symbols]
     us_symbols = list(dict.fromkeys(benchmark_symbols + rotation_symbols))
 
-    hk_ok, hk_fail = execute_market_rows("HK", hk_symbols, as_of, fetcher)
+    hk_ok, hk_fail = execute_market_rows("HK", hk_symbols, as_of, fetcher, max_workers=12)
     if sleep_seconds:
         time.sleep(sleep_seconds)
-    us_ok, us_fail = execute_market_rows("US", us_symbols, as_of, fetcher)
-    sec_rows = []
-    for row in plan["us_sec_selected"]:
-        try:
-            sec_rows.append(fetch_sec_metadata(row, fetcher))
-        except Exception as exc:
-            sec_rows.append({"symbol": sec_symbol(row), "cik": sec_cik(row), "status": "SEC_DATA_GAP", "reason": str(exc)[:300], "data_grade": "OFFICIAL_SEC_RESEARCH_EVIDENCE"})
+    us_ok, us_fail = execute_market_rows("US", us_symbols, as_of, fetcher, max_workers=10)
+    sec_rows = execute_sec_rows(plan["us_sec_selected"], fetcher, max_workers=2)
 
     cycle = update_cycle(ledger, as_of, plan["bucket"], hk_ok, hk_fail, us_ok, us_fail, sec_rows, benchmark_symbols, policy)
     run_id = f"ROUND3_{as_of.isoformat()}_B{plan['bucket']}_{hashlib.sha256((as_of.isoformat()+str(plan['bucket'])).encode()).hexdigest()[:10]}"
