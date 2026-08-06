@@ -1,0 +1,37 @@
+{
+  "policy_id": "ROUND2_A_SHARE_DYNAMIC_CANDIDATE_V1",
+  "schema_version": "1.0.0",
+  "screening": {
+    "admission_rank_ceiling": 30,
+    "promotion_review_rank_ceiling": 10,
+    "allowed_research_priorities": ["A_IMMEDIATE_RESEARCH", "B_SCHEDULED_RESEARCH"],
+    "allowed_investability_statuses": ["ELIGIBLE_CORE"],
+    "allowed_factor_record_quality": ["VALID"],
+    "allowed_confidence_grades": ["A", "B"]
+  },
+  "hysteresis": {
+    "minimum_consecutive_longlist_appearances": 2,
+    "dynamic_exit_absence_streak": 3,
+    "legacy_exit_review_absence_streak": 4,
+    "completed_weekly_cycles_for_production_acceptance": 3
+  },
+  "capacity": {
+    "maximum_research_queue_size": 40,
+    "minimum_research_queue_size": 25,
+    "maximum_weekly_admissions": 3,
+    "maximum_weekly_dynamic_exits": 3,
+    "maximum_admissions_per_primary_sleeve": 1
+  },
+  "authority": {
+    "automatic_candidate_routes": ["research_queue_members"],
+    "candidate_core_mutation": false,
+    "shadow_track_mutation": false,
+    "ready_for_user_decision_mutation": false,
+    "legacy_research_queue_automatic_exit": false,
+    "real_account_mutation": false,
+    "simulation_mutation": false,
+    "decision_mutation": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
