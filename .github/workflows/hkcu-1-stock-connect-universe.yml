@@ -53,32 +53,25 @@ jobs:
           pip install playwright
           playwright install --with-deps chromium
       - name: Capture official network requests
-        id: discover
         continue-on-error: true
         run: |
-          python pipeline/hkcu1_discover_official_endpoints.py \
-            --output outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json
+          python pipeline/hkcu1_discover_official_endpoints.py --output outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json
+      - name: Probe pagination and page contracts
+        if: always()
+        run: python pipeline/hkcu1_probe_endpoint_contracts.py
       - name: Render discovery summary
         if: always()
         run: |
           python - <<'PY'
           import json
-          from pathlib import Path
-          p=Path('outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json')
-          if not p.exists():
-              raise SystemExit('BLOCKED: discovery output missing')
-          d=json.loads(p.read_text(encoding='utf-8'))
-          print('overall_status=', d['overall_status'])
-          for ch in d['channels']:
-              print(ch['channel'], ch['status'], 'candidates=', ch['candidate_count'], 'qualified=', ch['qualified_candidate_count'])
-              for c in ch['candidates'][:10]:
-                  print(c['score'], c['detected_codes'], c['content_type'], c['request_url'])
+          for p in ['outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json','outputs/hkcu1/discovery/HKCU1_ENDPOINT_CONTRACT_PROBE.json']:
+              d=json.load(open(p,encoding='utf-8')); print('\n###',p); print(json.dumps(d,ensure_ascii=False,indent=2)[:30000])
           PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: hkcu1-official-endpoint-discovery
-          path: outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json
+          path: outputs/hkcu1/discovery/*.json
           if-no-files-found: error
       - name: Enforce endpoint discovery gate
         if: always()
@@ -104,19 +97,14 @@ jobs:
         run: |
           python - <<'PY'
           import json
-          p='config/hkcu1_official_source_registry.json'
-          d=json.load(open(p,encoding='utf-8'))
+          d=json.load(open('config/hkcu1_official_source_registry.json',encoding='utf-8'))
           sources=d.get('machine_readable_sources',[])
-          assert sources, 'BLOCKED: official machine-readable source endpoints are unresolved'
           required={('SSE','SH','BUY_SELL'),('SZSE','SZ','BUY_SELL')}
           actual={(x['authority'],x['channel'],x['eligibility_side']) for x in sources}
           assert required <= actual, f'BLOCKED: missing primary channel source(s): {required-actual}'
           PY
       - name: Fetch official evidence
-        run: |
-          python pipeline/hkcu1_fetch_official_lists.py \
-            --registry config/hkcu1_official_source_registry.json \
-            --output-dir work/hkcu1/source
+        run: python pipeline/hkcu1_fetch_official_lists.py --registry config/hkcu1_official_source_registry.json --output-dir work/hkcu1/source
       - name: Stop before publication without event-normalization outputs
         run: |
           test -s work/hkcu1/source/HKCU1_SOURCE_LEDGER.csv
