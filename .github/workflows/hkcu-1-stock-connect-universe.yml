@@ -60,18 +60,54 @@ jobs:
           python pipeline/hkcu1_fetch_sse_browser.py \
             --output-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
             --evidence-file work/hkcu1/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json
-      - name: First deterministic parse and SZSE official fetch
+      - name: First parse with independent SZSE bounded retry
         run: |
-          python pipeline/hkcu1_fetch_official_lists.py \
-            --registry config/hkcu1_official_source_registry.json \
-            --output-dir work/hkcu1/replay_1 \
-            --sse-raw-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls
-      - name: Second deterministic parse of the same SSE raw file
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            rm -rf work/hkcu1/replay_1
+            echo "SZSE replay_1 attempt ${attempt}/6; SSE raw file reused"
+            python pipeline/hkcu1_fetch_official_lists.py \
+              --registry config/hkcu1_official_source_registry.json \
+              --output-dir work/hkcu1/replay_1 \
+              --sse-raw-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
+              --allow-partial
+            if python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
+          ok=(d['status']=='PASS' and d['source_rows'].get('SSE_SH_SOUTHBOUND_BUY_LIST')==651 and d['source_rows'].get('SZSE_SZ_SOUTHBOUND_BUY_LIST')==651)
+          raise SystemExit(0 if ok else 1)
+          PY
+            then
+              passed=1
+              break
+            fi
+            if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
+          done
+          test "$passed" -eq 1
+      - name: Second deterministic parse with independent SZSE bounded retry
         run: |
-          python pipeline/hkcu1_fetch_official_lists.py \
-            --registry config/hkcu1_official_source_registry.json \
-            --output-dir work/hkcu1/replay_2 \
-            --sse-raw-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            rm -rf work/hkcu1/replay_2
+            echo "SZSE replay_2 attempt ${attempt}/6; same SSE raw file reused"
+            python pipeline/hkcu1_fetch_official_lists.py \
+              --registry config/hkcu1_official_source_registry.json \
+              --output-dir work/hkcu1/replay_2 \
+              --sse-raw-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
+              --allow-partial
+            if python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
+          ok=(d['status']=='PASS' and d['source_rows'].get('SSE_SH_SOUTHBOUND_BUY_LIST')==651 and d['source_rows'].get('SZSE_SZ_SOUTHBOUND_BUY_LIST')==651)
+          raise SystemExit(0 if ok else 1)
+          PY
+            then
+              passed=1
+              break
+            fi
+            if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
+          done
+          test "$passed" -eq 1
       - name: Enforce counts, raw integrity and deterministic normalized output
         run: |
           python - <<'PY'
@@ -84,7 +120,8 @@ jobs:
           browser=json.loads((root/'browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json').read_text(encoding='utf-8'))
           assert browser['status']=='PASS', browser
           raw=(root/'browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls').read_bytes()
-          assert hashlib.sha256(raw).hexdigest()==browser['sha256'], browser
+          raw_hash=hashlib.sha256(raw).hexdigest()
+          assert raw_hash==browser['sha256'], browser
 
           frames=[]
           ledgers=[]
@@ -108,20 +145,20 @@ jobs:
               replay_hashes[f'replay_{idx}']={channel:digest(codes(df,channel)) for channel in ('SH','SZ')}
           assert replay_hashes['replay_1']==replay_hashes['replay_2'], replay_hashes
 
-          sse_hashes=[]
           for ledger in ledgers:
               sse=next(row for row in ledger if row['source_id']=='SSE_SH_SOUTHBOUND_BUY_LIST')
-              sse_hashes.append(sse['sha256'])
-          assert sse_hashes==[browser['sha256'],browser['sha256']], sse_hashes
+              assert sse['sha256']==raw_hash, sse
 
           sh=set(codes(frames[0],'SH')); sz=set(codes(frames[0],'SZ'))
           result={
               'as_of_date':'2026-08-06',
               'status':'PASS',
               'sse_acquisition_mode':'BROWSER_SESSION_OFFICIAL_FETCH',
+              'same_sse_raw_reused':True,
               'same_raw_double_parse':True,
+              'szse_independent_bounded_retry':True,
               'deterministic_normalized_output':True,
-              'raw_sha256':browser['sha256'],
+              'raw_sha256':raw_hash,
               'normalized_hashes':replay_hashes,
               'sh_count':len(sh),
               'sz_count':len(sz),
@@ -132,8 +169,7 @@ jobs:
               'sz_only_codes':sorted(sz-sh),
               'trade_authority':'NONE'
           }
-          (root/'HKCU1_R2B_R1_BROWSER_AND_DETERMINISM_DECISION.json').write_text(
-              json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+          (root/'HKCU1_R2B_R1_R1_DETERMINISM_DECISION.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
           print(json.dumps(result,ensure_ascii=False,indent=2))
           PY
       - name: Render evidence
@@ -143,11 +179,12 @@ jobs:
           test ! -f work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json || cat work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json
           test ! -f work/hkcu1/replay_1/HKCU1_SOURCE_LEDGER.json || cat work/hkcu1/replay_1/HKCU1_SOURCE_LEDGER.json
           test ! -f work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json || cat work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json
-          test ! -f work/hkcu1/HKCU1_R2B_R1_BROWSER_AND_DETERMINISM_DECISION.json || cat work/hkcu1/HKCU1_R2B_R1_BROWSER_AND_DETERMINISM_DECISION.json
+          test ! -f work/hkcu1/replay_2/HKCU1_SOURCE_LEDGER.json || cat work/hkcu1/replay_2/HKCU1_SOURCE_LEDGER.json
+          test ! -f work/hkcu1/HKCU1_R2B_R1_R1_DETERMINISM_DECISION.json || cat work/hkcu1/HKCU1_R2B_R1_R1_DETERMINISM_DECISION.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: hkcu1-r2b-r1-browser-determinism-evidence
+          name: hkcu1-r2b-r1-r1-determinism-evidence
           path: work/hkcu1/**
           if-no-files-found: error
 
@@ -181,5 +218,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Stop before publication without sell-only and HKEX cross-check closure
         run: |
-          echo 'Buy-list acquisition passed only after R2B-R1. Sell-only ingestion and HKEX cross-check remain mandatory.'
+          echo 'Buy-list acquisition passed only after R2B-R1-R1. Sell-only ingestion and HKEX cross-check remain mandatory.'
           exit 2
