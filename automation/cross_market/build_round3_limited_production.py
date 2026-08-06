@@ -23,6 +23,7 @@ US_MARKET_INITIAL = Path("outputs/fmdl6x2/current/market_reference/FMDL6X2D_INIT
 US_MARKET_QUEUE = Path("outputs/fmdl6x2/current/market_reference/FMDL6X2D_BACKFILL_QUEUE.jsonl.gz")
 US_SEC_INITIAL = Path("evidence/fmdl6x2e/2026-07-22/FMDL6X2E_FILINGS.csv")
 US_SEC_QUEUE = Path("outputs/fmdl6x2/current/sec_filings_facts/FMDL6X2E_BACKFILL_QUEUE.jsonl.gz")
+US_IDENTITY_LINEAGE = Path("outputs/fmdl6x2/current/identity/FMDL6X2B_IDENTITY_LINEAGE.jsonl.gz")
 OPS_ROOT = Path("investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS")
 EVIDENCE_ROOT = Path("investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED")
 LEDGER_PATH = OPS_ROOT / "CROSS_MARKET_LIMITED_LEDGER_CURRENT.json"
@@ -148,7 +149,7 @@ def fetch_dual_route_market(market: str, symbol: str, as_of: date, fetcher: Fetc
 
 
 def sec_cik(row: dict[str, Any]) -> str:
-    raw = first_value(row, ("cik", "cik10", "cik_str", "issuer_cik", "sec_cik", "CIK"))
+    raw = first_value(row, ("cik", "cik10", "cik_str", "issuer_cik", "sec_cik", "sec_cik10", "CIK"))
     digits = "".join(ch for ch in raw if ch.isdigit())
     return digits.zfill(10) if digits else ""
 
@@ -173,6 +174,33 @@ def market_symbol(row: dict[str, Any]) -> str:
                 if value:
                     return value.upper()
     return ""
+
+
+def identity_preference(row: dict[str, Any]) -> tuple[Any, ...]:
+    return (
+        0 if str(row.get("row_disposition") or "") == "INCLUDED" else 1,
+        0 if not bool(row.get("test_issue")) else 1,
+        0 if str(row.get("listing_lifecycle_status") or "") == "ACTIVE_LISTED_OBSERVED" else 1,
+        0 if str(row.get("instrument_type") or "") == "COMMON_EQUITY" else 1,
+        str(row.get("venue") or ""),
+        sec_symbol(row),
+        first_value(row, ("canonical_security_id", "security_id")),
+    )
+
+
+def build_identity_maps(rows: list[dict[str, Any]]) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
+    issuer_candidates: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    symbol_candidates: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        issuer_id = first_value(row, ("canonical_issuer_id", "issuer_id"))
+        symbol = sec_symbol(row)
+        if issuer_id and symbol:
+            issuer_candidates[issuer_id].append(row)
+        if symbol:
+            symbol_candidates[symbol].append(row)
+    issuer_map = {key: min(values, key=identity_preference) for key, values in issuer_candidates.items()}
+    symbol_map = {key: min(values, key=identity_preference) for key, values in symbol_candidates.items()}
+    return issuer_map, symbol_map
 
 
 def fetch_sec_metadata(row: dict[str, Any], fetcher: Fetcher) -> dict[str, Any]:
@@ -238,14 +266,21 @@ def plan_batches(root: Path, policy: dict[str, Any], as_of: date) -> dict[str, A
     us_size = int(policy["united_states"]["daily_rotation_batch_size"])
     us_selected = circular_slice(bucket_rows, us_size, week_index * us_size)
 
+    identity_rows = read_jsonl_gz(root / US_IDENTITY_LINEAGE)
+    identity_by_issuer, identity_by_symbol = build_identity_maps(identity_rows)
     sec_sources = read_csv(root / US_SEC_INITIAL) + read_jsonl_gz(root / US_SEC_QUEUE)
     sec_pool: dict[str, dict[str, Any]] = {}
     for row in sec_sources:
-        symbol = sec_symbol(row)
-        cik = sec_cik(row)
-        key = first_value(row, ("canonical_issuer_id", "issuer_id")) or cik or symbol
-        if key and (symbol or cik):
-            sec_pool[key] = {**row, "symbol": symbol, "cik": cik, "_issuer_key": key}
+        source_issuer_id = first_value(row, ("canonical_issuer_id", "issuer_id"))
+        source_symbol = sec_symbol(row)
+        identity = identity_by_issuer.get(source_issuer_id) or identity_by_symbol.get(source_symbol) or {}
+        enriched = {**identity, **row}
+        issuer_id = source_issuer_id or first_value(enriched, ("canonical_issuer_id", "issuer_id"))
+        symbol = sec_symbol(enriched)
+        cik = sec_cik(enriched)
+        key = issuer_id or cik or symbol
+        if key and symbol:
+            sec_pool[key] = {**enriched, "canonical_issuer_id": issuer_id, "symbol": symbol, "cik": cik, "_issuer_key": key}
     normalized_sec = list(sec_pool.values())
     sec_bucket = sorted((row for row in normalized_sec if stable_bucket(row["_issuer_key"], 5) == bucket), key=lambda row: row["_issuer_key"])
     sec_size = int(policy["united_states"]["daily_sec_batch_size"])
@@ -271,13 +306,17 @@ def build_sec_retrieval_queue(rows: list[dict[str, Any]], as_of: date) -> list[d
         symbol = sec_symbol(row)
         cik = sec_cik(row)
         issuer_id = first_value(row, ("canonical_issuer_id", "issuer_id"))
+        cik_status = "RESOLVED_FROM_ACCEPTED_EVIDENCE" if cik else "PENDING_OFFICIAL_SEC_TICKER_MAP_RESOLUTION"
+        required_sources = ["SEC_SUBMISSIONS", "SEC_COMPANYFACTS"] if cik else ["SEC_COMPANY_TICKERS", "SEC_SUBMISSIONS", "SEC_COMPANYFACTS"]
         queue.append({
             "symbol": symbol,
             "cik": cik,
             "canonical_issuer_id": issuer_id,
             "as_of_date": as_of.isoformat(),
             "status": "PENDING_CHATGPT_WEB_OFFICIAL_RETRIEVAL",
-            "required_sources": ["SEC_SUBMISSIONS", "SEC_COMPANYFACTS"],
+            "cik_resolution_status": cik_status,
+            "official_resolution_route": "CIK_DIRECT" if cik else "SYMBOL_TO_SEC_OFFICIAL_TICKER_MAP_TO_CIK",
+            "required_sources": required_sources,
             "data_grade_required": "OFFICIAL_SEC_RESEARCH_EVIDENCE",
             "candidate_pool_mutation_authorized": False,
             "trade_authority": "NONE",
@@ -603,6 +642,7 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
             str(US_MARKET_QUEUE): sha256_file(root / US_MARKET_QUEUE),
             str(US_SEC_INITIAL): sha256_file(root / US_SEC_INITIAL),
             str(US_SEC_QUEUE): sha256_file(root / US_SEC_QUEUE),
+            str(US_IDENTITY_LINEAGE): sha256_file(root / US_IDENTITY_LINEAGE),
         },
         "output_sha256": {
             str(LEDGER_PATH): sha256_file(root / LEDGER_PATH),

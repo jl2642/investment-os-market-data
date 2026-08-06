@@ -74,9 +74,11 @@ def install(root: Path) -> None:
         writer.writeheader()
         for idx in range(2):
             writer.writerow({"symbol": f"T{idx:03d}", "cik10": str(1000000 + idx)})
-    sec_rows = [{"symbol": f"T{idx:03d}", "canonical_issuer_id": f"USISS-{idx:03d}", "cik": str(1000000 + idx)} for idx in range(2, 30)]
+    identity_rows = [{"canonical_issuer_id": f"USISS-{idx:03d}", "canonical_security_id": f"USSEC-{idx:03d}", "symbol": f"T{idx:03d}", "venue": "XNAS", "row_disposition": "INCLUDED", "listing_lifecycle_status": "ACTIVE_LISTED_OBSERVED", "instrument_type": "COMMON_EQUITY", "test_issue": False, "sec_cik10": None} for idx in range(30)]
+    sec_rows = [{"canonical_issuer_id": f"USISS-{idx:03d}", "status": "PENDING"} for idx in range(2, 30)]
     write_jsonl_gz(root / "outputs/fmdl6x2/current/market_reference/FMDL6X2D_BACKFILL_QUEUE.jsonl.gz", market_rows)
     write_jsonl_gz(root / "outputs/fmdl6x2/current/sec_filings_facts/FMDL6X2E_BACKFILL_QUEUE.jsonl.gz", sec_rows)
+    write_jsonl_gz(root / "outputs/fmdl6x2/current/identity/FMDL6X2B_IDENTITY_LINEAGE.jsonl.gz", identity_rows)
 
 
 def fake_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
@@ -101,6 +103,8 @@ def test_deterministic_partition_and_bounded_us_rotation(tmp_path: Path) -> None
         assert plan["us_rotation_pool_count"] == 100
         assert len(plan["us_selected"]) <= 4
         assert all(row["symbol"] for row in plan["us_selected"])
+        assert plan["us_sec_pool_count"] == 30
+        assert all(row["symbol"] for row in plan["us_sec_selected"])
         assert plan["bucket"] == offset
     assert len(covered) == 10
     assert stable_bucket("abc", 5) == stable_bucket("abc", 5)
@@ -123,6 +127,10 @@ def test_five_day_cycle_creates_research_only_proposal(tmp_path: Path) -> None:
     assert run_current["operating_state"] == "ROUND3_OPERATING_OBSERVATION"
     assert run_current["united_states"]["sec_queued"] == 2
     assert run_current["united_states"]["sec_official_success_claimed"] is False
+    run_id = run_current["run_id"]
+    queue_payload = json.loads((tmp_path / f"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/{run_id}/ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json").read_text())
+    assert all(row["symbol"] for row in queue_payload["queue"])
+    assert all(row["official_resolution_route"] in {"CIK_DIRECT", "SYMBOL_TO_SEC_OFFICIAL_TICKER_MAP_TO_CIK"} for row in queue_payload["queue"])
     assert validate(run_current, proposal, ledger, policy())["status"] == "ROUND3_OUTPUTS_VALID"
 
 
