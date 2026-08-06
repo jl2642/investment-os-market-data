@@ -1,0 +1,305 @@
+name: WP3-R Dynamic Candidate Loop
+run-name: "Round 2 full-market screening to governed Candidate delta"
+
+on:
+  workflow_run:
+    workflows: ["FMDL Daily A-share Governed Production"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      force_weekly:
+        description: "Run the weekly dynamic Candidate loop against current main screening inputs"
+        required: false
+        default: false
+        type: boolean
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/wp3_r_dynamic_candidate_loop.yml"
+      - "automation/wp3_r/build_candidate_dynamic_loop.py"
+      - "automation/wp3_r/validate_candidate_dynamic_pr.py"
+      - "automation/wp3_r/candidate_dynamic_policy.json"
+      - "automation/wp3_r/tests/test_candidate_dynamic_loop.py"
+      - "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LEDGER_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_CHANGE_PROPOSAL_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS/**"
+      - "docs/ROUND2_DYNAMIC_CANDIDATE_LOOP.md"
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+concurrency:
+  group: wp3-r-dynamic-candidate-${{ github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deterministic-validation:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout selected ref
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install test runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest
+
+      - name: Compile and test dynamic Candidate engine
+        run: |
+          python -m py_compile \
+            automation/wp3_r/build_candidate_dynamic_loop.py \
+            automation/wp3_r/validate_candidate_dynamic_pr.py
+          pytest -q automation/wp3_r/tests/test_candidate_dynamic_loop.py
+
+  validate-generated-pr:
+    if: github.event_name == 'pull_request'
+    needs: deterministic-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Enforce Candidate-only governed scope
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+
+          allowed_exact = {
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LEDGER_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_CHANGE_PROPOSAL_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json',
+          }
+          allowed_prefixes = ('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS/',)
+          changed = subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines()
+          generated = [path for path in changed if path.startswith('investment_os_runtime/')]
+          forbidden = [path for path in generated if path not in allowed_exact and not path.startswith(allowed_prefixes)]
+          if forbidden:
+              raise SystemExit('ROUND2_GENERATED_SCOPE_VIOLATION:' + ','.join(forbidden))
+          protected = (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/',
+              'investment_os_runtime/30_STATE_CURRENT/80_GOVERNANCE/',
+          )
+          leaked = [path for path in changed if path.startswith(protected)]
+          if leaked:
+              raise SystemExit('ROUND2_ECONOMIC_SCOPE_LEAK:' + ','.join(leaked))
+          print({'generated_paths': generated, 'orders': 0, 'trade_authority': 'NONE'})
+          PY
+
+      - name: Validate proposal PR or Candidate application PR
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          candidate=investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
+          proposal=investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_CHANGE_PROPOSAL_CURRENT.json
+          loop=investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json
+          if [[ ! -f "$proposal" || ! -f "$loop" ]]; then
+            echo "Engineering PR: no generated Candidate proposal is present yet."
+            exit 0
+          fi
+          git show origin/main:"$candidate" > /tmp/CANDIDATE_BASE.json
+          proposal_id="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json').read_text(encoding='utf-8'))
+          print(data['proposal_id'])
+          PY
+          )"
+          proposed="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS/$proposal_id/CANDIDATE_CURRENT_PROPOSED.json"
+          test -f "$proposed"
+          if git diff --quiet origin/main...HEAD -- "$candidate"; then
+            git diff --exit-code origin/main...HEAD -- "$candidate"
+            python automation/wp3_r/validate_candidate_dynamic_pr.py \
+              --base /tmp/CANDIDATE_BASE.json \
+              --head "$proposed"
+            echo "ROUND2_PR_TYPE=PROPOSAL_ONLY_CANONICAL_CANDIDATE_UNCHANGED"
+          else
+            python automation/wp3_r/validate_candidate_dynamic_pr.py \
+              --base /tmp/CANDIDATE_BASE.json \
+              --head "$candidate"
+            cmp -s "$candidate" "$proposed"
+            echo "ROUND2_PR_TYPE=CANDIDATE_APPLICATION_ONLY"
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          proposal = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_CHANGE_PROPOSAL_CURRENT.json').read_text(encoding='utf-8'))
+          loop = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json').read_text(encoding='utf-8'))
+          assert proposal['controls']['candidate_core_mutations'] == 0
+          assert proposal['controls']['shadow_track_mutations'] == 0
+          assert proposal['controls']['ready_for_user_decision_mutations'] == 0
+          assert proposal['controls']['orders'] == 0
+          assert proposal['controls']['trade_authority'] == 'NONE'
+          assert loop['orders'] == 0
+          assert loop['trade_authority'] == 'NONE'
+          assert loop['canonical_authority'] == 'MERGE_OF_GOVERNED_PR_ONLY'
+          PY
+
+  operate:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && (github.event.workflow_run.event == 'schedule' || github.event.workflow_run.event == 'workflow_dispatch'))
+    needs: deterministic-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Canonical main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Download the exact FMDL transaction artifact
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: fmdl-daily-${{ github.event.workflow_run.id }}-a${{ github.event.workflow_run.run_attempt }}
+          path: .
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Freeze Canonical Candidate before proposal build
+        run: |
+          cp investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json /tmp/CANDIDATE_BASE.json
+
+      - name: Run weekly screening-to-Candidate loop
+        id: loop
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          args=()
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.force_weekly }}" == "true" ]]; then
+            args+=(--force-weekly)
+          fi
+          result="$(python automation/wp3_r/build_candidate_dynamic_loop.py "${args[@]}")"
+          echo "$result"
+          python - "$result" <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          data = json.loads(sys.argv[1])
+          print(f"due={'true' if data.get('due') else 'false'}")
+          print(f"status={data['status']}")
+          print(f"proposal_id={data.get('proposal_id', '')}")
+          PY
+
+      - name: Materialize proposed Candidate snapshot and restore Canonical
+        if: steps.loop.outputs.due == 'true'
+        shell: bash
+        env:
+          PROPOSAL_ID: ${{ steps.loop.outputs.proposal_id }}
+        run: |
+          set -Eeuo pipefail
+          candidate=investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
+          proposal_dir="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS/$PROPOSAL_ID"
+          proposed="$proposal_dir/CANDIDATE_CURRENT_PROPOSED.json"
+          cp "$candidate" "$proposed"
+          cp /tmp/CANDIDATE_BASE.json "$candidate"
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          proposal_id = os.environ['PROPOSAL_ID']
+          root = Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS') / proposal_id
+          proposed = root / 'CANDIDATE_CURRENT_PROPOSED.json'
+          manifest_path = root / 'CANDIDATE_DYNAMIC_MANIFEST.json'
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          manifest['candidate_current_proposed_path'] = str(proposed)
+          manifest['candidate_current_proposed_sha256'] = hashlib.sha256(proposed.read_bytes()).hexdigest()
+          manifest['canonical_candidate_restored_before_publication'] = True
+          manifest['proposal_then_application_pr_required'] = True
+          manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          PY
+          git diff --exit-code HEAD -- "$candidate"
+
+      - name: Validate proposed Candidate delta against Canonical main
+        if: steps.loop.outputs.due == 'true'
+        shell: bash
+        env:
+          PROPOSAL_ID: ${{ steps.loop.outputs.proposal_id }}
+        run: |
+          set -Eeuo pipefail
+          proposed="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS/$PROPOSAL_ID/CANDIDATE_CURRENT_PROPOSED.json"
+          python automation/wp3_r/validate_candidate_dynamic_pr.py \
+            --base /tmp/CANDIDATE_BASE.json \
+            --head "$proposed"
+
+      - name: Upload immutable Candidate proposal evidence
+        if: steps.loop.outputs.due == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidate-dynamic-${{ github.run_id }}-a${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LEDGER_CURRENT.json
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_CHANGE_PROPOSAL_CURRENT.json
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS/
+
+      - name: Publish proposal to unique governed Candidate branch
+        if: steps.loop.outputs.due == 'true'
+        shell: bash
+        env:
+          RESULT_BRANCH: automation/candidate-dynamic-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LEDGER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_CHANGE_PROPOSAL_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS
+          if git diff --cached --quiet; then
+            echo "No new governed Candidate proposal to publish."
+            exit 0
+          fi
+          git commit -m "candidate: stage governed full-market dynamic proposal"
+          git push origin "HEAD:$RESULT_BRANCH"
+          {
+            echo "### Round 2 governed handoff"
+            echo "- result_branch: \`$RESULT_BRANCH\`"
+            echo "- proposal_id: \`${{ steps.loop.outputs.proposal_id }}\`"
+            echo "- proposal_branch_candidate_membership_mutations: 0"
+            echo "- proposed_application_scope: Research Queue only"
+            echo "- Core / Shadow / Ready proposed mutations: 0 / 0 / 0"
+            echo "- direct_main_push: disabled"
+            echo "- next_gate: proposal Draft PR, review, merge, then Candidate-only application PR"
+            echo "- orders: 0"
+            echo "- trade_authority: NONE"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record no-op or observation status
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## WP3-R Dynamic Candidate Loop
+          - status: ${{ steps.loop.outputs.status }}
+          - Runs only on a completed weekly screening watermark unless manually forced.
+          - Two consecutive Longlist appearances are required before Research Queue admission.
+          - Only dynamically admitted Research Queue names can be proposed for automatic removal after the absence threshold.
+          - Legacy Research Queue exits and all Core, Shadow and Ready changes remain review-only.
+          - The production branch carries a proposal and proposed Candidate snapshot; Canonical Candidate remains unchanged until a separate governed application PR is merged.
+          - orders: 0
+          - trade_authority: NONE
+          EOF
