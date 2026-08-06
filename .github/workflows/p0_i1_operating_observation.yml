@@ -130,6 +130,11 @@ jobs:
         shell: bash
         run: |
           set +e
+          if [[ "${P0_I1_UPSTREAM_BRANCH_MISSING:-false}" == "true" ]]; then
+            echo "Governed upstream result branch is missing; normal observation is not allowed to read stale main inputs." > /tmp/p0_i1_build.log
+            cat /tmp/p0_i1_build.log
+            exit 2
+          fi
           python -m py_compile automation/p0_i1_operating_observation/observe.py
           python automation/p0_i1_operating_observation/observe.py build \
             --repo-root . \
@@ -207,7 +212,7 @@ jobs:
           PY
 
       - name: Upload immutable observation evidence
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && env.P0_I1_OUTPUT_ROOT == '.'
         uses: actions/upload-artifact@v4
         with:
           name: p0-i1-observation-${{ github.event.workflow_run.id || github.run_id }}-a${{ github.event.workflow_run.run_attempt || github.run_attempt }}
