@@ -1,0 +1,84 @@
+{
+  "program_id": "HKCU-1",
+  "contract_version": "1.0.0",
+  "objective": "Build a point-in-time, official-source-backed Hong Kong Stock Connect buy-eligible research universe from accepted FMDL Hong Kong data.",
+  "authority": "STOCK_CONNECT_ELIGIBILITY_AND_RESEARCH_UNIVERSE_ONLY",
+  "trade_authority": "NONE",
+  "source_priority": [
+    "SSE_SOUTHBOUND_OFFICIAL",
+    "SZSE_SOUTHBOUND_OFFICIAL",
+    "HKEX_STOCK_CONNECT_CROSS_CHECK"
+  ],
+  "accepted_internal_inputs": [
+    "outputs/fmdl5c/current/FMDL5C_DECISION.json",
+    "outputs/fmdl5d/current/FMDL5D_DECISION.json",
+    "outputs/fmdl5e/current/FMDL5E_SCREENING_UNIVERSE.csv",
+    "outputs/fmdl5e/current/FMDL5E_RESEARCH_LONGLIST.csv"
+  ],
+  "eligibility_states": [
+    "BUY_ELIGIBLE_BOTH",
+    "BUY_ELIGIBLE_SH_ONLY",
+    "BUY_ELIGIBLE_SZ_ONLY",
+    "SELL_ONLY",
+    "NOT_ELIGIBLE",
+    "UNKNOWN_BLOCKED"
+  ],
+  "investable_gate": {
+    "require_southbound_buy_eligible": true,
+    "allowed_fmdl5e_investability_status": [
+      "ELIGIBLE_CORE",
+      "ELIGIBLE_WATCH"
+    ],
+    "allowed_security_types": [
+      "COMMON_EQUITY"
+    ],
+    "minimum_avg_turnover_hkd_20d": 20000000,
+    "minimum_active_trade_ratio_60d": 0.9,
+    "maximum_zero_volume_days_20d": 2,
+    "require_latest_valid_price": true,
+    "require_decision_grade_financials_by_default": true,
+    "allow_research_exception_profiles": [
+      "PRE_PROFIT_OR_NEGATIVE_EARNINGS",
+      "CHAPTER_18A",
+      "RECENT_LISTING"
+    ],
+    "unknown_eligibility_policy": "FAIL_CLOSED",
+    "sell_only_policy": "EXCLUDE_FROM_NEW_POSITION_UNIVERSE"
+  },
+  "freshness": {
+    "maximum_market_age_hk_trading_days": 5,
+    "official_list_check_frequency": "EACH_SOUTHBOUND_TRADING_DAY",
+    "official_full_rebuild_frequency": "WEEKLY",
+    "force_rebuild_events": [
+      "OFFICIAL_LIST_ADJUSTMENT",
+      "HANG_SENG_COMPOSITE_REBALANCE",
+      "A_H_NEW_LISTING",
+      "PRICE_STABILIZATION_END",
+      "DELISTING_OR_SELL_ONLY_CHANGE"
+    ]
+  },
+  "required_outputs": [
+    "HKCU1_STOCK_CONNECT_ELIGIBILITY.csv",
+    "HKCU1_INVESTABLE_UNIVERSE.csv",
+    "HKCU1_EXCLUSIONS.csv",
+    "HKCU1_SOURCE_LEDGER.csv",
+    "HKCU1_QUALITY_REPORT.json",
+    "HKCU1_DECISION.json",
+    "HKCU1_MANIFEST.json"
+  ],
+  "zero_tolerance_gates": [
+    "ZERO_DUPLICATE_SECURITY_EFFECTIVE_INTERVAL",
+    "ZERO_BUY_ELIGIBLE_WITHOUT_OFFICIAL_SOURCE",
+    "ZERO_SOURCE_CONFLICT_SILENT_RESOLUTION",
+    "ZERO_SELL_ONLY_IN_INVESTABLE_UNIVERSE",
+    "ZERO_NOT_ELIGIBLE_IN_INVESTABLE_UNIVERSE",
+    "ZERO_UNKNOWN_BLOCKED_IN_INVESTABLE_UNIVERSE",
+    "ZERO_FUTURE_EFFECTIVE_ELIGIBILITY_USE",
+    "ZERO_FUTURE_MARKET_OR_FINANCIAL_USE",
+    "ZERO_CANDIDATE_POOL_MUTATION",
+    "ZERO_SIMULATION_MUTATION",
+    "ZERO_REAL_ACCOUNT_MUTATION",
+    "ZERO_ORDER_GENERATION"
+  ],
+  "next_gate": "HKCU-2_HONG_KONG_GOVERNANCE_AH_AND_RESEARCH_PRIORITIZATION"
+}
