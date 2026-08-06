@@ -54,8 +54,56 @@ jobs:
           python -m pip install --retries 5 --timeout 30 -r automation/wp3_r/requirements.lock
           python -m pip install --retries 5 --timeout 30 -r automation/wp3_3_4/requirements.lock
 
-      - name: Refresh Core ledger and all Candidate operating Current products
+      - name: Resolve completed Candidate market session
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.validation_only != true }}
+        id: session
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          from datetime import date, datetime, time
+          from zoneinfo import ZoneInfo
+
+          from automation.wp3_r.refresh_candidate_price_ledger import BENCHMARK_ID, fetch_quotes
+
+          cn = ZoneInfo('Asia/Shanghai')
+          now = datetime.now(cn)
+          quotes = fetch_quotes([BENCHMARK_ID])
+          if len(quotes) != 1:
+              raise SystemExit('BENCHMARK_SESSION_QUOTE_NOT_UNIQUE')
+          quote = quotes[0]
+          trade_date = date.fromisoformat(str(quote['trade_date']))
+          quote_time = time.fromisoformat(str(quote['quote_time']))
+          if trade_date > now.date():
+              raise SystemExit(f'FUTURE_BENCHMARK_SESSION:{trade_date}:{now.date()}')
+          completed = trade_date < now.date() or (
+              trade_date == now.date()
+              and quote_time >= time(15, 0)
+              and now.time() >= time(15, 5)
+          )
+          print(f"completed={'true' if completed else 'false'}")
+          print(f"session_date={trade_date.isoformat()}")
+          print(f"quote_time={quote_time.isoformat()}")
+          print(f"checked_at_cn={now.isoformat()}")
+          print(f"classification={'COMPLETED_SESSION' if completed else 'INCOMPLETE_CURRENT_SESSION'}")
+          PY
+
+      - name: Record incomplete-session no-op
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.validation_only != true) && steps.session.outputs.completed != 'true' }}
+        run: |
+          test -z "$(git status --porcelain)"
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## WP3-R Candidate Operations No-op
+          - Benchmark session: ${{ steps.session.outputs.session_date }}
+          - Benchmark quote time: ${{ steps.session.outputs.quote_time }} Asia/Shanghai
+          - Classification: ${{ steps.session.outputs.classification }}
+          - Candidate Current was not rebuilt or published before the completed-session gate.
+          - Candidate membership, portfolios and orders remained unchanged.
+          - trade_authority: NONE
+          EOF
+
+      - name: Refresh Core ledger and all Candidate operating Current products
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.validation_only != true) && steps.session.outputs.completed == 'true' }}
         run: |
           AS_OF="$(date -u +%F)"
           python automation/wp3_r/refresh_candidate_price_ledger.py --repo-root .
@@ -63,7 +111,7 @@ jobs:
           python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode monthly --as-of "$AS_OF"
 
       - name: Evaluate financial-report watermark
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.validation_only != true }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.validation_only != true) && steps.session.outputs.completed == 'true' }}
         id: gate
         shell: bash
         run: |
@@ -81,7 +129,7 @@ jobs:
           PY
 
       - name: Build governed full-market rescreen proposal when a new report watermark exists
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.validation_only != true) && steps.gate.outputs.run_rescreen == 'true' }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.validation_only != true) && steps.session.outputs.completed == 'true' && steps.gate.outputs.run_rescreen == 'true' }}
         run: |
           AS_OF="$(date -u +%F)"
           python automation/wp3_3_4/build_milestone_v4.py \
@@ -95,14 +143,15 @@ jobs:
             --proposal-dir "${{ steps.gate.outputs.proposal_dir }}"
 
       - name: Finalize refreshed products and validate recovery boundary
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.validation_only != true }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.validation_only != true) && steps.session.outputs.completed == 'true' }}
         run: |
           AS_OF="$(date -u +%F)"
           python automation/wp3_r/build_candidate_cadence.py --repo-root . --mode finalize-acceptance --as-of "$AS_OF"
           python - <<'PY'
           import json
-          from datetime import date
+          from datetime import date, datetime, time
           from pathlib import Path
+          from zoneinfo import ZoneInfo
 
           root = Path('.')
           candidate = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json').read_text(encoding='utf-8'))
@@ -114,6 +163,9 @@ jobs:
           outcome = json.loads((root / 'investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json').read_text(encoding='utf-8'))
 
           session = date.fromisoformat(weekly['as_of_date'])
+          generated_cn = datetime.fromisoformat(market_run['generated_at']).astimezone(ZoneInfo('Asia/Shanghai'))
+          if session == generated_cn.date():
+              assert generated_cn.time() >= time(15, 5), (session, generated_cn.isoformat())
           assert candidate['counts']['candidate_core'] == 2
           assert candidate['counts']['research_queue'] == 33
           assert candidate['counts']['shadow_track'] == 38
@@ -153,8 +205,9 @@ jobs:
         run: |
           python - <<'PY'
           import json
-          from datetime import date
+          from datetime import date, datetime, time
           from pathlib import Path
+          from zoneinfo import ZoneInfo
 
           root = Path('.')
           load = lambda path: json.loads((root / path).read_text(encoding='utf-8'))
@@ -169,6 +222,9 @@ jobs:
 
           session = date.fromisoformat(weekly['as_of_date'])
           quarterly_date = date.fromisoformat(quarterly['as_of_date'])
+          generated_cn = datetime.fromisoformat(market_run['generated_at']).astimezone(ZoneInfo('Asia/Shanghai'))
+          if session == generated_cn.date():
+              assert generated_cn.time() >= time(15, 5), (session, generated_cn.isoformat())
           assert candidate['counts']['candidate_core'] == 2
           assert candidate['counts']['research_queue'] == 33
           assert candidate['counts']['shadow_track'] == 38
@@ -233,10 +289,10 @@ jobs:
           git diff --exit-code origin/main -- investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
 
       - name: Publish recovered Candidate operating Current products
-        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && inputs.validation_only != true }}
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && inputs.validation_only != true && steps.session.outputs.completed == 'true' }}
         run: |
           bash automation/wp3_r/publish_current_safely.sh \
-            "WP3-R recover Candidate operating Current through latest market close" \
+            "WP3-R recover Candidate operating Current through latest completed market close" \
             investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER.jsonl \
             investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_PRICE_LEDGER_RUN_CURRENT.json \
             investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/CANDIDATE_OUTCOME_CURRENT.json \
@@ -250,7 +306,7 @@ jobs:
             "${{ steps.gate.outputs.proposal_dir }}"
 
       - name: Dispatch governed Candidate Current promotion
-        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && inputs.validation_only != true }}
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && inputs.validation_only != true && steps.session.outputs.completed == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -262,8 +318,10 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP3-R Candidate Operations Limited Recovery
-          - Live refresh mode rebuilds the Core ledger, dated 73-name market screen, monthly review and report-watermark gate.
-          - Frozen validation mode verifies the exact generated Head without reacquiring market data.
+          - Live refresh first proves that the provider date/time represents a completed China A-share session.
+          - Pre-close or opening-period runs finish as clean no-ops and cannot publish intraday data as market-close Current.
+          - Completed-session mode rebuilds the Core ledger, dated 73-name market screen, monthly review and report-watermark gate.
+          - Frozen validation verifies the exact generated Head without reacquiring market data and rejects same-day snapshots generated before 15:05 Asia/Shanghai.
           - Generated products publish only to the rolling automation branch and enter protected main through a governed PR.
           - Candidate membership, Research Objects, portfolios and orders remain unchanged.
           - trade_authority: NONE
