@@ -128,6 +128,9 @@ def test_two_week_hysteresis_and_protected_routes(tmp_path: Path) -> None:
     assert len(head["research_queue_members"]) == 27
     assert {key: head[key] for key in protected} == protected
     assert all(row.get("dynamic_candidate_source") == "FULL_MARKET_SCREEN" for row in head["research_queue_members"][-2:])
+    result = validate(first_candidate, head, policy())
+    assert result["added"] == ["688001.SH", "688002.SH"]
+    assert result["unchanged_research_queue_rows"] == 25
 
 
 def test_validator_blocks_legacy_exit_and_core_change() -> None:
@@ -150,3 +153,27 @@ def test_validator_blocks_legacy_exit_and_core_change() -> None:
         assert "MINIMUM" in str(exc) or "LEGACY" in str(exc)
     else:
         raise AssertionError("legacy automatic exit must fail")
+
+
+def test_validator_blocks_existing_row_rewrite_and_cross_route_duplicate() -> None:
+    base = candidate_state()
+    head = deepcopy(base)
+    head["research_queue_members"][0]["security_name"] = "tampered"
+    try:
+        validate(base, head, policy())
+    except SystemExit as exc:
+        assert "EXISTING_RESEARCH_QUEUE_ROW_MUTATION_FORBIDDEN" in str(exc)
+    else:
+        raise AssertionError("existing Research Queue row rewrite must fail")
+
+    head = deepcopy(base)
+    duplicate = deepcopy(head["candidate_core_members"][0])
+    duplicate["proposed_candidate_route"] = "RESEARCH_QUEUE_STRUCTURED"
+    head["research_queue_members"].append(duplicate)
+    head["counts"]["research_queue"] = 26
+    try:
+        validate(base, head, policy())
+    except SystemExit as exc:
+        assert "CROSS_ROUTE_CANDIDATE_DUPLICATION" in str(exc)
+    else:
+        raise AssertionError("cross-route duplicate must fail")
