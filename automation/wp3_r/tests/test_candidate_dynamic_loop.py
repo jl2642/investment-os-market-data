@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import csv
 import json
+import sys
 from copy import deepcopy
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from automation.wp3_r.build_candidate_dynamic_loop import run
 from automation.wp3_r.validate_candidate_dynamic_pr import validate
