@@ -40,51 +40,8 @@ jobs:
           python -m json.tool config/hkcu1_official_source_registry.json >/dev/null
           python -m json.tool schemas/hkcu1_stock_connect_eligibility.schema.json >/dev/null
 
-  endpoint-discovery:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install controlled browser
-        run: |
-          python -m pip install --upgrade pip
-          pip install playwright
-          playwright install --with-deps chromium
-      - name: Capture official network requests
-        continue-on-error: true
-        run: |
-          python pipeline/hkcu1_discover_official_endpoints.py --output outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json
-      - name: Probe pagination and page contracts
-        if: always()
-        run: python pipeline/hkcu1_probe_endpoint_contracts.py
-      - name: Render discovery summary
-        if: always()
-        run: |
-          python - <<'PY'
-          import json
-          for p in ['outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json','outputs/hkcu1/discovery/HKCU1_ENDPOINT_CONTRACT_PROBE.json']:
-              d=json.load(open(p,encoding='utf-8')); print('\n###',p); print(json.dumps(d,ensure_ascii=False,indent=2)[:30000])
-          PY
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: hkcu1-official-endpoint-discovery
-          path: outputs/hkcu1/discovery/*.json
-          if-no-files-found: error
-      - name: Enforce endpoint discovery gate
-        if: always()
-        run: |
-          python - <<'PY'
-          import json
-          d=json.load(open('outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json',encoding='utf-8'))
-          assert d['overall_status']=='PASS', 'BLOCKED: official machine endpoints not uniquely qualified'
-          PY
-
-  controlled-production:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_candidate
-    needs: [test, endpoint-discovery]
+  official-fetch-validation:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -93,20 +50,65 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Require resolved official machine-readable sources
+      - name: Fetch full official SSE and SZSE lists
+        run: |
+          python pipeline/hkcu1_fetch_official_lists.py \
+            --registry config/hkcu1_official_source_registry.json \
+            --output-dir work/hkcu1/source
+      - name: Enforce count and source gates
         run: |
           python - <<'PY'
           import json
-          d=json.load(open('config/hkcu1_official_source_registry.json',encoding='utf-8'))
-          sources=d.get('machine_readable_sources',[])
-          required={('SSE','SH','BUY_SELL'),('SZSE','SZ','BUY_SELL')}
-          actual={(x['authority'],x['channel'],x['eligibility_side']) for x in sources}
-          assert required <= actual, f'BLOCKED: missing primary channel source(s): {required-actual}'
+          d=json.load(open('work/hkcu1/source/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
+          assert d['status']=='PASS', d
+          rows=d['source_rows']
+          assert rows.get('SSE_SH_SOUTHBOUND_BUY_LIST',0)>=100, rows
+          assert rows.get('SZSE_SZ_SOUTHBOUND_BUY_LIST',0)>=100, rows
           PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu1-official-fetch-evidence
+          path: work/hkcu1/source/**
+          if-no-files-found: error
+
+  endpoint-discovery-evidence:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Refresh endpoint evidence
+        run: |
+          python pipeline/hkcu1_discover_official_endpoints.py --output outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json || true
+          python pipeline/hkcu1_probe_endpoint_contracts.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu1-endpoint-evidence
+          path: outputs/hkcu1/discovery/*.json
+          if-no-files-found: error
+
+  controlled-production:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_candidate
+    needs: [test, official-fetch-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
       - name: Fetch official evidence
         run: python pipeline/hkcu1_fetch_official_lists.py --registry config/hkcu1_official_source_registry.json --output-dir work/hkcu1/source
-      - name: Stop before publication without event-normalization outputs
+      - name: Stop before publication without sell-only and cross-check closure
         run: |
           test -s work/hkcu1/source/HKCU1_SOURCE_LEDGER.csv
-          echo 'Official fetch passed. Event normalization, universe build and independent validation remain mandatory.'
+          echo 'Full buy-list fetch passed. Sell-only ingestion, HKEX cross-check and independent release validation remain mandatory.'
           exit 2
