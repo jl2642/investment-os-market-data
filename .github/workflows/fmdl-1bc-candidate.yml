@@ -45,8 +45,8 @@ jobs:
       - name: Validate frozen contracts
         run: python scripts/validate_contracts.py
 
-      - name: Run deterministic tests
-        run: pytest -q
+      - name: Run repository FMDL tests
+        run: pytest -q tests
 
       - name: Build real A-share candidate data
         id: candidate_build

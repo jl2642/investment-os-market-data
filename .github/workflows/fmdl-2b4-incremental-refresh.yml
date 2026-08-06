@@ -1,4 +1,4 @@
-name: FMDL 2B-4 Incremental History and Factor Refresh
+name: FMDL 2B-4 Component Validation
 
 on:
   pull_request:
@@ -18,8 +18,10 @@ on:
       - "scripts/refresh_investment_os_interface.py"
       - "tests/test_fmdl2b4_incremental_refresh.py"
       - "tests/test_fmdl2b4_snapshot_identity.py"
+      - "tests/test_round1_governed_publication_workflows.py"
       - "docs/FMDL-2B4_*.md"
       - ".github/workflows/fmdl-2b4-incremental-refresh.yml"
+      - ".github/workflows/fmdl-daily-production.yml"
   push:
     branches: [main]
     paths:
@@ -37,22 +39,22 @@ on:
       - "scripts/refresh_investment_os_interface.py"
       - "tests/test_fmdl2b4_incremental_refresh.py"
       - "tests/test_fmdl2b4_snapshot_identity.py"
+      - "tests/test_round1_governed_publication_workflows.py"
       - ".github/workflows/fmdl-2b4-incremental-refresh.yml"
-  schedule:
-    - cron: "15 10 * * 1-5"
+      - ".github/workflows/fmdl-daily-production.yml"
   workflow_dispatch:
     inputs:
       refresh_fmdl1_current:
-        description: "Refresh FMDL-1 Current before B4 operation"
+        description: "Refresh FMDL-1 Current before component evidence run"
         required: false
         default: false
         type: boolean
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: fmdl-2b4-refresh-${{ github.ref }}
+  group: fmdl-2b4-component-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -77,7 +79,14 @@ jobs:
           {
             python -m scripts.refresh_investment_os_interface
             python scripts/validate_investment_os_interface.py
-            pytest -q tests/test_fmdl2a_contract.py tests/test_fmdl2b2_full_backfill.py tests/test_fmdl2b2_aggregate_policy.py tests/test_fmdl2b3_factor_engine.py tests/test_fmdl2b4_incremental_refresh.py tests/test_fmdl2b4_snapshot_identity.py
+            pytest -q \
+              tests/test_fmdl2a_contract.py \
+              tests/test_fmdl2b2_full_backfill.py \
+              tests/test_fmdl2b2_aggregate_policy.py \
+              tests/test_fmdl2b3_factor_engine.py \
+              tests/test_fmdl2b4_incremental_refresh.py \
+              tests/test_fmdl2b4_snapshot_identity.py \
+              tests/test_round1_governed_publication_workflows.py
           } 2>&1 | tee diagnostics/FMDL2B4_DETERMINISTIC_VALIDATION.log
       - name: Upload deterministic validation log
         if: always()
@@ -88,13 +97,13 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  operate:
-    if: github.event_name != 'pull_request'
+  component-operating-evidence:
+    if: github.event_name == 'workflow_dispatch'
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout production branch
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
           ref: main
@@ -106,8 +115,8 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-      - name: Refresh FMDL-1 Current for initial production or explicit dispatch
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.refresh_fmdl1_current == true)
+      - name: Optionally refresh FMDL-1 Current
+        if: inputs.refresh_fmdl1_current == true
         run: python pipeline/run_daily.py --trigger manual
       - name: Rebind and validate Investment OS interface
         run: |
@@ -115,13 +124,13 @@ jobs:
           python scripts/validate_investment_os_interface.py
       - name: Enforce latest completed-session Current
         run: python -m scripts.validate_fmdl2b4_freshness
-      - name: Run incremental history and factor operating chain
+      - name: Run incremental history and factor component
         run: python -m scripts.run_fmdl2b4_operating
-      - name: Upload B4 operating evidence
+      - name: Upload component evidence without Canonical publication
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fmdl2b4-operating-evidence
+          name: fmdl2b4-component-${{ github.run_id }}-a${{ github.run_attempt }}
           path: |
             diagnostics/FMDL2B4_*.json
             diagnostics/SCRIPTS_RUN_*_STDOUT.txt
@@ -135,16 +144,12 @@ jobs:
             outputs/factors/current/
           if-no-files-found: warn
           retention-days: 14
-      - name: Commit accepted operating state
-        shell: bash
+      - name: Record component boundary
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/current outputs/status outputs/archive outputs/investment_os outputs/history/current outputs/history/archive outputs/history/refresh_candidate outputs/factors/current outputs/factors/archive outputs/factors/refresh_candidate datasets/history/incremental datasets/history/repair
-          if git diff --cached --quiet; then
-            echo "No accepted operating-state changes to commit"
-          else
-            git commit -m "data: FMDL-2B-4 incremental history and factor Current [skip ci]"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## FMDL 2B-4 component evidence
+          - This workflow validates history and factor generation only.
+          - It does not push or publish Canonical state.
+          - Scheduled production is owned by fmdl-daily-production.yml.
+          - Direct main publication is disabled.
+          EOF
