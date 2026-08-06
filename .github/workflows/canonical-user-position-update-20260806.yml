@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "automation/canonical_position_update/apply_20260806_user_update.py"
+      - "automation/canonical_position_update/run_20260806_user_update.py"
       - "automation/canonical_position_update/normalize_20260806_user_update.py"
       - "automation/canonical_position_update/validate_20260806_user_update.py"
       - ".github/workflows/canonical-user-position-update-20260806.yml"
@@ -42,11 +43,12 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Apply and normalize idempotent user-confirmed position update
+      - name: Apply or confirm user update and normalize state
         run: |
           python -m py_compile automation/canonical_position_update/apply_20260806_user_update.py
+          python -m py_compile automation/canonical_position_update/run_20260806_user_update.py
           python -m py_compile automation/canonical_position_update/normalize_20260806_user_update.py
-          python automation/canonical_position_update/apply_20260806_user_update.py
+          python automation/canonical_position_update/run_20260806_user_update.py
           python automation/canonical_position_update/normalize_20260806_user_update.py
 
       - name: Persist generated Current and evidence to agent branch
@@ -80,9 +82,9 @@ jobs:
           python -m py_compile automation/canonical_position_update/validate_20260806_user_update.py
           python automation/canonical_position_update/validate_20260806_user_update.py
 
-      - name: Re-run apply and normalize as idempotency check
+      - name: Re-run wrapper and normalize as idempotency check
         run: |
-          python automation/canonical_position_update/apply_20260806_user_update.py
+          python automation/canonical_position_update/run_20260806_user_update.py
           python automation/canonical_position_update/normalize_20260806_user_update.py
           git diff --exit-code
 
