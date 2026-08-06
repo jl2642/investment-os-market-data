@@ -1,0 +1,56 @@
+name: Round 3 fix completed-session test fixture
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/round3-fix-session-test-fixture.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-test-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: agent/round3-hk-us-limited-production
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Make HK fixture cover every deterministic bucket
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('automation/cross_market/tests/test_round3_limited_production.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''        writer.writeheader()\n        for idx in range(1, 11):\n            writer.writerow({"canonical_security_id": f"HKEX:{idx:05d}", "stock_code": f"{idx:05d}", "name_cn": f"HK{idx}", "eligibility_status": "BUY_AND_SELL_ELIGIBLE"})\n    longlist = root / "outputs/fmdl5e/current/FMDL5E_RESEARCH_LONGLIST.csv"\n'''
+          new = '''        writer.writeheader()\n        hk_codes_by_bucket = {bucket: [] for bucket in range(5)}\n        candidate = 1\n        while sum(len(values) for values in hk_codes_by_bucket.values()) < 10:\n            security_id = f"HKEX:{candidate:05d}"\n            bucket = stable_bucket(security_id, 5)\n            if len(hk_codes_by_bucket[bucket]) < 2:\n                hk_codes_by_bucket[bucket].append(candidate)\n            candidate += 1\n        hk_codes = [code for bucket in range(5) for code in hk_codes_by_bucket[bucket]]\n        for idx, code in enumerate(hk_codes, start=1):\n            writer.writerow({"canonical_security_id": f"HKEX:{code:05d}", "stock_code": f"{code:05d}", "name_cn": f"HK{idx}", "eligibility_status": "BUY_AND_SELL_ELIGIBLE"})\n    longlist = root / "outputs/fmdl5e/current/FMDL5E_RESEARCH_LONGLIST.csv"\n'''
+          if old not in text:
+              raise SystemExit('ROUND3_FIXTURE_TARGET_MISSING:universe')
+          text = text.replace(old, new, 1)
+          old = '''        writer.writeheader()\n        for idx in range(1, 11):\n            writer.writerow({"canonical_security_id": f"HKEX:{idx:05d}", "overall_rank": idx, "name_cn": f"HK{idx}"})\n'''
+          new = '''        writer.writeheader()\n        for idx, code in enumerate(hk_codes, start=1):\n            writer.writerow({"canonical_security_id": f"HKEX:{code:05d}", "overall_rank": idx, "name_cn": f"HK{idx}"})\n'''
+          if old not in text:
+              raise SystemExit('ROUND3_FIXTURE_TARGET_MISSING:longlist')
+          text = text.replace(old, new, 1)
+          text = text.replace('writer.writerow({"hk_security_id": "HKEX:00001"})', 'writer.writerow({"hk_security_id": f"HKEX:{hk_codes[0]:05d}"})', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Run current tests
+        run: |
+          python -m pip install --retries 5 --timeout 30 pytest
+          pytest -q automation/cross_market/tests/test_round3_limited_production.py
+      - name: Commit fixture correction
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add automation/cross_market/tests/test_round3_limited_production.py
+          git commit -m "test: cover every Round 3 HK bucket"
+          git push origin HEAD:agent/round3-hk-us-limited-production
