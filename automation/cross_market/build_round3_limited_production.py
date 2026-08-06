@@ -157,6 +157,24 @@ def sec_symbol(row: dict[str, Any]) -> str:
     return first_value(row, ("symbol", "ticker", "selected_symbol", "primary_symbol", "primary_ticker", "listing_symbol", "security_symbol")).upper()
 
 
+def market_symbol(row: dict[str, Any]) -> str:
+    direct = sec_symbol(row)
+    if direct:
+        return direct
+    values = row.get("symbols")
+    if isinstance(values, str):
+        values = [values]
+    if isinstance(values, list):
+        for item in values:
+            if isinstance(item, str) and item.strip():
+                return item.strip().upper()
+            if isinstance(item, dict):
+                value = first_value(item, ("symbol", "ticker", "selected_symbol", "primary_symbol"))
+                if value:
+                    return value.upper()
+    return ""
+
+
 def fetch_sec_metadata(row: dict[str, Any], fetcher: Fetcher) -> dict[str, Any]:
     cik = sec_cik(row)
     symbol = sec_symbol(row)
@@ -209,7 +227,7 @@ def plan_batches(root: Path, policy: dict[str, Any], as_of: date) -> dict[str, A
     market_sources = list(initial_market_rows) + read_jsonl_gz(root / US_MARKET_QUEUE)
     market_pool: dict[str, dict[str, Any]] = {}
     for row in market_sources:
-        symbol = sec_symbol(row)
+        symbol = market_symbol(row)
         security_id = first_value(row, ("canonical_security_id", "security_id", "security_key")) or symbol
         if symbol and security_id:
             market_pool[security_id] = {**row, "symbol": symbol, "_security_key": security_id}

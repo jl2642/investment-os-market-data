@@ -66,7 +66,7 @@ def install(root: Path) -> None:
     write_json(root / "outputs/fmdl6x3/current/screening_research_cards/FMDL6X3E_US_BENCHMARK_POOL.json", benchmark)
     initial_market = {"cohort_size": 4, "securities": [{"selected_symbol": f"T{idx:03d}", "canonical_security_id": f"USSEC-{idx:03d}"} for idx in range(4)]}
     write_json(root / "outputs/fmdl6x2/current/market_reference/FMDL6X2D_INITIAL_COHORT.json", initial_market)
-    market_rows = [{"symbol": f"T{idx:03d}", "canonical_security_id": f"USSEC-{idx:03d}"} for idx in range(4, 100)]
+    market_rows = [{"symbols": [f"T{idx:03d}"], "venues": ["XNAS"], "canonical_security_id": f"USSEC-{idx:03d}"} for idx in range(4, 100)]
     sec_initial = root / "evidence/fmdl6x2e/2026-07-22/FMDL6X2E_FILINGS.csv"
     sec_initial.parent.mkdir(parents=True, exist_ok=True)
     with sec_initial.open("w", encoding="utf-8", newline="") as handle:
@@ -98,7 +98,9 @@ def test_deterministic_partition_and_bounded_us_rotation(tmp_path: Path) -> None
         day = date(2026, 8, 3 + offset)
         plan = plan_batches(tmp_path, p, day)
         covered.update(row["canonical_security_id"] for row in plan["hk_selected"])
+        assert plan["us_rotation_pool_count"] == 100
         assert len(plan["us_selected"]) <= 4
+        assert all(row["symbol"] for row in plan["us_selected"])
         assert plan["bucket"] == offset
     assert len(covered) == 10
     assert stable_bucket("abc", 5) == stable_bucket("abc", 5)
