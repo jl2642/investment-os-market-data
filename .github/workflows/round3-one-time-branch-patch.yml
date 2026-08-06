@@ -25,6 +25,7 @@ jobs:
           python-version: "3.13"
       - name: Apply bounded coverage repair
         run: |
+          sed -i 's/text\[end + 2:\]/text[end:]/' automation/cross_market/apply_round3_v2_patch.py
           python automation/cross_market/apply_round3_v2_patch.py
           python -m py_compile automation/cross_market/*.py
           python -m pip install --retries 5 --timeout 30 pytest
