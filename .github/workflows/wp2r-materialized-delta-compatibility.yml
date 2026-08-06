@@ -1,0 +1,105 @@
+name: WP2-R Materialized Delta Compatibility
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/canonical_position_update/normalize_materialized_deltas.py"
+      - ".github/workflows/wp2r-materialized-delta-compatibility.yml"
+      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  normalize-and-validate:
+    if: github.head_ref == 'agent/wp2r-materialized-delta-compatibility'
+    name: WP2-R / Materialized Delta No-Reapply Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Normalize materialized deltas
+        run: python automation/canonical_position_update/normalize_materialized_deltas.py
+
+      - name: Persist normalized ledger
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if git diff --quiet -- investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json; then
+            echo "Ledger already normalized."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json
+          git commit -m "Mark materialized user deltas as no-reapply"
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
+
+      - name: Validate ledger semantics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json')
+          d = json.loads(p.read_text(encoding='utf-8'))
+          ids = set(d['materialized_delta_ids'])
+          assert len(ids) == 4
+          rows = {r['delta_id']: r for r in d['entries']}
+          assert ids <= set(rows)
+          assert all(rows[x]['status'] == 'REJECTED' for x in ids)
+          assert all(rows[x]['application_decision'] == 'ALREADY_APPLIED_TO_POSITION_CURRENT_DO_NOT_REAPPLY' for x in ids)
+          assert not any(r['status'] in {'CONFIRMED_BY_USER', 'APPLIED_TO_POSITION_CURRENT'} for r in d['entries'])
+          assert d['applied_delta_count'] == 4
+          assert d['orders'] == 0
+          assert d['trade_authority'] == 'NONE'
+          print({'status':'PASS','materialized':4,'active_position_engine_deltas':0})
+          PY
+
+      - name: Prove generic WP2-R builder does not reapply transactions
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          TMP_DIR="$(mktemp -d)"
+          cp -a . "$TMP_DIR/repo"
+          cd "$TMP_DIR/repo"
+          python automation/wp2_r/build_portfolio_current.py --repo-root .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          real = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
+          sim = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
+          r = {x['code']: x for x in real['holdings']}
+          s = {x['code']: x for x in sim['holdings']}
+          assert r['605090']['quantity'] == 9900
+          assert '002463' not in s
+          assert s['300124']['quantity'] == 200
+          assert s['300012']['quantity'] == 1000
+          assert real['trade_authority'] == sim['trade_authority'] == 'NONE'
+          print({'status':'PASS','real_605090':9900,'sim_300124':200,'sim_300012':1000,'sim_002463':0})
+          PY
+
+      - name: Re-run normalization as idempotency check
+        run: |
+          python automation/canonical_position_update/normalize_materialized_deltas.py
+          git diff --exit-code
+
+      - name: Record boundary
+        run: |
+          echo "materialized_delta_count=4"
+          echo "active_position_engine_delta_count=0"
+          echo "economic_state_mutations=0"
+          echo "orders=0"
+          echo "trade_authority=NONE"
