@@ -41,8 +41,8 @@ The GitHub workflow publishes only to `automation/cross-market-limited-<run_id>-
 The official web observer writes exactly one `ROUND3_SEC_OBSERVER_INBOX.json` into the matching governed result branch. The permanent workflow then:
 
 1. validates that every success or failure belongs to the original eight-issuer queue;
-2. requires a timezone-aware retrieval timestamp, a valid 10-digit CIK, the declared CIK-resolution route and official SEC URLs only;
-3. rejects unqueued issuers, duplicate evidence, non-official sources, missing Submissions or CompanyFacts endpoints, any order field above zero and any authority other than `NONE`;
+2. requires a timezone-aware retrieval timestamp, a valid 10-digit CIK, the declared CIK-resolution route, official SEC URLs only and a valid SHA-256 for every retrieved official response;
+3. rejects unqueued issuers, duplicate evidence, issuer or symbol mismatches, non-official sources, missing Submissions or CompanyFacts endpoints, missing or malformed response hashes, any order field above zero and any authority other than `NONE`;
 4. writes normalized `ROUND3_SEC_OFFICIAL_RETRIEVAL_RESULT.json` and `ROUND3_SEC_OBSERVER_MANIFEST.json` evidence;
 5. updates the weekly ledger, current run and research proposal without touching Candidate, simulation, real-account or decision state.
 
