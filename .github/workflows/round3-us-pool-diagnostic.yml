@@ -1,0 +1,68 @@
+name: Round 3 US pool diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/round3-us-pool-diagnostic.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Inspect real US pool keys
+        shell: bash
+        run: |
+          PYTHONPATH=. python - <<'PY'
+          from collections import Counter, defaultdict
+          from pathlib import Path
+          from automation.cross_market.build_round3_limited_production import read_json, read_jsonl_gz, first_value, sec_symbol, US_MARKET_INITIAL, US_MARKET_QUEUE
+
+          root = Path('.')
+          initial_payload = read_json(root / US_MARKET_INITIAL)
+          initial = initial_payload.get('securities', []) if isinstance(initial_payload, dict) else initial_payload
+          queue = read_jsonl_gz(root / US_MARKET_QUEUE)
+          rows = list(initial) + list(queue)
+          print({'initial_count': len(initial), 'queue_count': len(queue), 'combined_rows': len(rows)})
+          print({'initial_keys': sorted(initial[0].keys()) if initial else [], 'queue_keys': sorted(queue[0].keys()) if queue else []})
+
+          key_fields = ('canonical_security_id', 'security_id', 'security_key')
+          pools = {}
+          for mode in ('current', 'symbol', 'composite'):
+              keys = []
+              examples = defaultdict(list)
+              for row in rows:
+                  symbol = sec_symbol(row)
+                  canonical = first_value(row, key_fields)
+                  if mode == 'current':
+                      key = canonical or symbol
+                  elif mode == 'symbol':
+                      key = symbol
+                  else:
+                      exchange = first_value(row, ('exchange', 'exchange_code', 'listing_exchange', 'mic'))
+                      key = canonical or (f'{exchange}:{symbol}' if exchange else symbol)
+                  if key:
+                      keys.append(key)
+                      if len(examples[key]) < 3:
+                          examples[key].append({'symbol': symbol, 'canonical': canonical, 'fields': {k: row.get(k) for k in key_fields if row.get(k)}})
+              counts = Counter(keys)
+              duplicates = {k: v for k, v in counts.items() if v > 1}
+              pools[mode] = {'unique': len(counts), 'missing': len(rows) - len(keys), 'duplicate_key_count': len(duplicates), 'duplicate_rows': sum(v - 1 for v in duplicates.values())}
+              print({mode: pools[mode]})
+              print({f'{mode}_duplicate_samples': [(k, counts[k], examples[k]) for k in list(sorted(duplicates))[:10]]})
+
+          initial_symbols = {sec_symbol(row) for row in initial if sec_symbol(row)}
+          queue_symbols = {sec_symbol(row) for row in queue if sec_symbol(row)}
+          print({'initial_unique_symbols': len(initial_symbols), 'queue_unique_symbols': len(queue_symbols), 'symbol_overlap': len(initial_symbols & queue_symbols), 'initial_only_symbols': sorted(initial_symbols - queue_symbols)[:20]})
+          PY
