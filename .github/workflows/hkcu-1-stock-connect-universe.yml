@@ -1,0 +1,75 @@
+name: HKCU-1 Stock Connect Universe
+
+on:
+  pull_request:
+    paths:
+      - 'pipeline/hkcu1_*.py'
+      - 'config/hkcu1_*.json'
+      - 'schemas/hkcu1_*.json'
+      - 'tests/test_hkcu1*.py'
+      - '.github/workflows/hkcu-1-stock-connect-universe.yml'
+  workflow_dispatch:
+    inputs:
+      as_of_date:
+        description: Point-in-time eligibility date (YYYY-MM-DD)
+        required: true
+        type: string
+      publish_candidate:
+        description: Build a release candidate after official source resolution
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu1_build_universe.py tests/test_hkcu1_r2.py
+      - name: Validate JSON contracts
+        run: |
+          python -m json.tool config/hkcu1_stock_connect_universe_contract.json >/dev/null
+          python -m json.tool config/hkcu1_official_source_registry.json >/dev/null
+          python -m json.tool schemas/hkcu1_stock_connect_eligibility.schema.json >/dev/null
+
+  controlled-production:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_candidate
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Require resolved official machine-readable sources
+        run: |
+          python - <<'PY'
+          import json
+          p='config/hkcu1_official_source_registry.json'
+          d=json.load(open(p,encoding='utf-8'))
+          sources=d.get('machine_readable_sources',[])
+          assert sources, 'BLOCKED: official machine-readable source endpoints are unresolved'
+          required={('SSE','SH','BUY_SELL'),('SZSE','SZ','BUY_SELL')}
+          actual={(x['authority'],x['channel'],x['eligibility_side']) for x in sources}
+          assert required <= actual, f'BLOCKED: missing primary channel source(s): {required-actual}'
+          PY
+      - name: Fetch official evidence
+        run: |
+          python pipeline/hkcu1_fetch_official_lists.py \
+            --registry config/hkcu1_official_source_registry.json \
+            --output-dir work/hkcu1/source
+      - name: Stop before publication without event-normalization outputs
+        run: |
+          test -s work/hkcu1/source/HKCU1_SOURCE_LEDGER.csv
+          echo 'Official fetch passed. Event normalization, universe build and independent validation remain mandatory.'
+          exit 2
