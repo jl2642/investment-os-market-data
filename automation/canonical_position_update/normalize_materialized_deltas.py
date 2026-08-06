@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+# Applied economic events remain in the audit ledger but must never be replayed.
 ROOT = Path(__file__).resolve().parents[2]
 LEDGER = ROOT / "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
 MATERIALIZED_IDS = {
