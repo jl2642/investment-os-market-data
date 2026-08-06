@@ -40,9 +40,58 @@ jobs:
           python -m json.tool config/hkcu1_official_source_registry.json >/dev/null
           python -m json.tool schemas/hkcu1_stock_connect_eligibility.schema.json >/dev/null
 
+  endpoint-discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install controlled browser
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Capture official network requests
+        id: discover
+        continue-on-error: true
+        run: |
+          python pipeline/hkcu1_discover_official_endpoints.py \
+            --output outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json
+      - name: Render discovery summary
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json')
+          if not p.exists():
+              raise SystemExit('BLOCKED: discovery output missing')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          print('overall_status=', d['overall_status'])
+          for ch in d['channels']:
+              print(ch['channel'], ch['status'], 'candidates=', ch['candidate_count'], 'qualified=', ch['qualified_candidate_count'])
+              for c in ch['candidates'][:10]:
+                  print(c['score'], c['detected_codes'], c['content_type'], c['request_url'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu1-official-endpoint-discovery
+          path: outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json
+          if-no-files-found: error
+      - name: Enforce endpoint discovery gate
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json',encoding='utf-8'))
+          assert d['overall_status']=='PASS', 'BLOCKED: official machine endpoints not uniquely qualified'
+          PY
+
   controlled-production:
     if: github.event_name == 'workflow_dispatch' && inputs.publish_candidate
-    needs: test
+    needs: [test, endpoint-discovery]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
