@@ -1,23 +1,36 @@
 from __future__ import annotations
 
-from pathlib import Path
+from io import BytesIO
 
 import pandas as pd
 import pytest
 
-from pipeline.hkcu1_fetch_official_lists import parse_tabular
+from pipeline.hkcu1_fetch_official_lists import parse_sse_excel
 from pipeline.hkcu1_reconstruct_eligibility import reconstruct
 
 
-def test_parser_rejects_html():
-    with pytest.raises(ValueError, match="HTML"):
-        parse_tabular(b"<!doctype html><html></html>", "text/html", "https://www.sse.com.cn/a.csv")
+def _xlsx(rows: list[dict]) -> bytes:
+    buf = BytesIO()
+    pd.DataFrame(rows).to_excel(buf, index=False)
+    return buf.getvalue()
 
 
-def test_parser_rejects_implausibly_small_list():
-    payload = b"security_code,name\n00001,A\n00002,B\n"
+def test_sse_parser_rejects_html():
+    with pytest.raises(ValueError, match="XLS/XLSX"):
+        parse_sse_excel(b"<!doctype html><html></html>", 50)
+
+
+def test_sse_parser_rejects_implausibly_small_list():
+    payload = _xlsx([{"证券代码": "00001", "证券简称": "A"}, {"证券代码": "00002", "证券简称": "B"}])
     with pytest.raises(ValueError, match="implausibly small"):
-        parse_tabular(payload, "text/csv", "https://www.sse.com.cn/a.csv")
+        parse_sse_excel(payload, 50)
+
+
+def test_sse_parser_standardises_codes():
+    payload = _xlsx([{"证券代码": str(i), "证券简称": f"S{i}"} for i in range(1, 61)])
+    result = parse_sse_excel(payload, 50)
+    assert len(result) == 60
+    assert result.iloc[0]["security_code"] == "00001"
 
 
 def test_point_in_time_applies_only_effective_events():
