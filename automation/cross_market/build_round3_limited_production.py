@@ -400,7 +400,7 @@ def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[d
         "completed": False,
     })
     hk_session_observed = bool(hk_ok)
-    us_session_observed = bool(us_ok)
+    us_session_observed = any(row["symbol"] not in benchmark_symbols for row in us_ok)
     if bucket not in cycle["hk_buckets"] and hk_session_observed:
         cycle["hk_buckets"].append(bucket)
         cycle["hk_attempted"] += len(hk_ok) + len(hk_fail)

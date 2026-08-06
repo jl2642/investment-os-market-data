@@ -190,6 +190,28 @@ def test_stale_observation_does_not_close_market_bucket_or_block_retry(tmp_path:
     assert ledger["daily_runs"] == []
 
 
+def test_benchmark_only_success_does_not_close_us_rotation_bucket(tmp_path: Path) -> None:
+    install(tmp_path)
+
+    def benchmark_only_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
+        if "finance/chart" not in url:
+            raise AssertionError(url)
+        period2 = int(parse_qs(urlparse(url).query)["period2"][0])
+        as_of = datetime.fromtimestamp(period2, tz=timezone.utc).date() - timedelta(days=2)
+        symbol_path = urlparse(url).path
+        observed = as_of if (".HK" in symbol_path or "AAPL" in symbol_path or "QQQ" in symbol_path) else as_of - timedelta(days=1)
+        ts = int(datetime.combine(observed, datetime.min.time(), tzinfo=timezone.utc).timestamp())
+        return json.dumps({"chart": {"result": [{"meta": {"currency": "USD"}, "timestamp": [ts], "indicators": {"quote": [{"close": [100.0], "volume": [1000]}]}}], "error": None}}).encode()
+
+    result = run(tmp_path, Path("automation/cross_market/round3_policy.json"), date(2026, 8, 3), benchmark_only_fetcher, sleep_seconds=0)
+    ledger = json.loads((tmp_path / "investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json").read_text())
+    cycle = ledger["weekly_cycles"]["2026-W32"]
+    assert result["capture_status"] == "PARTIAL_RETRYABLE_MISSING_COMPLETED_SESSION"
+    assert cycle["hk_buckets"] == [0]
+    assert cycle["us_buckets"] == []
+    assert ledger["daily_runs"] == []
+
+
 def test_same_date_replay_is_noop(tmp_path: Path) -> None:
     install(tmp_path)
     first = run(tmp_path, Path("automation/cross_market/round3_policy.json"), date(2026, 8, 3), fake_fetcher, sleep_seconds=0)

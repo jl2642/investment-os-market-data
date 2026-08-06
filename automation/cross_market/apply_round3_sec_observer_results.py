@@ -201,9 +201,13 @@ def update_operating_state(root: Path, result: dict[str, Any], policy: dict[str,
     run_current["completed_weekly_cycle_count"] = ledger["completed_weekly_cycle_count"]
     run_current["market_rotation_completed_weekly_cycle_count"] = ledger["market_rotation_completed_weekly_cycle_count"]
     run_current["operating_state"] = operating_state
-    run_current.setdefault("united_states", {})["sec_official_completed_issuer_count"] = len(completed_ids)
-    run_current["united_states"]["sec_official_retrieval_status"] = cycle["sec_official_retrieval_status"]
-    run_current["united_states"]["sec_official_success_claimed"] = cycle["sec_official_retrieval_status"] == "PASS_CHATGPT_WEB_OFFICIAL_RETRIEVAL"
+    current_as_of = date.fromisoformat(str(run_current.get("as_of_date")))
+    current_iso_year, current_iso_week, _ = current_as_of.isocalendar()
+    current_cycle_id = f"{current_iso_year}-W{current_iso_week:02d}"
+    if current_cycle_id == cycle_id:
+        run_current.setdefault("united_states", {})["sec_official_completed_issuer_count"] = len(completed_ids)
+        run_current["united_states"]["sec_official_retrieval_status"] = cycle["sec_official_retrieval_status"]
+        run_current["united_states"]["sec_official_success_claimed"] = cycle["sec_official_retrieval_status"] == "PASS_CHATGPT_WEB_OFFICIAL_RETRIEVAL"
 
     proposal = read_json(root / PROPOSAL_PATH)
     if proposal.get("cycle_id") == cycle_id:

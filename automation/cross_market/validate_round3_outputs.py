@@ -50,8 +50,14 @@ def validate(run: dict[str, Any], proposal: dict[str, Any], ledger: dict[str, An
     us_run = run.get("united_states", {})
     if us_run.get("sec_execution_mode") != "QUEUE_FOR_CHATGPT_WEB_OFFICIAL_RETRIEVAL":
         raise SystemExit("ROUND3_SEC_EXECUTION_ENVIRONMENT_MISMATCH")
-    if us_run.get("sec_official_success_claimed") is not False:
+    sec_status = proposal.get("sec_official_retrieval_status")
+    sec_count = int(us_run.get("sec_official_completed_issuer_count", 0))
+    sec_claimed = bool(us_run.get("sec_official_success_claimed"))
+    minimum_sec = int(policy["united_states"]["minimum_weekly_official_sec_completed_count"])
+    if sec_claimed and (sec_status != "PASS_CHATGPT_WEB_OFFICIAL_RETRIEVAL" or sec_count < minimum_sec):
         raise SystemExit("ROUND3_FALSE_SEC_SUCCESS_CLAIM")
+    if sec_status == "PASS_CHATGPT_WEB_OFFICIAL_RETRIEVAL" and not sec_claimed:
+        raise SystemExit("ROUND3_SEC_SUCCESS_STATE_MISMATCH")
     if int(us_run.get("rotation_pool_count", 0)) != int(policy["united_states"]["expected_security_master_count"]):
         raise SystemExit("ROUND3_US_ROTATION_POOL_COUNT_MISMATCH")
     if int(us_run.get("sec_pool_count", 0)) != int(policy["united_states"]["expected_issuer_count"]):
@@ -63,7 +69,16 @@ def validate(run: dict[str, Any], proposal: dict[str, Any], ledger: dict[str, An
     }:
         raise SystemExit("ROUND3_SEC_RETRIEVAL_STATUS_INVALID")
     for cycle in ledger.get("weekly_cycles", {}).values():
-        if cycle.get("completed") and int(cycle.get("sec_official_completed_issuer_count", 0)) < int(policy["united_states"]["minimum_weekly_official_sec_completed_count"]):
+        issuer_ids = [str(value) for value in cycle.get("official_sec_issuer_ids", []) if str(value)]
+        issuer_count = int(cycle.get("sec_official_completed_issuer_count", 0))
+        if len(set(issuer_ids)) != issuer_count:
+            raise SystemExit("ROUND3_SEC_ISSUER_COUNT_MISMATCH")
+        cycle_status = cycle.get("sec_official_retrieval_status", "PENDING_CHATGPT_WEB_OFFICIAL_RETRIEVAL")
+        if issuer_count >= minimum_sec and cycle_status != "PASS_CHATGPT_WEB_OFFICIAL_RETRIEVAL":
+            raise SystemExit("ROUND3_SEC_STATUS_COUNT_MISMATCH")
+        if 0 < issuer_count < minimum_sec and cycle_status != "PARTIAL_CHATGPT_WEB_OFFICIAL_RETRIEVAL":
+            raise SystemExit("ROUND3_SEC_STATUS_COUNT_MISMATCH")
+        if cycle.get("completed") and (issuer_count < minimum_sec or cycle_status != "PASS_CHATGPT_WEB_OFFICIAL_RETRIEVAL"):
             raise SystemExit("ROUND3_WEEKLY_ACCEPTANCE_WITHOUT_SEC_EVIDENCE")
     if authority.get("trade_authority") != "NONE" or authority.get("orders") != 0:
         raise SystemExit("ROUND3_POLICY_AUTHORITY_INVALID")
