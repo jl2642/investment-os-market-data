@@ -44,21 +44,30 @@ def install(root: Path) -> None:
     with hk_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=["canonical_security_id", "stock_code", "name_cn", "eligibility_status"])
         writer.writeheader()
-        for idx in range(1, 11):
-            writer.writerow({"canonical_security_id": f"HKEX:{idx:05d}", "stock_code": f"{idx:05d}", "name_cn": f"HK{idx}", "eligibility_status": "BUY_AND_SELL_ELIGIBLE"})
+        hk_codes_by_bucket = {bucket: [] for bucket in range(5)}
+        candidate = 1
+        while sum(len(values) for values in hk_codes_by_bucket.values()) < 10:
+            security_id = f"HKEX:{candidate:05d}"
+            bucket = stable_bucket(security_id, 5)
+            if len(hk_codes_by_bucket[bucket]) < 2:
+                hk_codes_by_bucket[bucket].append(candidate)
+            candidate += 1
+        hk_codes = [code for bucket in range(5) for code in hk_codes_by_bucket[bucket]]
+        for idx, code in enumerate(hk_codes, start=1):
+            writer.writerow({"canonical_security_id": f"HKEX:{code:05d}", "stock_code": f"{code:05d}", "name_cn": f"HK{idx}", "eligibility_status": "BUY_AND_SELL_ELIGIBLE"})
     longlist = root / "outputs/fmdl5e/current/FMDL5E_RESEARCH_LONGLIST.csv"
     longlist.parent.mkdir(parents=True, exist_ok=True)
     with longlist.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=["canonical_security_id", "overall_rank", "name_cn"])
         writer.writeheader()
-        for idx in range(1, 11):
-            writer.writerow({"canonical_security_id": f"HKEX:{idx:05d}", "overall_rank": idx, "name_cn": f"HK{idx}"})
+        for idx, code in enumerate(hk_codes, start=1):
+            writer.writerow({"canonical_security_id": f"HKEX:{code:05d}", "overall_rank": idx, "name_cn": f"HK{idx}"})
     dup = root / "outputs/fmdl5g/integration/current/FMDL5G_CROSS_MARKET_DUPLICATION_REVIEW.csv"
     dup.parent.mkdir(parents=True, exist_ok=True)
     with dup.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=["hk_security_id"])
         writer.writeheader()
-        writer.writerow({"hk_security_id": "HKEX:00001"})
+        writer.writerow({"hk_security_id": f"HKEX:{hk_codes[0]:05d}"})
     benchmark = {"members": [
         {"symbol": "AAPL", "canonical_security_id": "USSEC-AAPL", "pool_layer": "CORE_FINANCIAL_QUALITY_SANDBOX"},
         {"symbol": "QQQ", "canonical_security_id": "USSEC-QQQ", "pool_layer": "BENCHMARK_REFERENCE_INSTRUMENT"},
