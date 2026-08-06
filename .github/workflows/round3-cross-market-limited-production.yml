@@ -50,6 +50,38 @@ jobs:
             automation/cross_market/build_round3_limited_production.py \
             automation/cross_market/validate_round3_outputs.py
           pytest -q automation/cross_market/tests/test_round3_limited_production.py
+      - name: Validate real Canonical input compatibility
+        run: |
+          PYTHONPATH=. python - <<'PY'
+          from datetime import date, timedelta
+          from pathlib import Path
+          from automation.cross_market.build_round3_limited_production import plan_batches, read_json
+
+          root = Path('.')
+          policy = read_json(root / 'automation/cross_market/round3_policy.json')
+          start = date(2026, 8, 3)
+          plans = [plan_batches(root, policy, start + timedelta(days=offset)) for offset in range(5)]
+          assert {plan['hk_universe_count'] for plan in plans} == {644}
+          hk_ids = {
+              row['canonical_security_id']
+              for plan in plans
+              for row in plan['hk_selected']
+          }
+          assert len(hk_ids) == 644
+          assert {plan['us_rotation_pool_count'] for plan in plans} == {8785}
+          assert all(len(plan['us_selected']) == 64 for plan in plans)
+          assert {plan['us_sec_pool_count'] for plan in plans} == {7419}
+          assert all(len(plan['us_sec_selected']) == 8 for plan in plans)
+          assert all(len(plan['us_benchmark']) == 7 for plan in plans)
+          print({
+              'hk_universe': len(hk_ids),
+              'us_rotation_pool': plans[0]['us_rotation_pool_count'],
+              'us_daily_batch': len(plans[0]['us_selected']),
+              'us_issuer_pool': plans[0]['us_sec_pool_count'],
+              'sec_daily_queue': len(plans[0]['us_sec_selected']),
+              'benchmark_daily': len(plans[0]['us_benchmark']),
+          })
+          PY
 
   validate-generated-pr:
     if: github.event_name == 'pull_request'
@@ -138,8 +170,6 @@ jobs:
       - name: Run bounded HK and US production batch
         id: operate
         shell: bash
-        env:
-          SEC_USER_AGENT: "investment-os-market-data/1.0 contact:ljjx2020@gmail.com"
         run: |
           set -Eeuo pipefail
           result="$(python automation/cross_market/build_round3_limited_production.py --repo-root . --as-of '${{ steps.market_date.outputs.as_of }}')"
@@ -197,7 +227,7 @@ jobs:
             echo "- status: \`${{ steps.operate.outputs.status }}\`"
             echo "- operating_state: \`${{ steps.operate.outputs.operating_state }}\`"
             echo "- HK scope: Southbound Stock Connect only"
-            echo "- US scope: seven-name daily benchmark plus bounded 64-name rotation and eight-issuer SEC batch"
+            echo "- US scope: seven-name daily benchmark plus bounded 64-name rotation and eight-issuer official SEC retrieval queue"
             echo "- Candidate / simulation / real account / decisions / orders: 0 / 0 / 0 / 0 / 0"
             echo "- trade_authority: NONE"
             echo "- next gate: Draft PR, complete diff and lineage review"
