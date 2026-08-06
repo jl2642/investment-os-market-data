@@ -1,0 +1,83 @@
+name: Round 3 apply symbol array fix
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/round3-apply-symbol-array-fix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-test-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: agent/round3-hk-us-limited-production
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Patch real queue symbol parsing
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          script_path = Path('automation/cross_market/build_round3_limited_production.py')
+          text = script_path.read_text(encoding='utf-8')
+          old = '''def sec_symbol(row: dict[str, Any]) -> str:\n    return first_value(row, ("symbol", "ticker", "selected_symbol", "primary_symbol", "primary_ticker", "listing_symbol", "security_symbol")).upper()\n\n\ndef fetch_sec_metadata'''
+          new = '''def sec_symbol(row: dict[str, Any]) -> str:\n    return first_value(row, ("symbol", "ticker", "selected_symbol", "primary_symbol", "primary_ticker", "listing_symbol", "security_symbol")).upper()\n\n\ndef market_symbol(row: dict[str, Any]) -> str:\n    direct = sec_symbol(row)\n    if direct:\n        return direct\n    values = row.get("symbols")\n    if isinstance(values, str):\n        values = [values]\n    if isinstance(values, list):\n        for item in values:\n            if isinstance(item, str) and item.strip():\n                return item.strip().upper()\n            if isinstance(item, dict):\n                value = first_value(item, ("symbol", "ticker", "selected_symbol", "primary_symbol"))\n                if value:\n                    return value.upper()\n    return ""\n\n\ndef fetch_sec_metadata'''
+          if old not in text:
+              raise SystemExit('ROUND3_PATCH_TARGET_MISSING:sec_symbol')
+          text = text.replace(old, new, 1)
+          old = '''    for row in market_sources:\n        symbol = sec_symbol(row)\n        security_id = first_value(row, ("canonical_security_id", "security_id", "security_key")) or symbol\n        if symbol and security_id:\n            market_pool[security_id] = {**row, "symbol": symbol, "_security_key": security_id}\n'''
+          new = '''    for row in market_sources:\n        symbol = market_symbol(row)\n        security_id = first_value(row, ("canonical_security_id", "security_id", "security_key")) or symbol\n        if symbol and security_id:\n            market_pool[security_id] = {**row, "symbol": symbol, "_security_key": security_id}\n'''
+          if old not in text:
+              raise SystemExit('ROUND3_PATCH_TARGET_MISSING:market_pool')
+          text = text.replace(old, new, 1)
+          script_path.write_text(text, encoding='utf-8')
+
+          test_path = Path('automation/cross_market/tests/test_round3_limited_production.py')
+          tests = test_path.read_text(encoding='utf-8')
+          old = '''    market_rows = [{"symbol": f"T{idx:03d}", "canonical_security_id": f"USSEC-{idx:03d}"} for idx in range(4, 100)]\n'''
+          new = '''    market_rows = [{"symbols": [f"T{idx:03d}"], "venues": ["XNAS"], "canonical_security_id": f"USSEC-{idx:03d}"} for idx in range(4, 100)]\n'''
+          if old not in tests:
+              raise SystemExit('ROUND3_PATCH_TARGET_MISSING:test_queue')
+          tests = tests.replace(old, new, 1)
+          old = '''        assert len(plan["us_selected"]) <= 4\n        assert plan["bucket"] == offset\n'''
+          new = '''        assert plan["us_rotation_pool_count"] == 100\n        assert len(plan["us_selected"]) <= 4\n        assert all(row["symbol"] for row in plan["us_selected"])\n        assert plan["bucket"] == offset\n'''
+          if old not in tests:
+              raise SystemExit('ROUND3_PATCH_TARGET_MISSING:test_assertions')
+          tests = tests.replace(old, new, 1)
+          test_path.write_text(tests, encoding='utf-8')
+          PY
+      - name: Compile and test
+        run: |
+          python -m pip install --retries 5 --timeout 30 pytest
+          python -m py_compile automation/cross_market/build_round3_limited_production.py
+          pytest -q automation/cross_market/tests/test_round3_limited_production.py
+          PYTHONPATH=. python - <<'PY'
+          from datetime import date, timedelta
+          from pathlib import Path
+          from automation.cross_market.build_round3_limited_production import plan_batches, read_json
+          root = Path('.')
+          policy = read_json(root / 'automation/cross_market/round3_policy.json')
+          plans = [plan_batches(root, policy, date(2026, 8, 3) + timedelta(days=i)) for i in range(5)]
+          assert {p['us_rotation_pool_count'] for p in plans} == {8785}
+          assert all(len(p['us_selected']) == 64 for p in plans)
+          assert all(all(row['symbol'] for row in p['us_selected']) for p in plans)
+          print({'us_rotation_pool': plans[0]['us_rotation_pool_count'], 'daily_batch': len(plans[0]['us_selected']), 'symbol_array_parse': 'PASS'})
+          PY
+      - name: Commit non-workflow fix
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add automation/cross_market/build_round3_limited_production.py automation/cross_market/tests/test_round3_limited_production.py
+          git commit -m "round3: parse US security symbol arrays"
+          git push origin HEAD:agent/round3-hk-us-limited-production
