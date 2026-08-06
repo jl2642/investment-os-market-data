@@ -53,8 +53,9 @@ jobs:
       - name: First official fetch with bounded retry
         run: |
           rm -rf work/hkcu1/replay_1
-          for attempt in 1 2 3 4; do
-            echo "replay_1 official fetch attempt ${attempt}/4"
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            echo "replay_1 official fetch attempt ${attempt}/6"
             python pipeline/hkcu1_fetch_official_lists.py \
               --registry config/hkcu1_official_source_registry.json \
               --output-dir work/hkcu1/replay_1 \
@@ -65,15 +66,18 @@ jobs:
           raise SystemExit(0 if d['status']=='PASS' else 1)
           PY
             then
+              passed=1
               break
             fi
-            if [ "$attempt" -lt 4 ]; then sleep $((attempt * 5)); fi
+            if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
           done
+          test "$passed" -eq 1
       - name: Second independent official fetch with bounded retry
         run: |
           rm -rf work/hkcu1/replay_2
-          for attempt in 1 2 3 4; do
-            echo "replay_2 official fetch attempt ${attempt}/4"
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            echo "replay_2 official fetch attempt ${attempt}/6"
             python pipeline/hkcu1_fetch_official_lists.py \
               --registry config/hkcu1_official_source_registry.json \
               --output-dir work/hkcu1/replay_2 \
@@ -84,10 +88,12 @@ jobs:
           raise SystemExit(0 if d['status']=='PASS' else 1)
           PY
             then
+              passed=1
               break
             fi
-            if [ "$attempt" -lt 4 ]; then sleep $((attempt * 5)); fi
+            if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
           done
+          test "$passed" -eq 1
       - name: Enforce dual-source counts and deterministic replay
         run: |
           python - <<'PY'
@@ -97,7 +103,6 @@ jobs:
           import pandas as pd
 
           root=Path('work/hkcu1')
-          decisions=[]
           frames=[]
           for replay in ('replay_1','replay_2'):
               decision=json.loads((root/replay/'HKCU1_FETCH_DECISION.json').read_text(encoding='utf-8'))
@@ -105,7 +110,6 @@ jobs:
               rows=decision['source_rows']
               assert rows.get('SSE_SH_SOUTHBOUND_BUY_LIST')==651, {replay:rows}
               assert rows.get('SZSE_SZ_SOUTHBOUND_BUY_LIST')==651, {replay:rows}
-              decisions.append(decision)
               frames.append(pd.read_csv(root/replay/'HKCU1_OFFICIAL_LIST_ROWS.csv',dtype=str))
 
           def codes(df, channel):
@@ -139,12 +143,13 @@ jobs:
           print(json.dumps(diff,ensure_ascii=False,indent=2))
           PY
       - name: Render source-level evidence
+        if: always()
         run: |
-          cat work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json
-          cat work/hkcu1/replay_1/HKCU1_SOURCE_LEDGER.json
-          cat work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json
-          cat work/hkcu1/replay_2/HKCU1_SOURCE_LEDGER.json
-          cat work/hkcu1/HKCU1_R2B_REPLAY_AND_CHANNEL_DIFF.json
+          test ! -f work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json || cat work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json
+          test ! -f work/hkcu1/replay_1/HKCU1_SOURCE_LEDGER.json || cat work/hkcu1/replay_1/HKCU1_SOURCE_LEDGER.json
+          test ! -f work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json || cat work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json
+          test ! -f work/hkcu1/replay_2/HKCU1_SOURCE_LEDGER.json || cat work/hkcu1/replay_2/HKCU1_SOURCE_LEDGER.json
+          test ! -f work/hkcu1/HKCU1_R2B_REPLAY_AND_CHANNEL_DIFF.json || cat work/hkcu1/HKCU1_R2B_REPLAY_AND_CHANNEL_DIFF.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
