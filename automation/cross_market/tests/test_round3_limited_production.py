@@ -5,7 +5,8 @@ import gzip
 import json
 import sys
 from copy import deepcopy
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
+from urllib.parse import parse_qs, urlparse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
@@ -30,7 +31,7 @@ def policy() -> dict:
     return {
         "policy_id": "ROUND3_HK_US_LIMITED_PRODUCTION_V1",
         "hong_kong": {"expected_universe_count": 10, "minimum_weekly_attempted_count": 8, "minimum_weekly_success_ratio": 0.8},
-        "united_states": {"expected_security_master_count": 100, "expected_issuer_count": 30, "daily_rotation_batch_size": 4, "daily_sec_batch_size": 2, "minimum_weekly_rotation_attempted_count": 15, "minimum_weekly_benchmark_success_count": 2, "minimum_weekly_sec_queued_count": 8, "minimum_weekly_official_sec_completed_count": 8, "sec_execution_mode": "QUEUE_FOR_CHATGPT_WEB_OFFICIAL_RETRIEVAL"},
+        "united_states": {"expected_security_master_count": 100, "expected_issuer_count": 30, "daily_rotation_batch_size": 4, "daily_sec_batch_size": 2, "minimum_weekly_rotation_attempted_count": 15, "minimum_weekly_rotation_success_ratio": 0.8, "minimum_weekly_benchmark_success_count": 2, "minimum_weekly_sec_queued_count": 8, "minimum_weekly_official_sec_completed_count": 8, "sec_execution_mode": "QUEUE_FOR_CHATGPT_WEB_OFFICIAL_RETRIEVAL"},
         "research": {"allowed_labels": ["RESEARCH_PRIORITY", "WATCH_FOR_ENTRY", "OFFICIAL_FILING_REFRESH_PRIORITY", "MARKET_RISK_SANDBOX_OBSERVATION", "DUPLICATION_REVIEW", "DATA_GAP", "REMOVE_FROM_RESEARCH_REVIEW"], "forbidden_labels": ["BUY_CANDIDATE", "SIMULATION_ENTRY_PROPOSED"], "maximum_hk_weekly_research_proposals": 10, "maximum_us_weekly_research_proposals": 10},
         "acceptance": {"completed_weekly_cycles_for_limited_production_acceptance": 3},
         "authority": {"candidate_pool_mutations": 0, "simulation_mutations": 0, "real_account_mutations": 0, "decision_mutations": 0, "orders": 0, "trade_authority": "NONE"},
@@ -92,7 +93,9 @@ def install(root: Path) -> None:
 
 def fake_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
     if "finance/chart" in url:
-        ts = int(datetime(2026, 8, 3, tzinfo=timezone.utc).timestamp())
+        period2 = int(parse_qs(urlparse(url).query)["period2"][0])
+        as_of = datetime.fromtimestamp(period2, tz=timezone.utc).date() - timedelta(days=2)
+        ts = int(datetime.combine(as_of, datetime.min.time(), tzinfo=timezone.utc).timestamp())
         return json.dumps({"chart": {"result": [{"meta": {"currency": "USD"}, "timestamp": [ts], "indicators": {"quote": [{"close": [100.0], "volume": [1000]}]}}], "error": None}}).encode()
     if "submissions" in url:
         return json.dumps({"filings": {"recent": {"form": ["10-Q"], "filingDate": ["2026-08-01"]}}}).encode()
@@ -167,6 +170,24 @@ def test_validator_blocks_scope_and_label_overclaim(tmp_path: Path) -> None:
         assert "FORBIDDEN_RESEARCH_LABEL" in str(exc)
     else:
         raise AssertionError("investment label must fail")
+
+
+def test_stale_observation_does_not_close_market_bucket_or_block_retry(tmp_path: Path) -> None:
+    install(tmp_path)
+
+    def stale_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
+        if "finance/chart" in url:
+            ts = int(datetime(2026, 8, 2, tzinfo=timezone.utc).timestamp())
+            return json.dumps({"chart": {"result": [{"meta": {"currency": "USD"}, "timestamp": [ts], "indicators": {"quote": [{"close": [100.0], "volume": [1000]}]}}], "error": None}}).encode()
+        raise AssertionError(url)
+
+    result = run(tmp_path, Path("automation/cross_market/round3_policy.json"), date(2026, 8, 3), stale_fetcher, sleep_seconds=0)
+    ledger = json.loads((tmp_path / "investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json").read_text())
+    cycle = ledger["weekly_cycles"]["2026-W32"]
+    assert result["capture_status"] == "PARTIAL_RETRYABLE_MISSING_COMPLETED_SESSION"
+    assert cycle["hk_buckets"] == []
+    assert cycle["us_buckets"] == []
+    assert ledger["daily_runs"] == []
 
 
 def test_same_date_replay_is_noop(tmp_path: Path) -> None:

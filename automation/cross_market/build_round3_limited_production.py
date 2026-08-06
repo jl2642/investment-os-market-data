@@ -133,8 +133,8 @@ def fetch_dual_route_market(market: str, symbol: str, as_of: date, fetcher: Fetc
     trade_date = date.fromisoformat(left["trade_date"])
     if trade_date > as_of:
         raise ValueError("future market observation")
-    if (as_of - trade_date).days > 4:
-        raise ValueError("stale market observation")
+    if trade_date != as_of:
+        raise ValueError(f"SESSION_NOT_COMPLETED_FOR_AS_OF:expected={as_of.isoformat()},observed={trade_date.isoformat()}")
     return {
         "market": market,
         "symbol": symbol,
@@ -399,12 +399,14 @@ def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[d
         "market_rotation_completed": False,
         "completed": False,
     })
-    if bucket not in cycle["hk_buckets"]:
+    hk_session_observed = bool(hk_ok)
+    us_session_observed = bool(us_ok)
+    if bucket not in cycle["hk_buckets"] and hk_session_observed:
         cycle["hk_buckets"].append(bucket)
         cycle["hk_attempted"] += len(hk_ok) + len(hk_fail)
         cycle["hk_success"] += len(hk_ok)
     new_us_bucket = bucket not in cycle["us_buckets"]
-    if new_us_bucket:
+    if new_us_bucket and us_session_observed:
         cycle["us_buckets"].append(bucket)
         rotation = [row for row in us_ok if row["symbol"] not in benchmark_symbols]
         rotation_fail = [row for row in us_fail if row["symbol"] not in benchmark_symbols]
@@ -420,13 +422,16 @@ def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[d
     for row in sec_rows:
         cycle["observations"]["SEC"][row.get("symbol") or row.get("cik") or row.get("canonical_issuer_id") or "UNKNOWN"] = row
     hk_ratio = cycle["hk_success"] / cycle["hk_attempted"] if cycle["hk_attempted"] else 0.0
+    us_ratio = cycle["us_rotation_success"] / cycle["us_rotation_attempted"] if cycle["us_rotation_attempted"] else 0.0
     cycle["hk_success_ratio"] = round(hk_ratio, 6)
+    cycle["us_rotation_success_ratio"] = round(us_ratio, 6)
     cycle["market_rotation_completed"] = (
         sorted(cycle["hk_buckets"]) == [0, 1, 2, 3, 4]
         and sorted(cycle["us_buckets"]) == [0, 1, 2, 3, 4]
         and cycle["hk_attempted"] >= int(policy["hong_kong"]["minimum_weekly_attempted_count"])
         and hk_ratio >= float(policy["hong_kong"]["minimum_weekly_success_ratio"])
         and cycle["us_rotation_attempted"] >= int(policy["united_states"]["minimum_weekly_rotation_attempted_count"])
+        and us_ratio >= float(policy["united_states"]["minimum_weekly_rotation_success_ratio"])
         and len(cycle["us_benchmark_success_symbols"]) >= int(policy["united_states"]["minimum_weekly_benchmark_success_count"])
         and cycle["sec_queued"] >= int(policy["united_states"]["minimum_weekly_sec_queued_count"])
     )
@@ -593,12 +598,19 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
     cycle = update_cycle(ledger, as_of, plan["bucket"], hk_ok, hk_fail, us_ok, us_fail, sec_rows, benchmark_symbols, policy)
     run_id = f"ROUND3_{as_of.isoformat()}_B{plan['bucket']}_{hashlib.sha256((as_of.isoformat()+str(plan['bucket'])).encode()).hexdigest()[:10]}"
     proposal = build_proposal(root, cycle, plan["us_benchmark"], policy)
+    hk_bucket_captured = plan["bucket"] in cycle["hk_buckets"]
+    us_bucket_captured = plan["bucket"] in cycle["us_buckets"]
+    capture_complete = hk_bucket_captured and us_bucket_captured
+    capture_status = "CAPTURED_BOTH_MARKETS" if capture_complete else "PARTIAL_RETRYABLE_MISSING_COMPLETED_SESSION"
     acceptance_required = int(policy["acceptance"]["completed_weekly_cycles_for_limited_production_acceptance"])
     operating_state = "ROUND3_LIMITED_PRODUCTION_ACCEPTED" if ledger["completed_weekly_cycle_count"] >= acceptance_required else "ROUND3_OPERATING_OBSERVATION"
     run_record = {
         "run_id": run_id,
         "as_of_date": as_of.isoformat(),
         "bucket": plan["bucket"],
+        "capture_status": capture_status,
+        "hong_kong_completed_session_captured": hk_bucket_captured,
+        "united_states_completed_session_captured": us_bucket_captured,
         "operating_state": operating_state,
         "completed_weekly_cycle_count": ledger["completed_weekly_cycle_count"],
         "market_rotation_completed_weekly_cycle_count": ledger.get("market_rotation_completed_weekly_cycle_count", 0),
@@ -621,8 +633,9 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
         "controls": policy["authority"],
         "canonical_authority": "MERGE_OF_GOVERNED_PR_ONLY",
     }
-    ledger["daily_runs"].append({"run_id": run_id, "as_of_date": as_of.isoformat(), "bucket": plan["bucket"], "cycle_id": cycle["cycle_id"], "operating_state": operating_state})
-    ledger["daily_runs"] = ledger["daily_runs"][-60:]
+    if capture_complete:
+        ledger["daily_runs"].append({"run_id": run_id, "as_of_date": as_of.isoformat(), "bucket": plan["bucket"], "cycle_id": cycle["cycle_id"], "operating_state": operating_state, "capture_status": capture_status})
+        ledger["daily_runs"] = ledger["daily_runs"][-60:]
     ledger["orders"] = 0
     ledger["trade_authority"] = "NONE"
 
@@ -654,7 +667,7 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
         "trade_authority": "NONE",
     }
     write_json(evidence_dir / "ROUND3_MANIFEST.json", manifest)
-    return {"due": True, "run_id": run_id, "status": proposal["status"], "operating_state": operating_state, "cycle_id": cycle["cycle_id"], "cycle_completed": cycle["completed"], "market_rotation_completed": cycle["market_rotation_completed"], "hk_success": len(hk_ok), "us_success": len(us_ok), "sec_queued": len(sec_rows), "orders": 0, "trade_authority": "NONE"}
+    return {"due": True, "run_id": run_id, "status": proposal["status"], "capture_status": capture_status, "operating_state": operating_state, "cycle_id": cycle["cycle_id"], "cycle_completed": cycle["completed"], "market_rotation_completed": cycle["market_rotation_completed"], "hk_success": len(hk_ok), "us_success": len(us_ok), "sec_queued": len(sec_rows), "orders": 0, "trade_authority": "NONE"}
 
 def main() -> None:
     parser = argparse.ArgumentParser()
