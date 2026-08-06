@@ -1,5 +1,5 @@
 {
-  "registry_version": "1.1.0",
+  "registry_version": "1.2.0",
   "program_id": "HKCU-1",
   "registry_as_of_date": "2026-08-06",
   "landing_pages": [
@@ -10,11 +10,10 @@
       "authority": "SSE",
       "channel": "SH",
       "landing_url": "https://www.sse.com.cn/services/hkexsc/disclo/eligible/",
-      "scope": "Shanghai-Hong Kong Stock Connect southbound eligible securities and adjustment notices",
       "official_domains": ["sse.com.cn"],
       "decision_role": "PRIMARY_FOR_SH_CHANNEL",
       "effective_date_rule": "If an update date is not a Stock Connect trading day, apply from the next Stock Connect trading day",
-      "current_resolution_status": "LANDING_PAGE_CONFIRMED_MACHINE_ENDPOINT_UNRESOLVED"
+      "current_resolution_status": "MACHINE_ENDPOINT_NETWORK_VERIFIED"
     },
     {
       "source_id": "SZSE_SOUTHBOUND_OFFICIAL",
@@ -23,11 +22,10 @@
       "authority": "SZSE",
       "channel": "SZ",
       "landing_url": "https://www.szse.cn/szhk/hkbussiness/underlylist/",
-      "scope": "Shenzhen-Hong Kong Stock Connect southbound eligible securities and adjustment notices",
       "official_domains": ["szse.cn"],
       "decision_role": "PRIMARY_FOR_SZ_CHANNEL",
-      "effective_date_rule": "Use the effective date stated in each official adjustment notice",
-      "current_resolution_status": "LANDING_PAGE_CONFIRMED_MACHINE_ENDPOINT_UNRESOLVED"
+      "effective_date_rule": "Use the list date and effective date stated in official notices",
+      "current_resolution_status": "MACHINE_ENDPOINT_NETWORK_VERIFIED"
     },
     {
       "source_id": "HKEX_STOCK_CONNECT_CROSS_CHECK",
@@ -36,54 +34,65 @@
       "authority": "HKEX",
       "channel": "BOTH",
       "landing_url": "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Eligible-Stocks/View-All-Eligible-Securities?sc_lang=en",
-      "scope": "View All Eligible Securities and links to official southbound eligible-security lists",
       "official_domains": ["hkex.com.hk"],
       "decision_role": "CROSS_CHECK_NOT_SILENT_OVERRIDE",
       "page_last_observed_update": "2026-08-06",
       "current_resolution_status": "LANDING_PAGE_CONFIRMED_LINKS_TO_PRIMARY_LISTS"
     }
   ],
-  "machine_readable_sources": [],
+  "machine_readable_sources": [
+    {
+      "source_id": "SSE_SH_SOUTHBOUND_BUY_LIST",
+      "authority": "SSE",
+      "channel": "SH",
+      "eligibility_side": "BUY_SELL",
+      "landing_url": "https://www.sse.com.cn/services/hkexsc/disclo/eligible/",
+      "payload_url": "https://query.sse.com.cn/commonExcelDd.do?sqlId=COMMON_SSE_JYFW_HGT_XXPL_BDZQQD_L&keyword=",
+      "parser": "SSE_EXCEL",
+      "referer": "https://www.sse.com.cn/services/hkexsc/disclo/eligible/",
+      "discovery_evidence": "PLAYWRIGHT_DOM_AND_NETWORK_CAPTURE_2026-08-06",
+      "expected_min_rows": 100,
+      "as_of_date": "2026-08-06"
+    },
+    {
+      "source_id": "SZSE_SZ_SOUTHBOUND_BUY_LIST",
+      "authority": "SZSE",
+      "channel": "SZ",
+      "eligibility_side": "BUY_SELL",
+      "landing_url": "https://www.szse.cn/szhk/hkbussiness/underlylist/",
+      "payload_url": "https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=SGT_GGTBDQD&TABKEY=tab1",
+      "parser": "SZSE_PAGINATED_JSON",
+      "referer": "https://www.szse.cn/szhk/hkbussiness/underlylist/",
+      "catalog_id": "SGT_GGTBDQD",
+      "expected_metadata_name": "港股通标的证券名单",
+      "discovery_evidence": "PLAYWRIGHT_XHR_CAPTURE_2026-08-06",
+      "expected_min_rows": 100,
+      "as_of_date": "2026-08-06"
+    }
+  ],
   "endpoint_resolution_gate": {
-    "status": "BLOCKED",
-    "reason": "SSE_AND_SZSE_LIST_ROWS_ARE_DYNAMICALLY_LOADED_AND_NO_STABLE_OFFICIAL_MACHINE_ENDPOINT_HAS_YET_BEEN_IDENTITY_VERIFIED",
-    "required_before_production": [
-      "Capture the exact SSE and SZSE request URL, method and parameters from the official page network contract",
-      "Confirm response host remains on an approved official domain",
-      "Confirm the payload contains full current buy/sell eligibility and, separately, sell-only status",
-      "Pin parser fixtures and content hashes",
-      "Complete one same-input deterministic replay"
+    "status": "PASS_ENDPOINT_IDENTITY_ONLY",
+    "resolved_at": "2026-08-06",
+    "evidence": [
+      "SSE commonQuery/commonExcelDd sqlId observed from official page network and DOM",
+      "SZSE ShowReport CATALOGID observed from official page XHR",
+      "SZSE metadata reported list name, list date, recordcount and pagecount"
     ],
-    "prohibited_workaround": "Do not substitute search snippets, broker lists, financial portals, vendor APIs or manually transcribed lists"
+    "remaining_before_production": [
+      "Full payload retrieval and count reconciliation",
+      "Sell-only source identification and exclusion validation",
+      "Same-input deterministic replay",
+      "HKEX cross-check",
+      "Independent release validation"
+    ]
   },
-  "accepted_document_types": [
-    "FULL_ELIGIBLE_LIST",
-    "ADJUSTMENT_NOTICE",
-    "SELL_ONLY_NOTICE",
-    "CROSS_CHECK_SNAPSHOT"
-  ],
-  "required_fields": [
-    "stock_code_5d",
-    "channel",
-    "effective_from",
-    "eligibility_direction",
-    "source_url",
-    "retrieved_at",
-    "source_sha256"
-  ],
   "conflict_policy": {
     "same_channel_primary_vs_cross_check": "PRIMARY_WINS_ONLY_IF_EFFECTIVE_DATE_AND_DOCUMENT_IDENTITY_ARE_EXPLICIT; OTHERWISE_UNKNOWN_BLOCKED",
     "sh_vs_sz_difference": "PRESERVE_CHANNEL_SPECIFIC_STATUS",
     "missing_primary_source": "UNKNOWN_BLOCKED",
     "stale_cached_status": "DO_NOT_CARRY_FORWARD_SILENTLY"
   },
-  "prohibited_sources_for_eligibility_decision": [
-    "SEARCH_ENGINE_SNIPPET",
-    "BROKER_LIST",
-    "FINANCIAL_PORTAL",
-    "MARKET_DATA_VENDOR",
-    "USER_MEMORY_OR_MANUAL_ASSERTION_WITHOUT_OFFICIAL_DOCUMENT"
-  ],
+  "prohibited_sources_for_eligibility_decision": ["SEARCH_ENGINE_SNIPPET", "BROKER_LIST", "FINANCIAL_PORTAL", "MARKET_DATA_VENDOR", "USER_MEMORY_OR_MANUAL_ASSERTION_WITHOUT_OFFICIAL_DOCUMENT"],
   "authority_boundary": {
     "candidate_pool_mutations": 0,
     "simulation_mutations": 0,
