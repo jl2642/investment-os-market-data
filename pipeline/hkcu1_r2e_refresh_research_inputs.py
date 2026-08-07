@@ -71,6 +71,70 @@ def _run(cmd: list[str], cwd: Path, env: dict[str, str] | None = None) -> None:
     subprocess.run(cmd, cwd=cwd, env=env, check=True)
 
 
+def _load_hkma_fx_lkg(repo_root: Path, start_date: str, cutoff: date) -> tuple[list[dict], dict, dict]:
+    """Load only previously verified HKMA official Current FX under FMDL-5C freshness limits."""
+    import pandas as pd
+
+    contract = _json(repo_root / "config/fmdl5c_price_volume_corporate_action_fx_contract.json")
+    acceptance = contract["acceptance"]
+    min_rows = int(acceptance["fx_row_count_min"])
+    max_age = int(acceptance["fx_latest_max_age_calendar_days"])
+    path = repo_root / "outputs/fmdl5c/current/FMDL5C_FX_DAILY.csv"
+    if not path.exists():
+        raise RuntimeError("HKMA_FX_LKG_MISSING")
+    df = pd.read_csv(path, encoding="utf-8-sig", dtype={"observation_date": str})
+    required = {
+        "observation_date", "hkd_per_usd", "hkd_per_cny", "provider", "source_tier",
+        "retrieved_at_utc", "source_page_sha256",
+    }
+    if not required.issubset(df.columns):
+        raise RuntimeError("HKMA_FX_LKG_FIELDS_MISSING")
+    df = df[
+        (df["observation_date"] >= str(start_date))
+        & (df["observation_date"] <= cutoff.isoformat())
+    ].copy()
+    df = df.drop_duplicates("observation_date").sort_values("observation_date")
+    if len(df) < min_rows:
+        raise RuntimeError(f"HKMA_FX_LKG_TOO_FEW_ROWS:{len(df)}:{min_rows}")
+    providers = set(df["provider"].dropna().astype(str))
+    tiers = set(df["source_tier"].dropna().astype(str))
+    if providers != {"HKMA_ER_EERI_DAILY"} or tiers != {"OFFICIAL_OPEN_API"}:
+        raise RuntimeError(f"HKMA_FX_LKG_AUTHORITY_MISMATCH:{providers}:{tiers}")
+    if df[["hkd_per_usd", "hkd_per_cny"]].isna().any(axis=1).any():
+        raise RuntimeError("HKMA_FX_LKG_MISSING_CURRENCY_VALUE")
+    latest = date.fromisoformat(str(df.iloc[-1]["observation_date"]))
+    age = (cutoff - latest).days
+    if age < 0 or age > max_age:
+        raise RuntimeError(f"HKMA_FX_LKG_STALE:{age}:{max_age}")
+    hashes = sorted(set(df["source_page_sha256"].dropna().astype(str)))
+    if not hashes or any(not value for value in hashes):
+        raise RuntimeError("HKMA_FX_LKG_HASH_MISSING")
+    rows = df.to_dict(orient="records")
+    summary = {
+        "provider": "HKMA_ER_EERI_DAILY",
+        "page_count": 0,
+        "row_count": len(rows),
+        "first_date": rows[0]["observation_date"],
+        "latest_date": rows[-1]["observation_date"],
+        "page_sha256": hashes,
+        "acquisition_mode": "LAST_KNOWN_GOOD_OFFICIAL_CURRENT",
+        "lkg_path": "outputs/fmdl5c/current/FMDL5C_FX_DAILY.csv",
+        "lkg_age_calendar_days": age,
+        "publication_semantics": "CONTINUITY_INPUT_WITHIN_ACCEPTED_FMDL5C_FX_FRESHNESS_CONTRACT",
+    }
+    diag = {
+        "mode": "LAST_KNOWN_GOOD_OFFICIAL_CURRENT",
+        "row_count": len(rows),
+        "latest_date": rows[-1]["observation_date"],
+        "age_calendar_days": age,
+        "maximum_allowed_age_calendar_days": max_age,
+        "provider": "HKMA_ER_EERI_DAILY",
+        "source_tier": "OFFICIAL_OPEN_API",
+        "lkg_path": "outputs/fmdl5c/current/FMDL5C_FX_DAILY.csv",
+    }
+    return rows, summary, diag
+
+
 def _apply_hkex_current_action_overlay(repo_root: Path, output: Path) -> dict:
     cmd = [sys.executable, "scripts/fmdl5c_apply_hkex_current_actions.py", "--candidate", str(output)]
     proc = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, check=False)
@@ -91,9 +155,10 @@ def _apply_hkex_current_action_overlay(repo_root: Path, output: Path) -> dict:
     raise RuntimeError(f"HKEX_CURRENT_ACTION_OVERLAY_FAILED:{proc.returncode}:{combined[-2000:]}")
 
 
-def _build_fmdl5c(repo_root: Path, output: Path, cutoff: date) -> tuple[dict, dict]:
+def _build_fmdl5c(repo_root: Path, output: Path, cutoff: date) -> tuple[dict, dict, dict]:
     scripts = repo_root / "scripts"
     cutoff_iso = cutoff.isoformat()
+    fx_diag: dict = {"mode": "FRESH_HKMA_OFFICIAL_API"}
     sys.path.insert(0, str(scripts))
     try:
         module = importlib.import_module("run_fmdl5c_market_store")
@@ -120,9 +185,24 @@ def _build_fmdl5c(repo_root: Path, output: Path, cutoff: date) -> tuple[dict, di
             return rows, _refresh_summary(summary, rows, "observation_date")
 
         def fetch_hkma_fx_cutoff(start_date: str, retrieved_at_utc: str):
-            rows, summary = original_fetch_hkma_fx(start_date, retrieved_at_utc)
-            rows = _filter_observation_rows(rows, cutoff_iso)
-            return rows, _refresh_summary(summary, rows, "observation_date")
+            nonlocal fx_diag
+            try:
+                rows, summary = original_fetch_hkma_fx(start_date, retrieved_at_utc)
+                rows = _filter_observation_rows(rows, cutoff_iso)
+                summary = _refresh_summary(summary, rows, "observation_date")
+                fx_diag = {
+                    "mode": "FRESH_HKMA_OFFICIAL_API",
+                    "row_count": len(rows),
+                    "latest_date": summary.get("latest_date"),
+                    "provider": "HKMA_ER_EERI_DAILY",
+                    "source_tier": "OFFICIAL_OPEN_API",
+                }
+                return rows, summary
+            except Exception as exc:
+                rows, summary, diag = _load_hkma_fx_lkg(repo_root, start_date, cutoff)
+                diag["fresh_error"] = f"{type(exc).__name__}: {exc}"
+                fx_diag = diag
+                return rows, summary
 
         def fetch_hkex_actions_cutoff(universe_codes: set[str], retrieved_at_utc: str):
             rows, summary = original_fetch_hkex_actions(universe_codes, retrieved_at_utc)
@@ -153,7 +233,7 @@ def _build_fmdl5c(repo_root: Path, output: Path, cutoff: date) -> tuple[dict, di
             sys.path.remove(str(scripts))
 
     overlay = _apply_hkex_current_action_overlay(repo_root, output)
-    return _json(output / "FMDL5C_DECISION.json"), overlay
+    return _json(output / "FMDL5C_DECISION.json"), overlay, fx_diag
 
 
 def _patch_fmdl5e_contract(repo_root: Path, fmdl5c_output: Path, fmdl5c_release_id: str) -> tuple[Path, bytes]:
@@ -187,7 +267,7 @@ def refresh(repo_root: Path, calendar_path: Path, eligibility_as_of: str, work_d
     old_workers = os.environ.get("FMDL5C_WORKERS")
     os.environ["FMDL5C_WORKERS"] = env["FMDL5C_WORKERS"]
     try:
-        fmdl5c, hkex_overlay = _build_fmdl5c(repo_root, fmdl5c_output, cutoff)
+        fmdl5c, hkex_overlay, fx_diag = _build_fmdl5c(repo_root, fmdl5c_output, cutoff)
     finally:
         if old_workers is None:
             os.environ.pop("FMDL5C_WORKERS", None)
@@ -244,6 +324,7 @@ def refresh(repo_root: Path, calendar_path: Path, eligibility_as_of: str, work_d
         "fmdl5c_physical_max_market_date": actual_max.date().isoformat(),
         "fmdl5c_source_security_count": (fmdl5c.get("metrics") or {}).get("source_security_count"),
         "fmdl5c_latest_price_success_ratio": (fmdl5c.get("metrics") or {}).get("latest_price_success_ratio"),
+        "fmdl5c_fx_acquisition": fx_diag,
         "hkex_current_action_overlay": hkex_overlay,
         "fmdl5e_release_id": fmdl5e.get("release_id"),
         "fmdl5e_as_of_date": fmdl5e.get("as_of_date"),
