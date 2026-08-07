@@ -1,0 +1,110 @@
+name: R3 temporary repair-horizon helper
+
+on:
+  push:
+    branches:
+      - agent/r3-repair-horizon-delta-continuity
+
+permissions:
+  contents: write
+
+jobs:
+  patch-repair-horizon:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/r3-repair-horizon-delta-continuity
+          fetch-depth: 1
+      - name: Apply bounded repair-horizon continuity fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          source_path = Path('scripts/fmdl2b4_history.py')
+          source = source_path.read_text(encoding='utf-8')
+          old = '''    repair_frames: list[pd.DataFrame] = []
+    repaired_symbols: set[str] = set()
+    for order, entry in enumerate(manifest.get("repair_files", []), start=1):
+        frame = _read_component(entry, root=root)
+        frame = frame.loc[
+            frame["symbol"].astype(str).map(lambda value: shard_for_symbol(value, logical_shards) == shard_id)
+        ].copy()
+        if not frame.empty:
+            repaired_symbols.update(frame["symbol"].astype(str).unique())
+            frame["_precedence"] = 2_000_000 + order
+            repair_frames.append(frame)
+
+    base["_precedence"] = 0
+    pieces = [base, *delta_frames]
+    composite = pd.concat(pieces, ignore_index=True) if pieces else pd.DataFrame()
+    if repaired_symbols:
+        composite = composite.loc[~composite["symbol"].astype(str).isin(repaired_symbols)].copy()
+    if repair_frames:
+        composite = pd.concat([composite, *repair_frames], ignore_index=True)
+'''
+          new = '''    repair_frames: list[pd.DataFrame] = []
+    repair_cutoffs: dict[str, pd.Timestamp] = {}
+    for order, entry in enumerate(manifest.get("repair_files", []), start=1):
+        frame = _read_component(entry, root=root)
+        frame = frame.loc[
+            frame["symbol"].astype(str).map(lambda value: shard_for_symbol(value, logical_shards) == shard_id)
+        ].copy()
+        if not frame.empty:
+            parsed_repair_dates = pd.to_datetime(frame["trade_date"], errors="coerce")
+            if parsed_repair_dates.isna().any():
+                raise RuntimeError(f"INVALID_REPAIR_DATE_SHARD_{shard_id}")
+            local_cutoffs = pd.DataFrame({
+                "symbol": frame["symbol"].astype(str),
+                "trade_date": parsed_repair_dates,
+            }).groupby("symbol")["trade_date"].max()
+            for symbol, cutoff in local_cutoffs.items():
+                previous = repair_cutoffs.get(str(symbol))
+                if previous is None or cutoff > previous:
+                    repair_cutoffs[str(symbol)] = cutoff
+            frame["_precedence"] = 2_000_000 + order
+            repair_frames.append(frame)
+
+    base["_precedence"] = 0
+    pieces = [base, *delta_frames]
+    composite = pd.concat(pieces, ignore_index=True) if pieces else pd.DataFrame()
+    if repair_cutoffs and not composite.empty:
+        composite_dates = pd.to_datetime(composite["trade_date"], errors="coerce")
+        if composite_dates.isna().any():
+            raise RuntimeError(f"INVALID_COMPOSITE_DATE_SHARD_{shard_id}")
+        cutoff_series = composite["symbol"].astype(str).map(repair_cutoffs)
+        keep = cutoff_series.isna() | (composite_dates > cutoff_series)
+        composite = composite.loc[keep].copy()
+    if repair_frames:
+        composite = pd.concat([composite, *repair_frames], ignore_index=True)
+'''
+          if source.count(old) != 1:
+              raise SystemExit(f'EXPECTED_ONE_REPAIR_PRECEDENCE_BLOCK:{source.count(old)}')
+          source = source.replace(old, new, 1)
+          source = source.replace(
+              '    """Resolve one deterministic shard using REPAIR > DELTA > BASE precedence."""',
+              '    """Resolve one shard: repair wins through its horizon; later deltas extend it."""',
+              1,
+          )
+          source_path.write_text(source, encoding='utf-8')
+
+          test_path = Path('tests/test_fmdl2b4_incremental_refresh.py')
+          tests = test_path.read_text(encoding='utf-8')
+          anchor = '''def test_rehash_frame_reconciles_modified_repair_lineage() -> None:\n'''
+          addition = '''def test_delta_after_repair_horizon_extends_composite_without_reopening_repaired_history(tmp_path: Path) -> None:\n    base = pd.DataFrame([\n        history_row("600000.SH", "2026-07-15", 10.0),\n        history_row("600000.SH", "2026-07-16", 10.1),\n    ])\n    delta = pd.DataFrame([\n        history_row("600000.SH", "2026-07-17", 10.2, "sina_public_snapshot", "qfq_current_session_equivalent"),\n        history_row("600000.SH", "2026-07-18", 10.3, "sina_public_snapshot", "qfq_current_session_equivalent"),\n    ])\n    repair = pd.DataFrame([\n        history_row("600000.SH", "2026-07-15", 9.0),\n        history_row("600000.SH", "2026-07-16", 9.1),\n        history_row("600000.SH", "2026-07-17", 9.2),\n    ])\n    base_path = tmp_path / "base.parquet"\n    delta_path = tmp_path / "delta.parquet"\n    repair_path = tmp_path / "repair.parquet"\n    base.to_parquet(base_path, index=False)\n    delta.to_parquet(delta_path, index=False)\n    repair.to_parquet(repair_path, index=False)\n    base_manifest_path = tmp_path / "base_manifest.json"\n    base_manifest = {\n        "release_id": "BASE",\n        "shard_count": 1,\n        "shards": [{"shard_id": 0, "path": str(base_path), "sha256": sha256_file(base_path), "rows": len(base)}],\n    }\n    base_manifest_path.write_text(json.dumps(base_manifest), encoding="utf-8")\n    manifest = {\n        "release_id": "CURRENT",\n        "as_of_date": "2026-07-18",\n        "base_release_id": "BASE",\n        "base_manifest_path": str(base_manifest_path),\n        "base_manifest_sha256": sha256_file(base_manifest_path),\n        "logical_shards": 1,\n        "delta_files": [{"path": str(delta_path), "sha256": sha256_file(delta_path)}],\n        "repair_files": [{"path": str(repair_path), "sha256": sha256_file(repair_path)}],\n    }\n    composite = load_composite_shard(manifest, 0, root=tmp_path)\n    assert composite["trade_date"].tolist() == ["2026-07-15", "2026-07-16", "2026-07-17", "2026-07-18"]\n    assert composite["close"].tolist() == [9.0, 9.1, 9.2, 10.3]\n    assert composite.loc[composite["trade_date"] == "2026-07-17", "provider_id"].item() == "sina_daily"\n    assert composite.loc[composite["trade_date"] == "2026-07-18", "provider_id"].item() == "sina_public_snapshot"\n    assert composite.duplicated(["symbol", "trade_date"]).sum() == 0\n\n\n'''
+          if tests.count(anchor) != 1:
+              raise SystemExit(f'EXPECTED_ONE_TEST_ANCHOR:{tests.count(anchor)}')
+          if 'test_delta_after_repair_horizon_extends_composite' in tests:
+              raise SystemExit('TEST_ALREADY_PRESENT')
+          test_path.write_text(tests.replace(anchor, addition + anchor, 1), encoding='utf-8')
+          PY
+          git diff --check
+          git diff -- scripts/fmdl2b4_history.py tests/test_fmdl2b4_incremental_refresh.py
+      - name: Commit bounded repair-horizon fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/fmdl2b4_history.py tests/test_fmdl2b4_incremental_refresh.py
+          git commit -m "R3: preserve post-repair daily delta continuity"
+          git push origin HEAD:agent/r3-repair-horizon-delta-continuity
