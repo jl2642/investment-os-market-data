@@ -118,6 +118,51 @@ def test_composite_precedence_is_repair_then_delta_then_base(tmp_path: Path) -> 
     assert composite.duplicated(["symbol", "trade_date"]).sum() == 0
 
 
+def test_delta_after_repair_horizon_extends_composite_without_reopening_repaired_history(tmp_path: Path) -> None:
+    base = pd.DataFrame([
+        history_row("600000.SH", "2026-07-15", 10.0),
+        history_row("600000.SH", "2026-07-16", 10.1),
+    ])
+    delta = pd.DataFrame([
+        history_row("600000.SH", "2026-07-17", 10.2, "sina_public_snapshot", "qfq_current_session_equivalent"),
+        history_row("600000.SH", "2026-07-18", 10.3, "sina_public_snapshot", "qfq_current_session_equivalent"),
+    ])
+    repair = pd.DataFrame([
+        history_row("600000.SH", "2026-07-15", 9.0),
+        history_row("600000.SH", "2026-07-16", 9.1),
+        history_row("600000.SH", "2026-07-17", 9.2),
+    ])
+    base_path = tmp_path / "base.parquet"
+    delta_path = tmp_path / "delta.parquet"
+    repair_path = tmp_path / "repair.parquet"
+    base.to_parquet(base_path, index=False)
+    delta.to_parquet(delta_path, index=False)
+    repair.to_parquet(repair_path, index=False)
+    base_manifest_path = tmp_path / "base_manifest.json"
+    base_manifest = {
+        "release_id": "BASE",
+        "shard_count": 1,
+        "shards": [{"shard_id": 0, "path": str(base_path), "sha256": sha256_file(base_path), "rows": len(base)}],
+    }
+    base_manifest_path.write_text(json.dumps(base_manifest), encoding="utf-8")
+    manifest = {
+        "release_id": "CURRENT",
+        "as_of_date": "2026-07-18",
+        "base_release_id": "BASE",
+        "base_manifest_path": str(base_manifest_path),
+        "base_manifest_sha256": sha256_file(base_manifest_path),
+        "logical_shards": 1,
+        "delta_files": [{"path": str(delta_path), "sha256": sha256_file(delta_path)}],
+        "repair_files": [{"path": str(repair_path), "sha256": sha256_file(repair_path)}],
+    }
+    composite = load_composite_shard(manifest, 0, root=tmp_path)
+    assert composite["trade_date"].tolist() == ["2026-07-15", "2026-07-16", "2026-07-17", "2026-07-18"]
+    assert composite["close"].tolist() == [9.0, 9.1, 9.2, 10.3]
+    assert composite.loc[composite["trade_date"] == "2026-07-17", "provider_id"].item() == "sina_daily"
+    assert composite.loc[composite["trade_date"] == "2026-07-18", "provider_id"].item() == "sina_public_snapshot"
+    assert composite.duplicated(["symbol", "trade_date"]).sum() == 0
+
+
 def test_rehash_frame_reconciles_modified_repair_lineage() -> None:
     frame = pd.DataFrame([history_row("600000.SH", "2026-07-17", 10.0)])
     frame.loc[0, "record_quality"] = "FULL_REPAIR_VALID"

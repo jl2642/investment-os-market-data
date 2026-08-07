@@ -123,7 +123,7 @@ def load_composite_shard(
     *,
     root: Path = ROOT,
 ) -> pd.DataFrame:
-    """Resolve one deterministic shard using REPAIR > DELTA > BASE precedence."""
+    """Resolve one shard: repair wins through its horizon; later deltas extend it."""
 
     validate_manifest(manifest, root=root)
     logical_shards = int(manifest["logical_shards"])
@@ -147,22 +147,37 @@ def load_composite_shard(
             delta_frames.append(frame)
 
     repair_frames: list[pd.DataFrame] = []
-    repaired_symbols: set[str] = set()
+    repair_cutoffs: dict[str, pd.Timestamp] = {}
     for order, entry in enumerate(manifest.get("repair_files", []), start=1):
         frame = _read_component(entry, root=root)
         frame = frame.loc[
             frame["symbol"].astype(str).map(lambda value: shard_for_symbol(value, logical_shards) == shard_id)
         ].copy()
         if not frame.empty:
-            repaired_symbols.update(frame["symbol"].astype(str).unique())
+            parsed_repair_dates = pd.to_datetime(frame["trade_date"], errors="coerce")
+            if parsed_repair_dates.isna().any():
+                raise RuntimeError(f"INVALID_REPAIR_DATE_SHARD_{shard_id}")
+            local_cutoffs = pd.DataFrame({
+                "symbol": frame["symbol"].astype(str),
+                "trade_date": parsed_repair_dates,
+            }).groupby("symbol")["trade_date"].max()
+            for symbol, cutoff in local_cutoffs.items():
+                previous = repair_cutoffs.get(str(symbol))
+                if previous is None or cutoff > previous:
+                    repair_cutoffs[str(symbol)] = cutoff
             frame["_precedence"] = 2_000_000 + order
             repair_frames.append(frame)
 
     base["_precedence"] = 0
     pieces = [base, *delta_frames]
     composite = pd.concat(pieces, ignore_index=True) if pieces else pd.DataFrame()
-    if repaired_symbols:
-        composite = composite.loc[~composite["symbol"].astype(str).isin(repaired_symbols)].copy()
+    if repair_cutoffs and not composite.empty:
+        composite_dates = pd.to_datetime(composite["trade_date"], errors="coerce")
+        if composite_dates.isna().any():
+            raise RuntimeError(f"INVALID_COMPOSITE_DATE_SHARD_{shard_id}")
+        cutoff_series = composite["symbol"].astype(str).map(repair_cutoffs)
+        keep = cutoff_series.isna() | (composite_dates > cutoff_series)
+        composite = composite.loc[keep].copy()
     if repair_frames:
         composite = pd.concat([composite, *repair_frames], ignore_index=True)
     if composite.empty:
