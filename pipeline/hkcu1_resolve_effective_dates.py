@@ -79,7 +79,7 @@ def main() -> int:
     unresolved = 0
     future = 0
     if not resolved.empty:
-        unresolved = int(resolved["effective_from"].isna().sum() + (resolved["effective_from"].fillna("").astype(str).str.strip() == "").sum())
+        unresolved = int(resolved["effective_from"].fillna("").astype(str).str.strip().eq("").sum())
         if "future_event" in resolved.columns:
             future = int(resolved["future_event"].sum())
     decision = {
