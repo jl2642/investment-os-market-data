@@ -1,5 +1,5 @@
 {
-  "registry_version": "1.6.0",
+  "registry_version": "1.7.0",
   "program_id": "HKCU-1",
   "registry_as_of_date": "2026-08-07",
   "landing_pages": [
@@ -109,6 +109,9 @@
   "r2c_acceptance_evidence": "outputs/hkcu1/HKCU1_R2C_ACCEPTANCE_20260807.json",
   "r2d_crosscheck_contract": "config/hkcu1_hkex_crosscheck_contract.json",
   "r2d_acceptance_evidence": "outputs/hkcu1/HKCU1_R2D_ACCEPTANCE_20260807.json",
+  "r2e_universe_contract": "config/hkcu1_r2e_universe_contract.json",
+  "r2e_acceptance_evidence": "outputs/hkcu1/HKCU1_R2E_ACCEPTANCE_20260807.json",
+  "r2e_failure_recovery_ledger": "outputs/hkcu1/HKCU1_R2E_FAILURE_RECOVERY_LEDGER.json",
   "sell_only_rule": {
     "authority": "SSE",
     "rule_name": "上海证券交易所沪港通业务实施办法（2024年修订）",
@@ -126,8 +129,15 @@
     "source_blocked_canonical_action": "KEEP_PREVIOUS_CANONICAL_UNCHANGED",
     "third_party_fallback": "PROHIBITED"
   },
+  "research_input_freshness_policy": {
+    "maximum_fmdl5e_age_stock_connect_service_days": 5,
+    "open_session_policy": "USE_LATEST_COMPLETED_STOCK_CONNECT_SERVICE_DAY",
+    "physical_market_date_gate": "FMDL5C_DECISION_MAX_DATE_AND_PHYSICAL_PARQUET_MAX_DATE_MUST_NOT_EXCEED_COMPLETED_SESSION_CUTOFF",
+    "stale_research_input_policy": "BUILD_DIAGNOSTIC_EVIDENCE_ONLY; BLOCK_CURRENT_PROMOTION",
+    "upstream_candidate_publication": "PROHIBITED_BEFORE_R2F; PR_RUNNER_CANDIDATES_ARE_EPHEMERAL_EVIDENCE_ONLY"
+  },
   "endpoint_resolution_gate": {
-    "status": "R2B_PASS_R2C_PASS_R2D_PASS",
+    "status": "R2B_PASS_R2C_PASS_R2D_PASS_R2E_PASS",
     "resolved_at": "2026-08-07",
     "evidence": [
       "SSE browser-native workbook acquisition validated HTTP 200 with XLS signature and SHA-256 in Run #21 and again in Run #48",
@@ -141,11 +151,15 @@
       "Run #51 completed the R2C final write-back regression successfully",
       "R2D Run #1 independently validated the HKEX All Eligible Securities page with HTTP 200, page update date 2026-08-06, and both required Southbound references",
       "HKEX Shanghai Southbound reference targets the SSE official eligibility landing path; HKEX Shenzhen Southbound reference targets the SZSE official eligibility landing path",
-      "HKEX is explicitly classified as a secondary structural/linkage cross-check and cannot silently override SSE/SZSE primary security-level authority"
+      "HKEX is explicitly classified as a secondary structural/linkage cross-check and cannot silently override SSE/SZSE primary security-level authority",
+      "R2E Run #18 completed successfully with fresh official 652/652 eligibility, accepted same-date R2C continuity, HKEX PASS_REFERENCE_CONSISTENT, and refreshed completed-session FMDL-5C/FMDL-5E inputs",
+      "R2E Run #18 enforced completed-session cutoff 2026-08-06 at both FMDL-5C decision and physical parquet levels; FMDL-5E as-of is 2026-08-06 with future price/financial/action rows all zero",
+      "R2E Run #18 produced PASS_CURRENT with 428 investable securities: 410 ELIGIBLE_CORE and 18 ELIGIBLE_WATCH; all 428 are BUY_ELIGIBLE_BOTH common equities with decision-grade financial evidence",
+      "R2E zero-tolerance quality gates passed: duplicate=0, sell-only contamination=0, unknown contamination=0, future information=0, hard failures=[]",
+      "The stale 2026-07-21 FMDL-5E probe produced 451 provisional names versus 428 after fresh refresh, proving stale research inputs are not publication-equivalent"
     ],
     "remaining_before_production": [
-      "Merge with FMDL-5E to generate the final Stock Connect investable Universe",
-      "Independent release validation, full diff review, PR promotion and controlled Canonical publication path"
+      "R2F independent release validation, full diff review, PR promotion and controlled Canonical publication path"
     ]
   },
   "conflict_policy": {
@@ -158,7 +172,9 @@
     "stale_cached_status": "CONTINUITY_ONLY_NO_PUBLICATION",
     "pre_bootstrap_non_member_without_event": "UNKNOWN_BLOCKED",
     "event_older_than_or_equal_to_newer_snapshot": "DO_NOT_OVERRIDE_SNAPSHOT",
-    "unresolved_effective_date": "DO_NOT_APPLY_EVENT_UNTIL_OFFICIAL_CALENDAR_RESOLUTION"
+    "unresolved_effective_date": "DO_NOT_APPLY_EVENT_UNTIL_OFFICIAL_CALENDAR_RESOLUTION",
+    "same_date_r2c_refresh_degradation": "MAY_USE_PREVIOUSLY_ACCEPTED_SAME_DATE_FORWARD_COMPLETE_R2C_STATE_WITHOUT_OVERWRITING_IT; NEVER_BRIDGE_TO_A_LATER_AS_OF_DATE",
+    "partial_current_session_market_data": "EXCLUDE_FROM_COMPLETED_SESSION_RESEARCH_INPUTS"
   },
   "prohibited_sources_for_eligibility_decision": [
     "SEARCH_ENGINE_SNIPPET",
