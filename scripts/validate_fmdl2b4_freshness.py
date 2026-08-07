@@ -90,8 +90,8 @@ def latest_completed_trade_date(current: datetime | None = None) -> str:
 
 def validate(root: Path = ROOT, current: datetime | None = None) -> dict:
     release = read_json(root / "outputs/current/CURRENT_RELEASE.json")
-    expected = latest_completed_trade_date(current)
     acceptable = acceptable_completed_trade_dates(current)
+    expected = acceptable[-1]
     current_as_of = str(release.get("as_of_date"))
     errors: list[str] = []
     if release.get("status") not in {"PUBLISHED", "PUBLISHED_WITH_WARNINGS"}:
