@@ -14,6 +14,7 @@ on:
       - 'config/hkcu1_official_source_registry.json'
       - 'config/hkcu1_stock_connect_calendar_2026.json'
       - 'config/hkcu1_hkex_crosscheck_contract.json'
+      - 'outputs/hkcu1/HKCU1_R2C_ACCEPTANCE_*.json'
       - 'tests/test_hkcu1_r2e*.py'
       - '.github/workflows/hkcu-1-r2e-fmdl5e-universe.yml'
   workflow_dispatch:
@@ -36,7 +37,7 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: pip install -r requirements.txt
-      - run: pytest -q tests/test_hkcu1_r2e.py tests/test_hkcu1_r2e_bootstrap.py tests/test_hkcu1_build_universe.py
+      - run: pytest -q tests/test_hkcu1_r2e.py tests/test_hkcu1_r2e_bootstrap.py tests/test_hkcu1_r2e_r2c_gate.py tests/test_hkcu1_build_universe.py
       - run: python -m json.tool config/hkcu1_r2e_universe_contract.json >/dev/null
 
   r2e-live-build:
@@ -139,19 +140,17 @@ jobs:
           )
           echo "ELIGIBILITY_SOURCE_STATUS=$ELIGIBILITY_SOURCE_STATUS" >> "$GITHUB_ENV"
 
-      - name: Fetch and resolve official adjustment events
+      - name: Refresh R2C adjustment events without overwriting accepted state on degradation
         run: |
           python pipeline/hkcu1_fetch_adjustment_events.py \
             --registry config/hkcu1_official_source_registry.json \
             --output-dir work/hkcu1_r2e_live/events \
             --as-of-date "$AS_OF_DATE"
-          python - <<'PY'
-          import json
-          d=json.load(open('work/hkcu1_r2e_live/events/HKCU1_R2C_EVENT_DECISION.json'))
-          assert d['status']=='PASS_FORWARD_COMPLETE', d
-          assert d['forward_complete_from_bootstrap'] is True, d
-          assert d['unresolved_effective_date_rows']==0, d
-          PY
+          python pipeline/hkcu1_r2e_r2c_gate.py \
+            --current-decision work/hkcu1_r2e_live/events/HKCU1_R2C_EVENT_DECISION.json \
+            --accepted-r2c outputs/hkcu1/HKCU1_R2C_ACCEPTANCE_20260807.json \
+            --as-of-date "$AS_OF_DATE" \
+            --output work/hkcu1_r2e_live/HKCU1_R2E_R2C_OPERATING_GATE.json
 
       - name: Reconstruct point-in-time eligibility
         run: |
@@ -190,6 +189,7 @@ jobs:
         if: always()
         run: |
           test ! -f work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SOURCE_DECISION.json || cat work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SOURCE_DECISION.json
+          test ! -f work/hkcu1_r2e_live/HKCU1_R2E_R2C_OPERATING_GATE.json || cat work/hkcu1_r2e_live/HKCU1_R2E_R2C_OPERATING_GATE.json
           test ! -f work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json || cat work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json
           test ! -f work/hkcu1_r2e_live/release/HKCU1_R2E_QUALITY_REPORT.json || cat work/hkcu1_r2e_live/release/HKCU1_R2E_QUALITY_REPORT.json
 
