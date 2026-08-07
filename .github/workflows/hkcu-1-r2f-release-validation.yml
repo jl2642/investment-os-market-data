@@ -30,7 +30,7 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - name: Fetch canonical main for complete PR diff review
-        run: git fetch origin main --depth=1
+        run: git fetch origin main
       - name: Run R2F unit tests
         run: pytest -q tests/test_hkcu1_r2f.py
       - name: Validate complete HKCU PR and candidate Canonical payload
@@ -104,7 +104,7 @@ jobs:
       - name: Independently validate candidate Canonical before commit
         if: steps.current.outputs.exists != 'true'
         run: |
-          git fetch origin main --depth=1
+          git fetch origin main
           rm -rf work/hkcu1_r2f_candidate
           python pipeline/hkcu1_r2f_validate.py \
             --repo-root . \
