@@ -5,6 +5,7 @@ from datetime import date
 import pandas as pd
 
 from pipeline.hkcu1_fetch_adjustment_events import parse_notice_html
+from pipeline.hkcu1_reconstruct_eligibility import reconstruct
 from pipeline.hkcu1_resilience import classify_sse_evidence, decide
 from pipeline.hkcu1_resolve_effective_dates import next_service_day, resolve_events
 
@@ -92,18 +93,14 @@ def test_next_service_day_normal_weekday():
 
 
 def test_next_service_day_skips_weekend_and_official_closures():
-    # 2026-04-03 and 04-06/07 are full-day Southbound closures; 04-04/05 weekend.
     assert next_service_day(date(2026, 4, 2), _calendar_2026()) == date(2026, 4, 8)
 
 
 def test_effective_date_resolution_marks_future_event_without_applying_it_early():
     events = pd.DataFrame([
         {
-            "security_code": "00754",
-            "channel": "SH",
-            "direction": "OUT",
-            "announcement_date": "2026-07-09",
-            "effective_from": None,
+            "security_code": "00754", "channel": "SH", "direction": "OUT",
+            "announcement_date": "2026-07-09", "effective_from": None,
             "effective_rule": "NEXT_STOCK_CONNECT_TRADING_DAY",
         }
     ])
@@ -115,14 +112,40 @@ def test_effective_date_resolution_marks_future_event_without_applying_it_early(
 def test_explicit_effective_date_is_preserved():
     events = pd.DataFrame([
         {
-            "security_code": "01448",
-            "channel": "SZ",
-            "direction": "OUT",
-            "announcement_date": "2026-06-30",
-            "effective_from": "2026-06-30",
+            "security_code": "01448", "channel": "SZ", "direction": "OUT",
+            "announcement_date": "2026-06-30", "effective_from": "2026-06-30",
             "effective_rule": "EXPLICIT_IN_NOTICE",
         }
     ])
     result = resolve_events(events, _calendar_2026(), "2026-06-30").iloc[0]
     assert result["effective_from"] == "2026-06-30"
     assert bool(result["future_event"]) is False
+
+
+def test_newer_bootstrap_snapshot_dominates_older_out_event():
+    snapshot = pd.DataFrame([
+        {"security_code": "00700", "channel": "SH", "eligibility_side": "BUY_SELL", "effective_from": "2026-08-07"},
+        {"security_code": "00700", "channel": "SZ", "eligibility_side": "BUY_SELL", "effective_from": "2026-08-07"},
+    ])
+    old_events = pd.DataFrame([
+        {"security_code": "00700", "channel": "SH", "direction": "OUT", "effective_from": "2026-06-01"},
+        {"security_code": "00700", "channel": "SZ", "direction": "OUT", "effective_from": "2026-06-01"},
+    ])
+    row = reconstruct(snapshot, old_events, "2026-08-07").iloc[0]
+    assert row["combined_status"] == "BUY_ELIGIBLE_BOTH"
+    assert bool(row["buy_eligible"]) is True
+
+
+def test_post_bootstrap_out_creates_sell_only_without_buy_contamination():
+    snapshot = pd.DataFrame([
+        {"security_code": "00700", "channel": "SH", "eligibility_side": "BUY_SELL", "effective_from": "2026-08-07"},
+        {"security_code": "00700", "channel": "SZ", "eligibility_side": "BUY_SELL", "effective_from": "2026-08-07"},
+    ])
+    events = pd.DataFrame([
+        {"security_code": "00700", "channel": "SH", "direction": "OUT", "effective_from": "2026-08-10"},
+        {"security_code": "00700", "channel": "SZ", "direction": "OUT", "effective_from": "2026-08-10"},
+    ])
+    row = reconstruct(snapshot, events, "2026-08-10").iloc[0]
+    assert row["combined_status"] == "SELL_ONLY"
+    assert bool(row["buy_eligible"]) is False
+    assert bool(row["sell_only"]) is True
