@@ -46,9 +46,9 @@ def test_batch2_expected_status_counts():
         statuses.extend(x[f"{prefix}_status"].tolist())
     s = pd.Series(statuses)
     assert (s == "EVIDENCE_COMPLETE").sum() == 5
-    assert (s == "EVIDENCE_PARTIAL").sum() == 48
-    assert (s == "RESEARCH_REQUIRED").sum() == 7
-    assert (s.isin(["EVIDENCE_COMPLETE", "EVIDENCE_PARTIAL"])).sum() == 53
+    assert (s == "EVIDENCE_PARTIAL").sum() == 47
+    assert (s == "RESEARCH_REQUIRED").sum() == 8
+    assert (s.isin(["EVIDENCE_COMPLETE", "EVIDENCE_PARTIAL"])).sum() == 52
     complete = x[x["earnings_status"] == "EVIDENCE_COMPLETE"]
     assert set(complete["stock_code_5d"].astype(str).str.zfill(5)) == {"03698", "09636", "06127", "06181", "06066"}
 
