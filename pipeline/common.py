@@ -14,6 +14,7 @@ import pandas as pd
 
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
 SYMBOL_PATTERN = re.compile(r"^[0-9]{6}\.(SH|SZ|BJ)$")
+MARKET_SNAPSHOT_PUBLICATION_CUTOFF = time(15, 30)
 
 
 def now_shanghai() -> datetime:
@@ -103,10 +104,15 @@ def canonical_symbol(code: str) -> str:
 
 
 def latest_completed_trade_date(calendar: pd.DataFrame, current: datetime | None = None) -> date:
-    """Return the most recent completed Chinese trading session.
+    """Return the most recent session safe to label as the daily market snapshot.
 
-    Before 16:10 Asia/Shanghai on a trading day, the current date is excluded so
-    an intraday spot table is not mislabeled as a completed daily snapshot.
+    The free full-market spot route does not expose a reliable per-row trade date, so
+    the snapshot date is inferred from the public trading calendar plus a bounded
+    post-close publication window. Before 15:30 Asia/Shanghai on a trading day, the
+    current date is excluded to avoid labeling intraday or still-settling spot data as
+    a completed daily snapshot. At and after 15:30, the current trading date is the
+    snapshot as-of date. This is intentionally aligned with the FMDL-2B-4 freshness
+    gate's post-close publication grace boundary.
     """
 
     now = (current or now_shanghai()).astimezone(BUSINESS_TZ)
@@ -124,13 +130,13 @@ def latest_completed_trade_date(calendar: pd.DataFrame, current: datetime | None
         candidate = now.date()
         while candidate.weekday() >= 5:
             candidate = candidate.fromordinal(candidate.toordinal() - 1)
-        if candidate == now.date() and now.time() < time(16, 10):
+        if candidate == now.date() and now.time() < MARKET_SNAPSHOT_PUBLICATION_CUTOFF:
             candidate = candidate.fromordinal(candidate.toordinal() - 1)
             while candidate.weekday() >= 5:
                 candidate = candidate.fromordinal(candidate.toordinal() - 1)
         return candidate
     eligible = [item for item in dates if item <= now.date()]
-    if now.date() in eligible and now.time() < time(16, 10):
+    if now.date() in eligible and now.time() < MARKET_SNAPSHOT_PUBLICATION_CUTOFF:
         eligible = [item for item in eligible if item < now.date()]
     if not eligible:
         raise RuntimeError("No completed trading date is available in the calendar")
