@@ -1,0 +1,53 @@
+{
+  "contract_id": "HKCU_P2B_E2_RANK21_40_V1",
+  "program_id": "HKCU-P2B-E2-R21-40",
+  "phase": "P2B_E2_CONTINUE_COMPANY_SPECIFIC_EVIDENCE",
+  "objective": "Extend the accepted top-quartile P2B-E2 primary-official evidence state to P2A ranks 21-40 without changing the existing ranks 1-20 evidence, fabricating consensus revisions, or assigning alpha scores.",
+  "authoritative_inputs": {
+    "previous_e2_builder": "pipeline/hkcu_p2b_apply_e2_company_evidence.py",
+    "previous_e2_validator": "scripts/validate_hkcu_p2b_e2.py",
+    "batch_evidence": "evidence/hkcu_p2b/HKCU_P2B_E2_COMPANY_EVIDENCE_RANK21_40_20260807.csv"
+  },
+  "batch_policy": {
+    "as_of_date": "2026-08-07",
+    "required_rank_start": 21,
+    "required_rank_end": 40,
+    "batch_security_count": 20,
+    "required_rows_per_security": 3,
+    "required_evidence_rows": 60,
+    "required_dimensions": ["GOVERNANCE_VALUE_TRAP", "EARNINGS_EXPECTATION_REVISION", "CATALYST"],
+    "allowed_statuses": ["EVIDENCE_PARTIAL", "EVIDENCE_COMPLETE", "RESEARCH_REQUIRED", "DATA_UNAVAILABLE"],
+    "expected_collected_rows": 54,
+    "expected_complete_rows": 5,
+    "expected_partial_rows": 49,
+    "expected_research_required_rows": 6
+  },
+  "cumulative_acceptance": {
+    "covered_security_count": 40,
+    "cumulative_batch_rows": 120,
+    "cumulative_collected_rows": 108,
+    "cumulative_complete_rows": 8,
+    "company_specific_open_tasks": 223,
+    "company_specific_unstarted_tasks": 123,
+    "required_score_non_null_count": 0
+  },
+  "evidence_policy": {
+    "primary_official_required_for_collected_rows": true,
+    "web_snippet_is_not_authority": true,
+    "future_dated_evidence_forbidden": true,
+    "latest_results_may_support_but_not_substitute_for_consensus_revision": true,
+    "profit_warning_or_profit_increase_is_direct_management_expectation_evidence": true,
+    "catalyst_must_be_dated_security_specific_and_falsifiable": true,
+    "no_alpha_score_in_e2": true
+  },
+  "protected_state": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "formal_candidate_graduation_allowed": false,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "P2B_E2_RANK41_60_COMPANY_SPECIFIC_EVIDENCE",
+  "trade_authority": "NONE"
+}
