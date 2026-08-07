@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 from pipeline.hkcu1_r2f_validate import validate_changed_paths, validate_frozen_r2e_core
 
 
@@ -25,3 +28,14 @@ def test_frozen_r2e_core_allows_r2f_and_evidence_only_change():
         "outputs/hkcu1/HKCU1_R2E_ACCEPTANCE_20260807.json",
         "outputs/hkcu1/current/HKCU1_R2E_DECISION.json",
     ]) == []
+
+
+def test_r2f_release_contract_explicitly_binds_r2e_gate_contract():
+    root = Path(__file__).resolve().parents[1]
+    release = json.loads((root / "config/hkcu1_r2f_release_contract.json").read_text(encoding="utf-8"))
+    source = release["source_r2e_contract"]
+    assert source == "config/hkcu1_r2e_universe_contract.json"
+    r2e = json.loads((root / source).read_text(encoding="utf-8"))
+    assert r2e["investable_gate"]["allowed_fmdl5e_investability_status"] == ["ELIGIBLE_CORE", "ELIGIBLE_WATCH"]
+    assert r2e["investable_gate"]["allowed_security_types"] == ["COMMON_EQUITY"]
+    assert r2e["freshness"]["maximum_fmdl5e_age_stock_connect_service_days"] == 5
