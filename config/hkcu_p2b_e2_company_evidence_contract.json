@@ -1,0 +1,58 @@
+{
+  "contract_id": "HKCU_P2B_E2_COMPANY_EVIDENCE_INTAKE_V1",
+  "program_id": "HKCU-P2B-E2",
+  "phase": "P2B_E2_COMPANY_SPECIFIC_EVIDENCE",
+  "objective": "Collect company-specific structured evidence for all 77 accepted P2A names after P2B-E1, preserving primary-evidence requirements and forbidding unsupported qualitative scores or Candidate/portfolio mutations.",
+  "authoritative_inputs": {
+    "p2a_acceptance": "outputs/hkcu_p2a/current/HKCU_P2A_ACCEPTANCE.json",
+    "p2b_baseline": "pipeline/hkcu_p2b_build_research_baseline.py",
+    "p2b_e1": "pipeline/hkcu_p2b_apply_e1_evidence.py"
+  },
+  "source_interfaces": [
+    {
+      "interface": "akshare.stock_hk_company_profile_em",
+      "authority": "SECONDARY_STRUCTURED_PUBLIC_DATA",
+      "purpose": "company identity, industry, chairman, company secretary, auditor, website and business introduction"
+    },
+    {
+      "interface": "akshare.stock_hk_financial_indicator_em",
+      "authority": "SECONDARY_STRUCTURED_PUBLIC_DATA",
+      "purpose": "latest financial context and value-trap screening leads; never a substitute for primary governance evidence or earnings-revision data"
+    },
+    {
+      "interface": "akshare.stock_hk_dividend_payout_em",
+      "authority": "SECONDARY_STRUCTURED_PUBLIC_DATA",
+      "purpose": "dated dividend/corporate-action catalyst leads requiring primary issuer/HKEX confirmation"
+    }
+  ],
+  "evidence_policy": {
+    "secondary_data_may_close_primary_governance": false,
+    "trailing_growth_may_proxy_earnings_revision": false,
+    "dividend_event_may_become_final_catalyst_without_primary_verification": false,
+    "unsupported_qualitative_score_allowed": false,
+    "company_website_is_primary_source_lead_not_evidence": true
+  },
+  "network_policy": {
+    "attempts": 2,
+    "backoff_seconds": 1.0,
+    "sleep_between_securities_seconds": 0.05
+  },
+  "expected_counts": {
+    "security_count": 77,
+    "e1_remaining_company_specific_tasks": 231,
+    "company_dimension_rows": 231
+  },
+  "acceptance": {
+    "minimum_profile_success_count": 70,
+    "minimum_financial_success_count": 70,
+    "required_security_count": 77,
+    "required_company_dimension_rows": 231,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "P2B_E2_PRIMARY_COMPANY_EVIDENCE_TOP20",
+  "trade_authority": "NONE"
+}
