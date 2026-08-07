@@ -1,0 +1,47 @@
+{
+  "contract_id": "HKCU_P2B_E2_DEEPENING_D1_NEGATIVE_CATALYST_V1",
+  "program_id": "HKCU-P2B-E2-D1",
+  "phase": "P2B_E2_COMPANY_EVIDENCE_DEEPENING",
+  "objective": "Convert the 23 catalyst rows that remain RESEARCH_REQUIRED after accepted Batch4 into auditable negative catalyst findings when the primary HKEX disclosure surface has already been reviewed and no dated, security-specific, falsifiable, directional unresolved catalyst qualifies as of 2026-08-07.",
+  "authoritative_inputs": {
+    "batch4_builder": "pipeline/hkcu_p2b_apply_e2_batch4.py",
+    "batch4_validator": "scripts/validate_hkcu_p2b_e2_batch4.py"
+  },
+  "negative_evidence_policy": {
+    "as_of_date": "2026-08-07",
+    "target_dimension": "CATALYST",
+    "required_prior_status": "RESEARCH_REQUIRED",
+    "required_source_authority": "HKEX_PRIMARY_OFFICIAL_DISCLOSURE_SURFACE",
+    "qualifying_catalyst_standard": "Dated, security-specific, falsifiable and directionally relevant unresolved event as of the review date.",
+    "negative_finding": "NO_QUALIFYING_ACTIVE_CATALYST",
+    "negative_finding_is_not_bearish_score": true,
+    "absence_of_catalyst_may_close_research_question": true,
+    "generic_theme_or_routine_filing_is_not_catalyst": true,
+    "no_alpha_score": true
+  },
+  "expected_target_count": 23,
+  "expected_target_codes": [
+    "00941", "00388", "02388", "00440", "01997", "09992", "02666", "00288", "02356", "00003", "00762", "03968", "06127", "03988", "01398", "00066", "00939", "00917", "02331", "00788", "00371", "03328", "02799"
+  ],
+  "expected_cumulative_after_d1": {
+    "company_specific_dimension_rows": 231,
+    "EVIDENCE_COMPLETE": 45,
+    "EVIDENCE_PARTIAL": 186,
+    "RESEARCH_REQUIRED": 0,
+    "company_specific_open_tasks": 186,
+    "company_specific_unstarted_tasks": 0,
+    "negative_catalyst_closure_count": 23,
+    "all_77_securities_started": true
+  },
+  "acceptance": {
+    "score_non_null_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "formal_candidate_graduation_allowed": false,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "P2B_E2_PARTIAL_EVIDENCE_DEEPENING",
+  "trade_authority": "NONE"
+}
