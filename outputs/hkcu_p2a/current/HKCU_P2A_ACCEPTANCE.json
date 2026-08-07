@@ -1,0 +1,65 @@
+{
+  "program_id": "HKCU-P2A",
+  "phase": "P2A",
+  "status": "PASS_P2A_CURRENT",
+  "accepted_at_business_date": "2026-08-07",
+  "canonical_hkcu_count": 430,
+  "formal_five_sleeve_union_count": 226,
+  "longlist_count": 77,
+  "longlist_share_of_canonical": 0.17906976744186046,
+  "selection_method": "DETERMINISTIC_1D_KMEANS",
+  "longlist_count_policy": "DISTRIBUTION_DERIVED_NO_FIXED_TARGET",
+  "research_readiness_counts": {
+    "READY_HIGH": 75,
+    "READY_CONTROLLED": 2
+  },
+  "primary_sleeve_counts": {
+    "QUALITY_COMPOUNDER": 20,
+    "HIGH_DIVIDEND_VALUE": 16,
+    "TREND_LIQUIDITY": 15,
+    "DEFENSIVE_STABILITY": 15,
+    "RECOVERY_WATCH": 11
+  },
+  "upstream": {
+    "eligibility_as_of_date": "2026-08-07",
+    "fmdl5e_as_of_date": "2026-08-06",
+    "hkcu_current_count": 430,
+    "hkcu_current_investable_sha256": "fe54e9ba7ad9f8361bed378b0670162aee13fa86e9e28c709b147c0ebe7ac7ba",
+    "hkcu_current_decision_sha256": "045c42bd9357e46e66f591944dfa105a91219584da372a1f12e6d4587b10f3fa",
+    "hkcu_current_quality_sha256": "fb4e6407096e333c8868cc40a924d8fb380ed5e70ad051c5028b4741eb3df960",
+    "p2a_contract_sha256": "e82ed3bae1151541cd4ed49706d3b8125649d1766e24f2fb49245740201364e0"
+  },
+  "accepted_outputs_sha256": {
+    "HKCU_P2A_DECISION.json": "f15e2488e32498c16cb6ea481525f271ed9e87378692adfceac4a32a03d92965",
+    "HKCU_P2A_FUNNEL_COUNTS.csv": "8fd66b0fb7c941a98c07ad13c697f49c2077cac8ca640926a0038d0f208e5829",
+    "HKCU_P2A_MANIFEST.json": "535831d40677b98f06f8104995e754c414db9563e3dc351da668a1c55b138bfc",
+    "HKCU_P2A_QUALITY_REPORT.json": "0e202a838da61817e94ba7fa614210aaf88a8da5be6977507168a31b9e2cd253",
+    "HKCU_P2A_RESEARCH_LONGLIST.csv": "bd9addfcaa095080b72b9fa132875eb3ab3bcd102ccfc1fc9c6b79f3e6984012",
+    "HKCU_P2A_RESEARCH_MISSINGNESS.csv": "e9f7d2ccd105ddf58dc16fe4ff9e7714fca6cb45d59bc61a33abfbd3f5f2bcf1",
+    "HKCU_P2A_SLEEVE_DETAIL.csv": "2af5e94d1f5d5de5e55198778ca006f31417430a7cba1c6d4323c188c5a2f32b"
+  },
+  "acceptance_evidence": {
+    "pull_request": 202,
+    "merge_commit_sha": "0634f764d458ceba4d35f91c3dfc895ff6ec44f0",
+    "workflow_run_id": 31164524164,
+    "workflow_name": "HKCU P2A Research Longlist",
+    "workflow_conclusion": "success",
+    "artifact_id": 8988469712,
+    "artifact_name": "hkcu-p2a-real-canonical-evidence",
+    "artifact_digest": "sha256:f5acf61f0431aa22d44972c23d99b0a5613c93a84d479057851179e74cf039ff"
+  },
+  "p2b_required_dimension_counts": {
+    "GOVERNANCE_VALUE_TRAP": 77,
+    "EARNINGS_EXPECTATION_REVISION": 77,
+    "CATALYST": 77,
+    "TRANSACTION_COST_TAX": 77,
+    "A_H_RELATIVE_VALUATION": 22
+  },
+  "candidate_pool_mutations": 0,
+  "simulation_mutations": 0,
+  "real_account_mutations": 0,
+  "orders_created": 0,
+  "trade_authority": "NONE",
+  "next_gate": "P2B_RESEARCH_ENRICHMENT",
+  "notes": "This acceptance record pins the independently validated P2A artifact and its exact upstream/output hashes. P2B must deterministically rebuild P2A from the pinned upstream and reject any hash drift before enrichment."
+}
