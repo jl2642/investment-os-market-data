@@ -37,13 +37,13 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: pip install -r requirements.txt
-      - run: pytest -q tests/test_hkcu1_r2e.py tests/test_hkcu1_r2e_bootstrap.py tests/test_hkcu1_r2e_r2c_gate.py tests/test_hkcu1_build_universe.py
+      - run: pytest -q tests/test_hkcu1_r2e.py tests/test_hkcu1_r2e_bootstrap.py tests/test_hkcu1_r2e_r2c_gate.py tests/test_hkcu1_r2e_refresh_research_inputs.py tests/test_hkcu1_build_universe.py
       - run: python -m json.tool config/hkcu1_r2e_universe_contract.json >/dev/null
 
   r2e-live-build:
     needs: r2e-unit-tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -174,12 +174,23 @@ jobs:
           assert d['primary_authority_unchanged'] is True, d
           PY
 
-      - name: Merge with accepted FMDL-5E Current
+      - name: Refresh completed-session FMDL-5C and FMDL-5E research inputs
+        env:
+          FMDL5C_WORKERS: '10'
+        run: |
+          python pipeline/hkcu1_r2e_refresh_research_inputs.py \
+            --repo-root . \
+            --calendar config/hkcu1_stock_connect_calendar_2026.json \
+            --eligibility-as-of-date "$AS_OF_DATE" \
+            --work-dir work/hkcu1_r2e_live/research_refresh
+          cat work/hkcu1_r2e_live/research_refresh/HKCU1_R2E_UPSTREAM_REFRESH_DECISION.json
+
+      - name: Merge with refreshed completed-session FMDL-5E candidate
         run: |
           python pipeline/hkcu1_r2e_merge_fmdl5e.py \
             --eligibility work/hkcu1_r2e_live/eligibility/HKCU1_POINT_IN_TIME_ELIGIBILITY.csv \
-            --fmdl5e-screening outputs/fmdl5e/current/FMDL5E_SCREENING_UNIVERSE.csv \
-            --fmdl5e-decision outputs/fmdl5e/current/FMDL5E_DECISION.json \
+            --fmdl5e-screening work/hkcu1_r2e_live/research_refresh/fmdl5e_fresh/FMDL5E_SCREENING_UNIVERSE.csv \
+            --fmdl5e-decision work/hkcu1_r2e_live/research_refresh/fmdl5e_fresh/FMDL5E_DECISION.json \
             --calendar config/hkcu1_stock_connect_calendar_2026.json \
             --contract config/hkcu1_r2e_universe_contract.json \
             --as-of-date "$AS_OF_DATE" \
@@ -191,6 +202,7 @@ jobs:
         run: |
           test ! -f work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SOURCE_DECISION.json || cat work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SOURCE_DECISION.json
           test ! -f work/hkcu1_r2e_live/HKCU1_R2E_R2C_OPERATING_GATE.json || cat work/hkcu1_r2e_live/HKCU1_R2E_R2C_OPERATING_GATE.json
+          test ! -f work/hkcu1_r2e_live/research_refresh/HKCU1_R2E_UPSTREAM_REFRESH_DECISION.json || cat work/hkcu1_r2e_live/research_refresh/HKCU1_R2E_UPSTREAM_REFRESH_DECISION.json
           test ! -f work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json || cat work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json
           test ! -f work/hkcu1_r2e_live/release/HKCU1_R2E_QUALITY_REPORT.json || cat work/hkcu1_r2e_live/release/HKCU1_R2E_QUALITY_REPORT.json
 
@@ -202,6 +214,7 @@ jobs:
           assert d['status']=='PASS_CURRENT', d
           assert d['publication_allowed'] is True, d
           assert d['eligibility_source_fresh'] is True, d
+          assert d['fmdl5e_age_stock_connect_service_days'] <= 5, d
           PY
 
       - uses: actions/upload-artifact@v4
