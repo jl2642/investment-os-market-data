@@ -33,9 +33,9 @@ The remaining ordinary results/business updates remain `EVIDENCE_PARTIAL`. Weak 
 Ranks 21–40 create 60 dimension rows:
 
 - `EVIDENCE_COMPLETE`: 5
-- `EVIDENCE_PARTIAL`: 48
-- `RESEARCH_REQUIRED`: 7
-- evidence captured: 53 rows
+- `EVIDENCE_PARTIAL`: 47
+- `RESEARCH_REQUIRED`: 8
+- evidence captured: 52 rows
 
 The real workflow first regenerates and independently validates the accepted ranks 1–20 batch. It then verifies that ranks 21–40 are still previously unstarted rows in the same 231-row company-specific matrix before overlaying new evidence.
 
@@ -43,12 +43,12 @@ Expected cumulative P2B-E2 state after Batch 2:
 
 - securities started: 40 / 77
 - evidence rows recorded across Batches 1–2: 120
-- evidence-captured rows: 107
+- evidence-captured rows: 106
 - `EVIDENCE_COMPLETE`: 8
-- `EVIDENCE_PARTIAL`: 99
-- `RESEARCH_REQUIRED`: 124
+- `EVIDENCE_PARTIAL`: 98
+- `RESEARCH_REQUIRED`: 125
 - company-specific tasks still open: 223
-- company-specific tasks still entirely unstarted: 124
+- company-specific rows still `RESEARCH_REQUIRED`: 125
 
 Partial tasks remain open. P2B-E2 therefore remains in progress after Batch 2.
 
