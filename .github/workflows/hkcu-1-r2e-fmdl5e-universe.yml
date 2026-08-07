@@ -1,0 +1,190 @@
+name: HKCU-1 R2E FMDL-5E Investable Universe
+
+on:
+  pull_request:
+    paths:
+      - 'pipeline/hkcu1_r2e_merge_fmdl5e.py'
+      - 'pipeline/hkcu1_fetch_sse_browser.py'
+      - 'pipeline/hkcu1_fetch_official_lists.py'
+      - 'pipeline/hkcu1_fetch_adjustment_events.py'
+      - 'pipeline/hkcu1_reconstruct_eligibility.py'
+      - 'pipeline/hkcu1_hkex_crosscheck.py'
+      - 'config/hkcu1_r2e_universe_contract.json'
+      - 'config/hkcu1_official_source_registry.json'
+      - 'config/hkcu1_stock_connect_calendar_2026.json'
+      - 'config/hkcu1_hkex_crosscheck_contract.json'
+      - 'tests/test_hkcu1_r2e.py'
+      - '.github/workflows/hkcu-1-r2e-fmdl5e-universe.yml'
+  workflow_dispatch:
+    inputs:
+      as_of_date:
+        description: Eligibility and R2E valuation date YYYY-MM-DD; blank uses Asia/Shanghai current date
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  r2e-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu1_r2e.py tests/test_hkcu1_build_universe.py
+      - run: python -m json.tool config/hkcu1_r2e_universe_contract.json >/dev/null
+
+  r2e-live-build:
+    needs: r2e-unit-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install runtime dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Resolve R2E as-of date
+        run: |
+          AS_OF_DATE="${{ inputs.as_of_date }}"
+          if [ -z "$AS_OF_DATE" ]; then AS_OF_DATE=$(TZ=Asia/Shanghai date +%F); fi
+          echo "AS_OF_DATE=$AS_OF_DATE" >> "$GITHUB_ENV"
+          rm -rf work/hkcu1_r2e_live
+          mkdir -p work/hkcu1_r2e_live/source/browser
+
+      - name: Acquire fresh SSE official current list
+        run: |
+          python pipeline/hkcu1_fetch_sse_browser.py \
+            --output-file work/hkcu1_r2e_live/source/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
+            --evidence-file work/hkcu1_r2e_live/source/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json \
+            --max-attempts 3
+          python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1_r2e_live/source/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json'))
+          assert d['status']=='PASS', d
+          PY
+
+      - name: Fetch and reconcile SSE and SZSE current lists
+        run: |
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            rm -rf work/hkcu1_r2e_live/source/current_lists
+            python pipeline/hkcu1_fetch_official_lists.py \
+              --registry config/hkcu1_official_source_registry.json \
+              --output-dir work/hkcu1_r2e_live/source/current_lists \
+              --sse-raw-file work/hkcu1_r2e_live/source/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
+              --allow-partial
+            if python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1_r2e_live/source/current_lists/HKCU1_FETCH_DECISION.json'))
+          ledger=json.load(open('work/hkcu1_r2e_live/source/current_lists/HKCU1_SOURCE_LEDGER.json'))
+          by={r['source_id']:r for r in ledger}
+          ids=('SSE_SH_SOUTHBOUND_BUY_LIST','SZSE_SZ_SOUTHBOUND_BUY_LIST')
+          ok=d['status']=='PASS'
+          for sid in ids:
+              row=by.get(sid,{})
+              actual=d['source_rows'].get(sid)
+              ok = ok and row.get('status')=='PASS' and isinstance(actual,int) and actual>0 and actual==row.get('declared_record_count')
+          raise SystemExit(0 if ok else 1)
+          PY
+            then
+              passed=1
+              break
+            fi
+            if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
+          done
+          test "$passed" -eq 1
+
+      - name: Build current-state bootstrap snapshot
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          root=Path('work/hkcu1_r2e_live/source/current_lists')
+          df=pd.read_csv(root/'HKCU1_OFFICIAL_LIST_ROWS.csv',dtype=str)
+          keep=df[['security_code','channel','eligibility_side','source_id','source_sha256']].copy()
+          keep['effective_from']='${{ env.AS_OF_DATE }}'
+          keep=keep.drop_duplicates(['security_code','channel'])
+          keep.to_csv('work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SNAPSHOT.csv',index=False)
+          assert len(keep)>0
+          assert keep[['security_code','channel']].duplicated().sum()==0
+          PY
+
+      - name: Fetch and resolve official adjustment events
+        run: |
+          python pipeline/hkcu1_fetch_adjustment_events.py \
+            --registry config/hkcu1_official_source_registry.json \
+            --output-dir work/hkcu1_r2e_live/events \
+            --as-of-date "$AS_OF_DATE"
+          python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1_r2e_live/events/HKCU1_R2C_EVENT_DECISION.json'))
+          assert d['status']=='PASS_FORWARD_COMPLETE', d
+          assert d['forward_complete_from_bootstrap'] is True, d
+          assert d['unresolved_effective_date_rows']==0, d
+          PY
+
+      - name: Reconstruct point-in-time eligibility
+        run: |
+          python pipeline/hkcu1_reconstruct_eligibility.py \
+            --snapshot work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SNAPSHOT.csv \
+            --events work/hkcu1_r2e_live/events/HKCU1_ADJUSTMENT_EVENTS_RESOLVED.csv \
+            --as-of-date "$AS_OF_DATE" \
+            --output-dir work/hkcu1_r2e_live/eligibility
+
+      - name: Enforce HKEX secondary official cross-check
+        run: |
+          python pipeline/hkcu1_hkex_crosscheck.py \
+            --contract config/hkcu1_hkex_crosscheck_contract.json \
+            --output-dir work/hkcu1_r2e_live/hkex \
+            --validation-date "$AS_OF_DATE"
+          python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1_r2e_live/hkex/HKCU1_R2D_HKEX_CROSSCHECK_DECISION.json'))
+          assert d['status']=='PASS', d
+          assert d['publication_allowed'] is True, d
+          PY
+
+      - name: Merge with accepted FMDL-5E Current
+        run: |
+          python pipeline/hkcu1_r2e_merge_fmdl5e.py \
+            --eligibility work/hkcu1_r2e_live/eligibility/HKCU1_POINT_IN_TIME_ELIGIBILITY.csv \
+            --fmdl5e-screening outputs/fmdl5e/current/FMDL5E_SCREENING_UNIVERSE.csv \
+            --fmdl5e-decision outputs/fmdl5e/current/FMDL5E_DECISION.json \
+            --calendar config/hkcu1_stock_connect_calendar_2026.json \
+            --contract config/hkcu1_r2e_universe_contract.json \
+            --as-of-date "$AS_OF_DATE" \
+            --output-dir work/hkcu1_r2e_live/release
+
+      - name: Render R2E evidence
+        if: always()
+        run: |
+          test ! -f work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json || cat work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json
+          test ! -f work/hkcu1_r2e_live/release/HKCU1_R2E_QUALITY_REPORT.json || cat work/hkcu1_r2e_live/release/HKCU1_R2E_QUALITY_REPORT.json
+
+      - name: Enforce formal R2E Current promotion gate
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json'))
+          assert d['status']=='PASS_CURRENT', d
+          assert d['publication_allowed'] is True, d
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu1-r2e-fmdl5e-universe-evidence
+          path: work/hkcu1_r2e_live/**
+          if-no-files-found: error
+          retention-days: 30
