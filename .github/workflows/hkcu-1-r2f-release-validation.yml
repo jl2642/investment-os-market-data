@@ -1,0 +1,53 @@
+name: HKCU-1 R2F Independent Release Validation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hkcu-1-*.yml'
+      - 'config/hkcu1_*'
+      - 'docs/HKCU*'
+      - 'outputs/hkcu1/**'
+      - 'pipeline/hkcu1_*'
+      - 'schemas/hkcu1_*'
+      - 'tests/test_hkcu1_*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  r2f-independent-validator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Fetch canonical main for complete PR diff review
+        run: git fetch origin main --depth=1
+      - name: Run R2F unit tests
+        run: pytest -q tests/test_hkcu1_r2f.py
+      - name: Validate complete HKCU PR and candidate Canonical payload
+        run: |
+          rm -rf work/hkcu1_r2f
+          python pipeline/hkcu1_r2f_validate.py \
+            --repo-root . \
+            --contract config/hkcu1_r2f_release_contract.json \
+            --acceptance outputs/hkcu1/HKCU1_R2E_ACCEPTANCE_20260807.json \
+            --registry config/hkcu1_official_source_registry.json \
+            --output work/hkcu1_r2f/HKCU1_R2F_VALIDATION_DECISION.json
+      - name: Render R2F decision
+        if: always()
+        run: test ! -f work/hkcu1_r2f/HKCU1_R2F_VALIDATION_DECISION.json || cat work/hkcu1_r2f/HKCU1_R2F_VALIDATION_DECISION.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu1-r2f-independent-validation-evidence
+          path: work/hkcu1_r2f/**
+          if-no-files-found: error
+          retention-days: 30
