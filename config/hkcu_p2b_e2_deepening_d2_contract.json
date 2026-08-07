@@ -1,0 +1,45 @@
+{
+  "contract_id": "HKCU_P2B_E2_DEEPENING_D2_TOP20_SYNTHESIS_V1",
+  "program_id": "HKCU-P2B-E2-D2",
+  "phase": "P2B_E2_PARTIAL_EVIDENCE_DEEPENING",
+  "objective": "Convert the 51 EVIDENCE_PARTIAL company-specific rows in accepted P2A ranks 1-20 into decision-oriented evidence sufficiency, materiality, direction, graduation-blocker and monitor-trigger judgments without inventing consensus revisions, alpha scores, Candidate membership, portfolio state or orders.",
+  "authoritative_inputs": {
+    "d1_builder": "pipeline/hkcu_p2b_e2_deepen_negative_catalyst.py",
+    "d1_validator": "scripts/validate_hkcu_p2b_e2_deepening_d1.py"
+  },
+  "selection_policy": {
+    "rank_start": 1,
+    "rank_end": 20,
+    "required_prior_status": "EVIDENCE_PARTIAL",
+    "expected_partial_rows": 51,
+    "expected_governance_rows": 20,
+    "expected_earnings_rows": 17,
+    "expected_catalyst_rows": 14
+  },
+  "synthesis_policy": {
+    "no_alpha_score": true,
+    "ordinary_results_do_not_equal_consensus_revision": true,
+    "missing_consensus_data_may_cap_confidence_but_is_not_automatically_bearish": true,
+    "governance_auditor_or_connected_transaction_requires_targeted_follow_up": true,
+    "management_or_board_change_is_monitored_but_not_automatically_a_graduation_blocker": true,
+    "active_corporate_action_or_operating_event_is_monitorable_when_dated_security_specific_and_falsifiable": true,
+    "completed_or_routine_event_is_not_promoted_to_high_materiality_catalyst": true,
+    "materiality_vocabulary": ["HIGH", "MEDIUM", "LOW"],
+    "direction_vocabulary": ["POSITIVE", "NEGATIVE", "MIXED", "NEUTRAL", "UNKNOWN"],
+    "sufficiency_vocabulary": ["SUFFICIENT_FOR_PRELIMINARY_DECISION", "LIMITED_CONFIDENCE", "TARGETED_DEEPENING_REQUIRED"],
+    "readiness_vocabulary": ["READY_FOR_P2B_SYNTHESIS", "READY_WITH_CONFIDENCE_CAP", "TARGETED_DEEPENING_REQUIRED"]
+  },
+  "acceptance": {
+    "required_synthesis_rows": 51,
+    "required_security_rows": 20,
+    "score_non_null_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "formal_candidate_graduation_allowed": false,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "P2B_E2_TARGETED_TOP20_BLOCKER_DEEPENING",
+  "trade_authority": "NONE"
+}
