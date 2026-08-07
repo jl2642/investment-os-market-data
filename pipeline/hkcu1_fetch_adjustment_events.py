@@ -4,6 +4,8 @@
 R2C operating model:
 - official SSE/SZSE domains only;
 - current official notice indices are the forward-discovery authority;
+- requests/static DOM is tried first; when an official page is JS-rendered and
+  returns zero matching links, the runner's installed Chrome renders the DOM;
 - bootstrap URLs are audit/replay seeds only, never a substitute for live discovery;
 - raw notice HTML is preserved with SHA-256;
 - 调入 -> IN; 调出 -> OUT (later reconstructed as SELL_ONLY);
@@ -18,6 +20,8 @@ import argparse
 import hashlib
 import json
 import re
+import shutil
+import subprocess
 import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -125,6 +129,42 @@ def _normalise_direction(value: object) -> str | None:
     return None
 
 
+def _matching_links(html: str, base_url: str, authority: str, needles: tuple[str, ...]) -> list[str]:
+    soup = BeautifulSoup(html, "html.parser")
+    urls: list[str] = []
+    for a in soup.find_all("a", href=True):
+        title = a.get_text(" ", strip=True)
+        if needles and not any(needle in title for needle in needles):
+            continue
+        url = urljoin(base_url, a["href"])
+        if _official(url, authority):
+            urls.append(url)
+    return list(dict.fromkeys(urls))
+
+
+def _chrome_rendered_links(index_url: str, authority: str, needles: tuple[str, ...]) -> tuple[list[str], dict]:
+    chrome = next((shutil.which(name) for name in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser") if shutil.which(name)), None)
+    if not chrome:
+        return [], {"browser_available": False, "browser_error": "No Chrome/Chromium executable on runner"}
+    cmd = [
+        chrome, "--headless=new", "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage",
+        "--virtual-time-budget=5000", "--dump-dom", index_url,
+    ]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=35, check=False)
+        html = proc.stdout or ""
+        links = _matching_links(html, index_url, authority, needles)
+        return links, {
+            "browser_available": True,
+            "browser_executable": chrome,
+            "browser_exit_code": proc.returncode,
+            "browser_dom_bytes": len(html.encode("utf-8", errors="ignore")),
+            "browser_stderr_tail": (proc.stderr or "")[-1000:],
+        }
+    except Exception as exc:
+        return [], {"browser_available": True, "browser_error": f"{type(exc).__name__}: {exc}"}
+
+
 def _table_events(soup: BeautifulSoup) -> list[tuple[str, str, str]]:
     output: list[tuple[str, str, str]] = []
     for table in soup.find_all("table"):
@@ -187,28 +227,27 @@ def parse_notice_html(content: bytes, source_url: str, authority: str, channel: 
 def discover_notice_urls(session: requests.Session, spec: dict) -> tuple[list[str], set[str], dict]:
     authority = spec["authority"]
     index_url = spec["index_url"]
+    needles = tuple(spec.get("title_contains", []))
     if not _official(index_url, authority):
         raise ValueError(f"non-official index URL: {index_url}")
     response = _get(session, index_url, index_url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    title_needles = tuple(spec.get("title_contains", []))
-    index_urls: list[str] = []
-    for a in soup.find_all("a", href=True):
-        title = a.get_text(" ", strip=True)
-        if title_needles and not any(needle in title for needle in title_needles):
-            continue
-        url = urljoin(index_url, a["href"])
-        if _official(url, authority):
-            index_urls.append(url)
-    index_urls = list(dict.fromkeys(index_urls))
+    index_urls = _matching_links(response.text, index_url, authority, needles)
+    mode = "STATIC_HTTP_DOM"
+    browser_diag = {}
+    if not index_urls:
+        index_urls, browser_diag = _chrome_rendered_links(index_url, authority, needles)
+        mode = "CHROME_RENDERED_DOM" if index_urls else "STATIC_AND_BROWSER_NO_MATCH"
     bootstrap_urls = [u for u in spec.get("bootstrap_notice_urls", []) if _official(u, authority)]
     all_urls = list(dict.fromkeys(index_urls + bootstrap_urls))
-    return all_urls, set(index_urls), {
+    ledger = {
         "authority": authority, "channel": spec["channel"], "index_url": index_url,
-        "status": "PASS", "failure_class": "NONE", "http_status": response.status_code,
+        "status": "PASS" if index_urls else "BLOCKED",
+        "failure_class": "NONE" if index_urls else "DYNAMIC_INDEX_NO_MATCH",
+        "http_status": response.status_code, "discovery_mode": mode,
         "index_discovered_urls": len(index_urls), "bootstrap_urls": len(bootstrap_urls),
-        "total_fetch_urls": len(all_urls),
+        "total_fetch_urls": len(all_urls), **browser_diag,
     }
+    return all_urls, set(index_urls), ledger
 
 
 def _load_bootstrap(config: dict, registry: Path) -> dict:
@@ -216,8 +255,7 @@ def _load_bootstrap(config: dict, registry: Path) -> dict:
     if not ref:
         raise ValueError("registry missing r2c_bootstrap_contract")
     repo_root = registry.parent.parent
-    path = repo_root / ref if not Path(ref).is_absolute() else Path(ref)
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads((repo_root / ref).read_text(encoding="utf-8"))
 
 
 def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
@@ -315,11 +353,11 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
         index_row = next((row for row in index_ledger if row["channel"] == channel), {})
         reaches_cursor = bool(dates and min(dates) <= cursor)
         coverage[channel] = {
-            "cursor_date": cursor,
-            "live_index_notice_count": len(live),
+            "cursor_date": cursor, "live_index_notice_count": len(live),
             "oldest_live_notice_date": min(dates) if dates else None,
             "newest_live_notice_date": max(dates) if dates else None,
             "index_discovered_urls": int(index_row.get("index_discovered_urls", 0)),
+            "discovery_mode": index_row.get("discovery_mode"),
             "index_window_reaches_cursor": reaches_cursor,
             "status": "PASS" if index_row.get("status") == "PASS" and reaches_cursor else "BLOCKED_COVERAGE_GAP",
         }
@@ -327,13 +365,10 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
     blocked_channels = sorted(ch for ch, row in coverage.items() if row["status"] != "PASS")
     forward_complete = not blocked_channels and calendar_error is None and unresolved == 0 and parsed_event_notices > 0
     next_cursor = {"SH": as_of_date, "SZ": as_of_date} if forward_complete else dict(cursors)
-    next_cursor_payload = {
+    (output_dir / "HKCU1_NEXT_EVENT_CURSOR.json").write_text(json.dumps({
         "bootstrap_date": bootstrap["bootstrap_date"], "scan_completed_through": next_cursor,
         "may_persist_only_after_release_gate": True, "trade_authority": "NONE"
-    }
-    (output_dir / "HKCU1_NEXT_EVENT_CURSOR.json").write_text(
-        json.dumps(next_cursor_payload, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    }, ensure_ascii=False, indent=2), encoding="utf-8")
     (output_dir / "HKCU1_ADJUSTMENT_INDEX_LEDGER.json").write_text(
         json.dumps(index_ledger, ensure_ascii=False, indent=2), encoding="utf-8"
     )
@@ -344,15 +379,12 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
         "zero_event_notices": zero_event_notices, "unresolved_effective_date_rows": unresolved,
         "future_effective_event_rows": future, "blocked_channels": blocked_channels,
         "calendar_id": calendar_id, "calendar_error": calendar_error,
-        "sell_only_semantics": "OUT_TO_SELL_ONLY",
-        "bootstrap_date": bootstrap["bootstrap_date"],
+        "sell_only_semantics": "OUT_TO_SELL_ONLY", "bootstrap_date": bootstrap["bootstrap_date"],
         "legacy_sell_only_history_complete": False,
         "pre_bootstrap_unknown_policy": "UNKNOWN_BLOCKED_NOT_BUYABLE",
         "forward_complete_from_bootstrap": forward_complete,
-        "coverage_by_channel": coverage,
-        "r2c_layer_usable": forward_complete,
-        "publication_allowed": forward_complete,
-        "next_cursor": next_cursor,
+        "coverage_by_channel": coverage, "r2c_layer_usable": forward_complete,
+        "publication_allowed": forward_complete, "next_cursor": next_cursor,
         "trade_authority": "NONE",
     }
     (output_dir / "HKCU1_R2C_EVENT_DECISION.json").write_text(
