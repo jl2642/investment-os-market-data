@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """Fetch official SSE/SZSE Stock Connect adjustment notices and normalize events.
 
-R2C design:
+R2C operating model:
 - official SSE/SZSE domains only;
-- raw notice HTML is preserved with SHA-256 for audit/replay;
-- 调入 -> IN; 调出 -> OUT (reconstructed as SELL_ONLY, not terminal deletion);
-- DOM row parsing is used instead of dataframe header inference because official
-  notice tables vary in <th>/<td> structure;
-- explicit effective dates are preserved;
-- SSE "next Stock Connect trading day" is resolved against the versioned
-  official calendar for the requested year;
-- future-effective events are evidence only until their effective date;
-- historical/bootstrap incompleteness can never become a false production PASS.
+- current official notice indices are the forward-discovery authority;
+- bootstrap URLs are audit/replay seeds only, never a substitute for live discovery;
+- raw notice HTML is preserved with SHA-256;
+- 调入 -> IN; 调出 -> OUT (later reconstructed as SELL_ONLY);
+- effective dates are resolved from the versioned official Stock Connect calendar;
+- the visible official notice-index window must reach back to the prior scan cursor,
+  otherwise forward completeness fails closed;
+- a successful run emits the next cursor but does not silently persist/promote it.
 """
 from __future__ import annotations
 
@@ -31,7 +30,7 @@ from bs4 import BeautifulSoup
 
 try:
     from pipeline.hkcu1_resolve_effective_dates import resolve_events
-except ModuleNotFoundError:  # direct `python pipeline/...py` execution
+except ModuleNotFoundError:
     from hkcu1_resolve_effective_dates import resolve_events
 
 OFFICIAL_HOSTS = {"SSE": ("sse.com.cn", "sseinfo.com"), "SZSE": ("szse.cn",)}
@@ -47,6 +46,7 @@ class NoticeEvidence:
     authority: str
     channel: str
     source_url: str
+    discovery_origin: str
     retrieved_at_utc: str
     http_status: int
     sha256: str
@@ -85,7 +85,7 @@ def _failure_class(exc: Exception) -> str:
     text = str(exc).lower()
     if "403" in text or "429" in text:
         return "SOURCE_BLOCKED"
-    if "timeout" in text or "connection" in text or "502" in text or "503" in text or "504" in text:
+    if any(token in text for token in ("timeout", "connection", "502", "503", "504")):
         return "TRANSIENT_INFRA"
     return "UNKNOWN"
 
@@ -126,19 +126,13 @@ def _normalise_direction(value: object) -> str | None:
 
 
 def _table_events(soup: BeautifulSoup) -> list[tuple[str, str, str]]:
-    """Return (code, name, direction) using explicit DOM row/header positions."""
     output: list[tuple[str, str, str]] = []
     for table in soup.find_all("table"):
-        rows: list[list[str]] = []
-        for tr in table.find_all("tr"):
-            cells = [cell.get_text(" ", strip=True) for cell in tr.find_all(["th", "td"])]
-            if cells:
-                rows.append(cells)
+        rows = [[cell.get_text(" ", strip=True) for cell in tr.find_all(["th", "td"])] for tr in table.find_all("tr")]
+        rows = [row for row in rows if row]
         if not rows:
             continue
-
-        header_idx = None
-        code_idx = direction_idx = None
+        header_idx = code_idx = direction_idx = None
         name_indices: list[int] = []
         for idx, cells in enumerate(rows):
             ci = next((i for i, value in enumerate(cells) if "代码" in value), None)
@@ -149,7 +143,6 @@ def _table_events(soup: BeautifulSoup) -> list[tuple[str, str, str]]:
                 break
         if header_idx is None or code_idx is None or direction_idx is None:
             continue
-
         for cells in rows[header_idx + 1:]:
             if max(code_idx, direction_idx) >= len(cells):
                 continue
@@ -158,7 +151,7 @@ def _table_events(soup: BeautifulSoup) -> list[tuple[str, str, str]]:
             if not code or not direction:
                 continue
             name = ""
-            for i in reversed(name_indices):  # prefer Chinese/reference name when both EN/CN are present
+            for i in reversed(name_indices):
                 if i < len(cells) and cells[i].strip() not in {"", "-"}:
                     name = cells[i].strip()
                     break
@@ -175,22 +168,14 @@ def parse_notice_html(content: bytes, source_url: str, authority: str, channel: 
     announcement_date = _find_announcement_date(plain)
     effective_from, effective_rule = _effective_date_and_rule(plain, announcement_date)
     digest = hashlib.sha256(content).hexdigest()
-
     events = []
     for code, name, direction in _table_events(soup):
         events.append({
-            "security_code": code,
-            "channel": channel,
-            "direction": direction,
-            "security_name": name,
-            "announcement_date": announcement_date,
-            "effective_from": effective_from,
-            "effective_rule": effective_rule,
-            "source_authority": authority,
-            "source_document_type": "ADJUSTMENT_NOTICE",
-            "source_url": source_url,
-            "source_id": f"{authority}_ADJUSTMENT_NOTICE",
-            "source_sha256": digest,
+            "security_code": code, "channel": channel, "direction": direction, "security_name": name,
+            "announcement_date": announcement_date, "effective_from": effective_from,
+            "effective_rule": effective_rule, "source_authority": authority,
+            "source_document_type": "ADJUSTMENT_NOTICE", "source_url": source_url,
+            "source_id": f"{authority}_ADJUSTMENT_NOTICE", "source_sha256": digest,
             "retrieved_at_utc": retrieved_at,
         })
     unique: dict[tuple[str, str, str], dict] = {}
@@ -199,7 +184,7 @@ def parse_notice_html(content: bytes, source_url: str, authority: str, channel: 
     return list(unique.values()), announcement_date
 
 
-def discover_notice_urls(session: requests.Session, spec: dict) -> tuple[list[str], dict]:
+def discover_notice_urls(session: requests.Session, spec: dict) -> tuple[list[str], set[str], dict]:
     authority = spec["authority"]
     index_url = spec["index_url"]
     if not _official(index_url, authority):
@@ -207,39 +192,47 @@ def discover_notice_urls(session: requests.Session, spec: dict) -> tuple[list[st
     response = _get(session, index_url, index_url)
     soup = BeautifulSoup(response.text, "html.parser")
     title_needles = tuple(spec.get("title_contains", []))
-    urls: list[str] = []
+    index_urls: list[str] = []
     for a in soup.find_all("a", href=True):
         title = a.get_text(" ", strip=True)
         if title_needles and not any(needle in title for needle in title_needles):
             continue
         url = urljoin(index_url, a["href"])
         if _official(url, authority):
-            urls.append(url)
-    urls.extend(spec.get("bootstrap_notice_urls", []))
-    deduped = list(dict.fromkeys(urls))
-    return deduped, {
-        "authority": authority,
-        "channel": spec["channel"],
-        "index_url": index_url,
-        "status": "PASS",
-        "failure_class": "NONE",
-        "http_status": response.status_code,
-        "discovered_urls": len(deduped),
+            index_urls.append(url)
+    index_urls = list(dict.fromkeys(index_urls))
+    bootstrap_urls = [u for u in spec.get("bootstrap_notice_urls", []) if _official(u, authority)]
+    all_urls = list(dict.fromkeys(index_urls + bootstrap_urls))
+    return all_urls, set(index_urls), {
+        "authority": authority, "channel": spec["channel"], "index_url": index_url,
+        "status": "PASS", "failure_class": "NONE", "http_status": response.status_code,
+        "index_discovered_urls": len(index_urls), "bootstrap_urls": len(bootstrap_urls),
+        "total_fetch_urls": len(all_urls),
     }
 
 
-def _coverage_complete(specs: list[dict]) -> bool:
-    return all(str(spec.get("bootstrap_coverage", "")).upper() == "COMPLETE_HISTORY" for spec in specs)
+def _load_bootstrap(config: dict, registry: Path) -> dict:
+    ref = config.get("r2c_bootstrap_contract")
+    if not ref:
+        raise ValueError("registry missing r2c_bootstrap_contract")
+    repo_root = registry.parent.parent
+    path = repo_root / ref if not Path(ref).is_absolute() else Path(ref)
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
     config = json.loads(registry.read_text(encoding="utf-8"))
+    bootstrap = _load_bootstrap(config, registry)
     specs = config.get("adjustment_notice_sources", [])
     if not specs:
         raise ValueError("registry has no adjustment_notice_sources")
+    as_of_date = as_of_date or datetime.now(timezone.utc).date().isoformat()
+    cursors = bootstrap.get("initial_scan_cursor", {})
+
     session = requests.Session()
     evidence: list[NoticeEvidence] = []
     index_ledger: list[dict] = []
+    index_sets: dict[str, set[str]] = {}
     events: list[dict] = []
     now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     raw_dir = output_dir / "raw_notices"
@@ -248,38 +241,40 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
     for spec in specs:
         authority, channel = spec["authority"], spec["channel"]
         try:
-            urls, index_row = discover_notice_urls(session, spec)
+            urls, index_urls, index_row = discover_notice_urls(session, spec)
+            index_sets[channel] = index_urls
             index_ledger.append(index_row)
         except Exception as exc:
-            urls = list(spec.get("bootstrap_notice_urls", []))
+            index_sets[channel] = set()
+            urls = [u for u in spec.get("bootstrap_notice_urls", []) if _official(u, authority)]
             index_ledger.append({
                 "authority": authority, "channel": channel, "index_url": spec["index_url"],
-                "status": "BLOCKED", "failure_class": _failure_class(exc), "error": f"{type(exc).__name__}: {exc}",
-                "discovered_urls": len(urls),
+                "status": "BLOCKED", "failure_class": _failure_class(exc),
+                "error": f"{type(exc).__name__}: {exc}", "index_discovered_urls": 0,
+                "bootstrap_urls": len(urls), "total_fetch_urls": len(urls),
             })
 
         for url in urls:
-            if not _official(url, authority):
-                continue
+            origin = "LIVE_INDEX" if url in index_sets[channel] else "BOOTSTRAP_SEED"
             try:
                 response = _get(session, url, spec["index_url"])
                 digest = hashlib.sha256(response.content).hexdigest()
                 raw_name = f"{authority}_{channel}_{digest[:16]}.html"
                 (raw_dir / raw_name).write_bytes(response.content)
                 rows, announcement_date = parse_notice_html(response.content, url, authority, channel, now)
-                if as_of_date and announcement_date and announcement_date > as_of_date:
+                if announcement_date and announcement_date > as_of_date:
                     rows = []
-                evidence.append(NoticeEvidence(authority, channel, url, now, response.status_code, digest,
+                evidence.append(NoticeEvidence(authority, channel, url, origin, now, response.status_code, digest,
                                                len(response.content), announcement_date, len(rows), "PASS", "NONE", raw_name))
                 events.extend(rows)
             except Exception as exc:
-                evidence.append(NoticeEvidence(authority, channel, url, now, 0, "", 0, None, 0,
+                evidence.append(NoticeEvidence(authority, channel, url, origin, now, 0, "", 0, None, 0,
                                                "BLOCKED", _failure_class(exc), None, f"{type(exc).__name__}: {exc}"))
 
     if events:
-        frame = pd.DataFrame(events)
-        frame = frame.sort_values(["announcement_date", "channel", "security_code", "direction", "source_url"], na_position="last")
-        frame = frame.drop_duplicates(["security_code", "channel", "direction", "announcement_date", "source_url"])
+        frame = pd.DataFrame(events).sort_values(
+            ["announcement_date", "channel", "security_code", "direction", "source_url"], na_position="last"
+        ).drop_duplicates(["security_code", "channel", "direction", "announcement_date", "source_url"])
     else:
         frame = pd.DataFrame(columns=[
             "security_code", "channel", "direction", "security_name", "announcement_date", "effective_from",
@@ -293,7 +288,7 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
     calendar_id = None
     calendar_error = None
     if not frame.empty:
-        year = int((as_of_date or now[:10])[:4])
+        year = int(as_of_date[:4])
         calendar_path = registry.parent / f"hkcu1_stock_connect_calendar_{year}.json"
         try:
             calendar = json.loads(calendar_path.read_text(encoding="utf-8"))
@@ -306,40 +301,63 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
     (output_dir / "HKCU1_ADJUSTMENT_NOTICE_LEDGER.json").write_text(
         json.dumps([asdict(x) for x in evidence], ensure_ascii=False, indent=2), encoding="utf-8"
     )
+
+    unresolved = int(resolved["effective_from"].fillna("").astype(str).str.strip().eq("").sum()) if not resolved.empty else 0
+    future = int(resolved["future_event"].sum()) if not resolved.empty and "future_event" in resolved.columns else 0
+    zero_event_notices = sum(1 for ev in evidence if ev.status == "PASS" and ev.event_rows == 0)
+    parsed_event_notices = sum(1 for ev in evidence if ev.status == "PASS" and ev.event_rows > 0)
+
+    coverage: dict[str, dict] = {}
+    for channel in ("SH", "SZ"):
+        cursor = str(cursors.get(channel) or bootstrap["bootstrap_date"])
+        live = [ev for ev in evidence if ev.channel == channel and ev.discovery_origin == "LIVE_INDEX" and ev.status == "PASS" and ev.announcement_date]
+        dates = sorted({str(ev.announcement_date) for ev in live})
+        index_row = next((row for row in index_ledger if row["channel"] == channel), {})
+        reaches_cursor = bool(dates and min(dates) <= cursor)
+        coverage[channel] = {
+            "cursor_date": cursor,
+            "live_index_notice_count": len(live),
+            "oldest_live_notice_date": min(dates) if dates else None,
+            "newest_live_notice_date": max(dates) if dates else None,
+            "index_discovered_urls": int(index_row.get("index_discovered_urls", 0)),
+            "index_window_reaches_cursor": reaches_cursor,
+            "status": "PASS" if index_row.get("status") == "PASS" and reaches_cursor else "BLOCKED_COVERAGE_GAP",
+        }
+
+    blocked_channels = sorted(ch for ch, row in coverage.items() if row["status"] != "PASS")
+    forward_complete = not blocked_channels and calendar_error is None and unresolved == 0 and parsed_event_notices > 0
+    next_cursor = {"SH": as_of_date, "SZ": as_of_date} if forward_complete else dict(cursors)
+    next_cursor_payload = {
+        "bootstrap_date": bootstrap["bootstrap_date"], "scan_completed_through": next_cursor,
+        "may_persist_only_after_release_gate": True, "trade_authority": "NONE"
+    }
+    (output_dir / "HKCU1_NEXT_EVENT_CURSOR.json").write_text(
+        json.dumps(next_cursor_payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     (output_dir / "HKCU1_ADJUSTMENT_INDEX_LEDGER.json").write_text(
         json.dumps(index_ledger, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
-    unresolved = 0
-    future = 0
-    if not resolved.empty:
-        unresolved = int(resolved["effective_from"].fillna("").astype(str).str.strip().eq("").sum())
-        if "future_event" in resolved.columns:
-            future = int(resolved["future_event"].sum())
-    blocked_channels = sorted({row["channel"] for row in index_ledger if row["status"] != "PASS" and not any(
-        ev.authority == row["authority"] and ev.status == "PASS" for ev in evidence
-    )})
-    zero_event_notices = sum(1 for ev in evidence if ev.status == "PASS" and ev.event_rows == 0)
-    parsed_event_notices = sum(1 for ev in evidence if ev.status == "PASS" and ev.event_rows > 0)
-    historical_complete = _coverage_complete(specs)
-    source_ok = not blocked_channels and calendar_error is None and unresolved == 0 and parsed_event_notices > 0
     decision = {
-        "status": "PASS" if source_ok else "DEGRADED",
-        "event_rows": int(len(resolved)),
-        "parsed_event_notices": parsed_event_notices,
-        "zero_event_notices": zero_event_notices,
-        "unresolved_effective_date_rows": unresolved,
-        "future_effective_event_rows": future,
-        "blocked_channels": blocked_channels,
-        "calendar_id": calendar_id,
-        "calendar_error": calendar_error,
+        "status": "PASS_FORWARD_COMPLETE" if forward_complete else "DEGRADED",
+        "event_rows": int(len(resolved)), "parsed_event_notices": parsed_event_notices,
+        "zero_event_notices": zero_event_notices, "unresolved_effective_date_rows": unresolved,
+        "future_effective_event_rows": future, "blocked_channels": blocked_channels,
+        "calendar_id": calendar_id, "calendar_error": calendar_error,
         "sell_only_semantics": "OUT_TO_SELL_ONLY",
-        "historical_coverage_complete": historical_complete,
-        "coverage_gate": "PASS" if historical_complete else "BLOCKED_PARTIAL_HISTORY",
-        "publication_allowed": source_ok and historical_complete,
+        "bootstrap_date": bootstrap["bootstrap_date"],
+        "legacy_sell_only_history_complete": False,
+        "pre_bootstrap_unknown_policy": "UNKNOWN_BLOCKED_NOT_BUYABLE",
+        "forward_complete_from_bootstrap": forward_complete,
+        "coverage_by_channel": coverage,
+        "r2c_layer_usable": forward_complete,
+        "publication_allowed": forward_complete,
+        "next_cursor": next_cursor,
         "trade_authority": "NONE",
     }
-    (output_dir / "HKCU1_R2C_EVENT_DECISION.json").write_text(json.dumps(decision, ensure_ascii=False, indent=2), encoding="utf-8")
+    (output_dir / "HKCU1_R2C_EVENT_DECISION.json").write_text(
+        json.dumps(decision, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print(json.dumps(decision, ensure_ascii=False, indent=2))
     return 0
 
