@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Reconstruct channel-specific point-in-time Stock Connect eligibility."""
+"""Reconstruct channel-specific point-in-time Stock Connect eligibility.
+
+A newer official full-list snapshot dominates older adjustment events. Events are
+only applied when their effective date is later than the latest state already
+known for the same security/channel. This is essential for a formal bootstrap:
+pre-bootstrap history may be retained as evidence but must not overwrite the
+newer current-state snapshot.
+"""
 from __future__ import annotations
 
 import argparse
@@ -45,9 +52,13 @@ def reconstruct(snapshot_rows: pd.DataFrame, events: pd.DataFrame, as_of_date: s
         key = (r["security_code"], str(r["channel"]).upper())
         side = str(r["eligibility_side"]).upper()
         status = "BUY_ELIGIBLE" if side in {"BUY_SELL", "BUY_ELIGIBLE"} else "SELL_ONLY"
+        observed = r["effective_from"]
+        current = state.get(key)
+        if current is not None and observed <= current["effective_ts"]:
+            continue
         state[key] = {
             "security_code": key[0], "channel": key[1], "channel_status": status,
-            "effective_from": r["effective_from"].date().isoformat(),
+            "effective_from": observed.date().isoformat(), "effective_ts": observed,
             "source_id": r.get("source_id", ""), "source_sha256": r.get("source_sha256", "")
         }
 
@@ -61,26 +72,28 @@ def reconstruct(snapshot_rows: pd.DataFrame, events: pd.DataFrame, as_of_date: s
             raise ValueError(f"invalid directions: {sorted(bad)}")
         for _, r in ev.iterrows():
             key = (r["security_code"], str(r["channel"]).upper())
+            event_ts = r["effective_from"]
+            current = state.get(key)
+            # A current-state snapshot already incorporates any event effective on
+            # or before the snapshot observation date. Reapplying older/equal events
+            # can regress the state when historical notice coverage is incomplete.
+            if current is not None and event_ts <= current["effective_ts"]:
+                continue
             direction = str(r["direction"]).upper()
             if direction in {"IN", "BUY_SELL"}:
                 status = "BUY_ELIGIBLE"
             elif direction in {"OUT", "SELL_ONLY"}:
-                # Official removal from the buy-eligible Southbound list does not
-                # erase the ability of an existing holder to dispose of an SEHK-
-                # listed security through Stock Connect. Preserve that state as
-                # SELL_ONLY. A terminal NOT_ELIGIBLE event is reserved for cases
-                # where official evidence says the security is no longer sellable
-                # through the relevant channel (for example, no longer SEHK-listed).
                 status = "SELL_ONLY"
             else:
                 status = "NOT_ELIGIBLE"
             state[key] = {
                 "security_code": key[0], "channel": key[1], "channel_status": status,
-                "effective_from": r["effective_from"].date().isoformat(),
+                "effective_from": event_ts.date().isoformat(), "effective_ts": event_ts,
                 "source_id": r.get("source_id", ""), "source_sha256": r.get("source_sha256", "")
             }
 
-    long = pd.DataFrame(state.values())
+    public_rows = [{k: v for k, v in row.items() if k != "effective_ts"} for row in state.values()]
+    long = pd.DataFrame(public_rows)
     codes = sorted(long["security_code"].unique())
     records = []
     for code in codes:
