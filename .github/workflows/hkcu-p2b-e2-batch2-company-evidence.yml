@@ -1,0 +1,91 @@
+name: HKCU P2B E2 Batch2 Company Evidence
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p2b_e2_batch2_contract.json'
+      - 'evidence/hkcu_p2b/HKCU_P2B_E2_COMPANY_EVIDENCE_RANKS_21_40_20260807.csv'
+      - 'pipeline/hkcu_p2b_apply_e2_batch2.py'
+      - 'scripts/validate_hkcu_p2b_e2_batch2.py'
+      - 'tests/test_hkcu_p2b_e2_batch2.py'
+      - 'docs/HKCU-P2B_E2_BATCH2_COMPANY_EVIDENCE.md'
+      - '.github/workflows/hkcu-p2b-e2-batch2-company-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p2b_e2_batch2.py
+      - name: Enforce isolated P2B-E2 Batch2 scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p2b_e2_b2_paths.txt
+          cat /tmp/p2b_e2_b2_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              "config/hkcu_p2b_e2_batch2_contract.json",
+              "evidence/hkcu_p2b/HKCU_P2B_E2_COMPANY_EVIDENCE_RANKS_21_40_20260807.csv",
+              "pipeline/hkcu_p2b_apply_e2_batch2.py",
+              "scripts/validate_hkcu_p2b_e2_batch2.py",
+              "tests/test_hkcu_p2b_e2_batch2.py",
+              "docs/HKCU-P2B_E2_BATCH2_COMPANY_EVIDENCE.md",
+              ".github/workflows/hkcu-p2b-e2-batch2-company-evidence.yml",
+          }
+          actual = {x.strip() for x in Path("/tmp/p2b_e2_b2_paths.txt").read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit("P2B_E2_BATCH2_SCOPE_VIOLATION:" + ",".join(bad))
+          protected_prefixes = (
+              "outputs/candidate/", "outputs/simulation/", "outputs/real",
+              "state/", "orders/",
+          )
+          protected = sorted(p for p in actual if p.startswith(protected_prefixes))
+          if protected:
+              raise SystemExit("P2B_E2_BATCH2_PROTECTED_PATH_MUTATION:" + ",".join(protected))
+          PY
+
+  real-cumulative-evidence-run:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild Batch1 and apply ranks 21-40 evidence
+        run: |
+          rm -rf work/hkcu_p2b_e2_b2
+          python pipeline/hkcu_p2b_apply_e2_batch2.py \
+            --repo-root . \
+            --output work/hkcu_p2b_e2_b2
+      - name: Independent Batch2 cumulative validation
+        run: |
+          python scripts/validate_hkcu_p2b_e2_batch2.py \
+            --output work/hkcu_p2b_e2_b2
+      - name: Render decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p2b_e2_b2/HKCU_P2B_E2_B2_DECISION.json || cat work/hkcu_p2b_e2_b2/HKCU_P2B_E2_B2_DECISION.json
+          test ! -f work/hkcu_p2b_e2_b2/HKCU_P2B_E2_B2_QUALITY_REPORT.json || cat work/hkcu_p2b_e2_b2/HKCU_P2B_E2_B2_QUALITY_REPORT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p2b-e2-ranks-21-40-cumulative-evidence
+          path: work/hkcu_p2b_e2_b2/HKCU_P2B_E2_B2_*
+          if-no-files-found: error
