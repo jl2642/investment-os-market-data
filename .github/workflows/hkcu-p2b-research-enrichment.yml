@@ -1,0 +1,92 @@
+name: HKCU P2B Research Enrichment Baseline
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p2b_research_enrichment_contract.json'
+      - 'docs/HKCU-P2B_RESEARCH_ENRICHMENT.md'
+      - 'pipeline/hkcu_p2b_build_research_baseline.py'
+      - 'scripts/validate_hkcu_p2b.py'
+      - 'tests/test_hkcu_p2b.py'
+      - '.github/workflows/hkcu-p2b-research-enrichment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  p2b-unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p2b.py
+      - name: Enforce isolated P2B diff scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p2b_paths.txt
+          cat /tmp/p2b_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              "config/hkcu_p2b_research_enrichment_contract.json",
+              "docs/HKCU-P2B_RESEARCH_ENRICHMENT.md",
+              "pipeline/hkcu_p2b_build_research_baseline.py",
+              "scripts/validate_hkcu_p2b.py",
+              "tests/test_hkcu_p2b.py",
+              ".github/workflows/hkcu-p2b-research-enrichment.yml",
+          }
+          actual = {x.strip() for x in Path('/tmp/p2b_paths.txt').read_text().splitlines() if x.strip()}
+          unexpected = sorted(actual - allowed)
+          if unexpected:
+              raise SystemExit('P2B_SCOPE_VIOLATION:' + ','.join(unexpected))
+          protected_prefixes = (
+              'outputs/candidate/', 'outputs/simulation/', 'outputs/real',
+              'state/', 'orders/'
+          )
+          protected = sorted(p for p in actual if p.startswith(protected_prefixes))
+          if protected:
+              raise SystemExit('P2B_PROTECTED_PATH_MUTATION:' + ','.join(protected))
+          PY
+
+  p2b-real-baseline:
+    needs: p2b-unit-and-scope
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild accepted P2A and build P2B research baseline
+        run: |
+          rm -rf work/hkcu_p2b
+          python pipeline/hkcu_p2b_build_research_baseline.py \
+            --repo-root . \
+            --output work/hkcu_p2b
+      - name: Independent P2B validation
+        run: |
+          python scripts/validate_hkcu_p2b.py \
+            --repo-root . \
+            --output work/hkcu_p2b
+      - name: Render P2B decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p2b/HKCU_P2B_DECISION.json || cat work/hkcu_p2b/HKCU_P2B_DECISION.json
+          test ! -f work/hkcu_p2b/HKCU_P2B_QUALITY_REPORT.json || cat work/hkcu_p2b/HKCU_P2B_QUALITY_REPORT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p2b-research-baseline-evidence
+          path: |
+            work/hkcu_p2b/HKCU_P2B_*.csv
+            work/hkcu_p2b/HKCU_P2B_*.json
+          if-no-files-found: error
