@@ -68,8 +68,15 @@ def validate(out: Path) -> list[str]:
         regex=True,
     ).any():
         errors.append("DIRECT_EXPECTATION_LEFT_PARTIAL")
+    # A Partial row may legitimately mention an older profit alert in its summary while
+    # the current evidence title is an ordinary operating update. In that case the D2
+    # synthesis conservatively emits DIRECT_EXPECTATION_SIGNAL_MISCLASSIFIED_UPSTREAM
+    # so the evidence lineage is reconciled rather than silently inferring direction.
+    allowed_earnings_findings = (
+        "OPERATING_EVIDENCE|ANNUAL_ONLY|DIRECT_EXPECTATION_SIGNAL_MISCLASSIFIED_UPSTREAM"
+    )
     if not earnings["finding"].str.contains(
-        "OPERATING_EVIDENCE|ANNUAL_ONLY", case=False, regex=True
+        allowed_earnings_findings, case=False, regex=True
     ).all():
         errors.append("EARNINGS_FINDING_GUARD")
 
