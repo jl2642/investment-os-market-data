@@ -1,19 +1,25 @@
 {
-  "contract_id": "HKCU1_R2E_FMDL5E_UNIVERSE_V1",
+  "contract_id": "HKCU1_R2E_FMDL5E_UNIVERSE_V1_1",
   "program_id": "HKCU-1",
   "phase": "R2E",
-  "objective": "Merge point-in-time official Stock Connect eligibility with accepted FMDL-5E screening data to produce an auditable Hong Kong Stock Connect research-investable universe.",
+  "objective": "Merge point-in-time Stock Connect eligibility evidence with accepted FMDL-5E screening data to produce an auditable Hong Kong Stock Connect research-investable universe without mistaking continuity evidence for fresh Current data.",
   "authoritative_inputs": {
     "eligibility": "HKCU1_POINT_IN_TIME_ELIGIBILITY.csv",
     "fmdl5e_decision": "outputs/fmdl5e/current/FMDL5E_DECISION.json",
     "fmdl5e_screening": "outputs/fmdl5e/current/FMDL5E_SCREENING_UNIVERSE.csv",
-    "stock_connect_calendar": "config/hkcu1_stock_connect_calendar_2026.json"
+    "stock_connect_calendar": "config/hkcu1_stock_connect_calendar_2026.json",
+    "last_known_good_eligibility": "config/hkcu1_lkg_snapshot.json"
   },
   "accepted_fmdl5e_status": "FMDL5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER_ACCEPTED",
+  "eligibility_source_statuses": {
+    "FRESH_OFFICIAL": "Fresh SSE/SZSE primary evidence was acquired in the current run and all upstream source gates passed.",
+    "LKG_CONTINUITY": "A previously validated official same/near-date snapshot is used only to calculate provisional continuity evidence after current-run source blocking; publication is prohibited."
+  },
   "freshness": {
     "maximum_fmdl5e_age_stock_connect_service_days": 5,
     "stale_policy": "BUILD_PROVISIONAL_EVIDENCE_BUT_BLOCK_CURRENT_PROMOTION",
-    "future_fmdl5e_policy": "BLOCK"
+    "future_fmdl5e_policy": "BLOCK",
+    "lkg_eligibility_policy": "BUILD_PROVISIONAL_EVIDENCE_BUT_BLOCK_CURRENT_PROMOTION"
   },
   "investable_gate": {
     "required_eligibility_prefix": "BUY_ELIGIBLE",
@@ -50,8 +56,10 @@
   },
   "status_semantics": {
     "PASS_CURRENT": "All source, eligibility, merge, quality and freshness gates pass; eligible for R2F independent release validation.",
-    "BLOCKED_STALE_FMDL5E": "Eligibility is current but FMDL-5E research/market factors exceed the freshness contract; provisional universe evidence may be inspected but must not be promoted as Current.",
-    "BLOCKED_SOURCE_OR_QUALITY": "A source, coverage, point-in-time or quality gate failed."
+    "BLOCKED_STALE_FMDL5E": "Eligibility is fresh, but FMDL-5E research/market factors exceed the freshness contract; provisional universe evidence may be inspected but must not be promoted as Current.",
+    "BLOCKED_SOURCE_CONTINUITY": "Current-run primary eligibility acquisition failed and LKG continuity evidence was used; provisional universe evidence may be inspected but must not be promoted as Current.",
+    "BLOCKED_SOURCE_AND_STALE_FMDL5E": "Both current-run eligibility source freshness and FMDL-5E freshness are blocked; provisional intersection is diagnostic only.",
+    "BLOCKED_SOURCE_OR_QUALITY": "A non-recoverable source, coverage, point-in-time or zero-tolerance quality gate failed."
   },
   "next_gate": "R2F_INDEPENDENT_VALIDATION_AND_CONTROLLED_CANONICAL_PROMOTION",
   "trade_authority": "NONE"
