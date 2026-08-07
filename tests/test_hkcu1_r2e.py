@@ -89,6 +89,32 @@ def test_stale_fmdl5e_builds_evidence_but_blocks_current_promotion():
     assert not universe["publication_eligible"].any()
 
 
+def test_lkg_continuity_builds_evidence_but_never_publishes():
+    universe, _, quality, decision = build(
+        _eligibility(), _screening(), _decision(), _calendar(), _contract(), "2026-08-07", "LKG_CONTINUITY"
+    )
+    assert len(universe) == 1
+    assert quality["eligibility_source_status"] == "LKG_CONTINUITY"
+    assert quality["eligibility_source_fresh"] is False
+    assert quality["provisional_only"] is True
+    assert decision["status"] == "BLOCKED_SOURCE_CONTINUITY"
+    assert decision["publication_allowed"] is False
+    assert decision["canonical_action"] == "KEEP_PREVIOUS_CANONICAL_UNCHANGED"
+    assert not universe["publication_eligible"].any()
+
+
+def test_lkg_continuity_and_stale_fmdl_are_both_preserved_in_decision():
+    universe, _, quality, decision = build(
+        _eligibility(), _screening(), _decision("2026-07-21"), _calendar(), _contract(), "2026-08-07", "LKG_CONTINUITY"
+    )
+    assert len(universe) == 1
+    assert quality["fmdl5e_stale"] is True
+    assert quality["eligibility_source_fresh"] is False
+    assert decision["status"] == "BLOCKED_SOURCE_AND_STALE_FMDL5E"
+    assert decision["publication_allowed"] is False
+    assert decision["next_gate"] == "REFRESH_FMDL5E_THEN_RERUN_R2E"
+
+
 def test_future_fmdl5e_fails_closed():
     _, _, quality, decision = build(
         _eligibility(), _screening(), _decision("2026-08-10"), _calendar(), _contract(), "2026-08-07"
