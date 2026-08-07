@@ -9,7 +9,9 @@ from pathlib import Path
 
 import pandas as pd
 
-ACCEPTED_FMDL5E = "FMDL5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER_ACCEPTED"
+FRESH_OFFICIAL = "FRESH_OFFICIAL"
+LKG_CONTINUITY = "LKG_CONTINUITY"
+VALID_ELIGIBILITY_SOURCE_STATUSES = {FRESH_OFFICIAL, LKG_CONTINUITY}
 
 
 def _read_json(path: Path) -> dict:
@@ -56,8 +58,13 @@ def build(
     calendar: dict,
     contract: dict,
     eligibility_as_of: str,
+    eligibility_source_status: str = FRESH_OFFICIAL,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict, dict]:
     failures: list[str] = []
+    if eligibility_source_status not in VALID_ELIGIBILITY_SOURCE_STATUSES:
+        failures.append("INVALID_ELIGIBILITY_SOURCE_STATUS")
+    source_fresh = eligibility_source_status == FRESH_OFFICIAL
+
     if fmdl5e_decision.get("status") != contract["accepted_fmdl5e_status"]:
         failures.append("FMDL5E_NOT_ACCEPTED")
     if fmdl5e_decision.get("hard_failures"):
@@ -128,10 +135,11 @@ def build(
     merged["r2e_gate_reason"] = reasons
     merged["r2e_gate_pass"] = merged["r2e_gate_reason"].eq("PASS")
     merged["eligibility_as_of_date"] = eligibility_as_of
+    merged["eligibility_source_status"] = eligibility_source_status
     merged["fmdl5e_as_of_date"] = fmdl_as_of
     merged["fmdl5e_age_service_days"] = age
     merged["freshness_status"] = "STALE_BLOCKED" if stale else "CURRENT"
-    merged["publication_eligible"] = merged["r2e_gate_pass"] & (not stale) & (not failures)
+    merged["publication_eligible"] = merged["r2e_gate_pass"] & source_fresh & (not stale) & (not failures)
     merged["trade_authority"] = "NONE"
 
     future_market = int((pd.to_datetime(merged["market_latest_date"], errors="coerce") > pd.Timestamp(eligibility_as_of)).sum())
@@ -158,11 +166,14 @@ def build(
         "program_id": "HKCU-1",
         "phase": "R2E",
         "eligibility_as_of_date": eligibility_as_of,
+        "eligibility_source_status": eligibility_source_status,
+        "eligibility_source_fresh": source_fresh,
         "fmdl5e_release_id": fmdl5e_decision.get("release_id"),
         "fmdl5e_as_of_date": fmdl_as_of,
         "fmdl5e_age_stock_connect_service_days": age,
         "maximum_allowed_fmdl5e_age_service_days": max_age,
         "fmdl5e_stale": stale,
+        "provisional_only": (not source_fresh) or stale,
         "eligibility_rows": int(len(e)),
         "fmdl5e_rows": int(len(s)),
         "union_rows": int(len(merged)),
@@ -190,10 +201,21 @@ def build(
 
     if failures:
         status = "BLOCKED_SOURCE_OR_QUALITY"
+    elif not source_fresh and stale:
+        status = "BLOCKED_SOURCE_AND_STALE_FMDL5E"
+    elif not source_fresh:
+        status = "BLOCKED_SOURCE_CONTINUITY"
     elif stale:
         status = "BLOCKED_STALE_FMDL5E"
     else:
         status = "PASS_CURRENT"
+
+    if status == "PASS_CURRENT":
+        next_gate = contract["next_gate"]
+    elif stale:
+        next_gate = "REFRESH_FMDL5E_THEN_RERUN_R2E"
+    else:
+        next_gate = "REACQUIRE_FRESH_ELIGIBILITY_THEN_RERUN_R2E"
     decision = {
         "program_id": "HKCU-1",
         "phase": "R2E",
@@ -201,11 +223,13 @@ def build(
         "publication_allowed": status == "PASS_CURRENT",
         "canonical_action": "ELIGIBLE_FOR_R2F" if status == "PASS_CURRENT" else "KEEP_PREVIOUS_CANONICAL_UNCHANGED",
         "eligibility_as_of_date": eligibility_as_of,
+        "eligibility_source_status": eligibility_source_status,
+        "eligibility_source_fresh": source_fresh,
         "fmdl5e_as_of_date": fmdl_as_of,
         "fmdl5e_age_stock_connect_service_days": age,
         "provisional_investable_count": int(len(universe)),
         "hard_failures": sorted(set(failures)),
-        "next_gate": contract["next_gate"] if status == "PASS_CURRENT" else "REFRESH_FMDL5E_THEN_RERUN_R2E",
+        "next_gate": next_gate,
         "candidate_pool_mutations": 0,
         "simulation_mutations": 0,
         "real_account_mutations": 0,
@@ -223,6 +247,7 @@ def main() -> int:
     p.add_argument("--calendar", type=Path, required=True)
     p.add_argument("--contract", type=Path, required=True)
     p.add_argument("--as-of-date", required=True)
+    p.add_argument("--eligibility-source-status", choices=sorted(VALID_ELIGIBILITY_SOURCE_STATUSES), default=FRESH_OFFICIAL)
     p.add_argument("--output-dir", type=Path, required=True)
     a = p.parse_args()
 
@@ -230,7 +255,13 @@ def main() -> int:
     screening = pd.read_csv(a.fmdl5e_screening, dtype={"stock_code_5d": str}, encoding="utf-8-sig")
     contract = _read_json(a.contract)
     universe, exclusions, quality, decision = build(
-        eligibility, screening, _read_json(a.fmdl5e_decision), _read_json(a.calendar), contract, a.as_of_date
+        eligibility,
+        screening,
+        _read_json(a.fmdl5e_decision),
+        _read_json(a.calendar),
+        contract,
+        a.as_of_date,
+        a.eligibility_source_status,
     )
     a.output_dir.mkdir(parents=True, exist_ok=True)
     eligibility.to_csv(a.output_dir / "HKCU1_POINT_IN_TIME_ELIGIBILITY.csv", index=False)
@@ -240,12 +271,22 @@ def main() -> int:
     (a.output_dir / "HKCU1_R2E_DECISION.json").write_text(json.dumps(decision, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     files = [p for p in a.output_dir.iterdir() if p.is_file()]
     manifest = {
-        "program_id": "HKCU-1", "phase": "R2E", "as_of_date": a.as_of_date,
-        "files": {p.name: _hash(p) for p in files}, "trade_authority": "NONE"
+        "program_id": "HKCU-1",
+        "phase": "R2E",
+        "as_of_date": a.as_of_date,
+        "eligibility_source_status": a.eligibility_source_status,
+        "files": {p.name: _hash(p) for p in files},
+        "trade_authority": "NONE",
     }
     (a.output_dir / "HKCU1_R2E_MANIFEST.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(decision, ensure_ascii=False, indent=2))
-    return 0 if decision["status"] in {"PASS_CURRENT", "BLOCKED_STALE_FMDL5E"} else 2
+    expected_evidence_statuses = {
+        "PASS_CURRENT",
+        "BLOCKED_STALE_FMDL5E",
+        "BLOCKED_SOURCE_CONTINUITY",
+        "BLOCKED_SOURCE_AND_STALE_FMDL5E",
+    }
+    return 0 if decision["status"] in expected_evidence_statuses else 2
 
 
 if __name__ == "__main__":
