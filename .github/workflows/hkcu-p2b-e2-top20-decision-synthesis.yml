@@ -1,0 +1,80 @@
+name: HKCU P2B E2 Top20 Decision Synthesis
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p2b_e2_top20_decision_synthesis_s1_contract.json'
+      - 'pipeline/hkcu_p2b_e2_top20_decision_synthesis.py'
+      - 'scripts/validate_hkcu_p2b_e2_top20_decision_synthesis.py'
+      - 'tests/test_hkcu_p2b_e2_top20_decision_synthesis.py'
+      - 'docs/HKCU-P2B_E2_TOP20_DECISION_SYNTHESIS.md'
+      - '.github/workflows/hkcu-p2b-e2-top20-decision-synthesis.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p2b_e2_top20_decision_synthesis.py
+      - name: Enforce isolated S1 scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p2b_e2_s1_paths.txt
+          cat /tmp/p2b_e2_s1_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed={
+            'config/hkcu_p2b_e2_top20_decision_synthesis_s1_contract.json',
+            'pipeline/hkcu_p2b_e2_top20_decision_synthesis.py',
+            'scripts/validate_hkcu_p2b_e2_top20_decision_synthesis.py',
+            'tests/test_hkcu_p2b_e2_top20_decision_synthesis.py',
+            'docs/HKCU-P2B_E2_TOP20_DECISION_SYNTHESIS.md',
+            '.github/workflows/hkcu-p2b-e2-top20-decision-synthesis.yml',
+          }
+          actual={x.strip() for x in Path('/tmp/p2b_e2_s1_paths.txt').read_text().splitlines() if x.strip()}
+          bad=sorted(actual-allowed)
+          if bad: raise SystemExit('P2B_E2_S1_SCOPE_VIOLATION:'+','.join(bad))
+          protected=('outputs/candidate/','outputs/simulation/','outputs/real','state/','orders/')
+          p=sorted(x for x in actual if x.startswith(protected))
+          if p: raise SystemExit('P2B_E2_S1_PROTECTED_PATH_MUTATION:'+','.join(p))
+          PY
+
+  real-decision-synthesis:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild accepted D4 and synthesize Top20 decisions
+        run: |
+          rm -rf work/hkcu_p2b_e2_s1
+          python pipeline/hkcu_p2b_e2_top20_decision_synthesis.py --repo-root . --output work/hkcu_p2b_e2_s1
+      - name: Independent S1 validation
+        run: python scripts/validate_hkcu_p2b_e2_top20_decision_synthesis.py --output work/hkcu_p2b_e2_s1
+      - name: Render S1 decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p2b_e2_s1/HKCU_P2B_E2_S1_DECISION.json || cat work/hkcu_p2b_e2_s1/HKCU_P2B_E2_S1_DECISION.json
+          test ! -f work/hkcu_p2b_e2_s1/HKCU_P2B_E2_S1_QUALITY_REPORT.json || cat work/hkcu_p2b_e2_s1/HKCU_P2B_E2_S1_QUALITY_REPORT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p2b-e2-s1-top20-decision-synthesis
+          path: work/hkcu_p2b_e2_s1/HKCU_P2B_E2_S1_*
+          if-no-files-found: error
