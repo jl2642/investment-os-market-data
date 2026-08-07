@@ -1,0 +1,71 @@
+{
+  "program_id": "HKCU-1",
+  "ledger_version": "1.0.0",
+  "updated_at": "2026-08-07",
+  "purpose": "Persist observed production failure modes and their required automated recovery behavior. This ledger is operational evidence, not conversational memory.",
+  "incidents": [
+    {
+      "incident_id": "HKCU1-I001",
+      "failure_class": "SOURCE_BLOCKED",
+      "symptom": "Direct SSE workbook request returned HTTP 403 from GitHub hosted runner.",
+      "root_cause": "SSE anti-automation / runner egress filtering; endpoint identity itself remained valid.",
+      "permanent_control": "Use real Chromium page network path; classify 403 as SOURCE_BLOCKED; never replace with third-party data.",
+      "regression_control": "SSE browser evidence records landing/payload status, cookies, request/response headers and workbook signature.",
+      "status": "CONTROLLED_BUT_EXTERNALLY_VARIABLE"
+    },
+    {
+      "incident_id": "HKCU1-I002",
+      "failure_class": "TRANSIENT_INFRA",
+      "symptom": "GitHub Actions failed before checkout because action metadata download returned Service Unavailable / timeout.",
+      "root_cause": "GitHub Actions infrastructure failure before business code execution.",
+      "permanent_control": "Separate infrastructure failure from code failure; retry failed job without changing business logic.",
+      "regression_control": "Do not open a code repair phase if checkout/setup did not complete.",
+      "status": "CONTROLLED"
+    },
+    {
+      "incident_id": "HKCU1-I003",
+      "failure_class": "TRANSIENT_INFRA",
+      "symptom": "SZSE official JSON occasionally reset the connection.",
+      "root_cause": "Transient source/network instability.",
+      "permanent_control": "Bounded independent retry with explicit exhaustion failure; preserve SSE raw input across SZSE retries.",
+      "regression_control": "Deterministic replay must produce identical normalized hashes after successful retries.",
+      "status": "CONTROLLED"
+    },
+    {
+      "incident_id": "HKCU1-I004",
+      "failure_class": "CODE_DEFECT",
+      "symptom": "Workflow hard-coded official list count at 651 and rejected a valid 652-row update.",
+      "root_cause": "Mutable market data was encoded as a constant gate.",
+      "permanent_control": "Validate actual row count against each official source's declared record count; never hard-code live list size.",
+      "regression_control": "Replay counts and official declared counts must match dynamically.",
+      "status": "FIXED"
+    },
+    {
+      "incident_id": "HKCU1-I005",
+      "failure_class": "CODE_DEFECT",
+      "symptom": "Official OUT adjustment was mapped to NOT_ELIGIBLE instead of retained sell-only rights.",
+      "root_cause": "Eligibility state machine collapsed buy eligibility and disposal rights.",
+      "permanent_control": "OUT maps to SELL_ONLY while the security remains HKEX-listed; terminal non-eligibility requires separate explicit evidence.",
+      "regression_control": "R2C tests cover single-channel and both-channel OUT transitions and future-event leakage.",
+      "status": "FIXED"
+    },
+    {
+      "incident_id": "HKCU1-I006",
+      "failure_class": "SOURCE_BLOCKED",
+      "symptom": "Run #21 succeeded from one GitHub hosted runner region while Run #23 received SSE landing and payload HTTP 403 from another runner region.",
+      "root_cause": "SSE accessibility varies by hosted-runner egress/IP/region; a single successful run is not proof of stable availability.",
+      "permanent_control": "Persist last-known-good official baseline, classify source blocking, keep Canonical unchanged on degraded runs, and prohibit stale evidence from publication.",
+      "regression_control": "Resilience decision emits FRESH_PASS vs DEGRADED_CONTINUITY vs BLOCKED_NO_FRESH_SOURCE and a publication_allowed flag.",
+      "status": "HARDENING_IN_PROGRESS"
+    }
+  ],
+  "non_negotiable_policies": [
+    "Official SSE/SZSE/HKEX evidence only for eligibility authority.",
+    "Third-party portals, brokers and search snippets never silently substitute for an unavailable official source.",
+    "A stale last-known-good snapshot may preserve continuity but may not be promoted as fresh/current.",
+    "Source and infrastructure failures do not justify changing investment logic.",
+    "Unknown/conflicting eligibility fails closed.",
+    "No candidate, simulation, real-account or order mutation in HKCU-1 source-recovery logic.",
+    "trade_authority=NONE"
+  ]
+}
