@@ -1,0 +1,110 @@
+{
+  "contract_id": "HKCU_P2B_RESEARCH_ENRICHMENT_V1",
+  "program_id": "HKCU-P2B",
+  "phase": "P2B",
+  "objective": "Convert the accepted 77-name P2A Research Longlist into a security-type-aware, evidence-controlled research-enrichment queue without fabricating missing research or mutating any Candidate, portfolio, order, or trade authority state.",
+  "authoritative_inputs": {
+    "p2a_acceptance": "outputs/hkcu_p2a/current/HKCU_P2A_ACCEPTANCE.json",
+    "hkcu_current": "outputs/hkcu1/current/HKCU1_R2E_INVESTABLE_UNIVERSE.csv",
+    "p2a_contract": "config/hkcu_p2a_research_longlist_contract.json",
+    "p2a_builder": "pipeline/hkcu_p2a_build_longlist.py",
+    "p2a_validator": "scripts/validate_hkcu_p2a.py"
+  },
+  "upstream_lock": {
+    "required_p2a_status": "PASS_P2A_CURRENT",
+    "required_longlist_count": 77,
+    "required_longlist_sha256_field": "accepted_outputs_sha256.HKCU_P2A_RESEARCH_LONGLIST.csv",
+    "rebuild_p2a_before_enrichment": true,
+    "hash_drift_policy": "FAIL_CLOSED"
+  },
+  "security_type_map": {
+    "BANK": "BANK",
+    "INSURANCE": "INSURANCE",
+    "SECURITIES_AND_BROKERAGE": "SECURITIES_AND_BROKERAGE",
+    "GENERAL_NON_FINANCIAL": "GENERAL_NON_FINANCIAL"
+  },
+  "unknown_security_type_policy": "RESEARCH_REQUIRED_NO_SCORE",
+  "dimensions": [
+    {
+      "dimension_id": "GOVERNANCE_VALUE_TRAP",
+      "scope": "ALL_SECURITIES",
+      "initial_status": "RESEARCH_REQUIRED",
+      "score_before_evidence": null,
+      "minimum_evidence_standard": "Issuer/exchange/regulatory primary evidence preferred; credible secondary evidence may supplement but not replace material primary facts.",
+      "security_type_notes": {
+        "BANK": "Use bank-specific capital, asset-quality, provisioning, funding, related-party and governance lenses; do not apply industrial leverage heuristics mechanically.",
+        "INSURANCE": "Use solvency, reserve/asset-liability, investment-book, distribution and governance lenses.",
+        "SECURITIES_AND_BROKERAGE": "Use capital, leverage, proprietary-book, counterparty, regulatory and governance lenses.",
+        "GENERAL_NON_FINANCIAL": "Use ownership/control, related parties, capital allocation, balance sheet, cash conversion, accounting quality and structural value-trap lenses."
+      }
+    },
+    {
+      "dimension_id": "EARNINGS_EXPECTATION_REVISION",
+      "scope": "ALL_SECURITIES",
+      "initial_status": "RESEARCH_REQUIRED",
+      "score_before_evidence": null,
+      "minimum_evidence_standard": "Use dated consensus/management guidance/results evidence. If reliable revision data is unavailable, remain DATA_UNAVAILABLE/RESEARCH_REQUIRED rather than proxying from trailing growth."
+    },
+    {
+      "dimension_id": "CATALYST",
+      "scope": "ALL_SECURITIES",
+      "initial_status": "RESEARCH_REQUIRED",
+      "score_before_evidence": null,
+      "minimum_evidence_standard": "Catalyst must be dated, security-specific and falsifiable; generic thematic narratives do not qualify."
+    },
+    {
+      "dimension_id": "TRANSACTION_COST_TAX",
+      "scope": "ALL_SECURITIES",
+      "initial_status": "RESEARCH_REQUIRED",
+      "score_before_evidence": null,
+      "minimum_evidence_standard": "Use current Southbound/HKEX/exchange/broker fee and tax rules with explicit effective dates. Portfolio-size assumptions belong downstream and may not be invented here."
+    },
+    {
+      "dimension_id": "A_H_RELATIVE_VALUATION",
+      "scope": "ONLY_WHERE_SAME_ISSUER_A_SHARE_CLASS_IS_EVIDENCED",
+      "initial_status": "RESEARCH_REQUIRED_IF_A_SHARE_CLASS_EXISTS_ELSE_NOT_APPLICABLE",
+      "score_before_evidence": null,
+      "minimum_evidence_standard": "Require evidence that the Hong Kong security and A-share are share classes of the same issuer plus synchronized prices/FX and comparable per-share rights. Parent/subsidiary or merely related A-share listings are NOT_APPLICABLE."
+    }
+  ],
+  "status_vocabulary": [
+    "RESEARCH_REQUIRED",
+    "EVIDENCE_PARTIAL",
+    "EVIDENCE_COMPLETE",
+    "DATA_UNAVAILABLE",
+    "NOT_APPLICABLE"
+  ],
+  "baseline_policy": {
+    "no_qualitative_score_without_evidence": true,
+    "trailing_p2a_factors_may_not_substitute_for_revision_or_catalyst": true,
+    "h_share_flag_alone_does_not_make_a_h_valuation_applicable": true,
+    "a_share_class_exists_is_only_an_applicability_lead_not_final_pair_evidence": true,
+    "formal_candidate_graduation_allowed": false,
+    "p2c_allowed_before_p2b_evidence_gate": false
+  },
+  "research_queue_order": [
+    "p2a_overall_rank_ascending",
+    "dimension_order",
+    "security_id_ascending"
+  ],
+  "acceptance": {
+    "required_security_count": 77,
+    "required_duplicate_security_count": 0,
+    "required_dimension_rows_per_security": 5,
+    "required_trade_authority": "NONE",
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "baseline_next_gate": "P2B_EVIDENCE_COLLECTION"
+  },
+  "outputs": [
+    "HKCU_P2B_SECURITY_TYPE_MATRIX.csv",
+    "HKCU_P2B_DIMENSION_MATRIX.csv",
+    "HKCU_P2B_RESEARCH_QUEUE.csv",
+    "HKCU_P2B_QUALITY_REPORT.json",
+    "HKCU_P2B_DECISION.json",
+    "HKCU_P2B_MANIFEST.json"
+  ],
+  "trade_authority": "NONE"
+}
