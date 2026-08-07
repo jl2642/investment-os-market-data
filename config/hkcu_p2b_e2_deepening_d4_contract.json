@@ -1,0 +1,61 @@
+{
+  "acceptance": {
+    "candidate_pool_mutations": 0,
+    "formal_candidate_graduation_allowed": false,
+    "orders_created": 0,
+    "real_account_mutations": 0,
+    "score_non_null_count": 0,
+    "simulation_mutations": 0,
+    "trade_authority": "NONE"
+  },
+  "authoritative_inputs": {
+    "d3_builder": "pipeline/hkcu_p2b_e2_deepen_top20_high_blockers.py",
+    "d3_validator": "scripts/validate_hkcu_p2b_e2_deepening_d3.py",
+    "d4_evidence": "evidence/hkcu_p2b/HKCU_P2B_E2_D4_TOP20_REMAINING_BLOCKER_EVIDENCE_20260807.csv"
+  },
+  "contract_id": "HKCU_P2B_E2_COMPANY_EVIDENCE_DEEPENING_D4_REMAINING_BLOCKERS_V1",
+  "evidence_policy": {
+    "allowed_resolution_statuses": [
+      "CLEARED_MONITOR",
+      "RECLASSIFIED_MONITOR",
+      "CONFIDENCE_CAP_MONITOR",
+      "RETAINED_INVESTMENT_BLOCKER",
+      "RECLASSIFIED_INVESTMENT_BLOCKER"
+    ],
+    "blocker_statuses": [
+      "RETAINED_INVESTMENT_BLOCKER",
+      "RECLASSIFIED_INVESTMENT_BLOCKER"
+    ],
+    "future_dated_evidence_forbidden": true,
+    "missing_consensus_is_not_bearish": true,
+    "new_cross_dimension_signal_must_not_be_silently_dropped": true,
+    "no_alpha_score_in_e2": true,
+    "pending_positive_optionality_is_not_automatically_a_graduation_blocker": true,
+    "primary_official_required": true
+  },
+  "expected_d4_result": {
+    "cleared_or_confidence_cap_rows": 10,
+    "ready_with_confidence_cap_security_count": 18,
+    "remaining_blocker_rows": 2,
+    "remaining_blocker_security_count": 2,
+    "retained_investment_blocker_rows": 2,
+    "target_rows": 12,
+    "target_security_count": 10
+  },
+  "expected_retained_blocker_keys": [
+    "HKEX:00551|GOVERNANCE_VALUE_TRAP",
+    "HKEX:01114|CATALYST"
+  ],
+  "next_gate": "P2B_E2_TOP20_DECISION_SYNTHESIS",
+  "objective": "Resolve the exact 12 blockers remaining after accepted D3 into monitor/confidence-cap states or substantive retained investment blockers, using current primary-official evidence and carrying fresh cross-dimension negative signals forward without forcing Candidate graduation.",
+  "phase": "P2B_E2_COMPANY_EVIDENCE_DEEPENING",
+  "program_id": "HKCU-P2B-E2-D4",
+  "selection_policy": {
+    "as_of_date": "2026-08-07",
+    "expected_security_count": 10,
+    "expected_target_rows": 12,
+    "required_prior_graduation_blocker": true,
+    "source": "D3_REMAINING_BLOCKER_QUEUE"
+  },
+  "trade_authority": "NONE"
+}

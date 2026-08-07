@@ -1,0 +1,88 @@
+name: HKCU P2B E2 Deepening D4 Remaining Blockers
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p2b_e2_deepening_d4_contract.json'
+      - 'evidence/hkcu_p2b/HKCU_P2B_E2_D4_TOP20_REMAINING_BLOCKER_EVIDENCE_20260807.csv'
+      - 'pipeline/hkcu_p2b_e2_deepen_top20_remaining_blockers.py'
+      - 'scripts/validate_hkcu_p2b_e2_deepening_d4.py'
+      - 'tests/test_hkcu_p2b_e2_deepening_d4.py'
+      - 'docs/HKCU-P2B_E2_DEEPENING_D4.md'
+      - '.github/workflows/hkcu-p2b-e2-deepening-d4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p2b_e2_deepening_d4.py
+      - name: Enforce isolated P2B-E2 D4 scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p2b_e2_d4_paths.txt
+          cat /tmp/p2b_e2_d4_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              "config/hkcu_p2b_e2_deepening_d4_contract.json",
+              "evidence/hkcu_p2b/HKCU_P2B_E2_D4_TOP20_REMAINING_BLOCKER_EVIDENCE_20260807.csv",
+              "pipeline/hkcu_p2b_e2_deepen_top20_remaining_blockers.py",
+              "scripts/validate_hkcu_p2b_e2_deepening_d4.py",
+              "tests/test_hkcu_p2b_e2_deepening_d4.py",
+              "docs/HKCU-P2B_E2_DEEPENING_D4.md",
+              ".github/workflows/hkcu-p2b-e2-deepening-d4.yml",
+          }
+          actual = {x.strip() for x in Path('/tmp/p2b_e2_d4_paths.txt').read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit('P2B_E2_D4_SCOPE_VIOLATION:' + ','.join(bad))
+          protected_prefixes = ('outputs/candidate/', 'outputs/simulation/', 'outputs/real', 'state/', 'orders/')
+          protected = sorted(p for p in actual if p.startswith(protected_prefixes))
+          if protected:
+              raise SystemExit('P2B_E2_D4_PROTECTED_PATH_MUTATION:' + ','.join(protected))
+          PY
+
+  real-remaining-blocker-deepening:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild accepted D3 and deepen exact remaining blockers
+        run: |
+          rm -rf work/hkcu_p2b_e2_d4
+          python pipeline/hkcu_p2b_e2_deepen_top20_remaining_blockers.py \
+            --repo-root . \
+            --output work/hkcu_p2b_e2_d4
+      - name: Independent D4 validation
+        run: |
+          python scripts/validate_hkcu_p2b_e2_deepening_d4.py \
+            --output work/hkcu_p2b_e2_d4
+      - name: Render D4 decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p2b_e2_d4/HKCU_P2B_E2_D4_DECISION.json || cat work/hkcu_p2b_e2_d4/HKCU_P2B_E2_D4_DECISION.json
+          test ! -f work/hkcu_p2b_e2_d4/HKCU_P2B_E2_D4_QUALITY_REPORT.json || cat work/hkcu_p2b_e2_d4/HKCU_P2B_E2_D4_QUALITY_REPORT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p2b-e2-d4-remaining-blocker-deepening
+          path: work/hkcu_p2b_e2_d4/HKCU_P2B_E2_D4_*
+          if-no-files-found: error
