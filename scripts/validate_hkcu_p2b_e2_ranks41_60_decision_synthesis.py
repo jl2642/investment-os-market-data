@@ -63,7 +63,6 @@ def main() -> None:
     if not dim["trade_authority"].eq(TRADE_AUTHORITY).all() or not sec["trade_authority"].eq(TRADE_AUTHORITY).all(): errors.append("ROW_TRADE_AUTHORITY")
     if not sec["formal_candidate_graduation_allowed"].astype(str).str.lower().eq("false").all(): errors.append("ROW_CANDIDATE_GRADUATION")
 
-    override = dim[list(zip(dim["security_id"], dim["research_dimension"])).__class__([False] * len(dim))] if False else None
     actual_override_keys = set()
     for key in EXPECTED_OVERRIDE_KEYS:
         row = dim[(dim["security_id"] == key[0]) & (dim["research_dimension"] == key[1])]
@@ -72,7 +71,8 @@ def main() -> None:
             continue
         r = row.iloc[0]
         if not str(r["source_url"]).startswith("https://www1.hkexnews.hk/"): errors.append("OVERRIDE_SOURCE:" + key[0])
-        if pd.to_datetime(r["evidence_date"], errors="coerce") > pd.Timestamp("2026-08-07"): errors.append("OVERRIDE_DATE:" + key[0])
+        dt = pd.to_datetime(r["evidence_date"], errors="coerce")
+        if pd.isna(dt) or dt > pd.Timestamp("2026-08-07"): errors.append("OVERRIDE_DATE:" + key[0])
         actual_override_keys.add(key)
     if actual_override_keys != EXPECTED_OVERRIDE_KEYS: errors.append("OVERRIDE_KEY_SET")
 
