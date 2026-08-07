@@ -1,5 +1,5 @@
 {
-  "registry_version": "1.5.0",
+  "registry_version": "1.6.0",
   "program_id": "HKCU-1",
   "registry_as_of_date": "2026-08-07",
   "landing_pages": [
@@ -35,9 +35,9 @@
       "channel": "BOTH",
       "landing_url": "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Eligible-Stocks/View-All-Eligible-Securities?sc_lang=en",
       "official_domains": ["hkex.com.hk"],
-      "decision_role": "CROSS_CHECK_NOT_SILENT_OVERRIDE",
+      "decision_role": "SECONDARY_OFFICIAL_STRUCTURAL_AND_LINKAGE_CROSS_CHECK_NOT_SILENT_OVERRIDE",
       "page_last_observed_update": "2026-08-06",
-      "current_resolution_status": "LANDING_PAGE_CONFIRMED_LINKS_TO_PRIMARY_LISTS"
+      "current_resolution_status": "R2D_PASS_REFERENCE_CONSISTENT_RUN_1"
     }
   ],
   "machine_readable_sources": [
@@ -107,6 +107,8 @@
   ],
   "r2c_bootstrap_contract": "config/hkcu1_r2c_bootstrap_contract.json",
   "r2c_acceptance_evidence": "outputs/hkcu1/HKCU1_R2C_ACCEPTANCE_20260807.json",
+  "r2d_crosscheck_contract": "config/hkcu1_hkex_crosscheck_contract.json",
+  "r2d_acceptance_evidence": "outputs/hkcu1/HKCU1_R2D_ACCEPTANCE_20260807.json",
   "sell_only_rule": {
     "authority": "SSE",
     "rule_name": "上海证券交易所沪港通业务实施办法（2024年修订）",
@@ -125,7 +127,7 @@
     "third_party_fallback": "PROHIBITED"
   },
   "endpoint_resolution_gate": {
-    "status": "R2B_PASS_R2C_PASS_FORWARD_COMPLETE",
+    "status": "R2B_PASS_R2C_PASS_R2D_PASS",
     "resolved_at": "2026-08-07",
     "evidence": [
       "SSE browser-native workbook acquisition validated HTTP 200 with XLS signature and SHA-256 in Run #21 and again in Run #48",
@@ -135,16 +137,22 @@
       "Both live notice windows reached the 2026-08-07 bootstrap cursor",
       "Run #48 normalized 130 adjustment events across 32 parsed notices with zero unresolved effective dates and zero future leakage",
       "Post-bootstrap OUT maps to SELL_ONLY and cannot enter the buyable Universe",
-      "SSE source blocking is classified and degrades to LKG continuity without Canonical publication"
+      "SSE source blocking is classified and degrades to LKG continuity without Canonical publication",
+      "Run #51 completed the R2C final write-back regression successfully",
+      "R2D Run #1 independently validated the HKEX All Eligible Securities page with HTTP 200, page update date 2026-08-06, and both required Southbound references",
+      "HKEX Shanghai Southbound reference targets the SSE official eligibility landing path; HKEX Shenzhen Southbound reference targets the SZSE official eligibility landing path",
+      "HKEX is explicitly classified as a secondary structural/linkage cross-check and cannot silently override SSE/SZSE primary security-level authority"
     ],
     "remaining_before_production": [
-      "HKEX cross-check",
       "Merge with FMDL-5E to generate the final Stock Connect investable Universe",
-      "Independent release validation, diff review and PR promotion"
+      "Independent release validation, full diff review, PR promotion and controlled Canonical publication path"
     ]
   },
   "conflict_policy": {
-    "same_channel_primary_vs_cross_check": "PRIMARY_WINS_ONLY_IF_EFFECTIVE_DATE_AND_DOCUMENT_IDENTITY_ARE_EXPLICIT; OTHERWISE_UNKNOWN_BLOCKED",
+    "same_channel_primary_vs_cross_check": "HKEX_STRUCTURAL_OR_LINKAGE_CONFLICT_BLOCKS_RELEASE; SECURITY_LEVEL_PRIMARY_REMAINS_SSE_OR_SZSE",
+    "hkex_missing_southbound_reference": "BLOCK_RELEASE",
+    "hkex_non_official_target": "BLOCK_RELEASE",
+    "hkex_page_too_stale": "BLOCK_RELEASE",
     "sh_vs_sz_difference": "PRESERVE_CHANNEL_SPECIFIC_STATUS",
     "missing_primary_source": "UNKNOWN_BLOCKED",
     "stale_cached_status": "CONTINUITY_ONLY_NO_PUBLICATION",
