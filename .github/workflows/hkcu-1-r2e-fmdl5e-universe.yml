@@ -3,13 +3,14 @@ name: HKCU-1 R2E FMDL-5E Investable Universe
 on:
   pull_request:
     paths:
-      - 'pipeline/hkcu1_r2e_merge_fmdl5e.py'
+      - 'pipeline/hkcu1_r2e_*.py'
       - 'pipeline/hkcu1_fetch_sse_browser.py'
       - 'pipeline/hkcu1_fetch_official_lists.py'
       - 'pipeline/hkcu1_fetch_adjustment_events.py'
       - 'pipeline/hkcu1_reconstruct_eligibility.py'
       - 'pipeline/hkcu1_hkex_crosscheck.py'
       - 'config/hkcu1_r2e_universe_contract.json'
+      - 'config/hkcu1_lkg_snapshot.json'
       - 'config/hkcu1_official_source_registry.json'
       - 'config/hkcu1_stock_connect_calendar_2026.json'
       - 'config/hkcu1_hkex_crosscheck_contract.json'
@@ -62,20 +63,32 @@ jobs:
           rm -rf work/hkcu1_r2e_live
           mkdir -p work/hkcu1_r2e_live/source/browser
 
-      - name: Acquire fresh SSE official current list
+      - name: Attempt fresh SSE official current list with bounded retries
         run: |
+          set +e
           python pipeline/hkcu1_fetch_sse_browser.py \
             --output-file work/hkcu1_r2e_live/source/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
             --evidence-file work/hkcu1_r2e_live/source/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json \
             --max-attempts 3
-          python - <<'PY'
-          import json
-          d=json.load(open('work/hkcu1_r2e_live/source/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json'))
-          assert d['status']=='PASS', d
-          PY
+          code=$?
+          set -e
+          echo "SSE fresh acquisition exit_code=${code}; R2E bootstrap resolver will classify fresh vs LKG continuity"
+          exit 0
 
-      - name: Fetch and reconcile SSE and SZSE current lists
+      - name: Attempt fresh SSE and SZSE reconciliation when SSE is available
         run: |
+          fresh_sse=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('work/hkcu1_r2e_live/source/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json')
+          d=json.loads(p.read_text()) if p.exists() else {}
+          print('1' if d.get('status')=='PASS' and Path('work/hkcu1_r2e_live/source/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls').exists() else '0')
+          PY
+          )
+          if [ "$fresh_sse" != "1" ]; then
+            echo "Fresh SSE unavailable; skip fresh dual-source reconciliation and use governed bootstrap resolver"
+            exit 0
+          fi
           passed=0
           for attempt in 1 2 3 4 5 6; do
             rm -rf work/hkcu1_r2e_live/source/current_lists
@@ -86,14 +99,16 @@ jobs:
               --allow-partial
             if python - <<'PY'
           import json
-          d=json.load(open('work/hkcu1_r2e_live/source/current_lists/HKCU1_FETCH_DECISION.json'))
-          ledger=json.load(open('work/hkcu1_r2e_live/source/current_lists/HKCU1_SOURCE_LEDGER.json'))
-          by={r['source_id']:r for r in ledger}
+          from pathlib import Path
+          root=Path('work/hkcu1_r2e_live/source/current_lists')
+          dp=root/'HKCU1_FETCH_DECISION.json'; lp=root/'HKCU1_SOURCE_LEDGER.json'
+          if not dp.exists() or not lp.exists(): raise SystemExit(1)
+          d=json.load(open(dp)); ledger=json.load(open(lp)); by={r['source_id']:r for r in ledger}
           ids=('SSE_SH_SOUTHBOUND_BUY_LIST','SZSE_SZ_SOUTHBOUND_BUY_LIST')
-          ok=d['status']=='PASS'
+          ok=d.get('status')=='PASS'
           for sid in ids:
               row=by.get(sid,{})
-              actual=d['source_rows'].get(sid)
+              actual=d.get('source_rows',{}).get(sid)
               ok = ok and row.get('status')=='PASS' and isinstance(actual,int) and actual>0 and actual==row.get('declared_record_count')
           raise SystemExit(0 if ok else 1)
           PY
@@ -103,22 +118,26 @@ jobs:
             fi
             if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
           done
-          test "$passed" -eq 1
+          echo "fresh dual-source reconciliation passed=${passed}; if 0, bootstrap resolver may use LKG continuity"
+          exit 0
 
-      - name: Build current-state bootstrap snapshot
+      - name: Resolve fresh official vs LKG continuity bootstrap
         run: |
-          python - <<'PY'
-          import pandas as pd
-          from pathlib import Path
-          root=Path('work/hkcu1_r2e_live/source/current_lists')
-          df=pd.read_csv(root/'HKCU1_OFFICIAL_LIST_ROWS.csv',dtype=str)
-          keep=df[['security_code','channel','eligibility_side','source_id','source_sha256']].copy()
-          keep['effective_from']='${{ env.AS_OF_DATE }}'
-          keep=keep.drop_duplicates(['security_code','channel'])
-          keep.to_csv('work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SNAPSHOT.csv',index=False)
-          assert len(keep)>0
-          assert keep[['security_code','channel']].duplicated().sum()==0
+          python pipeline/hkcu1_r2e_prepare_bootstrap.py \
+            --fresh-rows work/hkcu1_r2e_live/source/current_lists/HKCU1_OFFICIAL_LIST_ROWS.csv \
+            --fresh-decision work/hkcu1_r2e_live/source/current_lists/HKCU1_FETCH_DECISION.json \
+            --lkg config/hkcu1_lkg_snapshot.json \
+            --as-of-date "$AS_OF_DATE" \
+            --max-lkg-age-days 14 \
+            --output-snapshot work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SNAPSHOT.csv \
+            --output-decision work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SOURCE_DECISION.json
+          ELIGIBILITY_SOURCE_STATUS=$(python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SOURCE_DECISION.json'))
+          print(d['eligibility_source_status'])
           PY
+          )
+          echo "ELIGIBILITY_SOURCE_STATUS=$ELIGIBILITY_SOURCE_STATUS" >> "$GITHUB_ENV"
 
       - name: Fetch and resolve official adjustment events
         run: |
@@ -164,11 +183,13 @@ jobs:
             --calendar config/hkcu1_stock_connect_calendar_2026.json \
             --contract config/hkcu1_r2e_universe_contract.json \
             --as-of-date "$AS_OF_DATE" \
+            --eligibility-source-status "$ELIGIBILITY_SOURCE_STATUS" \
             --output-dir work/hkcu1_r2e_live/release
 
       - name: Render R2E evidence
         if: always()
         run: |
+          test ! -f work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SOURCE_DECISION.json || cat work/hkcu1_r2e_live/HKCU1_R2E_BOOTSTRAP_SOURCE_DECISION.json
           test ! -f work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json || cat work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json
           test ! -f work/hkcu1_r2e_live/release/HKCU1_R2E_QUALITY_REPORT.json || cat work/hkcu1_r2e_live/release/HKCU1_R2E_QUALITY_REPORT.json
 
@@ -179,6 +200,7 @@ jobs:
           d=json.load(open('work/hkcu1_r2e_live/release/HKCU1_R2E_DECISION.json'))
           assert d['status']=='PASS_CURRENT', d
           assert d['publication_allowed'] is True, d
+          assert d['eligibility_source_fresh'] is True, d
           PY
 
       - uses: actions/upload-artifact@v4
