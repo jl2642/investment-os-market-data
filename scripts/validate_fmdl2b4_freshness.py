@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime
+from datetime import datetime, time
 import json
 from pathlib import Path
 import sys
@@ -16,18 +16,32 @@ import pandas as pd
 from scripts.fmdl2b4_history import ROOT, read_json
 
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
+MARKET_CLOSE = time(15, 0)
 
 
-def latest_completed_trade_date() -> str:
+def latest_completed_trade_date(current: datetime | None = None) -> str:
     calendar = ak.tool_trade_date_hist_sina()
     if calendar is None or not isinstance(calendar, pd.DataFrame) or calendar.empty:
         raise RuntimeError("TRADING_CALENDAR_UNAVAILABLE")
     column = next((name for name in ("trade_date", "交易日", "date") if name in calendar.columns), None)
     if column is None:
         raise RuntimeError("TRADING_CALENDAR_DATE_COLUMN_MISSING")
-    today = datetime.now(tz=BUSINESS_TZ).date()
-    dates = pd.to_datetime(calendar[column], errors="coerce").dropna().dt.date
-    eligible = sorted(item for item in dates if item <= today)
+
+    local_now = current or datetime.now(tz=BUSINESS_TZ)
+    if local_now.tzinfo is None:
+        local_now = local_now.replace(tzinfo=BUSINESS_TZ)
+    else:
+        local_now = local_now.astimezone(BUSINESS_TZ)
+
+    dates = sorted(set(pd.to_datetime(calendar[column], errors="coerce").dropna().dt.date))
+    today = local_now.date()
+    today_is_trade_day = today in dates
+    same_day_completed = (not today_is_trade_day) or local_now.time() >= MARKET_CLOSE
+    eligible = [
+        item
+        for item in dates
+        if item < today or (item == today and same_day_completed)
+    ]
     if not eligible:
         raise RuntimeError("NO_COMPLETED_TRADE_DATE")
     return eligible[-1].isoformat()
