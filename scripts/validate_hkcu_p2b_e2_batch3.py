@@ -9,7 +9,7 @@ import pandas as pd
 
 EXPECTED_DIMS = {"GOVERNANCE_VALUE_TRAP", "EARNINGS_EXPECTATION_REVISION", "CATALYST"}
 TRADE_AUTHORITY = "NONE"
-DIRECT_CODES = {"03939", "02269", "02145", "02314", "00917", "09696", "09911"}
+DIRECT_CODES = {"03939", "02269", "02400", "02145", "02698", "02314", "00917", "09696", "09911"}
 
 
 def read_json(path: Path):
@@ -59,11 +59,11 @@ def validate(output: Path) -> list[str]:
     if batch["score"].notna().any():
         errors.append("BATCH3_ALPHA_SCORE")
     counts3 = batch["evidence_status"].value_counts().to_dict()
-    expected3 = {"EVIDENCE_COMPLETE": 7, "EVIDENCE_PARTIAL": 46, "RESEARCH_REQUIRED": 7}
+    expected3 = {"EVIDENCE_COMPLETE": 9, "EVIDENCE_PARTIAL": 45, "RESEARCH_REQUIRED": 6}
     for status, count in expected3.items():
         if int(counts3.get(status, 0)) != count:
             errors.append(f"BATCH3_STATUS:{status}:{counts3.get(status,0)}")
-    if int(batch["evidence_status"].isin(["EVIDENCE_COMPLETE", "EVIDENCE_PARTIAL"]).sum()) != 53:
+    if int(batch["evidence_status"].isin(["EVIDENCE_COMPLETE", "EVIDENCE_PARTIAL"]).sum()) != 54:
         errors.append("BATCH3_COLLECTED")
     direct = set(
         batch.loc[
@@ -94,22 +94,22 @@ def validate(output: Path) -> list[str]:
         errors.append("CUMULATIVE_DIM_SET")
     if ledger["score"].notna().any():
         errors.append("LEDGER_ALPHA_SCORE")
-    if int(ledger["evidence_status"].isin(["EVIDENCE_COMPLETE", "EVIDENCE_PARTIAL"]).sum()) != 159:
+    if int(ledger["evidence_status"].isin(["EVIDENCE_COMPLETE", "EVIDENCE_PARTIAL"]).sum()) != 160:
         errors.append("CUMULATIVE_COLLECTED")
 
     company = dim[dim["research_dimension"].isin(EXPECTED_DIMS)]
     if len(company) != 231:
         errors.append(f"COMPANY_ROWS:{len(company)}")
     counts = company["evidence_status"].value_counts().to_dict()
-    expected_cum = {"EVIDENCE_COMPLETE": 15, "EVIDENCE_PARTIAL": 144, "RESEARCH_REQUIRED": 72}
+    expected_cum = {"EVIDENCE_COMPLETE": 17, "EVIDENCE_PARTIAL": 143, "RESEARCH_REQUIRED": 71}
     for status, count in expected_cum.items():
         if int(counts.get(status, 0)) != count:
             errors.append(f"CUM_STATUS:{status}:{counts.get(status,0)}")
     if company["score"].notna().any():
         errors.append("CUM_ALPHA_SCORE")
-    if len(openq) != 216:
+    if len(openq) != 214:
         errors.append(f"OPEN_QUEUE:{len(openq)}")
-    if len(unstarted) != 72:
+    if len(unstarted) != 71:
         errors.append(f"UNSTARTED_QUEUE:{len(unstarted)}")
     if not unstarted["evidence_status"].eq("RESEARCH_REQUIRED").all():
         errors.append("UNSTARTED_STATUS")
@@ -118,11 +118,11 @@ def validate(output: Path) -> list[str]:
         errors.append("DECISION_STARTED_COUNT")
     if decision.get("cumulative_evidence_rows") != 180:
         errors.append("DECISION_LEDGER_COUNT")
-    if decision.get("cumulative_evidence_collected_rows") != 159:
+    if decision.get("cumulative_evidence_collected_rows") != 160:
         errors.append("DECISION_COLLECTED_COUNT")
-    if decision.get("company_specific_open_tasks") != 216:
+    if decision.get("company_specific_open_tasks") != 214:
         errors.append("DECISION_OPEN_COUNT")
-    if decision.get("company_specific_unstarted_tasks") != 72:
+    if decision.get("company_specific_unstarted_tasks") != 71:
         errors.append("DECISION_UNSTARTED_COUNT")
     if decision.get("formal_candidate_graduation_allowed") is not False:
         errors.append("PREMATURE_CANDIDATE_GRADUATION")
