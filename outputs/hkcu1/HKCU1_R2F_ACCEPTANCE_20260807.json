@@ -1,0 +1,89 @@
+{
+  "program_id": "HKCU-1",
+  "phase": "R2F",
+  "decision": "PASS_R2F_CANDIDATE_CANONICAL",
+  "accepted_at": "2026-08-07",
+  "acceptance_scope": "INDEPENDENT_VALIDATION_FULL_PR_DIFF_EXACT_R2E_RELEASE_CANONICAL_CANDIDATE",
+  "source_r2e_acceptance": "outputs/hkcu1/HKCU1_R2E_ACCEPTANCE_20260807.json",
+  "source_r2e_run": {
+    "run_number": 23,
+    "run_id": 31150184958,
+    "head_sha": "ee7ad65bf821286e461e5506e8c1bc1d075e0357",
+    "artifact_id": 8983086255,
+    "artifact_sha256": "7a8164316fe2c92f4819b7c8073870323466ec1cc446afd8e94cf08c085bc5af",
+    "conclusion": "success"
+  },
+  "r2f_ci_evidence": {
+    "workflow": "HKCU-1 R2F Independent Release Validation",
+    "run_number": 6,
+    "run_id": 31152406375,
+    "validated_head_sha": "78f1cbe4234c1d301c26524f41f4d3c747231a6b",
+    "conclusion": "success",
+    "independent_validation_artifact_id": 8983806195,
+    "independent_validation_artifact_sha256": "5034846ec02a17094f5d87faf85560e9604ec34126f3d892569eb81b6911fc71",
+    "candidate_canonical_validation_artifact_id": 8983827441,
+    "candidate_canonical_validation_artifact_sha256": "38ccbae0a65fba41a56591036dc9bbdc2651a0af3882665e73d16f53fa3ff096",
+    "independent_validator_job": "PASS",
+    "candidate_canonical_job": "PASS"
+  },
+  "canonical_candidate_commit": {
+    "sha": "d095c4182b8f1dc1c17444ba956687092d96d827",
+    "message": "HKCU-1 R2F: promote exact accepted R2E release candidate",
+    "parent_sha": "5acb7434593bcae6dd6b2f71dc37780d95294b2c",
+    "publisher": "github-actions[bot]",
+    "publication_mode": "EXACT_ACCEPTED_R2E_ARTIFACT_BYTES_ONLY",
+    "regenerated": false
+  },
+  "canonical_current": {
+    "path": "outputs/hkcu1/current",
+    "eligibility_as_of_date": "2026-08-07",
+    "fmdl5e_as_of_date": "2026-08-06",
+    "investable_count": 430,
+    "excluded_count": 255,
+    "eligibility_entity_count": 685,
+    "files": {
+      "HKCU1_POINT_IN_TIME_ELIGIBILITY.csv": "9ea70ddebb93329c5ac3be46d3d39c9c0f4fbf69ca39613acd54687930191b1e",
+      "HKCU1_R2E_INVESTABLE_UNIVERSE.csv": "fe54e9ba7ad9f8361bed378b0670162aee13fa86e9e28c709b147c0ebe7ac7ba",
+      "HKCU1_R2E_EXCLUSIONS.csv": "e2e46f23c4ca5bc9322431fbd3a70e9432ba5653163b2ff8eb40325b8f6e67cb",
+      "HKCU1_R2E_QUALITY_REPORT.json": "fb4e6407096e333c8868cc40a924d8fb380ed5e70ad051c5028b4741eb3df960",
+      "HKCU1_R2E_DECISION.json": "045c42bd9357e46e66f591944dfa105a91219584da372a1f12e6d4587b10f3fa",
+      "HKCU1_R2E_MANIFEST.json": "53fb4aa2e0dde2867915e11867e11e7355477575335c6ba80c1b2a74a040db7d"
+    }
+  },
+  "independent_validation": {
+    "stage": "CANDIDATE_CANONICAL",
+    "status": "PASS",
+    "ready_for_pr_ready_and_merge": true,
+    "validated_investable_count": 430,
+    "validated_excluded_count": 255,
+    "validated_eligibility_count": 685,
+    "full_pr_diff_scope": "HKCU_ONLY",
+    "r2b_r2e_core_freeze": "PASS",
+    "git_diff_check": "PASS",
+    "zero_tolerance_errors": [],
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "review_state_at_acceptance": {
+    "unresolved_review_threads": 0,
+    "submitted_reviews": 0,
+    "pr_draft": true,
+    "pr_merged": false
+  },
+  "r2f_scope_boundary": {
+    "r2f_layer_usable": true,
+    "candidate_canonical_published_on_pr_branch": true,
+    "main_canonical_published": false,
+    "eligible_for_pr_ready": true,
+    "eligible_for_controlled_merge": true,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "FINAL_HEAD_CI_FULL_DIFF_REVIEW_NO_UNRESOLVED_THREADS_PR_READY_AND_CONTROLLED_MERGE"
+}
