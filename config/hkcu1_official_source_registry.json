@@ -1,5 +1,5 @@
 {
-  "registry_version": "1.4.0",
+  "registry_version": "1.5.0",
   "program_id": "HKCU-1",
   "registry_as_of_date": "2026-08-07",
   "landing_pages": [
@@ -106,6 +106,7 @@
     }
   ],
   "r2c_bootstrap_contract": "config/hkcu1_r2c_bootstrap_contract.json",
+  "r2c_acceptance_evidence": "outputs/hkcu1/HKCU1_R2C_ACCEPTANCE_20260807.json",
   "sell_only_rule": {
     "authority": "SSE",
     "rule_name": "上海证券交易所沪港通业务实施办法（2024年修订）",
@@ -124,19 +125,22 @@
     "third_party_fallback": "PROHIBITED"
   },
   "endpoint_resolution_gate": {
-    "status": "R2B_PASS_R2C_FORWARD_BOOTSTRAP_IN_PROGRESS",
+    "status": "R2B_PASS_R2C_PASS_FORWARD_COMPLETE",
     "resolved_at": "2026-08-07",
     "evidence": [
-      "SSE browser-native workbook acquisition validated HTTP 200 with XLS signature and SHA-256 in Run #21",
-      "SZSE official paginated JSON validated 652 declared/deduplicated rows in Run #21",
-      "Two deterministic replays produced identical SH/SZ normalized hashes",
-      "Run #40 parsed 87 adjustment events from 11 official notices with zero unresolved effective dates",
-      "Live list counts are reconciled dynamically to official declared counts rather than hard-coded"
+      "SSE browser-native workbook acquisition validated HTTP 200 with XLS signature and SHA-256 in Run #21 and again in Run #48",
+      "SZSE official paginated JSON validated 652 declared/deduplicated rows; deterministic replay hashes match",
+      "Run #48 validated both current-list source dates at 2026-08-07 and 652/652 identical buyable membership",
+      "Run #48 discovered 9 SH and 15 SZ live adjustment notices using Chrome-rendered official DOM",
+      "Both live notice windows reached the 2026-08-07 bootstrap cursor",
+      "Run #48 normalized 130 adjustment events across 32 parsed notices with zero unresolved effective dates and zero future leakage",
+      "Post-bootstrap OUT maps to SELL_ONLY and cannot enter the buyable Universe",
+      "SSE source blocking is classified and degrades to LKG continuity without Canonical publication"
     ],
     "remaining_before_production": [
-      "Certify forward notice-index window/cursor continuity from 2026-08-07 bootstrap",
       "HKEX cross-check",
-      "Independent release validation"
+      "Merge with FMDL-5E to generate the final Stock Connect investable Universe",
+      "Independent release validation, diff review and PR promotion"
     ]
   },
   "conflict_policy": {
