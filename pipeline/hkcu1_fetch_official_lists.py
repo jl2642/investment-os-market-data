@@ -41,6 +41,7 @@ class SourceEvidence:
     declared_record_count: int | None = None
     page_count: int | None = None
     acquisition_mode: str = "DIRECT_OFFICIAL_FETCH"
+    as_of_date_semantics: str = "OFFICIAL_SOURCE_DATE"
 
 
 def _official(url: str, authority: str) -> bool:
@@ -137,9 +138,11 @@ def fetch_one(
     authority = spec["authority"]
     url = spec["payload_url"]
     now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    observation_date = now[:10]
     if not _official(url, authority):
         raise ValueError(f"non-official host for {authority}: {url}")
     acquisition_mode = "DIRECT_OFFICIAL_FETCH"
+    as_of_semantics = "OFFICIAL_SOURCE_DATE"
     try:
         parser = spec["parser"]
         if parser == "SSE_EXCEL":
@@ -154,10 +157,16 @@ def fetch_one(
                 status = response.status_code
                 content_type = response.headers.get("content-type", "")
             frame = parse_sse_excel(raw, int(spec.get("expected_min_rows", 100)))
-            declared, pages, list_date = len(frame), 1, spec.get("as_of_date")
+            declared, pages = len(frame), 1
+            # The SSE workbook is a current-state snapshot but does not expose a
+            # stable machine-readable list date. A successful official retrieval
+            # therefore proves the state was observed valid on the retrieval date.
+            list_date = observation_date
+            as_of_semantics = "OFFICIAL_CURRENT_STATE_OBSERVED_ON_RETRIEVAL_DATE"
         elif parser == "SZSE_PAGINATED_JSON":
             frame, raw, declared, pages, list_date = fetch_szse_paginated(session, spec)
             status, content_type = 200, "application/json"
+            as_of_semantics = "OFFICIAL_METADATA_DATE"
         else:
             raise ValueError(f"unsupported parser: {parser}")
         digest = hashlib.sha256(raw).hexdigest()
@@ -166,7 +175,7 @@ def fetch_one(
         evidence = SourceEvidence(
             spec["source_id"], authority, spec["channel"], spec["eligibility_side"],
             spec["landing_url"], url, now, status, content_type, digest, len(raw),
-            len(frame), list_date, parser, "PASS", None, declared, pages, acquisition_mode,
+            len(frame), list_date, parser, "PASS", None, declared, pages, acquisition_mode, as_of_semantics,
         )
         return frame, evidence
     except Exception as exc:
@@ -174,7 +183,7 @@ def fetch_one(
             spec["source_id"], authority, spec["channel"], spec["eligibility_side"],
             spec["landing_url"], url, now, 0, "", "", 0, 0,
             spec.get("as_of_date"), spec.get("parser", "UNKNOWN"), "BLOCKED",
-            f"{type(exc).__name__}: {exc}", None, None, acquisition_mode,
+            f"{type(exc).__name__}: {exc}", None, None, acquisition_mode, as_of_semantics,
         )
         return None, evidence
 
@@ -199,6 +208,7 @@ def run(registry: Path, output_dir: Path, allow_partial: bool = False, sse_raw_f
             output["source_id"] = source_evidence.source_id
             output["source_sha256"] = source_evidence.sha256
             output["source_as_of_date"] = source_evidence.as_of_date
+            output["source_as_of_date_semantics"] = source_evidence.as_of_date_semantics
             output["acquisition_mode"] = source_evidence.acquisition_mode
             frames.append(output)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -212,6 +222,8 @@ def run(registry: Path, output_dir: Path, allow_partial: bool = False, sse_raw_f
         "status": "PASS" if not blocked else "BLOCKED",
         "blocked_sources": [item.source_id for item in blocked],
         "source_rows": {item.source_id: item.row_count for item in evidence},
+        "source_as_of_dates": {item.source_id: item.as_of_date for item in evidence},
+        "source_as_of_date_semantics": {item.source_id: item.as_of_date_semantics for item in evidence},
         "acquisition_modes": {item.source_id: item.acquisition_mode for item in evidence},
         "trade_authority": "NONE",
     }
