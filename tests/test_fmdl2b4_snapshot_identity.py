@@ -1,5 +1,9 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import pandas as pd
 
+import scripts.validate_fmdl2b4_freshness as freshness
 from scripts.run_incremental_history_refresh_v2 import (
     canonical_incremental_row,
     continuity_passes,
@@ -67,3 +71,31 @@ def test_valid_snapshot_still_uses_qfq_continuity_gate() -> None:
     assert passed is True
     assert expected == 10.0
     assert difference == 0.0
+
+
+def _freshness_calendar() -> pd.DataFrame:
+    return pd.DataFrame({
+        "trade_date": pd.to_datetime([
+            "2026-08-06",
+            "2026-08-07",
+            "2026-08-10",
+        ])
+    })
+
+
+def test_freshness_uses_previous_session_during_live_a_share_session(monkeypatch) -> None:
+    monkeypatch.setattr(freshness.ak, "tool_trade_date_hist_sina", _freshness_calendar)
+    current = datetime(2026, 8, 7, 11, 55, tzinfo=ZoneInfo("Asia/Shanghai"))
+    assert freshness.latest_completed_trade_date(current) == "2026-08-06"
+
+
+def test_freshness_accepts_same_day_only_after_market_close(monkeypatch) -> None:
+    monkeypatch.setattr(freshness.ak, "tool_trade_date_hist_sina", _freshness_calendar)
+    current = datetime(2026, 8, 7, 15, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
+    assert freshness.latest_completed_trade_date(current) == "2026-08-07"
+
+
+def test_freshness_weekend_uses_most_recent_completed_session(monkeypatch) -> None:
+    monkeypatch.setattr(freshness.ak, "tool_trade_date_hist_sina", _freshness_calendar)
+    current = datetime(2026, 8, 8, 12, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
+    assert freshness.latest_completed_trade_date(current) == "2026-08-07"
