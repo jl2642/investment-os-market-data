@@ -169,8 +169,9 @@ jobs:
           python - <<'PY'
           import json
           d=json.load(open('work/hkcu1_r2e_live/hkex/HKCU1_R2D_HKEX_CROSSCHECK_DECISION.json'))
-          assert d['status']=='PASS', d
+          assert d['status']=='PASS_REFERENCE_CONSISTENT', d
           assert d['publication_allowed'] is True, d
+          assert d['primary_authority_unchanged'] is True, d
           PY
 
       - name: Merge with accepted FMDL-5E Current
