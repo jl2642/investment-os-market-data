@@ -1,0 +1,66 @@
+name: R3 One-Shot Daily Resume Dispatcher
+run-name: "R3 one-shot dispatch of A-share Daily production"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/r3-daily-resume-dispatcher.yml"
+
+permissions:
+  actions: write
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+  AUTHORIZED_HEAD: agent/r3-daily-resume-dispatch-20260807
+
+concurrency:
+  group: r3-one-shot-daily-resume-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch-existing-daily-production:
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/r3-daily-resume-dispatch-20260807'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify one-shot authorization boundary
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "${{ github.base_ref }}" = "main"
+          test "${{ github.head_ref }}" = "$AUTHORIZED_HEAD"
+          test "$TRADE_AUTHORITY" = "NONE"
+
+      - name: Dispatch governed A-share Daily production on main
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+          payload='{"ref":"main","inputs":{"force_run":"true","allow_same_date_refresh":"true"}}'
+          code=$(curl -sS -o dispatch_response.txt -w '%{http_code}' \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/fmdl-daily-production.yml/dispatches" \
+            -d "$payload")
+          cat dispatch_response.txt || true
+          test "$code" = "204"
+          echo "daily_dispatch_http_status=$code" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record immutable operating boundary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## R3 One-Shot Daily Resume Dispatcher
+          - Purpose: resume existing A-share Daily production after validated History/Factor recovery.
+          - Target workflow: fmdl-daily-production.yml on main.
+          - Inputs: force_run=true; allow_same_date_refresh=true.
+          - This PR must never be merged into main.
+          - Candidate mutation may occur only through the downstream governed Round 2 workflow after a successful Daily run.
+          - Simulation, real holdings, HK/HKCU-1 and orders are outside scope.
+          - trade_authority: NONE
+          EOF
