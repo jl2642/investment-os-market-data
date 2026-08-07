@@ -17,26 +17,67 @@ from scripts.fmdl2b4_history import ROOT, read_json
 
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
 MARKET_CLOSE = time(15, 0)
+POST_CLOSE_PUBLICATION_GRACE_END = time(15, 30)
 
 
-def latest_completed_trade_date(current: datetime | None = None) -> str:
+def _local_now(current: datetime | None = None) -> datetime:
+    local_now = current or datetime.now(tz=BUSINESS_TZ)
+    if local_now.tzinfo is None:
+        return local_now.replace(tzinfo=BUSINESS_TZ)
+    return local_now.astimezone(BUSINESS_TZ)
+
+
+def _trade_dates() -> list:
     calendar = ak.tool_trade_date_hist_sina()
     if calendar is None or not isinstance(calendar, pd.DataFrame) or calendar.empty:
         raise RuntimeError("TRADING_CALENDAR_UNAVAILABLE")
     column = next((name for name in ("trade_date", "交易日", "date") if name in calendar.columns), None)
     if column is None:
         raise RuntimeError("TRADING_CALENDAR_DATE_COLUMN_MISSING")
+    return sorted(set(pd.to_datetime(calendar[column], errors="coerce").dropna().dt.date))
 
-    local_now = current or datetime.now(tz=BUSINESS_TZ)
-    if local_now.tzinfo is None:
-        local_now = local_now.replace(tzinfo=BUSINESS_TZ)
-    else:
-        local_now = local_now.astimezone(BUSINESS_TZ)
 
-    dates = sorted(set(pd.to_datetime(calendar[column], errors="coerce").dropna().dt.date))
+def acceptable_completed_trade_dates(current: datetime | None = None) -> list[str]:
+    """Return Current as-of dates acceptable at this wall-clock instant.
+
+    A-share continuous trading ends at 15:00 Beijing, but the free public source can
+    need a short settlement/publication interval before the same-day close is exposed
+    through the production snapshot route. During 15:00-15:30 on a trading day, both
+    the just-finished session and the immediately prior completed session are accepted.
+    After 15:30, only the same-day session is accepted. Before 15:00, only the prior
+    completed session is accepted. Non-trading days use the most recent trade date.
+    """
+    dates = _trade_dates()
+    local_now = _local_now(current)
     today = local_now.date()
     today_is_trade_day = today in dates
-    same_day_completed = (not today_is_trade_day) or local_now.time() >= MARKET_CLOSE
+
+    prior = [item for item in dates if item < today]
+    if not today_is_trade_day:
+        eligible = [item for item in dates if item <= today]
+        if not eligible:
+            raise RuntimeError("NO_COMPLETED_TRADE_DATE")
+        return [eligible[-1].isoformat()]
+
+    if not prior:
+        raise RuntimeError("NO_COMPLETED_TRADE_DATE")
+    prior_date = prior[-1].isoformat()
+    today_date = today.isoformat()
+
+    if local_now.time() < MARKET_CLOSE:
+        return [prior_date]
+    if local_now.time() < POST_CLOSE_PUBLICATION_GRACE_END:
+        return [prior_date, today_date]
+    return [today_date]
+
+
+def latest_completed_trade_date(current: datetime | None = None) -> str:
+    """Return the strict latest completed exchange session for reporting semantics."""
+    dates = _trade_dates()
+    local_now = _local_now(current)
+    today = local_now.date()
+    today_is_trade_day = today in dates
+    same_day_completed = today_is_trade_day and local_now.time() >= MARKET_CLOSE
     eligible = [
         item
         for item in dates
@@ -47,19 +88,31 @@ def latest_completed_trade_date(current: datetime | None = None) -> str:
     return eligible[-1].isoformat()
 
 
-def validate(root: Path = ROOT) -> dict:
+def validate(root: Path = ROOT, current: datetime | None = None) -> dict:
     release = read_json(root / "outputs/current/CURRENT_RELEASE.json")
-    expected = latest_completed_trade_date()
+    expected = latest_completed_trade_date(current)
+    acceptable = acceptable_completed_trade_dates(current)
+    current_as_of = str(release.get("as_of_date"))
     errors: list[str] = []
     if release.get("status") not in {"PUBLISHED", "PUBLISHED_WITH_WARNINGS"}:
         errors.append("CURRENT_NOT_PUBLISHED")
     if release.get("hard_failures"):
         errors.append("CURRENT_HAS_HARD_FAILURES")
-    if str(release.get("as_of_date")) != expected:
-        errors.append(f"CURRENT_AS_OF_{release.get('as_of_date')}_EXPECTED_{expected}")
+    if current_as_of not in acceptable:
+        errors.append(
+            f"CURRENT_AS_OF_{release.get('as_of_date')}_EXPECTED_ONE_OF_{'_OR_'.join(acceptable)}"
+        )
+    local_now = _local_now(current)
+    grace_active = (
+        local_now.date().isoformat() == expected
+        and MARKET_CLOSE <= local_now.time() < POST_CLOSE_PUBLICATION_GRACE_END
+        and len(acceptable) == 2
+    )
     result = {
         "status": "PASS" if not errors else "FAIL",
         "expected_latest_completed_session": expected,
+        "acceptable_current_sessions": acceptable,
+        "post_close_publication_grace_active": grace_active,
         "current_as_of_date": release.get("as_of_date"),
         "errors": errors,
     }
