@@ -17,10 +17,10 @@ def test_batch3_contract_is_bounded_and_protected():
     assert c["batch_policy"]["batch_security_count"] == 20
     assert c["batch_policy"]["required_evidence_rows"] == 60
     assert c["expected_batch_counts"] == {
-        "EVIDENCE_COMPLETE": 7,
-        "EVIDENCE_PARTIAL": 46,
-        "RESEARCH_REQUIRED": 7,
-        "evidence_collected_rows": 53,
+        "EVIDENCE_COMPLETE": 9,
+        "EVIDENCE_PARTIAL": 45,
+        "RESEARCH_REQUIRED": 6,
+        "evidence_collected_rows": 54,
     }
     assert c["acceptance"]["formal_candidate_graduation_allowed"] is False
     assert c["trade_authority"] == "NONE"
@@ -45,14 +45,14 @@ def test_batch3_status_counts_and_direct_expectation_codes():
     for prefix in ["governance", "earnings", "catalyst"]:
         statuses.extend(df[f"{prefix}_status"].tolist())
     s = pd.Series(statuses)
-    assert int((s == "EVIDENCE_COMPLETE").sum()) == 7
-    assert int((s == "EVIDENCE_PARTIAL").sum()) == 46
-    assert int((s == "RESEARCH_REQUIRED").sum()) == 7
+    assert int((s == "EVIDENCE_COMPLETE").sum()) == 9
+    assert int((s == "EVIDENCE_PARTIAL").sum()) == 45
+    assert int((s == "RESEARCH_REQUIRED").sum()) == 6
     direct = set(
         df.loc[df["earnings_status"] == "EVIDENCE_COMPLETE", "stock_code_5d"]
         .astype(str).str.zfill(5)
     )
-    assert direct == {"03939", "02269", "02145", "02314", "00917", "09696", "09911"}
+    assert direct == {"03939", "02269", "02400", "02145", "02698", "02314", "00917", "09696", "09911"}
 
 
 def test_ordinary_results_do_not_masquerade_as_complete_revision():
