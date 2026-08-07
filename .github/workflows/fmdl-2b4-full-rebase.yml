@@ -1,0 +1,229 @@
+name: FMDL 2B-4 Multi-Session Full Rebase Recovery
+run-name: "FMDL 2B-4 governed multi-session recovery"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/build_fmdl2b4_full_rebase_candidate.py"
+      - "tests/test_fmdl2b4_full_rebase.py"
+      - "scripts/run_full_backfill_shard.py"
+      - "scripts/run_incremental_history_refresh.py"
+      - "scripts/finalize_b4_history_candidate.py"
+      - "scripts/run_b4_factor_refresh.py"
+      - "scripts/validate_fmdl2b4_candidate.py"
+      - "scripts/publish_fmdl2b4.py"
+      - "config/fmdl2_incremental_refresh.json"
+      - "config/fmdl2_full_backfill_plan.json"
+      - ".github/workflows/fmdl-2b4-full-rebase.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  RECOVERY_RELEASE_ID: FMDL2B4_REBASE_${{ github.run_id }}_A${{ github.run_attempt }}
+
+concurrency:
+  group: fmdl-2b4-full-rebase-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deterministic-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Validate recovery contract and existing FMDL regression suite
+        run: |
+          python -m py_compile scripts/build_fmdl2b4_full_rebase_candidate.py
+          pytest -q \
+            tests/test_fmdl2b4_full_rebase.py \
+            tests/test_fmdl2b4_incremental_refresh.py \
+            tests/test_fmdl2b4_snapshot_identity.py \
+            tests/test_round1_governed_publication_workflows.py
+
+  prepare-recovery:
+    if: github.event_name == 'workflow_dispatch'
+    needs: deterministic-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Refresh and freeze one completed-session Market Current
+        run: |
+          python pipeline/run_daily.py --trigger manual
+          python -m scripts.refresh_investment_os_interface
+          python scripts/validate_investment_os_interface.py
+          python -m scripts.validate_fmdl2b4_freshness
+      - name: Confirm multi-session recovery is actually required
+        run: python -m scripts.build_fmdl2b4_full_rebase_candidate --plan-only
+      - name: Upload frozen recovery inputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2b4-rebase-market-current
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            outputs/current/
+            outputs/investment_os/
+            outputs/status/FMDL2B4_FULL_REBASE_PLAN.json
+
+  full-history-shards:
+    if: github.event_name == 'workflow_dispatch'
+    needs: prepare-recovery
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shard_id: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Restore frozen Market Current
+        uses: actions/download-artifact@v4
+        with:
+          name: fmdl2b4-rebase-market-current
+          path: .
+      - name: Rebuild one full-history recovery shard
+        run: |
+          python -m scripts.run_full_backfill_shard \
+            --shard-id "${{ matrix.shard_id }}" \
+            --release-id "$RECOVERY_RELEASE_ID" \
+            --output-root outputs/recovery/fmdl2b4 \
+            --pause-seconds 0.05
+      - name: Upload immutable shard evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2b4-rebase-shard-${{ matrix.shard_id }}
+          retention-days: 14
+          if-no-files-found: error
+          path: outputs/recovery/fmdl2b4/
+
+  aggregate-validate-stage:
+    if: github.event_name == 'workflow_dispatch'
+    needs: full-history-shards
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Restore frozen Market Current
+        uses: actions/download-artifact@v4
+        with:
+          name: fmdl2b4-rebase-market-current
+          path: .
+      - name: Download all 24 recovery shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: fmdl2b4-rebase-shard-*
+          path: incoming/fmdl2b4
+          merge-multiple: false
+      - name: Build full-rebase history candidate
+        run: |
+          python -m scripts.build_fmdl2b4_full_rebase_candidate \
+            --incoming incoming/fmdl2b4 \
+            --release-id "$RECOVERY_RELEASE_ID"
+          python -m scripts.finalize_b4_history_candidate
+      - name: Rebuild factors only from accepted recovery history
+        run: python -m scripts.run_b4_factor_refresh
+      - name: Independently validate history and factors
+        run: python -m scripts.validate_fmdl2b4_candidate
+      - name: Materialize Current in the isolated recovery transaction
+        run: |
+          python -m scripts.publish_fmdl2b4
+          python -m scripts.validate_fmdl2b4_freshness
+      - name: Upload immutable validated recovery result
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl2b4-rebase-${{ github.run_id }}-a${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            outputs/status/FMDL2B4_FULL_REBASE_PLAN.json
+            outputs/current/
+            outputs/investment_os/
+            datasets/history/repair/${{ env.RECOVERY_RELEASE_ID }}/
+            outputs/history/current/
+            outputs/history/archive/${{ env.RECOVERY_RELEASE_ID }}/
+            outputs/factors/current/
+            diagnostics/FMDL2B4_CANDIDATE_VALIDATION.json
+      - name: Publish accepted result to governed recovery branch
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          RESULT_BRANCH: automation/fmdl2b4-rebase-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add \
+            outputs/current \
+            outputs/investment_os \
+            "datasets/history/repair/$RECOVERY_RELEASE_ID" \
+            outputs/history/current \
+            "outputs/history/archive/$RECOVERY_RELEASE_ID" \
+            outputs/factors/current \
+            outputs/factors/archive \
+            outputs/status/FMDL2B4_FULL_REBASE_PLAN.json
+          if git diff --cached --quiet; then
+            echo "RECOVERY_RESULT_EMPTY" >&2
+            exit 2
+          fi
+          git commit -m "FMDL-2B-4 stage governed multi-session recovery"
+          git push origin "HEAD:$RESULT_BRANCH"
+          {
+            echo "### Governed recovery handoff"
+            echo "- result_branch: \`$RESULT_BRANCH\`"
+            echo "- direct_main_push: disabled"
+            echo "- daily_incremental_gate_relaxed: false"
+            echo "- next_gate: independent review + PR promotion"
+            echo "- trade_authority: NONE"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Record recovery boundary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## FMDL 2B-4 Multi-Session Recovery
+          - Recovery is manual-only and cannot replace the normal daily fast path.
+          - A single completed-session Market Current is frozen before all 24 shards.
+          - Unresolved symbols preserve their prior LKG and remain quarantined.
+          - Factors are rebuilt only after the recovery history candidate passes.
+          - Protected main is never pushed directly.
+          - Candidate, simulation, real holdings and orders are outside this workflow.
+          - trade_authority: NONE
+          EOF
