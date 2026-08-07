@@ -1,6 +1,6 @@
 {
   "program_id": "HKCU-1",
-  "ledger_version": "1.1.0",
+  "ledger_version": "1.2.0",
   "updated_at": "2026-08-07",
   "purpose": "Persist observed production failure modes and their required automated recovery behavior. This ledger is operational evidence, not conversational memory.",
   "incidents": [
@@ -84,6 +84,15 @@
       "permanent_control": "A newer official full-list snapshot dominates events effective on or before that snapshot; only later events may mutate the bootstrapped state.",
       "regression_control": "R2C tests prove an old OUT cannot override the 2026-08-07 bootstrap and that a post-bootstrap OUT creates SELL_ONLY with buy_eligible=false.",
       "status": "FIXED"
+    },
+    {
+      "incident_id": "HKCU1-I010",
+      "failure_class": "DATA_ACQUISITION_ADAPTER",
+      "symptom": "Official SSE/SZSE adjustment-news index pages returned HTTP 200 to requests but exposed zero matching notice links in the static HTML shell.",
+      "root_cause": "The official notice indices are JavaScript-rendered on the hosted-runner path; HTTP reachability did not imply the DOM contained the dynamic notice list.",
+      "permanent_control": "If static official DOM discovery returns zero links, render the same official page with runner Chrome, discover official-domain notice URLs from the rendered DOM, and require the live index window to reach the persisted prior scan cursor.",
+      "regression_control": "Run #48 discovered 9 live SH notices and 15 live SZ notices via CHROME_RENDERED_DOM; both windows reached the 2026-08-07 cursor and R2C emitted PASS_FORWARD_COMPLETE.",
+      "status": "FIXED"
     }
   ],
   "non_negotiable_policies": [
@@ -94,6 +103,7 @@
     "Unknown/conflicting eligibility fails closed.",
     "A newer official snapshot cannot be regressed by older adjustment events.",
     "Forward notice coverage must be demonstrated from a persisted scan cursor; static bootstrap URLs are audit seeds, not a future discovery mechanism.",
+    "HTTP 200 on a dynamic official index is not sufficient evidence of discoverability; live rendered notice-window coverage is required.",
     "No candidate, simulation, real-account or order mutation in HKCU-1 source-recovery logic.",
     "trade_authority=NONE"
   ]
