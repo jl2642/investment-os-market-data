@@ -73,8 +73,18 @@ jobs:
               --allow-partial
             if python - <<'PY'
           import json
-          d=json.load(open('work/hkcu1/replay_1/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
-          ok=(d['status']=='PASS' and d['source_rows'].get('SSE_SH_SOUTHBOUND_BUY_LIST')==651 and d['source_rows'].get('SZSE_SZ_SOUTHBOUND_BUY_LIST')==651)
+          from pathlib import Path
+          root=Path('work/hkcu1/replay_1')
+          d=json.loads((root/'HKCU1_FETCH_DECISION.json').read_text(encoding='utf-8'))
+          ledger=json.loads((root/'HKCU1_SOURCE_LEDGER.json').read_text(encoding='utf-8'))
+          by_id={row['source_id']:row for row in ledger}
+          ids=('SSE_SH_SOUTHBOUND_BUY_LIST','SZSE_SZ_SOUTHBOUND_BUY_LIST')
+          ok=d['status']=='PASS'
+          for source_id in ids:
+              row=by_id.get(source_id,{})
+              actual=d['source_rows'].get(source_id)
+              declared=row.get('declared_record_count')
+              ok = ok and row.get('status')=='PASS' and isinstance(actual,int) and actual>0 and actual==row.get('row_count') and actual==declared
           raise SystemExit(0 if ok else 1)
           PY
             then
@@ -97,8 +107,18 @@ jobs:
               --allow-partial
             if python - <<'PY'
           import json
-          d=json.load(open('work/hkcu1/replay_2/HKCU1_FETCH_DECISION.json',encoding='utf-8'))
-          ok=(d['status']=='PASS' and d['source_rows'].get('SSE_SH_SOUTHBOUND_BUY_LIST')==651 and d['source_rows'].get('SZSE_SZ_SOUTHBOUND_BUY_LIST')==651)
+          from pathlib import Path
+          root=Path('work/hkcu1/replay_2')
+          d=json.loads((root/'HKCU1_FETCH_DECISION.json').read_text(encoding='utf-8'))
+          ledger=json.loads((root/'HKCU1_SOURCE_LEDGER.json').read_text(encoding='utf-8'))
+          by_id={row['source_id']:row for row in ledger}
+          ids=('SSE_SH_SOUTHBOUND_BUY_LIST','SZSE_SZ_SOUTHBOUND_BUY_LIST')
+          ok=d['status']=='PASS'
+          for source_id in ids:
+              row=by_id.get(source_id,{})
+              actual=d['source_rows'].get(source_id)
+              declared=row.get('declared_record_count')
+              ok = ok and row.get('status')=='PASS' and isinstance(actual,int) and actual>0 and actual==row.get('row_count') and actual==declared
           raise SystemExit(0 if ok else 1)
           PY
             then
@@ -125,15 +145,23 @@ jobs:
 
           frames=[]
           ledgers=[]
+          decisions=[]
+          source_ids=('SSE_SH_SOUTHBOUND_BUY_LIST','SZSE_SZ_SOUTHBOUND_BUY_LIST')
           for replay in ('replay_1','replay_2'):
               decision=json.loads((root/replay/'HKCU1_FETCH_DECISION.json').read_text(encoding='utf-8'))
+              ledger=json.loads((root/replay/'HKCU1_SOURCE_LEDGER.json').read_text(encoding='utf-8'))
+              by_id={row['source_id']:row for row in ledger}
               assert decision['status']=='PASS', {replay:decision}
-              rows=decision['source_rows']
-              assert rows.get('SSE_SH_SOUTHBOUND_BUY_LIST')==651, {replay:rows}
-              assert rows.get('SZSE_SZ_SOUTHBOUND_BUY_LIST')==651, {replay:rows}
+              for source_id in source_ids:
+                  row=by_id[source_id]
+                  actual=decision['source_rows'][source_id]
+                  assert row['status']=='PASS', {replay:row}
+                  assert isinstance(actual,int) and actual>0, {replay:decision['source_rows']}
+                  assert actual==row['row_count']==row['declared_record_count'], {replay:row}
               assert decision['acquisition_modes']['SSE_SH_SOUTHBOUND_BUY_LIST']=='BROWSER_SESSION_OFFICIAL_FETCH'
               frames.append(pd.read_csv(root/replay/'HKCU1_OFFICIAL_LIST_ROWS.csv',dtype=str))
-              ledgers.append(json.loads((root/replay/'HKCU1_SOURCE_LEDGER.json').read_text(encoding='utf-8')))
+              ledgers.append(ledger)
+              decisions.append(decision)
 
           def codes(df, channel):
               return sorted(set(df.loc[df['channel']==channel,'security_code'].dropna().astype(str).str.zfill(5)))
@@ -149,17 +177,24 @@ jobs:
               sse=next(row for row in ledger if row['source_id']=='SSE_SH_SOUTHBOUND_BUY_LIST')
               assert sse['sha256']==raw_hash, sse
 
+          replay_counts=[d['source_rows'] for d in decisions]
+          assert replay_counts[0]==replay_counts[1], replay_counts
+
           sh=set(codes(frames[0],'SH')); sz=set(codes(frames[0],'SZ'))
+          source_as_of_dates={row['source_id']:row.get('as_of_date') for row in ledgers[0] if row['source_id'] in source_ids}
           result={
-              'as_of_date':'2026-08-06',
+              'validation_date':'2026-08-07',
+              'source_as_of_dates':source_as_of_dates,
               'status':'PASS',
               'sse_acquisition_mode':'BROWSER_SESSION_OFFICIAL_FETCH',
               'same_sse_raw_reused':True,
               'same_raw_double_parse':True,
               'szse_independent_bounded_retry':True,
+              'official_declared_counts_enforced':True,
               'deterministic_normalized_output':True,
               'raw_sha256':raw_hash,
               'normalized_hashes':replay_hashes,
+              'source_rows':replay_counts[0],
               'sh_count':len(sh),
               'sz_count':len(sz),
               'intersection_count':len(sh & sz),
