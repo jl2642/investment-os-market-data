@@ -2,14 +2,16 @@
 """Fetch official SSE/SZSE Stock Connect adjustment notices and normalize events.
 
 R2C design:
-- authority comes only from official SSE/SZSE domains;
-- notice-index discovery is incremental and may be supplemented by official bootstrap URLs;
+- official SSE/SZSE domains only;
+- raw notice HTML is preserved with SHA-256 for audit/replay;
 - 调入 -> IN; 调出 -> OUT (reconstructed as SELL_ONLY, not terminal deletion);
+- DOM row parsing is used instead of dataframe header inference because official
+  notice tables vary in <th>/<td> structure;
 - explicit effective dates are preserved;
-- SSE's "next Stock Connect trading day" rule is resolved against the versioned
-  official Stock Connect calendar for the requested as-of year;
-- future-effective events are retained as evidence but are not applied early;
-- partial historical coverage is never promoted as production-complete.
+- SSE "next Stock Connect trading day" is resolved against the versioned
+  official calendar for the requested year;
+- future-effective events are evidence only until their effective date;
+- historical/bootstrap incompleteness can never become a false production PASS.
 """
 from __future__ import annotations
 
@@ -32,10 +34,7 @@ try:
 except ModuleNotFoundError:  # direct `python pipeline/...py` execution
     from hkcu1_resolve_effective_dates import resolve_events
 
-OFFICIAL_HOSTS = {
-    "SSE": ("sse.com.cn", "sseinfo.com"),
-    "SZSE": ("szse.cn",),
-}
+OFFICIAL_HOSTS = {"SSE": ("sse.com.cn", "sseinfo.com"), "SZSE": ("szse.cn",)}
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131 Safari/537.36 Investment-OS-HKCU1"
 CODE_RE = re.compile(r"(?<!\d)(\d{1,5})(?!\d)")
 DATE_CN_RE = re.compile(r"(20\d{2})年\s*(\d{1,2})月\s*(\d{1,2})日")
@@ -56,6 +55,7 @@ class NoticeEvidence:
     event_rows: int
     status: str
     failure_class: str
+    raw_file: str | None = None
     error: str | None = None
 
 
@@ -125,6 +125,47 @@ def _normalise_direction(value: object) -> str | None:
     return None
 
 
+def _table_events(soup: BeautifulSoup) -> list[tuple[str, str, str]]:
+    """Return (code, name, direction) using explicit DOM row/header positions."""
+    output: list[tuple[str, str, str]] = []
+    for table in soup.find_all("table"):
+        rows: list[list[str]] = []
+        for tr in table.find_all("tr"):
+            cells = [cell.get_text(" ", strip=True) for cell in tr.find_all(["th", "td"])]
+            if cells:
+                rows.append(cells)
+        if not rows:
+            continue
+
+        header_idx = None
+        code_idx = direction_idx = None
+        name_indices: list[int] = []
+        for idx, cells in enumerate(rows):
+            ci = next((i for i, value in enumerate(cells) if "代码" in value), None)
+            di = next((i for i, value in enumerate(cells) if "调整方向" in value or value.strip() == "方向"), None)
+            if ci is not None and di is not None:
+                header_idx, code_idx, direction_idx = idx, ci, di
+                name_indices = [i for i, value in enumerate(cells) if "简称" in value]
+                break
+        if header_idx is None or code_idx is None or direction_idx is None:
+            continue
+
+        for cells in rows[header_idx + 1:]:
+            if max(code_idx, direction_idx) >= len(cells):
+                continue
+            code = _code(cells[code_idx])
+            direction = _normalise_direction(cells[direction_idx])
+            if not code or not direction:
+                continue
+            name = ""
+            for i in reversed(name_indices):  # prefer Chinese/reference name when both EN/CN are present
+                if i < len(cells) and cells[i].strip() not in {"", "-"}:
+                    name = cells[i].strip()
+                    break
+            output.append((code, name, direction))
+    return output
+
+
 def parse_notice_html(content: bytes, source_url: str, authority: str, channel: str, retrieved_at: str) -> tuple[list[dict], str | None]:
     text = content.decode("utf-8", errors="ignore")
     if len(text.strip()) < 100:
@@ -135,45 +176,23 @@ def parse_notice_html(content: bytes, source_url: str, authority: str, channel: 
     effective_from, effective_rule = _effective_date_and_rule(plain, announcement_date)
     digest = hashlib.sha256(content).hexdigest()
 
-    events: list[dict] = []
-    try:
-        tables = pd.read_html(text)
-    except ValueError:
-        tables = []
-    for table in tables:
-        if table.empty:
-            continue
-        code_col = next((c for c in table.columns if "代码" in str(c)), None)
-        direction_col = next((c for c in table.columns if "调整方向" in str(c) or "方向" == str(c).strip()), None)
-        if code_col is None or direction_col is None:
-            continue
-        name_cols = [c for c in table.columns if "简称" in str(c)]
-        for _, row in table.iterrows():
-            code = _code(row.get(code_col))
-            direction = _normalise_direction(row.get(direction_col))
-            if not code or not direction:
-                continue
-            name = ""
-            for c in name_cols:
-                candidate = str(row.get(c) or "").strip()
-                if candidate and candidate.lower() != "nan":
-                    name = candidate
-                    break
-            events.append({
-                "security_code": code,
-                "channel": channel,
-                "direction": direction,
-                "security_name": name,
-                "announcement_date": announcement_date,
-                "effective_from": effective_from,
-                "effective_rule": effective_rule,
-                "source_authority": authority,
-                "source_document_type": "ADJUSTMENT_NOTICE",
-                "source_url": source_url,
-                "source_id": f"{authority}_ADJUSTMENT_NOTICE",
-                "source_sha256": digest,
-                "retrieved_at_utc": retrieved_at,
-            })
+    events = []
+    for code, name, direction in _table_events(soup):
+        events.append({
+            "security_code": code,
+            "channel": channel,
+            "direction": direction,
+            "security_name": name,
+            "announcement_date": announcement_date,
+            "effective_from": effective_from,
+            "effective_rule": effective_rule,
+            "source_authority": authority,
+            "source_document_type": "ADJUSTMENT_NOTICE",
+            "source_url": source_url,
+            "source_id": f"{authority}_ADJUSTMENT_NOTICE",
+            "source_sha256": digest,
+            "retrieved_at_utc": retrieved_at,
+        })
     unique: dict[tuple[str, str, str], dict] = {}
     for row in events:
         unique[(row["security_code"], row["channel"], row["direction"])] = row
@@ -223,6 +242,8 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
     index_ledger: list[dict] = []
     events: list[dict] = []
     now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    raw_dir = output_dir / "raw_notices"
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
     for spec in specs:
         authority, channel = spec["authority"], spec["channel"]
@@ -242,16 +263,18 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
                 continue
             try:
                 response = _get(session, url, spec["index_url"])
+                digest = hashlib.sha256(response.content).hexdigest()
+                raw_name = f"{authority}_{channel}_{digest[:16]}.html"
+                (raw_dir / raw_name).write_bytes(response.content)
                 rows, announcement_date = parse_notice_html(response.content, url, authority, channel, now)
                 if as_of_date and announcement_date and announcement_date > as_of_date:
                     rows = []
-                digest = hashlib.sha256(response.content).hexdigest()
                 evidence.append(NoticeEvidence(authority, channel, url, now, response.status_code, digest,
-                                               len(response.content), announcement_date, len(rows), "PASS", "NONE"))
+                                               len(response.content), announcement_date, len(rows), "PASS", "NONE", raw_name))
                 events.extend(rows)
             except Exception as exc:
                 evidence.append(NoticeEvidence(authority, channel, url, now, 0, "", 0, None, 0,
-                                               "BLOCKED", _failure_class(exc), f"{type(exc).__name__}: {exc}"))
+                                               "BLOCKED", _failure_class(exc), None, f"{type(exc).__name__}: {exc}"))
 
     if events:
         frame = pd.DataFrame(events)
@@ -263,7 +286,6 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
             "effective_rule", "source_authority", "source_document_type", "source_url", "source_id",
             "source_sha256", "retrieved_at_utc",
         ])
-
     output_dir.mkdir(parents=True, exist_ok=True)
     frame.to_csv(output_dir / "HKCU1_ADJUSTMENT_EVENTS.csv", index=False)
 
@@ -297,11 +319,15 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
     blocked_channels = sorted({row["channel"] for row in index_ledger if row["status"] != "PASS" and not any(
         ev.authority == row["authority"] and ev.status == "PASS" for ev in evidence
     )})
+    zero_event_notices = sum(1 for ev in evidence if ev.status == "PASS" and ev.event_rows == 0)
+    parsed_event_notices = sum(1 for ev in evidence if ev.status == "PASS" and ev.event_rows > 0)
     historical_complete = _coverage_complete(specs)
-    source_ok = not blocked_channels and calendar_error is None and unresolved == 0
+    source_ok = not blocked_channels and calendar_error is None and unresolved == 0 and parsed_event_notices > 0
     decision = {
         "status": "PASS" if source_ok else "DEGRADED",
         "event_rows": int(len(resolved)),
+        "parsed_event_notices": parsed_event_notices,
+        "zero_event_notices": zero_event_notices,
         "unresolved_effective_date_rows": unresolved,
         "future_effective_event_rows": future,
         "blocked_channels": blocked_channels,
