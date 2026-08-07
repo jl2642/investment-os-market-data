@@ -1,0 +1,87 @@
+name: HKCU P2B E2 Ranks21-40 Decision Synthesis
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p2b_e2_ranks21_40_decision_synthesis_s2_contract.json'
+      - 'evidence/hkcu_p2b/HKCU_P2B_E2_S2_RANKS21_40_TARGETED_OVERRIDES_20260807.csv'
+      - 'pipeline/hkcu_p2b_e2_window_decision_synthesis.py'
+      - 'scripts/validate_hkcu_p2b_e2_ranks21_40_decision_synthesis.py'
+      - 'tests/test_hkcu_p2b_e2_ranks21_40_decision_synthesis.py'
+      - 'docs/HKCU-P2B_E2_RANKS21_40_DECISION_SYNTHESIS.md'
+      - '.github/workflows/hkcu-p2b-e2-ranks21-40-decision-synthesis.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p2b_e2_ranks21_40_decision_synthesis.py
+      - name: Enforce isolated S2 scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p2b_e2_s2_paths.txt
+          cat /tmp/p2b_e2_s2_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+            'config/hkcu_p2b_e2_ranks21_40_decision_synthesis_s2_contract.json',
+            'evidence/hkcu_p2b/HKCU_P2B_E2_S2_RANKS21_40_TARGETED_OVERRIDES_20260807.csv',
+            'pipeline/hkcu_p2b_e2_window_decision_synthesis.py',
+            'scripts/validate_hkcu_p2b_e2_ranks21_40_decision_synthesis.py',
+            'tests/test_hkcu_p2b_e2_ranks21_40_decision_synthesis.py',
+            'docs/HKCU-P2B_E2_RANKS21_40_DECISION_SYNTHESIS.md',
+            '.github/workflows/hkcu-p2b-e2-ranks21-40-decision-synthesis.yml',
+          }
+          actual = {x.strip() for x in Path('/tmp/p2b_e2_s2_paths.txt').read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit('P2B_E2_S2_SCOPE_VIOLATION:' + ','.join(bad))
+          protected = ('outputs/candidate/', 'outputs/simulation/', 'outputs/real', 'state/', 'orders/')
+          p = sorted(x for x in actual if x.startswith(protected))
+          if p:
+              raise SystemExit('P2B_E2_S2_PROTECTED_PATH_MUTATION:' + ','.join(p))
+          PY
+
+  real-decision-synthesis:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild accepted D1 and synthesize ranks 21-40
+        run: |
+          rm -rf work/hkcu_p2b_e2_s2
+          python pipeline/hkcu_p2b_e2_window_decision_synthesis.py \
+            --repo-root . \
+            --contract config/hkcu_p2b_e2_ranks21_40_decision_synthesis_s2_contract.json \
+            --output work/hkcu_p2b_e2_s2
+      - name: Independent S2 validation
+        run: python scripts/validate_hkcu_p2b_e2_ranks21_40_decision_synthesis.py --output work/hkcu_p2b_e2_s2
+      - name: Render S2 decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p2b_e2_s2/HKCU_P2B_E2_S2_RANKS21_40_DECISION.json || cat work/hkcu_p2b_e2_s2/HKCU_P2B_E2_S2_RANKS21_40_DECISION.json
+          test ! -f work/hkcu_p2b_e2_s2/HKCU_P2B_E2_S2_RANKS21_40_QUALITY_REPORT.json || cat work/hkcu_p2b_e2_s2/HKCU_P2B_E2_S2_RANKS21_40_QUALITY_REPORT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p2b-e2-s2-ranks21-40-decision-synthesis
+          path: work/hkcu_p2b_e2_s2/HKCU_P2B_E2_S2_RANKS21_40_*
+          if-no-files-found: error
