@@ -1,0 +1,91 @@
+name: HKCU P2A Research Longlist
+
+on:
+  pull_request:
+    paths:
+      - 'docs/HKCU-P2A_RESEARCH_LONGLIST.md'
+      - 'config/hkcu_p2a_research_longlist_contract.json'
+      - 'pipeline/hkcu_p2a_build_longlist.py'
+      - 'scripts/validate_hkcu_p2a.py'
+      - 'tests/test_hkcu_p2a.py'
+      - '.github/workflows/hkcu-p2a-research-longlist.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  p2a-unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p2a.py
+      - name: Enforce isolated P2A diff scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p2a_paths.txt
+          cat /tmp/p2a_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              "docs/HKCU-P2A_RESEARCH_LONGLIST.md",
+              "config/hkcu_p2a_research_longlist_contract.json",
+              "pipeline/hkcu_p2a_build_longlist.py",
+              "scripts/validate_hkcu_p2a.py",
+              "tests/test_hkcu_p2a.py",
+              ".github/workflows/hkcu-p2a-research-longlist.yml",
+          }
+          actual = {x.strip() for x in Path("/tmp/p2a_paths.txt").read_text().splitlines() if x.strip()}
+          unexpected = sorted(actual - allowed)
+          if unexpected:
+              raise SystemExit("P2A_SCOPE_VIOLATION:" + ",".join(unexpected))
+          protected_prefixes = (
+              "outputs/candidate/", "outputs/simulation/", "outputs/real",
+              "state/", "orders/"
+          )
+          protected = sorted(p for p in actual if p.startswith(protected_prefixes))
+          if protected:
+              raise SystemExit("P2A_PROTECTED_PATH_MUTATION:" + ",".join(protected))
+          PY
+
+  p2a-real-canonical-run:
+    needs: p2a-unit-and-scope
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Build P2A from real HKCU Current
+        run: |
+          rm -rf work/hkcu_p2a
+          python pipeline/hkcu_p2a_build_longlist.py \
+            --repo-root . \
+            --output work/hkcu_p2a
+      - name: Independent output validation
+        run: |
+          python scripts/validate_hkcu_p2a.py \
+            --repo-root . \
+            --output work/hkcu_p2a
+      - name: Render decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p2a/HKCU_P2A_DECISION.json || cat work/hkcu_p2a/HKCU_P2A_DECISION.json
+          test ! -f work/hkcu_p2a/HKCU_P2A_QUALITY_REPORT.json || cat work/hkcu_p2a/HKCU_P2A_QUALITY_REPORT.json
+          test ! -f work/hkcu_p2a/HKCU_P2A_FUNNEL_COUNTS.csv || cat work/hkcu_p2a/HKCU_P2A_FUNNEL_COUNTS.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p2a-real-canonical-evidence
+          path: work/hkcu_p2a/**
+          if-no-files-found: error
