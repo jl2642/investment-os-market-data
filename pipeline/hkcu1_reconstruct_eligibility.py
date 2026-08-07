@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
-VALID_DIRECTIONS = {"IN", "OUT", "SELL_ONLY", "BUY_SELL"}
+VALID_DIRECTIONS = {"IN", "OUT", "SELL_ONLY", "BUY_SELL", "NOT_ELIGIBLE"}
 
 
 def _code(v: object) -> str:
@@ -64,7 +64,13 @@ def reconstruct(snapshot_rows: pd.DataFrame, events: pd.DataFrame, as_of_date: s
             direction = str(r["direction"]).upper()
             if direction in {"IN", "BUY_SELL"}:
                 status = "BUY_ELIGIBLE"
-            elif direction == "SELL_ONLY":
+            elif direction in {"OUT", "SELL_ONLY"}:
+                # Official removal from the buy-eligible Southbound list does not
+                # erase the ability of an existing holder to dispose of an SEHK-
+                # listed security through Stock Connect. Preserve that state as
+                # SELL_ONLY. A terminal NOT_ELIGIBLE event is reserved for cases
+                # where official evidence says the security is no longer sellable
+                # through the relevant channel (for example, no longer SEHK-listed).
                 status = "SELL_ONLY"
             else:
                 status = "NOT_ELIGIBLE"
@@ -86,9 +92,11 @@ def reconstruct(snapshot_rows: pd.DataFrame, events: pd.DataFrame, as_of_date: s
         combined = "BUY_ELIGIBLE_BOTH" if sh == sz == "BUY_ELIGIBLE" else (
             "BUY_ELIGIBLE_SH_ONLY" if sh == "BUY_ELIGIBLE" else (
             "BUY_ELIGIBLE_SZ_ONLY" if sz == "BUY_ELIGIBLE" else (
-            "SELL_ONLY" if sell_only else "UNKNOWN_BLOCKED")))
+            "SELL_ONLY" if sell_only else (
+            "NOT_ELIGIBLE" if sh == sz == "NOT_ELIGIBLE" else "UNKNOWN_BLOCKED"))))
         records.append({"security_code": code, "sh_status": sh, "sz_status": sz,
                         "combined_status": combined, "buy_eligible": buy,
+                        "sell_only": sell_only,
                         "as_of_date": cutoff.date().isoformat()})
     return pd.DataFrame(records)
 
