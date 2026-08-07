@@ -1,0 +1,58 @@
+{
+  "acceptance": {
+    "candidate_pool_mutations": 0,
+    "formal_candidate_graduation_allowed": false,
+    "orders_created": 0,
+    "real_account_mutations": 0,
+    "score_non_null_count": 0,
+    "simulation_mutations": 0,
+    "trade_authority": "NONE"
+  },
+  "authoritative_inputs": {
+    "d2_builder": "pipeline/hkcu_p2b_e2_synthesize_top20_partial.py",
+    "d2_validator": "scripts/validate_hkcu_p2b_e2_deepening_d2.py",
+    "d3_evidence": "evidence/hkcu_p2b/HKCU_P2B_E2_D3_TOP20_HIGH_BLOCKER_EVIDENCE_20260807.csv"
+  },
+  "contract_id": "HKCU_P2B_E2_COMPANY_EVIDENCE_DEEPENING_D3_HIGH_BLOCKERS_V1",
+  "evidence_policy": {
+    "allowed_resolution_statuses": [
+      "CLEARED_MONITOR",
+      "RECLASSIFIED_MONITOR",
+      "RETAINED_TARGETED",
+      "RECLASSIFIED_TARGETED"
+    ],
+    "cleared_statuses": [
+      "CLEARED_MONITOR",
+      "RECLASSIFIED_MONITOR"
+    ],
+    "future_dated_evidence_forbidden": true,
+    "new_cross_dimension_signal_must_not_be_silently_dropped": true,
+    "no_alpha_score_in_e2": true,
+    "primary_official_required": true,
+    "retained_statuses": [
+      "RETAINED_TARGETED",
+      "RECLASSIFIED_TARGETED"
+    ]
+  },
+  "expected_d3_result": {
+    "cleared_or_monitor_only_rows": 9,
+    "ready_with_confidence_cap_security_count": 10,
+    "remaining_targeted_security_count": 10,
+    "remaining_total_blocker_rows_after_d3": 12,
+    "retained_targeted_rows": 5,
+    "target_rows": 14
+  },
+  "next_gate": "P2B_E2_TOP20_REMAINING_BLOCKER_DEEPENING",
+  "objective": "Resolve or precisely retain the 14 HIGH-materiality graduation blockers identified by accepted D2 for P2A ranks 1-20, using current primary-official evidence without forcing alpha scores or Candidate graduation.",
+  "phase": "P2B_E2_COMPANY_EVIDENCE_DEEPENING",
+  "program_id": "HKCU-P2B-E2-D3",
+  "selection_policy": {
+    "as_of_date": "2026-08-07",
+    "expected_security_count": 9,
+    "expected_target_rows": 14,
+    "required_materiality": "HIGH",
+    "required_prior_graduation_blocker": true,
+    "source": "D2_TOP20_BLOCKER_QUEUE"
+  },
+  "trade_authority": "NONE"
+}
