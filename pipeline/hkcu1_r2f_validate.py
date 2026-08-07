@@ -257,6 +257,10 @@ def validate_current_payload(current_dir: Path, acceptance: dict, r2e_contract: 
 
     allowed_inv = set((r2e_contract.get("investable_gate") or {}).get("allowed_fmdl5e_investability_status", []))
     allowed_types = set((r2e_contract.get("investable_gate") or {}).get("allowed_security_types", []))
+    if not allowed_inv:
+        errors.append("R2E_CONTRACT_ALLOWED_INVESTABILITY_EMPTY")
+    if not allowed_types:
+        errors.append("R2E_CONTRACT_ALLOWED_SECURITY_TYPES_EMPTY")
     for row in universe:
         code = row.get("security_code", "")
         if not str(row.get("combined_status", "")).startswith("BUY_ELIGIBLE"):
@@ -281,13 +285,21 @@ def validate_current_payload(current_dir: Path, acceptance: dict, r2e_contract: 
 
 
 def validate(repo_root: Path, contract_path: Path, acceptance_path: Path, registry_path: Path, output_path: Path) -> dict:
-    contract = _json(contract_path)
+    release_contract = _json(contract_path)
     acceptance = _json(acceptance_path)
     registry = _json(registry_path)
-    errors: list[str] = []
-    errors.extend(validate_acceptance(acceptance, registry, contract))
+    source_r2e_contract = str(release_contract.get("source_r2e_contract") or "")
+    if not source_r2e_contract:
+        raise RuntimeError("R2F_SOURCE_R2E_CONTRACT_NOT_CONFIGURED")
+    r2e_contract_path = repo_root / source_r2e_contract
+    if not r2e_contract_path.is_file():
+        raise RuntimeError(f"R2F_SOURCE_R2E_CONTRACT_MISSING:{source_r2e_contract}")
+    r2e_contract = _json(r2e_contract_path)
 
-    base_ref = str((contract.get("diff_policy") or {}).get("base_ref", "origin/main"))
+    errors: list[str] = []
+    errors.extend(validate_acceptance(acceptance, registry, r2e_contract))
+
+    base_ref = str((release_contract.get("diff_policy") or {}).get("base_ref", "origin/main"))
     successful_head = str((acceptance.get("post_writeback_regression_ci") or {}).get("head_sha") or "")
     changed_paths = _git_lines(repo_root, "diff", "--name-only", f"{base_ref}...HEAD")
     errors.extend(validate_changed_paths(changed_paths))
@@ -298,11 +310,11 @@ def validate(repo_root: Path, contract_path: Path, acceptance_path: Path, regist
         post_acceptance_paths = []
     subprocess.run(["git", "diff", "--check", f"{base_ref}...HEAD"], cwd=repo_root, check=True)
 
-    current_dir = repo_root / str(contract.get("canonical_current_dir", "outputs/hkcu1/current"))
+    current_dir = repo_root / str(release_contract.get("canonical_current_dir", "outputs/hkcu1/current"))
     stage = "CANDIDATE_CANONICAL" if current_dir.is_dir() else "PRE_PUBLISH_READY"
     current_metrics: dict[str, object] = {}
     if stage == "CANDIDATE_CANONICAL":
-        current_errors, current_metrics = validate_current_payload(current_dir, acceptance, contract)
+        current_errors, current_metrics = validate_current_payload(current_dir, acceptance, r2e_contract)
         errors.extend(current_errors)
 
     decision = {
@@ -313,6 +325,7 @@ def validate(repo_root: Path, contract_path: Path, acceptance_path: Path, regist
         "ready_for_current_promotion": stage == "PRE_PUBLISH_READY" and not errors,
         "ready_for_pr_ready_and_merge": stage == "CANDIDATE_CANONICAL" and not errors,
         "base_ref": base_ref,
+        "source_r2e_contract": source_r2e_contract,
         "accepted_r2e_head_sha": successful_head,
         "changed_file_count": len(changed_paths),
         "post_accepted_run_changed_file_count": len(post_acceptance_paths),
