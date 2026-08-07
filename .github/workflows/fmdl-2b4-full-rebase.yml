@@ -110,7 +110,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: fmdl2b4-rebase-market-current
-          path: .
+          path: outputs
       - name: Rebuild one full-history recovery shard
         run: |
           python -m scripts.run_full_backfill_shard \
@@ -145,7 +145,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: fmdl2b4-rebase-market-current
-          path: .
+          path: outputs
       - name: Download all 24 recovery shards
         uses: actions/download-artifact@v4
         with:
