@@ -1,0 +1,77 @@
+{
+  "program_id": "HKCU-1",
+  "phase": "Phase 1-R2C",
+  "decision": "PASS_FORWARD_COMPLETE",
+  "accepted_at": "2026-08-07",
+  "acceptance_basis": "Forward-complete Sell-only maintenance from the audited 2026-08-07 dual-official bootstrap; not a claim of complete legacy Sell-only history.",
+  "ci_evidence": {
+    "workflow_run": 48,
+    "run_id": 31144272655,
+    "head_sha": "8338b082499abf2bf0bcef076e2772285a68056c",
+    "test": "PASS",
+    "endpoint_discovery_evidence": "PASS",
+    "official_fetch_validation": "PASS",
+    "adjustment_event_validation": "PASS"
+  },
+  "current_buy_list_evidence": {
+    "validation_date": "2026-08-07",
+    "sse_source_as_of_date": "2026-08-07",
+    "szse_source_as_of_date": "2026-08-07",
+    "sse_count": 652,
+    "szse_count": 652,
+    "intersection_count": 652,
+    "sh_only_count": 0,
+    "sz_only_count": 0,
+    "normalized_sha256": "09fed7412e71ef9525b27ab92543af1649443a6bf93f0d5e5082158c48367fb2",
+    "sse_raw_sha256": "b585aaa6ec6acdc9ac3132c380ec2aea3448fe852cf4af6274431520c10cefc4",
+    "deterministic_double_replay": true,
+    "official_declared_counts_enforced": true
+  },
+  "sell_only_event_evidence": {
+    "bootstrap_date": "2026-08-07",
+    "normalized_event_rows": 130,
+    "parsed_event_notices": 32,
+    "zero_event_notices": 0,
+    "unresolved_effective_date_rows": 0,
+    "future_effective_event_rows": 0,
+    "sh_live_index_notice_count": 9,
+    "sh_live_index_oldest_notice_date": "2026-03-09",
+    "sh_live_index_newest_notice_date": "2026-08-06",
+    "sh_index_window_reaches_cursor": true,
+    "sz_live_index_notice_count": 15,
+    "sz_live_index_oldest_notice_date": "2026-01-05",
+    "sz_live_index_newest_notice_date": "2026-08-06",
+    "sz_index_window_reaches_cursor": true,
+    "dynamic_index_discovery_mode": "CHROME_RENDERED_DOM",
+    "out_semantics": "SELL_ONLY",
+    "pre_bootstrap_unknown_policy": "UNKNOWN_BLOCKED_NOT_BUYABLE"
+  },
+  "resilience_evidence": {
+    "sse_bounded_browser_retries": true,
+    "sse_403_429_class": "SOURCE_BLOCKED",
+    "transient_infra_separated_from_code_defect": true,
+    "last_known_good_continuity_supported": true,
+    "stale_evidence_publication_allowed": false,
+    "source_blocked_canonical_action": "KEEP_PREVIOUS_CANONICAL_UNCHANGED",
+    "third_party_fallback": "PROHIBITED"
+  },
+  "state_machine_guards": {
+    "older_event_cannot_override_newer_bootstrap_snapshot": true,
+    "post_bootstrap_out_becomes_sell_only": true,
+    "sell_only_buy_eligible": false,
+    "sell_only_can_contaminate_buyable_universe": false,
+    "future_event_can_apply_early": false
+  },
+  "r2c_scope_boundary": {
+    "legacy_sell_only_history_complete": false,
+    "forward_complete_from_bootstrap": true,
+    "r2c_layer_usable": true,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "next_phase": "Phase 1-R2D | HKEX cross-check",
+  "pr_state_requirement": "PR #188 remains Draft; do not merge until later Phase 1 release gates pass."
+}
