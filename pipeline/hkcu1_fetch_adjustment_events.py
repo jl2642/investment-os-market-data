@@ -4,11 +4,12 @@
 R2C design:
 - authority comes only from official SSE/SZSE domains;
 - notice-index discovery is incremental and may be supplemented by official bootstrap URLs;
-- 调入 -> IN; 调出 -> OUT (later reconstructed as SELL_ONLY, not terminal deletion);
+- 调入 -> IN; 调出 -> OUT (reconstructed as SELL_ONLY, not terminal deletion);
 - explicit effective dates are preserved;
-- SSE's "next Stock Connect trading day" rule is preserved as an unresolved rule until
-  the official Stock Connect calendar resolver supplies an exact date;
-- future notices are never applied silently.
+- SSE's "next Stock Connect trading day" rule is resolved against the versioned
+  official Stock Connect calendar for the requested as-of year;
+- future-effective events are retained as evidence but are not applied early;
+- partial historical coverage is never promoted as production-complete.
 """
 from __future__ import annotations
 
@@ -25,6 +26,8 @@ from urllib.parse import urljoin, urlparse
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+
+from pipeline.hkcu1_resolve_effective_dates import resolve_events
 
 OFFICIAL_HOSTS = {
     "SSE": ("sse.com.cn", "sseinfo.com"),
@@ -58,21 +61,19 @@ def _official(url: str, authority: str) -> bool:
     return any(host == d or host.endswith("." + d) for d in OFFICIAL_HOSTS[authority])
 
 
-def _get(session: requests.Session, url: str, referer: str, attempts: int = 4) -> requests.Response:
+def _get(session: requests.Session, url: str, referer: str, attempts: int = 3) -> requests.Response:
     last: Exception | None = None
     for attempt in range(1, attempts + 1):
         try:
-            r = session.get(url, timeout=35, headers={"User-Agent": USER_AGENT, "Referer": referer, "Accept": "text/html,*/*"})
-            if r.status_code in {403, 429}:
-                r.raise_for_status()
-            if r.status_code >= 500:
+            r = session.get(url, timeout=20, headers={"User-Agent": USER_AGENT, "Referer": referer, "Accept": "text/html,*/*"})
+            if r.status_code in {403, 429} or r.status_code >= 500:
                 r.raise_for_status()
             r.raise_for_status()
             return r
         except Exception as exc:
             last = exc
             if attempt < attempts:
-                time.sleep(min(attempt * 3, 9))
+                time.sleep(min(attempt * 3, 6))
     assert last is not None
     raise last
 
@@ -124,8 +125,6 @@ def _normalise_direction(value: object) -> str | None:
 def parse_notice_html(content: bytes, source_url: str, authority: str, channel: str, retrieved_at: str) -> tuple[list[dict], str | None]:
     text = content.decode("utf-8", errors="ignore")
     if len(text.strip()) < 100:
-        # Some official pages declare another charset; requests usually decodes it,
-        # but raw fixtures may not. Keep a conservative GB18030 fallback.
         text = content.decode("gb18030", errors="ignore")
     soup = BeautifulSoup(text, "html.parser")
     plain = soup.get_text(" ", strip=True)
@@ -141,7 +140,6 @@ def parse_notice_html(content: bytes, source_url: str, authority: str, channel: 
     for table in tables:
         if table.empty:
             continue
-        columns = [str(c).strip() for c in table.columns]
         code_col = next((c for c in table.columns if "代码" in str(c)), None)
         direction_col = next((c for c in table.columns if "调整方向" in str(c) or "方向" == str(c).strip()), None)
         if code_col is None or direction_col is None:
@@ -173,7 +171,6 @@ def parse_notice_html(content: bytes, source_url: str, authority: str, channel: 
                 "source_sha256": digest,
                 "retrieved_at_utc": retrieved_at,
             })
-    # De-duplicate repeated responsive/mobile tables on official pages.
     unique: dict[tuple[str, str, str], dict] = {}
     for row in events:
         unique[(row["security_code"], row["channel"], row["direction"])] = row
@@ -207,6 +204,10 @@ def discover_notice_urls(session: requests.Session, spec: dict) -> tuple[list[st
         "http_status": response.status_code,
         "discovered_urls": len(deduped),
     }
+
+
+def _coverage_complete(specs: list[dict]) -> bool:
+    return all(str(spec.get("bootstrap_coverage", "")).upper() == "COMPLETE_HISTORY" for spec in specs)
 
 
 def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
@@ -249,7 +250,6 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
                 evidence.append(NoticeEvidence(authority, channel, url, now, 0, "", 0, None, 0,
                                                "BLOCKED", _failure_class(exc), f"{type(exc).__name__}: {exc}"))
 
-    # Deterministic normalized event set.
     if events:
         frame = pd.DataFrame(events)
         frame = frame.sort_values(["announcement_date", "channel", "security_code", "direction", "source_url"], na_position="last")
@@ -263,6 +263,21 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     frame.to_csv(output_dir / "HKCU1_ADJUSTMENT_EVENTS.csv", index=False)
+
+    resolved = frame.copy()
+    calendar_id = None
+    calendar_error = None
+    if not frame.empty:
+        year = int((as_of_date or now[:10])[:4])
+        calendar_path = registry.parent / f"hkcu1_stock_connect_calendar_{year}.json"
+        try:
+            calendar = json.loads(calendar_path.read_text(encoding="utf-8"))
+            calendar_id = calendar.get("calendar_id")
+            resolved = resolve_events(frame, calendar, as_of_date)
+        except Exception as exc:
+            calendar_error = f"{type(exc).__name__}: {exc}"
+    resolved.to_csv(output_dir / "HKCU1_ADJUSTMENT_EVENTS_RESOLVED.csv", index=False)
+
     (output_dir / "HKCU1_ADJUSTMENT_NOTICE_LEDGER.json").write_text(
         json.dumps([asdict(x) for x in evidence], ensure_ascii=False, indent=2), encoding="utf-8"
     )
@@ -270,17 +285,29 @@ def run(registry: Path, output_dir: Path, as_of_date: str | None = None) -> int:
         json.dumps(index_ledger, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
-    unresolved = int(frame["effective_from"].isna().sum()) if not frame.empty else 0
+    unresolved = 0
+    future = 0
+    if not resolved.empty:
+        unresolved = int(resolved["effective_from"].fillna("").astype(str).str.strip().eq("").sum())
+        if "future_event" in resolved.columns:
+            future = int(resolved["future_event"].sum())
     blocked_channels = sorted({row["channel"] for row in index_ledger if row["status"] != "PASS" and not any(
         ev.authority == row["authority"] and ev.status == "PASS" for ev in evidence
     )})
+    historical_complete = _coverage_complete(specs)
+    source_ok = not blocked_channels and calendar_error is None and unresolved == 0
     decision = {
-        "status": "PASS" if not blocked_channels else "DEGRADED",
-        "event_rows": int(len(frame)),
+        "status": "PASS" if source_ok else "DEGRADED",
+        "event_rows": int(len(resolved)),
         "unresolved_effective_date_rows": unresolved,
+        "future_effective_event_rows": future,
         "blocked_channels": blocked_channels,
+        "calendar_id": calendar_id,
+        "calendar_error": calendar_error,
         "sell_only_semantics": "OUT_TO_SELL_ONLY",
-        "publication_allowed": not blocked_channels and unresolved == 0,
+        "historical_coverage_complete": historical_complete,
+        "coverage_gate": "PASS" if historical_complete else "BLOCKED_PARTIAL_HISTORY",
+        "publication_allowed": source_ok and historical_complete,
         "trade_authority": "NONE",
     }
     (output_dir / "HKCU1_R2C_EVENT_DECISION.json").write_text(json.dumps(decision, ensure_ascii=False, indent=2), encoding="utf-8")
