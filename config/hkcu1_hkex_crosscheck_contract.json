@@ -1,0 +1,57 @@
+{
+  "program_id": "HKCU-1",
+  "phase": "R2D",
+  "contract_version": "1.0.0",
+  "as_of_date": "2026-08-07",
+  "purpose": "Use HKEX as an independent official structural/linkage cross-check for Southbound eligibility publication without allowing HKEX to silently override SSE/SZSE primary eligibility authority.",
+  "hkex_page": {
+    "source_id": "HKEX_STOCK_CONNECT_CROSS_CHECK",
+    "url": "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Eligible-Stocks/View-All-Eligible-Securities?sc_lang=en",
+    "official_domains": ["hkex.com.hk"],
+    "required_heading": "All Eligible Securities",
+    "max_page_update_lag_days": 3
+  },
+  "required_links": {
+    "SH": {
+      "label_contains": "List of Eligible Securities for Southbound Trading under Shanghai Connect",
+      "expected_authority": "SSE",
+      "expected_domains": ["sse.com.cn", "sseinfo.com"],
+      "expected_landing_url": "https://www.sse.com.cn/services/hkexsc/disclo/eligible/"
+    },
+    "SZ": {
+      "label_contains": "List of Eligible Securities for Southbound Trading under Shenzhen Connect",
+      "expected_authority": "SZSE",
+      "expected_domains": ["szse.cn"],
+      "expected_landing_url": "https://www.szse.cn/szhk/hkbussiness/underlylist/"
+    }
+  },
+  "authority_model": {
+    "primary_security_eligibility_authority": ["SSE", "SZSE"],
+    "hkex_role": "SECONDARY_OFFICIAL_STRUCTURAL_AND_LINKAGE_CROSS_CHECK",
+    "security_level_independent_row_list_expected": false,
+    "hkex_may_silently_override_primary": false,
+    "conflict_policy": "BLOCK_RELEASE_AND_REQUIRE_EVIDENCE_RECONCILIATION"
+  },
+  "pass_conditions": [
+    "HKEX official page is reachable or successfully rendered through official-domain browser fallback.",
+    "All Eligible Securities heading is present.",
+    "Both Shanghai Connect and Shenzhen Connect Southbound link labels are present.",
+    "Each Southbound link resolves to the configured official SSE/SZSE landing URL or an equivalent URL on the same configured primary official domain.",
+    "HKEX page update date is parseable, not in the future, and no more than max_page_update_lag_days behind the validation date.",
+    "No conflict attempts to mutate SSE/SZSE primary membership or order state."
+  ],
+  "fail_closed_conditions": [
+    "HKEX page cannot be retrieved/rendered.",
+    "Either required Southbound link is missing.",
+    "A required link points outside the configured primary official domain.",
+    "HKEX page update date is unparseable, future-dated, or too stale.",
+    "HKEX wording/structure no longer proves it is presenting Southbound eligibility references."
+  ],
+  "authority_boundary": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  }
+}

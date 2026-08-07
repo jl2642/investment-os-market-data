@@ -1,0 +1,49 @@
+{
+  "program_id": "HKCU-1",
+  "phase": "Phase 1-R2",
+  "decision_date": "2026-08-06",
+  "status": "BLOCKED_BEFORE_REAL_UNIVERSE_PUBLICATION",
+  "completed": [
+    "Official HKEX/SSE/SZSE landing-page authority verification",
+    "Canonical FMDL5E Current input path verification",
+    "Governed official-list ingestion module",
+    "Point-in-time channel eligibility reconstruction module",
+    "Independent release validator",
+    "R2 unit tests",
+    "Pull-request CI and controlled production workflow"
+  ],
+  "canonical_inputs": {
+    "screening_universe": "outputs/fmdl5e/current/FMDL5E_SCREENING_UNIVERSE.csv",
+    "research_longlist": "outputs/fmdl5e/current/FMDL5E_RESEARCH_LONGLIST.csv",
+    "fmdl5e_manifest": "outputs/fmdl5e/current/FMDL5E_MANIFEST.json"
+  },
+  "blocking_gate": {
+    "code": "OFFICIAL_MACHINE_ENDPOINT_IDENTITY_UNRESOLVED",
+    "description": "The official SSE and SZSE landing pages are confirmed, but their dynamically loaded full-list request contracts have not been independently identity-verified. A current real investable universe cannot be published from landing-page HTML alone.",
+    "affected_outputs": [
+      "HKCU1_POINT_IN_TIME_ELIGIBILITY.csv",
+      "HKCU1_STOCK_CONNECT_INVESTABLE_UNIVERSE.csv",
+      "HKCU1_EXCLUSIONS.csv",
+      "HKCU1_QUALITY_REPORT.json",
+      "HKCU1_MANIFEST.json",
+      "HKCU1_DECISION.json"
+    ],
+    "fail_closed_action": "Do not publish Current and do not infer eligibility from third-party or stale sources"
+  },
+  "acceptance_result": {
+    "code_review": "IMPLEMENTED_NOT_EXECUTED",
+    "unit_test_status": "PENDING_GITHUB_ACTIONS",
+    "official_source_ingestion": "BLOCKED",
+    "point_in_time_reconstruction": "NOT_RUN_WITH_REAL_OFFICIAL_INPUT",
+    "real_universe_generated": false,
+    "independent_validation": "NOT_ELIGIBLE_TO_RUN",
+    "current_publication": false
+  },
+  "prohibited_mutations": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  }
+}

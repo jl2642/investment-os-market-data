@@ -1,0 +1,43 @@
+{
+  "contract_id": "HKCU1_R2C_FORWARD_BOOTSTRAP_V1",
+  "bootstrap_date": "2026-08-07",
+  "bootstrap_basis": {
+    "type": "DUAL_OFFICIAL_CURRENT_BUY_LIST",
+    "evidence_run": 21,
+    "sse_count": 652,
+    "szse_count": 652,
+    "intersection_count": 652,
+    "normalized_sha256": "09fed7412e71ef9525b27ab92543af1649443a6bf93f0d5e5082158c48367fb2",
+    "deterministic_replay_passed": true
+  },
+  "state_semantics": {
+    "buy_list_member_at_bootstrap": "BUY_ELIGIBLE",
+    "non_member_without_explicit_pre_bootstrap_evidence": "UNKNOWN_BLOCKED",
+    "post_bootstrap_IN": "BUY_ELIGIBLE",
+    "post_bootstrap_OUT": "SELL_ONLY",
+    "terminal_non_sellable_requires_explicit_evidence": "NOT_ELIGIBLE",
+    "pre_bootstrap_event_must_not_override_newer_bootstrap_snapshot": true
+  },
+  "coverage_model": {
+    "legacy_sell_only_history_complete": false,
+    "legacy_unknown_is_buyable": false,
+    "required_operating_mode": "FORWARD_COMPLETE_FROM_BOOTSTRAP",
+    "official_index_window_must_cover_previous_scan_date": true,
+    "if_index_window_gap_detected": "UNKNOWN_BLOCKED_AND_KEEP_PREVIOUS_CANONICAL",
+    "if_official_source_blocked": "DEGRADED_CONTINUITY_NO_PUBLICATION"
+  },
+  "official_notice_indices": {
+    "SH": "https://www.sse.com.cn/services/hkexsc/",
+    "SZ": "https://www.szse.cn/szhk/hkbussiness/news/"
+  },
+  "initial_scan_cursor": {
+    "SH": "2026-08-07",
+    "SZ": "2026-08-07"
+  },
+  "promotion_rule": "R2C may pass on a forward-complete basis when both official notice indices are machine-readable, their discoverable adjustment-notice window reaches back to the prior scan cursor, all discovered notices parse deterministically, effective dates resolve without future leakage, and SELL_ONLY cannot contaminate the buyable universe.",
+  "candidate_pool_mutations": 0,
+  "simulation_mutations": 0,
+  "real_account_mutations": 0,
+  "orders_created": 0,
+  "trade_authority": "NONE"
+}

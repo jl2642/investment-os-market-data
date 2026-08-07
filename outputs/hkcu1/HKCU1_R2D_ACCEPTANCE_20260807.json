@@ -1,0 +1,56 @@
+{
+  "program_id": "HKCU-1",
+  "phase": "R2D",
+  "acceptance_date": "2026-08-07",
+  "status": "PASS_REFERENCE_CONSISTENT",
+  "workflow": {
+    "name": "HKCU-1 R2D HKEX Cross-check",
+    "run_number": 1,
+    "run_id": 31144934842,
+    "head_sha": "3f11cca0f0290e466326961dacb71ad52632c731",
+    "conclusion": "success"
+  },
+  "artifact": {
+    "name": "hkcu1-r2d-hkex-crosscheck-evidence",
+    "artifact_id": 8981150195,
+    "artifact_digest": "sha256:a74fec1137454635d4da00664adc14b640f89adbbf5c5bbbfcc1f52894ca705d"
+  },
+  "live_decision": {
+    "validation_date": "2026-08-07",
+    "hkex_page_update_date": "2026-08-06",
+    "hkex_page_update_lag_days": 1,
+    "heading_present": true,
+    "source_http_status": 200,
+    "acquisition_mode": "STATIC_HTTP_DOM",
+    "raw_sha256": "f5eb1752ca59a52002904312595fd2a78e1b65aeb39baf735e1b58541bb319bc",
+    "sh_reference": {
+      "label_present": true,
+      "target": "http://www.sse.com.cn/services/hkexsc/disclo/eligible/",
+      "classification": "PASS_EQUIVALENT_OFFICIAL_DOMAIN",
+      "expected_authority": "SSE"
+    },
+    "sz_reference": {
+      "label_present": true,
+      "target": "http://www.szse.cn/szhk/hkbussiness/underlylist/",
+      "classification": "PASS_EQUIVALENT_OFFICIAL_DOMAIN",
+      "expected_authority": "SZSE"
+    }
+  },
+  "governance_conclusion": {
+    "hkex_role": "SECONDARY_OFFICIAL_STRUCTURAL_AND_LINKAGE_CROSS_CHECK",
+    "security_level_independent_row_list_expected": false,
+    "primary_security_eligibility_authority": ["SSE", "SZSE"],
+    "primary_authority_unchanged": true,
+    "hkex_silent_override": false,
+    "conflict_policy": "BLOCK_RELEASE_AND_REQUIRE_EVIDENCE_RECONCILIATION",
+    "publication_allowed_by_r2d": true
+  },
+  "scope_boundary": {
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "next_phase": "R2E_MERGE_WITH_FMDL5E_AND_BUILD_REAL_STOCK_CONNECT_INVESTABLE_UNIVERSE"
+}

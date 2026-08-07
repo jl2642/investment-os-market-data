@@ -1,0 +1,332 @@
+name: HKCU-1 Stock Connect Universe
+
+on:
+  pull_request:
+    paths:
+      - 'pipeline/hkcu1_*.py'
+      - 'config/hkcu1_*.json'
+      - 'schemas/hkcu1_*.json'
+      - 'tests/test_hkcu1*.py'
+      - 'docs/HKCU1_*.md'
+      - 'outputs/hkcu1/HKCU1_FAILURE_RECOVERY_LEDGER.json'
+      - '.github/workflows/hkcu-1-stock-connect-universe.yml'
+  schedule:
+    - cron: '30 10 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      as_of_date:
+        description: Point-in-time eligibility date (YYYY-MM-DD); blank uses Asia/Shanghai current date
+        required: false
+        type: string
+      publish_candidate:
+        description: Build a release candidate after all Phase 1 source gates are closed
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu1_build_universe.py tests/test_hkcu1_r2.py tests/test_hkcu1_r2c.py
+      - name: Validate JSON contracts and operating ledgers
+        run: |
+          python -m json.tool config/hkcu1_stock_connect_universe_contract.json >/dev/null
+          python -m json.tool config/hkcu1_official_source_registry.json >/dev/null
+          python -m json.tool config/hkcu1_lkg_snapshot.json >/dev/null
+          python -m json.tool schemas/hkcu1_stock_connect_eligibility.schema.json >/dev/null
+          python -m json.tool outputs/hkcu1/HKCU1_FAILURE_RECOVERY_LEDGER.json >/dev/null
+
+  official-fetch-validation:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: |
+          pip install -r requirements.txt
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: SSE official acquisition with bounded production retries
+        run: |
+          rm -rf work/hkcu1
+          mkdir -p work/hkcu1/browser
+          set +e
+          python pipeline/hkcu1_fetch_sse_browser.py \
+            --output-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
+            --evidence-file work/hkcu1/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json \
+            --max-attempts 3
+          code=$?
+          set -e
+          echo "SSE acquisition exit_code=${code}; classification handled by resilience decision"
+          exit 0
+      - name: Classify fresh source vs degraded LKG continuity
+        run: |
+          AS_OF_DATE="${{ inputs.as_of_date }}"
+          if [ -z "$AS_OF_DATE" ]; then AS_OF_DATE=$(TZ=Asia/Shanghai date +%F); fi
+          python pipeline/hkcu1_resilience.py \
+            --sse-evidence work/hkcu1/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json \
+            --lkg config/hkcu1_lkg_snapshot.json \
+            --as-of-date "$AS_OF_DATE" \
+            --max-continuity-age-days 14 \
+            --output work/hkcu1/HKCU1_SOURCE_RESILIENCE_DECISION.json
+      - name: First parse with independent SZSE bounded retry when fresh SSE exists
+        run: |
+          fresh=$(python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1/HKCU1_SOURCE_RESILIENCE_DECISION.json'))
+          print('1' if d['fresh_official_available'] else '0')
+          PY
+          )
+          if [ "$fresh" != "1" ]; then
+            echo "Fresh SSE unavailable; keep previous Canonical and skip replay_1"
+            exit 0
+          fi
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            rm -rf work/hkcu1/replay_1
+            echo "SZSE replay_1 attempt ${attempt}/6; fresh SSE raw file reused"
+            python pipeline/hkcu1_fetch_official_lists.py \
+              --registry config/hkcu1_official_source_registry.json \
+              --output-dir work/hkcu1/replay_1 \
+              --sse-raw-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
+              --allow-partial
+            if python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('work/hkcu1/replay_1')
+          d=json.loads((root/'HKCU1_FETCH_DECISION.json').read_text(encoding='utf-8'))
+          ledger=json.loads((root/'HKCU1_SOURCE_LEDGER.json').read_text(encoding='utf-8'))
+          by_id={row['source_id']:row for row in ledger}
+          ids=('SSE_SH_SOUTHBOUND_BUY_LIST','SZSE_SZ_SOUTHBOUND_BUY_LIST')
+          ok=d['status']=='PASS'
+          for source_id in ids:
+              row=by_id.get(source_id,{})
+              actual=d['source_rows'].get(source_id)
+              declared=row.get('declared_record_count')
+              ok = ok and row.get('status')=='PASS' and isinstance(actual,int) and actual>0 and actual==row.get('row_count') and actual==declared
+          raise SystemExit(0 if ok else 1)
+          PY
+            then
+              passed=1
+              break
+            fi
+            if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
+          done
+          test "$passed" -eq 1
+      - name: Second deterministic parse with independent SZSE bounded retry when fresh SSE exists
+        run: |
+          fresh=$(python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1/HKCU1_SOURCE_RESILIENCE_DECISION.json'))
+          print('1' if d['fresh_official_available'] else '0')
+          PY
+          )
+          if [ "$fresh" != "1" ]; then
+            echo "Fresh SSE unavailable; keep previous Canonical and skip replay_2"
+            exit 0
+          fi
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            rm -rf work/hkcu1/replay_2
+            echo "SZSE replay_2 attempt ${attempt}/6; same fresh SSE raw file reused"
+            python pipeline/hkcu1_fetch_official_lists.py \
+              --registry config/hkcu1_official_source_registry.json \
+              --output-dir work/hkcu1/replay_2 \
+              --sse-raw-file work/hkcu1/browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls \
+              --allow-partial
+            if python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('work/hkcu1/replay_2')
+          d=json.loads((root/'HKCU1_FETCH_DECISION.json').read_text(encoding='utf-8'))
+          ledger=json.loads((root/'HKCU1_SOURCE_LEDGER.json').read_text(encoding='utf-8'))
+          by_id={row['source_id']:row for row in ledger}
+          ids=('SSE_SH_SOUTHBOUND_BUY_LIST','SZSE_SZ_SOUTHBOUND_BUY_LIST')
+          ok=d['status']=='PASS'
+          for source_id in ids:
+              row=by_id.get(source_id,{})
+              actual=d['source_rows'].get(source_id)
+              declared=row.get('declared_record_count')
+              ok = ok and row.get('status')=='PASS' and isinstance(actual,int) and actual>0 and actual==row.get('row_count') and actual==declared
+          raise SystemExit(0 if ok else 1)
+          PY
+            then
+              passed=1
+              break
+            fi
+            if [ "$attempt" -lt 6 ]; then sleep $((attempt * 5)); fi
+          done
+          test "$passed" -eq 1
+      - name: Enforce fresh deterministic output or emit degraded continuity decision
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path('work/hkcu1')
+          resilience=json.loads((root/'HKCU1_SOURCE_RESILIENCE_DECISION.json').read_text(encoding='utf-8'))
+          if not resilience['fresh_official_available']:
+              result={
+                  'status':'DEGRADED_CONTINUITY',
+                  'fresh_official_available':False,
+                  'publication_allowed':False,
+                  'canonical_action':'KEEP_PREVIOUS_CANONICAL_UNCHANGED',
+                  'failure_class':resilience['failure_class'],
+                  'lkg_age_days':resilience.get('lkg_age_days'),
+                  'trade_authority':'NONE'
+              }
+              (root/'HKCU1_R2B_R1_R1_DETERMINISM_DECISION.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+              print(json.dumps(result,indent=2))
+              raise SystemExit(0)
+
+          browser=json.loads((root/'browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json').read_text(encoding='utf-8'))
+          assert browser['status']=='PASS', browser
+          raw=(root/'browser/SSE_SH_SOUTHBOUND_BUY_LIST.xls').read_bytes()
+          raw_hash=hashlib.sha256(raw).hexdigest()
+          assert raw_hash==browser['sha256'], browser
+
+          frames=[]; ledgers=[]; decisions=[]
+          source_ids=('SSE_SH_SOUTHBOUND_BUY_LIST','SZSE_SZ_SOUTHBOUND_BUY_LIST')
+          for replay in ('replay_1','replay_2'):
+              decision=json.loads((root/replay/'HKCU1_FETCH_DECISION.json').read_text(encoding='utf-8'))
+              ledger=json.loads((root/replay/'HKCU1_SOURCE_LEDGER.json').read_text(encoding='utf-8'))
+              by_id={row['source_id']:row for row in ledger}
+              assert decision['status']=='PASS', {replay:decision}
+              for source_id in source_ids:
+                  row=by_id[source_id]; actual=decision['source_rows'][source_id]
+                  assert row['status']=='PASS', {replay:row}
+                  assert isinstance(actual,int) and actual>0
+                  assert actual==row['row_count']==row['declared_record_count'], {replay:row}
+              frames.append(pd.read_csv(root/replay/'HKCU1_OFFICIAL_LIST_ROWS.csv',dtype=str))
+              ledgers.append(ledger); decisions.append(decision)
+
+          def codes(df, channel):
+              return sorted(set(df.loc[df['channel']==channel,'security_code'].dropna().astype(str).str.zfill(5)))
+          def digest(values):
+              return hashlib.sha256(('\n'.join(values)+'\n').encode()).hexdigest()
+
+          replay_hashes={f'replay_{i}':{c:digest(codes(df,c)) for c in ('SH','SZ')} for i,df in enumerate(frames,1)}
+          assert replay_hashes['replay_1']==replay_hashes['replay_2'], replay_hashes
+          for ledger in ledgers:
+              sse=next(row for row in ledger if row['source_id']=='SSE_SH_SOUTHBOUND_BUY_LIST')
+              assert sse['sha256']==raw_hash
+          replay_counts=[d['source_rows'] for d in decisions]
+          assert replay_counts[0]==replay_counts[1]
+          sh=set(codes(frames[0],'SH')); sz=set(codes(frames[0],'SZ'))
+          source_as_of_dates={row['source_id']:row.get('as_of_date') for row in ledgers[0] if row['source_id'] in source_ids}
+          result={
+              'validation_date':resilience['as_of_date'],
+              'source_as_of_dates':source_as_of_dates,
+              'status':'PASS',
+              'fresh_official_available':True,
+              'publication_allowed':True,
+              'sse_acquisition_mode':'BROWSER_SESSION_OFFICIAL_FETCH',
+              'same_sse_raw_reused':True,
+              'same_raw_double_parse':True,
+              'szse_independent_bounded_retry':True,
+              'official_declared_counts_enforced':True,
+              'deterministic_normalized_output':True,
+              'raw_sha256':raw_hash,
+              'normalized_hashes':replay_hashes,
+              'source_rows':replay_counts[0],
+              'sh_count':len(sh),'sz_count':len(sz),
+              'intersection_count':len(sh & sz),
+              'sh_only_count':len(sh-sz),'sz_only_count':len(sz-sh),
+              'sh_only_codes':sorted(sh-sz),'sz_only_codes':sorted(sz-sh),
+              'trade_authority':'NONE'
+          }
+          (root/'HKCU1_R2B_R1_R1_DETERMINISM_DECISION.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
+          PY
+      - name: Render source-resilience evidence
+        if: always()
+        run: |
+          test ! -f work/hkcu1/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json || cat work/hkcu1/browser/HKCU1_SSE_BROWSER_FETCH_EVIDENCE.json
+          test ! -f work/hkcu1/HKCU1_SOURCE_RESILIENCE_DECISION.json || cat work/hkcu1/HKCU1_SOURCE_RESILIENCE_DECISION.json
+          test ! -f work/hkcu1/HKCU1_R2B_R1_R1_DETERMINISM_DECISION.json || cat work/hkcu1/HKCU1_R2B_R1_R1_DETERMINISM_DECISION.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu1-source-resilience-evidence
+          path: work/hkcu1/**
+          if-no-files-found: error
+
+  adjustment-event-validation:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Fetch and normalize official adjustment notices
+        run: |
+          AS_OF_DATE="${{ inputs.as_of_date }}"
+          if [ -z "$AS_OF_DATE" ]; then AS_OF_DATE=$(TZ=Asia/Shanghai date +%F); fi
+          rm -rf work/hkcu1_r2c
+          python pipeline/hkcu1_fetch_adjustment_events.py \
+            --registry config/hkcu1_official_source_registry.json \
+            --output-dir work/hkcu1_r2c \
+            --as-of-date "$AS_OF_DATE"
+      - name: Render R2C evidence
+        if: always()
+        run: |
+          test ! -f work/hkcu1_r2c/HKCU1_R2C_EVENT_DECISION.json || cat work/hkcu1_r2c/HKCU1_R2C_EVENT_DECISION.json
+          test ! -f work/hkcu1_r2c/HKCU1_ADJUSTMENT_INDEX_LEDGER.json || cat work/hkcu1_r2c/HKCU1_ADJUSTMENT_INDEX_LEDGER.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu1-r2c-adjustment-event-evidence
+          path: work/hkcu1_r2c/**
+          if-no-files-found: error
+
+  endpoint-discovery-evidence:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Refresh endpoint evidence
+        run: |
+          python pipeline/hkcu1_discover_official_endpoints.py --output outputs/hkcu1/discovery/HKCU1_OFFICIAL_ENDPOINT_DISCOVERY.json || true
+          python pipeline/hkcu1_probe_endpoint_contracts.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu1-endpoint-evidence
+          path: outputs/hkcu1/discovery/*.json
+          if-no-files-found: error
+
+  controlled-production:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_candidate
+    needs: [test, official-fetch-validation, adjustment-event-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stop before publication until R2C historical backfill and R2D HKEX cross-check close
+        run: |
+          echo 'R2B fresh/degraded acquisition is now resilient and R2C event ingestion exists.'
+          echo 'Historical Sell-only completeness/effective-date resolution plus HKEX cross-check remain mandatory before publication.'
+          exit 2

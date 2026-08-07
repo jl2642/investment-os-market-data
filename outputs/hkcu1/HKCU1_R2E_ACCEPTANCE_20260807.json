@@ -1,0 +1,152 @@
+{
+  "program_id": "HKCU-1",
+  "phase": "R2E",
+  "decision": "PASS_CURRENT",
+  "accepted_at": "2026-08-07",
+  "acceptance_scope": "STOCK_CONNECT_ELIGIBILITY_X_FMDL5E_RESEARCH_INVESTABLE_UNIVERSE",
+  "initial_acceptance_ci": {
+    "workflow": "HKCU-1 R2E FMDL-5E Investable Universe",
+    "run_number": 18,
+    "run_id": 31148842949,
+    "head_sha": "b157e97e25b9c426a70fbddb21c63f4a7b27d2bc",
+    "conclusion": "success",
+    "artifact_id": 8982622499,
+    "artifact_sha256": "0576848667bb1112924901a6b20c282bd64d248e05ddb389602889b9f966110f",
+    "investable_count": 428
+  },
+  "post_writeback_regression_ci": {
+    "workflow": "HKCU-1 R2E FMDL-5E Investable Universe",
+    "run_number": 23,
+    "run_id": 31150184958,
+    "head_sha": "ee7ad65bf821286e461e5506e8c1bc1d075e0357",
+    "conclusion": "success",
+    "artifact_id": 8983086255,
+    "artifact_sha256": "7a8164316fe2c92f4819b7c8073870323466ec1cc446afd8e94cf08c085bc5af",
+    "investable_count": 430
+  },
+  "eligibility_evidence": {
+    "as_of_date": "2026-08-07",
+    "source_status": "FRESH_OFFICIAL",
+    "sh_buyable_count": 652,
+    "sz_buyable_count": 652,
+    "bootstrap_rows": 1304,
+    "point_in_time_entity_rows": 685,
+    "buy_eligible_entity_rows": 652,
+    "eligibility_sha256": "9ea70ddebb93329c5ac3be46d3d39c9c0f4fbf69ca39613acd54687930191b1e",
+    "repeatability": "IDENTICAL_ACROSS_RUN_18_AND_RUN_23"
+  },
+  "r2c_operating_evidence": {
+    "status": "PASS_ACCEPTED_SAME_DATE_CONTINUITY",
+    "current_refresh_passed": false,
+    "current_blocked_channels": ["SH"],
+    "accepted_r2c_run_id": 31144272655,
+    "accepted_r2c_date": "2026-08-07",
+    "continuity_rule": "A same-date accepted R2C forward-complete state may bridge a transient same-date notice-index refresh degradation, but it cannot bridge into a later as-of date.",
+    "canonical_action": "KEEP_ACCEPTED_R2C_CANONICAL_UNCHANGED"
+  },
+  "hkex_crosscheck_evidence": {
+    "status": "PASS_REFERENCE_CONSISTENT",
+    "validation_date": "2026-08-07",
+    "page_update_date": "2026-08-06",
+    "page_update_lag_days": 1,
+    "primary_authority_unchanged": true,
+    "publication_allowed": true
+  },
+  "latest_research_input_refresh": {
+    "completed_market_session_cutoff": "2026-08-06",
+    "fmdl5c": {
+      "release_id": "FMDL5C_20260806_bd1e4e6a9941",
+      "status": "FMDL5C_PRICE_VOLUME_CORPORATE_ACTION_AND_FX_STORE_ACCEPTED",
+      "source_security_count": 644,
+      "historical_security_count": 644,
+      "latest_price_success_ratio": 1.0,
+      "max_market_date": "2026-08-06",
+      "physical_max_market_date": "2026-08-06",
+      "price_row_count": 473214,
+      "corporate_action_count": 2242,
+      "future_or_partial_session_rows_allowed": 0,
+      "fx_acquisition_mode": "FRESH_HKMA_OFFICIAL_API",
+      "fx_latest_date": "2026-07-31",
+      "fx_row_count": 1052,
+      "hkex_current_action_overlay_status": "PASS_ZERO_RELEVANT_EVENTS"
+    },
+    "fmdl5e": {
+      "release_id": "FMDL5E_20260806_caa38241e2fe",
+      "status": "FMDL5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER_ACCEPTED",
+      "as_of_date": "2026-08-06",
+      "age_stock_connect_service_days": 1,
+      "factor_count": 28,
+      "eligible_core_count": 518,
+      "eligible_watch_count": 57,
+      "decision_grade_financial_security_count": 610,
+      "distinct_formal_sleeve_security_count": 250,
+      "longlist_count": 100,
+      "future_price_row_count": 0,
+      "future_financial_row_count": 0,
+      "future_action_row_count": 0
+    }
+  },
+  "latest_investable_universe": {
+    "count": 430,
+    "eligible_core_count": 410,
+    "eligible_watch_count": 20,
+    "buy_eligible_both_count": 430,
+    "common_equity_count": 430,
+    "decision_grade_financial_count": 430,
+    "excluded_count": 255,
+    "missing_fmdl5e_coverage_count": 41,
+    "exclusion_reason_counts_overlapping": {
+      "LOW_20D_TURNOVER": 213,
+      "MISSING_FMDL5E_COVERAGE": 41,
+      "NOT_SOUTHBOUND_BUY_ELIGIBLE": 33,
+      "FMDL5E_NOT_INVESTABLE": 110,
+      "NON_COMMON_EQUITY": 72,
+      "LOW_ACTIVE_TRADE_RATIO": 56,
+      "EXCESS_ZERO_VOLUME_DAYS": 51,
+      "MISSING_VALID_PRICE": 41,
+      "FINANCIAL_EVIDENCE_INCOMPLETE": 75
+    }
+  },
+  "zero_tolerance_quality": {
+    "duplicate_security_count": 0,
+    "sell_only_in_investable_count": 0,
+    "unknown_in_investable_count": 0,
+    "future_information_count": 0,
+    "hard_failures": []
+  },
+  "latest_release_manifest_hashes": {
+    "HKCU1_POINT_IN_TIME_ELIGIBILITY.csv": "9ea70ddebb93329c5ac3be46d3d39c9c0f4fbf69ca39613acd54687930191b1e",
+    "HKCU1_R2E_DECISION.json": "045c42bd9357e46e66f591944dfa105a91219584da372a1f12e6d4587b10f3fa",
+    "HKCU1_R2E_INVESTABLE_UNIVERSE.csv": "fe54e9ba7ad9f8361bed378b0670162aee13fa86e9e28c709b147c0ebe7ac7ba",
+    "HKCU1_R2E_EXCLUSIONS.csv": "e2e46f23c4ca5bc9322431fbd3a70e9432ba5653163b2ff8eb40325b8f6e67cb",
+    "HKCU1_R2E_QUALITY_REPORT.json": "fb4e6407096e333c8868cc40a924d8fb380ed5e70ad051c5028b4741eb3df960"
+  },
+  "repeatability_interpretation": {
+    "run_18_count": 428,
+    "run_23_count": 430,
+    "delta": 2,
+    "eligibility_membership_changed": false,
+    "eligibility_hash_changed": false,
+    "reason": "The second fresh market-data rebuild achieved 644/644 latest-price coverage versus 640/644 in the initial accepted run, allowing two additional securities to pass the same unchanged R2E gates.",
+    "governance": "The investable-universe count is a dynamic output, not a hard-coded acceptance constant. Acceptance invariants are source authority, point-in-time cleanliness, freshness, deterministic eligibility, gate semantics and zero-tolerance contamination controls."
+  },
+  "comparison_to_stale_probe": {
+    "stale_fmdl5e_as_of_date": "2026-07-21",
+    "stale_probe_investable_count": 451,
+    "latest_fresh_investable_count": 430,
+    "delta": -21,
+    "interpretation": "Fresh market/factor refresh materially changed the investable mother universe; the stale probe was diagnostic only and was not promoted."
+  },
+  "r2e_scope_boundary": {
+    "r2e_layer_usable": true,
+    "eligible_for_r2f": true,
+    "post_writeback_regression_passed": true,
+    "main_or_canonical_published": false,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "R2F_INDEPENDENT_VALIDATION_FULL_DIFF_REVIEW_AND_CONTROLLED_CANONICAL_PROMOTION"
+}

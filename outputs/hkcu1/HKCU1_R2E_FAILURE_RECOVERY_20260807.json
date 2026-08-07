@@ -1,0 +1,17 @@
+{
+  "program_id": "HKCU-1",
+  "phase": "R2E",
+  "incident_id": "HKCU1-I011",
+  "observed_at": "2026-08-07",
+  "failure_class": "CODE_DEFECT",
+  "symptom": "R2E Run #11 rejected a successful HKEX cross-check because the workflow asserted status == PASS while the accepted R2D adapter emits PASS_REFERENCE_CONSISTENT.",
+  "root_cause": "A downstream workflow duplicated an upstream component's status literal instead of binding to the upstream canonical contract/status semantics.",
+  "permanent_control": "R2E now asserts the exact canonical R2D status PASS_REFERENCE_CONSISTENT plus publication_allowed=true and primary_authority_unchanged=true.",
+  "regression_rule": "Downstream workflows must consume canonical upstream status semantics; do not invent or retain stale shorthand literals after an upstream contract evolves.",
+  "status": "FIXED_PENDING_REMOTE_REGRESSION",
+  "candidate_pool_mutations": 0,
+  "simulation_mutations": 0,
+  "real_account_mutations": 0,
+  "orders_created": 0,
+  "trade_authority": "NONE"
+}

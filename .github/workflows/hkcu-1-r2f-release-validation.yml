@@ -1,0 +1,139 @@
+name: HKCU-1 R2F Independent Release Validation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hkcu-1-*.yml'
+      - 'config/hkcu1_*'
+      - 'docs/HKCU*'
+      - 'outputs/hkcu1/**'
+      - 'pipeline/hkcu1_*'
+      - 'schemas/hkcu1_*'
+      - 'tests/test_hkcu1_*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  r2f-independent-validator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Fetch canonical main for complete PR diff review
+        run: git fetch origin main
+      - name: Run R2F unit tests
+        run: pytest -q tests/test_hkcu1_r2f.py
+      - name: Validate complete HKCU PR and candidate Canonical payload
+        run: |
+          rm -rf work/hkcu1_r2f
+          python pipeline/hkcu1_r2f_validate.py \
+            --repo-root . \
+            --contract config/hkcu1_r2f_release_contract.json \
+            --acceptance outputs/hkcu1/HKCU1_R2E_ACCEPTANCE_20260807.json \
+            --registry config/hkcu1_official_source_registry.json \
+            --output work/hkcu1_r2f/HKCU1_R2F_VALIDATION_DECISION.json
+      - name: Render R2F decision
+        if: always()
+        run: test ! -f work/hkcu1_r2f/HKCU1_R2F_VALIDATION_DECISION.json || cat work/hkcu1_r2f/HKCU1_R2F_VALIDATION_DECISION.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu1-r2f-independent-validation-evidence
+          path: work/hkcu1_r2f/**
+          if-no-files-found: error
+          retention-days: 30
+
+  r2f-promote-exact-accepted-candidate:
+    needs: r2f-independent-validator
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - id: current
+        name: Detect existing candidate Canonical
+        run: |
+          if [ -f outputs/hkcu1/current/HKCU1_R2E_MANIFEST.json ]; then
+            echo 'exists=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'exists=false' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/download-artifact@v4
+        if: steps.current.outputs.exists != 'true'
+        with:
+          name: hkcu1-r2e-fmdl5e-universe-evidence
+          path: work/accepted_r2e_run23
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 31150184958
+      - name: Materialize exact accepted Run 23 release bytes
+        if: steps.current.outputs.exists != 'true'
+        run: |
+          mkdir -p outputs/hkcu1/current
+          cp work/accepted_r2e_run23/release/HKCU1_POINT_IN_TIME_ELIGIBILITY.csv outputs/hkcu1/current/
+          cp work/accepted_r2e_run23/release/HKCU1_R2E_INVESTABLE_UNIVERSE.csv outputs/hkcu1/current/
+          cp work/accepted_r2e_run23/release/HKCU1_R2E_EXCLUSIONS.csv outputs/hkcu1/current/
+          cp work/accepted_r2e_run23/release/HKCU1_R2E_QUALITY_REPORT.json outputs/hkcu1/current/
+          cp work/accepted_r2e_run23/release/HKCU1_R2E_DECISION.json outputs/hkcu1/current/
+          cp work/accepted_r2e_run23/release/HKCU1_R2E_MANIFEST.json outputs/hkcu1/current/
+          printf '%s  %s\n' \
+            '9ea70ddebb93329c5ac3be46d3d39c9c0f4fbf69ca39613acd54687930191b1e' 'outputs/hkcu1/current/HKCU1_POINT_IN_TIME_ELIGIBILITY.csv' \
+            'fe54e9ba7ad9f8361bed378b0670162aee13fa86e9e28c709b147c0ebe7ac7ba' 'outputs/hkcu1/current/HKCU1_R2E_INVESTABLE_UNIVERSE.csv' \
+            'e2e46f23c4ca5bc9322431fbd3a70e9432ba5653163b2ff8eb40325b8f6e67cb' 'outputs/hkcu1/current/HKCU1_R2E_EXCLUSIONS.csv' \
+            'fb4e6407096e333c8868cc40a924d8fb380ed5e70ad051c5028b4741eb3df960' 'outputs/hkcu1/current/HKCU1_R2E_QUALITY_REPORT.json' \
+            '045c42bd9357e46e66f591944dfa105a91219584da372a1f12e6d4587b10f3fa' 'outputs/hkcu1/current/HKCU1_R2E_DECISION.json' \
+            '53fb4aa2e0dde2867915e11867e11e7355477575335c6ba80c1b2a74a040db7d' 'outputs/hkcu1/current/HKCU1_R2E_MANIFEST.json' | sha256sum -c -
+      - name: Independently validate candidate Canonical before commit
+        if: steps.current.outputs.exists != 'true'
+        run: |
+          git fetch origin main
+          rm -rf work/hkcu1_r2f_candidate
+          python pipeline/hkcu1_r2f_validate.py \
+            --repo-root . \
+            --contract config/hkcu1_r2f_release_contract.json \
+            --acceptance outputs/hkcu1/HKCU1_R2E_ACCEPTANCE_20260807.json \
+            --registry config/hkcu1_official_source_registry.json \
+            --output work/hkcu1_r2f_candidate/HKCU1_R2F_CANDIDATE_VALIDATION_DECISION.json
+          python - <<'PY'
+          import json
+          d=json.load(open('work/hkcu1_r2f_candidate/HKCU1_R2F_CANDIDATE_VALIDATION_DECISION.json'))
+          assert d['stage']=='CANDIDATE_CANONICAL', d
+          assert d['status']=='PASS', d
+          assert d['ready_for_pr_ready_and_merge'] is True, d
+          assert d['current_metrics']=={'investable_count':430,'excluded_count':255,'eligibility_count':685}, d
+          PY
+          cat work/hkcu1_r2f_candidate/HKCU1_R2F_CANDIDATE_VALIDATION_DECISION.json
+      - name: Commit candidate Canonical to PR branch only
+        if: steps.current.outputs.exists != 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add outputs/hkcu1/current
+          git diff --cached --check
+          git commit -m 'HKCU-1 R2F: promote exact accepted R2E release candidate'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+      - uses: actions/upload-artifact@v4
+        if: steps.current.outputs.exists != 'true'
+        with:
+          name: hkcu1-r2f-candidate-canonical-validation
+          path: work/hkcu1_r2f_candidate/**
+          if-no-files-found: error
+          retention-days: 30

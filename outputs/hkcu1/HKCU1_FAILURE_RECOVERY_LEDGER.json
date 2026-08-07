@@ -1,0 +1,110 @@
+{
+  "program_id": "HKCU-1",
+  "ledger_version": "1.2.0",
+  "updated_at": "2026-08-07",
+  "purpose": "Persist observed production failure modes and their required automated recovery behavior. This ledger is operational evidence, not conversational memory.",
+  "incidents": [
+    {
+      "incident_id": "HKCU1-I001",
+      "failure_class": "SOURCE_BLOCKED",
+      "symptom": "Direct SSE workbook request returned HTTP 403 from GitHub hosted runner.",
+      "root_cause": "SSE anti-automation / runner egress filtering; endpoint identity itself remained valid.",
+      "permanent_control": "Use real Chromium page network path; classify 403 as SOURCE_BLOCKED; never replace with third-party data.",
+      "regression_control": "SSE browser evidence records landing/payload status, cookies, request/response headers and workbook signature.",
+      "status": "CONTROLLED_BUT_EXTERNALLY_VARIABLE"
+    },
+    {
+      "incident_id": "HKCU1-I002",
+      "failure_class": "TRANSIENT_INFRA",
+      "symptom": "GitHub Actions failed before checkout because action metadata download returned Service Unavailable / timeout.",
+      "root_cause": "GitHub Actions infrastructure failure before business code execution.",
+      "permanent_control": "Separate infrastructure failure from code failure; retry failed job without changing business logic.",
+      "regression_control": "Do not open a code repair phase if checkout/setup did not complete.",
+      "status": "CONTROLLED"
+    },
+    {
+      "incident_id": "HKCU1-I003",
+      "failure_class": "TRANSIENT_INFRA",
+      "symptom": "SZSE official JSON occasionally reset the connection.",
+      "root_cause": "Transient source/network instability.",
+      "permanent_control": "Bounded independent retry with explicit exhaustion failure; preserve SSE raw input across SZSE retries.",
+      "regression_control": "Deterministic replay must produce identical normalized hashes after successful retries.",
+      "status": "CONTROLLED"
+    },
+    {
+      "incident_id": "HKCU1-I004",
+      "failure_class": "CODE_DEFECT",
+      "symptom": "Workflow hard-coded official list count at 651 and rejected a valid 652-row update.",
+      "root_cause": "Mutable market data was encoded as a constant gate.",
+      "permanent_control": "Validate actual row count against each official source's declared record count; never hard-code live list size.",
+      "regression_control": "Replay counts and official declared counts must match dynamically.",
+      "status": "FIXED"
+    },
+    {
+      "incident_id": "HKCU1-I005",
+      "failure_class": "CODE_DEFECT",
+      "symptom": "Official OUT adjustment was mapped to NOT_ELIGIBLE instead of retained sell-only rights.",
+      "root_cause": "Eligibility state machine collapsed buy eligibility and disposal rights.",
+      "permanent_control": "OUT maps to SELL_ONLY while the security remains HKEX-listed; terminal non-eligibility requires separate explicit evidence.",
+      "regression_control": "R2C tests cover single-channel and both-channel OUT transitions and future-event leakage.",
+      "status": "FIXED"
+    },
+    {
+      "incident_id": "HKCU1-I006",
+      "failure_class": "SOURCE_BLOCKED",
+      "symptom": "Run #21 succeeded from one GitHub hosted runner region while Run #23 received SSE landing and payload HTTP 403 from another runner region.",
+      "root_cause": "SSE accessibility varies by hosted-runner egress/IP/region; a single successful run is not proof of stable availability.",
+      "permanent_control": "Persist last-known-good official baseline, classify source blocking, keep Canonical unchanged on degraded runs, and prohibit stale evidence from publication.",
+      "regression_control": "Resilience decision emits FRESH_PASS vs DEGRADED_CONTINUITY vs BLOCKED_NO_FRESH_SOURCE and a publication_allowed flag.",
+      "status": "CONTROLLED_BUT_EXTERNALLY_VARIABLE"
+    },
+    {
+      "incident_id": "HKCU1-I007",
+      "failure_class": "CODE_DEFECT",
+      "symptom": "Official adjustment notices returned HTTP 200 but the first parser produced zero events and the early decision incorrectly allowed publication.",
+      "root_cause": "HTML table-header inference was brittle and the release gate checked source reachability without requiring a non-zero validated event parse.",
+      "permanent_control": "Parse official notice tables by explicit DOM rows, preserve raw HTML and SHA-256, require at least one parsed event notice during bootstrap validation, and separate source reachability from coverage completeness.",
+      "regression_control": "Run #40 parsed 87 events from 11 official notices with zero unresolved dates; zero-event notices are counted and cannot create a false R2C PASS.",
+      "status": "FIXED"
+    },
+    {
+      "incident_id": "HKCU1-I008",
+      "failure_class": "CODE_DEFECT",
+      "symptom": "SSE current-list source date was either a stale hard-coded date or null after the static value was removed.",
+      "root_cause": "The SSE workbook does not expose a stable machine-readable list date, but the pipeline did not distinguish official metadata dates from observation-date semantics.",
+      "permanent_control": "For a successful SSE current-state workbook fetch, record the official state as observed on the retrieval date with explicit OFFICIAL_CURRENT_STATE_OBSERVED_ON_RETRIEVAL_DATE semantics; SZSE keeps its official metadata date.",
+      "regression_control": "Source ledger and fetch decision expose both source_as_of_date and source_as_of_date_semantics.",
+      "status": "FIXED"
+    },
+    {
+      "incident_id": "HKCU1-I009",
+      "failure_class": "CODE_DEFECT",
+      "symptom": "An older historical adjustment event could overwrite a newer current-state bootstrap snapshot for the same security/channel.",
+      "root_cause": "Point-in-time reconstruction replayed all pre-cutoff events without comparing each event's effective date with the latest state timestamp already established by a newer snapshot.",
+      "permanent_control": "A newer official full-list snapshot dominates events effective on or before that snapshot; only later events may mutate the bootstrapped state.",
+      "regression_control": "R2C tests prove an old OUT cannot override the 2026-08-07 bootstrap and that a post-bootstrap OUT creates SELL_ONLY with buy_eligible=false.",
+      "status": "FIXED"
+    },
+    {
+      "incident_id": "HKCU1-I010",
+      "failure_class": "DATA_ACQUISITION_ADAPTER",
+      "symptom": "Official SSE/SZSE adjustment-news index pages returned HTTP 200 to requests but exposed zero matching notice links in the static HTML shell.",
+      "root_cause": "The official notice indices are JavaScript-rendered on the hosted-runner path; HTTP reachability did not imply the DOM contained the dynamic notice list.",
+      "permanent_control": "If static official DOM discovery returns zero links, render the same official page with runner Chrome, discover official-domain notice URLs from the rendered DOM, and require the live index window to reach the persisted prior scan cursor.",
+      "regression_control": "Run #48 discovered 9 live SH notices and 15 live SZ notices via CHROME_RENDERED_DOM; both windows reached the 2026-08-07 cursor and R2C emitted PASS_FORWARD_COMPLETE.",
+      "status": "FIXED"
+    }
+  ],
+  "non_negotiable_policies": [
+    "Official SSE/SZSE/HKEX evidence only for eligibility authority.",
+    "Third-party portals, brokers and search snippets never silently substitute for an unavailable official source.",
+    "A stale last-known-good snapshot may preserve continuity but may not be promoted as fresh/current.",
+    "Source and infrastructure failures do not justify changing investment logic.",
+    "Unknown/conflicting eligibility fails closed.",
+    "A newer official snapshot cannot be regressed by older adjustment events.",
+    "Forward notice coverage must be demonstrated from a persisted scan cursor; static bootstrap URLs are audit seeds, not a future discovery mechanism.",
+    "HTTP 200 on a dynamic official index is not sufficient evidence of discoverability; live rendered notice-window coverage is required.",
+    "No candidate, simulation, real-account or order mutation in HKCU-1 source-recovery logic.",
+    "trade_authority=NONE"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "contract_id": "HKCU1_R2F_INDEPENDENT_RELEASE_VALIDATION_V1_1",
+  "program_id": "HKCU-1",
+  "phase": "R2F",
+  "objective": "Independently validate the accepted fresh R2E Stock Connect investable-universe release, review the complete PR scope, freeze accepted R2B-R2E core logic, and gate controlled publication to the sole HKCU Current path before PR promotion and merge.",
+  "source_r2e_contract": "config/hkcu1_r2e_universe_contract.json",
+  "diff_policy": {
+    "base_ref": "origin/main",
+    "allowed_scope": "HKCU_ONLY",
+    "accepted_r2e_core_freeze": "NO_R2B_R2E_CORE_CHANGE_AFTER_ACCEPTED_POST_WRITEBACK_RUN"
+  },
+  "canonical_current_dir": "outputs/hkcu1/current",
+  "required_current_files": [
+    "HKCU1_POINT_IN_TIME_ELIGIBILITY.csv",
+    "HKCU1_R2E_INVESTABLE_UNIVERSE.csv",
+    "HKCU1_R2E_EXCLUSIONS.csv",
+    "HKCU1_R2E_QUALITY_REPORT.json",
+    "HKCU1_R2E_DECISION.json",
+    "HKCU1_R2E_MANIFEST.json"
+  ],
+  "acceptance": {
+    "r2e_decision": "PASS_CURRENT",
+    "eligibility_source": "FRESH_OFFICIAL",
+    "r2e_post_writeback_regression": true,
+    "maximum_duplicate_security_count": 0,
+    "maximum_sell_only_in_investable": 0,
+    "maximum_unknown_in_investable": 0,
+    "maximum_future_information_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "publication_policy": {
+    "source_release": "EXACT_ACCEPTED_R2E_ARTIFACT_BYTES_ONLY",
+    "regeneration_during_r2f": "PROHIBITED",
+    "main_direct_write": "PROHIBITED",
+    "pr_ready_before_candidate_validation": "PROHIBITED",
+    "merge_before_candidate_validation": "PROHIBITED"
+  },
+  "next_gate": "PR_READY_AND_CONTROLLED_MERGE_AFTER_CANDIDATE_CANONICAL_PASS",
+  "trade_authority": "NONE"
+}
