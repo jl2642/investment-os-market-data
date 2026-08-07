@@ -1,0 +1,66 @@
+{
+  "contract_id": "HKCU_P2B_E2_COMPANY_SPECIFIC_EVIDENCE_V1",
+  "program_id": "HKCU-P2B-E2",
+  "phase": "P2B_E2_COMPANY_SPECIFIC_EVIDENCE",
+  "objective": "Collect auditable company-specific governance/value-trap, earnings-expectation-revision, and catalyst evidence for the accepted 77-name HK Research Longlist without fabricating consensus data or assigning alpha scores before P2B synthesis.",
+  "authoritative_inputs": {
+    "p2a_acceptance": "outputs/hkcu_p2a/current/HKCU_P2A_ACCEPTANCE.json",
+    "p2b_e1_contract": "config/hkcu_p2b_e1_evidence_contract.json",
+    "p2b_e1_builder": "pipeline/hkcu_p2b_apply_e1_evidence.py",
+    "company_evidence": "evidence/hkcu_p2b/HKCU_P2B_E2_COMPANY_EVIDENCE_TOP_QUARTILE_20260807.csv"
+  },
+  "batch_policy": {
+    "as_of_date": "2026-08-07",
+    "selection_method": "P2A_TOP_QUARTILE_BY_ACCEPTED_OVERALL_RANK",
+    "accepted_longlist_count": 77,
+    "selection_fraction": 0.25,
+    "batch_security_count": 20,
+    "required_rank_start": 1,
+    "required_rank_end": 20,
+    "required_dimensions": [
+      "GOVERNANCE_VALUE_TRAP",
+      "EARNINGS_EXPECTATION_REVISION",
+      "CATALYST"
+    ],
+    "required_rows_per_security": 3,
+    "required_evidence_rows": 60,
+    "why_not_fixed_pick": "20 is ceil(77*25%), a deterministic priority tranche derived from the accepted P2A distribution; it is not a discretionary stock selection."
+  },
+  "evidence_policy": {
+    "allowed_statuses": [
+      "EVIDENCE_PARTIAL",
+      "EVIDENCE_COMPLETE",
+      "RESEARCH_REQUIRED",
+      "DATA_UNAVAILABLE"
+    ],
+    "primary_official_preferred": true,
+    "web_snippet_is_not_authority": true,
+    "https_source_required_when_evidence_collected": true,
+    "future_dated_evidence_forbidden": true,
+    "consensus_revision_must_not_be_invented": true,
+    "latest_results_may_support_but_not_substitute_for_consensus_revision": true,
+    "profit_warning_or_profit_increase_is_direct_management_expectation_evidence": true,
+    "catalyst_must_be_dated_security_specific_and_falsifiable": true,
+    "governance_requires_security_type_aware_follow_up": true,
+    "no_alpha_score_in_e2": true
+  },
+  "progress_semantics": {
+    "EVIDENCE_COMPLETE": "Evidence collection for that dimension can move to P2B synthesis; no alpha score is implied.",
+    "EVIDENCE_PARTIAL": "At least one authoritative company-specific evidence item is captured, but the dimension remains open for deeper research.",
+    "RESEARCH_REQUIRED": "Reviewed evidence is insufficient to establish the dimension; task remains unstarted/open.",
+    "DATA_UNAVAILABLE": "A material evidence gap is explicitly retained rather than proxied."
+  },
+  "acceptance": {
+    "required_batch_security_count": 20,
+    "required_evidence_rows": 60,
+    "required_score_non_null_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "formal_candidate_graduation_allowed": false,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "P2B_E2_CONTINUE_COMPANY_SPECIFIC_EVIDENCE",
+  "trade_authority": "NONE"
+}
