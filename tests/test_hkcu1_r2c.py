@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+from datetime import date
+
+import pandas as pd
+
 from pipeline.hkcu1_fetch_adjustment_events import parse_notice_html
 from pipeline.hkcu1_resilience import classify_sse_evidence, decide
+from pipeline.hkcu1_resolve_effective_dates import next_service_day, resolve_events
 
 
 def test_sse_403_is_source_blocked_not_code_defect():
@@ -70,3 +75,54 @@ def test_parse_szse_explicit_effective_date():
     assert rows[0]["direction"] == "OUT"
     assert rows[0]["effective_from"] == "2026-06-30"
     assert rows[0]["effective_rule"] == "EXPLICIT_IN_NOTICE"
+
+
+def _calendar_2026() -> dict:
+    return {
+        "year": 2026,
+        "full_day_non_service_dates": [
+            "2026-04-03", "2026-04-06", "2026-04-07",
+            "2026-07-01",
+        ],
+    }
+
+
+def test_next_service_day_normal_weekday():
+    assert next_service_day(date(2026, 7, 9), _calendar_2026()) == date(2026, 7, 10)
+
+
+def test_next_service_day_skips_weekend_and_official_closures():
+    # 2026-04-03 and 04-06/07 are full-day Southbound closures; 04-04/05 weekend.
+    assert next_service_day(date(2026, 4, 2), _calendar_2026()) == date(2026, 4, 8)
+
+
+def test_effective_date_resolution_marks_future_event_without_applying_it_early():
+    events = pd.DataFrame([
+        {
+            "security_code": "00754",
+            "channel": "SH",
+            "direction": "OUT",
+            "announcement_date": "2026-07-09",
+            "effective_from": None,
+            "effective_rule": "NEXT_STOCK_CONNECT_TRADING_DAY",
+        }
+    ])
+    result = resolve_events(events, _calendar_2026(), "2026-07-09").iloc[0]
+    assert result["effective_from"] == "2026-07-10"
+    assert bool(result["future_event"]) is True
+
+
+def test_explicit_effective_date_is_preserved():
+    events = pd.DataFrame([
+        {
+            "security_code": "01448",
+            "channel": "SZ",
+            "direction": "OUT",
+            "announcement_date": "2026-06-30",
+            "effective_from": "2026-06-30",
+            "effective_rule": "EXPLICIT_IN_NOTICE",
+        }
+    ])
+    result = resolve_events(events, _calendar_2026(), "2026-06-30").iloc[0]
+    assert result["effective_from"] == "2026-06-30"
+    assert bool(result["future_event"]) is False
