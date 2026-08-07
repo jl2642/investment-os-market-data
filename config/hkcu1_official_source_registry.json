@@ -1,7 +1,7 @@
 {
-  "registry_version": "1.2.0",
+  "registry_version": "1.3.0",
   "program_id": "HKCU-1",
-  "registry_as_of_date": "2026-08-06",
+  "registry_as_of_date": "2026-08-07",
   "landing_pages": [
     {
       "source_id": "SSE_SOUTHBOUND_OFFICIAL",
@@ -10,10 +10,10 @@
       "authority": "SSE",
       "channel": "SH",
       "landing_url": "https://www.sse.com.cn/services/hkexsc/disclo/eligible/",
-      "official_domains": ["sse.com.cn"],
+      "official_domains": ["sse.com.cn", "sseinfo.com"],
       "decision_role": "PRIMARY_FOR_SH_CHANNEL",
-      "effective_date_rule": "If an update date is not a Stock Connect trading day, apply from the next Stock Connect trading day",
-      "current_resolution_status": "MACHINE_ENDPOINT_NETWORK_VERIFIED"
+      "effective_date_rule": "If an adjustment notice says next Stock Connect trading day, resolve against the official Stock Connect trading calendar before point-in-time application",
+      "current_resolution_status": "MACHINE_ENDPOINT_AND_BROWSER_DOWNLOAD_VERIFIED_WITH_RUNNER_EGRESS_VARIABILITY"
     },
     {
       "source_id": "SZSE_SOUTHBOUND_OFFICIAL",
@@ -24,7 +24,7 @@
       "landing_url": "https://www.szse.cn/szhk/hkbussiness/underlylist/",
       "official_domains": ["szse.cn"],
       "decision_role": "PRIMARY_FOR_SZ_CHANNEL",
-      "effective_date_rule": "Use the list date and effective date stated in official notices",
+      "effective_date_rule": "Use the explicit effective date stated in the official adjustment notice",
       "current_resolution_status": "MACHINE_ENDPOINT_NETWORK_VERIFIED"
     },
     {
@@ -52,7 +52,7 @@
       "referer": "https://www.sse.com.cn/services/hkexsc/disclo/eligible/",
       "discovery_evidence": "PLAYWRIGHT_DOM_AND_NETWORK_CAPTURE_2026-08-06",
       "expected_min_rows": 100,
-      "as_of_date": "2026-08-06"
+      "latest_verified_source_date": "2026-08-06"
     },
     {
       "source_id": "SZSE_SZ_SOUTHBOUND_BUY_LIST",
@@ -67,21 +67,72 @@
       "expected_metadata_name": "港股通标的证券名单",
       "discovery_evidence": "PLAYWRIGHT_XHR_CAPTURE_2026-08-06",
       "expected_min_rows": 100,
-      "as_of_date": "2026-08-06"
+      "latest_verified_source_date": "2026-08-07"
     }
   ],
+  "adjustment_notice_sources": [
+    {
+      "source_id": "SSE_SH_ADJUSTMENT_NOTICES",
+      "authority": "SSE",
+      "channel": "SH",
+      "index_url": "https://www.sse.com.cn/services/hkexsc/home/",
+      "title_contains": ["关于沪港通下港股通标的调整的通知"],
+      "effective_date_mode": "NEXT_STOCK_CONNECT_TRADING_DAY_OR_EXPLICIT",
+      "bootstrap_coverage": "PARTIAL_VERIFICATION_SEEDS_NOT_COMPLETE_HISTORY",
+      "bootstrap_notice_urls": [
+        "https://www.sse.com.cn/services/hkexsc/disclo/announ/c/c_20260806_10828124.shtml",
+        "https://www.sse.com.cn/services/hkexsc/disclo/announ/c/c_20260709_10825006.shtml",
+        "https://www.sse.com.cn/services/hkexsc/disclo/announ/c/c_20260629_10823808.shtml",
+        "https://www.sse.com.cn/services/hkexsc/disclo/announ/c/c_20260310_10811379.shtml",
+        "https://www.sse.com.cn/services/hkexsc/disclo/announ/c/c_20260114_10805194.shtml"
+      ]
+    },
+    {
+      "source_id": "SZSE_SZ_ADJUSTMENT_NOTICES",
+      "authority": "SZSE",
+      "channel": "SZ",
+      "index_url": "https://investor.szse.cn/disclosure/notice/general/index.html",
+      "title_contains": ["关于深港通下的港股通标的证券名单调整的公告"],
+      "effective_date_mode": "EXPLICIT_IN_NOTICE",
+      "bootstrap_coverage": "PARTIAL_VERIFICATION_SEEDS_NOT_COMPLETE_HISTORY",
+      "bootstrap_notice_urls": [
+        "https://www.szse.cn/disclosure/notice/t20260724_621799.html",
+        "https://www.szse.cn/disclosure/notice/t20260630_621363.html",
+        "https://investor.szse.cn/szhk/hkbussiness/news/t20260306_619320.html",
+        "https://www.szse.cn/disclosure/notice/general/t20260311_619348.html",
+        "https://www.szse.cn/disclosure/notice/general/t20260115_618550.html",
+        "https://www.szse.cn/disclosure/notice/t20260105_618248.html"
+      ]
+    }
+  ],
+  "sell_only_rule": {
+    "authority": "SSE",
+    "rule_name": "上海证券交易所沪港通业务实施办法（2024年修订）",
+    "article": 87,
+    "official_url": "https://www.sse.com.cn/lawandrules/sselawsrules2025/global/hkexsc/c/c_20251017_10795123.shtml",
+    "canonical_interpretation": "A security adjusted out of Stock Connect that remains listed on HKEX cannot be newly bought through Stock Connect but may be sold; normalize adjustment OUT to SELL_ONLY unless separate terminal evidence exists."
+  },
+  "source_resilience_policy": {
+    "failure_classes": ["TRANSIENT_INFRA", "SOURCE_BLOCKED", "DATA_CONTRACT_CHANGE", "CODE_DEFECT", "UNKNOWN"],
+    "sse_browser_max_attempts_per_runner": 3,
+    "szse_bounded_attempts": 6,
+    "last_known_good_file": "config/hkcu1_lkg_snapshot.json",
+    "max_continuity_age_days": 14,
+    "stale_continuity_policy": "MAY_SUPPORT_CONTINUITY_AND_DIFF_ONLY; NEVER_PROMOTE_AS_FRESH_CURRENT",
+    "source_blocked_canonical_action": "KEEP_PREVIOUS_CANONICAL_UNCHANGED",
+    "third_party_fallback": "PROHIBITED"
+  },
   "endpoint_resolution_gate": {
-    "status": "PASS_ENDPOINT_IDENTITY_ONLY",
-    "resolved_at": "2026-08-06",
+    "status": "R2B_PASS_R2C_IN_PROGRESS",
+    "resolved_at": "2026-08-07",
     "evidence": [
-      "SSE commonQuery/commonExcelDd sqlId observed from official page network and DOM",
-      "SZSE ShowReport CATALOGID observed from official page XHR",
-      "SZSE metadata reported list name, list date, recordcount and pagecount"
+      "SSE browser-native workbook acquisition validated HTTP 200 with XLS signature and SHA-256 in Run #21",
+      "SZSE official paginated JSON validated 652 declared/deduplicated rows in Run #21",
+      "Two deterministic replays produced identical SH/SZ normalized hashes",
+      "Live list counts are now reconciled dynamically to official declared counts rather than hard-coded"
     ],
     "remaining_before_production": [
-      "Full payload retrieval and count reconciliation",
-      "Sell-only source identification and exclusion validation",
-      "Same-input deterministic replay",
+      "Complete adjustment-notice historical backfill / effective-date resolution for Sell-only state",
       "HKEX cross-check",
       "Independent release validation"
     ]
@@ -90,9 +141,16 @@
     "same_channel_primary_vs_cross_check": "PRIMARY_WINS_ONLY_IF_EFFECTIVE_DATE_AND_DOCUMENT_IDENTITY_ARE_EXPLICIT; OTHERWISE_UNKNOWN_BLOCKED",
     "sh_vs_sz_difference": "PRESERVE_CHANNEL_SPECIFIC_STATUS",
     "missing_primary_source": "UNKNOWN_BLOCKED",
-    "stale_cached_status": "DO_NOT_CARRY_FORWARD_SILENTLY"
+    "stale_cached_status": "CONTINUITY_ONLY_NO_PUBLICATION",
+    "unresolved_effective_date": "DO_NOT_APPLY_EVENT_UNTIL_OFFICIAL_CALENDAR_RESOLUTION"
   },
-  "prohibited_sources_for_eligibility_decision": ["SEARCH_ENGINE_SNIPPET", "BROKER_LIST", "FINANCIAL_PORTAL", "MARKET_DATA_VENDOR", "USER_MEMORY_OR_MANUAL_ASSERTION_WITHOUT_OFFICIAL_DOCUMENT"],
+  "prohibited_sources_for_eligibility_decision": [
+    "SEARCH_ENGINE_SNIPPET",
+    "BROKER_LIST",
+    "FINANCIAL_PORTAL",
+    "MARKET_DATA_VENDOR",
+    "USER_MEMORY_OR_MANUAL_ASSERTION_WITHOUT_OFFICIAL_DOCUMENT"
+  ],
   "authority_boundary": {
     "candidate_pool_mutations": 0,
     "simulation_mutations": 0,
