@@ -33,7 +33,7 @@ def test_sse_parser_standardises_codes():
     assert result.iloc[0]["security_code"] == "00001"
 
 
-def test_point_in_time_applies_only_effective_events():
+def test_point_in_time_applies_only_effective_events_and_preserves_sell_only():
     snapshot = pd.DataFrame([
         {"security_code": "700", "channel": "SH", "eligibility_side": "BUY_SELL", "effective_from": "2026-07-01", "source_id": "s", "source_sha256": "a"},
         {"security_code": "700", "channel": "SZ", "eligibility_side": "BUY_SELL", "effective_from": "2026-07-01", "source_id": "z", "source_sha256": "b"},
@@ -44,8 +44,44 @@ def test_point_in_time_applies_only_effective_events():
         {"security_code": "700", "channel": "SZ", "direction": "OUT", "effective_from": "2026-08-10", "source_id": "future", "source_sha256": "d"},
     ])
     result = reconstruct(snapshot, events, "2026-08-06").set_index("security_code")
+    assert result.loc["00700", "sh_status"] == "SELL_ONLY"
+    assert result.loc["00700", "sz_status"] == "BUY_ELIGIBLE"
     assert result.loc["00700", "combined_status"] == "BUY_ELIGIBLE_SZ_ONLY"
+    assert not result.loc["00700", "sell_only"]
     assert result.loc["00005", "combined_status"] == "SELL_ONLY"
+    assert result.loc["00005", "sell_only"]
+
+
+def test_removed_in_both_channels_becomes_combined_sell_only():
+    snapshot = pd.DataFrame([
+        {"security_code": "1448", "channel": "SH", "eligibility_side": "BUY_SELL", "effective_from": "2026-06-01"},
+        {"security_code": "1448", "channel": "SZ", "eligibility_side": "BUY_SELL", "effective_from": "2026-06-01"},
+    ])
+    events = pd.DataFrame([
+        {"security_code": "1448", "channel": "SH", "direction": "OUT", "effective_from": "2026-06-30"},
+        {"security_code": "1448", "channel": "SZ", "direction": "OUT", "effective_from": "2026-06-30"},
+    ])
+    result = reconstruct(snapshot, events, "2026-08-07").iloc[0]
+    assert result["sh_status"] == "SELL_ONLY"
+    assert result["sz_status"] == "SELL_ONLY"
+    assert result["combined_status"] == "SELL_ONLY"
+    assert result["sell_only"]
+    assert not result["buy_eligible"]
+
+
+def test_explicit_terminal_not_eligible_is_distinct_from_sell_only():
+    snapshot = pd.DataFrame([
+        {"security_code": "1234", "channel": "SH", "eligibility_side": "BUY_SELL", "effective_from": "2026-01-01"},
+        {"security_code": "1234", "channel": "SZ", "eligibility_side": "BUY_SELL", "effective_from": "2026-01-01"},
+    ])
+    events = pd.DataFrame([
+        {"security_code": "1234", "channel": "SH", "direction": "NOT_ELIGIBLE", "effective_from": "2026-07-01"},
+        {"security_code": "1234", "channel": "SZ", "direction": "NOT_ELIGIBLE", "effective_from": "2026-07-01"},
+    ])
+    result = reconstruct(snapshot, events, "2026-08-07").iloc[0]
+    assert result["combined_status"] == "NOT_ELIGIBLE"
+    assert not result["sell_only"]
+    assert not result["buy_eligible"]
 
 
 def test_missing_channel_fails_closed_not_false_negative():
