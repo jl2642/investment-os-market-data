@@ -1,0 +1,61 @@
+{
+  "contract_id": "HKCU_P2B_E2_COMPANY_SPECIFIC_EVIDENCE_FINAL_V1",
+  "program_id": "HKCU-P2B-E2-FINAL",
+  "phase": "P2B_E2_COMPANY_SPECIFIC_EVIDENCE",
+  "objective": "Complete the first-pass primary-official company-specific evidence coverage for all accepted P2A names by applying ranks 61-77 on top of the accepted ranks 1-60 cumulative state, without assigning alpha scores or graduating a formal Candidate Pool.",
+  "authoritative_inputs": {
+    "batch3_builder": "pipeline/hkcu_p2b_apply_e2_batch3.py",
+    "batch3_validator": "scripts/validate_hkcu_p2b_e2_batch3.py",
+    "final_evidence": "evidence/hkcu_p2b/HKCU_P2B_E2_COMPANY_EVIDENCE_RANKS_61_77_20260807.csv"
+  },
+  "batch_policy": {
+    "as_of_date": "2026-08-07",
+    "selection_method": "FINAL_CONTIGUOUS_ACCEPTED_P2A_RANK_TRANCHE",
+    "required_rank_start": 61,
+    "required_rank_end": 77,
+    "batch_security_count": 17,
+    "required_dimensions": ["GOVERNANCE_VALUE_TRAP", "EARNINGS_EXPECTATION_REVISION", "CATALYST"],
+    "required_rows_per_security": 3,
+    "required_evidence_rows": 51
+  },
+  "evidence_policy": {
+    "allowed_statuses": ["EVIDENCE_PARTIAL", "EVIDENCE_COMPLETE", "RESEARCH_REQUIRED", "DATA_UNAVAILABLE"],
+    "primary_official_required_for_collected_evidence": true,
+    "future_dated_evidence_forbidden": true,
+    "ordinary_results_do_not_equal_consensus_revision": true,
+    "explicit_profit_alert_warning_or_results_estimate_is_direct_management_expectation_change": true,
+    "material_inside_information_with_explicit_forward_business_impact_may_complete_expectation_change": true,
+    "catalyst_must_be_dated_security_specific_and_falsifiable": true,
+    "weak_routine_or_nondirectional_event_remains_research_required": true,
+    "no_alpha_score_in_e2": true
+  },
+  "expected_batch_counts": {
+    "EVIDENCE_COMPLETE": 5,
+    "EVIDENCE_PARTIAL": 42,
+    "RESEARCH_REQUIRED": 4,
+    "evidence_collected_rows": 47
+  },
+  "expected_cumulative_after_final": {
+    "company_specific_dimension_rows": 231,
+    "EVIDENCE_COMPLETE": 22,
+    "EVIDENCE_PARTIAL": 185,
+    "RESEARCH_REQUIRED": 24,
+    "company_specific_open_tasks": 209,
+    "company_specific_unstarted_tasks": 24,
+    "cumulative_batch_evidence_rows": 231,
+    "cumulative_evidence_collected_rows": 207,
+    "cumulative_security_count_started": 77
+  },
+  "direct_expectation_complete_codes": ["01208", "02157", "03759", "06110", "03339"],
+  "acceptance": {
+    "score_non_null_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "formal_candidate_graduation_allowed": false,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "P2B_E3_EVIDENCE_SYNTHESIS_AND_GRADUATION_READINESS",
+  "trade_authority": "NONE"
+}
