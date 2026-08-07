@@ -1,7 +1,7 @@
 {
   "program_id": "HKCU-1",
   "phase": "R2E",
-  "ledger_version": "1.0.0",
+  "ledger_version": "1.1.0",
   "updated_at": "2026-08-07",
   "purpose": "Persist R2E production defects and their permanent automated controls; this is operational evidence rather than conversational memory.",
   "incidents": [
@@ -20,8 +20,8 @@
       "symptom": "A completed-session FMDL-5C build labelled for 2026-08-06 contained Yahoo/Eastmoney price data through the still-open 2026-08-07 session.",
       "root_cause": "Yahoo chart requests intentionally extend period2 beyond end_date and the Eastmoney fallback endpoint requests an open-ended range; changing date.today() alone therefore did not enforce a physical market-data cutoff.",
       "permanent_control": "The R2E refresh adapter hard-filters every Yahoo/Eastmoney observation after the completed-session cutoff before FMDL-5C quality/decision files are built; HKMA FX and dated corporate actions are also cutoff-filtered.",
-      "regression_control": "Unit tests require rows after the cutoff to be removed; remote Run #18 independently verifies both FMDL5C_DECISION.metrics.max_market_date and the physical parquet maximum date equal 2026-08-06, with FMDL-5E future price rows = 0.",
-      "status": "FIXED_AND_REMOTE_VALIDATED_RUN_18"
+      "regression_control": "Unit tests require rows after the cutoff to be removed; remote Run #18 and Run #23 independently verify both FMDL5C_DECISION.metrics.max_market_date and the physical parquet maximum date equal 2026-08-06, with FMDL-5E future price rows = 0.",
+      "status": "FIXED_AND_REMOTE_VALIDATED_RUN_18_RUN_23"
     },
     {
       "incident_id": "HKCU1-I013",
@@ -29,8 +29,17 @@
       "symptom": "The optional HKEX current-action overlay treated a successfully parsed official table with zero relevant non-New-Listing events as a hard failure.",
       "root_cause": "The repair script collapsed two distinct conditions: parser/structure failure versus a valid zero-result after universe filtering.",
       "permanent_control": "R2E distinguishes HKEX_ACTION_TABLE_NOT_FOUND from HKEX_CURRENT_ACTIONS_EMPTY_AFTER_SUCCESSFUL_PARSE. The latter is accepted as PASS_ZERO_RELEVANT_EVENTS and leaves the already accepted base FMDL-5C candidate unchanged.",
-      "regression_control": "Run #18 records hkex_current_action_overlay.status=PASS_ZERO_RELEVANT_EVENTS while FMDL-5C remains accepted and FMDL-5E future action rows remain zero.",
-      "status": "FIXED_AND_REMOTE_VALIDATED_RUN_18"
+      "regression_control": "Run #18 and Run #23 record hkex_current_action_overlay.status=PASS_ZERO_RELEVANT_EVENTS while FMDL-5C remains accepted and FMDL-5E future action rows remain zero.",
+      "status": "FIXED_AND_REMOTE_VALIDATED_RUN_18_RUN_23"
+    },
+    {
+      "incident_id": "HKCU1-I014",
+      "failure_class": "TRANSIENT_INFRA",
+      "symptom": "A post-writeback R2E regression failed during fresh FMDL-5C rebuild because the official HKMA ER/EERI Daily Open API returned HTTP 502.",
+      "root_cause": "Transient availability failure at the official HKMA FX API; price-volume and Stock Connect eligibility logic were not implicated.",
+      "permanent_control": "Fresh HKMA official API remains primary. On a fetch exception only, R2E may reuse the repository's previously verified FMDL-5C Current FX file if provider=HKMA_ER_EERI_DAILY, source_tier=OFFICIAL_OPEN_API, row count meets the FMDL-5C minimum and latest FX age remains within the existing 40-calendar-day contract. Otherwise fail closed.",
+      "regression_control": "Unit tests cover valid official FX continuity, stale FX rejection and non-official provenance rejection. Run #23 subsequently completed the entire R2E chain successfully with fresh HKMA API data, proving the resilience addition did not weaken the primary fresh-source path.",
+      "status": "CONTROLLED_UNIT_VALIDATED_PRIMARY_PATH_REMOTE_VALIDATED_RUN_23"
     }
   ],
   "non_negotiable_policies": [
@@ -38,6 +47,7 @@
     "During an open Hong Kong session, research factors must use the latest completed Stock Connect service day rather than the partial current session.",
     "A valid zero-result is not the same as a parser failure; zero-result semantics must be explicit in the source contract.",
     "A previously accepted same-date R2C forward-complete state may bridge a transient same-date notice-index refresh degradation, but never a later as-of date.",
+    "Fresh official source remains primary; a continuity fallback must preserve original official provenance, satisfy the existing freshness contract and be explicitly recorded.",
     "Fresh R2E evidence may be built on a PR runner, but upstream FMDL-5C/FMDL-5E Current and HKCU Canonical are not published before R2F.",
     "No candidate, simulation, real-account or order mutation is permitted in R2E.",
     "trade_authority=NONE"
