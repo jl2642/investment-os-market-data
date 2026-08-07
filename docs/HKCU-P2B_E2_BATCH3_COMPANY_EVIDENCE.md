@@ -1,64 +1,69 @@
 # HKCU P2B-E2 — Company Evidence Batch 3 (Ranks 41–60)
 
-Batch 3 continues the accepted P2B-E2 primary-company-evidence architecture from ranks 1–40. It does not alter any previously accepted evidence.
+Batch 3 continues the accepted P2B-E2 primary-company-evidence architecture from ranks 1–40. It does not alter any previously accepted evidence or redefine the Phase 2 roadmap.
 
 ## Scope
 
-- Accepted P2A ranks: **41–60**
-- Securities: **20**
-- Dimensions per security: **3**
-- Evidence slots: **60**
+The tranche covers accepted P2A ranks 41–60 and the same three company-specific dimensions:
 
-Dimensions remain `GOVERNANCE_VALUE_TRAP`, `EARNINGS_EXPECTATION_REVISION`, and `CATALYST`.
+1. `GOVERNANCE_VALUE_TRAP`
+2. `EARNINGS_EXPECTATION_REVISION`
+3. `CATALYST`
 
-## Evidence standard
+No alpha score is assigned in P2B-E2.
 
-Collected rows use the issuer HKEX disclosure/title-search surface as the primary official authority. Evidence dates may not exceed 2026-08-07. Search snippets are not authority.
+## Evidence discipline
 
-Ordinary annual, quarterly, KPI or operating results remain partial evidence for earnings context; they do **not** become analyst-consensus revisions. Direct management expectation-change evidence is marked complete only where the issuer explicitly issued a profit alert or results forecast.
+The registry is grounded in official HKEX issuer disclosure pages. Ordinary annual, quarterly and operating updates are current evidence but are not converted into analyst-consensus revision claims.
 
-Catalyst evidence must be dated, security-specific and falsifiable. Routine updates, governance events or bank capital issuance that do not establish a directional unresolved investment catalyst remain `RESEARCH_REQUIRED`.
+Nine issuer disclosures are direct management expectation-change evidence in this tranche:
 
-No qualitative alpha score is created in P2B-E2.
+- `03939 WANGUO GOLD GP` — Positive Profit Alert
+- `02269 WUXI BIO` — Positive Profit Alert
+- `02400 XD INC` — Positive Profit Alert
+- `02145 CHICMAX` — Positive Profit Alert
+- `02698 SOFTCARE` — Positive Profit Alert
+- `02314 LEE & MAN PAPER` — Positive Profit Alert
+- `00917 QUNABOX GROUP` — Positive Profit Alert
+- `09696 TIANQI LITHIUM` — 2026 Interim Results Forecast
+- `09911 NEWBORNTOWN` — Inside Information Profit Alert
 
-## Audited Batch 3 result
+These nine earnings-revision tasks reach `EVIDENCE_COMPLETE` for evidence collection only. The status is not an investment recommendation and does not by itself imply valuation attractiveness or persistent earnings improvement.
 
-The evidence register contains:
+All 20 governance rows remain `EVIDENCE_PARTIAL`: official governance evidence has been captured, but value-trap and governance synthesis still requires company-specific follow-up.
 
-- **7** `EVIDENCE_COMPLETE` rows;
-- **46** `EVIDENCE_PARTIAL` rows;
-- **7** `RESEARCH_REQUIRED` rows;
-- **53 / 60** collected primary-evidence rows.
+Six catalyst rows remain `RESEARCH_REQUIRED` because the reviewed filing surface does not establish a sufficiently directional, unresolved and security-specific catalyst: ICBC, MTR Corporation, CCB, Qunabox Group, Li Ning and China Tower. XD Inc's HK$400 million automatic share buy-back programme is retained as `EVIDENCE_PARTIAL`, rather than `RESEARCH_REQUIRED`, because it is a dated, security-specific and falsifiable capital-return event.
 
-The seven direct earnings-expectation-change rows are:
+## Batch result contract
 
-- Wanguo Gold — Positive Profit Alert;
-- WuXi Biologics — Positive Profit Alert;
-- CHICMAX — Positive Profit Alert;
-- Lee & Man Paper — Positive Profit Alert;
-- Qunabox Group — Positive Profit Alert;
-- Tianqi Lithium — 2026 Interim Results Forecast / Profit Warning classification;
-- Newborn Town — Inside Information Profit Alert.
+Ranks 41–60 create 60 dimension rows:
 
-## Cumulative state after Batch 3
+- `EVIDENCE_COMPLETE`: 9
+- `EVIDENCE_PARTIAL`: 45
+- `RESEARCH_REQUIRED`: 6
+- evidence captured: 54 rows
 
-The pipeline first rebuilds and independently validates canonical Batch 2, then overlays ranks 41–60 only onto rows that were still `RESEARCH_REQUIRED`.
+The real workflow first rebuilds and independently validates the accepted ranks 1–40 cumulative state. It then verifies that ranks 41–60 remain previously unstarted rows in the same 231-row company-specific matrix before overlaying new evidence.
 
-Expected cumulative state:
+Expected cumulative P2B-E2 state after Batch 3:
 
-- **60 / 77 securities** started;
-- **180** cumulative evidence rows;
-- **159** evidence rows collected;
-- **15** company-specific tasks `EVIDENCE_COMPLETE`;
-- **144** `EVIDENCE_PARTIAL`;
-- **72** still `RESEARCH_REQUIRED`;
-- **216** company-specific tasks remain open;
-- **72** remain wholly unstarted.
+- securities started: 60 / 77
+- cumulative evidence rows: 180
+- cumulative evidence-captured rows: 160
+- `EVIDENCE_COMPLETE`: 17
+- `EVIDENCE_PARTIAL`: 143
+- `RESEARCH_REQUIRED`: 71
+- company-specific tasks still open: 214
+- company-specific rows still entirely unstarted / `RESEARCH_REQUIRED`: 71
 
-PASS advances to the final ranks 61–77 company-specific evidence tranche. It does not graduate any security to the formal Hong Kong Candidate Pool.
+Partial tasks remain open. P2B-E2 therefore remains in progress after Batch 3.
 
-## Protected state
+## Next gate
 
-No A-share Candidate mutation, HK Candidate graduation, Simulation mutation, Real Portfolio mutation or order creation is permitted.
+The next deterministic tranche is accepted P2A ranks 61–77. After first-pass coverage of all 77 securities, partial and research-required evidence must still be deepened before P2B synthesis and any P2C Candidate graduation decision.
+
+## Governance
+
+This batch does not alter the A-share Candidate Pool, graduate the HK Candidate Pool, mutate Simulation or Real Portfolio state, create orders, or grant trade authority.
 
 `trade_authority=NONE`.
