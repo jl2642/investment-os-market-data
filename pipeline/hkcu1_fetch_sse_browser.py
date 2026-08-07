@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
-"""Fetch the public SSE southbound eligibility workbook through Chromium's real page network stack.
+"""Fetch the public SSE southbound eligibility workbook through Chromium.
 
-R2B-R1-R2 hardening notes:
-- Do not use Playwright ``context.request`` for the protected workbook. That API
-  uses an APIRequestContext network stack and can receive HTTP 403 even after a
-  browser page has visited the SSE landing page.
-- Do not spoof a stale Chrome user-agent. Use Chromium's native UA so the TLS /
-  browser / UA fingerprint is internally consistent.
-- Trigger the official workbook through a real DOM anchor click in the visited
-  SSE page and capture the browser download. This preserves the normal browser
-  navigation/referrer/cookie path.
-- Record diagnostic evidence without weakening the official-source boundary.
-No third-party source or cached synthetic list is accepted.
+Production hardening:
+- official SSE/SSEInfo domains only;
+- real Chromium page/download network path, never APIRequestContext;
+- bounded retries with fresh browser contexts;
+- alternate official landing pages may bootstrap the same protected payload;
+- classify SOURCE_BLOCKED vs TRANSIENT_INFRA vs DATA_CONTRACT_CHANGE;
+- always persist detailed evidence; never substitute third-party data.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -25,8 +22,12 @@ from urllib.parse import urlparse
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 
-SSE_LANDING = "https://www.sse.com.cn/services/hkexsc/disclo/eligible/"
 SSE_PAYLOAD = "https://query.sse.com.cn/commonExcelDd.do?sqlId=COMMON_SSE_JYFW_HGT_XXPL_BDZQQD_L&keyword="
+SSE_LANDINGS = (
+    "https://www.sse.com.cn/services/hkexsc/disclo/eligible/",
+    "https://www.sse.com.cn/services/hkexsc/home/",
+    "https://star.sse.com.cn/services/hkexsc/home/",
+)
 VALID_SIGNATURES = (b"PK\x03\x04", b"\xd0\xcf\x11\xe0")
 
 
@@ -42,15 +43,8 @@ def _official_sse(url: str) -> bool:
 
 def _header_subset(headers: dict[str, str]) -> dict[str, str]:
     keep = {
-        "content-type",
-        "content-disposition",
-        "content-length",
-        "referer",
-        "user-agent",
-        "accept",
-        "sec-fetch-site",
-        "sec-fetch-mode",
-        "sec-fetch-dest",
+        "content-type", "content-disposition", "content-length", "referer",
+        "user-agent", "accept", "sec-fetch-site", "sec-fetch-mode", "sec-fetch-dest",
     }
     return {str(k).lower(): str(v) for k, v in headers.items() if str(k).lower() in keep}
 
@@ -62,21 +56,38 @@ def _validate_workbook(raw: bytes) -> None:
         raise ValueError(f"SSE payload is not XLS/XLSX; prefix={raw[:16].hex()}")
 
 
-def run(output_file: Path, evidence_file: Path) -> int:
-    if not _official_sse(SSE_LANDING) or not _official_sse(SSE_PAYLOAD):
-        raise ValueError("non-official SSE URL")
+def _classify(attempt: dict) -> str:
+    statuses = []
+    for key in ("landing_http_status", "payload_http_status"):
+        try:
+            statuses.append(int(attempt.get(key) or 0))
+        except (TypeError, ValueError):
+            pass
+    error = str(attempt.get("error") or "").lower()
+    if 403 in statuses or 429 in statuses:
+        return "SOURCE_BLOCKED"
+    if any(s >= 500 for s in statuses) or "timeout" in error or "connection" in error:
+        return "TRANSIENT_INFRA"
+    if "xls" in error or "xlsx" in error or "signature" in error or "implausibly small" in error:
+        return "DATA_CONTRACT_CHANGE"
+    return "UNKNOWN"
 
+
+def _attempt(output_file: Path, attempt_no: int) -> dict:
     evidence: dict[str, object] = {
+        "attempt_no": attempt_no,
         "status": "BLOCKED",
-        "authority": "SSE",
-        "landing_url": SSE_LANDING,
-        "payload_url": SSE_PAYLOAD,
+        "failure_class": "UNKNOWN",
         "retrieved_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "acquisition_mode": "BROWSER_NATIVE_DOWNLOAD",
+        "landing_candidates": list(SSE_LANDINGS),
+        "landing_attempts": [],
+        "landing_url": "",
         "landing_http_status": 0,
         "landing_final_url": "",
         "browser_user_agent": "",
         "browser_cookie_names": [],
+        "payload_url": SSE_PAYLOAD,
         "payload_http_status": 0,
         "payload_response_headers": {},
         "payload_request_headers": {},
@@ -89,9 +100,7 @@ def run(output_file: Path, evidence_file: Path) -> int:
         "page_errors": [],
         "network_events": [],
         "error": None,
-        "trade_authority": "NONE",
     }
-
     console_errors: list[str] = []
     page_errors: list[str] = []
     network_events: list[dict[str, object]] = []
@@ -102,11 +111,8 @@ def run(output_file: Path, evidence_file: Path) -> int:
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            # Use Chromium's native UA. A spoofed UA that disagrees with the actual
-            # Chromium/TLS fingerprint can itself trigger SSE anti-bot controls.
             context = browser.new_context(locale="zh-CN", accept_downloads=True)
             page = context.new_page()
-
             page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
             page.on("pageerror", lambda exc: page_errors.append(str(exc)))
 
@@ -114,39 +120,50 @@ def run(output_file: Path, evidence_file: Path) -> int:
                 nonlocal payload_request_headers
                 if "commonExcelDd.do" in req.url and _official_sse(req.url):
                     payload_request_headers = _header_subset(req.headers)
-                    network_events.append({
-                        "kind": "request",
-                        "url": req.url,
-                        "method": req.method,
-                        "headers": payload_request_headers,
-                    })
+                    network_events.append({"kind": "request", "url": req.url, "method": req.method,
+                                           "headers": payload_request_headers})
 
             def on_response(resp) -> None:
                 nonlocal payload_status, payload_response_headers
                 if "commonExcelDd.do" in resp.url and _official_sse(resp.url):
                     payload_status = resp.status
                     payload_response_headers = _header_subset(resp.headers)
-                    network_events.append({
-                        "kind": "response",
-                        "url": resp.url,
-                        "status": resp.status,
-                        "headers": payload_response_headers,
-                    })
+                    network_events.append({"kind": "response", "url": resp.url, "status": resp.status,
+                                           "headers": payload_response_headers})
 
             page.on("request", on_request)
             page.on("response", on_response)
 
-            landing_response = page.goto(SSE_LANDING, wait_until="domcontentloaded", timeout=90_000)
-            evidence["landing_http_status"] = landing_response.status if landing_response else 0
-            evidence["landing_final_url"] = page.url
-            page.wait_for_timeout(2_000)
+            selected_landing = None
+            for landing in SSE_LANDINGS:
+                if not _official_sse(landing):
+                    continue
+                try:
+                    response = page.goto(landing, wait_until="domcontentloaded", timeout=45_000)
+                    status = response.status if response else 0
+                    evidence["landing_attempts"].append({"url": landing, "status": status, "final_url": page.url})
+                    if 0 < status < 400:
+                        selected_landing = landing
+                        evidence["landing_url"] = landing
+                        evidence["landing_http_status"] = status
+                        evidence["landing_final_url"] = page.url
+                        break
+                except PlaywrightTimeoutError as exc:
+                    evidence["landing_attempts"].append({"url": landing, "status": 0, "error": f"timeout: {exc}"})
+
+            if not selected_landing:
+                statuses = [int(x.get("status") or 0) for x in evidence["landing_attempts"]]
+                evidence["landing_http_status"] = statuses[-1] if statuses else 0
+                raise RuntimeError(f"no usable official SSE landing page; statuses={statuses}")
+
+            page.wait_for_timeout(1_500)
             evidence["browser_user_agent"] = page.evaluate("() => navigator.userAgent")
             evidence["browser_cookie_names"] = sorted({c["name"] for c in context.cookies()})
 
-            # Real Chromium navigation/download path.  We intentionally create the
-            # anchor inside the official landing page so the browser supplies the
-            # normal page context and referrer instead of APIRequestContext headers.
-            with page.expect_download(timeout=45_000) as download_info:
+            # Trigger through a DOM anchor in the official page context. If SSE blocks
+            # the payload, the response listener captures 403/429 and the timeout is
+            # later classified as SOURCE_BLOCKED rather than CODE_DEFECT.
+            with page.expect_download(timeout=25_000) as download_info:
                 page.evaluate(
                     """url => {
                         const a = document.createElement('a');
@@ -161,14 +178,13 @@ def run(output_file: Path, evidence_file: Path) -> int:
             download = download_info.value
             evidence["download_url"] = download.url
             evidence["suggested_filename"] = download.suggested_filename
-
             output_file.parent.mkdir(parents=True, exist_ok=True)
             download.save_as(str(output_file))
             raw = output_file.read_bytes()
             _validate_workbook(raw)
-
             evidence.update({
                 "status": "PASS",
+                "failure_class": "NONE",
                 "payload_http_status": payload_status,
                 "payload_response_headers": payload_response_headers,
                 "payload_request_headers": payload_request_headers,
@@ -189,18 +205,53 @@ def run(output_file: Path, evidence_file: Path) -> int:
         evidence["console_errors"] = console_errors[-20:]
         evidence["page_errors"] = page_errors[-20:]
         evidence["network_events"] = network_events[-20:]
-        evidence_file.parent.mkdir(parents=True, exist_ok=True)
-        evidence_file.write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
+        if evidence["status"] != "PASS":
+            evidence["failure_class"] = _classify(evidence)
+    return evidence
 
-    return 0 if evidence["status"] == "PASS" else 2
+
+def run(output_file: Path, evidence_file: Path, max_attempts: int = 3) -> int:
+    if not _official_sse(SSE_PAYLOAD) or any(not _official_sse(u) for u in SSE_LANDINGS):
+        raise ValueError("non-official SSE URL configured")
+    if max_attempts < 1 or max_attempts > 6:
+        raise ValueError("max_attempts must be between 1 and 6")
+
+    attempts: list[dict] = []
+    final: dict | None = None
+    for attempt_no in range(1, max_attempts + 1):
+        if output_file.exists():
+            output_file.unlink()
+        result = _attempt(output_file, attempt_no)
+        attempts.append(result)
+        final = result
+        if result.get("status") == "PASS":
+            break
+        if attempt_no < max_attempts:
+            time.sleep(min(5 * attempt_no, 15))
+
+    assert final is not None
+    summary = dict(final)
+    summary.update({
+        "authority": "SSE",
+        "status": "PASS" if any(a.get("status") == "PASS" for a in attempts) else "BLOCKED",
+        "attempt_count": len(attempts),
+        "max_attempts": max_attempts,
+        "attempts": attempts,
+        "failure_class": "NONE" if any(a.get("status") == "PASS" for a in attempts) else final.get("failure_class", "UNKNOWN"),
+        "trade_authority": "NONE",
+    })
+    evidence_file.parent.mkdir(parents=True, exist_ok=True)
+    evidence_file.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    return 0 if summary["status"] == "PASS" else 2
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-file", type=Path, required=True)
     parser.add_argument("--evidence-file", type=Path, required=True)
+    parser.add_argument("--max-attempts", type=int, default=3)
     args = parser.parse_args()
-    return run(args.output_file, args.evidence_file)
+    return run(args.output_file, args.evidence_file, args.max_attempts)
 
 
 if __name__ == "__main__":
