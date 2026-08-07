@@ -35,6 +35,14 @@ def test_daily_transaction_orders_market_factor_and_screening() -> None:
     assert "direct_main_push: disabled" in text
 
 
+def test_daily_publication_tolerates_absent_optional_paths() -> None:
+    text = _text("daily")
+    assert "publication_paths=(" in text
+    assert 'if [[ -e "$path" ]]' in text
+    assert 'git add -A -- "$path"' in text
+    assert "outputs/quarantine" in text
+
+
 def test_component_workflows_are_not_scheduled_publishers() -> None:
     for name in ("history_factor", "screening"):
         text = _text(name)
