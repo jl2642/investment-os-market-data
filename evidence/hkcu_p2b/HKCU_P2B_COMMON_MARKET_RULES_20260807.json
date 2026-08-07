@@ -1,0 +1,61 @@
+{
+  "evidence_set_id": "HKCU_P2B_COMMON_MARKET_RULES_20260807",
+  "as_of_date": "2026-08-07",
+  "investor_profile": "MAINLAND_INDIVIDUAL_SOUTBOUND",
+  "status": "PRIMARY_EVIDENCE_COMPLETE_WITH_VARIABLE_BROKERAGE",
+  "rules": [
+    {
+      "evidence_id": "HKEX_TXN_FEES_20260807",
+      "topic": "HK_MARKET_MANDATORY_TRANSACTION_CHARGES",
+      "source_authority": "HKEX",
+      "source_url": "https://www.hkex.com.hk/Services/Rules-and-Forms-and-Fees/Fees/Securities-%28Hong-Kong%29/Trading/Transaction?sc_lang=en",
+      "source_type": "PRIMARY_OFFICIAL",
+      "effective_or_current_statement": {
+        "sfc_transaction_levy_per_side_pct": 0.0027,
+        "afrc_transaction_levy_per_side_pct": 0.00015,
+        "hkex_trading_fee_per_side_pct": 0.00565,
+        "stamp_duty_per_side_pct": 0.1,
+        "investor_compensation_levy_status": "SUSPENDED",
+        "brokerage": "FREELY_NEGOTIABLE"
+      },
+      "notes": "Stamp duty is stated by HKEX as generally applicable to listed securities unless exempt. Brokerage cannot be hard-coded without the user's broker tariff."
+    },
+    {
+      "evidence_id": "HKEX_RMB_FEE_UPDATE_20260717",
+      "topic": "CURRENT_FEE_ADMINISTRATION",
+      "source_authority": "HKEX",
+      "source_url": "https://www.hkex.com.hk/News/Market-Communications/2026/2607172news?sc_lang=en",
+      "source_type": "PRIMARY_OFFICIAL",
+      "published_date": "2026-07-17",
+      "notes": "Confirms current administration of stamp duty and trading-related fees and that the Investor Compensation Levy remains suspended."
+    },
+    {
+      "evidence_id": "PRC_STOCK_CONNECT_CAPITAL_GAINS_IIT_2023_23",
+      "topic": "MAINLAND_INDIVIDUAL_SOUTBOUND_CAPITAL_GAINS_IIT",
+      "source_authority": "PRC Ministry of Finance / State Taxation Administration / CSRC",
+      "source_url": "https://shanghai.chinatax.gov.cn/tax/zcfw/zcfgk/grsds/202308/t468397.html",
+      "source_type": "PRIMARY_OFFICIAL",
+      "effective_through": "2027-12-31",
+      "treatment": "TEMPORARILY_EXEMPT_FROM_INDIVIDUAL_INCOME_TAX_ON_TRANSFER_GAINS"
+    },
+    {
+      "evidence_id": "PRC_SOUTBOUND_DIVIDEND_IIT_RULE",
+      "topic": "MAINLAND_INDIVIDUAL_SOUTBOUND_DIVIDEND_IIT",
+      "source_authority": "State Taxation Administration",
+      "source_url": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5204006/content.html",
+      "source_type": "PRIMARY_OFFICIAL",
+      "treatment": "20_PERCENT_WITHHOLDING_FOR_H_SHARE_DIVIDENDS_AND_20_PERCENT_CHINACLEAR_WITHHOLDING_FOR_NON_H_SHARE_DIVIDENDS",
+      "notes": "Foreign withholding already paid on non-H-share dividends may be creditable subject to valid tax evidence and applicable procedure."
+    }
+  ],
+  "execution_model": {
+    "mandatory_buy_side_pct_before_brokerage": 0.1085,
+    "mandatory_sell_side_pct_before_brokerage": 0.1085,
+    "round_trip_pct_before_brokerage": 0.217,
+    "rounding_and_security_specific_exemptions": "APPLY_AT_ORDER_MODEL_STAGE",
+    "brokerage_component": "VARIABLE_UNKNOWN_UNTIL_BROKER_TARIFF_IS_SUPPLIED",
+    "capital_gains_iit_current_profile": "EXEMPT_THROUGH_2027-12-31",
+    "dividend_iit_current_profile_pct": 20.0
+  },
+  "trade_authority": "NONE"
+}

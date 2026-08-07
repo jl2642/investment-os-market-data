@@ -1,0 +1,79 @@
+name: HKCU P2B E1 Common and A-H Evidence
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p2b_e1_evidence_contract.json'
+      - 'evidence/hkcu_p2b/HKCU_P2B_COMMON_MARKET_RULES_20260807.json'
+      - 'evidence/hkcu_p2b/HKCU_P2B_AH_PAIR_REGISTRY_20260807.csv'
+      - 'pipeline/hkcu_p2b_apply_e1_evidence.py'
+      - 'scripts/validate_hkcu_p2b_e1.py'
+      - 'tests/test_hkcu_p2b_e1.py'
+      - 'docs/HKCU-P2B_E1_EVIDENCE.md'
+      - '.github/workflows/hkcu-p2b-e1-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p2b_e1.py
+      - name: Enforce isolated P2B-E1 scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p2b_e1_paths.txt
+          cat /tmp/p2b_e1_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed={
+            "config/hkcu_p2b_e1_evidence_contract.json",
+            "evidence/hkcu_p2b/HKCU_P2B_COMMON_MARKET_RULES_20260807.json",
+            "evidence/hkcu_p2b/HKCU_P2B_AH_PAIR_REGISTRY_20260807.csv",
+            "pipeline/hkcu_p2b_apply_e1_evidence.py",
+            "scripts/validate_hkcu_p2b_e1.py",
+            "tests/test_hkcu_p2b_e1.py",
+            "docs/HKCU-P2B_E1_EVIDENCE.md",
+            ".github/workflows/hkcu-p2b-e1-evidence.yml",
+          }
+          actual={x.strip() for x in Path("/tmp/p2b_e1_paths.txt").read_text().splitlines() if x.strip()}
+          bad=sorted(actual-allowed)
+          if bad: raise SystemExit("P2B_E1_SCOPE_VIOLATION:"+",".join(bad))
+          PY
+
+  real-evidence-run:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: |
+          rm -rf work/hkcu_p2b_e1
+          python pipeline/hkcu_p2b_apply_e1_evidence.py --repo-root . --output work/hkcu_p2b_e1
+          python scripts/validate_hkcu_p2b_e1.py --output work/hkcu_p2b_e1
+      - name: Render decision
+        if: always()
+        run: |
+          test ! -f work/hkcu_p2b_e1/HKCU_P2B_E1_DECISION.json || cat work/hkcu_p2b_e1/HKCU_P2B_E1_DECISION.json
+          test ! -f work/hkcu_p2b_e1/HKCU_P2B_E1_QUALITY_REPORT.json || cat work/hkcu_p2b_e1/HKCU_P2B_E1_QUALITY_REPORT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p2b-e1-evidence
+          path: work/hkcu_p2b_e1/HKCU_P2B_E1_*
+          if-no-files-found: error

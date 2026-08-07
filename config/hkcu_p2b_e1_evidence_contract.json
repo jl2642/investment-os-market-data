@@ -1,0 +1,46 @@
+{
+  "contract_id": "HKCU_P2B_E1_COMMON_AH_EVIDENCE_V1",
+  "program_id": "HKCU-P2B-E1",
+  "phase": "P2B_EVIDENCE_COLLECTION_E1",
+  "objective": "Close common Southbound transaction/tax evidence for all 77 accepted P2A names and resolve all 15 A/H applicability leads using primary official evidence, without scoring company-specific research or mutating Candidate/portfolio/order state.",
+  "authoritative_inputs": {
+    "p2a_acceptance": "outputs/hkcu_p2a/current/HKCU_P2A_ACCEPTANCE.json",
+    "p2b_contract": "config/hkcu_p2b_research_enrichment_contract.json",
+    "p2b_builder": "pipeline/hkcu_p2b_build_research_baseline.py",
+    "market_rules": "evidence/hkcu_p2b/HKCU_P2B_COMMON_MARKET_RULES_20260807.json",
+    "ah_registry": "evidence/hkcu_p2b/HKCU_P2B_AH_PAIR_REGISTRY_20260807.csv"
+  },
+  "evidence_policy": {
+    "as_of_date": "2026-08-07",
+    "primary_official_required": true,
+    "no_web_snippet_as_authority": true,
+    "source_url_and_effective_date_required": true,
+    "transaction_cost_scope": "Mandatory HK market charges, Southbound PRC individual tax treatment, and explicit brokerage variability. No invented broker commission or position size.",
+    "ah_pair_rule": "Same legal issuer must have both exchange-listed A shares and H shares. Listed parent/subsidiary relationships and unlisted domestic shares are not A/H pairs."
+  },
+  "expected_counts": {
+    "accepted_security_count": 77,
+    "transaction_tax_rows_to_close": 77,
+    "ah_leads_to_resolve": 15,
+    "expected_true_ah_pairs": 13,
+    "expected_not_applicable_ah_leads": 2,
+    "company_specific_tasks_remaining": 231
+  },
+  "remaining_company_specific_dimensions": [
+    "GOVERNANCE_VALUE_TRAP",
+    "EARNINGS_EXPECTATION_REVISION",
+    "CATALYST"
+  ],
+  "acceptance": {
+    "transaction_tax_evidence_complete_count": 77,
+    "ah_evidence_complete_count": 15,
+    "remaining_research_queue_count": 231,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "next_gate": "P2B_E2_COMPANY_SPECIFIC_EVIDENCE",
+  "trade_authority": "NONE"
+}
