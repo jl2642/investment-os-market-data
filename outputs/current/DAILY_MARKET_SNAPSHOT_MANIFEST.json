@@ -1,24 +1,24 @@
 {
   "manifest_version": "1.0.0",
   "dataset_id": "daily_market_snapshot",
-  "dataset_version": "daily_market_snapshot-2026-07-17-FMDL1BC_20260717T174015+0800",
+  "dataset_version": "daily_market_snapshot-2026-08-06-FMDL1BC_20260807T121133+0800",
   "schema_id": "daily_market_snapshot.schema.json",
   "schema_version": "1.0.0",
-  "run_id": "FMDL1BC_20260717T174015+0800",
-  "as_of_date": "2026-07-17",
-  "generated_at": "2026-07-17T17:40:15+08:00",
+  "run_id": "FMDL1BC_20260807T121133+0800",
+  "as_of_date": "2026-08-06",
+  "generated_at": "2026-08-07T12:11:33+08:00",
   "business_timezone": "Asia/Shanghai",
   "publication_status": "PUBLISHED",
   "qa_status": "PASS_WITH_WARNINGS",
   "sources": [
     {
       "adapter_id": "akshare",
-      "adapter_version": "1.18.64",
+      "adapter_version": "1.18.83",
       "adapter_function": "stock_zh_a_spot",
       "provider_id": "sina_public",
-      "retrieved_at": "2026-07-17T17:40:15+08:00",
+      "retrieved_at": "2026-08-07T12:11:33+08:00",
       "source_as_of_date": null,
-      "raw_hash_sha256": "537cda0c4371580ecdca18371186fa029f112511c2bf1f6820f3085bef0e2ddc",
+      "raw_hash_sha256": "c5edb09e71258b47733bfd298ed6e0402f0e8fbc417a5b21d83087384dda6090",
       "retries": 0,
       "warnings": [
         "primary_provider_unavailable: stock_zh_a_spot_em",
@@ -28,24 +28,25 @@
       ]
     }
   ],
-  "row_count": 5528,
+  "row_count": 5539,
   "column_count": 21,
   "file": {
     "path": "outputs/current/DAILY_MARKET_SNAPSHOT.csv",
-    "size_bytes": 1169312,
-    "sha256": "ab9cacf47cd8e14631af76d2b267c585863946ea33a04731a9339df2020e4212"
+    "size_bytes": 1167312,
+    "sha256": "026aa7d3767e44f999275d324ac2189c34c6cac8c3d68ab350d1f78aa527a6bc"
   },
   "quality": {
     "hard_failures": [],
     "soft_warnings": [
       "market_cap_fill_ratio",
-      "valuation_fill_ratio"
+      "valuation_fill_ratio",
+      "maximum_unexplained_absolute_return_pct"
     ],
     "gate_results_path": "outputs/current/DAILY_MARKET_SNAPSHOT_QUALITY.json"
   },
   "lineage": {
-    "parent_dataset_version": "daily_market_snapshot-2026-07-16-FMDL1BC_20260716T165927+0800",
-    "last_known_good_dataset_version": "daily_market_snapshot-2026-07-16-FMDL1BC_20260716T165927+0800"
+    "parent_dataset_version": "daily_market_snapshot-2026-07-17-FMDL1BC_20260717T174015+0800",
+    "last_known_good_dataset_version": "daily_market_snapshot-2026-07-17-FMDL1BC_20260717T174015+0800"
   },
   "known_limitations": [
     "AKShare/Sina 成交量 is supplied in shares and is preserved without a lot multiplier.",

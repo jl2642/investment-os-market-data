@@ -5,20 +5,21 @@
   "hard_failures": [],
   "soft_warnings": [
     "market_cap_fill_ratio",
-    "valuation_fill_ratio"
+    "valuation_fill_ratio",
+    "maximum_unexplained_absolute_return_pct"
   ],
   "metrics": {
-    "row_count": 5528,
+    "row_count": 5539,
     "universe_coverage_ratio": 1.0,
-    "traded_row_count": 5523,
+    "traded_row_count": 5534,
     "positive_close_ratio_for_traded_rows": 1.0,
     "negative_volume_rows": 0,
     "negative_turnover_rows": 0,
     "maximum_return_reconciliation_difference_pp": 0.0004999999999999449,
     "market_cap_fill_ratio": 0.0,
     "valuation_fill_ratio": 0.0,
-    "zero_turnover_ratio": 0.0012662807525325615,
-    "maximum_absolute_return_pct": 29.487,
+    "zero_turnover_ratio": 0.0009026900162484203,
+    "maximum_absolute_return_pct": 403.284,
     "schema_error_examples": []
   },
   "gate_results": [
@@ -88,14 +89,14 @@
     {
       "gate_id": "maximum_unexplained_absolute_return_pct",
       "severity": "SOFT",
-      "actual": 29.487,
+      "actual": 403.284,
       "expected": "<=35.0",
-      "passed": true
+      "passed": false
     },
     {
       "gate_id": "maximum_zero_turnover_ratio",
       "severity": "SOFT",
-      "actual": 0.0012662807525325615,
+      "actual": 0.0009026900162484203,
       "expected": "<=0.15",
       "passed": true
     }
