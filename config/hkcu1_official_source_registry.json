@@ -1,5 +1,5 @@
 {
-  "registry_version": "1.7.0",
+  "registry_version": "1.8.0",
   "program_id": "HKCU-1",
   "registry_as_of_date": "2026-08-07",
   "landing_pages": [
@@ -112,6 +112,9 @@
   "r2e_universe_contract": "config/hkcu1_r2e_universe_contract.json",
   "r2e_acceptance_evidence": "outputs/hkcu1/HKCU1_R2E_ACCEPTANCE_20260807.json",
   "r2e_failure_recovery_ledger": "outputs/hkcu1/HKCU1_R2E_FAILURE_RECOVERY_LEDGER.json",
+  "r2f_release_contract": "config/hkcu1_r2f_release_contract.json",
+  "r2f_acceptance_evidence": "outputs/hkcu1/HKCU1_R2F_ACCEPTANCE_20260807.json",
+  "canonical_current_dir": "outputs/hkcu1/current",
   "sell_only_rule": {
     "authority": "SSE",
     "rule_name": "上海证券交易所沪港通业务实施办法（2024年修订）",
@@ -137,7 +140,7 @@
     "upstream_candidate_publication": "PROHIBITED_BEFORE_R2F; PR_RUNNER_CANDIDATES_ARE_EPHEMERAL_EVIDENCE_ONLY"
   },
   "endpoint_resolution_gate": {
-    "status": "R2B_PASS_R2C_PASS_R2D_PASS_R2E_PASS",
+    "status": "R2B_PASS_R2C_PASS_R2D_PASS_R2E_PASS_R2F_PASS",
     "resolved_at": "2026-08-07",
     "evidence": [
       "SSE browser-native workbook acquisition validated HTTP 200 with XLS signature and SHA-256 in Run #21 and again in Run #48",
@@ -154,13 +157,15 @@
       "HKEX is explicitly classified as a secondary structural/linkage cross-check and cannot silently override SSE/SZSE primary security-level authority",
       "R2E Run #18 completed successfully with fresh official 652/652 eligibility, accepted same-date R2C continuity, HKEX PASS_REFERENCE_CONSISTENT, and refreshed completed-session FMDL-5C/FMDL-5E inputs",
       "R2E Run #18 enforced completed-session cutoff 2026-08-06 at both FMDL-5C decision and physical parquet levels; FMDL-5E as-of is 2026-08-06 with future price/financial/action rows all zero",
-      "R2E Run #18 produced PASS_CURRENT with 428 investable securities: 410 ELIGIBLE_CORE and 18 ELIGIBLE_WATCH; all 428 are BUY_ELIGIBLE_BOTH common equities with decision-grade financial evidence",
+      "R2E Run #23 post-writeback regression completed successfully with identical 652-buyable eligibility/PIT hash and full 644/644 latest-price coverage",
+      "R2E Run #23 produced PASS_CURRENT with 430 investable securities: 410 ELIGIBLE_CORE and 20 ELIGIBLE_WATCH; all 430 are BUY_ELIGIBLE_BOTH common equities with decision-grade financial evidence",
       "R2E zero-tolerance quality gates passed: duplicate=0, sell-only contamination=0, unknown contamination=0, future information=0, hard failures=[]",
-      "The stale 2026-07-21 FMDL-5E probe produced 451 provisional names versus 428 after fresh refresh, proving stale research inputs are not publication-equivalent"
+      "The stale 2026-07-21 FMDL-5E probe produced 451 provisional names versus 430 after the latest fresh refresh, proving stale research inputs are not publication-equivalent",
+      "R2F Run #6 independently validated the complete HKCU-only PR diff and froze accepted R2B-R2E core logic after the accepted R2E Run #23 head",
+      "R2F Run #6 downloaded the pinned R2E Run #23 artifact, verified all six release SHA-256 hashes, and passed CANDIDATE_CANONICAL validation with 430 investable, 255 excluded and 685 point-in-time eligibility entities",
+      "R2F Run #6 published the exact accepted R2E bytes to outputs/hkcu1/current on the PR branch without regeneration; candidate/simulation/real-account/order mutations remained zero and trade_authority remained NONE"
     ],
-    "remaining_before_production": [
-      "R2F independent release validation, full diff review, PR promotion and controlled Canonical publication path"
-    ]
+    "remaining_before_production": []
   },
   "conflict_policy": {
     "same_channel_primary_vs_cross_check": "HKEX_STRUCTURAL_OR_LINKAGE_CONFLICT_BLOCKS_RELEASE; SECURITY_LEVEL_PRIMARY_REMAINS_SSE_OR_SZSE",
