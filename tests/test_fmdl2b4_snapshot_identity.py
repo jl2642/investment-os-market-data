@@ -87,15 +87,32 @@ def test_freshness_uses_previous_session_during_live_a_share_session(monkeypatch
     monkeypatch.setattr(freshness.ak, "tool_trade_date_hist_sina", _freshness_calendar)
     current = datetime(2026, 8, 7, 11, 55, tzinfo=ZoneInfo("Asia/Shanghai"))
     assert freshness.latest_completed_trade_date(current) == "2026-08-06"
+    assert freshness.acceptable_completed_trade_dates(current) == ["2026-08-06"]
 
 
-def test_freshness_accepts_same_day_only_after_market_close(monkeypatch) -> None:
+def test_freshness_marks_same_day_completed_at_market_close_but_allows_publication_grace(monkeypatch) -> None:
     monkeypatch.setattr(freshness.ak, "tool_trade_date_hist_sina", _freshness_calendar)
     current = datetime(2026, 8, 7, 15, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
     assert freshness.latest_completed_trade_date(current) == "2026-08-07"
+    assert freshness.acceptable_completed_trade_dates(current) == ["2026-08-06", "2026-08-07"]
+
+
+def test_freshness_post_close_grace_accepts_prior_or_same_day_until_1530(monkeypatch) -> None:
+    monkeypatch.setattr(freshness.ak, "tool_trade_date_hist_sina", _freshness_calendar)
+    current = datetime(2026, 8, 7, 15, 29, 59, tzinfo=ZoneInfo("Asia/Shanghai"))
+    assert freshness.latest_completed_trade_date(current) == "2026-08-07"
+    assert freshness.acceptable_completed_trade_dates(current) == ["2026-08-06", "2026-08-07"]
+
+
+def test_freshness_after_publication_grace_requires_same_day(monkeypatch) -> None:
+    monkeypatch.setattr(freshness.ak, "tool_trade_date_hist_sina", _freshness_calendar)
+    current = datetime(2026, 8, 7, 15, 30, tzinfo=ZoneInfo("Asia/Shanghai"))
+    assert freshness.latest_completed_trade_date(current) == "2026-08-07"
+    assert freshness.acceptable_completed_trade_dates(current) == ["2026-08-07"]
 
 
 def test_freshness_weekend_uses_most_recent_completed_session(monkeypatch) -> None:
     monkeypatch.setattr(freshness.ak, "tool_trade_date_hist_sina", _freshness_calendar)
     current = datetime(2026, 8, 8, 12, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
     assert freshness.latest_completed_trade_date(current) == "2026-08-07"
+    assert freshness.acceptable_completed_trade_dates(current) == ["2026-08-07"]
