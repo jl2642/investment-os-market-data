@@ -1,8 +1,8 @@
 {
-  "run_id": "FMDL1BC_20260717T174015+0800",
-  "as_of_date": "2026-07-17",
-  "generated_at": "2026-07-17T17:40:15+08:00",
-  "adapter_version": "1.18.64",
+  "run_id": "FMDL1BC_20260807T121133+0800",
+  "as_of_date": "2026-08-06",
+  "generated_at": "2026-08-07T12:11:33+08:00",
+  "adapter_version": "1.18.83",
   "market_wide_source_function": "stock_zh_a_spot",
   "market_wide_provider": "sina_public",
   "market_wide_volume_unit": "SHARES",
@@ -15,13 +15,13 @@
       "industry_fill_ratio"
     ],
     "metrics": {
-      "row_count": 5528,
+      "row_count": 5539,
       "duplicate_count": 0,
       "symbol_valid_ratio": 1.0,
       "identity_fill_ratio": 1.0,
-      "industry_fill_ratio": 0.5824891461649783,
+      "industry_fill_ratio": 0.5827766744899802,
       "listing_date_fill_ratio": 1.0,
-      "lkg_row_ratio": 0.9998191354675349,
+      "lkg_row_ratio": 1.0019898697539797,
       "schema_error_examples": []
     },
     "gate_results": [
@@ -35,7 +35,7 @@
       {
         "gate_id": "minimum_row_count",
         "severity": "HARD",
-        "actual": 5528,
+        "actual": 5539,
         "expected": ">=4000",
         "passed": true
       },
@@ -63,14 +63,14 @@
       {
         "gate_id": "minimum_lkg_row_ratio",
         "severity": "HARD",
-        "actual": 0.9998191354675349,
+        "actual": 1.0019898697539797,
         "expected": ">=0.97",
         "passed": true
       },
       {
         "gate_id": "industry_fill_ratio",
         "severity": "SOFT",
-        "actual": 0.5824891461649783,
+        "actual": 0.5827766744899802,
         "expected": ">=0.9",
         "passed": false
       },
@@ -90,20 +90,21 @@
     "hard_failures": [],
     "soft_warnings": [
       "market_cap_fill_ratio",
-      "valuation_fill_ratio"
+      "valuation_fill_ratio",
+      "maximum_unexplained_absolute_return_pct"
     ],
     "metrics": {
-      "row_count": 5528,
+      "row_count": 5539,
       "universe_coverage_ratio": 1.0,
-      "traded_row_count": 5523,
+      "traded_row_count": 5534,
       "positive_close_ratio_for_traded_rows": 1.0,
       "negative_volume_rows": 0,
       "negative_turnover_rows": 0,
       "maximum_return_reconciliation_difference_pp": 0.0004999999999999449,
       "market_cap_fill_ratio": 0.0,
       "valuation_fill_ratio": 0.0,
-      "zero_turnover_ratio": 0.0012662807525325615,
-      "maximum_absolute_return_pct": 29.487,
+      "zero_turnover_ratio": 0.0009026900162484203,
+      "maximum_absolute_return_pct": 403.284,
       "schema_error_examples": []
     },
     "gate_results": [
@@ -173,14 +174,14 @@
       {
         "gate_id": "maximum_unexplained_absolute_return_pct",
         "severity": "SOFT",
-        "actual": 29.487,
+        "actual": 403.284,
         "expected": "<=35.0",
-        "passed": true
+        "passed": false
       },
       {
         "gate_id": "maximum_zero_turnover_ratio",
         "severity": "SOFT",
-        "actual": 0.0012662807525325615,
+        "actual": 0.0009026900162484203,
         "expected": "<=0.15",
         "passed": true
       }
@@ -191,7 +192,7 @@
     "attempt_1: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
     "optional_source_unavailable",
     "volume_unit_source=SHARES; no lot multiplier applied",
-    "source_zero_price_rows_classified_as_suspended=002656.SZ,002713.SZ,301234.SZ,920685.BJ"
+    "source_zero_price_rows_classified_as_suspended=000838.SZ,300246.SZ,300333.SZ,300862.SZ"
   ],
   "candidate_files": [
     "outputs/candidate/A_SHARE_UNIVERSE.csv",
