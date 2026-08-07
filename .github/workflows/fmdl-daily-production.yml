@@ -208,22 +208,28 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$RESULT_BRANCH"
-          git add \
-            outputs/current \
-            outputs/investment_os \
-            outputs/status \
-            outputs/quarantine \
-            outputs/archive \
-            outputs/history/current \
-            outputs/history/archive \
-            outputs/history/refresh_candidate \
-            outputs/factors/current \
-            outputs/factors/archive \
-            outputs/factors/refresh_candidate \
-            outputs/screens/candidate \
-            outputs/screens/current \
-            datasets/history/incremental \
+          publication_paths=(
+            outputs/current
+            outputs/investment_os
+            outputs/status
+            outputs/quarantine
+            outputs/archive
+            outputs/history/current
+            outputs/history/archive
+            outputs/history/refresh_candidate
+            outputs/factors/current
+            outputs/factors/archive
+            outputs/factors/refresh_candidate
+            outputs/screens/candidate
+            outputs/screens/current
+            datasets/history/incremental
             datasets/history/repair
+          )
+          for path in "${publication_paths[@]}"; do
+            if [[ -e "$path" ]]; then
+              git add -A -- "$path"
+            fi
+          done
           if git diff --cached --quiet; then
             echo "No accepted production-state changes to publish."
             exit 0
