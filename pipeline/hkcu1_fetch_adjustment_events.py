@@ -27,7 +27,10 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from pipeline.hkcu1_resolve_effective_dates import resolve_events
+try:
+    from pipeline.hkcu1_resolve_effective_dates import resolve_events
+except ModuleNotFoundError:  # direct `python pipeline/...py` execution
+    from hkcu1_resolve_effective_dates import resolve_events
 
 OFFICIAL_HOSTS = {
     "SSE": ("sse.com.cn", "sseinfo.com"),
