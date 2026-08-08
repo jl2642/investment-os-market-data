@@ -1,0 +1,89 @@
+name: HKCU P3-1 Candidate Graduation Assessment
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p3_1_candidate_graduation_assessment_contract.json'
+      - 'pipeline/hkcu_p3_1_candidate_graduation_assessment.py'
+      - 'scripts/validate_hkcu_p3_1_candidate_graduation_assessment.py'
+      - 'tests/test_hkcu_p3_1_candidate_graduation_assessment.py'
+      - 'docs/HKCU-P3-1_CANDIDATE_GRADUATION_ASSESSMENT.md'
+      - '.github/workflows/hkcu-p3-1-candidate-graduation-assessment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p3_1_candidate_graduation_assessment.py
+      - name: Enforce isolated P3-1 scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p3_1_paths.txt
+          cat /tmp/p3_1_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              'config/hkcu_p3_1_candidate_graduation_assessment_contract.json',
+              'pipeline/hkcu_p3_1_candidate_graduation_assessment.py',
+              'scripts/validate_hkcu_p3_1_candidate_graduation_assessment.py',
+              'tests/test_hkcu_p3_1_candidate_graduation_assessment.py',
+              'docs/HKCU-P3-1_CANDIDATE_GRADUATION_ASSESSMENT.md',
+              '.github/workflows/hkcu-p3-1-candidate-graduation-assessment.yml',
+          }
+          actual = {x.strip() for x in Path('/tmp/p3_1_paths.txt').read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit('P3_1_SCOPE_VIOLATION:' + ','.join(bad))
+          protected = ('outputs/candidate/', 'outputs/simulation/', 'outputs/real', 'state/', 'orders/')
+          mutations = sorted(x for x in actual if x.startswith(protected))
+          if mutations:
+              raise SystemExit('P3_1_PROTECTED_PATH_MUTATION:' + ','.join(mutations))
+          PY
+
+  real-assessment:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild P2B Final and execute P3-1 assessment
+        run: |
+          rm -rf work/hkcu_p3_1
+          python pipeline/hkcu_p3_1_candidate_graduation_assessment.py \
+            --repo-root . \
+            --output work/hkcu_p3_1
+      - name: Independent P3-1 validation
+        run: |
+          python scripts/validate_hkcu_p3_1_candidate_graduation_assessment.py \
+            --repo-root . \
+            --output work/hkcu_p3_1
+      - name: Render P3-1 decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p3_1/HKCU_P3_1_DECISION.json || cat work/hkcu_p3_1/HKCU_P3_1_DECISION.json
+          test ! -f work/hkcu_p3_1/HKCU_P3_1_QUALITY_REPORT.json || cat work/hkcu_p3_1/HKCU_P3_1_QUALITY_REPORT.json
+          test ! -f work/hkcu_p3_1/HKCU_P3_1_ASSESSMENT.md || cat work/hkcu_p3_1/HKCU_P3_1_ASSESSMENT.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p3-1-candidate-graduation-assessment
+          path: work/hkcu_p3_1/HKCU_P3_1_*
+          if-no-files-found: error

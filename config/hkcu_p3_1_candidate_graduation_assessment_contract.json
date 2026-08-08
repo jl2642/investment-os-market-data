@@ -1,0 +1,132 @@
+{
+  "contract_id": "HKCU_P3_1_CANDIDATE_GRADUATION_ASSESSMENT_V1",
+  "program_id": "HKCU-P3-1",
+  "phase": "P3_1_CANDIDATE_GRADUATION_ASSESSMENT",
+  "objective": "Apply the accepted P3-0 graduation contract to all 77 accepted P2B Final securities and materialize deterministic assessment-only proposal states without mutating the formal Candidate Pool, portfolios, orders or trade authority.",
+  "as_of_date": "2026-08-07",
+  "authoritative_inputs": {
+    "p3_0_contract": "config/hkcu_p3_0_candidate_graduation_contract.json",
+    "p2b_final_builder": "pipeline/hkcu_p2b_final_cross_sectional_synthesis.py",
+    "p2b_final_validator": "scripts/validate_hkcu_p2b_final_cross_sectional_synthesis.py",
+    "hkcu_current": "outputs/hkcu1/current/HKCU1_R2E_INVESTABLE_UNIVERSE.csv",
+    "fmdl5e_contract": "config/fmdl5e_hk_factor_screening_contract.json"
+  },
+  "entry_contract": {
+    "required_p3_0_program_id": "HKCU-P3-0",
+    "required_p3_0_pass_status": "PASS_P3_0_CANDIDATE_GRADUATION_CONTRACT",
+    "required_p3_0_next_gate": "P3_1_CANDIDATE_GRADUATION_ASSESSMENT",
+    "entry_security_count": 77,
+    "evaluation_eligible_security_count": 72,
+    "retained_blocker_security_count": 5,
+    "retained_blocker_security_ids": [
+      "HKEX:00551",
+      "HKEX:01114",
+      "HKEX:02313",
+      "HKEX:06110",
+      "HKEX:09636"
+    ],
+    "graduation_rule_count": 12,
+    "rule_assessment_row_count": 924
+  },
+  "assessment_policy": {
+    "all_applicable_hard_rules_must_pass": true,
+    "weighted_composite_score_allowed": false,
+    "neutral_fill_allowed": false,
+    "automatic_waiver_allowed": false,
+    "arbitrary_fixed_top_n_allowed": false,
+    "p2a_rank_is_context_not_graduation_authority": true,
+    "p2b_evidence_balance_is_context_not_score": true,
+    "missing_consensus_is_not_bearish": true,
+    "confidence_cap_is_not_automatic_rejection": true,
+    "ah_relative_value_is_context_not_alpha": true,
+    "formal_candidate_graduation_authorized": false,
+    "candidate_pool_mutation_authorized": false
+  },
+  "freshness_policy": {
+    "require_hkcu_freshness_status_current": true,
+    "require_eligibility_as_of_assessment_date": true,
+    "market_and_factor_dates_must_not_be_future": true,
+    "reuse_fmdl5e_maximum_price_age_calendar_days": true,
+    "exact_same_day_factor_date_required": false,
+    "rationale": "P3R04 reuses the accepted HKCU/FMDL-5E freshness contract. An accepted CURRENT observation within the frozen maximum-age window is decision-grade; Phase 3 must not silently tighten the upstream contract to require a same-day factor timestamp."
+  },
+  "valuation_policy": {
+    "accepted_fields": [
+      "earnings_yield",
+      "pe_ratio",
+      "dividend_yield_365d"
+    ],
+    "supportive_state": "SUPPORTIVE",
+    "limited_state": "LIMITED",
+    "missing_state": "MISSING",
+    "adverse_state": "ADVERSE_OR_UNUSABLE",
+    "ah_discount_alone_cannot_satisfy": true,
+    "missing_valuation_cannot_be_neutral_filled": true
+  },
+  "confidence_policy": {
+    "material_cap_states": [
+      "TARGETED_DEEPENING_REQUIRED"
+    ],
+    "bounded_cap_states": [
+      "CONFIDENCE_CAP_MONITOR",
+      "LIMITED_CONFIDENCE"
+    ],
+    "state_semantics": {
+      "TARGETED_DEEPENING_REQUIRED": "Decision evidence remains specifically incomplete and therefore defers Candidate proposal until the targeted gap is resolved.",
+      "LIMITED_CONFIDENCE": "Accepted P2B non-blocking evidence limitation. It is a bounded confidence cap for Watch routing, not an automatic rejection or Defer by itself.",
+      "CONFIDENCE_CAP_MONITOR": "Accepted bounded monitoring uncertainty that may support Watch but prevents Core while active."
+    },
+    "neutral_unknown_directions": [
+      "UNKNOWN",
+      "NEUTRAL",
+      "NEUTRAL_OR_UNKNOWN"
+    ],
+    "core_requires_zero_material_caps": true,
+    "core_requires_zero_bounded_caps": true,
+    "core_requires_zero_negative_dimensions": true,
+    "core_requires_at_least_one_positive_company_dimension": true,
+    "watch_may_retain_bounded_confidence_caps": true,
+    "defer_if_material_confidence_cap_remains": true
+  },
+  "proposal_states": [
+    "PROPOSE_CORE_CANDIDATE",
+    "PROPOSE_WATCH_CANDIDATE",
+    "DEFER_RESEARCH_MONITOR",
+    "HOLD_RETAINED_INVESTMENT_BLOCKER"
+  ],
+  "rule_states": [
+    "PASS",
+    "FAIL",
+    "NOT_APPLICABLE"
+  ],
+  "routing_policy": {
+    "HOLD_RETAINED_INVESTMENT_BLOCKER": "Exact P2B Final retained blocker state is preserved and cannot be overridden by other rule passes.",
+    "DEFER_RESEARCH_MONITOR": "No retained blocker exists, but at least one hard rule, required decision rule, targeted-deepening requirement, or decision-grade valuation/thesis requirement remains insufficient.",
+    "PROPOSE_WATCH_CANDIDATE": "All applicable hard and decision rules pass, but bounded confidence caps such as LIMITED_CONFIDENCE/CONFIDENCE_CAP_MONITOR, mixed/unknown company evidence, limited valuation support, or event timing prevents a Core proposal.",
+    "PROPOSE_CORE_CANDIDATE": "All applicable hard and decision rules pass, valuation is supportive, at least one company dimension is positive, and there are no targeted-deepening requirements, bounded confidence caps or negative company dimensions."
+  },
+  "phase_boundary": {
+    "assessment_authorized": true,
+    "formal_candidate_graduation_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "security_assessment_count": 77,
+    "rule_assessment_row_count": 924,
+    "retained_blocker_security_count": 5,
+    "formal_candidate_graduation_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "pass_status": "PASS_P3_1_CANDIDATE_GRADUATION_ASSESSMENT",
+    "blocked_status": "BLOCKED_P3_1_CANDIDATE_GRADUATION_ASSESSMENT",
+    "next_gate": "P3_2_CANDIDATE_POOL_PROMOTION",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P3_1"
+}
