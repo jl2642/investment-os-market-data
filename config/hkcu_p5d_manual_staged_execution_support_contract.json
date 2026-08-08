@@ -1,0 +1,90 @@
+{
+  "contract_id": "HKCU_P5D_MANUAL_STAGED_EXECUTION_SUPPORT_V1",
+  "program_id": "HKCU-P5D",
+  "phase": "P5D_MANUAL_STAGED_EXECUTION_SUPPORT",
+  "as_of_date": "2026-08-07",
+  "objective": "Prove the Manual Staged Execution Support gate in development mode without inferring user approval, without producing any executable REAL-security checklist, and without mutating Current or creating orders. The production path must fail closed when P5C has no explicit user decision, while an isolated synthetic fixture proves capital sizing, board-lot rounding, batch construction and drift-guard logic.",
+  "authoritative_inputs": {
+    "p5a_contract": "config/hkcu_p5a_phase5_contract_entry_freeze.json",
+    "p5c_contract": "config/hkcu_p5c_user_decision_gate_contract.json",
+    "core_pretrade_policy": "investment_os_runtime/10_CORE_STATIC/07_DECISION_PRETRADE_CONFIRMATION_AND_WRITEBACK.md",
+    "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"
+  },
+  "entry_contract": {
+    "required_p5c_status": "PASS_P5C_USER_DECISION_GATE_READY",
+    "required_p5c_gate_state": "READY_AWAITING_EXPLICIT_USER_DECISION",
+    "required_user_decision_recorded_count": 0,
+    "required_trade_authority": "NONE"
+  },
+  "development_mode_policy": {
+    "mode": "NO_EXECUTION_DEVELOPMENT_ACCEPTANCE",
+    "explicit_user_trade_approval_required_for_real_checklist": true,
+    "continue_or_development_command_is_trade_approval": false,
+    "production_state_without_approval": "BLOCKED_NO_USER_APPROVAL",
+    "production_real_execution_checklist_rows": 0,
+    "synthetic_fixture_allowed": true,
+    "synthetic_fixture_must_use_test_only_security_ids": true,
+    "synthetic_fixture_may_mutate_current": false,
+    "synthetic_fixture_may_create_orders": false,
+    "synthetic_output_is_executable": false,
+    "synthetic_output_may_be_interpreted_as_user_instruction": false
+  },
+  "engine_capability_contract": {
+    "required_capabilities": [
+      "CAPITAL_AMOUNT_FROM_WEIGHT_AND_NAV",
+      "BOARD_LOT_FLOOR_ROUNDING",
+      "MULTI_BATCH_WHOLE_LOT_ALLOCATION",
+      "MAX_PRICE_DRIFT_GUARD"
+    ],
+    "synthetic_nav_hkd": 1000000.0,
+    "synthetic_securities": [
+      {
+        "security_id": "TEST_ALPHA",
+        "reference_price_hkd": 50.0,
+        "board_lot": 100,
+        "target_weight": 0.015,
+        "batch_fractions": [0.5, 0.5],
+        "max_price_drift_pct": 0.03
+      },
+      {
+        "security_id": "TEST_BETA",
+        "reference_price_hkd": 25.0,
+        "board_lot": 200,
+        "target_weight": 0.01,
+        "batch_fractions": [0.5, 0.5],
+        "max_price_drift_pct": 0.025
+      }
+    ]
+  },
+  "phase_boundary": {
+    "production_manual_execution_checklist_authorized": false,
+    "synthetic_capability_report_authorized": true,
+    "user_trade_confirmation_record_authorized": false,
+    "target_portfolio_writeback_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "order_creation_authorized": false,
+    "broker_execution_authorized": false,
+    "fill_inference_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "production_execution_state": "BLOCKED_NO_USER_APPROVAL",
+    "production_real_execution_checklist_rows": 0,
+    "synthetic_capability_status": "PASS_SYNTHETIC_ENGINE_CAPABILITY",
+    "synthetic_security_count": 2,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "fills_inferred": 0,
+    "user_trade_confirmation_recorded": false,
+    "pass_status": "PASS_P5D_NO_EXECUTION_DEVELOPMENT_ACCEPTANCE",
+    "fail_status": "FAIL_P5D_MANUAL_STAGED_EXECUTION_SUPPORT",
+    "next_gate_on_pass": "P5E_ZERO_EXECUTION_RECONCILIATION_AND_OBSERVATION",
+    "repair_gate": "P5D_MANUAL_STAGED_EXECUTION_SUPPORT_REPAIR",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P5D_NO_EXECUTION"
+}
