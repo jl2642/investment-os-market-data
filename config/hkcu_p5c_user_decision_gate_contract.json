@@ -3,7 +3,7 @@
   "program_id": "HKCU-P5C",
   "phase": "P5C_USER_DECISION_GATE",
   "as_of_date": "2026-08-07",
-  "objective": "Convert the accepted P5B REAL Pre-trade Memo into a user decision packet using an official HKEX as-of price surface and documented valuation context. The gate may make securities eligible for explicit user choice but cannot infer or record approval, create an execution checklist, mutate Current, create orders or authorize broker execution.",
+  "objective": "Convert the accepted P5B REAL Pre-trade Memo into a user decision packet using official HKEX as-of prices, official HKMA same-date FX and documented valuation context. The gate may make securities eligible for explicit user choice but cannot infer or record approval, create an execution checklist, mutate Current, create orders or authorize broker execution.",
   "authoritative_inputs": {
     "p5b_contract": "config/hkcu_p5b_real_pretrade_memo_contract.json",
     "valuation_context_registry": "evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv",
@@ -17,6 +17,15 @@
     "required_advanced_securities": ["HKEX:00669", "HKEX:01308", "HKEX:03698"],
     "third_party_price_fallback_allowed": false,
     "fabricated_or_ambiguous_date_price_allowed": false
+  },
+  "fx_surface": {
+    "required_source": "HKMA_EXCHANGE_RATES_DAILY",
+    "url": "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/er-eeri-daily",
+    "fx_date": "2026-08-07",
+    "required_series": ["usd", "cny"],
+    "unit": "HKD_PER_UNIT_OF_FOREIGN_CURRENCY",
+    "third_party_fx_fallback_allowed": false,
+    "stale_fx_allowed": false
   },
   "entry_contract": {
     "required_p5b_status": "PASS_P5B_REAL_PRETRADE_MEMO",
@@ -38,6 +47,13 @@
     "current_next_action": "EXPLICIT_USER_DECISION_REQUIRED",
     "deferred_weight_may_be_reallocated_automatically": false
   },
+  "valuation_policy": {
+    "huishang_primary_metric": "P_B_Q1_COMMON_EQUITY_PROXY",
+    "huishang_common_equity_proxy_formula": "2026Q1 total owners equity less non-fixed-term capital bonds less valid minority interests, divided by paid-up capital",
+    "huishang_proxy_not_audited_book_value": true,
+    "third_party_history_context_may_replace_official_current_denominator": false,
+    "fixed_valuation_ceiling_authorized": false
+  },
   "phase_boundary": {
     "decision_packet_authorized": true,
     "user_trade_confirmation_record_authorized": false,
@@ -54,6 +70,8 @@
     "decision_packet_security_count": 4,
     "user_decision_eligible_count": 3,
     "deferred_not_eligible_count": 1,
+    "official_price_count": 3,
+    "official_fx_series_count": 2,
     "user_decision_recorded_count": 0,
     "manual_execution_checklist_produced": false,
     "target_portfolio_writeback": false,
