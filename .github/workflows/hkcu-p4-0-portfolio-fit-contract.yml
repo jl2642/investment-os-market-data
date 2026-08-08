@@ -24,6 +24,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
       - name: Run P4-0 contract tests
         run: pytest -q tests/test_hkcu_p4_0_portfolio_fit_contract.py
       - name: Enforce isolated P4-0 contract scope
@@ -65,6 +67,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
       - name: Validate P4-0 against Canonical Candidate and portfolio states
         run: |
           rm -rf work/hkcu_p4_0
