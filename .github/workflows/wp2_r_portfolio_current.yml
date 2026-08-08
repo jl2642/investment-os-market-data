@@ -63,7 +63,16 @@ jobs:
         run: python -m pytest -q automation/wp2_r/tests
 
       - name: Validate Canonical-relative economic and market contract
-        run: python automation/wp2_r/validate_portfolio_current_contract.py --repo-root .
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          set -Eeuo pipefail
+          args=()
+          if [[ "${HEAD_REF}" == automation/wp2r-eod-* ]]; then
+            args+=(--require-fresh)
+          fi
+          python automation/wp2_r/validate_portfolio_current_contract.py --repo-root . "${args[@]}"
 
       - name: Prove forbidden domains unchanged and mark-only sources bounded
         if: github.event_name == 'pull_request'
@@ -86,8 +95,6 @@ jobs:
           if leaked:
               raise SystemExit('FORBIDDEN_WP2R_MUTATION:' + ','.join(leaked))
 
-          # A governed recurring EOD mark refresh may update only derived Current/evidence.
-          # It must never mutate the user-confirmed economic source state that the builder reads.
           if os.environ.get('HEAD_REF', '').startswith('automation/wp2r-eod-'):
               protected_sources = {
                   'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
@@ -126,6 +133,7 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP2-R Portfolio Current
           - Economic position and cost state is validated dynamically against current Canonical source inputs
+          - Production EOD branches require fresh marks; maintenance PRs must remain fail-closed when marks are stale
           - Mark-only EOD branches are prohibited from mutating user-confirmed economic source state
           - Position/mark/Broker watermarks remain separated
           - Execution cash included; external real-account liquidity excluded
