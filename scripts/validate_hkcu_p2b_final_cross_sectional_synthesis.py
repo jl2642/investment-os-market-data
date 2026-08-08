@@ -12,12 +12,26 @@ PROGRAM_ID = "HKCU-P2B-FINAL"
 PASS_STATUS = "PASS_P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS"
 TRADE_AUTHORITY = "NONE"
 EXPECTED_BLOCKERS = {"HKEX:00551", "HKEX:01114", "HKEX:09636", "HKEX:02313", "HKEX:06110"}
+# Frozen from the accepted 2026-08-07 E1 A/H registry; these are same-issuer pairs only.
 EXPECTED_AH = {
-    "HKEX:00177": "688180.SH", "HKEX:00300": "000333.SZ", "HKEX:00358": "000898.SZ",
-    "HKEX:00525": "000429.SZ", "HKEX:00564": "601298.SH", "HKEX:00688": "601800.SH",
-    "HKEX:01766": "601766.SH", "HKEX:01818": "601898.SH", "HKEX:01880": "601326.SH",
-    "HKEX:02314": "001213.SZ", "HKEX:02359": "603259.SH", "HKEX:02600": "601600.SH",
+    "HKEX:02359": "603259.SH",
+    "HKEX:00300": "000333.SZ",
+    "HKEX:03968": "600036.SH",
+    "HKEX:06127": "603127.SH",
+    "HKEX:06066": "601066.SH",
+    "HKEX:03988": "601988.SH",
+    "HKEX:01398": "601398.SH",
+    "HKEX:00939": "601939.SH",
+    "HKEX:00386": "600028.SH",
     "HKEX:09696": "002466.SZ",
+    "HKEX:01186": "601186.SH",
+    "HKEX:03759": "300759.SZ",
+    "HKEX:03328": "601328.SH",
+}
+ALLOWED_H_PRICE_SOURCES = {
+    "AKSHARE_STOCK_HK_DAILY_SINA",
+    "AKSHARE_STOCK_ZH_AH_DAILY_TENCENT",
+    "AKSHARE_STOCK_HK_HIST_EASTMONEY",
 }
 
 
@@ -61,6 +75,8 @@ def main() -> None:
     ranks = pd.to_numeric(sec["p2a_overall_rank"], errors="coerce")
     if ranks.isna().any() or sorted(ranks.astype(int).tolist()) != list(range(1, 78)): errors.append("P2A_RANK_SET")
     if sec["security_id"].duplicated().any(): errors.append("DUPLICATE_SECURITY")
+    if "security_name" not in sec.columns or sec["security_name"].astype(str).str.strip().eq("").any(): errors.append("SECURITY_NAME_SCHEMA")
+    if "security_name_source_column" not in sec.columns: errors.append("SECURITY_NAME_LINEAGE")
     if dim.duplicated(["security_id", "research_dimension"]).any(): errors.append("DUPLICATE_DIMENSION")
     if set(dim["security_id"]) != set(sec["security_id"]): errors.append("DIMENSION_SECURITY_SET")
     if not dim.groupby("security_id").size().eq(3).all(): errors.append("THREE_COMPANY_DIMENSIONS_PER_SECURITY")
@@ -79,6 +95,7 @@ def main() -> None:
 
     actual_ah = dict(zip(ah["security_id"], ah["a_symbol"]))
     if actual_ah != EXPECTED_AH: errors.append("AH_PAIR_SET")
+    if "h_price_source" not in ah.columns or not set(ah["h_price_source"]).issubset(ALLOWED_H_PRICE_SOURCES): errors.append("AH_H_PRICE_SOURCE")
     for c in ["a_close_cny", "h_close_hkd", "cny_per_hkd", "a_over_h_ratio", "h_discount_to_a_pct"]:
         vals = pd.to_numeric(ah[c], errors="coerce")
         if vals.isna().any(): errors.append("AH_NUMERIC_" + c.upper())
@@ -93,9 +110,9 @@ def main() -> None:
     if ah["alpha_score"].astype(str).str.strip().replace({"nan":"", "<NA>":""}).ne("").any(): errors.append("AH_ALPHA_SCORE")
     if not ah["trade_authority"].eq(TRADE_AUTHORITY).all(): errors.append("AH_TRADE_AUTHORITY")
 
-    # Cross-sectional output remains P2B research readiness, not ranking promotion.
     if "aggregate_score" in sec.columns and pd.to_numeric(sec["aggregate_score"], errors="coerce").isna().all(): errors.append("P2A_SCREENING_SCORE_LOST")
     if quality.get("p2a_rank_preserved_not_rescored") is not True: errors.append("QUALITY_P2A_GUARD")
+    if quality.get("p2a_security_name_schema_normalized") is not True: errors.append("QUALITY_P2A_NAME_GUARD")
     if quality.get("evidence_balance_descriptive_not_scored") is not True: errors.append("QUALITY_EVIDENCE_BALANCE_GUARD")
     if quality.get("ah_relative_value_is_context_not_alpha") is not True: errors.append("QUALITY_AH_GUARD")
     if quality.get("formal_candidate_graduation_allowed") is not False: errors.append("QUALITY_GRADUATION_GUARD")
