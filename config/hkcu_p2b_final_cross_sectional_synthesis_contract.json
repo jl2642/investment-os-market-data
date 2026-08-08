@@ -58,7 +58,16 @@
     },
     "ah_price_date": "2026-08-07",
     "ah_fx_date": "2026-08-07",
-    "ah_h_price_source": "AKSHARE_STOCK_HK_HIST_EASTMONEY",
+    "ah_h_price_source": "AKSHARE_HK_HISTORY_FAILOVER_SINA_TENCENT_EASTMONEY",
+    "ah_h_price_source_policy": {
+      "required_exact_date": "2026-08-07",
+      "providers_in_order": [
+        "AKSHARE_STOCK_HK_DAILY_SINA",
+        "AKSHARE_STOCK_ZH_AH_DAILY_TENCENT",
+        "AKSHARE_STOCK_HK_HIST_EASTMONEY"
+      ],
+      "provider_failure_does_not_permit_stale_or_cross_date_substitution": true
+    },
     "ah_a_price_source": "CANONICAL_DAILY_MARKET_SNAPSHOT_20260807",
     "ah_fx_source": "SAFE_RMB_CENTRAL_PARITY_VIA_AKSHARE"
   },
