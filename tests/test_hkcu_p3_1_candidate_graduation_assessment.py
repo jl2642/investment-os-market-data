@@ -23,8 +23,15 @@ def test_contract_preserves_p3_0_rule_count_and_zero_mutation_boundary():
     assert contract["assessment_policy"]["weighted_composite_score_allowed"] is False
     assert contract["assessment_policy"]["neutral_fill_allowed"] is False
     assert contract["assessment_policy"]["arbitrary_fixed_top_n_allowed"] is False
+    assert contract["freshness_policy"]["exact_same_day_factor_date_required"] is False
     assert contract["phase_boundary"]["candidate_pool_mutations"] == 0
     assert contract["phase_boundary"]["trade_authority"] == "NONE"
+
+
+def test_accepted_freshness_window_allows_recent_prior_day_but_rejects_future_or_stale():
+    assert MOD.freshness_within_window("2026-08-06", "2026-08-07", 7) == (True, 1)
+    assert MOD.freshness_within_window("2026-08-08", "2026-08-07", 7) == (False, -1)
+    assert MOD.freshness_within_window("2026-07-30", "2026-08-07", 7) == (False, 8)
 
 
 def test_valuation_support_never_uses_ah_discount_as_substitute():
