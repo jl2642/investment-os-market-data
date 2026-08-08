@@ -1,0 +1,180 @@
+{
+  "contract_id": "HKCU_P3_0_CANDIDATE_GRADUATION_CONTRACT_V1",
+  "program_id": "HKCU-P3-0",
+  "phase": "P3_0_CANDIDATE_GRADUATION_CONTRACT",
+  "objective": "Freeze the auditable rule set, decision states, authority boundaries and downgrade semantics for converting accepted HKCU P2B research-ready securities into formal Hong Kong Candidate Pool proposals in later Phase-3 gates, without graduating or mutating any security in P3-0.",
+  "as_of_date": "2026-08-07",
+  "authoritative_upstream": {
+    "p2b_final_contract": "config/hkcu_p2b_final_cross_sectional_synthesis_contract.json",
+    "required_program_id": "HKCU-P2B-FINAL",
+    "required_pass_status": "PASS_P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS",
+    "required_next_gate": "P3_0_CANDIDATE_GRADUATION_CONTRACT",
+    "entry_security_count": 77,
+    "evaluation_eligible_security_count": 72,
+    "retained_blocker_security_count": 5,
+    "retained_blocker_security_ids": [
+      "HKEX:00551",
+      "HKEX:01114",
+      "HKEX:02313",
+      "HKEX:06110",
+      "HKEX:09636"
+    ]
+  },
+  "phase_boundary": {
+    "contract_definition_authorized": true,
+    "security_assessment_authorized": false,
+    "formal_candidate_graduation_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "order_creation_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "graduation_philosophy": {
+    "all_applicable_hard_rules_must_pass": true,
+    "weighted_composite_score_allowed": false,
+    "neutral_fill_allowed": false,
+    "automatic_waiver_allowed": false,
+    "arbitrary_fixed_top_n_allowed": false,
+    "p2a_rank_is_context_not_graduation_authority": true,
+    "p2b_evidence_balance_is_context_not_score": true,
+    "missing_consensus_is_not_bearish": true,
+    "confidence_cap_is_not_automatic_rejection": true,
+    "ah_relative_value_is_context_not_alpha": true,
+    "candidate_graduation_is_not_portfolio_allocation": true,
+    "candidate_graduation_is_not_trade_authority": true
+  },
+  "graduation_rules": [
+    {
+      "rule_id": "P3R01",
+      "name": "ACCEPTED_P2B_FINAL_LINEAGE",
+      "type": "HARD",
+      "applicability": "ALL",
+      "requirement": "Security must originate from the accepted P2B Final 77-security cross-sectional surface and preserve P2A/P2B lineage without re-scoring."
+    },
+    {
+      "rule_id": "P3R02",
+      "name": "NO_RETAINED_INVESTMENT_BLOCKER",
+      "type": "HARD",
+      "applicability": "ALL",
+      "requirement": "A security with HOLD_RETAINED_INVESTMENT_BLOCKER cannot graduate until the blocker is independently resolved in a later evidence cycle."
+    },
+    {
+      "rule_id": "P3R03",
+      "name": "CURRENT_INVESTABILITY_AND_BUY_ELIGIBILITY",
+      "type": "HARD",
+      "applicability": "ALL",
+      "requirement": "Security must remain publication-eligible, buy-eligible and investable under the accepted HKCU eligibility surface; sell-only or ineligible securities cannot graduate."
+    },
+    {
+      "rule_id": "P3R04",
+      "name": "DECISION_GRADE_MARKET_AND_FACTOR_FRESHNESS",
+      "type": "HARD",
+      "applicability": "ALL",
+      "requirement": "Market/factor observations used for graduation must satisfy the accepted freshness contract for the assessment as-of date; stale decision inputs fail closed."
+    },
+    {
+      "rule_id": "P3R05",
+      "name": "TRANSACTION_TAX_EVIDENCE_COMPLETE",
+      "type": "HARD",
+      "applicability": "ALL",
+      "requirement": "Accepted transaction-cost and tax evidence must remain EVIDENCE_COMPLETE; execution frictions are context and never alpha."
+    },
+    {
+      "rule_id": "P3R06",
+      "name": "THREE_COMPANY_DIMENSIONS_SYNTHESIZED",
+      "type": "HARD",
+      "applicability": "ALL",
+      "requirement": "Governance/Value-Trap, Earnings-Expectation Revision and Catalyst dimensions must each have an accepted decision synthesis with no RESEARCH_REQUIRED residue."
+    },
+    {
+      "rule_id": "P3R07",
+      "name": "GOVERNANCE_VALUE_TRAP_NOT_SUBSTANTIVELY_BLOCKED",
+      "type": "HARD",
+      "applicability": "ALL",
+      "requirement": "No unresolved material governance, related-party, auditor, control or value-trap event may remain a substantive investment blocker."
+    },
+    {
+      "rule_id": "P3R08",
+      "name": "EARNINGS_RISK_NOT_SUBSTANTIVELY_BLOCKED",
+      "type": "HARD",
+      "applicability": "ALL",
+      "requirement": "No current material negative earnings alert, warning or equivalent decision-critical earnings event may remain an unresolved substantive blocker."
+    },
+    {
+      "rule_id": "P3R09",
+      "name": "LIQUIDITY_AND_TRADABILITY_ACCEPTED",
+      "type": "HARD",
+      "applicability": "ALL",
+      "requirement": "Accepted HKCU/P2A liquidity and active-trading eligibility must remain valid; Phase 3 may not invent a lower tradability threshold to force graduation."
+    },
+    {
+      "rule_id": "P3R10",
+      "name": "VALUATION_SUPPORT_EXPLICIT",
+      "type": "DECISION",
+      "applicability": "ALL",
+      "requirement": "Assessment must state a security-specific valuation support state using accepted valuation context; A/H discount alone cannot satisfy the rule and missing valuation cannot be neutral-filled."
+    },
+    {
+      "rule_id": "P3R11",
+      "name": "THESIS_FALSIFIER_AND_MONITOR_TRIGGER_EXPLICIT",
+      "type": "DECISION",
+      "applicability": "ALL",
+      "requirement": "Assessment must materialize the investment thesis, principal downside/falsifier and at least one monitor trigger tied to accepted evidence."
+    },
+    {
+      "rule_id": "P3R12",
+      "name": "CROSS_LISTING_AND_DUPLICATE_EXPOSURE_REVIEW",
+      "type": "DECISION",
+      "applicability": "AH_OR_EXISTING_CROSS_MARKET_EXPOSURE",
+      "requirement": "Where an A/H pair or existing cross-market exposure exists, graduation must explicitly review duplicate exposure and relative-value context; duplication is not automatically a rejection and A/H spread is not alpha."
+    }
+  ],
+  "assessment_states": [
+    "PROPOSE_CORE_CANDIDATE",
+    "PROPOSE_WATCH_CANDIDATE",
+    "DEFER_RESEARCH_MONITOR",
+    "HOLD_RETAINED_INVESTMENT_BLOCKER"
+  ],
+  "assessment_routing": {
+    "PROPOSE_CORE_CANDIDATE": "All applicable hard rules pass; valuation support is not adverse; thesis/falsifier/monitor package is complete; no unresolved material confidence cap prevents a core designation.",
+    "PROPOSE_WATCH_CANDIDATE": "All applicable hard rules pass, but one or more bounded confidence caps, valuation uncertainty, event timing or thesis-monitor conditions justify watch status rather than core status.",
+    "DEFER_RESEARCH_MONITOR": "No retained investment blocker exists, but one or more required graduation decision fields are incomplete or not decision-grade; do not force a pass.",
+    "HOLD_RETAINED_INVESTMENT_BLOCKER": "A substantive investment blocker remains; security cannot enter Candidate promotion while the blocker persists."
+  },
+  "promotion_contract": {
+    "p3_1_is_assessment_only": true,
+    "p3_1_candidate_pool_mutation_authorized": false,
+    "formal_promotion_requires_separate_gate": "P3_2_CANDIDATE_POOL_PROMOTION",
+    "promotion_must_be_append_only_audited_transition": true,
+    "promotion_does_not_authorize_simulation_or_real_trade": true,
+    "automatic_trade_authority_after_promotion": false
+  },
+  "downgrade_contract": {
+    "automatic_reassessment_triggers": [
+      "STOCK_CONNECT_OR_BUY_ELIGIBILITY_LOST",
+      "DECISION_GRADE_MARKET_DATA_STALE_OR_UNAVAILABLE",
+      "MATERIAL_EVIDENCE_CONFLICT_UNRESOLVED",
+      "NEW_SUBSTANTIVE_GOVERNANCE_BLOCKER",
+      "NEW_SUBSTANTIVE_EARNINGS_BLOCKER",
+      "THESIS_FALSIFIER_TRIGGERED",
+      "VALUATION_SUPPORT_MATERIALLY_INVALIDATED"
+    ],
+    "candidate_removal_requires_logged_transition": true,
+    "trade_authority_remains_none": true
+  },
+  "acceptance": {
+    "graduation_rule_count": 12,
+    "entry_security_count": 77,
+    "evaluation_eligible_security_count": 72,
+    "retained_blocker_security_count": 5,
+    "formal_candidate_graduation_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "pass_status": "PASS_P3_0_CANDIDATE_GRADUATION_CONTRACT",
+    "next_gate": "P3_1_CANDIDATE_GRADUATION_ASSESSMENT",
+    "trade_authority": "NONE"
+  }
+}
