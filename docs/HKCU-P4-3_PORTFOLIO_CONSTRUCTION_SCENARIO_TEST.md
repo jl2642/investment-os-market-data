@@ -65,9 +65,50 @@ These are bounded scenario-test parameters, not permanent strategic asset-alloca
 
 REAL broker cash remains execution balance only and is not a strategic asset bucket. Because current REAL execution cash is zero, positive REAL new-build scenarios are classified as feasible only with an explicit external-liquidity or separate capital decision dependency. P4-3 does not auto-reduce any current holding to fund the scenario.
 
-SIMULATION new-build legs may use current simulation cash. A SIMULATION scenario fails if its net-new build requirement exceeds available simulation cash.
+SIMULATION new-build legs may use current simulation cash. The accepted current simulation cash weight is approximately 23.85%, and all tested SIMULATION scenarios remain within that funding context with zero funding gap.
 
 A/H substitution legs are funded only by an equal-weight same-issuer A-share reduction in the hypothetical stress variant and do not consume net-new capital.
+
+## Accepted Canonical-input result
+
+The first clean Canonical rerun produced 9/9 scenario PASS, 70 scenario-allocation rows, two accepted A/H substitution options, zero integrity errors, zero state mutations and zero orders.
+
+| Scenario | HK sleeve target | Allocated | Positions | Gross drawdown stress | Funding result |
+| --- | ---: | ---: | ---: | ---: | --- |
+| REAL_CONSERVATIVE | 5.00% | 5.00% | 4 | 0.9501% | External funding dependency |
+| REAL_BALANCED | 10.00% | 10.00% | 5 | 2.2312% | External funding dependency |
+| REAL_EXPANDED | 15.00% | 15.00% | 7 | 3.6073% | External funding dependency |
+| SIM_CONSERVATIVE | 10.00% | 10.00% | 6 | 2.1349% | Simulation cash, zero gap |
+| SIM_BALANCED | 15.00% | 15.00% | 9 | 2.8849% | Simulation cash, zero gap |
+| SIM_EXPANDED | 20.00% | 20.00% | 12 | 3.6349% | Simulation cash, zero gap |
+| SIM_CONSERVATIVE_AH_STRESS | 10.00% | 10.00% | 7 | 2.1245% | Simulation cash, zero gap |
+| SIM_BALANCED_AH_STRESS | 15.00% | 14.5265% | 8 | 2.8461% | Simulation cash, zero gap |
+| SIM_EXPANDED_AH_STRESS | 20.00% | 20.00% | 12 | 3.6672% | Simulation cash, zero gap |
+
+`SIM_BALANCED_AH_STRESS` intentionally remains 0.4735% below its nominal 15% target. This is a valid PASS because the residual is below the 0.5% minimum scenario-position threshold; P4-3 does not create a sub-minimum filler position merely to report an exact target.
+
+### REAL scenario composition
+
+The REAL scenarios expand from 4 to 5 to 7 names rather than mechanically distributing weight across all 49 actionable REAL rows.
+
+- 5% Conservative: Huishang Bank, SITC, Softcare and Techtronic Industries.
+- 10% Balanced: Huishang Bank, SITC, Softcare, Lonking and Techtronic Industries.
+- 15% Expanded: Huishang Bank, SITC, China Taiping, Softcare, Lonking, Lee & Man Paper and Techtronic Industries.
+
+At 15%, the largest HK-sleeve sector weight is approximately 4.53% of total account assets and the largest style weight is 6.75%, both within the scenario constraints. P4-3 does not infer that the 15% Expanded scenario is preferable to the 5% or 10% scenario.
+
+### SIMULATION base scenarios
+
+The base scenarios expand from 6 to 9 to 12 names. The 20% Expanded scenario includes Huishang Bank, SITC, Softcare, Qunabox, CLP, PCCW, China Mobile, HK & China Gas, Power Assets, CKH, Swire Pacific A and CCB. The scenario remains fully funded by current simulation cash and stays inside accepted sector/style and stress constraints.
+
+### Exact A/H stress variants
+
+Every A/H stress scenario tests both accepted P4-2 substitution options at their replacement-equivalent caps:
+
+- Midea H 00300: 1.8771%, paired with an equal 1.8771% hypothetical reduction of `000333.SZ`;
+- CM Bank H 03968: 2.1709%, paired with an equal 2.1709% hypothetical reduction of `600036.SH`.
+
+Total tested H-share substitution weight is approximately 4.0480%. Net-new capital from the substitution legs is exactly zero. These are scenario stress tests only, not a recommendation to replace either A-share holding.
 
 ## Governance boundary
 
@@ -85,4 +126,4 @@ P4-3 may produce aggregate hypothetical scenario allocations for testing. It doe
 
 `trade_authority=NONE` throughout.
 
-A clean PASS advances only to `P4_4_PORTFOLIO_PROPOSAL_REVIEW`.
+A clean final-head PASS advances only to `P4_4_PORTFOLIO_PROPOSAL_REVIEW`.
