@@ -1,0 +1,76 @@
+{
+  "contract_id": "STOCK_INVESTMENT_ASSISTANT_FINAL_INTEGRATION_V1",
+  "as_of_date": "2026-08-08",
+  "integration_base_sha": "a66ce2706aedad52ff50e15d5506dd3f24dede5c",
+  "objective": "Close development by exposing one governed ChatGPT-facing read model across A-share production, A-share Dynamic Candidate, HKCU Candidate/observation, bounded US research, REAL/SIMULATION portfolio state and residual operating-observation boundaries. This integration must not reopen completed subsystem development or mutate investment state.",
+  "authoritative_inputs": {
+    "a_market_release": "outputs/current/CURRENT_RELEASE.json",
+    "a_history_release": "outputs/history/current/HISTORY_CURRENT_RELEASE.json",
+    "a_factor_release": "outputs/factors/current/FACTOR_CURRENT_RELEASE.json",
+    "a_screening_report": "outputs/current/FMDL_1BC_RUN_REPORT.json",
+    "a_candidate_current": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+    "a_candidate_dynamic_loop": "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json",
+    "hk_candidate_current": "outputs/hk_candidate/current/HK_CANDIDATE_CURRENT.csv",
+    "hk_candidate_decision": "outputs/hk_candidate/current/HK_CANDIDATE_DECISION.json",
+    "hk_p5e_contract": "config/hkcu_p5e_zero_execution_reconciliation_observation_contract.json",
+    "real_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation_current": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "wp3r_acceptance": "investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json",
+    "round2_workflow": ".github/workflows/wp3_r_dynamic_candidate_loop.yml",
+    "round3_workflow": ".github/workflows/round3-cross-market-limited-production.yml",
+    "p0i1_workflow": ".github/workflows/p0_i1_operating_observation.yml"
+  },
+  "accepted_external_evidence": {
+    "a_round2_natural_workflow_run_observed": true,
+    "a_round2_natural_workflow_run_conclusion": "SUCCESS",
+    "hk_p5e_merge_sha": "a66ce2706aedad52ff50e15d5506dd3f24dede5c",
+    "hk_p5e_workflow_run_id": 31263141660,
+    "hk_p5e_artifact_id": 9023381177,
+    "hk_p5e_status": "PASS_P5E_ZERO_EXECUTION_RECONCILIATION_AND_OBSERVATION",
+    "hk_phase5_close_status": "PHASE_5_CLOSED",
+    "hk_operating_state": "HKCU_SPECIAL_DEVELOPMENT_COMPLETE_OPERATING_OBSERVATION"
+  },
+  "market_boundaries": {
+    "a_share": "FULL_MARKET_DAILY_DATA_FACTOR_SCREENING_PLUS_GOVERNED_DYNAMIC_CANDIDATE",
+    "hong_kong": "HK_STOCK_CONNECT_FORMAL_CANDIDATE_PLUS_GOVERNED_WEEKLY_OBSERVATION_REVIEW",
+    "united_states": "BOUNDED_RESEARCH_ROTATION_AND_SEC_EVIDENCE_ONLY_NOT_FULL_US_DAILY_REFRESH"
+  },
+  "wp3r_final_disposition": {
+    "round2_candidate_refresh_capability_accepted": true,
+    "financial_sector_specialized_metrics": "BOUNDED_LIMITATION_NOT_REQUIRED_FOR_CURRENT_CAPABILITY_ACCEPTANCE",
+    "outcome_20_60_120": "NATURAL_TIME_MATURITY_NOT_DEVELOPMENT_DEFECT",
+    "new_wp3r_development_required_for_final_close": false
+  },
+  "operating_observation_not_development_blocker": {
+    "production_accepted_3_of_3_claimed": false,
+    "p0i1_next_natural_run_after_latest_repairs_pending_observation": true,
+    "rule": "A future natural-run failure may reopen a bounded repair only if new evidence proves a current defect. Pending observation alone must not create a new development phase."
+  },
+  "final_acceptance_criteria": [
+    "A_SHARE_PRODUCTION_HARDENING_CURRENT_HEALTHY",
+    "A_SHARE_ROUND2_NATURAL_TRIGGER_OBSERVED",
+    "HK_FORMAL_CANDIDATE_AND_DYNAMIC_OBSERVATION_MECHANISM",
+    "HK_INTEGRATED_INTO_UNIFIED_CHATGPT_READ_MODEL",
+    "US_BOUNDED_RESEARCH_BOUNDARY_EXPLICIT",
+    "REAL_AND_SIMULATION_CURRENT_READABLE_AND_NO_EXECUTION",
+    "CHATGPT_UNIFIED_DAILY_OPERATING_INTERFACE",
+    "WP3R_FINAL_DISPOSITION_CLOSED",
+    "NO_PARALLEL_CANONICAL_OR_STALE_OPEN_REVIEW_PR",
+    "FINAL_END_TO_END_READ_ONLY_ACCEPTANCE"
+  ],
+  "governance": {
+    "main_is_only_canonical": true,
+    "direct_main_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "a_candidate_mutation_authorized": false,
+    "hk_candidate_mutation_authorized": false,
+    "automatic_order_creation_authorized": false,
+    "broker_execution_authorized": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "pass_status": "STOCK_INVESTMENT_ASSISTANT_DEVELOPMENT_COMPLETE",
+  "output_path": "outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json",
+  "interface_path": "outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_INTERFACE.json"
+}
