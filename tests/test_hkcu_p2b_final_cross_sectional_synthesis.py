@@ -24,6 +24,7 @@ def test_contract_freezes_p2b_boundary_and_counts():
     assert c["cross_section_policy"]["no_new_composite_alpha_score"] is True
     assert c["cross_section_policy"]["ah_relative_value_is_context_not_alpha"] is True
     assert c["cross_section_policy"]["ah_price_date"] == "2026-08-07"
+    assert c["cross_section_policy"]["ah_h_price_source_policy"]["provider_failure_does_not_permit_stale_or_cross_date_substitution"] is True
     assert c["acceptance"]["formal_candidate_graduation_allowed"] is False
     assert c["acceptance"]["trade_authority"] == "NONE"
     assert c["next_gate"] == "P3_0_CANDIDATE_GRADUATION_CONTRACT"
@@ -66,19 +67,47 @@ def test_a_share_snapshot_symbol_schema_is_explicit_and_fail_closed():
     assert "a_registry_exchange" in b
 
 
-def test_ah_stage_is_synchronized_and_context_only():
+def test_ah_stage_is_synchronized_failover_and_context_only():
     c = json.loads(CONTRACT.read_text(encoding="utf-8"))
     b = BUILDER.read_text(encoding="utf-8")
     v = VALIDATOR.read_text(encoding="utf-8")
     assert c["cross_section_policy"]["ah_relative_value_formula"] == "A_close_CNY / (H_close_HKD * CNY_per_HKD) - 1"
+    assert "stock_hk_daily" in b
+    assert "stock_zh_ah_daily" in b
     assert "stock_hk_hist" in b
+    assert "HK_PRICE_ALL_PROVIDERS_FAILED" in b
+    assert "DATE_MISMATCH" in b
     assert "currency_boc_safe" in b
-    assert "HK_PRICE_DATE_MISMATCH" in b
     assert "SAFE_FX_DATE_MISMATCH" in b
     assert "2026-08-07" in v
+    assert "AH_H_PRICE_SOURCE" in v
     assert "AH_FORMULA_RATIO" in v
     assert "AH_FORMULA_DISCOUNT" in v
     assert "AH_ALPHA_SCORE" in v
+
+
+def test_validator_freezes_accepted_ah_registry_not_stale_pair_set():
+    v = VALIDATOR.read_text(encoding="utf-8")
+    expected = {
+        "HKEX:02359": "603259.SH",
+        "HKEX:00300": "000333.SZ",
+        "HKEX:03968": "600036.SH",
+        "HKEX:06127": "603127.SH",
+        "HKEX:06066": "601066.SH",
+        "HKEX:03988": "601988.SH",
+        "HKEX:01398": "601398.SH",
+        "HKEX:00939": "601939.SH",
+        "HKEX:00386": "600028.SH",
+        "HKEX:09696": "002466.SZ",
+        "HKEX:01186": "601186.SH",
+        "HKEX:03759": "300759.SZ",
+        "HKEX:03328": "601328.SH",
+    }
+    for sid, a_symbol in expected.items():
+        assert sid in v
+        assert a_symbol in v
+    # Guard against the stale validator pair set found during the repair run.
+    assert '"HKEX:00177": "688180.SH"' not in v
 
 
 def test_validator_protects_exact_blockers_and_no_graduation():
