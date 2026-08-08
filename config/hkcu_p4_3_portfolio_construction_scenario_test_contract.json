@@ -1,0 +1,110 @@
+{
+  "contract_id": "HKCU_P4_3_PORTFOLIO_CONSTRUCTION_SCENARIO_TEST_V1",
+  "program_id": "HKCU-P4-3",
+  "phase": "P4_3_PORTFOLIO_CONSTRUCTION_SCENARIO_TEST",
+  "as_of_date": "2026-08-07",
+  "objective": "Assemble and test complete hypothetical Hong Kong portfolio sleeves from accepted P4-2 construction envelopes under aggregate sleeve, sector/style, stress-loss, funding and exact A/H substitution constraints, without creating a portfolio proposal, mutating state, creating orders or granting trade authority.",
+  "authoritative_inputs": {
+    "p4_2_contract": "config/hkcu_p4_2_portfolio_construction_review_contract.json",
+    "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation_positions_current": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "core_portfolio_position_policy": "investment_os_runtime/10_CORE_STATIC/06_PORTFOLIO_POSITION_AND_CAPITAL_MIGRATION.md",
+    "core_pretrade_policy": "investment_os_runtime/10_CORE_STATIC/07_DECISION_PRETRADE_CONFIRMATION_AND_WRITEBACK.md"
+  },
+  "entry_contract": {
+    "required_p4_2_status": "PASS_P4_2_PORTFOLIO_CONSTRUCTION_REVIEW",
+    "account_security_review_count": 140,
+    "combined_security_count": 70,
+    "required_trade_authority": "NONE"
+  },
+  "scenario_policy": {
+    "method": "LEXICOGRAPHIC_CONSTRAINT_FILL_NO_SCORE_NO_FIXED_TOP_N",
+    "weighted_score_allowed": false,
+    "fixed_top_n_allowed": false,
+    "candidate_rank_may_authorize_allocation": false,
+    "minimum_scenario_position_weight": 0.005,
+    "target_residual_tolerance": 0.005,
+    "direct_sector_weight_limit": 0.20,
+    "direct_style_weight_limit": 0.30,
+    "hk_sleeve_sector_fraction_limit": 0.35,
+    "hk_sleeve_style_fraction_limit": 0.45,
+    "gross_historical_drawdown_stress_fraction_of_hk_sleeve": 0.35,
+    "construction_state_priority": [
+      "PRIMARY_BUILD_REVIEW",
+      "SECONDARY_BUILD_REVIEW",
+      "PROBE_BUILD_REVIEW"
+    ],
+    "marginal_risk_priority": [
+      "IMPROVES_DIVERSIFICATION",
+      "DIVERSIFIES_RETURN_STREAM_BUT_RAISES_RISK_BUDGET",
+      "MIXED_RISK_CONTRIBUTION",
+      "ADDS_CORRELATED_RISK"
+    ],
+    "opportunity_cost_priority": [
+      "LOW_RELATIVE_OPPORTUNITY_COST",
+      "MODERATE_RELATIVE_OPPORTUNITY_COST"
+    ],
+    "scenario_definitions": {
+      "REAL": [
+        {"scenario_id": "REAL_CONSERVATIVE", "scenario_family": "BASE_NEW_BUILD", "hk_sleeve_target": 0.05},
+        {"scenario_id": "REAL_BALANCED", "scenario_family": "BASE_NEW_BUILD", "hk_sleeve_target": 0.10},
+        {"scenario_id": "REAL_EXPANDED", "scenario_family": "BASE_NEW_BUILD", "hk_sleeve_target": 0.15}
+      ],
+      "SIMULATION": [
+        {"scenario_id": "SIM_CONSERVATIVE", "scenario_family": "BASE_NEW_BUILD", "hk_sleeve_target": 0.10},
+        {"scenario_id": "SIM_BALANCED", "scenario_family": "BASE_NEW_BUILD", "hk_sleeve_target": 0.15},
+        {"scenario_id": "SIM_EXPANDED", "scenario_family": "BASE_NEW_BUILD", "hk_sleeve_target": 0.20},
+        {"scenario_id": "SIM_CONSERVATIVE_AH_STRESS", "scenario_family": "MAX_AH_SUBSTITUTION_STRESS", "hk_sleeve_target": 0.10},
+        {"scenario_id": "SIM_BALANCED_AH_STRESS", "scenario_family": "MAX_AH_SUBSTITUTION_STRESS", "hk_sleeve_target": 0.15},
+        {"scenario_id": "SIM_EXPANDED_AH_STRESS", "scenario_family": "MAX_AH_SUBSTITUTION_STRESS", "hk_sleeve_target": 0.20}
+      ]
+    },
+    "funding_policy": {
+      "real_new_build_funding_source": "EXTERNAL_LIQUIDITY_OR_SEPARATE_CAPITAL_DECISION_REQUIRED",
+      "real_existing_positions_may_not_be_auto_reduced": true,
+      "real_broker_cash_is_execution_balance_not_strategic_bucket": true,
+      "simulation_new_build_may_use_available_simulation_cash": true,
+      "exact_ah_substitution_funding_source": "EQUAL_WEIGHT_REDUCTION_OF_EXISTING_SAME_ISSUER_A_SHARE_IF_LATER_APPROVED",
+      "funding_dependency_is_not_trade_authority": true
+    },
+    "substitution_policy": {
+      "base_scenarios_force_ah_substitution": false,
+      "ah_stress_scenarios_use_p4_2_replacement_equivalent_caps": true,
+      "ah_substitution_is_net_capital_neutral": true,
+      "ah_substitution_is_sector_style_exposure_neutral_for_absolute_portfolio_limits": true,
+      "ah_substitution_counts_toward_hk_sleeve_composition": true,
+      "total_hk_sleeve_target_must_not_be_exceeded": true,
+      "net_new_weight_authorized_by_substitution": 0.0
+    }
+  },
+  "phase_boundary": {
+    "hypothetical_aggregate_scenarios_authorized": true,
+    "portfolio_proposal_authorized": false,
+    "target_portfolio_writeback_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "pretrade_memo_authorized": false,
+    "order_creation_authorized": false,
+    "user_trade_confirmation_record_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "scenario_count": 9,
+    "real_scenario_count": 3,
+    "simulation_scenario_count": 6,
+    "minimum_ah_stress_scenario_count": 3,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "portfolio_proposal_produced": false,
+    "target_portfolio_writeback": false,
+    "orders_created": 0,
+    "pass_status": "PASS_P4_3_PORTFOLIO_CONSTRUCTION_SCENARIO_TEST",
+    "fail_status": "FAIL_P4_3_PORTFOLIO_CONSTRUCTION_SCENARIO_TEST",
+    "next_gate_on_pass": "P4_4_PORTFOLIO_PROPOSAL_REVIEW",
+    "repair_gate": "P4_3_PORTFOLIO_CONSTRUCTION_SCENARIO_TEST_REPAIR",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P4_3_SCENARIO_TEST"
+}
