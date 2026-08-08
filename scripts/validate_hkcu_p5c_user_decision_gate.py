@@ -99,9 +99,16 @@ def main() -> int:
         errors.append("FX_URL")
     if not fx["fx_date"].astype(str).eq(fc["fx_date"]).all():
         errors.append("FX_DATE")
+    if "source_mode" not in fx.columns or not fx["source_mode"].astype(str).eq("ECB_NETWORK").all():
+        errors.append("FX_SOURCE_MODE")
     fvals = pd.to_numeric(fx["hkd_per_unit_foreign_currency"], errors="coerce")
     if fvals.isna().any() or (fvals <= 0).any():
         errors.append("FX_VALUES")
+    fx_map = dict(zip(fx["series"].astype(str), fvals))
+    if "usd" in fx_map and not (7.0 < float(fx_map["usd"]) < 8.5):
+        errors.append("USD_HKD_SANITY")
+    if "cny" in fx_map and not (0.8 < float(fx_map["cny"]) < 1.5):
+        errors.append("CNY_HKD_SANITY")
 
     vals = pd.to_numeric(eligible["valuation_multiple"], errors="coerce")
     if vals.isna().any() or (vals <= 0).any():
@@ -141,6 +148,16 @@ def main() -> int:
         errors.append("THIRD_PARTY_FX")
     if quality.get("stale_fx_used") is not False:
         errors.append("STALE_FX")
+    if quality.get("official_same_date_central_bank_fx_required") is not True:
+        errors.append("OFFICIAL_FX_POLICY")
+    if quality.get("official_ecb_same_date_fx_used") is not True:
+        errors.append("ECB_FX_POLICY")
+    if quality.get("official_hkma_same_date_fx_required") is not False:
+        errors.append("HKMA_REPLACEMENT_POLICY")
+    if quality.get("fx_reference_rate_for_valuation_only") is not True:
+        errors.append("FX_VALUATION_ONLY_POLICY")
+    if quality.get("fx_execution_rate_authorized") is not False:
+        errors.append("FX_EXECUTION_POLICY")
     if quality.get("third_party_history_context_replaces_official_current_denominator") is not False:
         errors.append("CURRENT_DENOMINATOR_POLICY")
     if quality.get("fixed_valuation_ceiling_used") is not False:
@@ -157,6 +174,10 @@ def main() -> int:
         errors.append("DECISION_ORDERS")
     if decision.get("trade_authority") != TRADE_AUTHORITY:
         errors.append("DECISION_AUTHORITY")
+    if decision.get("fx_source") != fc["required_source"]:
+        errors.append("DECISION_FX_SOURCE")
+    if decision.get("fx_derivation_method") != fc["derivation"]:
+        errors.append("FX_DERIVATION")
 
     result = {
         "program_id": PROGRAM_ID,
