@@ -1,0 +1,85 @@
+{
+  "contract_id": "HKCU_P4_1_PORTFOLIO_FIT_ASSESSMENT_V1",
+  "program_id": "HKCU-P4-1",
+  "phase": "P4_1_PORTFOLIO_FIT_ASSESSMENT",
+  "as_of_date": "2026-08-07",
+  "objective": "Execute the P4-0 portfolio-fit contract for every formal HK Candidate separately against the current Real Account and Simulation portfolios, materialize every rule judgment, and route missing decision-critical context fail-closed without mutating any portfolio or creating orders.",
+  "authoritative_inputs": {
+    "p4_0_contract": "config/hkcu_p4_0_portfolio_fit_contract.json",
+    "candidate_current": "outputs/hk_candidate/current/HK_CANDIDATE_CURRENT.csv",
+    "hkcu_current": "outputs/hkcu1/current/HKCU1_R2E_INVESTABLE_UNIVERSE.csv",
+    "fmdl5b2_contract": "config/fmdl5b2_issuer_cross_market_contract.json",
+    "fmdl5b2_security_issuer_bridge": "outputs/fmdl5b2/current/FMDL5B2_SECURITY_ISSUER_BRIDGE.csv",
+    "fmdl5b2_cross_market_relationships": "outputs/fmdl5b2/current/FMDL5B2_CROSS_MARKET_RELATIONSHIPS.csv",
+    "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation_positions_current": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+  },
+  "entry_contract": {
+    "required_p4_0_program_id": "HKCU-P4-0",
+    "required_p4_0_pass_status": "PASS_P4_0_PORTFOLIO_FIT_CONTRACT",
+    "required_p4_0_next_gate": "P4_1_PORTFOLIO_FIT_ASSESSMENT",
+    "entry_candidate_count": 70,
+    "account_count": 2,
+    "rule_count": 15,
+    "account_security_assessment_count": 140,
+    "rule_assessment_row_count": 2100
+  },
+  "rule_states": ["PASS", "PASS_WITH_CONSTRAINTS", "NO_INCREMENTAL_ROLE", "DEFER", "BLOCK", "NOT_APPLICABLE"],
+  "account_fit_states": ["FIT", "FIT_WITH_CONSTRAINTS", "NO_INCREMENTAL_ROLE", "DEFER_PORTFOLIO_CONTEXT", "BLOCK_PORTFOLIO_FIT"],
+  "combined_routing_states": ["ADVANCE_DUAL_CONSTRUCTION_REVIEW", "ADVANCE_SIMULATION_CONSTRUCTION_REVIEW", "ADVANCE_REAL_ACCOUNT_REVIEW", "HOLD_PORTFOLIO_WATCH", "DEFER_PORTFOLIO_CONTEXT", "BLOCK_PORTFOLIO_FIT"],
+  "portfolio_context_policy": {
+    "identity_source": "FMDL5B2_CONFIRMED_ISSUER_AND_CROSS_MARKET_SEMANTICS",
+    "fuzzy_name_identity_inference_allowed": false,
+    "sector_or_industry_neutral_fill_allowed": false,
+    "primary_sleeve_may_substitute_for_sector_classification": false,
+    "diversification_claim_without_portfolio_evidence_allowed": false,
+    "same_issuer_or_cross_market_duplication_is_automatic_rejection": false,
+    "real_zero_execution_cash_is_automatic_blocker": false,
+    "real_external_liquidity_may_be_assumed_available": false,
+    "simulation_cash_is_alpha": false,
+    "analytical_sizing_envelope_is_position_authority": false,
+    "missing_decision_critical_context_routes_to_defer": true
+  },
+  "required_context_dimensions": {
+    "sector_industry_classification": "Canonical sector/industry classification covering Candidate and relevant portfolio exposures is required for a positive P4R10 result.",
+    "marginal_risk_evidence": "Accepted portfolio evidence sufficient to judge diversification/downside co-movement is required for a positive P4R12 result.",
+    "cross_market_identity": "Confirmed issuer/cross-market identity must be sufficient to review direct and same-economic-exposure overlap for P4R07/P4R09."
+  },
+  "routing_policy": {
+    "positive_states": ["FIT", "FIT_WITH_CONSTRAINTS"],
+    "hard_rule_block_state": "BLOCK_PORTFOLIO_FIT",
+    "context_missing_state": "DEFER_PORTFOLIO_CONTEXT",
+    "all_hard_rules_must_pass_for_positive_fit": true,
+    "named_constraints_required_for_fit_with_constraints": true,
+    "combined_route_is_derived_only_from_real_and_simulation_states": true,
+    "no_weighted_score": true,
+    "no_fixed_top_n": true
+  },
+  "phase_boundary": {
+    "assessment_authorized": true,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_admission_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_admission_authorized": false,
+    "real_account_mutation_authorized": false,
+    "portfolio_allocation_authorized": false,
+    "order_creation_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "entry_candidate_count": 70,
+    "account_security_assessment_count": 140,
+    "rule_assessment_row_count": 2100,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "portfolio_allocations": 0,
+    "orders_created": 0,
+    "pass_status": "PASS_P4_1_PORTFOLIO_FIT_ASSESSMENT",
+    "context_blocked_status": "BLOCKED_P4_1_PORTFOLIO_CONTEXT",
+    "normal_next_gate": "P4_2_PORTFOLIO_CONSTRUCTION_REVIEW",
+    "context_repair_next_gate": "P4_1R_PORTFOLIO_CONTEXT_COMPLETION",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P4_1"
+}
