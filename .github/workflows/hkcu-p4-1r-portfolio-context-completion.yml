@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'config/hkcu_p4_1r_portfolio_context_completion_contract.json'
+      - 'evidence/hkcu_p4_1r/HKCU_P4_1R_ECONOMIC_SECTOR_REGISTRY_20260807.csv'
       - 'pipeline/hkcu_p4_1r_portfolio_context_completion.py'
       - 'pipeline/hkcu_p4_1r_canonical_data_adapter.py'
       - 'scripts/validate_hkcu_p4_1r_portfolio_context_completion.py'
@@ -38,6 +39,7 @@ jobs:
           from pathlib import Path
           allowed = {
               'config/hkcu_p4_1r_portfolio_context_completion_contract.json',
+              'evidence/hkcu_p4_1r/HKCU_P4_1R_ECONOMIC_SECTOR_REGISTRY_20260807.csv',
               'pipeline/hkcu_p4_1r_portfolio_context_completion.py',
               'pipeline/hkcu_p4_1r_canonical_data_adapter.py',
               'scripts/validate_hkcu_p4_1r_portfolio_context_completion.py',
