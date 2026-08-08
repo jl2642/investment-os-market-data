@@ -1,0 +1,31 @@
+name: HK Candidate Governed Operating Review
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 2 * * 6'
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Build proposal-only operating review
+        run: python -m pipeline.hk_candidate_operating_review --repo-root . --output work/hk_candidate_operating_review
+      - name: Validate zero-mutation review
+        run: python scripts/validate_hk_candidate_operating_review.py --repo-root . --output work/hk_candidate_operating_review
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hk-candidate-operating-review-${{ github.run_id }}
+          path: work/hk_candidate_operating_review/*
+
+# The scheduled review is read-only/proposal-only. Any evidence-triggered membership or tier
+# change requires a separately governed branch/PR and must preserve trade_authority=NONE.
