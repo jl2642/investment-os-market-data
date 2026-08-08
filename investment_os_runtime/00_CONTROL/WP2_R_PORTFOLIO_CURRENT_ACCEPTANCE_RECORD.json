@@ -5,20 +5,14 @@
     "external_real_account_liquidity_excluded": true,
     "forced_reconciliation_mutations": 0,
     "historical_wp2_3_preserved_as_non_comparable_baseline": true,
-    "real_difference_disclosed": 162901.95,
+    "real_difference_disclosed": 347542.496049,
+    "real_reconciliation_exception_amount": 0.0,
     "real_reported_total_formula": "POSITION_MARKET_VALUE_PLUS_EXECUTION_CASH_PLUS_UNALLOCATED_EXCEPTION",
     "reported_total_reconciliation_exceptions_preserved": true,
-    "simulation_difference_disclosed": 12448.0,
-    "simulation_reported_total_formula": "TOP_MARKET_VALUE_PLUS_AVAILABLE_CASH"
-  },
-  "compatibility_repair": {
-    "formal_eod_snapshot_written": false,
-    "legacy_source_interface_preserved": true,
-    "orders": 0,
-    "snapshot_type": "USER_CONFIRMED_INTRADAY",
-    "standard_current_interface_preserved": true,
-    "status": "PASS",
-    "trade_authority": "NONE"
+    "simulation_automated_mark_total_formula": "POSITION_MARKET_VALUE_PLUS_EXECUTION_CASH",
+    "simulation_difference_disclosed": 15560.21,
+    "simulation_snapshot_exception_policy": "DISCLOSE_ONLY_NOT_CARRIED_INTO_LATER_AUTOMATED_MARK_TOTALS",
+    "simulation_source_snapshot_timing_exception_amount": -73.4
   },
   "controls": {
     "automatic_quantity_or_cost_mutations": 0,
@@ -32,19 +26,19 @@
   "outputs": {
     "portfolio_marks": {
       "path": "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json",
-      "semantic_hash": "ca860f734fa23477c25eac04a2e23685c4025c5ed0eb725c1fd4f4117a4d2528"
+      "semantic_hash": "0ca07acd38cd000d24eddb150c6186d932453842c72ade7983d17e6cfcef47e6"
     },
     "real_positions": {
       "path": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
-      "semantic_hash": "8ba0034549420c2212c6c559a4966c3cc018721ee2055bb220a1dcecf8e1e488"
+      "semantic_hash": "c42b7e8984293e13fad298ec3c4ba044ba1e0f74389fdbf4bc8150cc22dab1b6"
     },
     "run_current": {
       "path": "investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json",
-      "semantic_hash": "f750a4ce0745400aa05c317f43a95b90c96663dc68a65aee089ca33389a131b4"
+      "semantic_hash": "947be30b84388cc4b0a858e0fd02605ca71e3b3a16032b516a6b5eeec2be77d3"
     },
     "simulation_positions": {
       "path": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
-      "semantic_hash": "bbe97fc3f242015b826cbd124dec2dc782eef0c597acde1606bcefcc512093d6"
+      "semantic_hash": "62059f169064fa077cfa61242cd74cc62013b671728fe4752a79020f5945d0ec"
     }
   },
   "status": "WP2R_RECURRING_PORTFOLIO_CURRENT_READY",
