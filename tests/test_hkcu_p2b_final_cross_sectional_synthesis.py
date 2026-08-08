@@ -55,6 +55,17 @@ def test_p2a_security_name_schema_is_normalized_fail_closed():
     assert 'security_name_source_column' in b
 
 
+def test_a_share_snapshot_symbol_schema_is_explicit_and_fail_closed():
+    b = BUILDER.read_text(encoding="utf-8")
+    assert 'A_SNAPSHOT_SUFFIX_BY_EXCHANGE = {"SSE": "SH", "SZSE": "SZ"}' in b
+    assert "canonical_a_snapshot_symbol" in b
+    assert "A_CODE_INVALID" in b
+    assert "A_EXCHANGE_UNSUPPORTED" in b
+    assert "A_SNAPSHOT_DUPLICATE_SYMBOL" in b
+    assert "a_symbol = canonical_a_snapshot_symbol(r.a_code, r.a_exchange)" in b
+    assert "a_registry_exchange" in b
+
+
 def test_ah_stage_is_synchronized_and_context_only():
     c = json.loads(CONTRACT.read_text(encoding="utf-8"))
     b = BUILDER.read_text(encoding="utf-8")
