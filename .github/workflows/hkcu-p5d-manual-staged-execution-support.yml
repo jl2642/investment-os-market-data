@@ -1,0 +1,127 @@
+name: HKCU P5D Manual Staged Execution Support
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p5d_manual_staged_execution_support_contract.json'
+      - 'pipeline/hkcu_p5d_manual_staged_execution_support.py'
+      - 'scripts/validate_hkcu_p5d_manual_staged_execution_support.py'
+      - 'tests/test_hkcu_p5d_manual_staged_execution_support.py'
+      - 'docs/HKCU-P5D_MANUAL_STAGED_EXECUTION_SUPPORT.md'
+      - '.github/workflows/hkcu-p5d-manual-staged-execution-support.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p5d_manual_staged_execution_support.py
+      - name: Enforce isolated P5D scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p5d_paths.txt
+          cat /tmp/p5d_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              'config/hkcu_p5d_manual_staged_execution_support_contract.json',
+              'pipeline/hkcu_p5d_manual_staged_execution_support.py',
+              'scripts/validate_hkcu_p5d_manual_staged_execution_support.py',
+              'tests/test_hkcu_p5d_manual_staged_execution_support.py',
+              'docs/HKCU-P5D_MANUAL_STAGED_EXECUTION_SUPPORT.md',
+              '.github/workflows/hkcu-p5d-manual-staged-execution-support.yml',
+          }
+          actual = {x.strip() for x in Path('/tmp/p5d_paths.txt').read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit('P5D_SCOPE_VIOLATION:' + ','.join(bad))
+          protected = ('outputs/hk_candidate/', 'outputs/simulation/', 'outputs/real', 'investment_os_runtime/30_STATE_CURRENT/', 'orders/')
+          mutations = sorted(x for x in actual if x.startswith(protected))
+          if mutations:
+              raise SystemExit('P5D_PROTECTED_PATH_MUTATION:' + ','.join(mutations))
+          PY
+
+  no-execution-development-acceptance:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild P4-1R context
+        run: |
+          rm -rf work/hkcu_p5d_context work/hkcu_p5d_fit work/hkcu_p5d_review work/hkcu_p5d_scenarios work/hkcu_p5d_proposal work/hkcu_p5d_freeze work/hkcu_p5d_memo work/hkcu_p5d_gate work/hkcu_p5d_support
+          python -m pipeline.hkcu_p4_1r_canonical_data_adapter --repo-root . --output work/hkcu_p5d_context
+          python scripts/validate_hkcu_p4_1r_portfolio_context_completion.py --repo-root . --output work/hkcu_p5d_context
+      - name: Rebuild P4-1 fit
+        run: |
+          python -m pipeline.hkcu_p4_1_portfolio_fit_reassessment_decision_adapter --repo-root . --context-dir work/hkcu_p5d_context --output work/hkcu_p5d_fit
+          python scripts/validate_hkcu_p4_1_portfolio_fit_reassessment.py --repo-root . --context-dir work/hkcu_p5d_context --output work/hkcu_p5d_fit
+      - name: Rebuild P4-2 construction review
+        run: |
+          python -m pipeline.hkcu_p4_2_portfolio_construction_review_decision_adapter --repo-root . --context-dir work/hkcu_p5d_context --fit-dir work/hkcu_p5d_fit --output work/hkcu_p5d_review
+          python scripts/validate_hkcu_p4_2_portfolio_construction_review.py --repo-root . --context-dir work/hkcu_p5d_context --fit-dir work/hkcu_p5d_fit --output work/hkcu_p5d_review
+      - name: Rebuild P4-3 scenarios
+        run: |
+          python -m pipeline.hkcu_p4_3_portfolio_construction_scenario_test --repo-root . --p4-2-dir work/hkcu_p5d_review --output work/hkcu_p5d_scenarios
+          python scripts/validate_hkcu_p4_3_portfolio_construction_scenario_test.py --repo-root . --p4-2-dir work/hkcu_p5d_review --output work/hkcu_p5d_scenarios
+      - name: Rebuild P4-4 proposal
+        run: |
+          python -m pipeline.hkcu_p4_4_portfolio_proposal_review --repo-root . --p4-2-dir work/hkcu_p5d_review --p4-3-dir work/hkcu_p5d_scenarios --output work/hkcu_p5d_proposal
+          python scripts/validate_hkcu_p4_4_portfolio_proposal_review.py --repo-root . --p4-2-dir work/hkcu_p5d_review --p4-3-dir work/hkcu_p5d_scenarios --output work/hkcu_p5d_proposal
+      - name: Rebuild P5A frozen entry
+        run: |
+          python -m pipeline.hkcu_p5a_phase5_contract_entry_freeze --repo-root . --p4-4-dir work/hkcu_p5d_proposal --output work/hkcu_p5d_freeze
+          python scripts/validate_hkcu_p5a_phase5_contract_entry_freeze.py --repo-root . --p4-4-dir work/hkcu_p5d_proposal --output work/hkcu_p5d_freeze
+      - name: Rebuild P5B REAL Pre-trade Memo
+        run: |
+          python -m pipeline.hkcu_p5b_real_pretrade_memo --repo-root . --p5a-dir work/hkcu_p5d_freeze --output work/hkcu_p5d_memo
+          python scripts/validate_hkcu_p5b_real_pretrade_memo.py --repo-root . --p5a-dir work/hkcu_p5d_freeze --output work/hkcu_p5d_memo
+      - name: Rebuild P5C User Decision Gate
+        run: |
+          python -m pipeline.hkcu_p5c_user_decision_gate --repo-root . --p5b-dir work/hkcu_p5d_memo --output work/hkcu_p5d_gate
+          python scripts/validate_hkcu_p5c_user_decision_gate.py --repo-root . --p5b-dir work/hkcu_p5d_memo --output work/hkcu_p5d_gate
+      - name: Execute P5D no-execution development acceptance
+        run: |
+          python -m pipeline.hkcu_p5d_manual_staged_execution_support --repo-root . --p5c-dir work/hkcu_p5d_gate --output work/hkcu_p5d_support
+      - name: Independently validate P5D
+        run: |
+          python scripts/validate_hkcu_p5d_manual_staged_execution_support.py --repo-root . --p5c-dir work/hkcu_p5d_gate --output work/hkcu_p5d_support
+      - name: Render P5D acceptance
+        if: always()
+        run: |
+          test ! -f work/hkcu_p5d_support/HKCU_P5D_NO_EXECUTION_DECISION.json || cat work/hkcu_p5d_support/HKCU_P5D_NO_EXECUTION_DECISION.json
+          test ! -f work/hkcu_p5d_support/HKCU_P5D_NO_EXECUTION_SYNTHETIC_ENGINE_CAPABILITY.json || cat work/hkcu_p5d_support/HKCU_P5D_NO_EXECUTION_SYNTHETIC_ENGINE_CAPABILITY.json
+          test ! -f work/hkcu_p5d_support/HKCU_P5D_NO_EXECUTION.md || cat work/hkcu_p5d_support/HKCU_P5D_NO_EXECUTION.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p5d-no-execution-development
+          path: |
+            work/hkcu_p5d_support/HKCU_P5D_NO_EXECUTION*
+            work/hkcu_p5d_gate/HKCU_P5C_USER_DECISION_GATE_DECISION.json
+            work/hkcu_p5d_gate/HKCU_P5C_USER_DECISION_GATE_DECISION_PACKET.csv
+            work/hkcu_p5d_memo/HKCU_P5B_REAL_PRETRADE_MEMO_DECISION.json
+            work/hkcu_p5d_freeze/HKCU_P5A_ENTRY_FREEZE_DECISION.json
+            work/hkcu_p5d_proposal/HKCU_P4_4_PROPOSAL_REVIEW_DECISION.json
+            work/hkcu_p5d_scenarios/HKCU_P4_3_SCENARIO_TEST_DECISION.json
+            work/hkcu_p5d_review/HKCU_P4_2_CONSTRUCTION_REVIEW_DECISION.json
+            work/hkcu_p5d_fit/HKCU_P4_1_REASSESSMENT_DECISION.json
+            work/hkcu_p5d_context/HKCU_P4_1R_DECISION.json
+          if-no-files-found: warn
