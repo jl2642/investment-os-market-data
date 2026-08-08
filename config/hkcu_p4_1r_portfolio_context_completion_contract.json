@@ -14,7 +14,9 @@
     "fmdl5e_factor_dictionary": "outputs/fmdl5e/current/FMDL5E_FACTOR_DICTIONARY.json",
     "a_share_history_manifest": "outputs/history/current/HISTORY_CURRENT_MANIFEST.json",
     "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
-    "simulation_positions_current": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+    "simulation_positions_current": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "p2b_ah_pair_registry": "evidence/hkcu_p2b/HKCU_P2B_AH_PAIR_REGISTRY_20260807.csv",
+    "p4_1r_economic_sector_registry": "evidence/hkcu_p4_1r/HKCU_P4_1R_ECONOMIC_SECTOR_REGISTRY_20260807.csv"
   },
   "entry_contract": {
     "required_p4_1_blocked_status": "BLOCKED_P4_1_PORTFOLIO_CONTEXT",
@@ -22,13 +24,21 @@
     "candidate_count": 70,
     "account_count": 2,
     "account_security_context_count": 140,
-    "required_global_gap_ids": ["CTX_SECTOR_INDUSTRY", "CTX_PORTFOLIO_FACTOR_LOOKTHROUGH", "CTX_MARGINAL_RISK", "CTX_EXPECTED_RETURN_OPPORTUNITY_COST"],
-    "additional_repair_dimensions": ["EXACT_AH_IDENTITY", "POOLED_FUND_ETF_EXPOSURE_CONSTRAINT"]
+    "required_global_gap_ids": [
+      "CTX_SECTOR_INDUSTRY",
+      "CTX_PORTFOLIO_FACTOR_LOOKTHROUGH",
+      "CTX_MARGINAL_RISK",
+      "CTX_EXPECTED_RETURN_OPPORTUNITY_COST"
+    ],
+    "additional_repair_dimensions": [
+      "EXACT_AH_IDENTITY",
+      "POOLED_FUND_ETF_EXPOSURE_CONSTRAINT"
+    ]
   },
   "evidence_policy": {
-    "candidate_industry_source": "EASTMONEY_HK_COMPANY_PROFILE_VIA_AKSHARE",
-    "a_share_industry_source": "EASTMONEY_A_SHARE_INDIVIDUAL_INFO_VIA_AKSHARE",
-    "ah_identity_source": "EASTMONEY_AH_SPOT_VIA_AKSHARE_EXACT_CODE_JOIN",
+    "candidate_industry_source": "P4_1R_STATIC_ECONOMIC_SECTOR_REGISTRY_EXACT_SECURITY_ID",
+    "a_share_industry_source": "P4_1R_STATIC_ECONOMIC_SECTOR_REGISTRY_EXACT_SECURITY_ID",
+    "ah_identity_source": "ACCEPTED_P2B_E1_AH_PAIR_REGISTRY_EXACT_H_CODE_TO_A_CODE",
     "market_risk_source": "ACCEPTED_FMDL5C_HK_HISTORY_AND_ACCEPTED_FMDL2B4_A_SHARE_COMPOSITE_HISTORY_WITH_GOVERNED_POOLED_ASSET_FALLBACK",
     "a_share_holding_history_source": "ACCEPTED_FMDL2B4_COMPOSITE_HISTORY_CANONICAL_FIRST_WITH_GOVERNED_FALLBACK_FOR_NON_STOCK_POOLED_ASSETS",
     "candidate_factor_source": "ACCEPTED_HKCU_CURRENT",
@@ -38,7 +48,11 @@
     "ticker_count_diversification_inference_allowed": false,
     "trailing_return_may_be_called_expected_return": false,
     "ah_discount_may_be_called_alpha": false,
-    "pooled_fund_or_etf_may_be_assigned_single_industry": false
+    "pooled_fund_or_etf_may_be_assigned_single_industry": false,
+    "live_industry_or_ah_source_required_for_production_build": false,
+    "economic_sector_registry_expected_rows": 86,
+    "economic_sector_registry_expected_hk_candidates": 70,
+    "economic_sector_registry_expected_a_share_direct_holdings": 16
   },
   "style_taxonomy": {
     "QUALITY_COMPOUNDER": "QUALITY",
@@ -55,16 +69,23 @@
     "minimum_common_observations": 40,
     "maximum_fmdl5c_history_end_age_calendar_days": 30,
     "low_correlation_threshold": 0.35,
-    "high_correlation_threshold": 0.70,
-    "low_downside_correlation_threshold": 0.40,
-    "high_downside_correlation_threshold": 0.70
+    "high_correlation_threshold": 0.7,
+    "low_downside_correlation_threshold": 0.4,
+    "high_downside_correlation_threshold": 0.7
   },
   "opportunity_cost_policy": {
     "method": "PARETO_CONTEXT_NO_WEIGHTED_SCORE",
-    "dimensions": ["valuation_anchor", "return_120d", "max_drawdown_120d"],
+    "dimensions": [
+      "valuation_anchor",
+      "return_120d",
+      "max_drawdown_120d"
+    ],
     "valuation_anchor": "positive earnings_yield else positive dividend_yield_365d else null",
     "trailing_return_is_forecast": false,
-    "quantile_buckets": [0.3333333333, 0.6666666667],
+    "quantile_buckets": [
+      0.3333333333,
+      0.6666666667
+    ],
     "fixed_top_n": false
   },
   "phase_boundary": {
