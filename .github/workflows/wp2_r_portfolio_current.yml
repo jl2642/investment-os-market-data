@@ -62,119 +62,31 @@ jobs:
       - name: Run WP2-R tests
         run: python -m pytest -q automation/wp2_r/tests
 
-      - name: Validate schemas, cash, equity compensation and economic boundaries
+      - name: Validate Canonical-relative economic and market contract
         shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           set -Eeuo pipefail
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          from jsonschema import Draft202012Validator
+          args=()
+          if [[ "${HEAD_REF}" == automation/wp2r-eod-* ]]; then
+            args+=(--require-fresh)
+          fi
+          python automation/wp2_r/validate_portfolio_current_contract.py --repo-root . "${args[@]}"
 
-          root = Path('.')
-          pairs = [
-              ('investment_os_runtime/20_SCHEMAS_AND_INTERFACES/portfolio_positions_current.schema.json',
-               'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json'),
-              ('investment_os_runtime/20_SCHEMAS_AND_INTERFACES/portfolio_positions_current.schema.json',
-               'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json'),
-              ('investment_os_runtime/20_SCHEMAS_AND_INTERFACES/portfolio_marks_current.schema.json',
-               'investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json'),
-              ('investment_os_runtime/20_SCHEMAS_AND_INTERFACES/transaction_delta_ledger.schema.json',
-               'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json'),
-          ]
-          for schema_path, data_path in pairs:
-              schema = json.loads((root / schema_path).read_text(encoding='utf-8'))
-              data = json.loads((root / data_path).read_text(encoding='utf-8'))
-              errors = sorted(Draft202012Validator(schema).iter_errors(data), key=lambda e: list(e.path))
-              if errors:
-                  raise SystemExit(f'SCHEMA_FAILURE:{data_path}:' + '|'.join(e.message for e in errors))
-
-          real = json.loads((root / pairs[0][1]).read_text(encoding='utf-8'))
-          sim = json.loads((root / pairs[1][1]).read_text(encoding='utf-8'))
-          marks = json.loads((root / pairs[2][1]).read_text(encoding='utf-8'))
-          ledger = json.loads((root / pairs[3][1]).read_text(encoding='utf-8'))
-          real_source = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json').read_text(encoding='utf-8'))
-          sim_source = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json').read_text(encoding='utf-8'))
-          equity = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json').read_text(encoding='utf-8'))
-          run = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json').read_text(encoding='utf-8'))
-          acceptance = json.loads((root / 'investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
-
-          real_by_id = {x['security_id']: x for x in real['holdings']}
-          assert len(real_by_id) == 8
-          assert len(sim['holdings']) == 16
-          assert {'017534.OF', '110017.OF', '217003.OF'} <= set(real_by_id)
-          assert real_by_id['605090.SH']['quantity'] == 4950
-          assert real_by_id['605090.SH']['available_quantity'] == 4950
-          assert 'Q99460' not in real_by_id and 'Q99461' not in real_by_id
-
-          assert len(ledger['entries']) == 5
-          assert ledger['applied_delta_count'] == 0
-          assert all(x['status'] == 'REJECTED' for x in ledger['entries'])
-          assert not any(x['status'] == 'APPLIED_TO_POSITION_CURRENT' for x in ledger['entries'])
-          assert ledger['continuity_confirmed_through'] == '2026-08-04T09:52:00+08:00'
-          assert ledger['policy']['trade_authority'] == 'NONE'
-
-          recognition = equity['current_recognition']
-          assert recognition['ordinary_share_position']['quantity'] == 4950
-          assert recognition['pending_entitlement']['quantity'] == 4950
-          assert recognition['pending_entitlement']['market_value'] == 0
-          assert recognition['pending_entitlement']['included_in_real_account_current'] is False
-          assert recognition['pending_entitlement']['included_in_total_assets'] is False
-          assert {x['code'] for x in recognition['technical_entitlement_codes']} == {'Q99460', 'Q99461'}
-          assert all(x['market_value'] == 0 for x in recognition['technical_entitlement_codes'])
-          assert equity['historical_closed_batches'][0]['total_sold_quantity'] == 13200
-          assert equity['historical_closed_batches'][0]['current_position_quantity'] == 0
-
-          assert marks['automatic_position_mutations'] == 0
-          assert run['economic_transaction_mutations'] == 0
-          assert run['position_or_cost_mutations_from_reconciliation'] == 0
-          assert run['orders'] == 0
-          assert acceptance['wp5_unblocked'] is False
-          assert acceptance['account_summary_controls']['forced_reconciliation_mutations'] == 0
-
-          assert real['summary']['execution_cash_balance'] == 769.45
-          assert sim['summary']['execution_cash_balance'] == 221661.98
-          assert real['summary']['account_total_assets'] == round(real['summary']['position_market_value'] + real['summary']['execution_cash_balance'] + real['summary']['broker_reconciliation_exception_amount'], 6)
-          assert sim['summary']['account_total_assets'] == round(sim['summary']['position_market_value'] + sim['summary']['execution_cash_balance'], 6)
-          assert real_source['summary']['brokerage_total_assets'] == 615390.25
-          assert real_source['summary']['broker_reconciliation_exception_amount'] == 237.50
-          assert sim_source['summary']['total_assets'] == 1021157.08
-          assert sim_source['summary']['market_value_reconciliation_exception_amount'] == -43.0
-          assert real['summary']['historical_wp2_3_watermark'] == '2026-07-24_TRACKED_CLOSE_BOND_NAV_MIXED'
-          assert sim['summary']['historical_wp2_3_watermark'] == '2026-07-24_CLOSE'
-          assert all(x['broker_verified'] is False for x in real['holdings'])
-          assert run['trade_authority'] == marks['trade_authority'] == acceptance['trade_authority'] == equity['trade_authority'] == 'NONE'
-          print({
-              'real': 8,
-              'simulation': 16,
-              'delta_evidence_rows': 5,
-              'applied_deltas': 0,
-              'ordinary_605090': 4950,
-              'pending_605090': 4950,
-              'real_generated_total_assets': real['summary']['account_total_assets'],
-              'real_broker_total_assets': real_source['summary']['brokerage_total_assets'],
-              'simulation_generated_total_assets': sim['summary']['account_total_assets'],
-              'simulation_reported_total_assets': sim_source['summary']['total_assets'],
-              'orders': 0,
-              'trade_authority': 'NONE',
-          })
-          PY
-
-      - name: Prove forbidden domains unchanged and authorized source mutations bounded
+      - name: Prove forbidden domains unchanged and mark-only sources bounded
         if: github.event_name == 'pull_request'
         shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           set -Eeuo pipefail
           git fetch origin main
           python - <<'PY'
+          import os
           import subprocess
 
           changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
-          authorized_legacy_sources = {
-              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
-              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
-          }
-          assert authorized_legacy_sources <= changed
           forbidden_prefixes = (
               'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/',
               'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/',
@@ -182,6 +94,18 @@ jobs:
           leaked = sorted(path for path in changed if path.startswith(forbidden_prefixes))
           if leaked:
               raise SystemExit('FORBIDDEN_WP2R_MUTATION:' + ','.join(leaked))
+
+          if os.environ.get('HEAD_REF', '').startswith('automation/wp2r-eod-'):
+              protected_sources = {
+                  'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json',
+                  'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+              }
+              mutated = sorted(protected_sources & changed)
+              if mutated:
+                  raise SystemExit('WP2R_MARK_ONLY_ECONOMIC_SOURCE_MUTATION:' + ','.join(mutated))
+          print({'changed_files': len(changed), 'forbidden_mutations': 0, 'trade_authority': 'NONE'})
           PY
 
       - name: Publish deterministic generated Current to R2 branch
@@ -208,13 +132,10 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP2-R Portfolio Current
-          - Real positions: 8
-          - Simulation positions: 16
-          - User-confirmed equity-compensation evidence rows: 5
-          - Applied position deltas: 0
-          - 605090 ordinary shares recognized: 4,950
-          - 605090 pending entitlement excluded: 4,950
-          - Position/mark/Broker watermarks: separated
+          - Economic position and cost state is validated dynamically against current Canonical source inputs
+          - Production EOD branches require fresh marks; maintenance PRs must remain fail-closed when marks are stale
+          - Mark-only EOD branches are prohibited from mutating user-confirmed economic source state
+          - Position/mark/Broker watermarks remain separated
           - Execution cash included; external real-account liquidity excluded
           - Historical WP2-3 differences disclosed, never force-reconciled
           - Automatic quantity/cost mutations: 0
