@@ -1,0 +1,124 @@
+{
+  "contract_id": "HKCU_P4_2_PORTFOLIO_CONSTRUCTION_REVIEW_V1",
+  "program_id": "HKCU-P4-2",
+  "phase": "P4_2_PORTFOLIO_CONSTRUCTION_REVIEW",
+  "as_of_date": "2026-08-07",
+  "objective": "Convert the accepted P4-1 Portfolio Fit reassessment into account-specific construction priorities, substitution-only reviews and bounded single-security analytical sizing envelopes using accepted P4-1R risk/context evidence, without creating an aggregate portfolio allocation, mutating any state, creating orders or granting trade authority.",
+  "authoritative_inputs": {
+    "p4_0_contract": "config/hkcu_p4_0_portfolio_fit_contract.json",
+    "p4_1_reassessment_contract": "config/hkcu_p4_1_portfolio_fit_reassessment_contract.json",
+    "candidate_current": "outputs/hk_candidate/current/HK_CANDIDATE_CURRENT.csv",
+    "hkcu_current": "outputs/hkcu1/current/HKCU1_R2E_INVESTABLE_UNIVERSE.csv",
+    "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation_positions_current": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "core_portfolio_position_policy": "investment_os_runtime/10_CORE_STATIC/06_PORTFOLIO_POSITION_AND_CAPITAL_MIGRATION.md",
+    "core_pretrade_policy": "investment_os_runtime/10_CORE_STATIC/07_DECISION_PRETRADE_CONFIRMATION_AND_WRITEBACK.md"
+  },
+  "entry_contract": {
+    "required_p4_1_status": "PASS_P4_1_PORTFOLIO_FIT_REASSESSMENT",
+    "required_p4_1r_status": "PASS_P4_1R_PORTFOLIO_CONTEXT_COMPLETION",
+    "entry_candidate_count": 70,
+    "account_count": 2,
+    "account_security_review_count": 140,
+    "required_trade_authority": "NONE"
+  },
+  "construction_states": [
+    "PRIMARY_BUILD_REVIEW",
+    "SECONDARY_BUILD_REVIEW",
+    "PROBE_BUILD_REVIEW",
+    "SUBSTITUTION_REVIEW_ONLY",
+    "WATCH_NO_SIZE",
+    "NO_INCREMENTAL_ROLE"
+  ],
+  "combined_routes": [
+    "ADVANCE_DUAL_SCENARIO_TEST",
+    "ADVANCE_REAL_SCENARIO_TEST",
+    "ADVANCE_SIMULATION_SCENARIO_TEST",
+    "ADVANCE_SUBSTITUTION_SCENARIO_TEST",
+    "HOLD_PORTFOLIO_WATCH"
+  ],
+  "construction_policy": {
+    "method": "INDEPENDENT_CONSTRAINT_CAPS_THEN_MINIMUM",
+    "weighted_score_allowed": false,
+    "fixed_top_n_allowed": false,
+    "rank_may_authorize_allocation": false,
+    "individual_envelopes_are_non_additive": true,
+    "aggregate_portfolio_must_be_built_in_later_scenario_gate": true,
+    "tier_weight_cap": {"CORE": 0.08, "WATCH": 0.05},
+    "tier_risk_reference_weight": {"CORE": 0.06, "WATCH": 0.04},
+    "single_name_loss_budget": {"CORE": 0.0125, "WATCH": 0.009},
+    "drawdown_floor_abs": 0.15,
+    "direct_sector_weight_limit": 0.20,
+    "direct_style_weight_limit": 0.30,
+    "max_position_fraction_of_adv": 0.0025,
+    "minimum_actionable_weight": 0.005,
+    "probe_hard_cap": {"REAL": 0.015, "SIMULATION": 0.02},
+    "material_confidence_cap": {"REAL": 0.0, "SIMULATION": 0.015},
+    "bounded_confidence_cap_two_plus": 0.025,
+    "quantitative_only_thesis_cap": 0.03,
+    "marginal_risk_multiplier": {
+      "IMPROVES_DIVERSIFICATION": 1.0,
+      "DIVERSIFIES_RETURN_STREAM_BUT_RAISES_RISK_BUDGET": 0.8,
+      "MIXED_RISK_CONTRIBUTION": 0.6,
+      "ADDS_CORRELATED_RISK": 0.4,
+      "UNRESOLVED": 0.0
+    },
+    "opportunity_cost_multiplier": {
+      "LOW_RELATIVE_OPPORTUNITY_COST": 1.0,
+      "MODERATE_RELATIVE_OPPORTUNITY_COST": 0.75,
+      "HIGH_RELATIVE_OPPORTUNITY_COST": 0.0,
+      "UNRESOLVED": 0.0
+    },
+    "suggested_range_fraction": {
+      "PRIMARY_BUILD_REVIEW": {"min": 0.50, "max": 1.00},
+      "SECONDARY_BUILD_REVIEW": {"min": 0.35, "max": 1.00},
+      "PROBE_BUILD_REVIEW": {"min": 0.25, "max": 1.00}
+    },
+    "classification_policy": {
+      "high_opportunity_cost_new_size_allowed": false,
+      "exact_ah_overlap_net_new_size_allowed": false,
+      "real_material_confidence_cap_new_size_allowed": false,
+      "primary_requires_low_opportunity_cost_and_improves_diversification": true,
+      "secondary_requires_low_or_moderate_opportunity_cost_and_bounded_risk": true,
+      "probe_is_for_positive_fit_with_evidence_or_risk_constraints": true
+    },
+    "funding_policy": {
+      "real_cash_semantics": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED",
+      "real_zero_broker_cash_is_not_security_rejection": true,
+      "simulation_cash_is_funding_context_only": true,
+      "funding_source_must_be_explicit": true
+    },
+    "substitution_policy": {
+      "exact_ah_overlap_requires_substitution_review": true,
+      "replacement_equivalent_cap_cannot_exceed_existing_overlap_weight": true,
+      "net_new_weight_for_substitution_only": 0.0
+    }
+  },
+  "phase_boundary": {
+    "portfolio_construction_review_authorized": true,
+    "single_security_analytical_sizing_envelope_authorized": true,
+    "aggregate_portfolio_allocation_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "order_creation_authorized": false,
+    "pretrade_memo_authorized": false,
+    "user_trade_confirmation_record_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "account_security_review_count": 140,
+    "combined_security_count": 70,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "portfolio_allocations": 0,
+    "orders_created": 0,
+    "pass_status": "PASS_P4_2_PORTFOLIO_CONSTRUCTION_REVIEW",
+    "integrity_fail_status": "FAIL_P4_2_PORTFOLIO_CONSTRUCTION_REVIEW_INTEGRITY",
+    "next_gate_on_pass": "P4_3_PORTFOLIO_CONSTRUCTION_SCENARIO_TEST",
+    "repair_gate": "P4_2_PORTFOLIO_CONSTRUCTION_REVIEW_REPAIR",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P4_2_CONSTRUCTION_REVIEW"
+}
