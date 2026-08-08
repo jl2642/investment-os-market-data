@@ -94,7 +94,7 @@ def rebuild_report(decision: dict[str, Any]) -> str:
     ])
 
 
-def refine(root: Path, fit_dir: Path, out: Path) -> dict[str, Any]:
+def refine(root: Path, context_dir: Path, out: Path) -> dict[str, Any]:
     contract = raw.read_json(root / "config/hkcu_p4_2_portfolio_construction_review_contract.json")
     prefix = contract["output_prefix"]
     review_file = out / f"{prefix}_ACCOUNT_SECURITY_REVIEW.csv"
@@ -106,8 +106,8 @@ def refine(root: Path, fit_dir: Path, out: Path) -> dict[str, Any]:
 
     review = pd.read_csv(review_file, dtype={"stock_code_5d": str}, keep_default_na=False)
     combined = pd.read_csv(combined_file, dtype={"stock_code_5d": str}, keep_default_na=False)
-    fit = pd.read_csv(
-        fit_dir / "HKCU_P4_1_REASSESSMENT_ACCOUNT_SECURITY_ASSESSMENT.csv",
+    context = pd.read_csv(
+        context_dir / "HKCU_P4_1R_ACCOUNT_SECURITY_CONTEXT.csv",
         dtype={"stock_code_5d": str},
         keep_default_na=False,
     )
@@ -115,7 +115,7 @@ def refine(root: Path, fit_dir: Path, out: Path) -> dict[str, Any]:
     quality = raw.read_json(quality_file)
     manifest = raw.read_json(manifest_file)
 
-    raw_style = fit.set_index(["security_id", "account"])["existing_same_style_weight"].to_dict()
+    raw_style = context.set_index(["security_id", "account"])["existing_same_style_weight"].to_dict()
     review["p4_1r_existing_same_style_weight_raw"] = [
         raw.finite(raw_style.get((str(r.security_id), str(r.account)))) or 0.0
         for r in review.itertuples(index=False)
@@ -156,7 +156,7 @@ def refine(root: Path, fit_dir: Path, out: Path) -> dict[str, Any]:
 def build(root: Path, context_dir: Path, fit_dir: Path, out: Path) -> dict[str, Any]:
     raw.independent_caps = construction_caps
     raw.build(root, context_dir, fit_dir, out)
-    return refine(root, fit_dir, out)
+    return refine(root, context_dir, out)
 
 
 def main() -> None:
