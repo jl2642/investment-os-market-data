@@ -1,0 +1,80 @@
+name: HKCU P3-0 Candidate Graduation Contract
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p3_0_candidate_graduation_contract.json'
+      - 'scripts/validate_hkcu_p3_0_candidate_graduation_contract.py'
+      - 'tests/test_hkcu_p3_0_candidate_graduation_contract.py'
+      - 'docs/HKCU-P3-0_CANDIDATE_GRADUATION_CONTRACT.md'
+      - '.github/workflows/hkcu-p3-0-candidate-graduation-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p3_0_candidate_graduation_contract.py
+      - name: Enforce isolated P3-0 scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p3_0_paths.txt
+          cat /tmp/p3_0_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              'config/hkcu_p3_0_candidate_graduation_contract.json',
+              'scripts/validate_hkcu_p3_0_candidate_graduation_contract.py',
+              'tests/test_hkcu_p3_0_candidate_graduation_contract.py',
+              'docs/HKCU-P3-0_CANDIDATE_GRADUATION_CONTRACT.md',
+              '.github/workflows/hkcu-p3-0-candidate-graduation-contract.yml',
+          }
+          actual = {x.strip() for x in Path('/tmp/p3_0_paths.txt').read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit('P3_0_SCOPE_VIOLATION:' + ','.join(bad))
+          protected = ('outputs/candidate/', 'outputs/simulation/', 'outputs/real', 'state/', 'orders/')
+          mutations = sorted(x for x in actual if x.startswith(protected))
+          if mutations:
+              raise SystemExit('P3_0_PROTECTED_PATH_MUTATION:' + ','.join(mutations))
+          PY
+
+  real-contract-acceptance:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Validate P3-0 contract against accepted P2B Final lineage
+        run: |
+          rm -rf work/hkcu_p3_0
+          python scripts/validate_hkcu_p3_0_candidate_graduation_contract.py \
+            --repo-root . \
+            --output work/hkcu_p3_0
+      - name: Render P3-0 decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p3_0/HKCU_P3_0_CONTRACT_DECISION.json || cat work/hkcu_p3_0/HKCU_P3_0_CONTRACT_DECISION.json
+          test ! -f work/hkcu_p3_0/HKCU_P3_0_CONTRACT_QUALITY_REPORT.json || cat work/hkcu_p3_0/HKCU_P3_0_CONTRACT_QUALITY_REPORT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p3-0-candidate-graduation-contract
+          path: work/hkcu_p3_0/HKCU_P3_0_*
+          if-no-files-found: error
