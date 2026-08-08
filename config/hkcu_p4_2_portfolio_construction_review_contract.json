@@ -35,6 +35,7 @@
     "ADVANCE_REAL_SCENARIO_TEST",
     "ADVANCE_SIMULATION_SCENARIO_TEST",
     "ADVANCE_SUBSTITUTION_SCENARIO_TEST",
+    "ADVANCE_MIXED_NEW_AND_SUBSTITUTION_SCENARIO_TEST",
     "HOLD_PORTFOLIO_WATCH"
   ],
   "construction_policy": {
@@ -50,6 +51,7 @@
     "drawdown_floor_abs": 0.15,
     "direct_sector_weight_limit": 0.20,
     "direct_style_weight_limit": 0.30,
+    "direct_style_scope": "DIRECT_EQUITY_ONLY_EXCLUDES_FIXED_INCOME_AND_GENERIC_POOLED",
     "max_position_fraction_of_adv": 0.0025,
     "minimum_actionable_weight": 0.005,
     "probe_hard_cap": {"REAL": 0.015, "SIMULATION": 0.02},
@@ -91,6 +93,8 @@
     "substitution_policy": {
       "exact_ah_overlap_requires_substitution_review": true,
       "replacement_equivalent_cap_cannot_exceed_existing_overlap_weight": true,
+      "substitution_is_exposure_neutral_for_net_new_sector_style_room": true,
+      "mixed_new_and_substitution_account_semantics_must_both_be_preserved": true,
       "net_new_weight_for_substitution_only": 0.0
     }
   },
