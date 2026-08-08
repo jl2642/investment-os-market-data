@@ -18,6 +18,7 @@ EXPECTED_OVERRIDE_KEYS = {
     ("HKEX:03759", "CATALYST"),
     ("HKEX:02313", "EARNINGS_EXPECTATION_REVISION"),
     ("HKEX:02313", "CATALYST"),
+    ("HKEX:06110", "EARNINGS_EXPECTATION_REVISION"),
     ("HKEX:06110", "CATALYST"),
 }
 
@@ -54,7 +55,7 @@ def main() -> None:
     if set(decision.get("blocked_security_ids", [])) != EXPECTED_BLOCKERS: errors.append("BLOCKED_SET")
     if set(blockers["security_id"]) != EXPECTED_BLOCKERS: errors.append("BLOCKER_FILE_SET")
     if int(decision.get("retained_blocker_event_count", -1)) != 2: errors.append("BLOCKER_EVENT_COUNT")
-    if int(decision.get("targeted_override_count", -1)) != 6: errors.append("OVERRIDE_COUNT")
+    if int(decision.get("targeted_override_count", -1)) != 7: errors.append("OVERRIDE_COUNT")
     if int(decision.get("score_non_null_count", -1)) != 0: errors.append("SCORE_COUNT")
     if decision.get("formal_candidate_graduation_allowed") is not False: errors.append("CANDIDATE_GRADUATION")
     if decision.get("trade_authority") != TRADE_AUTHORITY: errors.append("TRADE_AUTHORITY")
@@ -76,7 +77,7 @@ def main() -> None:
     override_rows = dim[dim["decision_lineage"] == "S2_TARGETED_PRIMARY_OVERRIDE"]
     actual_override_keys = set(zip(override_rows["security_id"], override_rows["research_dimension"]))
     if actual_override_keys != EXPECTED_OVERRIDE_KEYS: errors.append("OVERRIDE_KEY_SET")
-    if len(override_rows) != 6: errors.append("OVERRIDE_LINEAGE_COUNT")
+    if len(override_rows) != 7: errors.append("OVERRIDE_LINEAGE_COUNT")
     if not override_rows["source_url"].str.startswith("https://www1.hkexnews.hk/").all(): errors.append("OVERRIDE_SOURCE")
     dates = pd.to_datetime(override_rows["evidence_date"], errors="coerce")
     if dates.isna().any() or (dates > pd.Timestamp("2026-08-07")).any(): errors.append("OVERRIDE_DATE")
@@ -99,9 +100,12 @@ def main() -> None:
     if len(se) == 1 and len(sc) == 1 and se.iloc[0]["event_id"] != sc.iloc[0]["event_id"]: errors.append("SHENZHOU_EVENT_LINEAGE")
     if len(se) == 1 and (se.iloc[0]["evidence_date"] != "2026-08-07" or "2026080700424.pdf" not in se.iloc[0]["source_url"]): errors.append("SHENZHOU_FRESH_SOURCE")
 
-    top = dim[(dim["security_id"] == "HKEX:06110") & (dim["research_dimension"] == "CATALYST")]
-    if len(top) != 1 or top.iloc[0]["final_direction"] != "NEGATIVE" or not b(top.iloc[0]["final_blocker"]): errors.append("TOPSPORTS_BLOCKER")
-    if len(top) == 1 and (top.iloc[0]["evidence_date"] != "2026-07-22" or "2026072200069.pdf" not in top.iloc[0]["source_url"]): errors.append("TOPSPORTS_SOURCE")
+    te = dim[(dim["security_id"] == "HKEX:06110") & (dim["research_dimension"] == "EARNINGS_EXPECTATION_REVISION")]
+    tc = dim[(dim["security_id"] == "HKEX:06110") & (dim["research_dimension"] == "CATALYST")]
+    if len(te) != 1 or te.iloc[0]["final_direction"] != "NEGATIVE" or te.iloc[0]["final_dimension_state"] != "CONFIDENCE_CAP_MONITOR" or b(te.iloc[0]["final_blocker"]): errors.append("TOPSPORTS_EARNINGS_CONFIDENCE_CAP")
+    if len(tc) != 1 or tc.iloc[0]["final_direction"] != "NEGATIVE" or not b(tc.iloc[0]["final_blocker"]): errors.append("TOPSPORTS_BLOCKER")
+    if len(te) == 1 and len(tc) == 1 and te.iloc[0]["event_id"] != tc.iloc[0]["event_id"]: errors.append("TOPSPORTS_EVENT_LINEAGE")
+    if len(tc) == 1 and (tc.iloc[0]["evidence_date"] != "2026-07-22" or "2026072200069.pdf" not in tc.iloc[0]["source_url"]): errors.append("TOPSPORTS_SOURCE")
 
     if errors:
         raise SystemExit("P2B_E2_S4_VALIDATION_FAILED:" + "|".join(sorted(set(errors))))
