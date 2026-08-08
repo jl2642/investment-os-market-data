@@ -48,6 +48,12 @@ def test_accepted_freshness_window_allows_recent_prior_day_but_rejects_future_or
     assert MOD.freshness_within_window("2026-07-30", "2026-08-07", 7) == (False, 8)
 
 
+def test_market_freshness_uses_canonical_hkcu_market_latest_date_not_missing_p2b_price_date():
+    source = PIPELINE.read_text(encoding="utf-8")
+    assert 'h.get("market_latest_date")' in source
+    assert 'getattr(s, "price_date"' not in source
+
+
 def test_valuation_support_never_uses_ah_discount_as_substitute():
     state, passed, _ = MOD.valuation_support(pd.Series({"earnings_yield": "", "pe_ratio": "", "dividend_yield_365d": "", "h_discount_to_a_pct": 35.0}))
     assert state == "MISSING"
