@@ -5,10 +5,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from pipeline.hkcu_p4_1_portfolio_fit_reassessment import (
-    combined_route,
-    compound_no_incremental,
-    runtime_context_gaps,
+from pipeline.hkcu_p4_1_portfolio_fit_reassessment import combined_route, runtime_context_gaps
+from pipeline.hkcu_p4_1_portfolio_fit_reassessment_decision_adapter import (
+    NON_SECURITY_SPECIFIC_NOTES,
+    clean_fit_constraints,
+    compound_no_incremental_v2,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,7 +43,7 @@ def test_contract_entry_and_boundary() -> None:
     assert c["phase_boundary"]["trade_authority"] == "NONE"
 
 
-def test_forbidden_shortcuts_remain_disabled() -> None:
+def test_forbidden_shortcuts_and_universal_constraint_leakage_disabled() -> None:
     p = contract()["decision_policy"]
     assert p["weighted_score_allowed"] is False
     assert p["fixed_top_n_allowed"] is False
@@ -52,7 +53,10 @@ def test_forbidden_shortcuts_remain_disabled() -> None:
     assert p["trailing_return_may_be_called_expected_return"] is False
     assert p["ah_discount_may_be_called_alpha"] is False
     assert p["exact_ah_overlap_is_named_constraint_not_automatic_rejection"] is True
-    assert p["pooled_exposure_is_named_constraint_not_automatic_defer"] is True
+    assert p["pooled_exposure_is_explicit_review_context_not_candidate_specific_duplicate_constraint"] is True
+    assert p["numeric_sizing_phase_boundary_is_not_security_fit_constraint"] is True
+    assert p["real_cash_funding_decision_is_not_security_fit_constraint"] is True
+    assert clean_fit_constraints("|".join(sorted(NON_SECURITY_SPECIFIC_NOTES))) == []
 
 
 def test_combined_route_is_derived_only_from_account_states() -> None:
@@ -64,23 +68,37 @@ def test_combined_route_is_derived_only_from_account_states() -> None:
     assert combined_route("BLOCK_PORTFOLIO_FIT", "BLOCK_PORTFOLIO_FIT") == "BLOCK_PORTFOLIO_FIT"
 
 
-def test_non_direct_no_incremental_requires_joint_evidence() -> None:
+def test_non_direct_no_incremental_requires_four_dimension_joint_evidence() -> None:
     base = {
-        "marginal_risk_state": "ADDS_CORRELATED_RISK",
+        "marginal_risk_state": "MIXED_RISK_CONTRIBUTION",
         "opportunity_cost_state": "HIGH_RELATIVE_OPPORTUNITY_COST",
         "sector_impact_state": "INCREASES_EXISTING_DIRECT_SECTOR",
         "style_impact_state": "INCREASES_EXISTING_STYLE",
     }
-    assert compound_no_incremental(pd.Series(base)) is True
-    for key in list(base):
-        altered = dict(base)
-        altered[key] = {
-            "marginal_risk_state": "MIXED_RISK_CONTRIBUTION",
-            "opportunity_cost_state": "MODERATE_RELATIVE_OPPORTUNITY_COST",
-            "sector_impact_state": "ADDS_NEW_DIRECT_SECTOR_EXPOSURE",
-            "style_impact_state": "ADDS_DISTINCT_STYLE_EXPOSURE",
-        }[key]
-        assert compound_no_incremental(pd.Series(altered)) is False
+    assert compound_no_incremental_v2(pd.Series(base)) is True
+
+    improved = dict(base)
+    improved["marginal_risk_state"] = "IMPROVES_DIVERSIFICATION"
+    assert compound_no_incremental_v2(pd.Series(improved)) is False
+
+    lower_opp = dict(base)
+    lower_opp["opportunity_cost_state"] = "MODERATE_RELATIVE_OPPORTUNITY_COST"
+    assert compound_no_incremental_v2(pd.Series(lower_opp)) is False
+
+    new_sector = dict(base)
+    new_sector["sector_impact_state"] = "ADDS_NEW_DIRECT_SECTOR_EXPOSURE"
+    assert compound_no_incremental_v2(pd.Series(new_sector)) is False
+
+    new_style = dict(base)
+    new_style["style_impact_state"] = "ADDS_DISTINCT_STYLE_EXPOSURE"
+    assert compound_no_incremental_v2(pd.Series(new_style)) is False
+
+
+def test_security_specific_constraints_are_preserved() -> None:
+    got = clean_fit_constraints(
+        "NUMERIC_SIZE_REQUIRES_P4_2|EXACT_AH_OVERLAP|INCREASES_EXISTING_STYLE|FUNDING_REQUIRES_SEPARATE_CAPITAL_DECISION"
+    )
+    assert got == ["EXACT_AH_OVERLAP", "INCREASES_EXISTING_STYLE"]
 
 
 def test_runtime_context_gate_accepts_only_complete_p4_1r() -> None:
