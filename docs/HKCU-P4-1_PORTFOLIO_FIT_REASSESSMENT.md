@@ -67,6 +67,23 @@ REAL and SIMULATION fit states remain separate and are combined only through the
 
 A clean PASS advances to `P4_2_PORTFOLIO_CONSTRUCTION_REVIEW`.
 
+## Real-run acceptance
+
+The accepted real-input reassessment rebuilt and independently validated P4-1R before executing Portfolio Fit. The runtime context remained complete: 70 Candidate rows, 24 current holding rows, 140 Account×Security context rows, 140/140 context-ready rows, 70/70 Candidate industry coverage, 13/13 exact A/H mappings, and zero residual decision-critical gaps.
+
+The reassessment then materialized all 15 P4-0 rules for each account/security pair: 140 Account×Security assessments and 2,100 rule judgments. The final fit-state distribution was:
+
+- REAL: 3 `FIT`, 66 `FIT_WITH_CONSTRAINTS`, 1 `NO_INCREMENTAL_ROLE`;
+- SIMULATION: 67 `FIT_WITH_CONSTRAINTS`, 3 `NO_INCREMENTAL_ROLE`;
+- Combined routing: 67 `ADVANCE_DUAL_CONSTRUCTION_REVIEW`, 2 `ADVANCE_REAL_ACCOUNT_REVIEW`, 1 `HOLD_PORTFOLIO_WATCH`;
+- zero `DEFER_PORTFOLIO_CONTEXT` and zero `BLOCK_PORTFOLIO_FIT`.
+
+The three REAL `FIT` securities are Huishang Bank (03698), Bank of China (03988) and ICBC (01398). HKEX (00388) and Beijing Enterprises Water (00371) remain positive for REAL but are `NO_INCREMENTAL_ROLE` in SIMULATION, so they route to REAL-only construction review. Sinopec Corp (00386) is `NO_INCREMENTAL_ROLE` in both accounts and therefore remains `HOLD_PORTFOLIO_WATCH` at the portfolio level.
+
+The independent validator returned `PASS` with `errors=[]`. It additionally confirmed that universal governance notes were not leaked into security-specific fit constraints, P4R14 sizing-phase boundaries and P4R15 cash semantics were preserved without mechanically downgrading all securities, generic pooled exposure was not misclassified as candidate-specific duplicate exposure, the no-incremental decision remained multi-dimensional, and no forbidden weighted score, fixed Top-N, fuzzy identity matching, neutral filling or ticker-count diversification inference was used.
+
+Operational status: `PASS_P4_1_PORTFOLIO_FIT_REASSESSMENT`. Next gate: `P4_2_PORTFOLIO_CONSTRUCTION_REVIEW`.
+
 ## Governance boundary
 
 This transaction is assessment-only. It does not:
@@ -80,4 +97,4 @@ This transaction is assessment-only. It does not:
 - change cash policy;
 - grant trade authority.
 
-`trade_authority=NONE` throughout.
+Candidate, Simulation, Real Account, allocation and order mutations remain zero. `trade_authority=NONE` throughout.
