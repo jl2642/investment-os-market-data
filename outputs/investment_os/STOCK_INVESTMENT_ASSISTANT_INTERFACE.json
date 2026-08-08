@@ -1,0 +1,32 @@
+{
+  "interface_id": "STOCK_INVESTMENT_ASSISTANT_UNIFIED_CHATGPT_INTERFACE_V1",
+  "canonical_repository": "jl2642/investment-os-market-data",
+  "canonical_branch": "main",
+  "purpose": "Single read entrypoint for ChatGPT daily operations across A-share, HK Stock Connect, bounded US research, REAL and SIMULATION portfolios.",
+  "read_paths": {
+    "a_market": "outputs/current/CURRENT_RELEASE.json",
+    "a_history": "outputs/history/current/HISTORY_CURRENT_RELEASE.json",
+    "a_factors": "outputs/factors/current/FACTOR_CURRENT_RELEASE.json",
+    "a_screening": "outputs/current/FMDL_1BC_RUN_REPORT.json",
+    "a_candidate_membership": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+    "a_candidate_operations": "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json",
+    "hk_candidate": "outputs/hk_candidate/current/HK_CANDIDATE_CURRENT.csv",
+    "hk_candidate_decision": "outputs/hk_candidate/current/HK_CANDIDATE_DECISION.json",
+    "hk_phase5_contract": "config/hkcu_p5e_zero_execution_reconciliation_observation_contract.json",
+    "real_portfolio": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation_portfolio": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "wp3r_acceptance": "investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json",
+    "system_current": "outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json"
+  },
+  "query_modes": [
+    "DAILY_OPERATING_STATUS",
+    "DAILY_INVESTMENT_REPORT",
+    "REAL_SIMULATION_CANDIDATE_REVIEW",
+    "NEW_A_HK_RESEARCH_OPPORTUNITIES",
+    "WEEKLY_REBALANCE_ADVICE",
+    "MONTHLY_QUARTERLY_ATTRIBUTION_REVIEW"
+  ],
+  "write_boundary": "READ_AND_RECOMMEND_ONLY; governed source workflows may propose state changes, but ChatGPT must not infer execution or bypass user gates.",
+  "orders": 0,
+  "trade_authority": "NONE"
+}
