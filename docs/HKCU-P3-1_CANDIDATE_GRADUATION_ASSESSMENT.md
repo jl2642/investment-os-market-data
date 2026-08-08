@@ -29,16 +29,36 @@ Decision rules cover:
 
 No weighted composite score is created. Missing consensus remains an information limitation rather than a bearish signal. A/H relative value is context only and cannot satisfy the valuation rule by itself.
 
+## Freshness semantics
+
+P3R04 reuses the accepted HKCU / FMDL-5E freshness contract instead of inventing a stricter Phase-3 rule. The accepted FMDL-5E maximum price age is seven calendar days. P3-1 therefore requires:
+
+- HKCU `freshness_status=CURRENT`;
+- eligibility as-of equal to the frozen assessment date;
+- accepted market and factor observations to be non-future and within the seven-calendar-day freshness window.
+
+An accepted factor observation from the immediately preceding session may therefore remain decision-grade. P3-1 does **not** silently require the factor timestamp to equal the assessment date when the upstream freshness contract did not require that.
+
 ## Valuation semantics
 
-P3-1 uses only accepted earnings-yield, P/E and dividend-yield context.
+P3-1 uses only accepted earnings-yield, P/E and dividend-yield context from the canonical HKCU surface.
 
 - `SUPPORTIVE`: positive earnings-yield or dividend-yield support exists;
 - `LIMITED`: a positive P/E observation exists but direct yield support is absent;
 - `MISSING`: no accepted valuation observation is available;
 - `ADVERSE_OR_UNUSABLE`: valuation fields exist but do not provide positive support.
 
-Missing or adverse valuation cannot be neutral-filled into a pass.
+Missing or adverse valuation cannot be neutral-filled into a pass. A/H discount is never used as a substitute for missing valuation support.
+
+## Confidence-cap semantics
+
+P3-1 preserves the evidence semantics accepted in P2B instead of reclassifying every uncertainty as a blocker.
+
+- `TARGETED_DEEPENING_REQUIRED` is a material unresolved evidence gap and therefore defers Candidate proposal until the targeted gap is resolved.
+- `LIMITED_CONFIDENCE` is a non-blocking P2B evidence limitation. It becomes a bounded Watch confidence cap, not an automatic Defer.
+- `CONFIDENCE_CAP_MONITOR` is also a bounded Watch cap.
+
+This distinction is necessary because P3-0 explicitly states that a confidence cap is not automatic rejection and that Watch status may carry bounded uncertainty.
 
 ## Proposal routing
 
@@ -51,11 +71,11 @@ The only P3-1 proposal states are:
 
 Routing is deterministic and has no fixed target count.
 
-A Core proposal requires all applicable rules to pass, supportive valuation, at least one positive company dimension, no negative company dimension, and zero material or bounded confidence-cap states.
+A Core proposal requires all applicable rules to pass, supportive valuation, at least one positive company dimension, no negative company dimension, zero targeted-deepening requirements and zero bounded confidence caps.
 
-A Watch proposal requires all applicable rules to pass but permits bounded uncertainty, mixed/neutral evidence, event timing or limited valuation support.
+A Watch proposal requires all applicable hard and decision rules to pass but permits bounded `LIMITED_CONFIDENCE` / `CONFIDENCE_CAP_MONITOR` uncertainty, mixed/neutral evidence, event timing or limited valuation support.
 
-A Defer state is used where no retained blocker exists but a hard/decision rule fails or a material confidence cap remains.
+A Defer state is used where no retained blocker exists but a hard/decision rule fails or a `TARGETED_DEEPENING_REQUIRED` gap remains.
 
 A retained P2B Final blocker is preserved exactly and cannot be waived by Phase 3.
 
