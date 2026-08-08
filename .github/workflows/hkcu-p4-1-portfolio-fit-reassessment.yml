@@ -1,0 +1,99 @@
+name: HKCU P4-1 Portfolio Fit Reassessment
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p4_1_portfolio_fit_reassessment_contract.json'
+      - 'pipeline/hkcu_p4_1_portfolio_fit_reassessment.py'
+      - 'scripts/validate_hkcu_p4_1_portfolio_fit_reassessment.py'
+      - 'tests/test_hkcu_p4_1_portfolio_fit_reassessment.py'
+      - 'docs/HKCU-P4-1_PORTFOLIO_FIT_REASSESSMENT.md'
+      - '.github/workflows/hkcu-p4-1-portfolio-fit-reassessment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p4_1_portfolio_fit_reassessment.py
+      - name: Enforce isolated P4-1 reassessment scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p4_1_reassessment_paths.txt
+          cat /tmp/p4_1_reassessment_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              'config/hkcu_p4_1_portfolio_fit_reassessment_contract.json',
+              'pipeline/hkcu_p4_1_portfolio_fit_reassessment.py',
+              'scripts/validate_hkcu_p4_1_portfolio_fit_reassessment.py',
+              'tests/test_hkcu_p4_1_portfolio_fit_reassessment.py',
+              'docs/HKCU-P4-1_PORTFOLIO_FIT_REASSESSMENT.md',
+              '.github/workflows/hkcu-p4-1-portfolio-fit-reassessment.yml',
+          }
+          actual = {x.strip() for x in Path('/tmp/p4_1_reassessment_paths.txt').read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit('P4_1_REASSESSMENT_SCOPE_VIOLATION:' + ','.join(bad))
+          protected = ('outputs/hk_candidate/', 'outputs/simulation/', 'outputs/real', 'investment_os_runtime/30_STATE_CURRENT/', 'orders/')
+          mutations = sorted(x for x in actual if x.startswith(protected))
+          if mutations:
+              raise SystemExit('P4_1_REASSESSMENT_PROTECTED_PATH_MUTATION:' + ','.join(mutations))
+          PY
+
+  real-reassessment:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild accepted P4-1R runtime context
+        run: |
+          rm -rf work/hkcu_p4_1r_reassessment_context work/hkcu_p4_1_reassessment
+          python -m pipeline.hkcu_p4_1r_canonical_data_adapter --repo-root . --output work/hkcu_p4_1r_reassessment_context
+          python scripts/validate_hkcu_p4_1r_portfolio_context_completion.py --repo-root . --output work/hkcu_p4_1r_reassessment_context
+      - name: Execute P4-1 Portfolio Fit Reassessment
+        run: |
+          python pipeline/hkcu_p4_1_portfolio_fit_reassessment.py \
+            --repo-root . \
+            --context-dir work/hkcu_p4_1r_reassessment_context \
+            --output work/hkcu_p4_1_reassessment
+      - name: Independently validate reassessment
+        run: |
+          python scripts/validate_hkcu_p4_1_portfolio_fit_reassessment.py \
+            --repo-root . \
+            --context-dir work/hkcu_p4_1r_reassessment_context \
+            --output work/hkcu_p4_1_reassessment
+      - name: Render reassessment decision and routes
+        if: always()
+        run: |
+          test ! -f work/hkcu_p4_1_reassessment/HKCU_P4_1_REASSESSMENT_DECISION.json || cat work/hkcu_p4_1_reassessment/HKCU_P4_1_REASSESSMENT_DECISION.json
+          test ! -f work/hkcu_p4_1_reassessment/HKCU_P4_1_REASSESSMENT_QUALITY_REPORT.json || cat work/hkcu_p4_1_reassessment/HKCU_P4_1_REASSESSMENT_QUALITY_REPORT.json
+          test ! -f work/hkcu_p4_1_reassessment/HKCU_P4_1_REASSESSMENT_COMBINED_ROUTING.csv || cat work/hkcu_p4_1_reassessment/HKCU_P4_1_REASSESSMENT_COMBINED_ROUTING.csv
+          test ! -f work/hkcu_p4_1_reassessment/HKCU_P4_1_REASSESSMENT_CONTEXT_GAP_REGISTER.csv || cat work/hkcu_p4_1_reassessment/HKCU_P4_1_REASSESSMENT_CONTEXT_GAP_REGISTER.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p4-1-portfolio-fit-reassessment
+          path: |
+            work/hkcu_p4_1_reassessment/HKCU_P4_1_REASSESSMENT_*
+            work/hkcu_p4_1r_reassessment_context/HKCU_P4_1R_DECISION.json
+            work/hkcu_p4_1r_reassessment_context/HKCU_P4_1R_MANIFEST.json
+          if-no-files-found: error
