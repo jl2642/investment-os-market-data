@@ -6,6 +6,7 @@ import hashlib
 import json
 import math
 import re
+import xml.etree.ElementTree as ET
 from io import StringIO
 from pathlib import Path
 from typing import Any
@@ -190,31 +191,70 @@ def fetch_hkex_html(url: str) -> tuple[str, bytes]:
     return r.text, r.content
 
 
-def extract_hkma_fx(payload: dict[str, Any], fx_date: str, required_series: list[str]) -> dict[str, float]:
-    records = payload.get("result", {}).get("records", [])
-    row = next((x for x in records if str(x.get("end_of_day", x.get("end_of_date", ""))) == fx_date), None)
-    if row is None:
-        return {}
+def extract_ecb_fx(
+    xml_data: bytes | str,
+    fx_date: str,
+    required_series: list[str],
+    cross_currency: str = "hkd",
+) -> tuple[dict[str, float], dict[str, Any]]:
+    """Derive HKD-per-foreign-currency from ECB per-EUR reference rates for one exact date."""
+    raw_text = xml_data.decode("utf-8", errors="replace") if isinstance(xml_data, bytes) else str(xml_data)
+    diag: dict[str, Any] = {
+        "requested_date": fx_date,
+        "matched_date": None,
+        "cross_currency": cross_currency.lower(),
+        "eur_reference_rates": {},
+        "derivation": "HKD_PER_FOREIGN = ECB_HKD_PER_EUR / ECB_FOREIGN_PER_EUR",
+    }
+    try:
+        root = ET.fromstring(raw_text)
+    except ET.ParseError as exc:
+        diag["parse_error"] = repr(exc)
+        return {}, diag
+
+    target_node = None
+    for node in root.iter():
+        if str(node.attrib.get("time", "")) == fx_date:
+            target_node = node
+            break
+    if target_node is None:
+        return {}, diag
+
+    diag["matched_date"] = fx_date
+    eur_rates: dict[str, float] = {}
+    for node in target_node.iter():
+        currency = str(node.attrib.get("currency", "")).lower().strip()
+        rate = parse_numeric(node.attrib.get("rate", ""))
+        if currency and rate is not None and rate > 0:
+            eur_rates[currency] = rate
+    diag["eur_reference_rates"] = eur_rates
+
+    cross = eur_rates.get(cross_currency.lower())
+    if cross is None or cross <= 0:
+        return {}, diag
     out: dict[str, float] = {}
     for series in required_series:
-        v = parse_numeric(row.get(series, ""))
-        if v is not None and v > 0:
-            out[series] = v
-    return out
+        foreign = eur_rates.get(series.lower())
+        if foreign is not None and foreign > 0:
+            out[series.lower()] = cross / foreign
+    return out, diag
 
 
-def fetch_hkma_fx(url: str, fx_date: str, required_series: list[str]) -> tuple[dict[str, float], bytes, dict[str, Any]]:
+def fetch_ecb_fx(
+    url: str,
+    fx_date: str,
+    required_series: list[str],
+    cross_currency: str = "hkd",
+) -> tuple[dict[str, float], bytes, dict[str, Any]]:
     r = requests.get(
         url,
-        params={"from": fx_date, "to": fx_date, "pagesize": 100},
         headers={"User-Agent": "Mozilla/5.0 HKCU-P5C governance fetch"},
         timeout=45,
     )
     r.raise_for_status()
     raw = r.content
-    payload = r.json()
-    rates = extract_hkma_fx(payload, fx_date, required_series)
-    return rates, raw, payload
+    rates, diag = extract_ecb_fx(raw, fx_date, required_series, cross_currency)
+    return rates, raw, diag
 
 
 def valuation_multiple(row: pd.Series, close_price: float, fx_rates: dict[str, float]) -> float:
@@ -306,16 +346,17 @@ def build(root: Path, p5b_dir: Path, out: Path, quote_html: Path | None = None, 
     fx_cfg = contract["fx_surface"]
     if fx_json:
         raw_fx = fx_json.read_bytes()
-        fx_payload = json.loads(raw_fx.decode("utf-8"))
-        fx_rates = extract_hkma_fx(fx_payload, fx_cfg["fx_date"], fx_cfg["required_series"])
+        fx_rates, fx_diag = extract_ecb_fx(raw_fx, fx_cfg["fx_date"], fx_cfg["required_series"], fx_cfg["required_cross_currency"])
         fx_source_mode = "TEST_FIXTURE"
     else:
-        fx_rates, raw_fx, fx_payload = fetch_hkma_fx(fx_cfg["url"], fx_cfg["fx_date"], fx_cfg["required_series"])
-        fx_source_mode = "HKMA_NETWORK"
+        fx_rates, raw_fx, fx_diag = fetch_ecb_fx(fx_cfg["url"], fx_cfg["fx_date"], fx_cfg["required_series"], fx_cfg["required_cross_currency"])
+        fx_source_mode = "ECB_NETWORK"
     fx_sha = sha256_bytes(raw_fx)
     missing_fx = sorted(set(fx_cfg["required_series"]) - set(fx_rates))
     if missing_fx:
-        errors.append("HKMA_FX_MISSING:" + ",".join(missing_fx))
+        errors.append("ECB_FX_MISSING:" + ",".join(missing_fx))
+    if fx_diag.get("matched_date") != fx_cfg["fx_date"]:
+        errors.append("ECB_FX_DATE_MISSING")
     fx_rows = [{
         "fx_date": fx_cfg["fx_date"],
         "series": series,
@@ -326,7 +367,15 @@ def build(root: Path, p5b_dir: Path, out: Path, quote_html: Path | None = None, 
         "source_mode": fx_source_mode,
     } for series in fx_cfg["required_series"]]
     pd.DataFrame(fx_rows).to_csv(out / f"{prefix}_OFFICIAL_FX_SURFACE.csv", index=False)
-    write_json(out / f"{prefix}_FX_DIAGNOSTICS.json", {"fx_date": fx_cfg["fx_date"], "rates": fx_rates, "response_header": fx_payload.get("header", {})})
+    write_json(out / f"{prefix}_FX_DIAGNOSTICS.json", {
+        "fx_date": fx_cfg["fx_date"],
+        "rates": fx_rates,
+        "source": fx_cfg["required_source"],
+        "source_url": fx_cfg["url"],
+        "source_mode": fx_source_mode,
+        "derivation": fx_cfg["derivation"],
+        "parser": fx_diag,
+    })
 
     packet = p5b_memos.copy().merge(context, on=["security_id", "stock_code_5d", "security_name"], how="left", validate="one_to_one")
     packet["price_date"] = contract["price_surface"]["price_date"]
@@ -382,6 +431,8 @@ def build(root: Path, p5b_dir: Path, out: Path, quote_html: Path | None = None, 
         errors.append("THIRD_PARTY_PRICE_POLICY")
     if fx_cfg["third_party_fx_fallback_allowed"] is not False or fx_cfg["stale_fx_allowed"] is not False:
         errors.append("FX_POLICY")
+    if fx_cfg["reference_rate_only_for_valuation_context"] is not True or fx_cfg["execution_fx_rate_authorized"] is not False:
+        errors.append("FX_USE_POLICY")
     if valuation_policy["fixed_valuation_ceiling_authorized"] is not False:
         errors.append("FIXED_VALUATION_CEILING_POLICY")
     if policy["technical_pass_may_substitute_user_approval"] is not False:
@@ -404,6 +455,8 @@ def build(root: Path, p5b_dir: Path, out: Path, quote_html: Path | None = None, 
         "fx_source": fx_cfg["required_source"],
         "fx_source_url": fx_cfg["url"],
         "fx_source_sha256": fx_sha,
+        "fx_derivation_method": fx_cfg["derivation"],
+        "fx_reference_rate_only_for_valuation_context": True,
         "decision_packet_security_count": len(packet),
         "user_decision_eligible_count": eligible,
         "deferred_not_eligible_count": deferred_count,
@@ -427,9 +480,10 @@ def build(root: Path, p5b_dir: Path, out: Path, quote_html: Path | None = None, 
         f"As of: {contract['as_of_date']}",
         f"Gate state: **{gate_state}**",
         f"Official price surface: **HKEX Daily Quotations {contract['price_surface']['price_date']}**",
-        f"Official FX surface: **HKMA Daily Exchange Rates {fx_cfg['fx_date']}**",
+        f"Official FX surface: **ECB Euro foreign exchange reference rates {fx_cfg['fx_date']}**",
         "",
-        "This packet does **not** record user approval. A technical PASS only means the three P5B-advanced securities have reproducible official price/FX and documented valuation context ready for explicit user choice.", "",
+        "This packet does **not** record user approval. A technical PASS only means the three P5B-advanced securities have reproducible official price/FX and documented valuation context ready for explicit user choice.",
+        "ECB FX is used only for valuation normalization and is not an execution FX rate.", "",
     ]
     for row in packet.sort_values("security_id").itertuples(index=False):
         md += [
@@ -443,7 +497,7 @@ def build(root: Path, p5b_dir: Path, out: Path, quote_html: Path | None = None, 
                 f"- Valuation metric: {row.valuation_metric} = **{float(row.valuation_multiple):.2f}x**",
                 f"- Valuation denominator: {row.earnings_or_book_basis}",
                 f"- Official basis source: {row.basis_source_url}",
-                f"- Official HKMA FX ({row.fx_date}): {row.fx_series.upper()} = **HK${float(row.fx_rate_hkd_per_unit):.6f} per unit**",
+                f"- Official ECB-derived reference FX ({row.fx_date}): {row.fx_series.upper()} = **HK${float(row.fx_rate_hkd_per_unit):.6f} per unit**",
                 f"- Own-history context: {row.history_context}; current vs median {float(row.valuation_vs_own_history_median_pct):+.1f}%",
                 f"- Reference/peer context: {row.peer_context}; current vs reference {float(row.valuation_vs_reference_pct):+.1f}%",
                 f"- User choices: {row.available_user_choices}",
@@ -474,7 +528,12 @@ def build(root: Path, p5b_dir: Path, out: Path, quote_html: Path | None = None, 
         "program_id": PROGRAM_ID,
         "status": "PASS" if not errors else "FAIL",
         "official_hkex_price_surface_required": True,
-        "official_hkma_same_date_fx_required": True,
+        "official_same_date_central_bank_fx_required": True,
+        "official_ecb_same_date_fx_used": fx_source_mode == "ECB_NETWORK",
+        "official_hkma_same_date_fx_required": False,
+        "hkma_er_eeri_daily_replaced_for_publication_lag": True,
+        "fx_reference_rate_for_valuation_only": True,
+        "fx_execution_rate_authorized": False,
         "third_party_price_fallback_used": False,
         "third_party_fx_fallback_used": False,
         "ambiguous_date_price_used": False,
