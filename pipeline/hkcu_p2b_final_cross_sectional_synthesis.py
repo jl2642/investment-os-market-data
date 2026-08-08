@@ -73,6 +73,30 @@ def normalize_direction(v: Any) -> str:
     return "NEUTRAL_OR_UNKNOWN"
 
 
+def normalize_p2a_security_name(p2a: pd.DataFrame) -> pd.DataFrame:
+    """Normalize the P2A display-name schema without changing P2A authority.
+
+    P2A's canonical longlist currently publishes ``official_security_name_en``.
+    Earlier downstream prototypes referred to ``security_name``. Accept both
+    schemas, prefer the canonical official field when present, and fail closed
+    if no non-empty security name can be produced.
+    """
+    source_col = next(
+        (c for c in ("official_security_name_en", "security_name") if c in p2a.columns),
+        None,
+    )
+    if source_col is None:
+        raise RuntimeError("P2A_SECURITY_NAME_COLUMN_MISSING")
+    out = p2a.copy()
+    names = out[source_col].astype(str).str.strip()
+    bad = names.eq("") | names.str.lower().isin({"nan", "none", "null"})
+    if bool(bad.any()):
+        raise RuntimeError(f"P2A_SECURITY_NAME_MISSING:{source_col}:{int(bad.sum())}")
+    out["security_name"] = names
+    out["security_name_source_column"] = source_col
+    return out
+
+
 def retry(fn, attempts: int = 4, delay: float = 2.0):
     last = None
     for i in range(attempts):
@@ -193,6 +217,7 @@ def build(root: Path, out: Path) -> dict[str, Any]:
     if "p2a_overall_rank" not in p2a.columns:
         raise RuntimeError("P2A_RANK_COLUMN_MISSING")
     p2a["p2a_overall_rank"] = pd.to_numeric(p2a["p2a_overall_rank"], errors="raise").astype(int)
+    p2a = normalize_p2a_security_name(p2a)
 
     e1_dim = pd.read_csv(upstream["e1"] / "HKCU_P2B_E1_DIMENSION_MATRIX.csv", dtype={"stock_code_5d": str}, keep_default_na=False)
     e1_tx = e1_dim[e1_dim["research_dimension"].eq("TRANSACTION_COST_TAX")][["security_id", "evidence_status", "evidence_count"]].copy()
@@ -243,8 +268,8 @@ def build(root: Path, out: Path) -> dict[str, Any]:
     })
 
     base_cols = [c for c in [
-        "p2a_overall_rank", "security_id", "stock_code_5d", "security_name", "primary_sleeve", "sleeves", "sleeve_count",
-        "aggregate_score", "source_model", "source_layer", "close", "price_date", "quote_currency",
+        "p2a_overall_rank", "security_id", "stock_code_5d", "security_name", "official_security_name_en", "security_name_source_column",
+        "primary_sleeve", "sleeves", "sleeve_count", "aggregate_score", "source_model", "source_layer", "close", "price_date", "quote_currency",
         "return_20d", "return_60d", "return_120d", "volatility_60d", "max_drawdown_120d",
         "valuation_status", "fundamentals_status", "growth_status", "dividend_status"
     ] if c in p2a.columns]
@@ -321,6 +346,7 @@ def build(root: Path, out: Path) -> dict[str, Any]:
         "all_77_security_decision_surfaces_present": len(sec) == 77,
         "all_231_company_dimensions_present": len(dim) == 231,
         "p2a_rank_preserved_not_rescored": True,
+        "p2a_security_name_schema_normalized": True,
         "evidence_balance_descriptive_not_scored": True,
         "cross_dimension_event_deduplication_preserved": True,
         "missing_consensus_is_not_bearish": True,
