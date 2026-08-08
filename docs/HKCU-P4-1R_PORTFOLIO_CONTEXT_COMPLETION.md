@@ -10,13 +10,15 @@ The original P4-1 global register identified four missing surfaces: sector/indus
 
 ### 1. Exact A/H identity
 
-A/H mapping uses the Eastmoney A/H comparison surface through AKShare and joins by exact H-share code. Fuzzy issuer-name matching is prohibited. A Candidate already flagged TRUE_AH_PAIR must obtain exactly one A-share code or remain a residual context gap.
+P4-1R uses the already accepted P2B-E1 A/H pair registry `evidence/hkcu_p2b/HKCU_P2B_AH_PAIR_REGISTRY_20260807.csv`. The 13 `TRUE_AH_PAIR` records are joined by exact H-share code and carry their accepted exact A-share code and exchange evidence. The production P4-1R build does not depend on a live A/H comparison endpoint. Fuzzy issuer-name matching remains prohibited.
 
 ### 2. Economic sector / industry
 
-HK Candidate industry uses the Eastmoney Hong Kong company profile field `所属行业` through AKShare. Direct A-share portfolio holdings use the Eastmoney A-share individual-info industry field. These are explicitly secondary research classifications, not HKEX official issuer semantics. Listing taxonomy and P2A sleeve labels may not masquerade as industry.
+P4-1R uses the bounded exact-identity registry `evidence/hkcu_p4_1r/HKCU_P4_1R_ECONOMIC_SECTOR_REGISTRY_20260807.csv` for direct security economic-sector context. It contains exactly 86 rows: 70 formal HK Candidates and 16 direct A-share holdings. Each row preserves `security_id`, broad `economic_sector`, descriptive `industry_detail`, evidence lineage, assessment date and `trade_authority=NONE`.
 
-Bond funds are classified as `FIXED_INCOME`; broad equity ETFs are `MULTI_SECTOR_EQUITY`. A pooled vehicle is never assigned one fabricated single-stock industry.
+These sector assignments are explicitly accepted secondary research classifications used for portfolio overlap and concentration context; they are not HKEX official issuer semantics and may not masquerade as a new security master. Listing taxonomy and P2A sleeve labels are not used as industry substitutes. The production build does not require a live company-profile or A-share individual-info endpoint.
+
+Bond funds remain `FIXED_INCOME`; broad equity ETFs remain `MULTI_SECTOR_EQUITY`. A pooled vehicle is never assigned one fabricated single-stock industry.
 
 ### 3. Common style context
 
@@ -33,16 +35,34 @@ R1 repaired two data-interface defects without changing investment logic:
 - accepted FMDL-5C history schema now recognizes `observation_date` and accepted `adj_close`/`close` fields;
 - held A-share stocks now use accepted Composite History before any live-provider fallback.
 
-The real Canonical-input run on 2026-08-08 independently validated:
+The real Canonical-input run independently validated:
 
 - `CTX_MARGINAL_RISK`: 142 -> 0;
 - REAL account history market-value coverage: 82.11%, above the 65% contract minimum;
 - SIMULATION account history market-value coverage: 92.73%, up from 0%;
 - FMDL-5C history range recognized as 2023-01-03 through 2026-07-21, within the contract freshness tolerance for the 2026-08-07 assessment date;
-- total residual decision-critical gaps: 242 -> 100, now entirely outside R1 scope (86 sector/industry, 13 exact A/H identity, 1 exact A/H source);
+- total residual decision-critical gaps: 242 -> 100, entirely outside R1 scope;
 - Candidate, Simulation, Real Account, allocation and order mutations remain zero; `trade_authority=NONE`.
 
-R1 therefore closes the Canonical history adapter repair. P4-1R itself remains operationally blocked until the separately bounded industry + exact A/H evidence repair closes the remaining 100 gaps.
+R1 therefore closed the Canonical history adapter repair.
+
+#### P4-1R-R2 Industry + Exact A/H Evidence acceptance
+
+R2 removed the remaining decision-critical dependency on live industry and A/H endpoints. Exact A/H identity is sourced from the accepted P2B-E1 registry, while direct-security economic sector is sourced from the bounded 86-row P4-1R registry described above.
+
+The real P4-1R run independently validated:
+
+- Candidate industry coverage: 70/70 = 100%;
+- exact A/H mapping: 13/13 confirmed `TRUE_AH_PAIR` Candidates;
+- Account×Security context ready: 140/140;
+- REAL account history market-value coverage: 82.11%;
+- SIMULATION account history market-value coverage: 92.73%;
+- residual decision-critical gaps: 100 -> 0;
+- operational status: `PASS_P4_1R_PORTFOLIO_CONTEXT_COMPLETION`;
+- next gate: `P4_1_PORTFOLIO_FIT_REASSESSMENT`;
+- Candidate, Simulation, Real Account, allocation and order mutations remain zero; `trade_authority=NONE`.
+
+The independent validator returned `PASS` with zero errors and zero residual gaps. R2 therefore closes the Industry + Exact A/H evidence repair.
 
 ### 5. Opportunity cost
 
@@ -54,8 +74,10 @@ Existing ETFs/funds remain explicit pooled exposures. Their presence is a named 
 
 ## Outputs
 
-The real run writes Candidate Context, Account Holding Context, Account×Security Context, residual gaps, decision, quality, manifest, and a source snapshot of the A/H comparison surface. A PASS requires 70 Candidate rows, 24 current holding rows, 140 Account×Security rows and zero residual decision-critical gaps.
+The real run writes Candidate Context, Account Holding Context, Account×Security Context, residual gaps, decision, quality, manifest, and the bounded A/H source snapshot used by the build. A PASS requires 70 Candidate rows, 24 current holding rows, 140 Account×Security rows and zero residual decision-critical gaps.
 
 ## Phase boundary
 
 P4-1R may complete context and trigger a P4-1 reassessment. It may not size, allocate, admit, trade or mutate either portfolio. `trade_authority=NONE`.
+
+R1 and R2 have now closed the substantive context-repair defects. The remaining P4-1R-R3 gate is final acceptance only: freeze the repaired evidence surface, run the clean final head, audit the complete diff/check set and unresolved review threads, then mark the PR ready and merge only if all gates remain green. Portfolio-fit reassessment begins only after that controlled merge.
