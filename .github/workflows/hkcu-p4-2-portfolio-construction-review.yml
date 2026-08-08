@@ -5,6 +5,7 @@ on:
     paths:
       - 'config/hkcu_p4_2_portfolio_construction_review_contract.json'
       - 'pipeline/hkcu_p4_2_portfolio_construction_review.py'
+      - 'pipeline/hkcu_p4_2_portfolio_construction_review_decision_adapter.py'
       - 'scripts/validate_hkcu_p4_2_portfolio_construction_review.py'
       - 'tests/test_hkcu_p4_2_portfolio_construction_review.py'
       - 'docs/HKCU-P4-2_PORTFOLIO_CONSTRUCTION_REVIEW.md'
@@ -38,6 +39,7 @@ jobs:
           allowed = {
               'config/hkcu_p4_2_portfolio_construction_review_contract.json',
               'pipeline/hkcu_p4_2_portfolio_construction_review.py',
+              'pipeline/hkcu_p4_2_portfolio_construction_review_decision_adapter.py',
               'scripts/validate_hkcu_p4_2_portfolio_construction_review.py',
               'tests/test_hkcu_p4_2_portfolio_construction_review.py',
               'docs/HKCU-P4-2_PORTFOLIO_CONSTRUCTION_REVIEW.md',
@@ -81,7 +83,7 @@ jobs:
             --output work/hkcu_p4_2_fit
       - name: Execute P4-2 Portfolio Construction Review
         run: |
-          python -m pipeline.hkcu_p4_2_portfolio_construction_review \
+          python -m pipeline.hkcu_p4_2_portfolio_construction_review_decision_adapter \
             --repo-root . \
             --context-dir work/hkcu_p4_2_context \
             --fit-dir work/hkcu_p4_2_fit \
