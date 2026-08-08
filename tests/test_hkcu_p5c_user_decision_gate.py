@@ -4,7 +4,38 @@ import pandas as pd
 
 from pipeline.hkcu_p5c_user_decision_gate import extract_hkex_close_prices, valuation_multiple
 
-def test_extract_hkex_table_prices():
+
+def test_extract_hkex_two_line_daily_quotation_prices_and_ignore_short_sell_rows():
+    html = """
+    <html><body><pre>
+                                      QUOTATIONS
+     CODE  NAME OF STOCK    CUR PRV.CLO./    ASK/    HIGH/      SHARES TRADED/
+                                CLOSING      BID     LOW        TURNOVER ($)
+
+       669 TECHTRONIC IND   HKD  130.00   132.00   133.00            6,222,546
+                                 131.20   131.10   129.00          910,771,539
+      1308 SITC             HKD   33.00    33.70    34.00              511,000
+                                  33.50    33.45    32.80           19,631,120
+      3698 HUISHANG BANK    HKD    4.50     4.65     4.70              350,000
+                                   4.60     4.58     4.45            1,687,900
+    SALES RECORDS FOR ALL STOCKS
+
+      CODE  NAME OF STOCK         (SH)              ($)
+       669 TECHTRONIC IND        1,000,000         146,453,000
+      1308 SITC                    511,000          19,631,120
+      3698 HUISHANG BANK           350,000           1,687,900
+    </pre></body></html>
+    """
+    targets={"HKEX:00669":"00669","HKEX:01308":"01308","HKEX:03698":"03698"}
+    prices, diag = extract_hkex_close_prices(html, targets)
+    assert prices == {"HKEX:00669":131.2,"HKEX:01308":33.5,"HKEX:03698":4.6}
+    first = diag["methods"][0]
+    assert first["method"] == "_quotation_two_line_close_candidates"
+    assert first["diagnostics"]["matching_quote_pairs"]["HKEX:00669"]["parsed_close"] == 131.2
+    assert len(first["diagnostics"]["all_code_occurrences"]["HKEX:00669"]) == 2
+
+
+def test_extract_hkex_table_prices_fallback():
     html = """
     <html><body><table>
     <tr><th>Stock Code</th><th>Name</th><th>Previous Close</th><th>Closing Price</th><th>Volume</th></tr>
@@ -18,11 +49,13 @@ def test_extract_hkex_table_prices():
     assert prices == {"HKEX:00669":131.2,"HKEX:01308":33.5,"HKEX:03698":4.6}
     assert diag["methods"]
 
+
 def test_valuation_multiple_hkd_and_usd():
     hkd=pd.Series({"security_id":"HKEX:03698","basis_value":12.5,"basis_currency":"HKD","fx_anchor":""})
     usd=pd.Series({"security_id":"HKEX:01308","basis_value":0.46,"basis_currency":"USD","fx_anchor":"7.80"})
     assert abs(valuation_multiple(hkd,5.0)-0.4)<1e-12
     assert abs(valuation_multiple(usd,35.88)-10.0)<1e-12
+
 
 def test_contract_preserves_user_authority():
     c=json.loads(Path("config/hkcu_p5c_user_decision_gate_contract.json").read_text())
@@ -36,6 +69,7 @@ def test_contract_preserves_user_authority():
     assert b["target_portfolio_writeback_authorized"] is False
     assert b["order_creation_authorized"] is False
     assert b["trade_authority"]=="NONE"
+
 
 def test_context_registry_complete():
     df=pd.read_csv("evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv",dtype={"stock_code_5d":str},keep_default_na=False)
