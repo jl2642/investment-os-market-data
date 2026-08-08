@@ -1,0 +1,122 @@
+{
+  "contract_id": "HKCU_P5A_PHASE5_CONTRACT_ENTRY_FREEZE_V1",
+  "program_id": "HKCU-P5A",
+  "phase": "P5A_PHASE5_CONTRACT_AND_ENTRY_FREEZE",
+  "as_of_date": "2026-08-07",
+  "objective": "Freeze the Phase 5 entry state and the complete P5A-P5E business-gate sequence before any Pre-trade Memo, user decision, manual execution support, reconciliation, Current mutation or order-related activity. Preserve the accepted P4-4 REAL and SIMULATION proposals as immutable Phase 5 entry evidence while keeping trade_authority=NONE.",
+  "authoritative_inputs": {
+    "p4_4_contract": "config/hkcu_p4_4_portfolio_proposal_review_contract.json",
+    "core_portfolio_position_policy": "investment_os_runtime/10_CORE_STATIC/06_PORTFOLIO_POSITION_AND_CAPITAL_MIGRATION.md",
+    "core_pretrade_policy": "investment_os_runtime/10_CORE_STATIC/07_DECISION_PRETRADE_CONFIRMATION_AND_WRITEBACK.md",
+    "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation_positions_current": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+  },
+  "entry_contract": {
+    "required_p4_4_status": "PASS_P4_4_PORTFOLIO_PROPOSAL_REVIEW",
+    "required_p4_4_phase_close_status": "PHASE_4_CLOSED",
+    "required_p4_4_additional_subphases_allowed": false,
+    "required_preferred_proposal_count": 2,
+    "required_real_preferred_scenario": "REAL_CONSERVATIVE",
+    "required_real_hk_sleeve": 0.05,
+    "required_real_position_count": 4,
+    "required_simulation_preferred_scenario": "SIM_BALANCED",
+    "required_simulation_hk_sleeve": 0.15,
+    "required_simulation_position_count": 9,
+    "required_proposal_allocation_count": 13,
+    "required_trade_authority": "NONE"
+  },
+  "phase_5_gate_sequence": [
+    {
+      "gate_id": "P5A",
+      "gate_name": "PHASE5_CONTRACT_AND_ENTRY_FREEZE",
+      "objective": "Freeze the complete Phase 5 roadmap, accepted P4-4 entry proposals, Current-state hashes, permissions and stop conditions.",
+      "may_produce": ["ENTRY_FREEZE", "GATE_REGISTER", "LINEAGE_MANIFEST"],
+      "must_not_produce": ["PRETRADE_MEMO", "USER_APPROVAL", "TARGET_WRITEBACK", "ORDER", "BROKER_EXECUTION"]
+    },
+    {
+      "gate_id": "P5B",
+      "gate_name": "REAL_PRETRADE_MEMO",
+      "objective": "Prepare a REAL-account Pre-trade Memo for the frozen 5% four-security proposal, including evidence, thesis, valuation, portfolio fit, funding, maximum loss, alternatives, triggers, exit and review date. The memo may reject, defer or modify the proposal; it cannot authorize execution.",
+      "entry_permission": "RESEARCH_ONLY",
+      "exit_permission": "USER_DECISION_REQUIRED"
+    },
+    {
+      "gate_id": "P5C",
+      "gate_name": "USER_DECISION_GATE",
+      "objective": "Record the user's explicit REAL decision as APPROVE, REJECT, MODIFY or DEFER and separately record whether the SIMULATION observation proposal may be activated. Technical PASS must never substitute for user approval.",
+      "approval_permission_label": "USER_APPROVED_MANUAL_EXECUTION",
+      "trade_authority_after_approval": "NONE"
+    },
+    {
+      "gate_id": "P5D",
+      "gate_name": "MANUAL_STAGED_EXECUTION_SUPPORT",
+      "objective": "Only after explicit user approval, calculate a manual staged-execution checklist such as capital amount, lot rounding, batch order and execution sequence. Do not connect to a broker, create orders, submit trades or infer fills.",
+      "requires_explicit_user_approval": true,
+      "broker_execution_authorized": false
+    },
+    {
+      "gate_id": "P5E",
+      "gate_name": "RECONCILIATION_ATOMIC_WRITEBACK_AND_OBSERVATION",
+      "objective": "Only from user-supplied actual execution facts or an explicitly approved SIMULATION activation, reconcile results, perform governed atomic writeback, validate Current, preserve LKG on failure and enter observation. No execution may be inferred from an earlier proposal or checklist.",
+      "real_writeback_requires_user_supplied_execution_fact": true,
+      "simulation_writeback_requires_explicit_activation_record": true
+    }
+  ],
+  "planning_governance": {
+    "frozen_business_gate_ids": ["P5A", "P5B", "P5C", "P5D", "P5E"],
+    "business_gate_count": 5,
+    "additional_phase_5_business_gates_allowed": false,
+    "p5f_or_later_business_gate_authorized": false,
+    "repair_subgates_allowed": true,
+    "repair_subgate_rule": "P5X-R may repair an implementation or evidence defect inside the already-frozen gate objective only; it may not create a new business objective, bypass a prior gate, expand authority or silently change the Phase 5 entry proposal.",
+    "phase_6_creation_authorized": false,
+    "post_p5e_state_on_pass": "HKCU_SPECIAL_DEVELOPMENT_COMPLETE_OPERATING_OBSERVATION"
+  },
+  "portfolio_and_cash_rules": {
+    "ranking_or_weighted_score_may_authorize_real_capital": false,
+    "simulation_result_may_authorize_real_capital": false,
+    "real_account_cash_is_execution_balance_not_strategic_asset_bucket": true,
+    "funding_source_must_be_explicit": true,
+    "maximum_loss_must_be_explicit": true,
+    "correlation_and_lookthrough_must_be_explicit": true,
+    "alternative_and_exit_conditions_must_be_explicit": true
+  },
+  "phase_boundary": {
+    "entry_freeze_authorized": true,
+    "lineage_hashing_authorized": true,
+    "gate_register_authorized": true,
+    "pretrade_memo_authorized": false,
+    "user_trade_confirmation_record_authorized": false,
+    "manual_execution_checklist_authorized": false,
+    "target_portfolio_writeback_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "order_creation_authorized": false,
+    "broker_execution_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "phase_5_gate_count": 5,
+    "entry_preferred_proposal_count": 2,
+    "entry_proposal_allocation_count": 13,
+    "entry_real_allocation_count": 4,
+    "entry_simulation_allocation_count": 9,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "target_portfolio_writeback": false,
+    "pretrade_memo_produced": false,
+    "user_trade_confirmation_recorded": false,
+    "manual_execution_checklist_produced": false,
+    "orders_created": 0,
+    "phase_5_plan_frozen": true,
+    "additional_phase_5_business_gates_allowed": false,
+    "pass_status": "PASS_P5A_PHASE5_CONTRACT_AND_ENTRY_FREEZE",
+    "fail_status": "FAIL_P5A_PHASE5_CONTRACT_AND_ENTRY_FREEZE",
+    "next_gate_on_pass": "P5B_REAL_PRETRADE_MEMO",
+    "repair_gate": "P5A_PHASE5_CONTRACT_ENTRY_FREEZE_REPAIR",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P5A_ENTRY_FREEZE"
+}
