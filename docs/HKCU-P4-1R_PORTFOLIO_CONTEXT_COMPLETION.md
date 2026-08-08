@@ -24,7 +24,25 @@ The five accepted P2A sleeves map deterministically to five descriptive portfoli
 
 ### 4. Marginal risk / diversification
 
-Candidate price history comes from the accepted FMDL-5C vendor history. Current portfolio holdings use public market/NAV histories through AKShare. P4-1R computes market-value-weighted account return histories without zero-return filling, then records candidate/account correlation, downside correlation, volatility and a governed qualitative marginal-risk state. Minimum history and account market-value coverage are contract-controlled.
+Candidate price history comes from the accepted FMDL-5C vendor history. Current portfolio holdings use a Canonical-first history policy: held A-share stocks are read from the accepted FMDL-2B-4 Composite History; pooled ETFs and funds fall back to their existing governed public market/NAV history route only where the Canonical stock history does not apply. P4-1R computes market-value-weighted account return histories without zero-return filling, then records candidate/account correlation, downside correlation, volatility and a governed qualitative marginal-risk state. Minimum history and account market-value coverage are contract-controlled.
+
+#### P4-1R-R1 Canonical Data Adapter acceptance
+
+R1 repaired two data-interface defects without changing investment logic:
+
+- accepted FMDL-5C history schema now recognizes `observation_date` and accepted `adj_close`/`close` fields;
+- held A-share stocks now use accepted Composite History before any live-provider fallback.
+
+The real Canonical-input run on 2026-08-08 independently validated:
+
+- `CTX_MARGINAL_RISK`: 142 -> 0;
+- REAL account history market-value coverage: 82.11%, above the 65% contract minimum;
+- SIMULATION account history market-value coverage: 92.73%, up from 0%;
+- FMDL-5C history range recognized as 2023-01-03 through 2026-07-21, within the contract freshness tolerance for the 2026-08-07 assessment date;
+- total residual decision-critical gaps: 242 -> 100, now entirely outside R1 scope (86 sector/industry, 13 exact A/H identity, 1 exact A/H source);
+- Candidate, Simulation, Real Account, allocation and order mutations remain zero; `trade_authority=NONE`.
+
+R1 therefore closes the Canonical history adapter repair. P4-1R itself remains operationally blocked until the separately bounded industry + exact A/H evidence repair closes the remaining 100 gaps.
 
 ### 5. Opportunity cost
 
