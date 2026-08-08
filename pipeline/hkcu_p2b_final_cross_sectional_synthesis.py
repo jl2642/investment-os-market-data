@@ -70,13 +70,7 @@ def normalize_direction(v: Any) -> str:
         return "NEGATIVE"
     if "POSITIVE" in s:
         return "POSITIVE"
-    if s in {"NEUTRAL", "UNKNOWN", "", "NAN", "NONE"}:
-        return "NEUTRAL_OR_UNKNOWN"
     return "NEUTRAL_OR_UNKNOWN"
-
-
-def as_bool(v: Any) -> bool:
-    return str(v).strip().lower() == "true"
 
 
 def retry(fn, attempts: int = 4, delay: float = 2.0):
@@ -84,7 +78,7 @@ def retry(fn, attempts: int = 4, delay: float = 2.0):
     for i in range(attempts):
         try:
             return fn()
-        except Exception as exc:  # network/API boundary
+        except Exception as exc:
             last = exc
             if i + 1 < attempts:
                 time.sleep(delay * (i + 1))
@@ -127,7 +121,6 @@ def get_cny_per_hkd(date_iso: str) -> float:
     raw = pd.to_numeric(rows.iloc[0][hkd_col], errors="coerce")
     if pd.isna(raw) or float(raw) <= 0:
         raise RuntimeError(f"SAFE_FX_INVALID:{raw}")
-    # SAFE central parity is conventionally RMB per 100 HKD.
     return float(raw) / 100.0
 
 
@@ -144,8 +137,9 @@ def build_ah_relative_value(root: Path, contract: dict[str, Any], p2a: pd.DataFr
     if "symbol" not in snap.columns or "close" not in snap.columns:
         raise RuntimeError("A_SNAPSHOT_SCHEMA")
     manifest = read_json(root / contract["authoritative_inputs"]["a_share_snapshot_manifest"])
-    if str(manifest.get("as_of")) != date_iso:
-        raise RuntimeError(f"A_SNAPSHOT_DATE:{manifest.get('as_of')}")
+    manifest_as_of = manifest.get("as_of_date", manifest.get("as_of"))
+    if str(manifest_as_of) != date_iso:
+        raise RuntimeError(f"A_SNAPSHOT_DATE:{manifest_as_of}")
     a_close = pd.to_numeric(snap.set_index("symbol")["close"], errors="coerce")
     cny_per_hkd = get_cny_per_hkd(policy["ah_fx_date"])
 
@@ -238,7 +232,6 @@ def build(root: Path, out: Path) -> dict[str, Any]:
     if len(e1_tx) != int(exp["transaction_tax_complete_count"]) or not e1_tx["transaction_tax_evidence_status"].eq("EVIDENCE_COMPLETE").all():
         failures.append("TRANSACTION_TAX_NOT_COMPLETE")
 
-    # Descriptive evidence balance only; never used for ranking or graduation.
     dim["direction_bucket"] = dim["final_direction"].map(normalize_direction)
     counts = dim.pivot_table(index="security_id", columns="direction_bucket", values="research_dimension", aggfunc="count", fill_value=0)
     for c in ["POSITIVE", "NEGATIVE", "MIXED", "NEUTRAL_OR_UNKNOWN"]:
