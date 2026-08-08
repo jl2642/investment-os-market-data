@@ -71,7 +71,7 @@ jobs:
           python scripts/validate_hkcu_p4_1r_portfolio_context_completion.py --repo-root . --output work/hkcu_p4_1r_reassessment_context
       - name: Execute P4-1 Portfolio Fit Reassessment
         run: |
-          python pipeline/hkcu_p4_1_portfolio_fit_reassessment.py \
+          python -m pipeline.hkcu_p4_1_portfolio_fit_reassessment \
             --repo-root . \
             --context-dir work/hkcu_p4_1r_reassessment_context \
             --output work/hkcu_p4_1_reassessment
