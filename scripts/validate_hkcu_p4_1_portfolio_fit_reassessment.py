@@ -11,6 +11,11 @@ import pandas as pd
 PROGRAM_ID = "HKCU-P4-1-REASSESSMENT"
 TRADE_AUTHORITY = "NONE"
 POSITIVE = {"FIT", "FIT_WITH_CONSTRAINTS"}
+UNIVERSAL_NOTES = {
+    "NUMERIC_SIZE_REQUIRES_P4_2",
+    "FUNDING_REQUIRES_SEPARATE_CAPITAL_DECISION",
+    "POOLED_EQUITY_EXPOSURE_PRESENT",
+}
 
 
 def read_json(path: Path) -> dict:
@@ -23,6 +28,10 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: fh.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def pipe_items(value: object) -> set[str]:
+    return {x for x in str(value or "").split("|") if x}
 
 
 def expected_route(real_state: str, sim_state: str) -> str:
@@ -38,6 +47,15 @@ def expected_route(real_state: str, sim_state: str) -> str:
     if sim_state in POSITIVE:
         return "ADVANCE_SIMULATION_CONSTRUCTION_REVIEW"
     return "HOLD_PORTFOLIO_WATCH"
+
+
+def valid_non_direct_no_role(row: pd.Series) -> bool:
+    return (
+        str(row.get("opportunity_cost_state")) == "HIGH_RELATIVE_OPPORTUNITY_COST"
+        and str(row.get("sector_impact_state")) == "INCREASES_EXISTING_DIRECT_SECTOR"
+        and str(row.get("style_impact_state")) == "INCREASES_EXISTING_STYLE"
+        and str(row.get("marginal_risk_state")) not in {"", "UNRESOLVED", "IMPROVES_DIVERSIFICATION"}
+    )
 
 
 def main() -> None:
@@ -90,12 +108,35 @@ def main() -> None:
             errors.append("POSITIVE_WITH_HARD_FAILURE")
             break
 
+    fit = account[account["fit_state"].eq("FIT")]
+    if len(fit) and fit["constraints"].astype(str).str.len().gt(0).any(): errors.append("FIT_WITH_CONSTRAINT")
     constrained = account[account["fit_state"].eq("FIT_WITH_CONSTRAINTS")]
     if len(constrained) and constrained["constraints"].astype(str).str.len().eq(0).any(): errors.append("CONSTRAINT_STATE_WITHOUT_CONSTRAINT")
     no_role = account[account["fit_state"].eq("NO_INCREMENTAL_ROLE")]
     if len(no_role) and ~no_role["analytical_sizing_envelope"].eq("NO_SIZE_NO_INCREMENTAL_ROLE").all(): errors.append("NO_ROLE_WITH_SIZE")
+    for _, row in no_role.iterrows():
+        direct = bool(pipe_items(row.get("direct_overlap_security_ids")))
+        if not direct and not valid_non_direct_no_role(row):
+            errors.append("NO_ROLE_WITHOUT_JOINT_EVIDENCE")
+            break
     deferred = account[account["fit_state"].eq("DEFER_PORTFOLIO_CONTEXT")]
     if len(deferred) and deferred["context_defer_rules"].astype(str).str.len().eq(0).any(): errors.append("DEFER_WITHOUT_RULE")
+
+    leaked = sorted({item for value in account["constraints"] for item in pipe_items(value)} & UNIVERSAL_NOTES)
+    if leaked: errors.append("UNIVERSAL_GOVERNANCE_NOTE_LEAKED_AS_FIT_CONSTRAINT:" + ",".join(leaked))
+
+    p4r14 = rules[rules["rule_id"].eq("P4R14")]
+    p4r15 = rules[rules["rule_id"].eq("P4R15")]
+    if not p4r14["rule_state"].eq("PASS").all(): errors.append("P4R14_PHASE_BOUNDARY_AS_CONSTRAINT")
+    if not p4r15["rule_state"].eq("PASS").all(): errors.append("P4R15_CASH_SEMANTICS_AS_FIT_CONSTRAINT")
+    account_idx = account.set_index(["security_id", "account"])
+    for _, rule in rules[rules["rule_id"].eq("P4R09")].iterrows():
+        row = account_idx.loc[(rule["security_id"], rule["account"])]
+        no_direct = not pipe_items(row.get("direct_overlap_security_ids"))
+        no_ah = not pipe_items(row.get("ah_overlap_security_ids"))
+        if no_direct and no_ah and rule["rule_state"] != "PASS":
+            errors.append("P4R09_POOLED_PRESENCE_AS_DUPLICATE_CONSTRAINT")
+            break
 
     for frame, name in ((account, "ACCOUNT"), (rules, "RULES"), (combined, "COMBINED")):
         if "trade_authority" not in frame.columns or not frame["trade_authority"].eq(TRADE_AUTHORITY).all(): errors.append(name + "_AUTHORITY")
@@ -123,6 +164,15 @@ def main() -> None:
     if quality.get("fuzzy_identity_matching") is not False or quality.get("sector_neutral_fill") is not False: errors.append("FORBIDDEN_INFERENCE")
     if quality.get("ticker_count_diversification_inference") is not False: errors.append("FORBIDDEN_DIVERSIFICATION_INFERENCE")
     if quality.get("trailing_return_called_expected_return") is not False or quality.get("ah_discount_called_alpha") is not False: errors.append("FORBIDDEN_RETURN_SEMANTICS")
+    if quality.get("universal_governance_notes_removed_from_fit_constraints") is not True: errors.append("SEMANTIC_CLEANUP_NOT_RECORDED")
+    if quality.get("pooled_presence_alone_called_duplicate_exposure") is not False: errors.append("POOLED_DUPLICATE_SEMANTICS")
+    cleanup = decision.get("semantic_cleanup", {})
+    if not all(cleanup.get(k) is True for k in [
+        "numeric_sizing_phase_boundary_not_fit_constraint",
+        "real_cash_funding_note_not_fit_constraint",
+        "pooled_presence_not_candidate_specific_duplicate_constraint",
+        "non_direct_no_incremental_requires_high_opportunity_cost_plus_sector_style_concentration_plus_non_improving_marginal_risk",
+    ]): errors.append("DECISION_SEMANTIC_CLEANUP")
 
     for name, meta in manifest.get("files", {}).items():
         path = out / name
@@ -137,6 +187,8 @@ def main() -> None:
         "rule_assessment_row_count": len(rules),
         "combined_routing_count": len(combined),
         "context_gap_count": len(gaps),
+        "account_fit_state_counts": {a: account[account["account"].eq(a)]["fit_state"].value_counts().astype(int).to_dict() for a in ("REAL", "SIMULATION")},
+        "combined_route_counts": combined["combined_route"].value_counts().astype(int).to_dict(),
         "operational_status": decision.get("status"),
         "trade_authority": TRADE_AUTHORITY,
     }
