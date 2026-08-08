@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 import pandas as pd
 
-from pipeline.hkcu_p5c_user_decision_gate import extract_hkex_close_prices, extract_hkma_fx, valuation_multiple
+from pipeline.hkcu_p5c_user_decision_gate import extract_hkex_close_prices, extract_ecb_fx, valuation_multiple
 
 
 def test_extract_hkex_two_line_daily_quotation_prices_and_ignore_short_sell_rows():
@@ -47,13 +47,21 @@ def test_extract_hkex_table_prices_fallback():
     assert prices == {"HKEX:00669": 131.2, "HKEX:01308": 33.5, "HKEX:03698": 4.6}
 
 
-def test_extract_hkma_same_date_fx():
-    payload = {"result": {"records": [
-        {"end_of_day": "2026-08-07", "usd": 7.81, "cny": 1.155},
-        {"end_of_day": "2026-08-06", "usd": 7.80, "cny": 1.154},
-    ]}}
-    assert extract_hkma_fx(payload, "2026-08-07", ["usd", "cny"]) == {"usd": 7.81, "cny": 1.155}
-    assert extract_hkma_fx(payload, "2026-08-08", ["usd", "cny"]) == {}
+def test_extract_ecb_same_date_cross_rates():
+    xml = b'''<?xml version="1.0" encoding="UTF-8"?>
+    <gesmes:Envelope xmlns:gesmes="http://www.gesmes.org/xml/2002-08-01" xmlns="http://www.ecb.int/vocabulary/2002-08-01/eurofxref">
+      <Cube><Cube time="2026-08-07">
+        <Cube currency="USD" rate="1.1400"/>
+        <Cube currency="CNY" rate="7.7600"/>
+        <Cube currency="HKD" rate="8.9400"/>
+      </Cube></Cube>
+    </gesmes:Envelope>'''
+    rates, diag = extract_ecb_fx(xml, "2026-08-07", ["usd", "cny"], "hkd")
+    assert abs(rates["usd"] - (8.94 / 1.14)) < 1e-12
+    assert abs(rates["cny"] - (8.94 / 7.76)) < 1e-12
+    assert diag["matched_date"] == "2026-08-07"
+    assert diag["cross_currency"] == "hkd"
+    assert extract_ecb_fx(xml, "2026-08-08", ["usd", "cny"], "hkd")[0] == {}
 
 
 def test_valuation_multiple_uses_official_fx_series():
@@ -66,7 +74,7 @@ def test_valuation_multiple_uses_official_fx_series():
     assert abs(valuation_multiple(cny, 5.152, rates) - 0.4) < 1e-12
 
 
-def test_contract_preserves_user_authority_and_current_basis_policy():
+def test_contract_preserves_user_authority_and_repaired_fx_policy():
     c = json.loads(Path("config/hkcu_p5c_user_decision_gate_contract.json").read_text())
     p = c["decision_policy"]
     b = c["phase_boundary"]
@@ -84,17 +92,22 @@ def test_contract_preserves_user_authority_and_current_basis_policy():
     assert v["huishang_primary_metric"] == "P_B_Q1_COMMON_EQUITY_PROXY"
     assert v["third_party_history_context_may_replace_official_current_denominator"] is False
     assert v["fixed_valuation_ceiling_authorized"] is False
+    assert fx["required_source"] == "ECB_EURO_FOREIGN_EXCHANGE_REFERENCE_RATES"
     assert fx["required_series"] == ["usd", "cny"]
+    assert fx["required_cross_currency"] == "hkd"
+    assert fx["reference_rate_only_for_valuation_context"] is True
+    assert fx["execution_fx_rate_authorized"] is False
     assert fx["stale_fx_allowed"] is False
+    assert "No result found" in fx["replacement_reason"]
 
 
-def test_context_registry_pins_official_current_denominators():
+def test_context_registry_pins_official_current_denominators_and_ecb_fx_lineage():
     df = pd.read_csv("evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv", dtype={"stock_code_5d": str}, keep_default_na=False)
     assert set(df.security_id) == {"HKEX:00669", "HKEX:01308", "HKEX:03698"}
     assert (pd.to_numeric(df["history_median"]) > 0).all()
     assert (pd.to_numeric(df["peer_or_current_reference"]) > 0).all()
     assert df["basis_source_url"].str.startswith("https://").all()
-    assert df["fx_source_url"].str.contains("api.hkma.gov.hk", regex=False).all()
+    assert df["fx_source_url"].str.contains("ecb.europa.eu", regex=False).all()
     hu = df[df.security_id.eq("HKEX:03698")].iloc[0]
     assert hu.valuation_metric == "P_B_Q1_COMMON_EQUITY_PROXY"
     assert hu.basis_currency == "CNY"
