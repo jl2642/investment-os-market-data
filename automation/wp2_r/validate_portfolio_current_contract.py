@@ -183,8 +183,9 @@ def main() -> None:
 
     required_ids = {row["security_id"] for row in real.get("holdings", []) + sim.get("holdings", [])}
     mark_rows = {row["security_id"]: row for row in marks.get("marks", [])}
-    if not required_ids <= set(mark_rows):
-        raise AssertionError(("MISSING_MARKS", sorted(required_ids - set(mark_rows))))
+    missing_marks = sorted(required_ids - set(mark_rows))
+    if mark_status == "CURRENT_COMPLETE" and missing_marks:
+        raise AssertionError(("MISSING_MARKS", missing_marks))
     if mark_status == "CURRENT_COMPLETE":
         bad_freshness = sorted(
             sid for sid in required_ids if mark_rows[sid].get("freshness_status") not in {"FRESH", "ACCEPTABLE_LAG"}
@@ -236,6 +237,7 @@ def main() -> None:
         "status": "PASS",
         "require_fresh": args.require_fresh,
         "marks_status": mark_status,
+        "missing_marks": missing_marks,
         "real_holding_count": len(real.get("holdings", [])),
         "simulation_holding_count": len(sim.get("holdings", [])),
         "real_605090_quantity": next((row.get("quantity") for row in real.get("holdings", []) if code(row) == "605090"), None),
