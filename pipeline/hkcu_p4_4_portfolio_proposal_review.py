@@ -67,37 +67,57 @@ def scenario_review_state(scenario_id: str, family: str, policy: dict[str, Any])
             "RESEARCH_ONLY_AH_SUBSTITUTION",
             "A/H stress proves implementation feasibility only; relative-value context is not alpha and no substitution proposal is authorized without a separate evidence gate.",
         )
-    if scenario_id == policy["real_preferred_scenario"]:
-        return (
+    mapping = {
+        policy["real_preferred_scenario"]: (
             "PREFERRED_PORTFOLIO_PROPOSAL",
             "Initial REAL proposal uses the smallest passing base scenario because every REAL scenario requires external funding and there is no scenario-specific incremental-return evidence justifying larger immediate capital deployment.",
-        )
-    if scenario_id == policy["real_conditional_expansion_scenario"]:
-        return (
+        ),
+        policy["real_conditional_expansion_scenario"]: (
             "CONDITIONAL_EXPANSION_ALTERNATIVE",
             "REAL balanced sleeve remains an explicit next-step alternative after Phase 5 evidence, funding and observation review; it is not the initial proposal.",
-        )
-    if scenario_id == policy["real_hold_expansion_scenario"]:
-        return (
+        ),
+        policy["real_hold_expansion_scenario"]: (
             "HOLD_EXPANSION",
             "REAL expanded sleeve is not proposed at current evidence because it increases absolute capital and downside exposure without scenario-specific incremental-return evidence.",
-        )
-    if scenario_id == policy["simulation_preferred_scenario"]:
-        return (
+        ),
+        policy["simulation_preferred_scenario"]: (
             "PREFERRED_PORTFOLIO_PROPOSAL",
             "SIM balanced is the primary observation proposal: it is fully funded, passes all aggregate risk constraints and provides broader learning coverage without immediately using the maximum tested sleeve.",
-        )
-    if scenario_id == policy["simulation_conservative_alternative"]:
-        return (
+        ),
+        policy["simulation_conservative_alternative"]: (
             "CONSERVATIVE_ALTERNATIVE",
             "SIM conservative remains the lower-capital fallback observation scenario.",
-        )
-    if scenario_id == policy["simulation_expanded_alternative"]:
-        return (
+        ),
+        policy["simulation_expanded_alternative"]: (
             "CONDITIONAL_EXPANSION_ALTERNATIVE",
             "SIM expanded remains an optional broader stress/learning scenario, not the default proposal, because larger absolute capital exposure has no demonstrated incremental-alpha advantage.",
-        )
-    return "HOLD_UNCLASSIFIED", "Scenario is not part of the frozen proposal routing surface."
+        ),
+    }
+    return mapping.get(scenario_id, ("HOLD_UNCLASSIFIED", "Scenario is not part of the frozen proposal routing surface."))
+
+
+def make_scenario_review(summary: pd.DataFrame, policy: dict[str, Any]) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for r in summary.sort_values(["account", "hk_sleeve_target", "scenario_id"]).itertuples(index=False):
+        state, rationale = scenario_review_state(str(r.scenario_id), str(r.scenario_family), policy)
+        rows.append({
+            "scenario_id": str(r.scenario_id),
+            "scenario_family": str(r.scenario_family),
+            "account": str(r.account),
+            "scenario_review_state": state,
+            "rationale": rationale,
+            "hk_sleeve_target": float(r.hk_sleeve_target),
+            "hk_sleeve_allocated": float(r.hk_sleeve_allocated),
+            "position_count": int(r.position_count),
+            "gross_drawdown_stress_weight": float(r.gross_drawdown_stress_weight),
+            "funding_status": str(r.funding_status),
+            "sector_mix": str(r.sector_mix),
+            "style_mix": str(r.style_mix),
+            "portfolio_mutation": False,
+            "orders_created": 0,
+            "trade_authority": TRADE_AUTHORITY,
+        })
+    return pd.DataFrame(rows)
 
 
 def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, Any]:
@@ -106,20 +126,15 @@ def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, An
     p4_3_contract = read_json(root / "config/hkcu_p4_3_portfolio_construction_scenario_test_contract.json")
     p4_2_contract = read_json(root / "config/hkcu_p4_2_portfolio_construction_review_contract.json")
     policy = contract["proposal_policy"]
+    acceptance = contract["acceptance"]
     prefix = contract["output_prefix"]
     p4_3_prefix = p4_3_contract["output_prefix"]
     p4_2_prefix = p4_2_contract["output_prefix"]
 
     p4_3_decision = read_json(p4_3_dir / f"{p4_3_prefix}_DECISION.json")
     summary = pd.read_csv(p4_3_dir / f"{p4_3_prefix}_SCENARIO_SUMMARY.csv", keep_default_na=False)
-    allocations = pd.read_csv(
-        p4_3_dir / f"{p4_3_prefix}_SCENARIO_ALLOCATIONS.csv",
-        dtype={"stock_code_5d": str}, keep_default_na=False,
-    )
-    p4_2_review = pd.read_csv(
-        p4_2_dir / f"{p4_2_prefix}_ACCOUNT_SECURITY_REVIEW.csv",
-        dtype={"stock_code_5d": str}, keep_default_na=False,
-    )
+    allocations = pd.read_csv(p4_3_dir / f"{p4_3_prefix}_SCENARIO_ALLOCATIONS.csv", dtype={"stock_code_5d": str}, keep_default_na=False)
+    p4_2_review = pd.read_csv(p4_2_dir / f"{p4_2_prefix}_ACCOUNT_SECURITY_REVIEW.csv", dtype={"stock_code_5d": str}, keep_default_na=False)
     inputs = contract["authoritative_inputs"]
     states = {
         "REAL": read_json(root / inputs["real_positions_current"]),
@@ -131,42 +146,18 @@ def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, An
         errors.append("P4_3_STATUS")
     if len(summary) != contract["entry_contract"]["required_scenario_count"]:
         errors.append(f"SCENARIO_COUNT:{len(summary)}")
-    if not summary["scenario_status"].eq("PASS").all():
-        errors.append("NONPASS_SCENARIO")
     if summary["scenario_id"].duplicated().any():
         errors.append("DUPLICATE_SCENARIO")
+    if not summary["scenario_status"].eq("PASS").all():
+        errors.append("NONPASS_SCENARIO")
     if any(states[a].get("trade_authority") != TRADE_AUTHORITY for a in states):
         errors.append("ACCOUNT_AUTHORITY")
 
-    scenario_reviews: list[dict[str, Any]] = []
-    for row in summary.sort_values(["account", "hk_sleeve_target", "scenario_id"]).itertuples(index=False):
-        review_state, rationale = scenario_review_state(str(row.scenario_id), str(row.scenario_family), policy)
-        scenario_reviews.append({
-            "scenario_id": str(row.scenario_id),
-            "scenario_family": str(row.scenario_family),
-            "account": str(row.account),
-            "scenario_review_state": review_state,
-            "rationale": rationale,
-            "hk_sleeve_target": float(row.hk_sleeve_target),
-            "hk_sleeve_allocated": float(row.hk_sleeve_allocated),
-            "position_count": int(row.position_count),
-            "gross_drawdown_stress_weight": float(row.gross_drawdown_stress_weight),
-            "funding_status": str(row.funding_status),
-            "sector_mix": str(row.sector_mix),
-            "style_mix": str(row.style_mix),
-            "portfolio_mutation": False,
-            "orders_created": 0,
-            "trade_authority": TRADE_AUTHORITY,
-        })
-    scenario_review = pd.DataFrame(scenario_reviews)
-
-    preferred = {
-        "REAL": policy["real_preferred_scenario"],
-        "SIMULATION": policy["simulation_preferred_scenario"],
-    }
+    scenario_review = make_scenario_review(summary, policy)
+    preferred = {"REAL": policy["real_preferred_scenario"], "SIMULATION": policy["simulation_preferred_scenario"]}
+    p4_idx = p4_2_review.set_index(["security_id", "account"], drop=False)
     proposal_summaries: list[dict[str, Any]] = []
     proposal_allocations: list[dict[str, Any]] = []
-    p4_idx = p4_2_review.set_index(["security_id", "account"], drop=False)
 
     for account, scenario_id in preferred.items():
         s = summary[(summary["scenario_id"].eq(scenario_id)) & (summary["account"].eq(account))]
@@ -180,6 +171,7 @@ def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, An
             continue
         if not rows["allocation_type"].eq("NEW_BUILD").all():
             errors.append(f"PREFERRED_SCENARIO_HAS_SUBSTITUTION:{account}")
+
         corrs: list[float] = []
         downside_corrs: list[float] = []
         for r in rows.itertuples(index=False):
@@ -211,11 +203,7 @@ def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, An
                 "portfolio_role": str(p.get("portfolio_role", "")),
                 "principal_falsifier": str(p.get("principal_falsifier", "")),
                 "review_triggers": str(p.get("review_triggers", "")),
-                "alternative_route": (
-                    policy["real_conditional_expansion_scenario"]
-                    if account == "REAL" else
-                    f"{policy['simulation_conservative_alternative']}|{policy['simulation_expanded_alternative']}"
-                ),
+                "alternative_route": policy["real_conditional_expansion_scenario"] if account == "REAL" else f"{policy['simulation_conservative_alternative']}|{policy['simulation_expanded_alternative']}",
                 "initial_review_date": policy["initial_review_date"],
                 "permission": policy["real_permission"] if account == "REAL" else policy["simulation_permission"],
                 "execution_status": policy["real_execution_status"] if account == "REAL" else policy["simulation_execution_status"],
@@ -223,6 +211,7 @@ def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, An
                 "orders_created": 0,
                 "trade_authority": TRADE_AUTHORITY,
             })
+
         proposal_summaries.append({
             "account": account,
             "preferred_scenario_id": scenario_id,
@@ -237,11 +226,7 @@ def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, An
             "median_downside_correlation": float(pd.Series(downside_corrs).median()) if downside_corrs else None,
             "lookthrough_sector_mix": str(srow["sector_mix"]),
             "lookthrough_style_mix": str(srow["style_mix"]),
-            "alternative_scenarios": (
-                f"{policy['real_conditional_expansion_scenario']}|{policy['real_hold_expansion_scenario']}"
-                if account == "REAL" else
-                f"{policy['simulation_conservative_alternative']}|{policy['simulation_expanded_alternative']}"
-            ),
+            "alternative_scenarios": f"{policy['real_conditional_expansion_scenario']}|{policy['real_hold_expansion_scenario']}" if account == "REAL" else f"{policy['simulation_conservative_alternative']}|{policy['simulation_expanded_alternative']}",
             "exit_or_hold_condition": "ANY_SECURITY_PRINCIPAL_FALSIFIER_OR_PORTFOLIO_CONSTRAINT_BREACH_REQUIRES_REVIEW_BEFORE_ANY_NEXT_ACTION",
             "initial_review_date": policy["initial_review_date"],
             "pretrade_memo_required_before_real_execution": account == "REAL",
@@ -253,17 +238,14 @@ def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, An
 
     proposal_summary = pd.DataFrame(proposal_summaries)
     proposal_allocation = pd.DataFrame(proposal_allocations)
+    real_count = int(proposal_summary["account"].eq("REAL").sum()) if len(proposal_summary) else 0
+    sim_count = int(proposal_summary["account"].eq("SIMULATION").sum()) if len(proposal_summary) else 0
+    if len(scenario_review) != acceptance["scenario_review_count"]: errors.append("SCENARIO_REVIEW_COUNT")
+    if len(proposal_summary) != acceptance["preferred_proposal_count"]: errors.append("PREFERRED_PROPOSAL_COUNT")
+    if real_count != acceptance["real_preferred_proposal_count"]: errors.append("REAL_PREFERRED_COUNT")
+    if sim_count != acceptance["simulation_preferred_proposal_count"]: errors.append("SIM_PREFERRED_COUNT")
 
-    if len(scenario_review) != contract["acceptance"]["scenario_review_count"]:
-        errors.append("SCENARIO_REVIEW_COUNT")
-    if len(proposal_summary) != contract["acceptance"]["preferred_proposal_count"]:
-        errors.append("PREFERRED_PROPOSAL_COUNT")
-    if int(proposal_summary["account"].eq("REAL").sum()) if len(proposal_summary) else 0 != contract["acceptance"]["real_preferred_proposal_count"]:
-        errors.append("REAL_PREFERRED_COUNT")
-    if int(proposal_summary["account"].eq("SIMULATION").sum()) if len(proposal_summary) else 0 != contract["acceptance"]["simulation_preferred_proposal_count"]:
-        errors.append("SIM_PREFERRED_COUNT")
-
-    status = contract["acceptance"]["pass_status"] if not errors else contract["acceptance"]["fail_status"]
+    status = acceptance["pass_status"] if not errors else acceptance["fail_status"]
     decision = {
         "program_id": PROGRAM_ID,
         "phase": contract["phase"],
@@ -282,8 +264,8 @@ def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, An
         "simulation_mutations": 0,
         "real_account_mutations": 0,
         "orders_created": 0,
-        "phase_close_status": contract["acceptance"]["phase_close_status"] if not errors else "PHASE_4_NOT_CLOSED",
-        "next_phase": contract["acceptance"]["next_phase_on_pass"] if not errors else contract["acceptance"]["repair_gate"],
+        "phase_close_status": acceptance["phase_close_status"] if not errors else "PHASE_4_NOT_CLOSED",
+        "next_phase": acceptance["next_phase_on_pass"] if not errors else acceptance["repair_gate"],
         "additional_p4_subphases_allowed": False,
         "integrity_failures": errors,
         "trade_authority": TRADE_AUTHORITY,
@@ -322,32 +304,24 @@ def build(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str, An
     write_json(decision_file, decision)
     write_json(quality_file, quality)
 
-    real = proposal_summary[proposal_summary["account"].eq("REAL")].iloc[0] if len(proposal_summary[proposal_summary["account"].eq("REAL")]) else None
-    sim = proposal_summary[proposal_summary["account"].eq("SIMULATION")].iloc[0] if len(proposal_summary[proposal_summary["account"].eq("SIMULATION")]) else None
-    lines = [
+    real = proposal_summary[proposal_summary["account"].eq("REAL")].iloc[0] if real_count else None
+    sim = proposal_summary[proposal_summary["account"].eq("SIMULATION")].iloc[0] if sim_count else None
+    report_file.write_text("\n".join([
         "# HKCU P4-4 Portfolio Proposal Review",
         "",
         f"Status: **{status}**",
-        "",
         f"Phase closure: **{decision['phase_close_status']}**",
         f"Next phase: **{decision['next_phase']}**",
         "",
-        "## Preferred proposal surface",
+        f"- REAL preferred: {policy['real_preferred_scenario']} / {float(real['hk_sleeve_proposed']) if real is not None else 0:.2%} / RESEARCH_ONLY / NOT AUTHORIZED FOR EXECUTION.",
+        f"- SIMULATION preferred: {policy['simulation_preferred_scenario']} / {float(sim['hk_sleeve_proposed']) if sim is not None else 0:.2%} / RESEARCH_ONLY / NO STATE MUTATION.",
+        "- A/H stress variants remain research-only and are not promoted into preferred proposals.",
         "",
-        f"- REAL: {policy['real_preferred_scenario']} / {float(real['hk_sleeve_proposed']) if real is not None else 0:.2%} HK sleeve / RESEARCH_ONLY / NOT AUTHORIZED FOR EXECUTION.",
-        f"- SIMULATION: {policy['simulation_preferred_scenario']} / {float(sim['hk_sleeve_proposed']) if sim is not None else 0:.2%} HK sleeve / RESEARCH_ONLY / NO STATE MUTATION.",
-        "- A/H stress variants remain research-only and are not promoted into either preferred proposal.",
-        "",
-        "REAL uses staged capital migration: because every passing REAL scenario requires external funding and no scenario-specific incremental-return evidence establishes that larger immediate deployment is superior, the initial proposal is the smallest passing base sleeve. The 10% balanced sleeve remains a conditional expansion alternative and the 15% expanded sleeve is held at current evidence.",
-        "",
-        "SIMULATION uses the balanced base sleeve as the primary observation proposal. Conservative and expanded scenarios remain explicit alternatives; this does not claim the balanced scenario has superior expected return.",
-        "",
-        "P4-4 creates a research portfolio proposal only. It does not create a Pre-trade Memo, user approval, target writeback, state mutation, broker order or trade authority. Phase 4 is closed on PASS; no additional P4 subphase is authorized.",
+        "P4-4 creates research portfolio proposals only. No Pre-trade Memo, user approval, target writeback, state mutation, broker order or trade authority is produced. Phase 4 is closed on PASS and no additional P4 subphase is authorized.",
         "",
         "trade_authority=NONE.",
         "",
-    ]
-    report_file.write_text("\n".join(lines), encoding="utf-8")
+    ]), encoding="utf-8")
 
     manifest = {"program_id": PROGRAM_ID, "status": status, "files": {}, "trade_authority": TRADE_AUTHORITY}
     for path in (scenario_file, proposal_file, allocation_file, decision_file, quality_file, report_file):
