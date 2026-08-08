@@ -1,0 +1,75 @@
+{
+  "contract_id": "HKCU_P2B_E2_RANKS61_77_DECISION_SYNTHESIS_S4_V1",
+  "program_id": "HKCU-P2B-E2-S4",
+  "phase": "P2B_E2_RANKS61_77_DECISION_SYNTHESIS",
+  "objective": "Apply the accepted reusable evidence-to-decision semantics to P2A ranks 61-77 with targeted fresh primary-official overrides, event lineage and cross-dimension deduplication, without alpha scoring or Candidate graduation.",
+  "authoritative_inputs": {
+    "d1_builder": "pipeline/hkcu_p2b_e2_deepen_negative_catalyst.py",
+    "d1_validator": "scripts/validate_hkcu_p2b_e2_deepening_d1.py",
+    "partial_synthesizer": "pipeline/hkcu_p2b_e2_synthesize_top20_partial.py",
+    "targeted_resolution_overrides": "evidence/hkcu_p2b/HKCU_P2B_E2_S4_RANKS61_77_TARGETED_OVERRIDES_20260807.csv"
+  },
+  "selection_policy": {
+    "rank_start": 61,
+    "rank_end": 77,
+    "expected_security_count": 17,
+    "expected_dimension_rows": 51,
+    "expected_partial_rows": 43,
+    "expected_non_partial_rows": 8,
+    "expected_research_required_rows": 0,
+    "expected_targeted_override_rows": 6,
+    "as_of_date": "2026-08-07"
+  },
+  "synthesis_policy": {
+    "dimensions": [
+      "GOVERNANCE_VALUE_TRAP",
+      "EARNINGS_EXPECTATION_REVISION",
+      "CATALYST"
+    ],
+    "decision_states": [
+      "ADVANCE_TO_P2B_CROSS_SECTIONAL_SYNTHESIS_WITH_CONFIDENCE_CAP",
+      "HOLD_RETAINED_INVESTMENT_BLOCKER"
+    ],
+    "dimension_states": [
+      "EVIDENCE_COMPLETE",
+      "SUFFICIENT_FOR_PRELIMINARY_DECISION",
+      "MONITOR_ONLY",
+      "CONFIDENCE_CAP_MONITOR",
+      "LIMITED_CONFIDENCE",
+      "TARGETED_DEEPENING_REQUIRED",
+      "RETAINED_INVESTMENT_BLOCKER",
+      "RETAINED_DIRECT_NEGATIVE_SIGNAL"
+    ],
+    "fresh_primary_evidence_overrides_stale_first_pass": true,
+    "cross_dimension_event_deduplication_required": true,
+    "missing_consensus_is_not_bearish": true,
+    "ordinary_connected_transaction_is_not_automatic_blocker": true,
+    "economic_content_overrides_hkex_category_label": true,
+    "p2a_rank_is_preserved_not_rescored": true,
+    "no_alpha_score_in_e2": true
+  },
+  "expected_result": {
+    "advance_security_count": 15,
+    "blocked_security_count": 2,
+    "retained_blocker_security_ids": [
+      "HKEX:02313",
+      "HKEX:06110"
+    ],
+    "retained_blocker_event_count": 2
+  },
+  "acceptance": {
+    "formal_candidate_graduation_allowed": false,
+    "score_non_null_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P2B_E2_S4_RANKS61_77",
+  "report_title": "HKCU P2B-E2 Ranks 61-77 Decision Synthesis",
+  "pass_status": "PASS_P2B_E2_RANKS61_77_DECISION_SYNTHESIS",
+  "blocked_status": "BLOCKED_P2B_E2_RANKS61_77_DECISION_SYNTHESIS",
+  "next_gate": "P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS",
+  "trade_authority": "NONE"
+}
