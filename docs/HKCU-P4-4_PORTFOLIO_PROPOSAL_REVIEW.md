@@ -10,7 +10,7 @@ This gate exists because P4-3 proved that multiple complete portfolio scenarios 
 
 The Phase 4 numbering was not fully frozen when P4-0 opened. P4-0 explicitly named only P4-1; later gates introduced P4-2 and P4-3, and P4-3 first named `P4_4_PORTFOLIO_PROPOSAL_REVIEW`. Therefore P4-4 is a valid portfolio-governance function, but its numbering was introduced incrementally rather than being fixed at Phase-4 inception.
 
-This document closes that planning gap: **a passing P4-4 closes Phase 4. No P4-5 or later P4 subphase is authorized.** The next layer is the already intended higher-level Phase 5, `PHASE_5_PRETRADE_AND_STAGED_MIGRATION`.
+This document closes that planning gap: **a passing P4-4 closes Phase 4. No P4-5 or later P4 subphase is authorized.** The next layer is the higher-level Phase 5, `PHASE_5_PRETRADE_AND_STAGED_MIGRATION`.
 
 ## Proposal rules
 
@@ -50,9 +50,10 @@ Every preferred proposal must preserve the CORE_STATIC portfolio-decision surfac
 
 - current weight;
 - proposed weight;
+- portfolio role;
 - funding source;
 - maximum historical drawdown loss estimate;
-- candidate/portfolio and downside correlation where available;
+- candidate/portfolio and downside correlation;
 - sector/style Look-through;
 - explicit alternative scenario;
 - principal falsifier and review trigger at security level;
@@ -77,6 +78,52 @@ SIMULATION preferred proposal:
 
 A REAL proposal can enter Phase 5 Pre-trade Memo preparation only. A technical PASS is not user approval and is not execution authority.
 
+## Accepted Canonical-input result
+
+The first full Canonical-input P4-4 run on branch head `72683184e36eee3d32f5cf0ebb933fbcfdc1ce9e` completed successfully in workflow run `31254893569`.
+
+- P4-1R, P4-1, P4-2 and P4-3 were rebuilt and independently validated from the PR base Canonical state.
+- P4-4 status: `PASS_P4_4_PORTFOLIO_PROPOSAL_REVIEW`.
+- independent validator: `PASS`, `errors=[]`.
+- scenario reviews: 9/9.
+- preferred proposals: 2.
+- proposal allocations: 13.
+- Phase closure: `PHASE_4_CLOSED`.
+- next phase: `PHASE_5_PRETRADE_AND_STAGED_MIGRATION`.
+- Candidate / REAL / SIMULATION mutations: 0.
+- target writeback: false.
+- Pre-trade Memo produced: false.
+- user trade confirmation recorded: false.
+- orders: 0.
+- `trade_authority=NONE`.
+
+### Accepted REAL preferred proposal
+
+`REAL_CONSERVATIVE` proposes a 5% HK sleeve across four securities, subject to external-liquidity or separate-capital-decision funding:
+
+- HKEX:03698 HUISHANG BANK: 1.7500%;
+- HKEX:01308 SITC: 1.5855%;
+- HKEX:02698 SOFTCARE: 0.6645%;
+- HKEX:00669 TECHTRONIC IND: 1.0000%.
+
+Aggregate historical 120-day drawdown stress weight is approximately 0.9501% of account assets. Median candidate/portfolio correlation is approximately 0.0572 and median downside correlation approximately -0.1195. `REAL_BALANCED` and `REAL_EXPANDED` remain alternatives rather than execution instructions.
+
+### Accepted SIMULATION preferred proposal
+
+`SIM_BALANCED` proposes a 15% HK observation sleeve across nine securities and fits within current simulation cash:
+
+- HKEX:03698 HUISHANG BANK: 2.3700%;
+- HKEX:01308 SITC: 1.7226%;
+- HKEX:02698 SOFTCARE: 1.7921%;
+- HKEX:00917 QUNABOX GROUP: 0.5938%;
+- HKEX:00002 CLP HOLDINGS: 2.0000%;
+- HKEX:00008 PCCW: 2.0000%;
+- HKEX:00941 CHINA MOBILE: 2.0000%;
+- HKEX:00003 HK & CHINA GAS: 0.7500%;
+- HKEX:00001 CKH HOLDINGS: 1.7715%.
+
+Aggregate historical 120-day drawdown stress weight is approximately 2.8849% of account assets. Median candidate/portfolio correlation is approximately 0.2331 and median downside correlation approximately 0.0071. This remains an observation proposal only; SIMULATION Current is not mutated by P4-4.
+
 ## Governance boundary
 
 P4-4 may produce portfolio proposals and classify alternatives. It does not:
@@ -92,4 +139,4 @@ P4-4 may produce portfolio proposals and classify alternatives. It does not:
 
 `trade_authority=NONE` throughout.
 
-A clean P4-4 PASS closes Phase 4 and advances only to `PHASE_5_PRETRADE_AND_STAGED_MIGRATION`.
+A clean final-head P4-4 PASS closes Phase 4 and advances only to `PHASE_5_PRETRADE_AND_STAGED_MIGRATION`. No P4-5 or later P4 subphase is authorized.
