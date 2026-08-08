@@ -1,0 +1,110 @@
+name: HKCU P3-2 Candidate Pool Promotion
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'config/hkcu_p3_2_candidate_pool_promotion_contract.json'
+      - 'pipeline/hkcu_p3_2_candidate_pool_promotion.py'
+      - 'scripts/validate_hkcu_p3_2_candidate_pool_promotion.py'
+      - 'tests/test_hkcu_p3_2_candidate_pool_promotion.py'
+      - 'docs/HKCU-P3-2_CANDIDATE_POOL_PROMOTION.md'
+      - '.github/workflows/hkcu-p3-2-candidate-pool-promotion.yml'
+      - 'outputs/hk_candidate/current/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p3_2_candidate_pool_promotion.py
+      - name: Enforce isolated P3-2 promotion scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p3_2_paths.txt
+          cat /tmp/p3_2_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              'config/hkcu_p3_2_candidate_pool_promotion_contract.json',
+              'pipeline/hkcu_p3_2_candidate_pool_promotion.py',
+              'scripts/validate_hkcu_p3_2_candidate_pool_promotion.py',
+              'tests/test_hkcu_p3_2_candidate_pool_promotion.py',
+              'docs/HKCU-P3-2_CANDIDATE_POOL_PROMOTION.md',
+              '.github/workflows/hkcu-p3-2-candidate-pool-promotion.yml',
+              'outputs/hk_candidate/current/HK_CANDIDATE_CURRENT.csv',
+              'outputs/hk_candidate/current/HK_CANDIDATE_NONMEMBER_MONITORS.csv',
+              'outputs/hk_candidate/current/HK_CANDIDATE_PROMOTION_LEDGER.csv',
+              'outputs/hk_candidate/current/HK_CANDIDATE_DECISION.json',
+              'outputs/hk_candidate/current/HK_CANDIDATE_QUALITY_REPORT.json',
+              'outputs/hk_candidate/current/HK_CANDIDATE_MANIFEST.json',
+          }
+          actual = {x.strip() for x in Path('/tmp/p3_2_paths.txt').read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit('P3_2_SCOPE_VIOLATION:' + ','.join(bad))
+          protected = ('outputs/candidate/', 'outputs/simulation/', 'outputs/real', 'state/', 'orders/')
+          mutations = sorted(x for x in actual if x.startswith(protected))
+          if mutations:
+              raise SystemExit('P3_2_PROTECTED_PATH_MUTATION:' + ','.join(mutations))
+          required_current = {
+              'outputs/hk_candidate/current/HK_CANDIDATE_CURRENT.csv',
+              'outputs/hk_candidate/current/HK_CANDIDATE_NONMEMBER_MONITORS.csv',
+              'outputs/hk_candidate/current/HK_CANDIDATE_PROMOTION_LEDGER.csv',
+              'outputs/hk_candidate/current/HK_CANDIDATE_DECISION.json',
+              'outputs/hk_candidate/current/HK_CANDIDATE_QUALITY_REPORT.json',
+              'outputs/hk_candidate/current/HK_CANDIDATE_MANIFEST.json',
+          }
+          missing = sorted(required_current - actual)
+          if missing:
+              raise SystemExit('P3_2_CURRENT_PUBLICATION_MISSING:' + ','.join(missing))
+          PY
+
+  real-promotion:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild accepted P3-1 and execute P3-2 promotion
+        run: |
+          rm -rf work/hkcu_p3_2
+          python pipeline/hkcu_p3_2_candidate_pool_promotion.py \
+            --repo-root . \
+            --output work/hkcu_p3_2
+      - name: Independent P3-2 validation and committed-Current tie-out
+        run: |
+          python scripts/validate_hkcu_p3_2_candidate_pool_promotion.py \
+            --repo-root . \
+            --output work/hkcu_p3_2 \
+            --committed-current outputs/hk_candidate/current
+      - name: Render P3-2 decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p3_2/HK_CANDIDATE_DECISION.json || cat work/hkcu_p3_2/HK_CANDIDATE_DECISION.json
+          test ! -f work/hkcu_p3_2/HK_CANDIDATE_QUALITY_REPORT.json || cat work/hkcu_p3_2/HK_CANDIDATE_QUALITY_REPORT.json
+          test ! -f work/hkcu_p3_2/HK_CANDIDATE_CURRENT.csv || head -20 work/hkcu_p3_2/HK_CANDIDATE_CURRENT.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p3-2-candidate-pool-promotion
+          path: |
+            work/hkcu_p3_2/HK_CANDIDATE_*
+          if-no-files-found: error
