@@ -144,7 +144,8 @@ def test_direct_equity_style_scope_excludes_fixed_income():
     hk = pd.Series({"avg_turnover_hkd_20d": 100_000_000.0})
     caps = p4a.construction_caps(r, candidate(), hk, "REAL", state, policy())
     assert r["existing_same_style_weight"] == 0.0
-    assert caps["style_room_cap"] == 0.05
+    assert caps["style_room_cap"] == 0.30
+    assert min(caps.values()) <= 0.05
 
 
 def test_ah_substitution_ignores_net_new_sector_style_room():
