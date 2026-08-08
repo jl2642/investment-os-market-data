@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 from io import StringIO
 from pathlib import Path
@@ -15,6 +16,8 @@ from bs4 import BeautifulSoup
 
 PROGRAM_ID = "HKCU-P5C"
 TRADE_AUTHORITY = "NONE"
+TARGET_PRICE_MIN_HKD = 0.01
+TARGET_PRICE_MAX_HKD = 5000.0
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -80,14 +83,12 @@ def _table_close_candidates(html: str, targets: dict[str, str]) -> tuple[dict[st
                 if sid in prices:
                     continue
                 hit = any(code_match(vals[i], code5) for i in code_idxs if i < len(vals))
-                if not hit:
-                    hit = any(code_match(v, code5) for v in vals[:3])
                 if hit:
                     diag["matching_rows"][sid] = {"table": ti, "columns": cols, "values": vals}
                     for ci in close_idxs:
                         if ci < len(vals):
                             p = parse_numeric(vals[ci])
-                            if p is not None and p > 0:
+                            if p is not None and TARGET_PRICE_MIN_HKD <= p <= TARGET_PRICE_MAX_HKD:
                                 prices[sid] = p
                                 break
     return prices, diag
@@ -119,51 +120,86 @@ def _dom_close_candidates(html: str, targets: dict[str, str]) -> tuple[dict[str,
                     diag["matching_rows"][sid] = {"table": table_i, "header": header_cells, "values": cells}
                     if close_idx is not None and close_idx < len(cells):
                         p = parse_numeric(cells[close_idx])
-                        if p is not None and p > 0:
+                        if p is not None and TARGET_PRICE_MIN_HKD <= p <= TARGET_PRICE_MAX_HKD:
                             prices[sid] = p
     return prices, diag
 
 
-def _pre_close_candidates(html: str, targets: dict[str, str]) -> tuple[dict[str, float], dict[str, Any]]:
+def _quotation_two_line_close_candidates(html: str, targets: dict[str, str]) -> tuple[dict[str, float], dict[str, Any]]:
+    """Parse HKEX legacy Main Board Daily Quotations two-line quote rows.
+
+    The official report encodes each stock in two physical lines under the QUOTATIONS
+    header. First line: code/name/currency, previous close, ask, high, shares traded.
+    Second line: closing price, bid, low, turnover. We therefore take the first numeric
+    price token from the immediately following non-empty line, and never scan later
+    short-selling / turnover sections for a code match.
+    """
     soup = BeautifulSoup(html, "html.parser")
-    blocks = [p.get_text("\n") for p in soup.find_all("pre")]
-    if not blocks:
-        blocks = [soup.get_text("\n")]
+    text = "\n".join(p.get_text("\n") for p in soup.find_all("pre")) or soup.get_text("\n")
+    lines = text.splitlines()
     prices: dict[str, float] = {}
-    diag: dict[str, Any] = {"headers": [], "matching_lines": {}}
-    for block in blocks:
-        lines = block.splitlines()
-        close_spans: list[tuple[int, int]] = []
-        for line in lines:
-            u = line.upper()
-            if "CLOS" in u:
-                start = u.find("CLOS")
-                candidates = [u.find(k, start + 1) for k in ("CHANGE", "VOLUME", "TURNOVER", "HIGH", "LOW") if u.find(k, start + 1) > start]
-                end = min(candidates) if candidates else min(len(line), start + 20)
-                close_spans.append((start, end))
-                if len(diag["headers"]) < 8:
-                    diag["headers"].append(line)
-        for line in lines:
-            for sid, code5 in targets.items():
-                if sid in prices:
-                    continue
-                digits = re.sub(r"\D", "", line[:12])
-                if code5 not in line[:18] and not (digits and digits.zfill(5).endswith(code5)):
-                    continue
-                diag["matching_lines"][sid] = line
-                for start, end in close_spans:
-                    if start < len(line):
-                        p = parse_numeric(line[start:end])
-                        if p is not None and p > 0:
-                            prices[sid] = p
-                            break
+    diag: dict[str, Any] = {"quote_header_indices": [], "matching_quote_pairs": {}, "all_code_occurrences": {}}
+
+    # Capture all occurrences for fail-closed diagnostics, even outside the quotation section.
+    for idx, line in enumerate(lines):
+        for sid, code5 in targets.items():
+            code_int = str(int(code5))
+            if re.match(rf"^\s*[*#]?\s*{re.escape(code_int)}\s+", line):
+                diag["all_code_occurrences"].setdefault(sid, []).append({
+                    "index": idx,
+                    "line": line,
+                    "next": lines[idx + 1] if idx + 1 < len(lines) else "",
+                })
+
+    header_indices = []
+    for idx, line in enumerate(lines):
+        u = line.upper()
+        if "CODE" in u and "NAME OF STOCK" in u and "PRV.CLO" in u and "SHARES TRADED" in u:
+            header_indices.append(idx)
+    diag["quote_header_indices"] = header_indices
+
+    row_re = re.compile(r"^\s*[*#]?\s*(\d{1,5})\s+(.+?)\s+(HKD|USD|CNY)\s+", re.I)
+    for header_idx in header_indices:
+        # The actual quotation table is large. Stop at the next report section.
+        for idx in range(header_idx + 1, len(lines)):
+            upper = lines[idx].strip().upper()
+            if idx > header_idx + 2 and (upper.startswith("SALES RECORDS FOR ALL STOCKS") or upper.startswith("SALES RECORDS OVER")):
+                break
+            m = row_re.match(lines[idx])
+            if not m:
+                continue
+            code5 = m.group(1).zfill(5)
+            matching_sid = next((sid for sid, target_code in targets.items() if target_code == code5), None)
+            if matching_sid is None or matching_sid in prices:
+                continue
+            next_idx = idx + 1
+            while next_idx < len(lines) and not lines[next_idx].strip():
+                next_idx += 1
+            second = lines[next_idx] if next_idx < len(lines) else ""
+            # Closing is the first field on the second quote line. It is a price-like token,
+            # not a comma-separated volume/turnover integer.
+            second_clean = second.strip()
+            first_token = second_clean.split()[0] if second_clean else ""
+            p = parse_numeric(first_token)
+            diag["matching_quote_pairs"][matching_sid] = {
+                "first_line_index": idx,
+                "first_line": lines[idx],
+                "second_line_index": next_idx,
+                "second_line": second,
+                "closing_token": first_token,
+                "parsed_close": p,
+            }
+            if p is not None and math.isfinite(p) and TARGET_PRICE_MIN_HKD <= p <= TARGET_PRICE_MAX_HKD:
+                prices[matching_sid] = p
     return prices, diag
 
 
 def extract_hkex_close_prices(html: str, targets: dict[str, str]) -> tuple[dict[str, float], dict[str, Any]]:
     methods = []
     merged: dict[str, float] = {}
-    for fn in (_table_close_candidates, _dom_close_candidates, _pre_close_candidates):
+    # Legacy HKEX daily-quotation pages are fixed-width text, so use the exact two-line
+    # quotation parser first. HTML-table parsers are only secondary fallbacks.
+    for fn in (_quotation_two_line_close_candidates, _table_close_candidates, _dom_close_candidates):
         unresolved = {sid: code for sid, code in targets.items() if sid not in merged}
         if not unresolved:
             break
@@ -242,6 +278,9 @@ def build(root: Path, p5b_dir: Path, out: Path, quote_html: Path | None = None) 
     missing_prices = sorted(set(target_sids) - set(prices))
     if missing_prices:
         errors.append("HKEX_PRICE_PARSE_MISSING:" + ",".join(missing_prices))
+    outlier_prices = sorted(sid for sid, p in prices.items() if not (TARGET_PRICE_MIN_HKD <= float(p) <= TARGET_PRICE_MAX_HKD))
+    if outlier_prices:
+        errors.append("HKEX_PRICE_OUTLIER:" + ",".join(outlier_prices))
 
     quote_rows = []
     for sid in target_sids:
