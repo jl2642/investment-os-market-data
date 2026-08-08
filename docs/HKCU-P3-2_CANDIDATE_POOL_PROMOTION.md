@@ -74,6 +74,8 @@ with:
 - `HK_CANDIDATE_QUALITY_REPORT.json` — independent quality assertions;
 - `HK_CANDIDATE_MANIFEST.json` — deterministic file hashes.
 
+The Current files are generated from the pinned P3-1 evidence and are independently rebuilt and byte-tied during PR acceptance; they are not hand-edited membership lists.
+
 ## Acceptance
 
 P3-2 passes only if:
