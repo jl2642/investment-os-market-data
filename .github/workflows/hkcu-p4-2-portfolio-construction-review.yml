@@ -1,0 +1,111 @@
+name: HKCU P4-2 Portfolio Construction Review
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p4_2_portfolio_construction_review_contract.json'
+      - 'pipeline/hkcu_p4_2_portfolio_construction_review.py'
+      - 'scripts/validate_hkcu_p4_2_portfolio_construction_review.py'
+      - 'tests/test_hkcu_p4_2_portfolio_construction_review.py'
+      - 'docs/HKCU-P4-2_PORTFOLIO_CONSTRUCTION_REVIEW.md'
+      - '.github/workflows/hkcu-p4-2-portfolio-construction-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p4_2_portfolio_construction_review.py
+      - name: Enforce isolated P4-2 construction-review scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p4_2_paths.txt
+          cat /tmp/p4_2_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+              'config/hkcu_p4_2_portfolio_construction_review_contract.json',
+              'pipeline/hkcu_p4_2_portfolio_construction_review.py',
+              'scripts/validate_hkcu_p4_2_portfolio_construction_review.py',
+              'tests/test_hkcu_p4_2_portfolio_construction_review.py',
+              'docs/HKCU-P4-2_PORTFOLIO_CONSTRUCTION_REVIEW.md',
+              '.github/workflows/hkcu-p4-2-portfolio-construction-review.yml',
+          }
+          actual = {x.strip() for x in Path('/tmp/p4_2_paths.txt').read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit('P4_2_SCOPE_VIOLATION:' + ','.join(bad))
+          protected = ('outputs/hk_candidate/', 'outputs/simulation/', 'outputs/real', 'investment_os_runtime/30_STATE_CURRENT/', 'orders/')
+          mutations = sorted(x for x in actual if x.startswith(protected))
+          if mutations:
+              raise SystemExit('P4_2_PROTECTED_PATH_MUTATION:' + ','.join(mutations))
+          PY
+
+  real-construction-review:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild and validate accepted P4-1R context
+        run: |
+          rm -rf work/hkcu_p4_2_context work/hkcu_p4_2_fit work/hkcu_p4_2_review
+          python -m pipeline.hkcu_p4_1r_canonical_data_adapter --repo-root . --output work/hkcu_p4_2_context
+          python scripts/validate_hkcu_p4_1r_portfolio_context_completion.py --repo-root . --output work/hkcu_p4_2_context
+      - name: Rebuild and validate accepted P4-1 Portfolio Fit reassessment
+        run: |
+          python -m pipeline.hkcu_p4_1_portfolio_fit_reassessment_decision_adapter \
+            --repo-root . \
+            --context-dir work/hkcu_p4_2_context \
+            --output work/hkcu_p4_2_fit
+          python scripts/validate_hkcu_p4_1_portfolio_fit_reassessment.py \
+            --repo-root . \
+            --context-dir work/hkcu_p4_2_context \
+            --output work/hkcu_p4_2_fit
+      - name: Execute P4-2 Portfolio Construction Review
+        run: |
+          python -m pipeline.hkcu_p4_2_portfolio_construction_review \
+            --repo-root . \
+            --context-dir work/hkcu_p4_2_context \
+            --fit-dir work/hkcu_p4_2_fit \
+            --output work/hkcu_p4_2_review
+      - name: Independently validate P4-2 Construction Review
+        run: |
+          python scripts/validate_hkcu_p4_2_portfolio_construction_review.py \
+            --repo-root . \
+            --context-dir work/hkcu_p4_2_context \
+            --fit-dir work/hkcu_p4_2_fit \
+            --output work/hkcu_p4_2_review
+      - name: Render construction decision and routing
+        if: always()
+        run: |
+          test ! -f work/hkcu_p4_2_review/HKCU_P4_2_CONSTRUCTION_REVIEW_DECISION.json || cat work/hkcu_p4_2_review/HKCU_P4_2_CONSTRUCTION_REVIEW_DECISION.json
+          test ! -f work/hkcu_p4_2_review/HKCU_P4_2_CONSTRUCTION_REVIEW_QUALITY_REPORT.json || cat work/hkcu_p4_2_review/HKCU_P4_2_CONSTRUCTION_REVIEW_QUALITY_REPORT.json
+          test ! -f work/hkcu_p4_2_review/HKCU_P4_2_CONSTRUCTION_REVIEW_COMBINED_ROUTING.csv || cat work/hkcu_p4_2_review/HKCU_P4_2_CONSTRUCTION_REVIEW_COMBINED_ROUTING.csv
+          test ! -f work/hkcu_p4_2_review/HKCU_P4_2_CONSTRUCTION_REVIEW_SUBSTITUTION_REGISTER.csv || cat work/hkcu_p4_2_review/HKCU_P4_2_CONSTRUCTION_REVIEW_SUBSTITUTION_REGISTER.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p4-2-portfolio-construction-review
+          path: |
+            work/hkcu_p4_2_review/HKCU_P4_2_CONSTRUCTION_REVIEW_*
+            work/hkcu_p4_2_fit/HKCU_P4_1_REASSESSMENT_DECISION.json
+            work/hkcu_p4_2_context/HKCU_P4_1R_DECISION.json
+          if-no-files-found: error
