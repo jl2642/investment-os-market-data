@@ -80,4 +80,8 @@ The real run writes Candidate Context, Account Holding Context, Account×Securit
 
 P4-1R may complete context and trigger a P4-1 reassessment. It may not size, allocate, admit, trade or mutate either portfolio. `trade_authority=NONE`.
 
-R1 and R2 have now closed the substantive context-repair defects. The remaining P4-1R-R3 gate is final acceptance only: freeze the repaired evidence surface, run the clean final head, audit the complete diff/check set and unresolved review threads, then mark the PR ready and merge only if all gates remain green. Portfolio-fit reassessment begins only after that controlled merge.
+#### P4-1R-R3 Full Real Rerun & Final Acceptance
+
+R3 froze the repaired R1+R2 evidence surface and performed final acceptance rather than adding new investment logic. The clean PR-head run reconfirmed 70/70 Candidate industry coverage, 13/13 exact A/H mappings, 140/140 Account×Security contexts ready, REAL history MV coverage 82.11%, SIMULATION history MV coverage 92.73%, zero residual decision-critical gaps, and `PASS_P4_1R_PORTFOLIO_CONTEXT_COMPLETION`. The independent validator returned `PASS` with `errors=[]`.
+
+The full eight-file PR diff was reviewed and remained confined to the P4-1R contract, bounded economic-sector evidence registry, adapter/build/validator/test code, governance documentation and isolated workflow. Candidate Current, Simulation Current, Real Account Current, allocation, order and other protected-state paths were not modified; review threads were zero and `trade_authority=NONE` throughout. R3 therefore closes P4-1R. After the controlled PR merge, the next authorized gate is `P4_1_PORTFOLIO_FIT_REASSESSMENT`; Phase 5 remains out of scope.
