@@ -89,8 +89,10 @@ def validate(root: Path, p4_2_dir: Path, p4_3_dir: Path, out: Path) -> dict[str,
         if expected["allocation_type"].ne("NEW_BUILD").any(): errors.append(f"PREFERRED_EXPECTED_HAS_SUB:{account}")
         if len(actual) and actual["security_id"].duplicated().any(): errors.append(f"DUPLICATE_PROPOSAL_ALLOCATION:{account}")
         if len(actual) and (pd.to_numeric(actual["proposed_weight"], errors="coerce").fillna(0.0) <= 0).any(): errors.append(f"NONPOSITIVE_PROPOSAL_WEIGHT:{account}")
-        for col in ("funding_source_class", "principal_falsifier", "review_triggers", "alternative_route", "initial_review_date", "permission", "execution_status"):
+        for col in ("funding_source_class", "portfolio_role", "principal_falsifier", "review_triggers", "alternative_route", "initial_review_date", "permission", "execution_status"):
             if len(actual) and actual[col].astype(str).str.strip().eq("").any(): errors.append(f"ALLOCATION_MISSING_FIELD:{account}:{col}")
+        for col in ("candidate_portfolio_correlation", "downside_correlation"):
+            if len(actual) and pd.to_numeric(actual[col], errors="coerce").isna().any(): errors.append(f"ALLOCATION_MISSING_NUMERIC_FIELD:{account}:{col}")
         if len(actual) and actual["portfolio_mutation"].astype(str).str.lower().isin({"true", "1"}).any(): errors.append(f"ALLOCATION_MUTATION:{account}")
         if len(actual) and pd.to_numeric(actual["orders_created"], errors="coerce").fillna(0).ne(0).any(): errors.append(f"ALLOCATION_ORDERS:{account}")
         if len(actual) and not actual["trade_authority"].eq(TRADE_AUTHORITY).all(): errors.append(f"ALLOCATION_AUTHORITY:{account}")
