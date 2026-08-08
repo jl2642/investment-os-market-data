@@ -2,6 +2,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pandas as pd
+
+from pipeline.hkcu_p4_1r_canonical_data_adapter import (
+    canonical_first_holding_fetcher,
+    load_hk_histories_compat,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -48,3 +55,40 @@ def test_acceptance_is_context_only() -> None:
     for k in ["candidate_pool_mutations","simulation_mutations","real_account_mutations","portfolio_allocations","orders_created"]:
         assert a[k] == 0
     assert a["trade_authority"] == "NONE"
+
+
+def test_fmdl5c_current_schema_observation_date_is_supported(tmp_path: Path) -> None:
+    path = tmp_path / "fmdl5c.parquet"
+    pd.DataFrame(
+        {
+            "security_id": ["HKEX:00005", "HKEX:00005", "HKEX:00941"],
+            "stock_code_5d": ["00005", "00005", "00941"],
+            "provider_ticker": ["00005.HK", "00005.HK", "00941.HK"],
+            "observation_date": ["2026-08-06", "2026-08-07", "2026-08-07"],
+            "adj_close": [98.0, 100.0, 72.0],
+            "close": [98.0, 100.0, 72.0],
+        }
+    ).to_parquet(path, index=False)
+    histories, min_date, max_date = load_hk_histories_compat(path)
+    assert min_date == "2026-08-06"
+    assert max_date == "2026-08-07"
+    assert histories["HKEX:00005"].tolist() == [98.0, 100.0]
+    assert histories["HKEX:00941"].tolist() == [72.0]
+
+
+def test_holding_history_prefers_canonical_before_fallback() -> None:
+    idx = pd.to_datetime(["2026-08-05", "2026-08-06", "2026-08-07"])
+    canonical = {"000333.SZ": pd.Series([80.0, 81.0, 83.5], index=idx, dtype=float)}
+    calls: list[str] = []
+
+    def fallback(h: dict, as_of: str) -> pd.Series:
+        calls.append(str(h.get("security_id")))
+        return pd.Series(dtype=float)
+
+    fetch = canonical_first_holding_fetcher(canonical, fallback)
+    got = fetch({"security_id": "000333.SZ"}, "2026-08-07")
+    assert got.tolist() == [80.0, 81.0, 83.5]
+    assert calls == []
+
+    fetch({"security_id": "510500.SH"}, "2026-08-07")
+    assert calls == ["510500.SH"]
