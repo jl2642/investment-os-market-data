@@ -25,9 +25,12 @@ def validate(root: Path, p5c_dir: Path, out: Path) -> dict[str, Any]:
     synthetic = read_json(out / "HKCU_P5D_NO_EXECUTION_SYNTHETIC_ENGINE_CAPABILITY.json")
 
     errors: list[str] = []
+    entry = contract["entry_contract"]
     acceptance = contract["acceptance"]
-    if p5c_decision.get("status") != contract["entry_contract"]["required_p5c_status"]:
+    if p5c_decision.get("status") != entry["required_p5c_status"]:
         errors.append("P5C_STATUS")
+    if p5c_decision.get("gate_state") != entry["required_p5c_gate_state"]:
+        errors.append("P5C_GATE_STATE")
     if int(p5c_decision.get("user_decision_recorded_count", -1)) != 0:
         errors.append("P5C_DECISION_COUNT_NOT_ZERO")
     if "user_decision" not in packet.columns or packet["user_decision"].astype(str).str.strip().ne("").any():
