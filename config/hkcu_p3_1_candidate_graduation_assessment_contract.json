@@ -65,12 +65,17 @@
   },
   "confidence_policy": {
     "material_cap_states": [
-      "TARGETED_DEEPENING_REQUIRED",
-      "LIMITED_CONFIDENCE"
+      "TARGETED_DEEPENING_REQUIRED"
     ],
     "bounded_cap_states": [
-      "CONFIDENCE_CAP_MONITOR"
+      "CONFIDENCE_CAP_MONITOR",
+      "LIMITED_CONFIDENCE"
     ],
+    "state_semantics": {
+      "TARGETED_DEEPENING_REQUIRED": "Decision evidence remains specifically incomplete and therefore defers Candidate proposal until the targeted gap is resolved.",
+      "LIMITED_CONFIDENCE": "Accepted P2B non-blocking evidence limitation. It is a bounded confidence cap for Watch routing, not an automatic rejection or Defer by itself.",
+      "CONFIDENCE_CAP_MONITOR": "Accepted bounded monitoring uncertainty that may support Watch but prevents Core while active."
+    },
     "neutral_unknown_directions": [
       "UNKNOWN",
       "NEUTRAL",
@@ -96,9 +101,9 @@
   ],
   "routing_policy": {
     "HOLD_RETAINED_INVESTMENT_BLOCKER": "Exact P2B Final retained blocker state is preserved and cannot be overridden by other rule passes.",
-    "DEFER_RESEARCH_MONITOR": "No retained blocker exists, but at least one hard rule, required decision rule, material confidence cap, or decision-grade valuation/thesis requirement remains insufficient.",
-    "PROPOSE_WATCH_CANDIDATE": "All applicable hard and decision rules pass, but bounded confidence caps, mixed/unknown company evidence, limited valuation support, or event timing prevents a Core proposal.",
-    "PROPOSE_CORE_CANDIDATE": "All applicable hard and decision rules pass, valuation is supportive, at least one company dimension is positive, and there are no material/bounded confidence caps or negative company dimensions."
+    "DEFER_RESEARCH_MONITOR": "No retained blocker exists, but at least one hard rule, required decision rule, targeted-deepening requirement, or decision-grade valuation/thesis requirement remains insufficient.",
+    "PROPOSE_WATCH_CANDIDATE": "All applicable hard and decision rules pass, but bounded confidence caps such as LIMITED_CONFIDENCE/CONFIDENCE_CAP_MONITOR, mixed/unknown company evidence, limited valuation support, or event timing prevents a Core proposal.",
+    "PROPOSE_CORE_CANDIDATE": "All applicable hard and decision rules pass, valuation is supportive, at least one company dimension is positive, and there are no targeted-deepening requirements, bounded confidence caps or negative company dimensions."
   },
   "phase_boundary": {
     "assessment_authorized": true,
