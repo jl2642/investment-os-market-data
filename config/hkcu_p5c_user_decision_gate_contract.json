@@ -3,7 +3,7 @@
   "program_id": "HKCU-P5C",
   "phase": "P5C_USER_DECISION_GATE",
   "as_of_date": "2026-08-07",
-  "objective": "Convert the accepted P5B REAL Pre-trade Memo into a user decision packet using official HKEX as-of prices, official HKMA same-date FX and documented valuation context. The gate may make securities eligible for explicit user choice but cannot infer or record approval, create an execution checklist, mutate Current, create orders or authorize broker execution.",
+  "objective": "Convert the accepted P5B REAL Pre-trade Memo into a user decision packet using official HKEX as-of prices, same-date official central-bank reference FX and documented valuation context. The gate may make securities eligible for explicit user choice but cannot infer or record approval, create an execution checklist, mutate Current, create orders or authorize broker execution.",
   "authoritative_inputs": {
     "p5b_contract": "config/hkcu_p5b_real_pretrade_memo_contract.json",
     "valuation_context_registry": "evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv",
@@ -19,13 +19,20 @@
     "fabricated_or_ambiguous_date_price_allowed": false
   },
   "fx_surface": {
-    "required_source": "HKMA_EXCHANGE_RATES_DAILY",
-    "url": "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/er-eeri-daily?choose=end_of_day&from=2026-08-07&to=2026-08-07&fields=end_of_day,usd,cny",
+    "required_source": "ECB_EURO_FOREIGN_EXCHANGE_REFERENCE_RATES",
+    "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml",
     "fx_date": "2026-08-07",
     "required_series": ["usd", "cny"],
+    "required_cross_currency": "hkd",
     "unit": "HKD_PER_UNIT_OF_FOREIGN_CURRENCY",
+    "derivation": "ECB quotes units of currency per EUR; derive HKD per foreign-currency unit as ECB_HKD_PER_EUR divided by ECB_FOREIGN_PER_EUR",
+    "reference_rate_only_for_valuation_context": true,
+    "execution_fx_rate_authorized": false,
     "third_party_fx_fallback_allowed": false,
-    "stale_fx_allowed": false
+    "stale_fx_allowed": false,
+    "replaced_source": "HKMA_EXCHANGE_RATES_DAILY",
+    "replaced_source_url": "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/er-eeri-daily",
+    "replacement_reason": "HKMA er-eeri-daily is distributed through the Monthly Statistical Bulletin and the governed 2026-08-07 query returned success=true with err_code=1001 No result found; it cannot satisfy a contemporaneous P5C same-date FX gate. ECB reference rates are official central-bank rates published each working day and are used only for valuation normalization, not transaction execution."
   },
   "entry_contract": {
     "required_p5b_status": "PASS_P5B_REAL_PRETRADE_MEMO",
