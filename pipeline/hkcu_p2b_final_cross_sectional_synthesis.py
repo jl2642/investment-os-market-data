@@ -15,6 +15,7 @@ import pandas as pd
 
 PROGRAM_ID = "HKCU-P2B-FINAL"
 TRADE_AUTHORITY = "NONE"
+A_SNAPSHOT_SUFFIX_BY_EXCHANGE = {"SSE": "SH", "SZSE": "SZ"}
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -74,17 +75,8 @@ def normalize_direction(v: Any) -> str:
 
 
 def normalize_p2a_security_name(p2a: pd.DataFrame) -> pd.DataFrame:
-    """Normalize the P2A display-name schema without changing P2A authority.
-
-    P2A's canonical longlist currently publishes ``official_security_name_en``.
-    Earlier downstream prototypes referred to ``security_name``. Accept both
-    schemas, prefer the canonical official field when present, and fail closed
-    if no non-empty security name can be produced.
-    """
-    source_col = next(
-        (c for c in ("official_security_name_en", "security_name") if c in p2a.columns),
-        None,
-    )
+    """Normalize P2A display-name schema without changing P2A authority."""
+    source_col = next((c for c in ("official_security_name_en", "security_name") if c in p2a.columns), None)
     if source_col is None:
         raise RuntimeError("P2A_SECURITY_NAME_COLUMN_MISSING")
     out = p2a.copy()
@@ -95,6 +87,17 @@ def normalize_p2a_security_name(p2a: pd.DataFrame) -> pd.DataFrame:
     out["security_name"] = names
     out["security_name_source_column"] = source_col
     return out
+
+
+def canonical_a_snapshot_symbol(a_code: Any, a_exchange: Any) -> str:
+    code = str(a_code).strip().zfill(6)
+    exchange = str(a_exchange).strip().upper()
+    if len(code) != 6 or not code.isdigit():
+        raise RuntimeError(f"A_CODE_INVALID:{a_code}")
+    suffix = A_SNAPSHOT_SUFFIX_BY_EXCHANGE.get(exchange)
+    if suffix is None:
+        raise RuntimeError(f"A_EXCHANGE_UNSUPPORTED:{exchange}")
+    return f"{code}.{suffix}"
 
 
 def retry(fn, attempts: int = 4, delay: float = 2.0):
@@ -164,15 +167,17 @@ def build_ah_relative_value(root: Path, contract: dict[str, Any], p2a: pd.DataFr
     manifest_as_of = manifest.get("as_of_date", manifest.get("as_of"))
     if str(manifest_as_of) != date_iso:
         raise RuntimeError(f"A_SNAPSHOT_DATE:{manifest_as_of}")
+    if snap["symbol"].duplicated().any():
+        raise RuntimeError("A_SNAPSHOT_DUPLICATE_SYMBOL")
     a_close = pd.to_numeric(snap.set_index("symbol")["close"], errors="coerce")
     cny_per_hkd = get_cny_per_hkd(policy["ah_fx_date"])
 
     p2a_names = p2a.set_index("security_id")["security_name"].to_dict()
     rows = []
     for r in ah.itertuples(index=False):
-        a_symbol = f"{r.a_code}.{r.a_exchange}"
+        a_symbol = canonical_a_snapshot_symbol(r.a_code, r.a_exchange)
         if a_symbol not in a_close.index:
-            raise RuntimeError(f"A_PRICE_MISSING:{a_symbol}")
+            raise RuntimeError(f"A_PRICE_MISSING:{a_symbol}:REGISTRY_EXCHANGE={r.a_exchange}")
         ac = float(a_close.loc[a_symbol])
         if not pd.notna(ac) or ac <= 0:
             raise RuntimeError(f"A_PRICE_INVALID:{a_symbol}:{ac}")
@@ -184,6 +189,7 @@ def build_ah_relative_value(root: Path, contract: dict[str, Any], p2a: pd.DataFr
             "security_id": r.security_id,
             "stock_code_5d": str(r.h_code).zfill(5),
             "security_name": p2a_names.get(r.security_id, ""),
+            "a_registry_exchange": str(r.a_exchange).upper(),
             "a_symbol": a_symbol,
             "a_close_cny": round(ac, 6),
             "a_price_date": date_iso,
@@ -262,17 +268,9 @@ def build(root: Path, out: Path) -> dict[str, Any]:
     for c in ["POSITIVE", "NEGATIVE", "MIXED", "NEUTRAL_OR_UNKNOWN"]:
         if c not in counts.columns: counts[c] = 0
     counts = counts[["POSITIVE", "NEGATIVE", "MIXED", "NEUTRAL_OR_UNKNOWN"]].reset_index()
-    counts = counts.rename(columns={
-        "POSITIVE": "positive_dimension_count", "NEGATIVE": "negative_dimension_count",
-        "MIXED": "mixed_dimension_count", "NEUTRAL_OR_UNKNOWN": "neutral_unknown_dimension_count",
-    })
+    counts = counts.rename(columns={"POSITIVE": "positive_dimension_count", "NEGATIVE": "negative_dimension_count", "MIXED": "mixed_dimension_count", "NEUTRAL_OR_UNKNOWN": "neutral_unknown_dimension_count"})
 
-    base_cols = [c for c in [
-        "p2a_overall_rank", "security_id", "stock_code_5d", "security_name", "official_security_name_en", "security_name_source_column",
-        "primary_sleeve", "sleeves", "sleeve_count", "aggregate_score", "source_model", "source_layer", "close", "price_date", "quote_currency",
-        "return_20d", "return_60d", "return_120d", "volatility_60d", "max_drawdown_120d",
-        "valuation_status", "fundamentals_status", "growth_status", "dividend_status"
-    ] if c in p2a.columns]
+    base_cols = [c for c in ["p2a_overall_rank", "security_id", "stock_code_5d", "security_name", "official_security_name_en", "security_name_source_column", "primary_sleeve", "sleeves", "sleeve_count", "aggregate_score", "source_model", "source_layer", "close", "price_date", "quote_currency", "return_20d", "return_60d", "return_120d", "volatility_60d", "max_drawdown_120d", "valuation_status", "fundamentals_status", "growth_status", "dividend_status"] if c in p2a.columns]
     sec = p2a[base_cols].copy()
     sec = sec.merge(counts, on="security_id", how="left", validate="one_to_one")
     sec = sec.merge(e1_tx, on="security_id", how="left", validate="one_to_one")
@@ -280,10 +278,7 @@ def build(root: Path, out: Path) -> dict[str, Any]:
     sec["ah_pair_status"] = sec["ah_pair_status"].replace("", pd.NA).fillna("NOT_APPLICABLE_NO_CONFIRMED_PAIR")
     sec["final_p2b_state"] = sec["security_id"].map(lambda x: "HOLD_RETAINED_INVESTMENT_BLOCKER" if x in blocked_ids else "READY_FOR_P3_CONTRACT_EVALUATION_WITH_CONFIDENCE_CAP")
     sec["retained_blocker"] = sec["security_id"].isin(blocked_ids)
-    sec["evidence_balance"] = sec.apply(
-        lambda r: "MIXED" if r["mixed_dimension_count"] > 0 or (r["positive_dimension_count"] > 0 and r["negative_dimension_count"] > 0)
-        else ("POSITIVE_SKEW" if r["positive_dimension_count"] > r["negative_dimension_count"]
-              else ("NEGATIVE_SKEW" if r["negative_dimension_count"] > r["positive_dimension_count"] else "NEUTRAL_OR_UNRESOLVED")), axis=1)
+    sec["evidence_balance"] = sec.apply(lambda r: "MIXED" if r["mixed_dimension_count"] > 0 or (r["positive_dimension_count"] > 0 and r["negative_dimension_count"] > 0) else ("POSITIVE_SKEW" if r["positive_dimension_count"] > r["negative_dimension_count"] else ("NEGATIVE_SKEW" if r["negative_dimension_count"] > r["positive_dimension_count"] else "NEUTRAL_OR_UNRESOLVED")), axis=1)
     sec["p2a_rank_preserved_not_rescored"] = True
     sec["alpha_score"] = pd.NA
     sec["formal_candidate_graduation_allowed"] = False
@@ -318,79 +313,19 @@ def build(root: Path, out: Path) -> dict[str, Any]:
     blocker_surface.to_csv(blocker_path, index=False)
     ah_rel.to_csv(ah_path, index=False)
 
-    decision = {
-        "program_id": PROGRAM_ID,
-        "phase": contract["phase"],
-        "status": contract["pass_status"] if not failures else contract["blocked_status"],
-        "security_count": int(len(sec)),
-        "company_dimension_rows": int(len(dim)),
-        "advance_security_count": advance_count,
-        "blocked_security_count": blocked_count,
-        "blocked_security_ids": sorted(blocker_surface["security_id"].tolist()),
-        "transaction_tax_complete_count": int(sec["transaction_tax_evidence_status"].eq("EVIDENCE_COMPLETE").sum()),
-        "true_ah_pair_count": int((sec["ah_pair_status"] == "TRUE_AH_PAIR").sum()),
-        "ah_numeric_completed_count": int(len(ah_rel)),
-        "alpha_score_non_null_count": 0,
-        "formal_candidate_graduation_allowed": False,
-        "candidate_pool_mutations": 0,
-        "simulation_mutations": 0,
-        "real_account_mutations": 0,
-        "orders_created": 0,
-        "next_gate": contract["next_gate"] if not failures else None,
-        "trade_authority": TRADE_AUTHORITY,
-    }
-    quality = {
-        "program_id": PROGRAM_ID,
-        "status": "PASS" if not failures else "FAIL",
-        "hard_failures": sorted(set(failures)),
-        "all_77_security_decision_surfaces_present": len(sec) == 77,
-        "all_231_company_dimensions_present": len(dim) == 231,
-        "p2a_rank_preserved_not_rescored": True,
-        "p2a_security_name_schema_normalized": True,
-        "evidence_balance_descriptive_not_scored": True,
-        "cross_dimension_event_deduplication_preserved": True,
-        "missing_consensus_is_not_bearish": True,
-        "transaction_tax_is_execution_context_not_alpha": True,
-        "ah_relative_value_is_context_not_alpha": True,
-        "ah_price_fx_synchronized_date": contract["cross_section_policy"]["ah_price_date"],
-        "formal_candidate_graduation_allowed": False,
-        "trade_authority": TRADE_AUTHORITY,
-    }
+    decision = {"program_id": PROGRAM_ID, "phase": contract["phase"], "status": contract["pass_status"] if not failures else contract["blocked_status"], "security_count": int(len(sec)), "company_dimension_rows": int(len(dim)), "advance_security_count": advance_count, "blocked_security_count": blocked_count, "blocked_security_ids": sorted(blocker_surface["security_id"].tolist()), "transaction_tax_complete_count": int(sec["transaction_tax_evidence_status"].eq("EVIDENCE_COMPLETE").sum()), "true_ah_pair_count": int((sec["ah_pair_status"] == "TRUE_AH_PAIR").sum()), "ah_numeric_completed_count": int(len(ah_rel)), "alpha_score_non_null_count": 0, "formal_candidate_graduation_allowed": False, "candidate_pool_mutations": 0, "simulation_mutations": 0, "real_account_mutations": 0, "orders_created": 0, "next_gate": contract["next_gate"] if not failures else None, "trade_authority": TRADE_AUTHORITY}
+    quality = {"program_id": PROGRAM_ID, "status": "PASS" if not failures else "FAIL", "hard_failures": sorted(set(failures)), "all_77_security_decision_surfaces_present": len(sec) == 77, "all_231_company_dimensions_present": len(dim) == 231, "p2a_rank_preserved_not_rescored": True, "p2a_security_name_schema_normalized": True, "a_snapshot_exchange_suffix_mapping": A_SNAPSHOT_SUFFIX_BY_EXCHANGE, "evidence_balance_descriptive_not_scored": True, "cross_dimension_event_deduplication_preserved": True, "missing_consensus_is_not_bearish": True, "transaction_tax_is_execution_context_not_alpha": True, "ah_relative_value_is_context_not_alpha": True, "ah_price_fx_synchronized_date": contract["cross_section_policy"]["ah_price_date"], "formal_candidate_graduation_allowed": False, "trade_authority": TRADE_AUTHORITY}
     decision_path = out / "HKCU_P2B_FINAL_DECISION.json"
     quality_path = out / "HKCU_P2B_FINAL_QUALITY_REPORT.json"
     write_json(decision_path, decision)
     write_json(quality_path, quality)
 
-    report = [
-        "# HKCU P2B Final Cross-sectional Synthesis", "",
-        f"Status: **{decision['status']}**", "",
-        f"- Securities: {len(sec)}", f"- Company decision dimensions: {len(dim)}",
-        f"- Ready for P3 contract evaluation with confidence cap: {advance_count}",
-        f"- Retained investment blockers: {blocked_count}",
-        f"- Synchronized A/H relative-value observations: {len(ah_rel)} / {int(exp['true_ah_pair_count'])}",
-        "- New alpha score: 0", "- Formal HK Candidate graduation: not allowed", "",
-        "## Boundary", "",
-        "This gate is a cross-sectional research-readiness surface. It preserves P2A screening rank and evidence semantics, but does not promote any security to the formal HK Candidate Pool and does not modify portfolios or create orders.", ""
-    ]
+    report = ["# HKCU P2B Final Cross-sectional Synthesis", "", f"Status: **{decision['status']}**", "", f"- Securities: {len(sec)}", f"- Company decision dimensions: {len(dim)}", f"- Ready for P3 contract evaluation with confidence cap: {advance_count}", f"- Retained investment blockers: {blocked_count}", f"- Synchronized A/H relative-value observations: {len(ah_rel)} / {int(exp['true_ah_pair_count'])}", "- New alpha score: 0", "- Formal HK Candidate graduation: not allowed", "", "## Boundary", "", "This gate is a cross-sectional research-readiness surface. It preserves P2A screening rank and evidence semantics, but does not promote any security to the formal HK Candidate Pool and does not modify portfolios or create orders.", ""]
     report_path = out / "HKCU_P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS.md"
     report_path.write_text("\n".join(report), encoding="utf-8")
 
-    manifest = {
-        "program_id": PROGRAM_ID,
-        "as_of_date": contract["as_of_date"],
-        "contract_sha256": sha256_file(contract_path),
-        "files": {},
-        "upstream_decision_sha256": {},
-        "trade_authority": TRADE_AUTHORITY,
-    }
-    for stage, p in [
-        ("P2A", upstream["p2a"] / "HKCU_P2A_DECISION.json"),
-        ("E1", upstream["e1"] / "HKCU_P2B_E1_DECISION.json"),
-        ("S1", upstream["s1"] / "HKCU_P2B_E2_S1_DECISION.json"),
-        ("S2", upstream["s2"] / "HKCU_P2B_E2_S2_RANKS21_40_DECISION.json"),
-        ("S3", upstream["s3"] / "HKCU_P2B_E2_S3_RANKS41_60_DECISION.json"),
-        ("S4", upstream["s4"] / "HKCU_P2B_E2_S4_RANKS61_77_DECISION.json"),
-    ]:
+    manifest = {"program_id": PROGRAM_ID, "as_of_date": contract["as_of_date"], "contract_sha256": sha256_file(contract_path), "files": {}, "upstream_decision_sha256": {}, "trade_authority": TRADE_AUTHORITY}
+    for stage, p in [("P2A", upstream["p2a"] / "HKCU_P2A_DECISION.json"), ("E1", upstream["e1"] / "HKCU_P2B_E1_DECISION.json"), ("S1", upstream["s1"] / "HKCU_P2B_E2_S1_DECISION.json"), ("S2", upstream["s2"] / "HKCU_P2B_E2_S2_RANKS21_40_DECISION.json"), ("S3", upstream["s3"] / "HKCU_P2B_E2_S3_RANKS41_60_DECISION.json"), ("S4", upstream["s4"] / "HKCU_P2B_E2_S4_RANKS61_77_DECISION.json")]:
         manifest["upstream_decision_sha256"][stage] = sha256_file(p)
     for p in [sec_path, dim_path, blocker_path, ah_path, decision_path, quality_path, report_path]:
         manifest["files"][p.name] = {"sha256": sha256_file(p), "bytes": p.stat().st_size}
