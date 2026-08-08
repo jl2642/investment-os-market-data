@@ -53,6 +53,14 @@ def validate(root: Path, context_dir: Path, fit_dir: Path, out: Path) -> dict[st
     if set(review["construction_state"]) - set(contract["construction_states"]): errors.append("CONSTRUCTION_STATE_ENUM")
     if set(combined["combined_route"]) - set(contract["combined_routes"]): errors.append("COMBINED_ROUTE_ENUM")
 
+    required_semantic_cols = {
+        "p4_1r_existing_same_style_weight_raw",
+        "construction_existing_direct_same_style_weight",
+        "construction_style_scope",
+    }
+    if not required_semantic_cols.issubset(review.columns):
+        errors.append("DIRECT_STYLE_SEMANTIC_COLUMNS")
+
     if not (review["trade_authority"].eq(TRADE_AUTHORITY).all() and combined["trade_authority"].eq(TRADE_AUTHORITY).all()): errors.append("TRADE_AUTHORITY")
     if review["orders_created"].astype(int).sum() != 0 or combined["orders_created"].astype(int).sum() != 0: errors.append("ORDERS_CREATED")
     if review["portfolio_mutation"].astype(str).str.lower().isin({"true", "1"}).any(): errors.append("PORTFOLIO_MUTATION")
@@ -69,7 +77,7 @@ def validate(root: Path, context_dir: Path, fit_dir: Path, out: Path) -> dict[st
             if wmax <= 0: errors.append(f"ACTIONABLE_WITHOUT_WEIGHT:{key}")
             cap_cols = [
                 "tier_cap", "volatility_cap", "historical_drawdown_loss_cap", "marginal_risk_cap",
-                "opportunity_cost_cap", "confidence_cap", "sector_room_cap", "style_room_cap", "liquidity_cap"
+                "opportunity_cost_cap", "confidence_cap", "sector_room_cap", "style_room_cap", "liquidity_cap",
             ]
             minimum = min(f(row[c]) for c in cap_cols)
             if state == "PROBE_BUILD_REVIEW":
@@ -79,12 +87,25 @@ def validate(root: Path, context_dir: Path, fit_dir: Path, out: Path) -> dict[st
             if wmin > 1e-12 or wmax > 1e-12 or cap > 1e-12: errors.append(f"NON_ACTIONABLE_HAS_NEW_SIZE:{key}")
         if str(row["opportunity_cost_state"]) == "HIGH_RELATIVE_OPPORTUNITY_COST" and wmax > 1e-12:
             errors.append(f"HIGH_OPP_COST_HAS_NEW_SIZE:{key}")
+
+        raw_style = f(row.get("p4_1r_existing_same_style_weight_raw"))
+        direct_style = f(row.get("construction_existing_direct_same_style_weight"))
+        if direct_style > raw_style + 1e-12:
+            errors.append(f"DIRECT_STYLE_GT_RAW:{key}")
+        if str(row.get("construction_style_scope")) != "DIRECT_EQUITY_ONLY_EXCLUDES_FIXED_INCOME_AND_GENERIC_POOLED":
+            errors.append(f"DIRECT_STYLE_SCOPE:{key}")
+        if str(row.get("portfolio_style")) == "DEFENSIVE" and row["account"] == "REAL" and raw_style > 0.30 and direct_style >= raw_style - 1e-12:
+            errors.append(f"REAL_DEFENSIVE_FIXED_INCOME_NOT_EXCLUDED:{key}")
+
         ah = split_pipe(row.get("ah_overlap_security_ids"))
         if ah:
             if state != "SUBSTITUTION_REVIEW_ONLY": errors.append(f"AH_OVERLAP_NOT_SUBSTITUTION:{key}")
             if wmax > 1e-12: errors.append(f"AH_OVERLAP_NET_NEW_SIZE:{key}")
             if f(row["replacement_equivalent_weight_cap"]) > f(row["existing_ah_overlap_weight"]) + 1e-12:
                 errors.append(f"REPLACEMENT_CAP_GT_EXISTING:{key}")
+            tier_cap = f(row["tier_cap"])
+            if abs(f(row["sector_room_cap"]) - tier_cap) > 1e-12 or abs(f(row["style_room_cap"]) - tier_cap) > 1e-12:
+                errors.append(f"AH_SUBSTITUTION_NET_NEW_ROOM_APPLIED:{key}")
         if str(row["p4_1_fit_state"]) == "NO_INCREMENTAL_ROLE" and state != "NO_INCREMENTAL_ROLE":
             errors.append(f"P4_1_NO_INCREMENTAL_NOT_PRESERVED:{key}")
         if row["account"] == "REAL" and int(float(row["material_confidence_cap_count"])) > 0 and wmax > 1e-12:
@@ -98,6 +119,15 @@ def validate(root: Path, context_dir: Path, fit_dir: Path, out: Path) -> dict[st
         if substitutions["net_new_weight_authorized"].astype(float).abs().max() > 1e-12: errors.append("SUBSTITUTION_NET_NEW_NONZERO")
         if not substitutions["trade_authority"].eq(TRADE_AUTHORITY).all(): errors.append("SUBSTITUTION_AUTHORITY")
 
+    for _, row in combined.iterrows():
+        sid = str(row["security_id"])
+        pair = review[review["security_id"].eq(sid)]
+        states = set(pair["construction_state"].astype(str))
+        has_new = bool(states & ACTIONABLE)
+        has_sub = "SUBSTITUTION_REVIEW_ONLY" in states
+        if has_new and has_sub and row["combined_route"] != "ADVANCE_MIXED_NEW_AND_SUBSTITUTION_SCENARIO_TEST":
+            errors.append(f"MIXED_NEW_SUBSTITUTION_ROUTE_LOST:{sid}")
+
     if decision.get("aggregate_portfolio_allocation_produced") is not False: errors.append("AGGREGATE_ALLOCATION_PRODUCED")
     if decision.get("individual_envelopes_non_additive") is not True: errors.append("DECISION_NON_ADDITIVITY")
     if int(decision.get("portfolio_allocations", -1)) != 0: errors.append("PORTFOLIO_ALLOCATIONS")
@@ -106,11 +136,17 @@ def validate(root: Path, context_dir: Path, fit_dir: Path, out: Path) -> dict[st
     for flag in (
         "weighted_score", "fixed_top_n", "candidate_rank_used_as_allocation_authority",
         "exact_ah_net_new_size_authorized", "high_opportunity_cost_new_size_authorized",
-        "real_cash_treated_as_strategic_target", "individual_caps_called_aggregate_portfolio"
+        "real_cash_treated_as_strategic_target", "individual_caps_called_aggregate_portfolio",
     ):
         if quality.get(flag) is not False: errors.append(f"QUALITY_FLAG:{flag}")
-    if quality.get("independent_caps_use_minimum_not_offsetting_score") is not True: errors.append("QUALITY_MIN_CAP")
-    if quality.get("aggregate_scenario_test_required_before_portfolio_proposal") is not True: errors.append("QUALITY_SCENARIO_REQUIRED")
+    for flag in (
+        "independent_caps_use_minimum_not_offsetting_score",
+        "aggregate_scenario_test_required_before_portfolio_proposal",
+        "direct_equity_style_room_excludes_fixed_income_and_generic_pooled",
+        "substitution_caps_ignore_net_new_sector_style_room",
+        "mixed_new_substitution_route_preserved",
+    ):
+        if quality.get(flag) is not True: errors.append(f"QUALITY_TRUE_FLAG:{flag}")
 
     result = {
         "program_id": PROGRAM_ID,
@@ -122,7 +158,7 @@ def validate(root: Path, context_dir: Path, fit_dir: Path, out: Path) -> dict[st
         "combined_route_counts": decision.get("combined_route_counts", {}),
         "substitution_review_count": len(substitutions),
         "errors": errors,
-        "trade_authority": TRADE_AUTHORITY
+        "trade_authority": TRADE_AUTHORITY,
     }
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
     if errors:
