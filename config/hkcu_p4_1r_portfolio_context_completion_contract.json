@@ -1,0 +1,118 @@
+{
+  "contract_id": "HKCU_P4_1R_PORTFOLIO_CONTEXT_COMPLETION_V1",
+  "program_id": "HKCU-P4-1R",
+  "phase": "P4_1R_PORTFOLIO_CONTEXT_COMPLETION",
+  "as_of_date": "2026-08-07",
+  "objective": "Complete the decision-critical portfolio context required by P4-0/P4-1 for the 70 formal Hong Kong Candidates against current Real and Simulation portfolios, including exact A/H identity, economic sector/industry context, portfolio style exposure, marginal risk evidence and bounded opportunity-cost evidence, without mutating Candidate membership, positions, allocations, orders or trade authority.",
+  "authoritative_inputs": {
+    "p4_0_contract": "config/hkcu_p4_0_portfolio_fit_contract.json",
+    "p4_1_contract": "config/hkcu_p4_1_portfolio_fit_assessment_contract.json",
+    "candidate_current": "outputs/hk_candidate/current/HK_CANDIDATE_CURRENT.csv",
+    "hkcu_current": "outputs/hkcu1/current/HKCU1_R2E_INVESTABLE_UNIVERSE.csv",
+    "fmdl5c_decision": "outputs/fmdl5c/current/FMDL5C_DECISION.json",
+    "fmdl5c_daily_price_volume": "outputs/fmdl5c/current/FMDL5C_DAILY_PRICE_VOLUME.parquet",
+    "fmdl5e_factor_dictionary": "outputs/fmdl5e/current/FMDL5E_FACTOR_DICTIONARY.json",
+    "a_share_history_manifest": "outputs/history/current/HISTORY_CURRENT_MANIFEST.json",
+    "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation_positions_current": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "p2b_ah_pair_registry": "evidence/hkcu_p2b/HKCU_P2B_AH_PAIR_REGISTRY_20260807.csv",
+    "p4_1r_economic_sector_registry": "evidence/hkcu_p4_1r/HKCU_P4_1R_ECONOMIC_SECTOR_REGISTRY_20260807.csv"
+  },
+  "entry_contract": {
+    "required_p4_1_blocked_status": "BLOCKED_P4_1_PORTFOLIO_CONTEXT",
+    "required_p4_1_repair_gate": "P4_1R_PORTFOLIO_CONTEXT_COMPLETION",
+    "candidate_count": 70,
+    "account_count": 2,
+    "account_security_context_count": 140,
+    "required_global_gap_ids": [
+      "CTX_SECTOR_INDUSTRY",
+      "CTX_PORTFOLIO_FACTOR_LOOKTHROUGH",
+      "CTX_MARGINAL_RISK",
+      "CTX_EXPECTED_RETURN_OPPORTUNITY_COST"
+    ],
+    "additional_repair_dimensions": [
+      "EXACT_AH_IDENTITY",
+      "POOLED_FUND_ETF_EXPOSURE_CONSTRAINT"
+    ]
+  },
+  "evidence_policy": {
+    "candidate_industry_source": "P4_1R_STATIC_ECONOMIC_SECTOR_REGISTRY_EXACT_SECURITY_ID",
+    "a_share_industry_source": "P4_1R_STATIC_ECONOMIC_SECTOR_REGISTRY_EXACT_SECURITY_ID",
+    "ah_identity_source": "ACCEPTED_P2B_E1_AH_PAIR_REGISTRY_EXACT_H_CODE_TO_A_CODE",
+    "market_risk_source": "ACCEPTED_FMDL5C_HK_HISTORY_AND_ACCEPTED_FMDL2B4_A_SHARE_COMPOSITE_HISTORY_WITH_GOVERNED_POOLED_ASSET_FALLBACK",
+    "a_share_holding_history_source": "ACCEPTED_FMDL2B4_COMPOSITE_HISTORY_CANONICAL_FIRST_WITH_GOVERNED_FALLBACK_FOR_NON_STOCK_POOLED_ASSETS",
+    "candidate_factor_source": "ACCEPTED_HKCU_CURRENT",
+    "secondary_industry_classification_allowed_for_research_context": true,
+    "fuzzy_name_identity_matching_allowed": false,
+    "sector_neutral_fill_allowed": false,
+    "ticker_count_diversification_inference_allowed": false,
+    "trailing_return_may_be_called_expected_return": false,
+    "ah_discount_may_be_called_alpha": false,
+    "pooled_fund_or_etf_may_be_assigned_single_industry": false,
+    "live_industry_or_ah_source_required_for_production_build": false,
+    "economic_sector_registry_expected_rows": 86,
+    "economic_sector_registry_expected_hk_candidates": 70,
+    "economic_sector_registry_expected_a_share_direct_holdings": 16
+  },
+  "style_taxonomy": {
+    "QUALITY_COMPOUNDER": "QUALITY",
+    "HIGH_DIVIDEND_VALUE": "INCOME_VALUE",
+    "TREND_LIQUIDITY": "MOMENTUM_LIQUID",
+    "DEFENSIVE_STABILITY": "DEFENSIVE",
+    "RECOVERY_WATCH": "RECOVERY_CYCLICAL",
+    "FIXED_INCOME": "DEFENSIVE",
+    "BROAD_MARKET_EQUITY": "BROAD_MARKET"
+  },
+  "risk_policy": {
+    "minimum_candidate_history_observations": 60,
+    "minimum_account_history_market_value_coverage": 0.65,
+    "minimum_common_observations": 40,
+    "maximum_fmdl5c_history_end_age_calendar_days": 30,
+    "low_correlation_threshold": 0.35,
+    "high_correlation_threshold": 0.7,
+    "low_downside_correlation_threshold": 0.4,
+    "high_downside_correlation_threshold": 0.7
+  },
+  "opportunity_cost_policy": {
+    "method": "PARETO_CONTEXT_NO_WEIGHTED_SCORE",
+    "dimensions": [
+      "valuation_anchor",
+      "return_120d",
+      "max_drawdown_120d"
+    ],
+    "valuation_anchor": "positive earnings_yield else positive dividend_yield_365d else null",
+    "trailing_return_is_forecast": false,
+    "quantile_buckets": [
+      0.3333333333,
+      0.6666666667
+    ],
+    "fixed_top_n": false
+  },
+  "phase_boundary": {
+    "context_completion_authorized": true,
+    "portfolio_fit_reassessment_authorized": true,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "portfolio_allocation_authorized": false,
+    "position_sizing_authorized": false,
+    "order_creation_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "candidate_context_count": 70,
+    "account_holding_context_count": 24,
+    "account_security_context_count": 140,
+    "residual_decision_critical_gap_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "portfolio_allocations": 0,
+    "orders_created": 0,
+    "pass_status": "PASS_P4_1R_PORTFOLIO_CONTEXT_COMPLETION",
+    "blocked_status": "BLOCKED_P4_1R_RESIDUAL_CONTEXT",
+    "next_gate_on_pass": "P4_1_PORTFOLIO_FIT_REASSESSMENT",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P4_1R"
+}
