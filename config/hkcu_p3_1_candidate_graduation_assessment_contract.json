@@ -8,7 +8,8 @@
     "p3_0_contract": "config/hkcu_p3_0_candidate_graduation_contract.json",
     "p2b_final_builder": "pipeline/hkcu_p2b_final_cross_sectional_synthesis.py",
     "p2b_final_validator": "scripts/validate_hkcu_p2b_final_cross_sectional_synthesis.py",
-    "hkcu_current": "outputs/hkcu1/current/HKCU1_R2E_INVESTABLE_UNIVERSE.csv"
+    "hkcu_current": "outputs/hkcu1/current/HKCU1_R2E_INVESTABLE_UNIVERSE.csv",
+    "fmdl5e_contract": "config/fmdl5e_hk_factor_screening_contract.json"
   },
   "entry_contract": {
     "required_p3_0_program_id": "HKCU-P3-0",
@@ -40,6 +41,14 @@
     "ah_relative_value_is_context_not_alpha": true,
     "formal_candidate_graduation_authorized": false,
     "candidate_pool_mutation_authorized": false
+  },
+  "freshness_policy": {
+    "require_hkcu_freshness_status_current": true,
+    "require_eligibility_as_of_assessment_date": true,
+    "market_and_factor_dates_must_not_be_future": true,
+    "reuse_fmdl5e_maximum_price_age_calendar_days": true,
+    "exact_same_day_factor_date_required": false,
+    "rationale": "P3R04 reuses the accepted HKCU/FMDL-5E freshness contract. An accepted CURRENT observation within the frozen maximum-age window is decision-grade; Phase 3 must not silently tighten the upstream contract to require a same-day factor timestamp."
   },
   "valuation_policy": {
     "accepted_fields": [
