@@ -50,6 +50,7 @@ def state(account: str, cash: float) -> dict:
 def test_contract_has_bounded_non_scoring_scenario_surface():
     c = contract()
     policy = c["scenario_policy"]
+    acceptance = c["acceptance"]
     assert policy["weighted_score_allowed"] is False
     assert policy["fixed_top_n_allowed"] is False
     assert policy["candidate_rank_may_authorize_allocation"] is False
@@ -59,6 +60,13 @@ def test_contract_has_bounded_non_scoring_scenario_surface():
     assert c["phase_boundary"]["portfolio_proposal_authorized"] is False
     assert c["phase_boundary"]["order_creation_authorized"] is False
     assert c["phase_boundary"]["trade_authority"] == "NONE"
+    assert acceptance["candidate_pool_mutations"] == 0
+    assert acceptance["simulation_mutations"] == 0
+    assert acceptance["real_account_mutations"] == 0
+    assert acceptance["portfolio_proposal_produced"] is False
+    assert acceptance["target_portfolio_writeback"] is False
+    assert acceptance["orders_created"] == 0
+    assert acceptance["trade_authority"] == "NONE"
 
 
 def test_real_base_scenario_is_aggregate_but_requires_external_funding():
