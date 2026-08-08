@@ -277,7 +277,10 @@ def build(root: Path, out: Path) -> dict[str, Any]:
         investability_ok = investability in {"ELIGIBLE_CORE", "ELIGIBLE_WATCH"}
         fresh_ok = freshness == "CURRENT" and elig_date == contract["as_of_date"] and factor_date == contract["as_of_date"]
         liquidity_ok = investability_ok
-        valuation_state, valuation_pass, valuation_note = valuation_support(pd.Series(s._asdict()))
+        # Valuation is sourced from the accepted canonical HKCU row. P2B Final intentionally
+        # preserves only a subset of P2A context, so using the P2B Final security row here would
+        # incorrectly turn available valuation observations into MISSING.
+        valuation_state, valuation_pass, valuation_note = valuation_support(pd.Series(h))
         thesis, falsifier, monitor, thesis_strength = thesis_package(g, pd.Series(s._asdict()))
         thesis_pass = all(bool(str(x).strip()) for x in (thesis, falsifier, monitor))
 
@@ -458,6 +461,7 @@ def build(root: Path, out: Path) -> dict[str, Any]:
         "p2b_final_real_rebuild_and_independent_validation": True,
         "all_77_securities_assessed": len(assessments) == 77,
         "all_12_rules_materialized_per_security": len(rule_surface) == 77 * 12,
+        "valuation_source": "CANONICAL_HKCU_CURRENT_ACCEPTED_FIELDS",
         "no_weighted_score": True,
         "no_neutral_fill": True,
         "no_automatic_waiver": True,
