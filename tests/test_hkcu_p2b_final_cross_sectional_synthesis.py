@@ -45,6 +45,16 @@ def test_builder_rebuilds_all_accepted_lineage_and_no_alpha():
     assert "HOLD_RETAINED_INVESTMENT_BLOCKER" in text
 
 
+def test_p2a_security_name_schema_is_normalized_fail_closed():
+    b = BUILDER.read_text(encoding="utf-8")
+    assert "normalize_p2a_security_name" in b
+    assert "official_security_name_en" in b
+    assert "P2A_SECURITY_NAME_COLUMN_MISSING" in b
+    assert "P2A_SECURITY_NAME_MISSING" in b
+    assert 'p2a = normalize_p2a_security_name(p2a)' in b
+    assert 'security_name_source_column' in b
+
+
 def test_ah_stage_is_synchronized_and_context_only():
     c = json.loads(CONTRACT.read_text(encoding="utf-8"))
     b = BUILDER.read_text(encoding="utf-8")
