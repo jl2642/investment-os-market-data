@@ -17,7 +17,8 @@ def test_s4_contract_boundaries():
     assert c["selection_policy"]["expected_partial_rows"] == 43
     assert c["selection_policy"]["expected_non_partial_rows"] == 8
     assert c["selection_policy"]["expected_research_required_rows"] == 0
-    assert c["selection_policy"]["expected_targeted_override_rows"] == 6
+    assert c["selection_policy"]["expected_targeted_override_rows"] == 7
+    assert c["synthesis_policy"]["negated_expectation_terms_must_not_create_blockers"] is True
     assert c["expected_result"]["advance_security_count"] == 15
     assert c["expected_result"]["blocked_security_count"] == 2
     assert set(c["expected_result"]["retained_blocker_security_ids"]) == {"HKEX:02313", "HKEX:06110"}
@@ -29,7 +30,7 @@ def test_s4_contract_boundaries():
 
 def test_targeted_overrides_are_primary_and_deterministic():
     x = pd.read_csv(OVERRIDES, dtype={"stock_code_5d": str}, keep_default_na=False)
-    assert len(x) == 6
+    assert len(x) == 7
     assert not x.duplicated(["security_id", "research_dimension"]).any()
     assert x["source_url"].str.startswith("https://www1.hkexnews.hk/").all()
     assert (pd.to_datetime(x["evidence_date"]) <= pd.Timestamp("2026-08-07")).all()
@@ -39,6 +40,7 @@ def test_targeted_overrides_are_primary_and_deterministic():
         ("HKEX:03759", "CATALYST"),
         ("HKEX:02313", "EARNINGS_EXPECTATION_REVISION"),
         ("HKEX:02313", "CATALYST"),
+        ("HKEX:06110", "EARNINGS_EXPECTATION_REVISION"),
         ("HKEX:06110", "CATALYST"),
     }
     assert set(zip(x["security_id"], x["research_dimension"])) == expected
@@ -48,6 +50,10 @@ def test_targeted_overrides_are_primary_and_deterministic():
     ph = x[x["security_id"] == "HKEX:03759"]
     assert ph["event_id"].nunique() == 1
     assert ph["final_direction"].eq("POSITIVE").all()
+    top = x[x["security_id"] == "HKEX:06110"]
+    assert top["event_id"].nunique() == 1
+    assert top["final_direction"].eq("NEGATIVE").all()
+    assert top["final_blocker"].astype(str).str.lower().eq("true").sum() == 1
 
 
 def test_reusable_engine_and_validator_guards_present():
@@ -58,5 +64,6 @@ def test_reusable_engine_and_validator_guards_present():
     assert "formal_candidate_graduation_allowed=False" in engine
     assert "alpha_score=pd.NA" in engine
     assert "SHENZHOU_EVENT_LINEAGE" in validator
-    assert "TOPSPORTS_BLOCKER" in validator
+    assert "TOPSPORTS_EVENT_LINEAGE" in validator
+    assert "TOPSPORTS_EARNINGS_CONFIDENCE_CAP" in validator
     assert "P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS" in validator
