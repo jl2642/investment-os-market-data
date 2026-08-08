@@ -42,26 +42,29 @@
     "substantive_hard_failure_routes_to_block": true,
     "direct_existing_security_overlap_is_no_incremental_role_not_company_rejection": true,
     "exact_ah_overlap_is_named_constraint_not_automatic_rejection": true,
-    "pooled_exposure_is_named_constraint_not_automatic_defer": true,
+    "pooled_exposure_is_explicit_review_context_not_candidate_specific_duplicate_constraint": true,
     "existing_sector_exposure_is_named_constraint": true,
     "existing_style_exposure_is_named_constraint": true,
+    "numeric_sizing_phase_boundary_is_not_security_fit_constraint": true,
+    "real_cash_funding_decision_is_not_security_fit_constraint": true,
     "marginal_risk_states": {
       "IMPROVES_DIVERSIFICATION": "PASS",
       "DIVERSIFIES_RETURN_STREAM_BUT_RAISES_RISK_BUDGET": "PASS_WITH_CONSTRAINTS",
       "MIXED_RISK_CONTRIBUTION": "PASS_WITH_CONSTRAINTS",
-      "ADDS_CORRELATED_RISK": "NO_INCREMENTAL_ROLE"
+      "ADDS_CORRELATED_RISK": "PASS_WITH_CONSTRAINTS"
     },
     "opportunity_cost_states": {
       "LOW_RELATIVE_OPPORTUNITY_COST": "PASS",
       "MODERATE_RELATIVE_OPPORTUNITY_COST": "PASS_WITH_CONSTRAINTS",
-      "HIGH_RELATIVE_OPPORTUNITY_COST": "NO_INCREMENTAL_ROLE"
+      "HIGH_RELATIVE_OPPORTUNITY_COST": "PASS_WITH_CONSTRAINTS"
     },
     "non_direct_no_incremental_role_requires_all": [
-      "ADDS_CORRELATED_RISK",
       "HIGH_RELATIVE_OPPORTUNITY_COST",
       "INCREASES_EXISTING_DIRECT_SECTOR",
-      "INCREASES_EXISTING_STYLE"
+      "INCREASES_EXISTING_STYLE",
+      "MARGINAL_RISK_NOT_IMPROVES_DIVERSIFICATION"
     ],
+    "non_direct_no_incremental_marginal_risk_improvement_state": "IMPROVES_DIVERSIFICATION",
     "positive_assessment_sizing_envelope": "CONSTRUCTION_REVIEW_ONLY_NO_NUMERIC_TARGET",
     "no_incremental_sizing_envelope": "NO_SIZE_NO_INCREMENTAL_ROLE",
     "defer_sizing_envelope": "NO_SIZE_PENDING_CONTEXT",
