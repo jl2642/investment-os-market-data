@@ -1,0 +1,70 @@
+{
+  "contract_id": "HKCU_P5C_USER_DECISION_GATE_V1",
+  "program_id": "HKCU-P5C",
+  "phase": "P5C_USER_DECISION_GATE",
+  "as_of_date": "2026-08-07",
+  "objective": "Convert the accepted P5B REAL Pre-trade Memo into a user decision packet using an official HKEX as-of price surface and documented valuation context. The gate may make securities eligible for explicit user choice but cannot infer or record approval, create an execution checklist, mutate Current, create orders or authorize broker execution.",
+  "authoritative_inputs": {
+    "p5b_contract": "config/hkcu_p5b_real_pretrade_memo_contract.json",
+    "valuation_context_registry": "evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv",
+    "core_pretrade_policy": "investment_os_runtime/10_CORE_STATIC/07_DECISION_PRETRADE_CONFIRMATION_AND_WRITEBACK.md",
+    "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"
+  },
+  "price_surface": {
+    "required_source": "HKEX_OFFICIAL_DAILY_QUOTATIONS_MAIN_BOARD",
+    "url": "https://www.hkex.com.hk/eng/stat/smstat/dayquot/d260807e.htm",
+    "price_date": "2026-08-07",
+    "required_advanced_securities": ["HKEX:00669", "HKEX:01308", "HKEX:03698"],
+    "third_party_price_fallback_allowed": false,
+    "fabricated_or_ambiguous_date_price_allowed": false
+  },
+  "entry_contract": {
+    "required_p5b_status": "PASS_P5B_REAL_PRETRADE_MEMO",
+    "required_p5b_next_gate": "P5C_USER_DECISION_GATE",
+    "required_aggregate_memo_state": "MODIFY_AND_ADVANCE_TO_USER_DECISION_WITH_PRICE_GATES",
+    "required_advanced_count": 3,
+    "required_deferred_count": 1,
+    "required_trade_authority": "NONE"
+  },
+  "decision_policy": {
+    "allowed_user_choices": ["APPROVE_AS_PROPOSED", "MODIFY", "DEFER", "REJECT"],
+    "modify_requires_explicit_weight": true,
+    "technical_pass_may_substitute_user_approval": false,
+    "silence_or_continue_command_is_trade_approval": false,
+    "eligible_state": "READY_FOR_USER_DECISION",
+    "deferred_state": "DEFERRED_NOT_ELIGIBLE",
+    "current_gate_state_on_pass": "READY_AWAITING_EXPLICIT_USER_DECISION",
+    "next_gate_only_after_explicit_eligible_decisions": "P5D_MANUAL_STAGED_EXECUTION_SUPPORT",
+    "current_next_action": "EXPLICIT_USER_DECISION_REQUIRED",
+    "deferred_weight_may_be_reallocated_automatically": false
+  },
+  "phase_boundary": {
+    "decision_packet_authorized": true,
+    "user_trade_confirmation_record_authorized": false,
+    "manual_execution_checklist_authorized": false,
+    "target_portfolio_writeback_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "order_creation_authorized": false,
+    "broker_execution_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "decision_packet_security_count": 4,
+    "user_decision_eligible_count": 3,
+    "deferred_not_eligible_count": 1,
+    "user_decision_recorded_count": 0,
+    "manual_execution_checklist_produced": false,
+    "target_portfolio_writeback": false,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "pass_status": "PASS_P5C_USER_DECISION_GATE_READY",
+    "fail_status": "FAIL_P5C_USER_DECISION_GATE",
+    "repair_gate": "P5C_USER_DECISION_GATE_REPAIR",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P5C_USER_DECISION_GATE"
+}
