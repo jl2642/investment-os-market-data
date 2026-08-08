@@ -105,7 +105,7 @@ def build(root: Path, p5c_dir: Path, out: Path) -> dict[str, Any]:
     acceptance = contract["acceptance"]
     if p5c_decision.get("status") != entry["required_p5c_status"]:
         errors.append("P5C_STATUS")
-    if p5c_decision.get("current_gate_state") != entry["required_p5c_gate_state"]:
+    if p5c_decision.get("gate_state") != entry["required_p5c_gate_state"]:
         errors.append("P5C_GATE_STATE")
     if int(p5c_decision.get("user_decision_recorded_count", -1)) != entry["required_user_decision_recorded_count"]:
         errors.append("P5C_USER_DECISION_COUNT")
