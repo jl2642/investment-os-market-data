@@ -1,0 +1,91 @@
+{
+  "contract_id": "HKCU_P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS_V1",
+  "program_id": "HKCU-P2B-FINAL",
+  "phase": "P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS",
+  "objective": "Consolidate all 77 accepted P2A Research Longlist securities into one auditable cross-sectional research-decision surface using accepted P2B-E1 and P2B-E2 S1-S4 lineage, synchronized A/H relative valuation where applicable, and no new alpha score or Candidate graduation.",
+  "as_of_date": "2026-08-07",
+  "authoritative_inputs": {
+    "p2a_builder": "pipeline/hkcu_p2a_build_longlist.py",
+    "p2a_validator": "scripts/validate_hkcu_p2a.py",
+    "e1_builder": "pipeline/hkcu_p2b_apply_e1_evidence.py",
+    "e1_validator": "scripts/validate_hkcu_p2b_e1.py",
+    "s1_builder": "pipeline/hkcu_p2b_e2_top20_decision_synthesis.py",
+    "s1_validator": "scripts/validate_hkcu_p2b_e2_top20_decision_synthesis.py",
+    "window_builder": "pipeline/hkcu_p2b_e2_window_decision_synthesis.py",
+    "s2_contract": "config/hkcu_p2b_e2_ranks21_40_decision_synthesis_s2_contract.json",
+    "s2_validator": "scripts/validate_hkcu_p2b_e2_ranks21_40_decision_synthesis.py",
+    "s3_contract": "config/hkcu_p2b_e2_ranks41_60_decision_synthesis_s3_contract.json",
+    "s3_validator": "scripts/validate_hkcu_p2b_e2_ranks41_60_decision_synthesis.py",
+    "s4_contract": "config/hkcu_p2b_e2_ranks61_77_decision_synthesis_s4_contract.json",
+    "s4_validator": "scripts/validate_hkcu_p2b_e2_ranks61_77_decision_synthesis.py",
+    "ah_pair_registry": "evidence/hkcu_p2b/HKCU_P2B_AH_PAIR_REGISTRY_20260807.csv",
+    "a_share_snapshot": "outputs/current/DAILY_MARKET_SNAPSHOT.csv",
+    "a_share_snapshot_manifest": "outputs/current/DAILY_MARKET_SNAPSHOT_MANIFEST.json"
+  },
+  "expected_counts": {
+    "security_count": 77,
+    "company_dimension_rows": 231,
+    "advance_security_count": 72,
+    "blocked_security_count": 5,
+    "blocked_security_ids": [
+      "HKEX:00551",
+      "HKEX:01114",
+      "HKEX:09636",
+      "HKEX:02313",
+      "HKEX:06110"
+    ],
+    "transaction_tax_complete_count": 77,
+    "true_ah_pair_count": 13,
+    "ah_numeric_completed_count": 13,
+    "alpha_score_non_null_count": 0
+  },
+  "cross_section_policy": {
+    "preserve_p2a_rank": true,
+    "preserve_p2a_aggregate_score_without_rescoring": true,
+    "no_new_composite_alpha_score": true,
+    "evidence_balance_is_descriptive_not_scored": true,
+    "retained_blocker_is_hard_hold_for_phase3_evaluation": true,
+    "missing_consensus_is_not_bearish": true,
+    "confidence_cap_is_not_rejection": true,
+    "cross_dimension_event_deduplication_required": true,
+    "transaction_tax_is_execution_context_not_alpha": true,
+    "ah_relative_value_is_context_not_alpha": true,
+    "ah_relative_value_formula": "A_close_CNY / (H_close_HKD * CNY_per_HKD) - 1",
+    "ah_relative_value_direction": {
+      "positive": "H_DISCOUNT_TO_A",
+      "zero": "PARITY",
+      "negative": "H_PREMIUM_TO_A"
+    },
+    "ah_price_date": "2026-08-07",
+    "ah_fx_date": "2026-08-07",
+    "ah_h_price_source": "AKSHARE_HK_HISTORY_FAILOVER_SINA_TENCENT_EASTMONEY",
+    "ah_h_price_source_policy": {
+      "required_exact_date": "2026-08-07",
+      "providers_in_order": [
+        "AKSHARE_STOCK_HK_DAILY_SINA",
+        "AKSHARE_STOCK_ZH_AH_DAILY_TENCENT",
+        "AKSHARE_STOCK_HK_HIST_EASTMONEY"
+      ],
+      "provider_failure_does_not_permit_stale_or_cross_date_substitution": true
+    },
+    "ah_a_price_source": "CANONICAL_DAILY_MARKET_SNAPSHOT_20260807",
+    "ah_fx_source": "SAFE_RMB_CENTRAL_PARITY_VIA_AKSHARE"
+  },
+  "decision_states": [
+    "READY_FOR_P3_CONTRACT_EVALUATION_WITH_CONFIDENCE_CAP",
+    "HOLD_RETAINED_INVESTMENT_BLOCKER"
+  ],
+  "acceptance": {
+    "formal_candidate_graduation_allowed": false,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P2B_FINAL",
+  "pass_status": "PASS_P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS",
+  "blocked_status": "BLOCKED_P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS",
+  "next_gate": "P3_0_CANDIDATE_GRADUATION_CONTRACT",
+  "trade_authority": "NONE"
+}

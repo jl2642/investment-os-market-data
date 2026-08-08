@@ -1,0 +1,86 @@
+name: HKCU P2B Final Cross-sectional Synthesis
+
+on:
+  pull_request:
+    paths:
+      - 'config/hkcu_p2b_final_cross_sectional_synthesis_contract.json'
+      - 'pipeline/hkcu_p2b_final_cross_sectional_synthesis.py'
+      - 'scripts/validate_hkcu_p2b_final_cross_sectional_synthesis.py'
+      - 'tests/test_hkcu_p2b_final_cross_sectional_synthesis.py'
+      - 'docs/HKCU-P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS.md'
+      - '.github/workflows/hkcu-p2b-final-cross-sectional-synthesis.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q tests/test_hkcu_p2b_final_cross_sectional_synthesis.py
+      - name: Enforce isolated P2B Final scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/p2b_final_paths.txt
+          cat /tmp/p2b_final_paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          allowed = {
+            'config/hkcu_p2b_final_cross_sectional_synthesis_contract.json',
+            'pipeline/hkcu_p2b_final_cross_sectional_synthesis.py',
+            'scripts/validate_hkcu_p2b_final_cross_sectional_synthesis.py',
+            'tests/test_hkcu_p2b_final_cross_sectional_synthesis.py',
+            'docs/HKCU-P2B_FINAL_CROSS_SECTIONAL_SYNTHESIS.md',
+            '.github/workflows/hkcu-p2b-final-cross-sectional-synthesis.yml',
+          }
+          actual = {x.strip() for x in Path('/tmp/p2b_final_paths.txt').read_text().splitlines() if x.strip()}
+          bad = sorted(actual - allowed)
+          if bad:
+              raise SystemExit('P2B_FINAL_SCOPE_VIOLATION:' + ','.join(bad))
+          protected = ('outputs/candidate/', 'outputs/simulation/', 'outputs/real', 'state/', 'orders/')
+          mutations = sorted(x for x in actual if x.startswith(protected))
+          if mutations:
+              raise SystemExit('P2B_FINAL_PROTECTED_PATH_MUTATION:' + ','.join(mutations))
+          PY
+
+  real-cross-sectional-synthesis:
+    needs: unit-and-scope
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild accepted lineage and synthesize all 77
+        run: |
+          rm -rf work/hkcu_p2b_final
+          python pipeline/hkcu_p2b_final_cross_sectional_synthesis.py \
+            --repo-root . \
+            --output work/hkcu_p2b_final
+      - name: Independent P2B Final validation
+        run: python scripts/validate_hkcu_p2b_final_cross_sectional_synthesis.py --output work/hkcu_p2b_final
+      - name: Render decision and quality
+        if: always()
+        run: |
+          test ! -f work/hkcu_p2b_final/HKCU_P2B_FINAL_DECISION.json || cat work/hkcu_p2b_final/HKCU_P2B_FINAL_DECISION.json
+          test ! -f work/hkcu_p2b_final/HKCU_P2B_FINAL_QUALITY_REPORT.json || cat work/hkcu_p2b_final/HKCU_P2B_FINAL_QUALITY_REPORT.json
+          test ! -f work/hkcu_p2b_final/HKCU_P2B_FINAL_AH_RELATIVE_VALUE.csv || cat work/hkcu_p2b_final/HKCU_P2B_FINAL_AH_RELATIVE_VALUE.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hkcu-p2b-final-cross-sectional-synthesis
+          path: |
+            work/hkcu_p2b_final/HKCU_P2B_FINAL_*
+          if-no-files-found: error
