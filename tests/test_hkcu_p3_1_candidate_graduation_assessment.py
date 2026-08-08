@@ -14,8 +14,12 @@ assert SPEC.loader is not None
 SPEC.loader.exec_module(MOD)
 
 
+def load_contract():
+    return json.loads((ROOT / "config/hkcu_p3_1_candidate_graduation_assessment_contract.json").read_text(encoding="utf-8"))
+
+
 def test_contract_preserves_p3_0_rule_count_and_zero_mutation_boundary():
-    contract = json.loads((ROOT / "config/hkcu_p3_1_candidate_graduation_assessment_contract.json").read_text(encoding="utf-8"))
+    contract = load_contract()
     assert contract["entry_contract"]["graduation_rule_count"] == 12
     assert contract["entry_contract"]["entry_security_count"] == 77
     assert contract["entry_contract"]["retained_blocker_security_count"] == 5
@@ -26,6 +30,16 @@ def test_contract_preserves_p3_0_rule_count_and_zero_mutation_boundary():
     assert contract["freshness_policy"]["exact_same_day_factor_date_required"] is False
     assert contract["phase_boundary"]["candidate_pool_mutations"] == 0
     assert contract["phase_boundary"]["trade_authority"] == "NONE"
+
+
+def test_limited_confidence_is_bounded_watch_cap_not_material_defer_cap():
+    contract = load_contract()
+    assert contract["confidence_policy"]["material_cap_states"] == ["TARGETED_DEEPENING_REQUIRED"]
+    assert set(contract["confidence_policy"]["bounded_cap_states"]) == {
+        "CONFIDENCE_CAP_MONITOR",
+        "LIMITED_CONFIDENCE",
+    }
+    assert "Watch" in contract["confidence_policy"]["state_semantics"]["LIMITED_CONFIDENCE"]
 
 
 def test_accepted_freshness_window_allows_recent_prior_day_but_rejects_future_or_stale():
@@ -89,7 +103,7 @@ def test_thesis_package_is_evidence_tied_and_has_falsifier_monitor():
 
 
 def test_assessment_states_are_proposals_not_formal_promotions():
-    contract = json.loads((ROOT / "config/hkcu_p3_1_candidate_graduation_assessment_contract.json").read_text(encoding="utf-8"))
+    contract = load_contract()
     assert set(contract["proposal_states"]) == {
         "PROPOSE_CORE_CANDIDATE",
         "PROPOSE_WATCH_CANDIDATE",
