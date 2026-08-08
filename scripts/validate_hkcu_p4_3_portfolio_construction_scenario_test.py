@@ -56,6 +56,16 @@ def validate(root: Path, p4_2_dir: Path, out: Path) -> dict[str, Any]:
     if (pd.to_numeric(allocations["orders_created"], errors="coerce").fillna(0) != 0).any(): errors.append("ALLOCATION_ORDERS")
     if allocations["portfolio_mutation"].astype(str).str.lower().isin({"true", "1"}).any(): errors.append("ALLOCATION_MUTATION")
 
+    for field in ("candidate_pool_mutations", "simulation_mutations", "real_account_mutations", "orders_created"):
+        if int(decision.get(field, -1)) != int(acceptance[field]):
+            errors.append(f"DECISION_ACCEPTANCE:{field}")
+    if decision.get("portfolio_proposal_produced") is not acceptance["portfolio_proposal_produced"]:
+        errors.append("DECISION_ACCEPTANCE:portfolio_proposal_produced")
+    if decision.get("target_portfolio_writeback") is not acceptance["target_portfolio_writeback"]:
+        errors.append("DECISION_ACCEPTANCE:target_portfolio_writeback")
+    if decision.get("trade_authority") != acceptance["trade_authority"]:
+        errors.append("DECISION_ACCEPTANCE:trade_authority")
+
     p4_idx = p4_2_review.set_index(["security_id", "account"], drop=False)
     min_pos = float(policy["minimum_scenario_position_weight"])
     tolerance = float(policy["target_residual_tolerance"])
@@ -135,10 +145,9 @@ def validate(root: Path, p4_2_dir: Path, out: Path) -> dict[str, Any]:
     if len(ah_options) != len(p4_2_sub): errors.append("AH_OPTIONS_COUNT")
     if len(ah_options) and pd.to_numeric(ah_options["net_new_capital_weight"], errors="coerce").fillna(0.0).abs().max() > 1e-12: errors.append("AH_OPTION_NET_NEW")
 
-    if decision.get("portfolio_proposal_produced") is not False: errors.append("PORTFOLIO_PROPOSAL_PRODUCED")
-    if decision.get("target_portfolio_writeback") is not False: errors.append("TARGET_WRITEBACK")
-    if int(decision.get("orders_created", -1)) != 0: errors.append("DECISION_ORDERS")
-    if decision.get("trade_authority") != TRADE_AUTHORITY: errors.append("DECISION_AUTHORITY")
+    if int(quality.get("portfolio_mutations", -1)) != 0: errors.append("QUALITY_PORTFOLIO_MUTATIONS")
+    if int(quality.get("orders_created", -1)) != 0: errors.append("QUALITY_ORDERS")
+    if quality.get("trade_authority") != TRADE_AUTHORITY: errors.append("QUALITY_AUTHORITY")
 
     for flag in ("weighted_score", "fixed_top_n", "candidate_rank_used_as_allocation_authority", "real_cash_treated_as_strategic_target", "real_existing_positions_auto_reduced", "portfolio_proposal_produced"):
         if quality.get(flag) is not False: errors.append(f"QUALITY_FALSE_FLAG:{flag}")
