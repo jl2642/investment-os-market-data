@@ -45,6 +45,15 @@ def finite(value: Any) -> float | None:
     return x if math.isfinite(x) else None
 
 
+def freshness_within_window(value: Any, as_of_date: str, maximum_age_days: int) -> tuple[bool, int | None]:
+    observed = pd.to_datetime(value, errors="coerce")
+    as_of = pd.Timestamp(as_of_date)
+    if pd.isna(observed):
+        return False, None
+    age = int((as_of.normalize() - pd.Timestamp(observed).normalize()).days)
+    return 0 <= age <= maximum_age_days, age
+
+
 def rebuild_p2b_final(root: Path, out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     subprocess.run(
@@ -173,6 +182,8 @@ def build(root: Path, out: Path) -> dict[str, Any]:
     contract_path = root / "config/hkcu_p3_1_candidate_graduation_assessment_contract.json"
     contract = read_json(contract_path)
     p3_0 = read_json(root / contract["authoritative_inputs"]["p3_0_contract"])
+    fmdl5e = read_json(root / contract["authoritative_inputs"]["fmdl5e_contract"])
+    maximum_age_days = int(fmdl5e["investability"]["maximum_price_age_calendar_days"])
     failures: list[str] = []
 
     entry = contract["entry_contract"]
@@ -264,6 +275,9 @@ def build(root: Path, out: Path) -> dict[str, Any]:
         freshness = str(h.get("freshness_status") or "")
         elig_date = str(h.get("eligibility_as_of_date") or "")
         factor_date = str(h.get("fmdl5e_as_of_date") or "")
+        price_date = str(getattr(s, "price_date", "") or "")
+        factor_fresh, factor_age_days = freshness_within_window(factor_date, contract["as_of_date"], maximum_age_days)
+        price_fresh, price_age_days = freshness_within_window(price_date, contract["as_of_date"], maximum_age_days)
         txn_complete = str(getattr(s, "transaction_tax_evidence_status")) == "EVIDENCE_COMPLETE"
         all_dims_synth = (
             set(g["research_dimension"]) == set(DIMS)
@@ -275,7 +289,12 @@ def build(root: Path, out: Path) -> dict[str, Any]:
         gov_ok = not as_bool(gov["final_blocker"])
         earn_ok = not as_bool(earn["final_blocker"])
         investability_ok = investability in {"ELIGIBLE_CORE", "ELIGIBLE_WATCH"}
-        fresh_ok = freshness == "CURRENT" and elig_date == contract["as_of_date"] and factor_date == contract["as_of_date"]
+        fresh_ok = (
+            freshness == "CURRENT"
+            and elig_date == contract["as_of_date"]
+            and factor_fresh
+            and price_fresh
+        )
         liquidity_ok = investability_ok
         # Valuation is sourced from the accepted canonical HKCU row. P2B Final intentionally
         # preserves only a subset of P2A context, so using the P2B Final security row here would
@@ -306,7 +325,8 @@ def build(root: Path, out: Path) -> dict[str, Any]:
             ),
             "P3R04": (
                 fresh_ok,
-                f"freshness_status={freshness}; eligibility_as_of_date={elig_date}; fmdl5e_as_of_date={factor_date}; required={contract['as_of_date']}.",
+                f"freshness_status={freshness}; eligibility_as_of_date={elig_date}; price_date={price_date}; price_age_days={price_age_days}; "
+                f"fmdl5e_as_of_date={factor_date}; factor_age_days={factor_age_days}; accepted_max_age_days={maximum_age_days}; assessment_as_of={contract['as_of_date']}.",
             ),
             "P3R05": (txn_complete, f"transaction_tax_evidence_status={getattr(s, 'transaction_tax_evidence_status')}."),
             "P3R06": (all_dims_synth, "All three company dimensions have accepted synthesis and no RESEARCH_REQUIRED residue."),
@@ -371,6 +391,12 @@ def build(root: Path, out: Path) -> dict[str, Any]:
                 "security_name": name,
                 "primary_sleeve": str(getattr(s, "primary_sleeve", "")),
                 "p2b_evidence_balance": str(getattr(s, "evidence_balance", "")),
+                "freshness_status": freshness,
+                "price_date": price_date,
+                "price_age_days": price_age_days,
+                "factor_date": factor_date,
+                "factor_age_days": factor_age_days,
+                "accepted_maximum_age_days": maximum_age_days,
                 "valuation_support_state": valuation_state,
                 "valuation_support_note": valuation_note,
                 "thesis_strength": thesis_strength,
@@ -462,6 +488,9 @@ def build(root: Path, out: Path) -> dict[str, Any]:
         "all_77_securities_assessed": len(assessments) == 77,
         "all_12_rules_materialized_per_security": len(rule_surface) == 77 * 12,
         "valuation_source": "CANONICAL_HKCU_CURRENT_ACCEPTED_FIELDS",
+        "freshness_contract_source": contract["authoritative_inputs"]["fmdl5e_contract"],
+        "freshness_maximum_age_calendar_days": maximum_age_days,
+        "exact_same_day_factor_date_required": False,
         "no_weighted_score": True,
         "no_neutral_fill": True,
         "no_automatic_waiver": True,
@@ -514,6 +543,7 @@ def build(root: Path, out: Path) -> dict[str, Any]:
         "as_of_date": contract["as_of_date"],
         "contract_sha256": sha256_file(contract_path),
         "p3_0_contract_sha256": sha256_file(root / contract["authoritative_inputs"]["p3_0_contract"]),
+        "fmdl5e_contract_sha256": sha256_file(root / contract["authoritative_inputs"]["fmdl5e_contract"]),
         "files": {},
         "upstream_p2b_final_decision_sha256": sha256_file(upstream / "HKCU_P2B_FINAL_DECISION.json"),
         "trade_authority": TRADE_AUTHORITY,
