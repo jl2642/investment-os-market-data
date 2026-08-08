@@ -37,6 +37,8 @@ def test_evidence_controls() -> None:
     assert p["trailing_return_may_be_called_expected_return"] is False
     assert p["ah_discount_may_be_called_alpha"] is False
     assert p["pooled_fund_or_etf_may_be_assigned_single_industry"] is False
+    assert c["authoritative_inputs"]["a_share_history_manifest"] == "outputs/history/current/HISTORY_CURRENT_MANIFEST.json"
+    assert p["a_share_holding_history_source"].startswith("ACCEPTED_FMDL2B4_COMPOSITE_HISTORY")
     assert c["opportunity_cost_policy"]["method"] == "PARETO_CONTEXT_NO_WEIGHTED_SCORE"
     assert c["opportunity_cost_policy"]["fixed_top_n"] is False
 
