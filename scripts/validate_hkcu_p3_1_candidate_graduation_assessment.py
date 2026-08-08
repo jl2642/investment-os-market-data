@@ -20,6 +20,10 @@ def as_bool(value: Any) -> bool:
     return value is True or str(value).strip().lower() in {"1", "true", "yes", "y"}
 
 
+def has_nonempty(series: pd.Series) -> bool:
+    return series.astype(str).str.strip().ne("").any()
+
+
 def expected_route(row: pd.Series) -> str:
     if str(row["security_id"]) in BLOCKED_IDS:
         return "HOLD_RETAINED_INVESTMENT_BLOCKER"
@@ -43,6 +47,8 @@ def validate(output: Path, repo_root: Path) -> None:
     global BLOCKED_IDS
     contract = read_json(repo_root / "config/hkcu_p3_1_candidate_graduation_assessment_contract.json")
     p3_0 = read_json(repo_root / contract["authoritative_inputs"]["p3_0_contract"])
+    fmdl5e = read_json(repo_root / contract["authoritative_inputs"]["fmdl5e_contract"])
+    maximum_age_days = int(fmdl5e["investability"]["maximum_price_age_calendar_days"])
     prefix = contract["output_prefix"]
     assessment = pd.read_csv(output / f"{prefix}_SECURITY_ASSESSMENT.csv", dtype={"stock_code_5d": str}, keep_default_na=False)
     rules = pd.read_csv(output / f"{prefix}_RULE_ASSESSMENT.csv", dtype={"stock_code_5d": str}, keep_default_na=False)
@@ -73,7 +79,7 @@ def validate(output: Path, repo_root: Path) -> None:
         failures.append("RULE_STATE_VOCABULARY")
     if not set(assessment["proposal_state"]).issubset(set(contract["proposal_states"])):
         failures.append("PROPOSAL_VOCABULARY")
-    if assessment["alpha_score"].notna().any() or rules["alpha_score"].notna().any():
+    if has_nonempty(assessment["alpha_score"]) or has_nonempty(rules["alpha_score"]):
         failures.append("ALPHA_SCORE_PRESENT")
     if assessment["formal_candidate_graduation"].map(as_bool).any():
         failures.append("FORMAL_GRADUATION")
@@ -99,6 +105,24 @@ def validate(output: Path, repo_root: Path) -> None:
     r02_fail = set(r02.loc[r02["rule_state"].eq("FAIL"), "security_id"])
     if r02_fail != BLOCKED_IDS:
         failures.append("P3R02_FAIL_SET")
+
+    r04 = rules[rules["rule_id"].eq("P3R04")].set_index("security_id")
+    for r in assessment.itertuples(index=False):
+        try:
+            price_age = int(r.price_age_days)
+            factor_age = int(r.factor_age_days)
+        except (TypeError, ValueError):
+            failures.append(f"FRESHNESS_AGE_MISSING:{r.security_id}")
+            continue
+        expected_fresh = (
+            str(r.freshness_status) == "CURRENT"
+            and 0 <= price_age <= maximum_age_days
+            and 0 <= factor_age <= maximum_age_days
+        )
+        observed_state = r04.loc[r.security_id, "rule_state"]
+        expected_state = "PASS" if expected_fresh else "FAIL"
+        if observed_state != expected_state:
+            failures.append(f"P3R04_STATE:{r.security_id}:{observed_state}:{expected_state}")
 
     r12 = rules[rules["rule_id"].eq("P3R12")].set_index("security_id")
     for r in assessment.itertuples(index=False):
@@ -144,6 +168,10 @@ def validate(output: Path, repo_root: Path) -> None:
         failures.append("QUALITY_NOT_PASS")
     if not quality.get("p2b_final_real_rebuild_and_independent_validation"):
         failures.append("P2B_FINAL_LINEAGE_NOT_BOUND")
+    if quality.get("freshness_maximum_age_calendar_days") != maximum_age_days:
+        failures.append("FRESHNESS_CONTRACT_MISMATCH")
+    if quality.get("exact_same_day_factor_date_required") is not False:
+        failures.append("FRESHNESS_SAME_DAY_TIGHTENING")
     if not quality.get("no_weighted_score") or not quality.get("no_neutral_fill") or not quality.get("no_fixed_top_n"):
         failures.append("GOVERNANCE_PHILOSOPHY")
     if manifest.get("program_id") != contract["program_id"] or manifest.get("trade_authority") != TRADE_AUTHORITY:
