@@ -125,6 +125,7 @@ def validate_equity_compensation(real: dict[str, Any], equity: dict[str, Any]) -
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
+    parser.add_argument("--require-fresh", action="store_true")
     args = parser.parse_args()
     root = Path(args.repo_root).resolve()
     cfg = read(root / "automation/wp2_r/config.json")
@@ -169,17 +170,27 @@ def main() -> None:
 
     if marks.get("automatic_position_mutations") != 0:
         raise AssertionError(("MARK_REFRESH_MUTATED_POSITIONS", marks.get("automatic_position_mutations")))
-    if marks.get("status") != "CURRENT_COMPLETE":
-        raise AssertionError(("MARKS_NOT_CURRENT_COMPLETE", marks.get("status")))
+    mark_status = marks.get("status")
+    if args.require_fresh and mark_status != "CURRENT_COMPLETE":
+        raise AssertionError(("MARKS_NOT_CURRENT_COMPLETE", mark_status))
+    if mark_status not in {"CURRENT_COMPLETE", "LKG_FALLBACK_OR_INCOMPLETE_BLOCKED"}:
+        raise AssertionError(("UNKNOWN_MARK_STATUS", mark_status))
+    if mark_status != "CURRENT_COMPLETE":
+        if run.get("portfolio_marks_fresh") is not False:
+            raise AssertionError(("STALE_MARKS_FALSE_READY_CLAIM", "portfolio_marks_fresh", run.get("portfolio_marks_fresh")))
+        if run.get("wp4b_position_level_fit_ready") is not False:
+            raise AssertionError(("STALE_MARKS_FALSE_READY_CLAIM", "wp4b_position_level_fit_ready", run.get("wp4b_position_level_fit_ready")))
+
     required_ids = {row["security_id"] for row in real.get("holdings", []) + sim.get("holdings", [])}
     mark_rows = {row["security_id"]: row for row in marks.get("marks", [])}
     if not required_ids <= set(mark_rows):
         raise AssertionError(("MISSING_MARKS", sorted(required_ids - set(mark_rows))))
-    bad_freshness = sorted(
-        sid for sid in required_ids if mark_rows[sid].get("freshness_status") not in {"FRESH", "ACCEPTABLE_LAG"}
-    )
-    if bad_freshness:
-        raise AssertionError(("STALE_REQUIRED_MARKS", bad_freshness))
+    if mark_status == "CURRENT_COMPLETE":
+        bad_freshness = sorted(
+            sid for sid in required_ids if mark_rows[sid].get("freshness_status") not in {"FRESH", "ACCEPTABLE_LAG"}
+        )
+        if bad_freshness:
+            raise AssertionError(("STALE_REQUIRED_MARKS", bad_freshness))
 
     if run.get("economic_transaction_mutations") != 0:
         raise AssertionError(("ECONOMIC_TRANSACTION_MUTATION", run.get("economic_transaction_mutations")))
@@ -223,6 +234,8 @@ def main() -> None:
 
     print(json.dumps({
         "status": "PASS",
+        "require_fresh": args.require_fresh,
+        "marks_status": mark_status,
         "real_holding_count": len(real.get("holdings", [])),
         "simulation_holding_count": len(sim.get("holdings", [])),
         "real_605090_quantity": next((row.get("quantity") for row in real.get("holdings", []) if code(row) == "605090"), None),
