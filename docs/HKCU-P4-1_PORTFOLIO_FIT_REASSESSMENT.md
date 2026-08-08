@@ -29,13 +29,15 @@ The original P4-0 hard rules remain binding. Candidate lineage, current investab
 The decision rules use the accepted P4-1R evidence surface:
 
 - P4R08: explicit portfolio role from common style context;
-- P4R09: direct, exact A/H and pooled-exposure overlap review;
+- P4R09: direct and exact A/H overlap review, while pooled vehicles remain explicit review context rather than candidate-specific duplicate evidence merely because a pooled vehicle exists;
 - P4R10: marginal direct-sector concentration impact;
 - P4R11: marginal style concentration impact;
 - P4R12: correlation, downside correlation, volatility and governed marginal-risk state;
 - P4R13: unweighted Pareto opportunity-cost context using accepted valuation anchor, trailing return and drawdown semantics;
 - P4R14: analytical no-size or construction-review-only envelope; no numeric target weight is authorized;
 - P4R15: REAL broker cash and SIMULATION cash semantics remain unchanged.
+
+Three governance-wide facts are deliberately not treated as security-specific fit constraints: numeric sizing belongs to the later construction gate, REAL funding can be decided separately from current broker cash because external liquidity is excluded from the portfolio-fit cash target, and generic pooled-vehicle presence does not by itself prove economic duplication with a particular Candidate. These facts remain recorded in rule evidence and phase boundaries.
 
 ## `NO_INCREMENTAL_ROLE`
 
@@ -44,11 +46,13 @@ The decision rules use the accepted P4-1R evidence surface:
 It is issued in two bounded cases:
 
 1. the exact security is already held in the account and no incremental role is demonstrated at this gate; or
-2. for a non-direct holding, accepted evidence jointly shows all four of: `ADDS_CORRELATED_RISK`, `HIGH_RELATIVE_OPPORTUNITY_COST`, `INCREASES_EXISTING_DIRECT_SECTOR`, and `INCREASES_EXISTING_STYLE`.
+2. for a non-direct holding, accepted evidence jointly shows all four of: `HIGH_RELATIVE_OPPORTUNITY_COST`, `INCREASES_EXISTING_DIRECT_SECTOR`, `INCREASES_EXISTING_STYLE`, and a marginal-risk state other than `IMPROVES_DIVERSIFICATION`.
+
+The fourth condition prevents opportunity cost or concentration alone from becoming an automatic rejection. Conversely, the test does not require the narrowest `ADDS_CORRELATED_RISK` label if the accepted marginal-risk evidence is mixed or raises the risk budget and therefore does not affirmatively improve diversification.
 
 No weighted score or fixed Top-N is used to create this state.
 
-Exact A/H overlap is a named substitution/duplication constraint, not automatic rejection. Pooled ETF/fund exposure is also a named overlap constraint rather than an automatic defer once the P4-1R context is otherwise complete.
+Exact A/H overlap remains a named substitution/duplication constraint. Pooled ETF/fund exposure remains visible as portfolio context but is not called a duplicate-exposure constraint without security-specific evidence.
 
 ## Routing
 
