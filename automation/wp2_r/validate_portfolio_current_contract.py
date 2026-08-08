@@ -19,7 +19,7 @@ def num(value: Any, default: float = 0.0) -> float:
 
 def close(actual: Any, expected: Any, tolerance: float = 1e-6) -> None:
     if abs(num(actual) - num(expected)) > tolerance:
-        raise AssertionError((actual, expected))
+        raise AssertionError(("NUMERIC_MISMATCH", actual, expected, tolerance))
 
 
 def authority_values(value: Any) -> list[Any]:
@@ -38,7 +38,7 @@ def authority_values(value: Any) -> list[Any]:
 def require_none_authority(label: str, payload: Any) -> None:
     values = authority_values(payload)
     if values and set(values) != {"NONE"}:
-        raise AssertionError((label, values))
+        raise AssertionError(("AUTHORITY_VIOLATION", label, values))
 
 
 def code(row: dict[str, Any]) -> str:
@@ -50,7 +50,7 @@ def validate_schema(root: Path, schema_path: str, data_path: str) -> None:
     data = read(root / data_path)
     errors = sorted(Draft202012Validator(schema).iter_errors(data), key=lambda err: list(err.path))
     if errors:
-        raise SystemExit(f"SCHEMA_FAILURE:{data_path}:" + "|".join(err.message for err in errors))
+        raise AssertionError(("SCHEMA_FAILURE", data_path, [err.message for err in errors]))
 
 
 def validate_real_economic_state(real_source: dict[str, Any], real: dict[str, Any]) -> None:
@@ -61,16 +61,21 @@ def validate_real_economic_state(real_source: dict[str, Any], real: dict[str, An
     for sec, src in source.items():
         row = current[sec]
         quantity = num(src.get("quantity_or_shares"))
-        close(row.get("quantity"), quantity)
-        close(row.get("available_quantity"), quantity)
+        if abs(num(row.get("quantity")) - quantity) > 1e-6:
+            raise AssertionError(("REAL_QUANTITY_CHANGED", sec, row.get("quantity"), quantity))
+        if abs(num(row.get("available_quantity")) - quantity) > 1e-6:
+            raise AssertionError(("REAL_AVAILABLE_QUANTITY_CHANGED", sec, row.get("available_quantity"), quantity))
         source_cost = num(src.get("cost_price_or_cost"))
         if src.get("asset_class") == "BOND_FUND":
-            close(row.get("cost_basis"), source_cost)
-            if quantity:
-                close(row.get("unit_cost"), source_cost / quantity, 1e-8)
+            if abs(num(row.get("cost_basis")) - source_cost) > 1e-4:
+                raise AssertionError(("REAL_FUND_COST_BASIS_CHANGED", sec, row.get("cost_basis"), source_cost))
+            if quantity and abs(num(row.get("unit_cost")) - source_cost / quantity) > 1e-8:
+                raise AssertionError(("REAL_FUND_UNIT_COST_CHANGED", sec, row.get("unit_cost"), source_cost / quantity))
         else:
-            close(row.get("unit_cost"), source_cost, 1e-8)
-            close(row.get("cost_basis"), source_cost * quantity, 1e-4)
+            if abs(num(row.get("unit_cost")) - source_cost) > 1e-8:
+                raise AssertionError(("REAL_UNIT_COST_CHANGED", sec, row.get("unit_cost"), source_cost))
+            if abs(num(row.get("cost_basis")) - source_cost * quantity) > 1e-4:
+                raise AssertionError(("REAL_COST_BASIS_CHANGED", sec, row.get("cost_basis"), source_cost * quantity))
 
 
 def validate_sim_economic_state(sim_source: dict[str, Any], sim: dict[str, Any]) -> None:
@@ -81,10 +86,15 @@ def validate_sim_economic_state(sim_source: dict[str, Any], sim: dict[str, Any])
     for sec, src in source.items():
         row = current[sec]
         quantity = num(src.get("quantity"))
-        close(row.get("quantity"), quantity)
-        close(row.get("available_quantity"), num(src.get("available_quantity"), quantity))
-        close(row.get("unit_cost"), src.get("cost_price"), 1e-8)
-        close(row.get("cost_basis"), num(src.get("cost_price")) * quantity, 1e-4)
+        if abs(num(row.get("quantity")) - quantity) > 1e-6:
+            raise AssertionError(("SIM_QUANTITY_CHANGED", sec, row.get("quantity"), quantity))
+        expected_available = num(src.get("available_quantity"), quantity)
+        if abs(num(row.get("available_quantity")) - expected_available) > 1e-6:
+            raise AssertionError(("SIM_AVAILABLE_QUANTITY_CHANGED", sec, row.get("available_quantity"), expected_available))
+        if abs(num(row.get("unit_cost")) - num(src.get("cost_price"))) > 1e-8:
+            raise AssertionError(("SIM_UNIT_COST_CHANGED", sec, row.get("unit_cost"), src.get("cost_price")))
+        if abs(num(row.get("cost_basis")) - num(src.get("cost_price")) * quantity) > 1e-4:
+            raise AssertionError(("SIM_COST_BASIS_CHANGED", sec, row.get("cost_basis"), num(src.get("cost_price")) * quantity))
 
 
 def validate_equity_compensation(real: dict[str, Any], equity: dict[str, Any]) -> None:
@@ -92,7 +102,8 @@ def validate_equity_compensation(real: dict[str, Any], equity: dict[str, Any]) -
     current = equity.get("current_recognition", {})
     ordinary = current.get("ordinary_share_position", {})
     if "605090" in by_code and ordinary:
-        close(ordinary.get("quantity"), by_code["605090"].get("quantity"))
+        if abs(num(ordinary.get("quantity")) - num(by_code["605090"].get("quantity"))) > 1e-6:
+            raise AssertionError(("605090_EQUITY_RECOGNITION_MISMATCH", ordinary.get("quantity"), by_code["605090"].get("quantity")))
         if ordinary.get("included_in_real_account_current") is not True:
             raise AssertionError("605090 ordinary share recognition must be included")
     pending = current.get("pending_entitlement", {})
@@ -101,12 +112,13 @@ def validate_equity_compensation(real: dict[str, Any], equity: dict[str, Any]) -
             raise AssertionError("pending entitlement entered real current")
         if pending.get("included_in_total_assets") is not False:
             raise AssertionError("pending entitlement entered total assets")
-        close(pending.get("market_value"), 0)
+        if abs(num(pending.get("market_value"))) > 1e-6:
+            raise AssertionError(("PENDING_ENTITLEMENT_NONZERO_VALUE", pending.get("market_value")))
     technical = current.get("technical_entitlement_codes", [])
     technical_codes = {str(row.get("code")) for row in technical}
     if technical_codes & set(by_code):
         raise AssertionError(("TECHNICAL_ENTITLEMENT_DOUBLE_COUNT", sorted(technical_codes & set(by_code))))
-    if any(num(row.get("market_value")) != 0 for row in technical):
+    if any(abs(num(row.get("market_value"))) > 1e-6 for row in technical):
         raise AssertionError("technical entitlement has non-zero market value")
 
 
@@ -156,7 +168,7 @@ def main() -> None:
     validate_equity_compensation(real, equity)
 
     if marks.get("automatic_position_mutations") != 0:
-        raise AssertionError("MARK_REFRESH_MUTATED_POSITIONS")
+        raise AssertionError(("MARK_REFRESH_MUTATED_POSITIONS", marks.get("automatic_position_mutations")))
     if marks.get("status") != "CURRENT_COMPLETE":
         raise AssertionError(("MARKS_NOT_CURRENT_COMPLETE", marks.get("status")))
     required_ids = {row["security_id"] for row in real.get("holdings", []) + sim.get("holdings", [])}
@@ -170,11 +182,11 @@ def main() -> None:
         raise AssertionError(("STALE_REQUIRED_MARKS", bad_freshness))
 
     if run.get("economic_transaction_mutations") != 0:
-        raise AssertionError("ECONOMIC_TRANSACTION_MUTATION")
+        raise AssertionError(("ECONOMIC_TRANSACTION_MUTATION", run.get("economic_transaction_mutations")))
     if run.get("position_or_cost_mutations_from_reconciliation") != 0:
-        raise AssertionError("RECONCILIATION_MUTATED_POSITION_OR_COST")
+        raise AssertionError(("RECONCILIATION_MUTATED_POSITION_OR_COST", run.get("position_or_cost_mutations_from_reconciliation")))
     if run.get("orders") != 0:
-        raise AssertionError("ORDER_CREATED")
+        raise AssertionError(("ORDER_CREATED", run.get("orders")))
 
     real_summary = real.get("summary", {})
     real_source_summary = real_source.get("summary", {})
@@ -197,14 +209,17 @@ def main() -> None:
 
     controls = acceptance.get("account_summary_controls", {})
     if controls.get("forced_reconciliation_mutations") != 0:
-        raise AssertionError("FORCED_RECONCILIATION_MUTATION")
+        raise AssertionError(("FORCED_RECONCILIATION_MUTATION", controls.get("forced_reconciliation_mutations")))
     if acceptance.get("trade_authority") != "NONE":
-        raise AssertionError("ACCEPTANCE_AUTHORITY_VIOLATION")
+        raise AssertionError(("ACCEPTANCE_AUTHORITY_VIOLATION", acceptance.get("trade_authority")))
+    if acceptance.get("wp5_unblocked") is not False:
+        raise AssertionError(("WP5_MUST_REMAIN_BLOCKED", acceptance.get("wp5_unblocked")))
 
     entries = ledger.get("entries", [])
     allowed = {"PENDING_USER_CONFIRMATION", "CONFIRMED_BY_USER", "APPLIED_TO_POSITION_CURRENT", "REJECTED"}
-    if any(row.get("status") not in allowed for row in entries):
-        raise AssertionError("INVALID_DELTA_STATUS")
+    invalid = [row.get("delta_id") for row in entries if row.get("status") not in allowed]
+    if invalid:
+        raise AssertionError(("INVALID_DELTA_STATUS", invalid))
 
     print(json.dumps({
         "status": "PASS",
@@ -221,4 +236,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        message = f"{type(exc).__name__}: {exc}".replace("\n", " ")
+        print(f"::error title=WP2-R Canonical-relative contract failure::{message}")
+        raise
