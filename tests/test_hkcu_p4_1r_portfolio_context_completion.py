@@ -5,7 +5,9 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline.hkcu_p4_1r_canonical_data_adapter import (
+    build_static_ah_source,
     canonical_first_holding_fetcher,
+    load_economic_sector_registry,
     load_hk_histories_compat,
 )
 
@@ -38,7 +40,11 @@ def test_evidence_controls() -> None:
     assert p["ah_discount_may_be_called_alpha"] is False
     assert p["pooled_fund_or_etf_may_be_assigned_single_industry"] is False
     assert c["authoritative_inputs"]["a_share_history_manifest"] == "outputs/history/current/HISTORY_CURRENT_MANIFEST.json"
+    assert c["authoritative_inputs"]["p2b_ah_pair_registry"].endswith("HKCU_P2B_AH_PAIR_REGISTRY_20260807.csv")
+    assert c["authoritative_inputs"]["p4_1r_economic_sector_registry"].endswith("HKCU_P4_1R_ECONOMIC_SECTOR_REGISTRY_20260807.csv")
     assert p["a_share_holding_history_source"].startswith("ACCEPTED_FMDL2B4_COMPOSITE_HISTORY")
+    assert p["ah_identity_source"].startswith("ACCEPTED_P2B_E1_AH_PAIR_REGISTRY")
+    assert p["live_industry_or_ah_source_required_for_production_build"] is False
     assert c["opportunity_cost_policy"]["method"] == "PARETO_CONTEXT_NO_WEIGHTED_SCORE"
     assert c["opportunity_cost_policy"]["fixed_top_n"] is False
 
@@ -94,3 +100,29 @@ def test_holding_history_prefers_canonical_before_fallback() -> None:
 
     fetch({"security_id": "510500.SH"}, "2026-08-07")
     assert calls == ["510500.SH"]
+
+
+def test_r2_economic_sector_registry_is_complete_and_exact() -> None:
+    c = contract(); p = c["evidence_policy"]
+    reg = load_economic_sector_registry(ROOT / c["authoritative_inputs"]["p4_1r_economic_sector_registry"])
+    assert len(reg) == p["economic_sector_registry_expected_rows"] == 86
+    assert int(reg["scope"].eq("HK_CANDIDATE").sum()) == p["economic_sector_registry_expected_hk_candidates"] == 70
+    assert int(reg["scope"].eq("A_SHARE_DIRECT_HOLDING").sum()) == p["economic_sector_registry_expected_a_share_direct_holdings"] == 16
+    assert reg["security_id"].is_unique
+    assert not reg["economic_sector"].isin({"", "UNRESOLVED"}).any()
+    assert reg.loc[reg["security_id"].eq("HKEX:00300"), "economic_sector"].item() == "CONSUMER_DISCRETIONARY"
+    assert reg.loc[reg["security_id"].eq("000333.SZ"), "economic_sector"].item() == "CONSUMER_DISCRETIONARY"
+    assert reg.loc[reg["security_id"].eq("HKEX:03968"), "economic_sector"].item() == "FINANCIALS"
+    assert reg.loc[reg["security_id"].eq("600036.SH"), "economic_sector"].item() == "FINANCIALS"
+
+
+def test_r2_accepted_ah_registry_closes_all_13_exact_pairs() -> None:
+    c = contract()
+    ah = build_static_ah_source(ROOT / c["authoritative_inputs"]["p2b_ah_pair_registry"])
+    assert len(ah) == 13
+    assert ah["H股代码"].is_unique
+    assert ah["A股代码"].is_unique
+    mapping = dict(zip(ah["H股代码"], ah["A股代码"]))
+    assert mapping["00300"] == "000333"
+    assert mapping["03968"] == "600036"
+    assert mapping["02359"] == "603259"
