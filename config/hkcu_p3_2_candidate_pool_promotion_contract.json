@@ -1,0 +1,102 @@
+{
+  "contract_id": "HKCU_P3_2_CANDIDATE_POOL_PROMOTION_V1",
+  "program_id": "HKCU-P3-2",
+  "phase": "P3_2_CANDIDATE_POOL_PROMOTION",
+  "objective": "Promote the exact accepted P3-1 proposal surface into the first formal Hong Kong Candidate Current, preserving Core/Watch semantics and keeping Defer/Blocker states outside Candidate membership, without mutating A-share Candidate, simulation, real-account, order or trade-authority state.",
+  "as_of_date": "2026-08-07",
+  "authoritative_inputs": {
+    "p3_1_contract": "config/hkcu_p3_1_candidate_graduation_assessment_contract.json",
+    "p3_1_builder": "pipeline/hkcu_p3_1_candidate_graduation_assessment.py",
+    "p3_1_validator": "scripts/validate_hkcu_p3_1_candidate_graduation_assessment.py",
+    "accepted_p3_1_head_sha": "e475adb24ba4af02720bbf20874440e2039979c9",
+    "accepted_p3_1_merge_sha": "30a408894431d7500b4b6e4de54e5b51caed7454",
+    "accepted_p3_1_workflow_run_id": 31240233427,
+    "accepted_p3_1_artifact_id": 9016796877,
+    "accepted_p3_1_artifact_digest": "sha256:d785d8a5e7050bcb12cfe8b93c38517fd06e330b9a66a04be4556dea78c22c80",
+    "accepted_p3_1_security_assessment_sha256": "23e504675f450cbaf8500860ca8e7867fb3aae52e13e013ab13c6183a3b5de3a",
+    "accepted_p3_1_rule_assessment_sha256": "133cdda394e2b8167cab938f885da4d1a366738eec1f7b0efc94787b499f1b2e",
+    "accepted_p3_1_decision_sha256": "abcd45df861716bd488c46a80d985cffdd2acce532595cd375719d587a6a0bce"
+  },
+  "entry_contract": {
+    "required_p3_1_program_id": "HKCU-P3-1",
+    "required_p3_1_pass_status": "PASS_P3_1_CANDIDATE_GRADUATION_ASSESSMENT",
+    "required_p3_1_next_gate": "P3_2_CANDIDATE_POOL_PROMOTION",
+    "entry_security_count": 77,
+    "proposal_state_counts": {
+      "PROPOSE_CORE_CANDIDATE": 2,
+      "PROPOSE_WATCH_CANDIDATE": 68,
+      "DEFER_RESEARCH_MONITOR": 2,
+      "HOLD_RETAINED_INVESTMENT_BLOCKER": 5
+    }
+  },
+  "promotion_mapping": {
+    "PROPOSE_CORE_CANDIDATE": {
+      "candidate_member": true,
+      "candidate_tier": "CORE",
+      "transition_action": "ADMIT_CORE"
+    },
+    "PROPOSE_WATCH_CANDIDATE": {
+      "candidate_member": true,
+      "candidate_tier": "WATCH",
+      "transition_action": "ADMIT_WATCH"
+    },
+    "DEFER_RESEARCH_MONITOR": {
+      "candidate_member": false,
+      "candidate_tier": "RESEARCH_MONITOR",
+      "transition_action": "HOLD_OUTSIDE_CANDIDATE"
+    },
+    "HOLD_RETAINED_INVESTMENT_BLOCKER": {
+      "candidate_member": false,
+      "candidate_tier": "BLOCKER_MONITOR",
+      "transition_action": "HOLD_OUTSIDE_CANDIDATE"
+    }
+  },
+  "promotion_policy": {
+    "promotion_is_deterministic_mapping_only": true,
+    "discretionary_override_allowed": false,
+    "weighted_rescoring_allowed": false,
+    "fixed_top_n_allowed": false,
+    "defer_or_blocker_can_enter_candidate": false,
+    "core_watch_relabel_allowed": false,
+    "p3_1_rank_preserved": true,
+    "promotion_does_not_equal_portfolio_allocation": true,
+    "promotion_does_not_authorize_simulation": true,
+    "promotion_does_not_authorize_real_account": true,
+    "promotion_does_not_authorize_orders": true,
+    "trade_authority": "NONE"
+  },
+  "current_publication": {
+    "directory": "outputs/hk_candidate/current",
+    "candidate_current": "HK_CANDIDATE_CURRENT.csv",
+    "nonmember_monitors": "HK_CANDIDATE_NONMEMBER_MONITORS.csv",
+    "promotion_ledger": "HK_CANDIDATE_PROMOTION_LEDGER.csv",
+    "decision": "HK_CANDIDATE_DECISION.json",
+    "quality": "HK_CANDIDATE_QUALITY_REPORT.json",
+    "manifest": "HK_CANDIDATE_MANIFEST.json"
+  },
+  "phase_boundary": {
+    "formal_hk_candidate_graduation_authorized": true,
+    "hk_candidate_pool_mutation_authorized": true,
+    "a_share_candidate_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "portfolio_allocation_authorized": false,
+    "order_creation_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "formal_candidate_count": 70,
+    "core_candidate_count": 2,
+    "watch_candidate_count": 68,
+    "research_monitor_count": 2,
+    "blocker_monitor_count": 5,
+    "promotion_ledger_count": 77,
+    "a_share_candidate_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "pass_status": "PASS_P3_2_CANDIDATE_POOL_PROMOTION",
+    "next_gate": "P4_0_PORTFOLIO_FIT_CONTRACT",
+    "trade_authority": "NONE"
+  }
+}
