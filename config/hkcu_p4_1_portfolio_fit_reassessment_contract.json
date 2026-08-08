@@ -1,0 +1,111 @@
+{
+  "contract_id": "HKCU_P4_1_PORTFOLIO_FIT_REASSESSMENT_V1",
+  "program_id": "HKCU-P4-1-REASSESSMENT",
+  "phase": "P4_1_PORTFOLIO_FIT_REASSESSMENT",
+  "as_of_date": "2026-08-07",
+  "objective": "Reassess all 70 formal Hong Kong Candidates separately against current Real and Simulation portfolios after accepted P4-1R Portfolio Context Completion, materializing the frozen P4-0 fifteen-rule portfolio-fit framework without mutating Candidate membership, either portfolio, allocations, orders or trade authority.",
+  "authoritative_inputs": {
+    "p4_0_contract": "config/hkcu_p4_0_portfolio_fit_contract.json",
+    "p4_1_contract": "config/hkcu_p4_1_portfolio_fit_assessment_contract.json",
+    "p4_1r_contract": "config/hkcu_p4_1r_portfolio_context_completion_contract.json",
+    "candidate_current": "outputs/hk_candidate/current/HK_CANDIDATE_CURRENT.csv",
+    "hkcu_current": "outputs/hkcu1/current/HKCU1_R2E_INVESTABLE_UNIVERSE.csv",
+    "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "simulation_positions_current": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+  },
+  "runtime_context_contract": {
+    "required_program_id": "HKCU-P4-1R",
+    "required_status": "PASS_P4_1R_PORTFOLIO_CONTEXT_COMPLETION",
+    "required_candidate_context_count": 70,
+    "required_account_holding_context_count": 24,
+    "required_account_security_context_count": 140,
+    "required_context_ready_account_security_count": 140,
+    "required_exact_ah_mapped_count": 13,
+    "required_candidate_industry_coverage": 1.0,
+    "required_residual_gap_count": 0,
+    "required_trade_authority": "NONE"
+  },
+  "entry_contract": {
+    "entry_candidate_count": 70,
+    "account_count": 2,
+    "rule_count": 15,
+    "account_security_assessment_count": 140,
+    "rule_assessment_row_count": 2100,
+    "combined_routing_count": 70
+  },
+  "rule_states": ["PASS", "PASS_WITH_CONSTRAINTS", "NO_INCREMENTAL_ROLE", "DEFER", "BLOCK", "NOT_APPLICABLE"],
+  "account_fit_states": ["FIT", "FIT_WITH_CONSTRAINTS", "NO_INCREMENTAL_ROLE", "DEFER_PORTFOLIO_CONTEXT", "BLOCK_PORTFOLIO_FIT"],
+  "combined_routing_states": ["ADVANCE_DUAL_CONSTRUCTION_REVIEW", "ADVANCE_SIMULATION_CONSTRUCTION_REVIEW", "ADVANCE_REAL_ACCOUNT_REVIEW", "HOLD_PORTFOLIO_WATCH", "DEFER_PORTFOLIO_CONTEXT", "BLOCK_PORTFOLIO_FIT"],
+  "decision_policy": {
+    "all_p4_0_hard_rules_must_pass_for_positive_or_no_incremental_state": true,
+    "missing_runtime_context_routes_to_defer": true,
+    "substantive_hard_failure_routes_to_block": true,
+    "direct_existing_security_overlap_is_no_incremental_role_not_company_rejection": true,
+    "exact_ah_overlap_is_named_constraint_not_automatic_rejection": true,
+    "pooled_exposure_is_explicit_review_context_not_candidate_specific_duplicate_constraint": true,
+    "existing_sector_exposure_is_named_constraint": true,
+    "existing_style_exposure_is_named_constraint": true,
+    "numeric_sizing_phase_boundary_is_not_security_fit_constraint": true,
+    "real_cash_funding_decision_is_not_security_fit_constraint": true,
+    "marginal_risk_states": {
+      "IMPROVES_DIVERSIFICATION": "PASS",
+      "DIVERSIFIES_RETURN_STREAM_BUT_RAISES_RISK_BUDGET": "PASS_WITH_CONSTRAINTS",
+      "MIXED_RISK_CONTRIBUTION": "PASS_WITH_CONSTRAINTS",
+      "ADDS_CORRELATED_RISK": "PASS_WITH_CONSTRAINTS"
+    },
+    "opportunity_cost_states": {
+      "LOW_RELATIVE_OPPORTUNITY_COST": "PASS",
+      "MODERATE_RELATIVE_OPPORTUNITY_COST": "PASS_WITH_CONSTRAINTS",
+      "HIGH_RELATIVE_OPPORTUNITY_COST": "PASS_WITH_CONSTRAINTS"
+    },
+    "non_direct_no_incremental_role_requires_all": [
+      "HIGH_RELATIVE_OPPORTUNITY_COST",
+      "INCREASES_EXISTING_DIRECT_SECTOR",
+      "INCREASES_EXISTING_STYLE",
+      "MARGINAL_RISK_NOT_IMPROVES_DIVERSIFICATION"
+    ],
+    "non_direct_no_incremental_marginal_risk_improvement_state": "IMPROVES_DIVERSIFICATION",
+    "positive_assessment_sizing_envelope": "CONSTRUCTION_REVIEW_ONLY_NO_NUMERIC_TARGET",
+    "no_incremental_sizing_envelope": "NO_SIZE_NO_INCREMENTAL_ROLE",
+    "defer_sizing_envelope": "NO_SIZE_PENDING_CONTEXT",
+    "block_sizing_envelope": "NO_SIZE_BLOCKED",
+    "weighted_score_allowed": false,
+    "fixed_top_n_allowed": false,
+    "fuzzy_identity_matching_allowed": false,
+    "sector_neutral_fill_allowed": false,
+    "ticker_count_diversification_inference_allowed": false,
+    "trailing_return_may_be_called_expected_return": false,
+    "ah_discount_may_be_called_alpha": false
+  },
+  "phase_boundary": {
+    "assessment_authorized": true,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_admission_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_admission_authorized": false,
+    "real_account_mutation_authorized": false,
+    "portfolio_allocation_authorized": false,
+    "position_sizing_authorized": false,
+    "order_creation_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "entry_candidate_count": 70,
+    "account_security_assessment_count": 140,
+    "rule_assessment_row_count": 2100,
+    "combined_routing_count": 70,
+    "context_gap_count": 0,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "portfolio_allocations": 0,
+    "orders_created": 0,
+    "pass_status": "PASS_P4_1_PORTFOLIO_FIT_REASSESSMENT",
+    "context_blocked_status": "BLOCKED_P4_1_REASSESSMENT_CONTEXT",
+    "integrity_fail_status": "FAIL_P4_1_REASSESSMENT_INTEGRITY",
+    "next_gate_on_pass": "P4_2_PORTFOLIO_CONSTRUCTION_REVIEW",
+    "context_repair_next_gate": "P4_1R_PORTFOLIO_CONTEXT_COMPLETION",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P4_1_REASSESSMENT"
+}
