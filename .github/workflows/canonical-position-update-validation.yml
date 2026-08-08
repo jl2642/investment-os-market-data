@@ -46,18 +46,53 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Resolve whether this PR contains Canonical position-update scope
+        id: scope
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import subprocess
+
+          changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+          position_prefixes = (
+              'automation/canonical_position_update/',
+              'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/',
+          )
+          position_files = {
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+              'investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/STATUS/POSITION_UPDATE_STATUS_20260804_USER_INTRADAY.json',
+          }
+          in_scope = bool(position_files & changed) or any(path.startswith(position_prefixes) for path in changed)
+          print(f"position_scope={'true' if in_scope else 'false'}")
+          print(f"changed_count={len(changed)}")
+          PY
+
+      - name: Record non-position PR as not applicable
+        if: steps.scope.outputs.position_scope != 'true'
+        run: |
+          echo "Canonical Position Update Validation: NOT_APPLICABLE_TO_THIS_PR_SCOPE"
+          echo "orders=0"
+          echo "trade_authority=NONE"
+
       - name: Apply idempotent audit repairs
+        if: steps.scope.outputs.position_scope == 'true'
         run: |
           python -m py_compile automation/canonical_position_update/repair_audit_findings.py
           python automation/canonical_position_update/repair_audit_findings.py
 
       - name: Apply post-merge evidence closure when authorized
+        if: steps.scope.outputs.position_scope == 'true'
         run: |
           python -m py_compile automation/canonical_position_update/apply_post_merge_closure.py
           python automation/canonical_position_update/apply_post_merge_closure.py
 
       - name: Persist audit and closure repairs to the agent branch
-        if: github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.head_ref, 'agent/')
+        if: steps.scope.outputs.position_scope == 'true' && github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.head_ref, 'agent/')
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -83,23 +118,28 @@ jobs:
           git push origin "HEAD:${GITHUB_HEAD_REF}"
 
       - name: Compile validator
+        if: steps.scope.outputs.position_scope == 'true'
         run: python -m py_compile automation/canonical_position_update/validate.py
 
       - name: Validate legacy sources, standard Current and equity subledger
+        if: steps.scope.outputs.position_scope == 'true'
         run: python automation/canonical_position_update/validate.py
 
       - name: Re-run idempotent audit and closure as validation
+        if: steps.scope.outputs.position_scope == 'true'
         run: |
           python automation/canonical_position_update/repair_audit_findings.py
           python automation/canonical_position_update/apply_post_merge_closure.py
           git diff --exit-code
 
       - name: Run existing WP2-R unit tests
+        if: steps.scope.outputs.position_scope == 'true'
         run: |
           python -m pip install --retries 5 --timeout 30 -r automation/wp2_r/requirements.lock
           pytest -q automation/wp2_r/tests
 
       - name: Validate governed JSON syntax
+        if: steps.scope.outputs.position_scope == 'true'
         run: |
           python - <<'PY'
           import json
@@ -124,8 +164,6 @@ jobs:
         run: |
           echo "trade_authority=NONE"
           echo "orders=0"
-          echo "snapshot_type=USER_CONFIRMED_INTRADAY"
-          echo "formal_EOD_mutations=0"
+          echo "position_scope=${{ steps.scope.outputs.position_scope }}"
           echo "candidate_mutations=0"
           echo "decision_mutations=0"
-          echo "post_merge_economic_state_mutations=0"
