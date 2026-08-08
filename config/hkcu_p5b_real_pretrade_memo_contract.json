@@ -1,0 +1,72 @@
+{
+  "contract_id": "HKCU_P5B_REAL_PRETRADE_MEMO_V1",
+  "program_id": "HKCU-P5B",
+  "phase": "P5B_REAL_PRETRADE_MEMO",
+  "as_of_date": "2026-08-07",
+  "objective": "Prepare the REAL-account Pre-trade Memo from the frozen P5A entry. Re-underwrite evidence, thesis, valuation gate, portfolio fit, funding, maximum loss, alternatives, falsifiers, triggers, exit and review conditions. The memo may advance, modify, defer or reject securities but cannot record user approval, create an execution checklist, mutate Current or create orders.",
+  "authoritative_inputs": {
+    "p5a_contract": "config/hkcu_p5a_phase5_contract_entry_freeze.json",
+    "evidence_registry": "evidence/hkcu_p5b/HKCU_P5B_REAL_PRETRADE_EVIDENCE_20260807.csv",
+    "core_portfolio_position_policy": "investment_os_runtime/10_CORE_STATIC/06_PORTFOLIO_POSITION_AND_CAPITAL_MIGRATION.md",
+    "core_pretrade_policy": "investment_os_runtime/10_CORE_STATIC/07_DECISION_PRETRADE_CONFIRMATION_AND_WRITEBACK.md",
+    "real_positions_current": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"
+  },
+  "entry_contract": {
+    "required_p5a_status": "PASS_P5A_PHASE5_CONTRACT_AND_ENTRY_FREEZE",
+    "required_p5a_next_gate": "P5B_REAL_PRETRADE_MEMO",
+    "required_phase_5_gate_count": 5,
+    "required_real_scenario": "REAL_CONSERVATIVE",
+    "required_real_hk_sleeve": 0.05,
+    "required_real_position_count": 4,
+    "required_trade_authority": "NONE"
+  },
+  "memo_policy": {
+    "allowed_security_states": ["ADVANCE_WITH_PRICE_GATE", "DEFER_SECURITY", "REJECT_SECURITY"],
+    "price_gate_required_for_advanced_security": true,
+    "exact_asof_close_may_be_fabricated": false,
+    "missing_exact_asof_close_requires_p5c_recheck_not_fake_price": true,
+    "deferred_weight_may_be_reallocated_automatically": false,
+    "weighted_score_allowed": false,
+    "fixed_top_n_allowed": false,
+    "simulation_result_may_authorize_real_capital": false,
+    "technical_pass_may_substitute_user_approval": false,
+    "aggregate_expected_state": "MODIFY_AND_ADVANCE_TO_USER_DECISION_WITH_PRICE_GATES",
+    "next_gate_on_pass": "P5C_USER_DECISION_GATE",
+    "exit_permission_on_pass": "USER_DECISION_REQUIRED",
+    "review_date": "2026-09-07"
+  },
+  "phase_boundary": {
+    "pretrade_memo_authorized": true,
+    "proposal_modification_authorized": true,
+    "user_trade_confirmation_record_authorized": false,
+    "manual_execution_checklist_authorized": false,
+    "target_portfolio_writeback_authorized": false,
+    "candidate_pool_mutation_authorized": false,
+    "simulation_mutation_authorized": false,
+    "real_account_mutation_authorized": false,
+    "order_creation_authorized": false,
+    "broker_execution_authorized": false,
+    "trade_authority": "NONE"
+  },
+  "acceptance": {
+    "security_memo_count": 4,
+    "advanced_with_price_gate_count": 3,
+    "deferred_security_count": 1,
+    "rejected_security_count": 0,
+    "preferred_original_weight": 0.05,
+    "deferred_weight_reallocated": false,
+    "pretrade_memo_produced": true,
+    "user_trade_confirmation_recorded": false,
+    "manual_execution_checklist_produced": false,
+    "target_portfolio_writeback": false,
+    "candidate_pool_mutations": 0,
+    "simulation_mutations": 0,
+    "real_account_mutations": 0,
+    "orders_created": 0,
+    "pass_status": "PASS_P5B_REAL_PRETRADE_MEMO",
+    "fail_status": "FAIL_P5B_REAL_PRETRADE_MEMO",
+    "repair_gate": "P5B_REAL_PRETRADE_MEMO_REPAIR",
+    "trade_authority": "NONE"
+  },
+  "output_prefix": "HKCU_P5B_REAL_PRETRADE_MEMO"
+}
