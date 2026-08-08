@@ -25,8 +25,6 @@
     "required_position_status": "POSITION_CURRENT_MARKS_FRESH_BROKER_UNVERIFIED_RESEARCH_ONLY",
     "required_portfolio_fit_permission": true,
     "required_trade_authority": "NONE",
-    "real_account_contract_acceptance_holding_count": 8,
-    "simulation_contract_acceptance_holding_count": 16,
     "real_cash_semantics": "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED",
     "simulation_cash_semantics": "SIMULATION_LEDGER_AVAILABLE_CASH",
     "real_account_fixed_strategic_cash_target_allowed": false,
@@ -68,127 +66,24 @@
     "fit_assessment_is_not_trade_authority": true
   },
   "portfolio_fit_rules": [
-    {
-      "rule_id": "P4R01",
-      "name": "FORMAL_ACTIVE_HK_CANDIDATE_LINEAGE",
-      "type": "HARD",
-      "applicability": "ALL",
-      "requirement": "Security must be an ACTIVE formal member of the accepted P3-2 Hong Kong Candidate Current. Research Monitor and Blocker Monitor securities are outside the Phase-4 entry universe."
-    },
-    {
-      "rule_id": "P4R02",
-      "name": "CURRENT_INVESTABILITY_AND_BUY_ELIGIBILITY",
-      "type": "HARD",
-      "applicability": "ALL",
-      "requirement": "Current publication eligibility, Southbound buy eligibility and investability must remain valid at the assessment as-of date; any current loss of eligibility fails closed."
-    },
-    {
-      "rule_id": "P4R03",
-      "name": "DECISION_GRADE_MARKET_AND_VALUATION_FRESHNESS",
-      "type": "HARD",
-      "applicability": "ALL",
-      "requirement": "Price, valuation and other market observations used for portfolio fit must satisfy the accepted decision-grade freshness contract; stale decision inputs cannot be neutral-filled."
-    },
-    {
-      "rule_id": "P4R04",
-      "name": "CURRENT_PORTFOLIO_STATE_AND_MARK_WATERMARKS",
-      "type": "HARD",
-      "applicability": "ALL",
-      "requirement": "Real Account and Simulation position states used for portfolio fit must be current, marked, and fresh or explicitly acceptable. User-confirmed position deltas take precedence over stale portfolio snapshots."
-    },
-    {
-      "rule_id": "P4R05",
-      "name": "THESIS_AND_FALSIFIER_STILL_VALID",
-      "type": "HARD",
-      "applicability": "ALL",
-      "requirement": "The accepted Candidate thesis must remain live and no principal falsifier or new substantive investment blocker may be triggered before portfolio-fit assessment."
-    },
-    {
-      "rule_id": "P4R06",
-      "name": "LIQUIDITY_AND_CAPACITY_REMAINS_ACCEPTABLE",
-      "type": "HARD",
-      "applicability": "ALL",
-      "requirement": "Accepted tradability must remain valid and the contemplated portfolio role must not rely on a lower liquidity or execution-capacity standard than the accepted HKCU surface."
-    },
-    {
-      "rule_id": "P4R07",
-      "name": "EXPOSURE_IDENTITY_MAPPING_COMPLETE",
-      "type": "HARD",
-      "applicability": "ALL",
-      "requirement": "Issuer, A/H cross-listing, same-economic-exposure and existing portfolio holding identities required for duplicate-exposure review must be resolved before a positive fit state can be issued."
-    },
-    {
-      "rule_id": "P4R08",
-      "name": "PORTFOLIO_ROLE_EXPLICIT",
-      "type": "DECISION",
-      "applicability": "ALL",
-      "requirement": "Assessment must state the security's intended portfolio role separately for Simulation and Real Account context, such as quality compounder, defensive income, cyclical exposure, recovery, growth or diversifier; labels are descriptive and not automatic approval."
-    },
-    {
-      "rule_id": "P4R09",
-      "name": "DIRECT_AND_CROSS_LISTED_OVERLAP_REVIEW",
-      "type": "DECISION",
-      "applicability": "ALL",
-      "requirement": "Assessment must identify direct holdings, A/H same-issuer exposure and economically duplicate instruments in each account, then state whether incremental exposure adds, substitutes or duplicates risk. Duplication is not automatically rejection."
-    },
-    {
-      "rule_id": "P4R10",
-      "name": "SECTOR_AND_INDUSTRY_CONCENTRATION_IMPACT",
-      "type": "DECISION",
-      "applicability": "ALL",
-      "requirement": "Assessment must state the marginal effect on sector and industry concentration for each account; missing classification or exposure data cannot be assumed diversified."
-    },
-    {
-      "rule_id": "P4R11",
-      "name": "FACTOR_STYLE_AND_THEME_CONCENTRATION_IMPACT",
-      "type": "DECISION",
-      "applicability": "ALL",
-      "requirement": "Assessment must state whether the security increases or offsets existing factor, style or thematic concentration using available accepted evidence; superficial ticker diversification cannot substitute for economic diversification."
-    },
-    {
-      "rule_id": "P4R12",
-      "name": "MARGINAL_DIVERSIFICATION_AND_RISK_CONTRIBUTION",
-      "type": "DECISION",
-      "applicability": "ALL",
-      "requirement": "Assessment must explicitly judge marginal diversification, downside co-movement and portfolio risk contribution. A standalone attractive security may receive NO_INCREMENTAL_ROLE when it does not improve the portfolio."
-    },
-    {
-      "rule_id": "P4R13",
-      "name": "VALUATION_EXPECTED_RETURN_AND_OPPORTUNITY_COST",
-      "type": "DECISION",
-      "applicability": "ALL",
-      "requirement": "Assessment must compare current valuation support and plausible return/risk with relevant existing exposures and alternative Candidate opportunities. A/H discount alone cannot satisfy expected-return support."
-    },
-    {
-      "rule_id": "P4R14",
-      "name": "DOWNSIDE_BUDGET_AND_SIZING_ENVELOPE_EXPLICIT",
-      "type": "DECISION",
-      "applicability": "ALL",
-      "requirement": "Assessment must state a bounded sizing envelope or explicit no-size conclusion tied to downside, liquidity, concentration and confidence limits. The envelope is analytical only and does not mutate either portfolio."
-    },
-    {
-      "rule_id": "P4R15",
-      "name": "FUNDING_AND_CASH_SEMANTICS_PRESERVED",
-      "type": "DECISION",
-      "applicability": "ALL",
-      "requirement": "Real Account cash must be treated only as broker execution balance with external liquidity excluded, so no fixed strategic cash target may be invented. Simulation available cash may be used as funding context but never as alpha or automatic admission authority."
-    }
+    {"rule_id":"P4R01","name":"FORMAL_ACTIVE_HK_CANDIDATE_LINEAGE","type":"HARD","applicability":"ALL","requirement":"Security must be an ACTIVE formal member of the accepted P3-2 Hong Kong Candidate Current. Research Monitor and Blocker Monitor securities are outside the Phase-4 entry universe."},
+    {"rule_id":"P4R02","name":"CURRENT_INVESTABILITY_AND_BUY_ELIGIBILITY","type":"HARD","applicability":"ALL","requirement":"Current publication eligibility, Southbound buy eligibility and investability must remain valid at the assessment as-of date; any current loss of eligibility fails closed."},
+    {"rule_id":"P4R03","name":"DECISION_GRADE_MARKET_AND_VALUATION_FRESHNESS","type":"HARD","applicability":"ALL","requirement":"Price, valuation and other market observations used for portfolio fit must satisfy the accepted decision-grade freshness contract; stale decision inputs cannot be neutral-filled."},
+    {"rule_id":"P4R04","name":"CURRENT_PORTFOLIO_STATE_AND_MARK_WATERMARKS","type":"HARD","applicability":"ALL","requirement":"Real Account and Simulation position states used for portfolio fit must be current, marked, and fresh or explicitly acceptable. User-confirmed position deltas take precedence over stale portfolio snapshots."},
+    {"rule_id":"P4R05","name":"THESIS_AND_FALSIFIER_STILL_VALID","type":"HARD","applicability":"ALL","requirement":"The accepted Candidate thesis must remain live and no principal falsifier or new substantive investment blocker may be triggered before portfolio-fit assessment."},
+    {"rule_id":"P4R06","name":"LIQUIDITY_AND_CAPACITY_REMAINS_ACCEPTABLE","type":"HARD","applicability":"ALL","requirement":"Accepted tradability must remain valid and the contemplated portfolio role must not rely on a lower liquidity or execution-capacity standard than the accepted HKCU surface."},
+    {"rule_id":"P4R07","name":"EXPOSURE_IDENTITY_MAPPING_COMPLETE","type":"HARD","applicability":"ALL","requirement":"Issuer, A/H cross-listing, same-economic-exposure and existing portfolio holding identities required for duplicate-exposure review must be resolved before a positive fit state can be issued."},
+    {"rule_id":"P4R08","name":"PORTFOLIO_ROLE_EXPLICIT","type":"DECISION","applicability":"ALL","requirement":"Assessment must state the security's intended portfolio role separately for Simulation and Real Account context, such as quality compounder, defensive income, cyclical exposure, recovery, growth or diversifier; labels are descriptive and not automatic approval."},
+    {"rule_id":"P4R09","name":"DIRECT_AND_CROSS_LISTED_OVERLAP_REVIEW","type":"DECISION","applicability":"ALL","requirement":"Assessment must identify direct holdings, A/H same-issuer exposure and economically duplicate instruments in each account, then state whether incremental exposure adds, substitutes or duplicates risk. Duplication is not automatically rejection."},
+    {"rule_id":"P4R10","name":"SECTOR_AND_INDUSTRY_CONCENTRATION_IMPACT","type":"DECISION","applicability":"ALL","requirement":"Assessment must state the marginal effect on sector and industry concentration for each account; missing classification or exposure data cannot be assumed diversified."},
+    {"rule_id":"P4R11","name":"FACTOR_STYLE_AND_THEME_CONCENTRATION_IMPACT","type":"DECISION","applicability":"ALL","requirement":"Assessment must state whether the security increases or offsets existing factor, style or thematic concentration using available accepted evidence; superficial ticker diversification cannot substitute for economic diversification."},
+    {"rule_id":"P4R12","name":"MARGINAL_DIVERSIFICATION_AND_RISK_CONTRIBUTION","type":"DECISION","applicability":"ALL","requirement":"Assessment must explicitly judge marginal diversification, downside co-movement and portfolio risk contribution. A standalone attractive security may receive NO_INCREMENTAL_ROLE when it does not improve the portfolio."},
+    {"rule_id":"P4R13","name":"VALUATION_EXPECTED_RETURN_AND_OPPORTUNITY_COST","type":"DECISION","applicability":"ALL","requirement":"Assessment must compare current valuation support and plausible return/risk with relevant existing exposures and alternative Candidate opportunities. A/H discount alone cannot satisfy expected-return support."},
+    {"rule_id":"P4R14","name":"DOWNSIDE_BUDGET_AND_SIZING_ENVELOPE_EXPLICIT","type":"DECISION","applicability":"ALL","requirement":"Assessment must state a bounded sizing envelope or explicit no-size conclusion tied to downside, liquidity, concentration and confidence limits. The envelope is analytical only and does not mutate either portfolio."},
+    {"rule_id":"P4R15","name":"FUNDING_AND_CASH_SEMANTICS_PRESERVED","type":"DECISION","applicability":"ALL","requirement":"Real Account cash must be treated only as broker execution balance with external liquidity excluded, so no fixed strategic cash target may be invented. Simulation available cash may be used as funding context but never as alpha or automatic admission authority."}
   ],
-  "account_fit_states": [
-    "FIT",
-    "FIT_WITH_CONSTRAINTS",
-    "NO_INCREMENTAL_ROLE",
-    "DEFER_PORTFOLIO_CONTEXT",
-    "BLOCK_PORTFOLIO_FIT"
-  ],
-  "combined_routing_states": [
-    "ADVANCE_DUAL_CONSTRUCTION_REVIEW",
-    "ADVANCE_SIMULATION_CONSTRUCTION_REVIEW",
-    "ADVANCE_REAL_ACCOUNT_REVIEW",
-    "HOLD_PORTFOLIO_WATCH",
-    "DEFER_PORTFOLIO_CONTEXT",
-    "BLOCK_PORTFOLIO_FIT"
-  ],
+  "account_fit_states": ["FIT","FIT_WITH_CONSTRAINTS","NO_INCREMENTAL_ROLE","DEFER_PORTFOLIO_CONTEXT","BLOCK_PORTFOLIO_FIT"],
+  "combined_routing_states": ["ADVANCE_DUAL_CONSTRUCTION_REVIEW","ADVANCE_SIMULATION_CONSTRUCTION_REVIEW","ADVANCE_REAL_ACCOUNT_REVIEW","HOLD_PORTFOLIO_WATCH","DEFER_PORTFOLIO_CONTEXT","BLOCK_PORTFOLIO_FIT"],
   "routing_contract": {
     "positive_fit_requires_all_applicable_hard_rules_pass": true,
     "simulation_and_real_account_states_must_both_be_explicit": true,
@@ -202,17 +97,7 @@
     "construction_or_admission_requires_separate_later_gate": true
   },
   "reassessment_contract": {
-    "automatic_reassessment_triggers": [
-      "CANDIDATE_STATUS_OR_BUY_ELIGIBILITY_CHANGED",
-      "DECISION_GRADE_MARKET_OR_VALUATION_DATA_STALE",
-      "REAL_OR_SIMULATION_POSITION_STATE_CHANGED",
-      "USER_CONFIRMED_POSITION_DELTA_RECEIVED",
-      "NEW_DIRECT_OR_CROSS_LISTED_DUPLICATE_EXPOSURE",
-      "SECTOR_STYLE_OR_THEME_CONCENTRATION_MATERIALLY_CHANGED",
-      "LIQUIDITY_OR_CAPACITY_MATERIALLY_DETERIORATED",
-      "THESIS_FALSIFIER_OR_NEW_INVESTMENT_BLOCKER_TRIGGERED",
-      "VALUATION_SUPPORT_MATERIALLY_INVALIDATED"
-    ],
+    "automatic_reassessment_triggers": ["CANDIDATE_STATUS_OR_BUY_ELIGIBILITY_CHANGED","DECISION_GRADE_MARKET_OR_VALUATION_DATA_STALE","REAL_OR_SIMULATION_POSITION_STATE_CHANGED","USER_CONFIRMED_POSITION_DELTA_RECEIVED","NEW_DIRECT_OR_CROSS_LISTED_DUPLICATE_EXPOSURE","SECTOR_STYLE_OR_THEME_CONCENTRATION_MATERIALLY_CHANGED","LIQUIDITY_OR_CAPACITY_MATERIALLY_DETERIORATED","THESIS_FALSIFIER_OR_NEW_INVESTMENT_BLOCKER_TRIGGERED","VALUATION_SUPPORT_MATERIALLY_INVALIDATED"],
     "fit_state_change_requires_logged_transition": true,
     "trade_authority_remains_none": true
   },
