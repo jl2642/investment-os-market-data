@@ -39,6 +39,12 @@ def test_valuation_support_positive_earnings_or_dividend_is_supportive():
     assert passed is True
 
 
+def test_valuation_call_site_uses_canonical_hkcu_row():
+    source = PIPELINE.read_text(encoding="utf-8")
+    assert "valuation_support(pd.Series(h))" in source
+    assert "valuation_support(pd.Series(s._asdict()))" not in source
+
+
 def test_thesis_package_is_evidence_tied_and_has_falsifier_monitor():
     grp = pd.DataFrame(
         [
