@@ -61,3 +61,12 @@ def test_contract_freezes_no_execution_semantics() -> None:
     assert contract["phase_boundary"]["order_creation_authorized"] is False
     assert contract["phase_boundary"]["trade_authority"] == "NONE"
     assert contract["acceptance"]["next_gate_on_pass"] == "P5E_ZERO_EXECUTION_RECONCILIATION_AND_OBSERVATION"
+
+
+def test_p5d_gate_state_matches_canonical_p5c_output_semantics() -> None:
+    root = Path(__file__).resolve().parents[1]
+    p5d = json.loads((root / "config/hkcu_p5d_manual_staged_execution_support_contract.json").read_text(encoding="utf-8"))
+    p5c = json.loads((root / "config/hkcu_p5c_user_decision_gate_contract.json").read_text(encoding="utf-8"))
+    source = (root / "pipeline/hkcu_p5c_user_decision_gate.py").read_text(encoding="utf-8")
+    assert p5d["entry_contract"]["required_p5c_gate_state"] == p5c["decision_policy"]["current_gate_state_on_pass"]
+    assert '"gate_state"' in source
