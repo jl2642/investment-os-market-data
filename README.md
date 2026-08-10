@@ -1,293 +1,305 @@
-# Investment OS Market Data
+# Stock Investment Assistant｜股票投资助手
 
-Free, auditable market-data layer for the 股票投资助手 / Investment OS.
+### A ChatGPT-native investment research agent for disciplined, low-frequency investing
 
-## Current status
+> **让投资系统替你记住一切，而不是你自己每天惦记。**  
+> **AI Research. Human Decision.**
 
-- Program: Full-Market Data Layer (FMDL)
-- Completed prerequisite: **FMDL-0 — Public Equity Investing Integration**
-- Completed phase: **FMDL-1 — A-share Full-Market Data MVP**
-- Completed phase: **FMDL-2 — A-share Factor & Screening Funnel**
-- Completed phase: **FMDL-3 — Financial & Valuation Data Hardening**
-- Completed phase: **FMDL-4 — Public Equity Investing & Investment OS Integration**
-- Completed Hong Kong gates: **FMDL-5-0 / 5A / 5B / 5C / 5D**
-- Active phase: **FMDL-5E-R1 — Hong Kong Factor & Screening Adapter targeted repair**
-- Next gated phase after formal publication: **FMDL-5F — Public Equity Research Adapter**
-- Cost policy: **free and free-tier resources only**
-- Execution model: GitHub Actions + open-source/public data adapters
-- Trading model: research and decision support only; no broker connection and no automatic order execution
+<p align="center">
+  <img src="docs/assets/stock-investment-assistant-poster.svg" alt="Stock Investment Assistant product poster" width="760" />
+</p>
 
-## Active Hong Kong lineage
+Stock Investment Assistant is a continuously operating investment-research agent built around **ChatGPT as the analysis engine**, **Core Static as the investment-discipline layer**, and **GitHub as the automation, governance and canonical-state layer**.
 
-- FMDL-5C market store: `FMDL5C_20260721_52f17b755436`
-- FMDL-5D disclosure and financial store: `FMDL5D_20260721_0aee5654502c`
-- FMDL-5E-R1 objective: corrected auditable issuer profiles plus a 100-name formal-sleeve-only Hong Kong research Longlist
-- Candidate, simulation, real-account and order mutation: `0`
-- Trade authority: `NONE`
+It is designed for investors who want a repeatable research process without turning the system into an auto-trading bot.
 
-## Latest stable A-share market-data Current
+The system continuously maintains market data, candidate pools, research queues, portfolio states and review workflows, then answers the questions that matter most:
 
-- Run ID: `FMDL1BC_20260717T174015+0800`
-- As-of date: `2026-07-17`
-- Universe / snapshot rows: `5,528 / 5,528`
-- Hard quality failures: `0`
-- Market-wide provider: `sina_public` explicit free fallback
-- Status: `PUBLISHED_WITH_WARNINGS`
-- Event flags: `7`
-- Stable path: `outputs/current/`
-- Investment OS interface: `outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json`
+- What changed?
+- What deserves attention?
+- Is there a new risk or opportunity?
+- Does anything require deeper research?
+- **Do I need to do anything today?**
 
-## Accepted FMDL-2 releases
+---
 
-### Historical source route
+## Why this project exists
 
-- Primary: `sina_daily / AKShare stock_zh_a_daily`, QFQ
-- Primary benchmark: `119/120` successful (`99.17%`)
-- Restricted fallback: `tencent_hist / stock_zh_a_hist_tx`, SH/SZ Main price-and-amount only
-- Degraded on GitHub runner: `eastmoney_hist / stock_zh_a_hist`
+Most investors do not suffer from a lack of opinions. They suffer from a lack of **continuity, discipline and follow-through**.
 
-### Immutable full-market historical base
+Investment work is usually scattered across market apps, financial statements, company announcements, browser tabs, spreadsheets, watchlists and memory. The hard part is not collecting one more data point. The hard part is maintaining a consistent process over months and years.
 
-- Release: `FMDL2B2_29556547410_1`
-- As-of date: `2026-07-16`
-- Universe attempted / usable series: `5,529 / 5,525`
-- History rows: `2,494,405`
-- Parquet store: `131.6084 MiB` across `24` logical shards
-- Controlled quarantine: `4`
-- Duplicate / future / impossible-OHLC rows: `0 / 0 / 0`
-- Status: `ACCEPTED_WITH_CONTROLLED_FOUR_SYMBOL_QUARANTINE`
+Stock Investment Assistant turns that fragmented workflow into a persistent system:
 
-### History Current
+```text
+Investment Framework
+        ↓
+Market & Evidence
+        ↓
+Candidate Pool
+        ↓
+Research Queue
+        ↓
+Portfolio Review
+        ↓
+Daily Controller
+        ↓
+Human Decision
+```
 
-- Release: `FMDL2B4_20260717T174137+0800`
-- As-of date: `2026-07-17`
-- Composite symbols / rows: `5,525 / 2,499,921`
-- Validated incremental rows: `5,518`
-- Full-series repairs: `2` symbols / `917` rows
-- Suspended or no-append symbols: `4`
-- Accepted current-session ratio: `99.945682%`
-- Stable path: `outputs/history/current/`
+The system does not attempt to eliminate market uncertainty. It attempts to reduce avoidable process failures: forgotten follow-ups, stale watchlists, inconsistent reasoning, unreviewed positions and ad-hoc decisions.
 
-### Factor Current
+---
 
-- Release: `FMDL2B4_FACTOR_20260717T174336+0800`
-- As-of date: `2026-07-17`
-- Factor contract: `1.0.0`
-- Factors: `26`
-- Universe and wide rows: `5,528`
-- Symbol-factor detail rows: `143,728`
-- Valid / Partial / Suspect / Blocked: `5,360 / 164 / 0 / 4`
-- Available / missing factor values: `142,610 / 1,118`
-- Hard failures: `0`
-- Stable path: `outputs/factors/current/`
-- Authority: research priority only; no candidate-pool promotion or trade authority
+## Core capabilities
 
-### Screening Current
+### 1. Market & Evidence
 
-- Release: `FMDL2C_20260717T210036+0800`
-- As-of date: `2026-07-17`
-- Universe / named rows: `5,528 / 5,528`
-- Core investable / watch eligible / review only / excluded: `5,001 / 16 / 139 / 372`
-- Raw sleeve hits / distinct candidates: `150 / 134`
-- Research Longlist: `100`
-- Priority A / B / C: `20 / 40 / 40`
-- Primary Longlist sleeves — defensive / trend / breakout / recovery: `30 / 29 / 22 / 19`
-- Quality and independent validation: `PASS / PASS`
-- Stability status: `ACCEPTED_FMDL2D_OPERATIONAL_STABILITY`
-- Stable path: `outputs/screens/current/`
-- Authority: research-priority queue only; no alpha claim, live candidate-pool promotion or trade authority
+Maintains research-grade inputs for low-frequency investment decisions, including:
 
-### FMDL-2 Final Current
+- A-share market and historical data
+- factor and screening outputs
+- financial and valuation evidence
+- company announcements and disclosures
+- Hong Kong Stock Connect research data
+- bounded U.S. equity / SEC evidence rotation
+- necessary public external evidence
 
-- Final release: `FMDL2D_20260717T220406+0800`
-- Published at: `2026-07-17T22:04:09+08:00`
-- Status: `FMDL2_FINAL_ACCEPTED_WITH_CONTROLLED_LIMITATIONS`
-- Replay window: six sessions from `2026-07-10` through `2026-07-17`
-- Same-date screening universe / sleeves / Longlist / funnel replay: `PASS / PASS / PASS / PASS`
-- Historical factor anchor: `143,728 / 143,728` matching cells (`100%`)
-- Average / minimum consecutive Longlist overlap: `76.6% / 72.0%`
-- Average Top-20 overlap: `70.0%`
-- Median common-name rank Spearman: `0.7553`
-- Average primary-sleeve retention: `99.50%`
-- Maximum board share / HHI: `38.0% / 0.2830`
-- Current Priority-A structural-fragility share: `30.0%`
-- Independent validation: `PASS`
-- Stable path: `outputs/stability/current/`
-- Authority: operational research stability only; no alpha claim, candidate-pool promotion or trade authority
+The goal is not to be a high-frequency market terminal. The goal is to determine whether new information changes the investment case.
 
-## FMDL-3 accepted architecture Current
+### 2. Candidate Pool
 
-- Architecture release: `FMDL3_ARCH_20260717T223535+0800`
-- Published at: `2026-07-17T22:35:35+08:00`
-- Status: `FMDL3_ARCHITECTURE_ACCEPTED`
-- Architecture state: `FROZEN_FOR_FMDL3A_EXECUTION`
-- Machine checks: `14 / 14 PASS`
-- Hard failures: `0`
-- Stable path: `outputs/architecture/current/`
-- Last-success pointer: `outputs/status/FMDL3_ARCHITECTURE_LAST_SUCCESS.json`
-- Contract: `config/fmdl3_program_contract.json`
-- Architecture: `docs/FMDL-3_ARCHITECTURE.md`
-- Point-in-time policy: `docs/FMDL-3_POINT_IN_TIME_POLICY.md`
-- Phased plan: `docs/FMDL-3_PHASED_PLAN.md`
-- Acceptance: `docs/FMDL-3_ARCHITECTURE_ACCEPTANCE.md`
-- Authority: `DATA_AND_RESEARCH_EVIDENCE_ONLY`
-- Trade authority: `NONE`
+Maintains a governed investment funnel rather than a permanent “recommended stocks” list.
 
-## FMDL-3A accepted source benchmark candidate
+Typical states include:
 
-- Candidate run: `FMDL3A_20260718T004613+0800`
-- Generated at: `2026-07-18T00:51:58+08:00`
-- Workflow: `29597406995` — success
-- Candidate artifact: `8413745443`
-- Artifact digest: `sha256:a4e44f8417d773c6495360703bcdf0b43fd2441353374d432c7b9cea0be16a99`
-- Status: `FMDL3A_ACCEPTED_SOURCE_ROUTE_AND_COVERAGE_GATES_FROZEN`
-- Independent validation: `36 / 36 PASS`
-- Hard failures: `0`
-- Supported / quarantined / blocked sample issuers: `11 / 2 / 0`
-- Official disclosure, SH/SZ primary statements, SH/SZ fallback statements and official PIT match: `100% / 100% / 100% / 100%`
-- Supported-universe statement and current-capitalization coverage: `100% / 100%`
-- Full-sample controlled quarantine ratio: `15.3846%`
-- Future financial information / future-effective share counts: `0 / 0`
-- Primary SH/SZ statements: `EASTMONEY_STATEMENTS`
-- SH/SZ fallback statements: `SINA_STATEMENTS`
-- Primary availability and revision identity: `CNINFO_OFFICIAL_DISCLOSURE`
-- BSE status: controlled quarantine pending CNINFO official-document extraction in FMDL-3B
-- Current price: accepted FMDL-1 latest completed-session close
-- Current capitalization: accepted close multiplied by PIT-effective total and floating A-share counts
-- Provider PE/PB: support only; decision-grade ratios are recomputed in FMDL-3D
-- Candidate path: `outputs/financials/benchmark/candidate/`
-- Stable path after main publication: `outputs/financials/benchmark/current/`
-- Source index after main publication: `outputs/financials/source_index/current/`
-- Last-success pointer after main publication: `outputs/status/FMDL3A_LAST_SUCCESS.json`
-- Authority: `DATA_AND_RESEARCH_EVIDENCE_ONLY`
-- Trade authority: `NONE`
-- Next phase: `FMDL-3B`
+- `Core`
+- `Watch`
+- `Research Queue`
+- `Shadow / Observation`
+- `Ready for User Decision`
 
-The accepted source benchmark validates source capability and failure modes on a deterministic 13-issuer stress sample. It is not a full-market statement-coverage claim.
+The system continuously evaluates admission, promotion, demotion, removal and replacement opportunities.
 
-## FMDL-3 frozen architecture
+### 3. Portfolio Monitoring
 
-### Point-in-time and revision control
+Separately reviews real and simulation portfolios for:
 
-FMDL-3 separates report period, announcement date, announcement timestamp, market availability, retrieval time and revision-effective interval. Restatements create new versions and never overwrite historical values silently.
+- concentration risk
+- drawdown and P&L
+- style and factor exposure
+- ETF / fund overlap
+- fundamental changes
+- valuation changes
+- earnings and material announcements
+- candidate replacement opportunities
+- rebalance / exit-review triggers
 
-### Required sector profiles
+Real and simulation states remain logically separated.
 
-- `GENERAL_NON_FINANCIAL`
-- `BANK`
-- `INSURANCE`
-- `SECURITIES_AND_BROKERAGE`
-- `PRE_PROFIT_OR_NEGATIVE_EARNINGS`
+### 4. Research Queue
 
-### Canonical datasets
+Research is treated as an evolving investment thesis, not a one-off report.
 
-- `fmdl3_source_index`
-- `fmdl3_financial_fact_raw`
-- `fmdl3_financial_statement_normalized_long`
-- `fmdl3_comparability_bridge`
-- `fmdl3_financial_factor_detail`
-- `fmdl3_valuation_snapshot`
-- `fmdl3_shareholder_return_event`
-- `fmdl3_final_release`
+Each priority research object should answer:
 
-### Zero-tolerance gates
+- Why is this worth researching now?
+- What is the current thesis?
+- What evidence is still missing?
+- What could falsify the thesis?
+- What is the next catalyst or trigger?
+- Is the evidence sufficient for an investment decision?
 
-- zero point-in-time leakage;
-- zero silent restatement overwrite;
-- zero future-effective share-count use;
-- zero invalid ratio denominator published as valid;
-- zero neutral fill for missing financial data;
-- zero decision-grade rows without source lineage;
-- zero failed or quarantined release replacing Current;
-- zero trade authority.
+### 5. Daily Controller
 
-## System boundary
+The Daily Controller is the human-facing orchestration layer.
 
-This repository owns market-data acquisition, normalization, quality control, versioning, historical storage, factor computation, screening, replay, point-in-time financial evidence, financial factors, valuation data and Current publication. It does not own final company research conclusions, investment recommendations, target prices, position sizing, portfolio migration or order execution. Those remain with Public Equity Investing, Investment OS and the user-confirmation gate.
+It combines market state, candidate state, research priorities, portfolio state, workflow health and new evidence into a concise investment cockpit.
 
-## Canonical architecture
+A valid daily output is allowed to be:
 
-1. `config/` — source, universe, history, factor, screening, financial, valuation, availability and quality contracts.
-2. `schemas/` — canonical dataset, manifest, release, financial-fact, factor and operating-state schemas.
-3. `ingestion/` — source adapters and explicit provider fallbacks.
-4. `pipeline/` and `scripts/` — normalization, QA, refresh, repair, factor, screening, PIT replay, LKG and quarantine logic.
-5. `datasets/history/` — immutable, incremental and repair market-history layers.
-6. `outputs/current/` — stable FMDL-1 market-data Current.
-7. `outputs/history/current/` — composite history Current.
-8. `outputs/factors/current/` — market-behaviour factor Current.
-9. `outputs/screens/current/` — research-priority screening Current.
-10. `outputs/stability/current/` — final FMDL-2 replay and stability acceptance.
-11. `outputs/architecture/current/` — accepted FMDL-3 architecture Current.
-12. `outputs/financials/benchmark/current/` — accepted FMDL-3A source benchmark Current after publication.
-13. `outputs/financials/source_index/current/` — accepted FMDL-3 source index after publication.
-14. `outputs/financials/`, `outputs/financial_factors/`, `outputs/valuation/`, `outputs/shareholder_returns/` — FMDL-3 data families.
-15. `outputs/fmdl3/current/` — accepted FMDL-3 Final Current.
-16. `outputs/fmdl5c/current/` — accepted Hong Kong market store.
-17. `outputs/fmdl5d/current/` — accepted Hong Kong disclosure and financial Current.
-18. `outputs/fmdl5e/current/` — Hong Kong factor and screening Current after formal publication.
-19. `outputs/status/` — last-run and last-success operating states.
-20. `outputs/investment_os/` — machine-validated consumer pointers.
-21. `.github/workflows/` — validation, scheduled production and controlled recovery automation.
+> **今天你无需做任何事。**
 
-## Canonical documents
+The system does not manufacture trades merely to produce activity.
 
-- `docs/DATA_CONTRACT.md`
-- `docs/SOURCE_REGISTRY.md`
-- `docs/QUALITY_GATES.md`
-- `docs/UPDATE_CADENCE.md`
-- `docs/INVESTMENT_OS_INTERFACE.md`
-- `docs/FMDL-1A_ARCHITECTURE.md`
-- `docs/FMDL-1A-R_ACCEPTANCE.md`
-- `docs/FMDL-1BC_IMPLEMENTATION.md`
-- `docs/FMDL-1BC_ACCEPTANCE.md`
-- `docs/FMDL-1DE_IMPLEMENTATION.md`
-- `docs/FMDL-1DE_ACCEPTANCE.md`
-- `docs/FMDL-1F_INTERFACE_AND_FINAL_ACCEPTANCE.md`
-- `docs/FMDL-2A_FACTOR_CONTRACT.md`
-- `docs/FMDL-2A_BENCHMARK_PLAN.md`
-- `docs/FMDL-2A_SOURCE_DECISION.md`
-- `docs/FMDL-2A_ACCEPTANCE.md`
-- `docs/FMDL-2B_ENGINEERING_REQUIREMENTS.md`
-- `docs/FMDL-2B1_HISTORY_STORE_PILOT.md`
-- `docs/FMDL-2B1_ACCEPTANCE.md`
-- `docs/FMDL-2B2_FULL_BACKFILL_IMPLEMENTATION.md`
-- `docs/FMDL-2B2_ACCEPTANCE.md`
-- `docs/FMDL-2B3_BASIC_FACTOR_ENGINE.md`
-- `docs/FMDL-2B3_ACCEPTANCE.md`
-- `docs/FMDL-2B4_INCREMENTAL_REFRESH.md`
-- `docs/FMDL-2B4_CURRENT_INTERFACES.md`
-- `docs/FMDL-2B4_ACCEPTANCE.md`
-- `docs/FMDL-2C_SCREENING_FUNNEL.md`
-- `docs/FMDL-2C_ACCEPTANCE.md`
-- `docs/FMDL-2D_REPLAY_STABILITY.md`
-- `docs/FMDL-2D_ACCEPTANCE.md`
-- `docs/FMDL-2D_ROADMAP_REVIEW.md`
-- `docs/FMDL-3_ARCHITECTURE.md`
-- `docs/FMDL-3_POINT_IN_TIME_POLICY.md`
-- `docs/FMDL-3_PHASED_PLAN.md`
-- `docs/FMDL-3_ARCHITECTURE_ACCEPTANCE.md`
-- `docs/FMDL-3A_SOURCE_BENCHMARK.md`
-- `docs/FMDL-3A_POINT_IN_TIME_CONTRACT.md`
-- `docs/FMDL-3A_ACCEPTANCE.md`
-- `docs/FMDL-5E_HONG_KONG_FACTOR_AND_SCREENING_ADAPTER.md`
-- `docs/FMDL-5E_R1_TARGETED_REPAIR.md`
+---
 
-## FMDL roadmap
+## Automation model
 
-- FMDL-0 Public Equity Investing Integration ✅
-- FMDL-1 A-share Full-Market Data MVP ✅
-- FMDL-2 A-share Factor & Screening Funnel ✅
-- FMDL-3 Financial & Valuation Data Hardening ✅
-- FMDL-4 Public Equity Investing + Investment OS Integration ✅
-- FMDL-5 Hong Kong Stock Connect Adapter 🚧
-  - FMDL-5-0 Cross-Market Adapter Architecture ✅
-  - FMDL-5A Market Contract & Universe Boundary ✅
-  - FMDL-5B Security Master & Market Semantics ✅
-  - FMDL-5C Price, Volume, Corporate Action & FX Store ✅
-  - FMDL-5D HKEX Disclosure & Financial Normalization ✅
-  - FMDL-5E Hong Kong Factor & Screening Adapter — R1 targeted repair 🚧
-  - FMDL-5F Public Equity Research Adapter ⏭️
-  - FMDL-5G Investment OS Integration
-  - FMDL-5-FINAL Operational Acceptance
-- FMDL-6 US Equity Research Benchmark Pool
-- FMDL-7 Operating Acceptance
+The assistant separates actions into five operating states:
+
+| State | Meaning |
+|---|---|
+| `AUTO` | Completed automatically; no user action required. |
+| `AUTO_RECOVERY` | Delayed or temporarily failed, but a natural recovery path exists. |
+| `MANUAL_TRIGGER_REQUIRED` | The system knows the next action, but governance / permissions / scheduling require a user trigger. |
+| `USER_INPUT_REQUIRED` | A real-world fact unavailable to the system is required, such as an actual trade or cash movement. |
+| `USER_DECISION_REQUIRED` | A formal investment, candidate-governance or rebalance decision requires human approval. |
+
+The design principle is simple:
+
+> **Automate what can be automated. Recover automatically where possible. Interrupt the user only when human input or judgment is genuinely required.**
+
+---
+
+## Markets
+
+### A-shares
+Primary production market for market data, factor computation, screening, candidate operations and portfolio research.
+
+### Hong Kong Stock Connect
+Formal candidate pool with governed weekly observation and evidence-backed promotion / demotion proposals.
+
+### U.S. equities
+Bounded benchmark, research-rotation and SEC-evidence scope. It is **not** represented as a full U.S. daily investment-production system.
+
+---
+
+## Architecture
+
+```text
+ChatGPT
+Analysis · Research · Reasoning
+        +
+Core Static
+Investment Principles · Evidence Rules · Risk Discipline
+        +
+GitHub
+Automation · Governance · Canonical State · Audit Trail
+        ↓
+AI Investment Research Agent
+```
+
+### ChatGPT
+Primary analysis, research synthesis, judgment and natural-language interaction layer.
+
+### Core Static
+Stable investment principles, research standards, evidence discipline, candidate lifecycle rules, portfolio-review logic and learning / attribution rules.
+
+### GitHub
+Not just source control. In this project GitHub also provides:
+
+- canonical state
+- workflow automation
+- version control
+- research evidence lineage
+- candidate state
+- run history
+- governance and audit trail
+
+`main` is the single Canonical branch.
+
+---
+
+## Current operating state
+
+**Development Complete · Operating Observation**
+
+The integrated system now has a unified ChatGPT read interface across A-shares, Hong Kong Stock Connect, bounded U.S. research, real portfolio state and simulation portfolio state.
+
+Machine-readable entry points:
+
+- [`outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_INTERFACE.json`](outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_INTERFACE.json)
+- [`outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json`](outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json)
+
+Current development closure means the core architecture and operating loop are in place. Individual workflow failures should be treated as operating defects or recovery events, not as a reason to redefine the whole system as unfinished.
+
+---
+
+## Repository map
+
+| Path | Role |
+|---|---|
+| `.github/workflows/` | Scheduled production, validation, observation and controlled recovery workflows |
+| `config/` | Data, evidence, market, candidate and governance contracts |
+| `schemas/` | Canonical schemas and state contracts |
+| `ingestion/` | Market / disclosure source adapters and fallbacks |
+| `pipeline/` + `scripts/` | Normalization, QA, repair, factors, screening and production logic |
+| `datasets/` | Historical / structured data layers |
+| `outputs/current/` | A-share market Current |
+| `outputs/history/current/` | Historical market Current |
+| `outputs/factors/current/` | Factor Current |
+| `outputs/investment_os/` | Unified system / ChatGPT read interface |
+| `outputs/hk_candidate/current/` | Hong Kong candidate Current |
+| `investment_os_runtime/` | Candidate, portfolio and operating runtime states |
+| `docs/` | Architecture, contracts, acceptance and operating documentation |
+
+The repository contains substantial historical engineering and acceptance evidence. The README intentionally presents the **current product and operating model** rather than reproducing the full development chronology.
+
+---
+
+## Typical usage
+
+The normal user should not need to operate GitHub directly.
+
+Examples:
+
+```text
+今天股票投资助手有什么值得我关注的？
+```
+
+```text
+结合最新数据、候选池和我的持仓，
+重新分析一下 XXX，现在是否值得买入或继续持有？
+```
+
+```text
+研究一下 XXX，判断是否值得进入候选池。
+```
+
+```text
+检查我的真实持仓，有没有需要调整的地方？
+```
+
+The Daily Controller is designed to surface scheduled work, research triggers and user-decision gates automatically.
+
+---
+
+## What this project is not
+
+This project is **not**:
+
+- a high-frequency trading system
+- an auto-follow / copy-trading tool
+- an automatic stock-picking promise
+- a guaranteed-alpha engine
+- an unattended broker execution bot
+
+It does not have authority to place live orders.
+
+```text
+orders = 0
+trade_authority = NONE
+```
+
+**Research & Decision Support Only**  
+**No Automatic Trading**  
+**Human Keeps Final Investment Authority**
+
+---
+
+## Public-repository privacy boundary
+
+A reusable public version of this architecture should keep personal brokerage facts, real holdings, account identifiers and other private runtime state outside the public template or in a private overlay.
+
+**Before redistributing or presenting this repository as a clean public template, audit `investment_os_runtime/` and other state paths for user-specific portfolio data.**
+
+The investment framework and automation architecture are reusable; personal portfolio state is not part of the product definition.
+
+---
+
+## Philosophy
+
+> **AI负责持续研究与纪律执行。投资者负责最终判断与资本决策。**
+
+Stock Investment Assistant is an experiment in turning investing from a collection of isolated analyses into a persistent, auditable, AI-maintained research process.
+
+The objective is not to promise better returns. The objective is to make the investment process more consistent, inspectable and difficult to forget.
+
+---
+
+## Disclaimer
+
+This project is an experimental AI-assisted investment research system. It does not constitute investment advice, investment management, brokerage, trading execution or any guarantee of future returns.
+
+All investment decisions and trading actions remain the sole responsibility of the user.
