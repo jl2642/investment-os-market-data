@@ -8,7 +8,7 @@
   "as_of_date": "2026-08-10",
   "generated_at": "2026-08-10T18:46:03+08:00",
   "business_timezone": "Asia/Shanghai",
-  "publication_status": "PUBLISHED",
+  "publication_status": "DEGRADED",
   "qa_status": "PASS_WITH_WARNINGS",
   "sources": [
     {
@@ -98,7 +98,7 @@
   "row_count": 5538,
   "column_count": 22,
   "file": {
-    "path": "outputs/current/A_SHARE_UNIVERSE.csv",
+    "path": "outputs/candidate/A_SHARE_UNIVERSE.csv",
     "size_bytes": 1456029,
     "sha256": "dbb351699af340571f0dc90fef7df6bdc55e430fa702dc2f6b1a4e06248176bd"
   },
@@ -108,16 +108,16 @@
       "industry_fill_ratio",
       "listing_date_fill_ratio"
     ],
-    "gate_results_path": "outputs/current/A_SHARE_UNIVERSE_QUALITY.json"
+    "gate_results_path": "outputs/candidate/A_SHARE_UNIVERSE_QUALITY.json"
   },
   "lineage": {
-    "parent_dataset_version": "a_share_universe-2026-08-07-FMDL1BC_20260807T162152+0800",
-    "last_known_good_dataset_version": "a_share_universe-2026-08-07-FMDL1BC_20260807T162152+0800"
+    "parent_dataset_version": null,
+    "last_known_good_dataset_version": null
   },
   "known_limitations": [
     "Industry and listing-date enrichment depends on optional free exchange endpoints.",
     "Suspension status is inferred from the selected market-wide spot response.",
     "FMDL-2, not this data layer, owns investability exclusions."
   ],
-  "notes": "Published by FMDL-1D last-known-good controls."
+  "notes": "FMDL-1B/C candidate output. Not yet promoted to outputs/current."
 }
