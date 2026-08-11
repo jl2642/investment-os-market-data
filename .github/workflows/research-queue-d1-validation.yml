@@ -1,0 +1,125 @@
+name: Research Queue D1 Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/research-queue-d1-validation.yml"
+      - "investment_os_runtime/00_CONTROL/RESEARCH_QUEUE_D1_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D1/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate-d1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Validate D1 structure and no-mutation controls
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          current = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json').read_text(encoding='utf-8'))
+          evidence = json.loads(Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D1/RESEARCH_QUEUE_D1_EVIDENCE_20260811.json').read_text(encoding='utf-8'))
+          acceptance = json.loads(Path('investment_os_runtime/00_CONTROL/RESEARCH_QUEUE_D1_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+
+          assert current['scope']['research_queue_count'] == 33
+          assert current['scope']['research_queue_b_structured_count'] == 20
+          assert current['scope']['research_queue_c_watch_evidence_fill_count'] == 13
+          assert current['scope']['d1_batch_count'] == 5
+          assert len(current['research_objects']) == 5
+          assert current['routing_summary']['advance_to_d2_count'] == 3
+          assert current['routing_summary']['hold_in_d1_count'] == 2
+          assert current['routing_summary']['candidate_membership_proposals'] == 0
+          assert current['routing_summary']['ready_for_user_decision'] == 0
+          assert current['routing_summary']['buy_signals'] == 0
+          assert current['routing_summary']['implementation_ready'] == 0
+
+          ids = [row['security_id'] for row in current['research_objects']]
+          assert ids == ['000719.SZ', '002039.SZ', '301215.SZ', '002517.SZ', '001286.SZ']
+          for row in current['research_objects']:
+              assert row['candidate_lane'] == 'B_STRUCTURED_RESEARCH'
+              assert row['first_rejection']
+              assert len(row['d2_questions']) == 5
+              assert row['formal_candidate_screen_reference']['price_as_of'] == '2026-08-05'
+
+          assert len(evidence['sources']) >= 10
+          assert evidence['controls'] == {
+              'candidate_membership_mutations': 0,
+              'real_account_mutations': 0,
+              'simulation_mutations': 0,
+              'orders': 0,
+              'trade_authority': 'NONE',
+          }
+          assert acceptance['expected_counts']['ready_for_user_decision'] == 0
+          assert acceptance['expected_counts']['buy_signals'] == 0
+          assert acceptance['controls']['candidate_membership_mutations'] == 0
+          assert acceptance['controls']['real_account_mutations'] == 0
+          assert acceptance['controls']['simulation_mutations'] == 0
+          assert acceptance['controls']['decision_mutations'] == 0
+          assert acceptance['controls']['orders'] == 0
+          assert acceptance['controls']['trade_authority'] == 'NONE'
+          print({'d1_batch': 5, 'd2_routes': 3, 'candidate_mutations': 0, 'portfolio_mutations': 0, 'orders': 0})
+          PY
+
+      - name: Enforce exact D1 PR scope
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+
+          changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
+          allowed = {
+              '.github/workflows/research-queue-d1-validation.yml',
+              'investment_os_runtime/00_CONTROL/RESEARCH_QUEUE_D1_ACCEPTANCE_RECORD.json',
+              'investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json',
+              'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D1/RESEARCH_QUEUE_D1_EVIDENCE_20260811.json',
+          }
+          forbidden = sorted(changed - allowed)
+          if forbidden:
+              raise SystemExit('D1_SCOPE_VIOLATION:' + ','.join(forbidden))
+
+          protected_prefixes = (
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/',
+              'investment_os_runtime/30_STATE_CURRENT/50_DECISION_INTERFACE/',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/',
+          )
+          leaked = sorted(path for path in changed if path.startswith(protected_prefixes))
+          if leaked:
+              raise SystemExit('D1_PROTECTED_STATE_MUTATION:' + ','.join(leaked))
+          print({'changed_paths': sorted(changed), 'scope': 'RESEARCH_QUEUE_D1_ONLY'})
+          PY
+
+      - name: Record D1 boundary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Research Queue D1
+          - Batch: 5 B_STRUCTURED_RESEARCH names
+          - D2 research routes proposed: 3
+          - Candidate membership mutations: 0
+          - Real / Simulation mutations: 0 / 0
+          - Ready / buy signals / orders: 0 / 0 / 0
+          - trade_authority: NONE
+          EOF

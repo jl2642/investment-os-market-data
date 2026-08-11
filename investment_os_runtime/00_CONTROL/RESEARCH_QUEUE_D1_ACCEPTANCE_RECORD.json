@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0.0",
+  "acceptance_id": "RESEARCH_QUEUE_D1_ACCEPTANCE_20260811",
+  "as_of": "2026-08-11T10:14:00+08:00",
+  "status": "D1_ACCEPTANCE_CANDIDATE_PENDING_CI_AND_MAIN_PROMOTION",
+  "input_contract": "investment_os_runtime/00_CONTROL/RESEARCH_FUNNEL_CONTRACT_CURRENT.json",
+  "input_candidate_state": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+  "input_price_screen": "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json",
+  "outputs": {
+    "d1_current": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json",
+    "evidence": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D1/RESEARCH_QUEUE_D1_EVIDENCE_20260811.json"
+  },
+  "expected_counts": {
+    "research_queue": 33,
+    "b_structured_research": 20,
+    "c_watch_evidence_fill": 13,
+    "d1_batch": 5,
+    "advance_to_d2": 3,
+    "hold_in_d1": 2,
+    "candidate_membership_proposals": 0,
+    "ready_for_user_decision": 0,
+    "buy_signals": 0,
+    "implementation_ready": 0
+  },
+  "d1_batch": [
+    "000719.SZ",
+    "002039.SZ",
+    "301215.SZ",
+    "002517.SZ",
+    "001286.SZ"
+  ],
+  "d2_route_proposed": [
+    "000719.SZ",
+    "002039.SZ",
+    "301215.SZ"
+  ],
+  "gates": {
+    "source_backed_financial_evidence_required": true,
+    "formal_candidate_screen_reference_required": true,
+    "first_rejection_required": true,
+    "d2_questions_required": true,
+    "candidate_membership_mutation_forbidden": true,
+    "portfolio_mutation_forbidden": true,
+    "decision_ready_mutation_forbidden": true,
+    "orders_forbidden": true
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "promotion_policy": "D1 may be promoted through a governed PR after exact-head CI passes. D2 routing is research workflow routing only and does not mutate Candidate membership or investment permissions."
+}
