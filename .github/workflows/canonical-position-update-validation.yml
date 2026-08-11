@@ -46,7 +46,7 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Resolve whether this PR contains Canonical position-update scope
+      - name: Resolve whether this PR contains legacy 2026-08-04 audit scope
         id: scope
         shell: bash
         run: |
@@ -56,26 +56,45 @@ jobs:
           import subprocess
 
           changed = set(subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines())
-          position_prefixes = (
-              'automation/canonical_position_update/',
+
+          # This workflow is the immutable compatibility gate for the historical
+          # 2026-08-04 intraday position-reconciliation package. New user
+          # transactions have their own dated validation workflows and must not
+          # be forced through the 2026-08-04 numeric assertions merely because
+          # they update the shared Current/Delta materializations.
+          legacy_prefixes = (
               'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/',
           )
-          position_files = {
+          legacy_files = {
+              'automation/canonical_position_update/apply_20260806_user_update.py',
+              'automation/canonical_position_update/apply_post_merge_closure.py',
+              'automation/canonical_position_update/normalize_20260806_user_update.py',
+              'automation/canonical_position_update/normalize_materialized_deltas.py',
+              'automation/canonical_position_update/repair_audit_findings.py',
+              'automation/canonical_position_update/run_20260806_user_update.py',
+              'automation/canonical_position_update/validate.py',
+              'automation/canonical_position_update/validate_20260806_user_update.py',
+              '.github/workflows/wp2_r_portfolio_current.yml',
+              'investment_os_runtime/20_SCHEMAS_AND_INTERFACES/equity_compensation_state.schema.json',
+              'investment_os_runtime/20_SCHEMAS_AND_INTERFACES/SCHEMA_REGISTRY.json',
               'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
               'investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json',
-              'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json',
               'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
               'investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/STATUS/POSITION_UPDATE_STATUS_20260804_USER_INTRADAY.json',
+              'investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/POSITION_UPDATE_20260804_USER_INTRADAY.json',
+              'investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/REPORT_MANIFESTS/POSITION_UPDATE_20260804_USER_INTRADAY.json',
           }
-          in_scope = bool(position_files & changed) or any(path.startswith(position_prefixes) for path in changed)
+          in_scope = bool(legacy_files & changed) or any(path.startswith(legacy_prefixes) for path in changed)
           print(f"position_scope={'true' if in_scope else 'false'}")
           print(f"changed_count={len(changed)}")
+          print(f"legacy_changed_count={len(legacy_files & changed) + sum(1 for path in changed if path.startswith(legacy_prefixes))}")
           PY
 
-      - name: Record non-position PR as not applicable
+      - name: Record non-legacy position PR as not applicable
         if: steps.scope.outputs.position_scope != 'true'
         run: |
-          echo "Canonical Position Update Validation: NOT_APPLICABLE_TO_THIS_PR_SCOPE"
+          echo "Canonical Position Update Validation: NOT_APPLICABLE_TO_LEGACY_20260804_AUDIT_SCOPE"
+          echo "New dated position updates are validated by their dedicated workflows."
           echo "orders=0"
           echo "trade_authority=NONE"
 
@@ -164,6 +183,6 @@ jobs:
         run: |
           echo "trade_authority=NONE"
           echo "orders=0"
-          echo "position_scope=${{ steps.scope.outputs.position_scope }}"
+          echo "legacy_20260804_scope=${{ steps.scope.outputs.position_scope }}"
           echo "candidate_mutations=0"
           echo "decision_mutations=0"
