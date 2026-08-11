@@ -70,6 +70,13 @@ def account_summary(
     if historical_total_assets is not None:
         comparison = round_money(total_assets - historical_total_assets)
 
+    if account == "REAL" and pending_settlement_receivable:
+        cash_semantics = "BROKER_EXECUTION_BALANCE_PLUS_SEPARATE_UNAVAILABLE_SETTLEMENT_RECEIVABLE_EXTERNAL_LIQUIDITY_EXCLUDED"
+    elif account == "REAL":
+        cash_semantics = "BROKER_EXECUTION_BALANCE_ONLY_EXTERNAL_LIQUIDITY_EXCLUDED"
+    else:
+        cash_semantics = "SIMULATION_LEDGER_AVAILABLE_CASH"
+
     summary: dict[str, Any] = {
         "holding_count": holding_count,
         "position_market_value": round_money(position_market_value),
@@ -79,11 +86,7 @@ def account_summary(
         "pending_settlement_receivable": round_money(pending_settlement_receivable),
         "pending_settlement_receivable_available_for_trading": False,
         "account_total_assets": round_money(total_assets),
-        "cash_semantics": (
-            "BROKER_EXECUTION_BALANCE_PLUS_SEPARATE_UNAVAILABLE_SETTLEMENT_RECEIVABLE_EXTERNAL_LIQUIDITY_EXCLUDED"
-            if account == "REAL"
-            else "SIMULATION_LEDGER_AVAILABLE_CASH"
-        ),
+        "cash_semantics": cash_semantics,
         "historical_wp2_3_total_assets": historical_total_assets,
         "historical_wp2_3_watermark": historical_watermark,
         "difference_vs_historical_wp2_3": comparison,
@@ -121,7 +124,8 @@ def main() -> None:
 
     real_source = read(root / cfg["source_paths"]["real_legacy"])
     sim_source = read(root / cfg["source_paths"]["simulation_legacy"])
-    delta_ledger = read(root / cfg["source_paths"]["delta_ledger"])
+    delta_ledger_path = cfg["source_paths"].get("delta_ledger")
+    delta_ledger = read(root / delta_ledger_path) if delta_ledger_path and (root / delta_ledger_path).exists() else {"entries": []}
     execution_register = read(root / "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json")
     real = read(root / outputs["real_positions"])
     sim = read(root / outputs["simulation_positions"])
