@@ -8,6 +8,14 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from automation.wp2_r.build_portfolio_current import (
+    apply_confirmed_deltas,
+    real_positions,
+    simulation_positions,
+    validate_delta_ledger,
+)
+from automation.wp2_r.finalize_account_summaries import pending_real_settlement_receivable
+
 
 def read(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -53,48 +61,45 @@ def validate_schema(root: Path, schema_path: str, data_path: str) -> None:
         raise AssertionError(("SCHEMA_FAILURE", data_path, [err.message for err in errors]))
 
 
-def validate_real_economic_state(real_source: dict[str, Any], real: dict[str, Any]) -> None:
-    source = {str(row["code"]).zfill(6): row for row in real_source.get("holdings", [])}
-    current = {code(row): row for row in real.get("holdings", [])}
-    if set(source) != set(current):
-        raise AssertionError(("REAL_SECURITY_SET_CHANGED", sorted(source), sorted(current)))
-    for sec, src in source.items():
-        row = current[sec]
-        quantity = num(src.get("quantity_or_shares"))
-        if abs(num(row.get("quantity")) - quantity) > 1e-6:
-            raise AssertionError(("REAL_QUANTITY_CHANGED", sec, row.get("quantity"), quantity))
-        if abs(num(row.get("available_quantity")) - quantity) > 1e-6:
-            raise AssertionError(("REAL_AVAILABLE_QUANTITY_CHANGED", sec, row.get("available_quantity"), quantity))
-        source_cost = num(src.get("cost_price_or_cost"))
-        if src.get("asset_class") == "BOND_FUND":
-            if abs(num(row.get("cost_basis")) - source_cost) > 1e-4:
-                raise AssertionError(("REAL_FUND_COST_BASIS_CHANGED", sec, row.get("cost_basis"), source_cost))
-            if quantity and abs(num(row.get("unit_cost")) - source_cost / quantity) > 1e-8:
-                raise AssertionError(("REAL_FUND_UNIT_COST_CHANGED", sec, row.get("unit_cost"), source_cost / quantity))
+def validate_expected_economic_state(
+    *,
+    label: str,
+    expected_rows: list[dict[str, Any]],
+    current_payload: dict[str, Any],
+) -> None:
+    """Require Current to equal source state after authorized user deltas.
+
+    This deliberately does not compare Current directly with the legacy source.
+    A confirmed/applied user transaction is an authorized economic mutation; a
+    disappearance, quantity change or cost change without such a delta remains
+    a hard failure because it will not appear in ``expected_rows``.
+    """
+    expected = {row["security_id"]: row for row in expected_rows}
+    current = {row["security_id"]: row for row in current_payload.get("holdings", [])}
+    if set(expected) != set(current):
+        raise AssertionError((f"{label}_SECURITY_SET_MISMATCH_AFTER_AUTHORIZED_DELTAS", sorted(expected), sorted(current)))
+
+    for sid, exp in expected.items():
+        row = current[sid]
+        close(row.get("quantity"), exp.get("quantity"), 1e-6)
+        close(row.get("available_quantity"), exp.get("available_quantity"), 1e-6)
+        close(row.get("cost_basis"), exp.get("cost_basis"), 1e-4)
+        if exp.get("unit_cost") is None:
+            if row.get("unit_cost") is not None:
+                raise AssertionError((f"{label}_UNIT_COST_EXPECTED_NULL", sid, row.get("unit_cost")))
         else:
-            if abs(num(row.get("unit_cost")) - source_cost) > 1e-8:
-                raise AssertionError(("REAL_UNIT_COST_CHANGED", sec, row.get("unit_cost"), source_cost))
-            if abs(num(row.get("cost_basis")) - source_cost * quantity) > 1e-4:
-                raise AssertionError(("REAL_COST_BASIS_CHANGED", sec, row.get("cost_basis"), source_cost * quantity))
+            close(row.get("unit_cost"), exp.get("unit_cost"), 1e-8)
 
 
-def validate_sim_economic_state(sim_source: dict[str, Any], sim: dict[str, Any]) -> None:
-    source = {str(row["security_code"]).zfill(6): row for row in sim_source.get("holdings", [])}
-    current = {code(row): row for row in sim.get("holdings", [])}
-    if set(source) != set(current):
-        raise AssertionError(("SIM_SECURITY_SET_CHANGED", sorted(source), sorted(current)))
-    for sec, src in source.items():
-        row = current[sec]
-        quantity = num(src.get("quantity"))
-        if abs(num(row.get("quantity")) - quantity) > 1e-6:
-            raise AssertionError(("SIM_QUANTITY_CHANGED", sec, row.get("quantity"), quantity))
-        expected_available = num(src.get("available_quantity"), quantity)
-        if abs(num(row.get("available_quantity")) - expected_available) > 1e-6:
-            raise AssertionError(("SIM_AVAILABLE_QUANTITY_CHANGED", sec, row.get("available_quantity"), expected_available))
-        if abs(num(row.get("unit_cost")) - num(src.get("cost_price"))) > 1e-8:
-            raise AssertionError(("SIM_UNIT_COST_CHANGED", sec, row.get("unit_cost"), src.get("cost_price")))
-        if abs(num(row.get("cost_basis")) - num(src.get("cost_price")) * quantity) > 1e-4:
-            raise AssertionError(("SIM_COST_BASIS_CHANGED", sec, row.get("cost_basis"), num(src.get("cost_price")) * quantity))
+def expected_economic_states(
+    real_source: dict[str, Any],
+    sim_source: dict[str, Any],
+    ledger: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[str], list[dict[str, Any]], list[str]]:
+    validate_delta_ledger(ledger)
+    expected_real, real_applied = apply_confirmed_deltas(real_positions(real_source), ledger, "REAL")
+    expected_sim, sim_applied = apply_confirmed_deltas(simulation_positions(sim_source), ledger, "SIMULATION")
+    return expected_real, real_applied, expected_sim, sim_applied
 
 
 def validate_equity_compensation(real: dict[str, Any], equity: dict[str, Any]) -> None:
@@ -164,9 +169,21 @@ def main() -> None:
     }.items():
         require_none_authority(label, payload)
 
-    validate_real_economic_state(real_source, real)
-    validate_sim_economic_state(sim_source, sim)
+    expected_real, real_applied, expected_sim, sim_applied = expected_economic_states(real_source, sim_source, ledger)
+    validate_expected_economic_state(label="REAL", expected_rows=expected_real, current_payload=real)
+    validate_expected_economic_state(label="SIM", expected_rows=expected_sim, current_payload=sim)
     validate_equity_compensation(real, equity)
+
+    real_watermark = real.get("position_watermark", {})
+    sim_watermark = sim.get("position_watermark", {})
+    if real_watermark.get("applied_delta_ids", []) != real_applied:
+        raise AssertionError(("REAL_APPLIED_DELTA_IDS_MISMATCH", real_watermark.get("applied_delta_ids"), real_applied))
+    if sim_watermark.get("applied_delta_ids", []) != sim_applied:
+        raise AssertionError(("SIM_APPLIED_DELTA_IDS_MISMATCH", sim_watermark.get("applied_delta_ids"), sim_applied))
+    if int(real_watermark.get("applied_delta_count", 0)) != len(real_applied):
+        raise AssertionError(("REAL_APPLIED_DELTA_COUNT_MISMATCH", real_watermark.get("applied_delta_count"), len(real_applied)))
+    if int(sim_watermark.get("applied_delta_count", 0)) != len(sim_applied):
+        raise AssertionError(("SIM_APPLIED_DELTA_COUNT_MISMATCH", sim_watermark.get("applied_delta_count"), len(sim_applied)))
 
     if marks.get("automatic_position_mutations") != 0:
         raise AssertionError(("MARK_REFRESH_MUTATED_POSITIONS", marks.get("automatic_position_mutations")))
@@ -193,8 +210,9 @@ def main() -> None:
         if bad_freshness:
             raise AssertionError(("STALE_REQUIRED_MARKS", bad_freshness))
 
-    if run.get("economic_transaction_mutations") != 0:
-        raise AssertionError(("ECONOMIC_TRANSACTION_MUTATION", run.get("economic_transaction_mutations")))
+    expected_user_mutations = len(real_applied) + len(sim_applied)
+    if int(run.get("economic_transaction_mutations", 0)) != expected_user_mutations:
+        raise AssertionError(("USER_DELTA_MUTATION_COUNT_MISMATCH", run.get("economic_transaction_mutations"), expected_user_mutations))
     if run.get("position_or_cost_mutations_from_reconciliation") != 0:
         raise AssertionError(("RECONCILIATION_MUTATED_POSITION_OR_COST", run.get("position_or_cost_mutations_from_reconciliation")))
     if run.get("orders") != 0:
@@ -205,10 +223,14 @@ def main() -> None:
     real_position_value = sum(num(row.get("market_value")) for row in real.get("holdings", []))
     real_cash = num(real_source_summary.get("brokerage_available_cash"))
     real_exception = num(real_source_summary.get("broker_reconciliation_exception_amount"))
+    pending_receivable = pending_real_settlement_receivable(ledger)
     close(real_summary.get("position_market_value"), real_position_value)
     close(real_summary.get("execution_cash_balance"), real_cash)
+    close(real_summary.get("pending_settlement_receivable"), pending_receivable)
+    if real_summary.get("pending_settlement_receivable_available_for_trading") is not False:
+        raise AssertionError(("PENDING_SETTLEMENT_MISCLASSIFIED_AS_TRADING_CASH", real_summary.get("pending_settlement_receivable_available_for_trading")))
     close(real_summary.get("broker_reconciliation_exception_amount"), real_exception)
-    close(real_summary.get("account_total_assets"), real_position_value + real_cash + real_exception)
+    close(real_summary.get("account_total_assets"), real_position_value + real_cash + pending_receivable + real_exception)
 
     sim_summary = sim.get("summary", {})
     sim_source_summary = sim_source.get("summary", {})
@@ -240,10 +262,14 @@ def main() -> None:
         "missing_marks": missing_marks,
         "real_holding_count": len(real.get("holdings", [])),
         "simulation_holding_count": len(sim.get("holdings", [])),
+        "real_applied_delta_ids": real_applied,
+        "simulation_applied_delta_ids": sim_applied,
+        "real_pending_settlement_receivable": pending_receivable,
         "real_605090_quantity": next((row.get("quantity") for row in real.get("holdings", []) if code(row) == "605090"), None),
         "pending_605090_quantity": equity.get("current_recognition", {}).get("pending_entitlement", {}).get("quantity"),
         "mark_watermark": marks.get("data_watermark", {}).get("latest_mark_date"),
-        "economic_transaction_mutations": 0,
+        "economic_transaction_mutations": expected_user_mutations,
+        "market_driven_economic_mutations": 0,
         "reconciliation_mutations": 0,
         "orders": 0,
         "trade_authority": "NONE",
