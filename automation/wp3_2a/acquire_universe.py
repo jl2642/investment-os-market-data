@@ -66,6 +66,42 @@ def request_bytes(url: str, params: dict[str, str], timeout: int) -> tuple[bytes
         return response.read(), full_url
 
 
+def eastmoney_session_probe(output: Path, timeout: int) -> tuple[str | None, dict]:
+    """Resolve the completed provider session from a benchmark quote timestamp.
+
+    Eastmoney's full-universe clist occasionally omits f124 on every row even
+    though the quote payload is otherwise complete. In that case, use the same
+    provider's Shanghai Composite benchmark timestamp (f86) as a bounded
+    session-date authority instead of discarding a complete universe solely
+    because row-level timestamps are absent.
+    """
+    url = "https://push2.eastmoney.com/api/qt/stock/get"
+    params = {
+        "secid": "1.000001",
+        "fields": "f57,f58,f86",
+        "ut": "bd1d9ddb04089700cf9c27f6f7426281",
+    }
+    raw, full_url = request_bytes(url, params, timeout)
+    raw_path = output / "eastmoney_session_probe.json"
+    raw_path.write_bytes(raw)
+    payload = json.loads(raw.decode("utf-8"))
+    data = payload.get("data") or {}
+    ts = data.get("f86")
+    session = None
+    if isinstance(ts, (int, float)) and ts > 0:
+        session = datetime.fromtimestamp(int(ts), ZoneInfo("Asia/Shanghai")).date().isoformat()
+    return session, {
+        "file": raw_path.name,
+        "size_bytes": len(raw),
+        "sha256": sha256_bytes(raw),
+        "request_url": full_url,
+        "benchmark_security": "000001.SH",
+        "benchmark_timestamp": int(ts) if isinstance(ts, (int, float)) and ts > 0 else None,
+        "derived_session": session,
+        "status": "PASS" if session else "UNRESOLVED",
+    }
+
+
 def eastmoney(output: Path, page_size: int, timeout: int) -> tuple[list[dict], dict]:
     url = "https://82.push2.eastmoney.com/api/qt/clist/get"
     base = {
@@ -138,11 +174,30 @@ def eastmoney(output: Path, page_size: int, timeout: int) -> tuple[list[dict], d
     modal_ratio = (
         session_counts[modal_session] / len(timestamps) if modal_session and timestamps else 0.0
     )
+    session_probe = None
+    freshness_authority = "PROVIDER_ROW_TIMESTAMP_F124"
+    if rows and not modal_session:
+        try:
+            modal_session, session_probe = eastmoney_session_probe(output, timeout)
+        except Exception as exc:
+            session_probe = {
+                "status": "FAIL",
+                "error": f"{type(exc).__name__}: {exc}",
+                "derived_session": None,
+            }
+        if modal_session:
+            modal_ratio = 1.0
+            freshness_authority = "PROVIDER_BENCHMARK_TIMESTAMP_F86"
+            for row in rows:
+                row["provider_session_date"] = modal_session
+        else:
+            freshness_authority = "UNRESOLVED"
     return rows, {
         "provider": "eastmoney_public", "declared_total": declared_total,
         "raw_pages": raw_pages, "session_counts": dict(session_counts),
         "derived_session": modal_session, "derived_session_ratio": modal_ratio,
-        "freshness_authority": "PROVIDER_ROW_TIMESTAMP_F124",
+        "session_probe": session_probe,
+        "freshness_authority": freshness_authority,
     }
 
 
