@@ -46,6 +46,18 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Install PR validation runtime
+        if: github.event_name == 'pull_request'
+        run: python -m pip install --retries 5 --timeout 30 -r automation/wp2_r/requirements.lock
+
+      - name: Run deterministic market-mark regression tests
+        if: github.event_name == 'pull_request'
+        run: |
+          python -m pytest -q \
+            automation/wp2_r/tests/test_intraday_previous_close_session.py \
+            automation/wp2_r/tests/test_pending_settlement_receivable.py \
+            automation/wp2_r/tests/test_validate_authorized_real_deltas.py
+
       - name: Build position identity baseline
         run: |
           python automation/wp2_r/build_portfolio_current.py --repo-root .
@@ -78,9 +90,16 @@ jobs:
           PY
 
       - name: Refresh all tracked listed prices and fund NAVs
+        if: github.event_name != 'pull_request'
         run: python automation/wp2_r/refresh_market_marks.py --repo-root .
 
-      - name: Rebuild Portfolio Current from refreshed marks
+      - name: Use governed marks during PR validation
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "PR validation is deterministic and network-independent."
+          echo "Live provider refresh is reserved for push, schedule and workflow_dispatch production runs."
+
+      - name: Rebuild Portfolio Current from governed marks
         run: |
           python automation/wp2_r/build_portfolio_current.py --repo-root .
           python automation/wp2_r/finalize_account_summaries.py --repo-root .
@@ -131,8 +150,6 @@ jobs:
           assert run['portfolio_marks_fresh'] is True
           assert run['wp4b_position_level_fit_ready'] is True
           assert run['wp5_live_action_ready'] is False
-          # User-confirmed deltas may legitimately change economic identity before
-          # this market-only refresh. The market refresh itself must add none.
           assert run['economic_transaction_mutations'] == applied_delta_count
           assert run['position_or_cost_mutations_from_reconciliation'] == 0
           assert run['orders'] == 0
@@ -158,6 +175,7 @@ jobs:
           assert run['trade_authority'] == marks['trade_authority'] == 'NONE'
 
           print({
+              'validation_mode': 'governed_existing_marks' if '${{ github.event_name }}' == 'pull_request' else 'live_provider_refresh',
               'marks': marks['marked_security_count'],
               'latest_mark_date': marks['data_watermark']['latest_mark_date'],
               'real_holdings': len(real['holdings']),
@@ -259,6 +277,8 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP2-R tracked market refresh
+          - Production push/schedule/dispatch performs live provider refresh
+          - Pull-request validation is deterministic and does not depend on live market-provider availability
           - Dynamic coverage for every current Real and Simulation security
           - Market-only refresh preserves the post-user-delta economic identity
           - User-confirmed transaction deltas remain explicit and auditable
