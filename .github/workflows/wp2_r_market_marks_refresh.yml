@@ -85,7 +85,7 @@ jobs:
           python automation/wp2_r/build_portfolio_current.py --repo-root .
           python automation/wp2_r/finalize_account_summaries.py --repo-root .
 
-      - name: Validate complete fresh mark coverage and zero economic mutation
+      - name: Validate fresh marks and zero market-driven economic mutation
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -116,6 +116,10 @@ jobs:
 
           required_ids = {row['security_id'] for row in real['holdings'] + sim['holdings']}
           marked_ids = {row['security_id'] for row in marks['marks']}
+          applied_delta_count = (
+              int(real['position_watermark']['applied_delta_count'])
+              + int(sim['position_watermark']['applied_delta_count'])
+          )
 
           assert candidate['status'] == 'PASS_COMPLETE'
           assert marks['status'] == 'CURRENT_COMPLETE'
@@ -127,7 +131,9 @@ jobs:
           assert run['portfolio_marks_fresh'] is True
           assert run['wp4b_position_level_fit_ready'] is True
           assert run['wp5_live_action_ready'] is False
-          assert run['economic_transaction_mutations'] == 0
+          # User-confirmed deltas may legitimately change economic identity before
+          # this market-only refresh. The market refresh itself must add none.
+          assert run['economic_transaction_mutations'] == applied_delta_count
           assert run['position_or_cost_mutations_from_reconciliation'] == 0
           assert run['orders'] == 0
           assert before == after
@@ -156,10 +162,12 @@ jobs:
               'latest_mark_date': marks['data_watermark']['latest_mark_date'],
               'real_holdings': len(real['holdings']),
               'simulation_holdings': len(sim['holdings']),
+              'applied_user_deltas': applied_delta_count,
               'real_total_assets': real['summary']['account_total_assets'],
+              'real_execution_cash': real['summary']['execution_cash_balance'],
               'real_pending_settlement_receivable': real['summary'].get('pending_settlement_receivable', 0.0),
               'simulation_total_assets': sim['summary']['account_total_assets'],
-              'economic_identity_unchanged': True,
+              'market_driven_economic_mutations': 0,
               'orders': 0,
               'trade_authority': 'NONE',
           })
@@ -236,7 +244,7 @@ jobs:
               --base main \
               --head "$RESULT_BRANCH" \
               --title "WP2-R: promote validated EOD marks ${MARK_DATE}" \
-              --body $'## Governed market-mark promotion\n\nValidated WP2-R Real/Simulation market marks and account summaries from the latest completed close.\n\n- no automatic quantity or cost mutation\n- no Candidate mutation\n- no order execution\n- trade_authority = NONE\n- protected main is updated only through this PR gate')"
+              --body $'## Governed market-mark promotion\n\nValidated WP2-R Real/Simulation market marks and account summaries from the latest completed close.\n\n- user-confirmed economic deltas are preserved\n- market refresh adds zero economic mutations\n- no Candidate mutation\n- no order execution\n- trade_authority = NONE\n- protected main is updated only through this PR gate')"
           fi
           {
             echo "### Governed publication handoff"
@@ -252,11 +260,11 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP2-R tracked market refresh
           - Dynamic coverage for every current Real and Simulation security
-          - Market-only refresh preserves security, quantity, availability, unit cost and cost basis
+          - Market-only refresh preserves the post-user-delta economic identity
+          - User-confirmed transaction deltas remain explicit and auditable
           - Scheduled results are stored as immutable artifacts and governed run branches
           - Every scheduled governed result opens or reuses a protected-main promotion PR
           - Protected main is never pushed directly
-          - Explicit source reconciliation exceptions remain unallocated
           - Pending settlement receivables remain separate from execution cash
           - Broker verification remains separate and false
           - WP5 live action remains blocked
