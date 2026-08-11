@@ -1,7 +1,7 @@
 {
   "applied_delta_count": 4,
-  "as_of": "2026-08-06T11:03:00+08:00",
-  "continuity_confirmed_through": "2026-08-06T11:03:00+08:00",
+  "as_of": "2026-08-11T09:27:00+08:00",
+  "continuity_confirmed_through": "2026-08-11T09:27:00+08:00",
   "entries": [
     {
       "account": "REAL",
@@ -167,9 +167,37 @@
       "security_code": "300012",
       "security_id": "300012.SZ",
       "status": "REJECTED"
+    },
+    {
+      "account": "REAL",
+      "action": "SELL",
+      "application_decision": "APPLY_TO_POSITION_CURRENT",
+      "asset_class": "BOND_FUND",
+      "cash_availability_status": "NOT_AVAILABLE_UNTIL_SETTLED",
+      "confirmation_authority": "USER",
+      "confirmed_at": "2026-08-11T09:27:00+08:00",
+      "delta_id": "REAL_20260806_SELL_110017_ALL",
+      "event_type": "USER_CONFIRMED_REAL_TRADE",
+      "evidence_status": "USER_CONFIRMED",
+      "fees": 100.49,
+      "gross_amount": 100491.44,
+      "net_settlement_amount": 100390.95,
+      "note": "User confirmed full sale on 2026-08-06. Net proceeds are confirmed but remain unsettled and must not be treated as executable broker cash until settlement is explicitly confirmed.",
+      "orders": 0,
+      "price": 1.40699995,
+      "quantity": 71422.49,
+      "quantity_delta": -71422.49,
+      "security_code": "110017",
+      "security_id": "110017.OF",
+      "security_name": "易方达增强回报债券A",
+      "settlement_status": "PENDING_CASH_SETTLEMENT",
+      "status": "CONFIRMED_BY_USER",
+      "trade_authority": "NONE",
+      "trade_date": "2026-08-06",
+      "unit_price": 1.40699995
     }
   ],
-  "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260806",
+  "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260811",
   "materialized_delta_ids": [
     "REAL_605090_SECOND_4950_SETTLEMENT_20260806",
     "SIM_20260806_BUY_300012_1000",
@@ -191,10 +219,10 @@
   },
   "rejected_for_position_engine_count": 9,
   "schema_version": "1.0.0",
-  "snapshot_type": "USER_CONFIRMED_INTRADAY",
-  "status": "FOUR_USER_CONFIRMED_DELTAS_MATERIALIZED_DO_NOT_REAPPLY",
+  "snapshot_type": "USER_CONFIRMED_CONTINUITY_AND_TRANSACTION_DELTA",
+  "status": "USER_CONFIRMED_DELTA_PENDING_POSITION_MATERIALIZATION",
   "trade_authority": "NONE",
-  "unapplied_delta_count": 0,
+  "unapplied_delta_count": 1,
   "unresolved_exception_count": 1,
   "unresolved_exceptions": [
     "2026_TAX_AND_FEES_PENDING"

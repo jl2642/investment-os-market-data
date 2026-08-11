@@ -1,0 +1,114 @@
+name: Canonical User Position Update 20260811
+
+on:
+  push:
+    branches:
+      - agent/runtime-closure-r1-20260811
+    paths:
+      - "automation/canonical_position_update/apply_20260811_user_update.py"
+      - ".github/workflows/canonical-user-position-update-20260811.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/canonical_position_update/apply_20260811_user_update.py"
+      - ".github/workflows/canonical-user-position-update-20260811.yml"
+      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_11/**"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  apply-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Apply user-confirmed Real sale and continuity update
+        run: |
+          python -m py_compile automation/canonical_position_update/apply_20260811_user_update.py
+          python automation/canonical_position_update/apply_20260811_user_update.py
+
+      - name: Validate position-engine interpretation
+        run: |
+          python automation/wp2_r/build_portfolio_current.py --repo-root .
+          python automation/wp2_r/finalize_account_summaries.py --repo-root .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+          ledger = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json').read_text(encoding='utf-8'))
+          real = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
+          sim = json.loads((root / 'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
+          evidence = json.loads((root / 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_11/USER_CONFIRMED_REAL_SALE_20260806.json').read_text(encoding='utf-8'))
+
+          assert ledger['continuity_confirmed_through'] == '2026-08-11T09:27:00+08:00'
+          assert sum(1 for row in ledger['entries'] if row.get('delta_id') == 'REAL_20260806_SELL_110017_ALL') == 1
+          assert all(row['security_id'] != '110017.OF' for row in real['holdings'])
+          assert len(real['holdings']) == 7
+          assert len(sim['holdings']) == 16
+          assert real['summary']['pending_settlement_receivable'] == 100390.95
+          assert real['summary']['pending_settlement_receivable_available_for_trading'] is False
+          assert evidence['real_account']['all_other_positions_and_cash_changes'] == 'NONE_REPORTED'
+          assert evidence['simulation_account']['changes_since_prior_confirmed_state'] == 'NONE_REPORTED'
+          assert evidence['economic_mutations_authorized']['orders'] is False
+          assert ledger['orders'] == 0
+          assert ledger['trade_authority'] == 'NONE'
+          print({
+              'real_holdings': len(real['holdings']),
+              'removed': '110017.OF',
+              'pending_settlement_receivable': real['summary']['pending_settlement_receivable'],
+              'simulation_holdings': len(sim['holdings']),
+              'continuity_confirmed_through': ledger['continuity_confirmed_through'],
+              'orders': 0,
+              'trade_authority': 'NONE',
+          })
+          PY
+
+      - name: Persist user-confirmed delta evidence to governed branch
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_11/USER_CONFIRMED_REAL_SALE_20260806.json
+          if git diff --cached --quiet; then
+            echo "User-confirmed delta is already materialized."
+            exit 0
+          fi
+          git commit -m "Apply user-confirmed 2026-08-06 full sale of 110017"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Re-run as idempotency check
+        run: |
+          python automation/canonical_position_update/apply_20260811_user_update.py
+          git diff --exit-code -- \
+            investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_11/USER_CONFIRMED_REAL_SALE_20260806.json
+
+      - name: Record authority boundary
+        if: always()
+        run: |
+          echo "user_confirmed_real_sale=110017.OF:71422.49"
+          echo "net_pending_settlement=100390.95"
+          echo "other_real_changes=0"
+          echo "simulation_changes=0"
+          echo "orders=0"
+          echo "trade_authority=NONE"
