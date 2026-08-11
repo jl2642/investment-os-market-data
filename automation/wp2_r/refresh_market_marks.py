@@ -14,6 +14,11 @@ from zoneinfo import ZoneInfo
 CN = ZoneInfo("Asia/Shanghai")
 SINA_URL = "https://hq.sinajs.cn/list={symbols}"
 FUND_URL = "https://fund.eastmoney.com/pingzhongdata/{code}.js?v={ts}"
+EASTMONEY_INDEX_KLINE_URL = (
+    "https://push2his.eastmoney.com/api/qt/stock/kline/get"
+    "?secid=1.000001&klt=101&fqt=0&lmt=15&end=20500101"
+    "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
+)
 COMPLETED_CLOSE_CUTOFF = "15:05:00"
 
 
@@ -92,6 +97,27 @@ def freshness(as_of: str, max_days: int) -> str:
     return "FRESH" if age <= max_days else "STALE"
 
 
+def latest_completed_listed_session(before_date: str) -> str:
+    """Resolve the actual prior A-share session from benchmark daily bars.
+
+    During an intraday quote, Sina's `previous_close` is the prior completed
+    session's close, but the quote payload does not carry that prior session's
+    date. Resolve the date independently from the Shanghai Composite daily bar
+    calendar instead of reusing an older portfolio mark watermark.
+    """
+    text = request_text(EASTMONEY_INDEX_KLINE_URL, "utf-8")
+    payload = json.loads(text)
+    klines = ((payload.get("data") or {}).get("klines") or [])
+    dates = []
+    for row in klines:
+        session = str(row).split(",", 1)[0]
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", session) and session < before_date:
+            dates.append(session)
+    if not dates:
+        raise ValueError(f"PRIOR_COMPLETED_SESSION_UNRESOLVED:{before_date}")
+    return max(dates)
+
+
 def listed_marks(
     rows: list[dict[str, Any]],
     max_days: int,
@@ -104,6 +130,7 @@ def listed_marks(
     pattern = re.compile(r'var hq_str_(?P<symbol>\w+)="(?P<body>[^"]*)";')
     marks, errors, observations, observed = [], [], [], set()
     today_cn = datetime.now(CN).date().isoformat()
+    intraday_session_by_quote_date: dict[str, str] = {}
     for match in pattern.finditer(text):
         symbol = match.group("symbol")
         if symbol not in symbols:
@@ -122,11 +149,13 @@ def listed_marks(
             is_intraday = quote_date == today_cn and quote_time < COMPLETED_CLOSE_CUTOFF
             if is_intraday:
                 prior = existing_by_id.get(row["security_id"])
-                if not prior or str(prior.get("as_of_date", "")) >= quote_date:
-                    raise ValueError("INTRADAY_WITHOUT_PRIOR_COMPLETED_CLOSE_BASELINE")
+                if prior and str(prior.get("as_of_date", "")) >= quote_date:
+                    raise ValueError("INTRADAY_BASELINE_NOT_PRIOR_TO_QUOTE_DATE")
+                if quote_date not in intraday_session_by_quote_date:
+                    intraday_session_by_quote_date[quote_date] = latest_completed_listed_session(quote_date)
                 mark = previous_close
-                as_of = str(prior["as_of_date"])
-                as_time = str(prior.get("as_of_time") or "15:00:00")
+                as_of = intraday_session_by_quote_date[quote_date]
+                as_time = "15:00:00"
                 mark_type = "LATEST_COMPLETED_CLOSE_PRIOR_SESSION"
                 observations.append({
                     "security_id": row["security_id"],
@@ -135,6 +164,7 @@ def listed_marks(
                     "observation_time": quote_time,
                     "intraday_quote": current_quote,
                     "previous_completed_close": previous_close,
+                    "previous_completed_close_date": as_of,
                     "decision_grade": False,
                     "source_role": "INTRADAY_OBSERVATION_NOT_PORTFOLIO_CURRENT",
                 })
@@ -217,7 +247,7 @@ def main() -> None:
     complete = not errors and not missing and not stale
     listed_dates = [x["as_of_date"] for x in all_marks if x.get("asset_class") != "BOND_FUND"]
     payload = {
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "refresh_id": f"WP2R_PORTFOLIO_MARKS_REFRESH_{datetime.now(CN).strftime('%Y%m%dT%H%M%S%z')}",
         "generated_at": datetime.now(CN).isoformat(),
         "status": "PASS_COMPLETE" if complete else "BLOCKED_PARTIAL_OR_STALE",
@@ -227,6 +257,7 @@ def main() -> None:
         "stale_security_ids": stale,
         "errors": errors,
         "latest_completed_listed_close_date": max(listed_dates) if listed_dates else None,
+        "intraday_session_date_authority": "EASTMONEY_SHANGHAI_COMPOSITE_DAILY_BAR" if intraday_observations else None,
         "intraday_observation_count": len(intraday_observations),
         "intraday_observations": sorted(intraday_observations, key=lambda x: x["security_id"]),
         "marks": sorted(all_marks, key=lambda x: x["security_id"]),
