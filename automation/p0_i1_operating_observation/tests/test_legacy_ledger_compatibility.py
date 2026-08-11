@@ -30,6 +30,16 @@ class LegacyLedgerCompatibilityTest(unittest.TestCase):
             ledger_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(CANONICAL_LEDGER, ledger_path)
 
+            # validate_output follows every historical ledger entry to its Run
+            # Manifest. The regression fixture must therefore copy the ledger's
+            # referenced immutable manifests as well as the ledger itself.
+            for row in canonical["entries"]:
+                manifest = row["run_manifest"]
+                source = ROOT / manifest
+                target = output_root / manifest
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+
             args = argparse.Namespace(
                 repo_root=str(ROOT),
                 output_root=str(output_root),
