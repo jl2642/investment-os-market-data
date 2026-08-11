@@ -3,18 +3,26 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
-from automation.wp2_r.build_portfolio_current import (
+# GitHub Actions invokes this validator directly as a script. Add the repository
+# root before importing shared WP2-R logic so direct execution and pytest use the
+# same canonical delta semantics.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from automation.wp2_r.build_portfolio_current import (  # noqa: E402
     apply_confirmed_deltas,
     real_positions,
     simulation_positions,
     validate_delta_ledger,
 )
-from automation.wp2_r.finalize_account_summaries import pending_real_settlement_receivable
+from automation.wp2_r.finalize_account_summaries import pending_real_settlement_receivable  # noqa: E402
 
 
 def read(path: Path) -> dict[str, Any]:
