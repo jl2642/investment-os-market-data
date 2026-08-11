@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - agent/r2-product-capability-hardening
+      - "agent/runtime-closure-*"
     paths:
       - "automation/wp2_r/**"
       - ".github/workflows/wp2_r_market_marks_refresh.yml"
@@ -26,6 +27,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 env:
   TRADE_AUTHORITY: NONE
@@ -129,13 +131,14 @@ jobs:
           assert run['position_or_cost_mutations_from_reconciliation'] == 0
           assert run['orders'] == 0
           assert before == after
-          assert len(real['holdings']) == 8
-          assert len(sim['holdings']) == 16
+          assert len(real['holdings']) == len(before['REAL'])
+          assert len(sim['holdings']) == len(before['SIMULATION'])
           assert real['summary']['execution_cash_balance'] >= 0
           assert sim['summary']['execution_cash_balance'] >= 0
           assert real['summary']['account_total_assets'] == round(
               real['summary']['position_market_value']
               + real['summary']['execution_cash_balance']
+              + real['summary'].get('pending_settlement_receivable', 0.0)
               + real['summary']['broker_reconciliation_exception_amount'],
               6,
           )
@@ -154,6 +157,7 @@ jobs:
               'real_holdings': len(real['holdings']),
               'simulation_holdings': len(sim['holdings']),
               'real_total_assets': real['summary']['account_total_assets'],
+              'real_pending_settlement_receivable': real['summary'].get('pending_settlement_receivable', 0.0),
               'simulation_total_assets': sim['summary']['account_total_assets'],
               'economic_identity_unchanged': True,
               'orders': 0,
@@ -161,8 +165,8 @@ jobs:
           })
           PY
 
-      - name: Publish refreshed marks to R2 development branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/r2-product-capability-hardening' && github.actor != 'github-actions[bot]'
+      - name: Publish refreshed marks to governed agent branch
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/agent/r2-product-capability-hardening' || startsWith(github.ref, 'refs/heads/agent/runtime-closure-')) && github.actor != 'github-actions[bot]'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -180,7 +184,7 @@ jobs:
             exit 0
           fi
           git commit -m "R2 WP2-R refresh tracked Portfolio Current marks"
-          git push origin "HEAD:agent/r2-product-capability-hardening"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Upload immutable validated WP2-R result
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -197,10 +201,11 @@ jobs:
             investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json
             investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
 
-      - name: Publish scheduled result to governed run branch
+      - name: Publish scheduled result to governed run branch and PR
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         shell: bash
         env:
+          GH_TOKEN: ${{ github.token }}
           RESULT_BRANCH: automation/wp2r-eod-${{ github.run_id }}-a${{ github.run_attempt }}
         run: |
           set -Eeuo pipefail
@@ -218,11 +223,27 @@ jobs:
             git commit -m "WP2-R stage validated EOD marks for governed promotion"
           fi
           git push origin "HEAD:$RESULT_BRANCH"
+
+          MARK_DATE="$(python - <<'PY'
+          import json
+          print(json.load(open('investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json', encoding='utf-8'))['data_watermark']['latest_mark_date'])
+          PY
+          )"
+          PR_URL="$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head "$RESULT_BRANCH" --state open --json url --jq '.[0].url // empty')"
+          if [[ -z "$PR_URL" ]]; then
+            PR_URL="$(gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base main \
+              --head "$RESULT_BRANCH" \
+              --title "WP2-R: promote validated EOD marks ${MARK_DATE}" \
+              --body $'## Governed market-mark promotion\n\nValidated WP2-R Real/Simulation market marks and account summaries from the latest completed close.\n\n- no automatic quantity or cost mutation\n- no Candidate mutation\n- no order execution\n- trade_authority = NONE\n- protected main is updated only through this PR gate')"
+          fi
           {
             echo "### Governed publication handoff"
             echo "- result_branch: \`$RESULT_BRANCH\`"
+            echo "- promotion_pr: $PR_URL"
             echo "- direct_main_push: disabled"
-            echo "- next_gate: Draft PR + WP3-2A / Lineage Gate"
+            echo "- next_gate: protected-main PR checks / authorized merge"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Record summary
@@ -233,8 +254,10 @@ jobs:
           - Dynamic coverage for every current Real and Simulation security
           - Market-only refresh preserves security, quantity, availability, unit cost and cost basis
           - Scheduled results are stored as immutable artifacts and governed run branches
-          - Protected main is never pushed directly; Canonical promotion requires PR gates
+          - Every scheduled governed result opens or reuses a protected-main promotion PR
+          - Protected main is never pushed directly
           - Explicit source reconciliation exceptions remain unallocated
+          - Pending settlement receivables remain separate from execution cash
           - Broker verification remains separate and false
           - WP5 live action remains blocked
           - Orders: 0
