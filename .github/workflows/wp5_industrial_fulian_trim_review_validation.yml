@@ -26,21 +26,30 @@ jobs:
           python-version: "3.13"
 
       - name: Validate exact scope and no protected economic mutations
-        shell: bash
         run: |
-          set -Eeuo pipefail
           git fetch origin main
-          changed="$(git diff --name-only origin/main...HEAD | sort)"
-          printf '%s\n' "$changed"
-          allowed="$(cat <<'EOF' | sort
-.github/workflows/wp5_industrial_fulian_trim_review_validation.yml
-investment_os_runtime/00_CONTROL/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_ACCEPTANCE_RECORD.json
-investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_CURRENT.json
-investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_601138_TRIM_REVIEW_CURRENT.json
-EOF
-)"
-          test "$changed" = "$allowed"
-          ! printf '%s\n' "$changed" | grep -E '30_STATE_CURRENT/(10_REAL_ACCOUNT|20_SIMULATION|40_CANDIDATE)|ORDERS|EXECUTION'
+          python - <<'PY'
+          import subprocess
+          allowed = {
+              '.github/workflows/wp5_industrial_fulian_trim_review_validation.yml',
+              'investment_os_runtime/00_CONTROL/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_ACCEPTANCE_RECORD.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_CURRENT.json',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_601138_TRIM_REVIEW_CURRENT.json',
+          }
+          changed = set(subprocess.check_output(
+              ['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True
+          ).splitlines())
+          assert changed == allowed, (changed, allowed)
+          protected_tokens = (
+              '30_STATE_CURRENT/10_REAL_ACCOUNT',
+              '30_STATE_CURRENT/20_SIMULATION',
+              '30_STATE_CURRENT/40_CANDIDATE',
+              '/ORDERS',
+              '/EXECUTION',
+          )
+          assert not any(any(token in path for token in protected_tokens) for path in changed)
+          print({'changed_files': sorted(changed), 'protected_economic_mutations': 0})
+          PY
 
       - name: Validate user decision and formal review semantics
         run: |
@@ -75,6 +84,9 @@ EOF
           assert review['formal_plan']['trade_authority'] == 'NONE'
           assert review['fundamental_trigger_assessment']['currently_confirmed_trim_trigger'] is False
 
+          assert acceptance['status'] == 'ACCEPTED_ON_MAIN_NO_TRADE_MONITORING_ACTIVE'
+          assert acceptance['accepted_pr'] == 258
+          assert acceptance['accepted_merge_sha'] == '5c427c9215bc59eefc631304d4980f83e71f1bce'
           assert acceptance['user_decision'] == 'APPROVE_REVIEW'
           assert acceptance['execution_instruction'] == 'NO_TRADE'
           assert acceptance['economic_mutations'] == {
