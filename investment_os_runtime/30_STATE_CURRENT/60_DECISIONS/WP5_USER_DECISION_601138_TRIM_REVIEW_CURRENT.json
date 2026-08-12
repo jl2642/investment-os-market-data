@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "state_id": "WP5_USER_DECISION_601138_TRIM_REVIEW_CURRENT",
+  "generated_at": "2026-08-12T10:05:00+08:00",
+  "decision_source": "EXPLICIT_USER_INSTRUCTION_IN_CHATGPT_DAILY_CONTROLLER_INTERFACE",
+  "security_id": "601138.SH",
+  "security_name": "工业富联",
+  "account": "SIMULATION",
+  "source_gate": {
+    "workflow": "WP5-E Post-Close Action Gate",
+    "validated_run_id": 31512101648,
+    "latest_completed_close_date": "2026-08-10",
+    "source_gate_status": "CONDITIONAL_PROPOSALS_READY_PENDING_USER_DECISION_NO_IMPLEMENTATION",
+    "source_ready_for_user_decision_count": 1
+  },
+  "user_decision": "APPROVE_REVIEW",
+  "execution_instruction": "NO_TRADE",
+  "review_scope": [
+    "POSITION_WEIGHT_MATERIALITY_TOLERANCE",
+    "A_SHARE_BOARD_LOT_EXECUTION_GRANULARITY",
+    "REASONABLE_TARGET_WEIGHT_IF_TRIM_IS_LATER_APPROVED",
+    "LATEST_FUNDAMENTAL_TRIM_OR_EXIT_TRIGGERS"
+  ],
+  "review_authorized": true,
+  "position_change_authorized": false,
+  "order_authorized": false,
+  "implementation_ready": false,
+  "orders": 0,
+  "trade_authority": "NONE",
+  "decision_semantics": "User approves formation and continued monitoring of a formal trim-review plan only. This is not approval to reduce the position, create an order, or execute a trade.",
+  "repeat_prompt_policy": {
+    "same_trigger_review_request_consumed": true,
+    "do_not_repeat_user_decision_request_for_same_weight_only_trigger": true,
+    "reopen_user_decision_only_on": [
+      "NEW_MATERIAL_FUNDAMENTAL_TRIGGER",
+      "NEW_MATERIAL_VALUATION_TRIGGER",
+      "WEIGHT_BREACH_EXCEEDS_OPERATIONAL_MATERIALITY_TOLERANCE",
+      "FORMAL_TRIM_PLAN_BECOMES_DECISION_GRADE"
+    ]
+  }
+}
