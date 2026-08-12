@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "state_id": "HKCU_TTI_00669_BUY_REVIEW_CURRENT",
+  "generated_at": "2026-08-12T13:11:00+08:00",
+  "security_id": "HKEX:00669",
+  "stock_code_5d": "00669",
+  "security_name": "TECHTRONIC IND",
+  "account": "REAL_RESEARCH_ONLY",
+  "status": "BUY_REVIEW_COMPLETE_NO_TRADE_MONITORING_ACTIVE",
+  "review_instruction": "WRITE_BACK_BUY_REVIEW_RESULT",
+  "execution_instruction": "NO_TRADE",
+  "source_lineage": {
+    "candidate_current": "outputs/hk_candidate/current/HK_CANDIDATE_CURRENT.csv",
+    "p5b_real_pretrade_lineage_commit": "a1a54843decb257116b26958f18041cce9833120",
+    "p5c_valuation_context": "evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv",
+    "official_h1_2026_eps_usd": 0.405,
+    "mechanically_annualized_h1_2026_eps_usd": 0.81,
+    "annualization_is_not_forecast": true,
+    "historical_pe_context": 21.6,
+    "reference_pe_context": 21.1,
+    "review_anchor_completed_close_hkd": 144.5,
+    "review_anchor_date": "2026-08-11",
+    "review_anchor_is_execution_quote": false,
+    "fresh_completed_close_required_before_any_future_trade_decision": true
+  },
+  "valuation_review": {
+    "current_interpretation": "FAIR_TO_FULL_NO_CHASE",
+    "buy_review_range_hkd": {"min": 125.0, "max": 135.0},
+    "fair_watch_range_hkd": {"min": 135.0, "max": 140.0},
+    "no_chase_above_hkd": 140.0,
+    "reopen_buy_review_at_or_below_hkd": 135.0,
+    "high_priority_buy_review_at_or_below_hkd": 130.0,
+    "attractive_valuation_reunderwrite_at_or_below_hkd": 125.0,
+    "mandatory_fundamental_reunderwrite_below_hkd": 120.0,
+    "price_bands_are_research_gates_not_limit_orders": true,
+    "price_trigger_does_not_substitute_fundamental_refresh": true
+  },
+  "portfolio_sizing_review": {
+    "p5b_governed_research_weight": 0.01,
+    "economic_review_weight_range": {"min": 0.01, "normal_upper": 0.015, "hard_review_upper": 0.02},
+    "economic_review_weight_range_is_target_writeback": false,
+    "real_account_reference_total_assets_rmb": 807771.923211,
+    "economic_notional_reference_rmb": {"at_1pct": 8077.72, "at_1_5pct": 12116.58, "at_2pct": 16155.44},
+    "standard_board_lot_shares": 500,
+    "board_lot_source": "https://www.ttigroup.com/investors/stock",
+    "board_lot_notional_at_review_anchor_hkd": 72250.0,
+    "board_lot_notional_in_buy_review_range_hkd": {"at_125": 62500.0, "at_130": 65000.0, "at_135": 67500.0},
+    "board_lot_sizing_mismatch": true,
+    "sizing_interpretation": "A standard 500-share board lot is materially larger than the governed 1%-2% economic research sizing for the current REAL account. Do not enlarge the target weight merely to fit a board lot.",
+    "required_before_any_future_implementation": [
+      "CONFIRM_EXECUTABLE_POSITION_GRANULARITY_WITH_ACTUAL_BROKER_OR_CHANNEL",
+      "REFRESH_REAL_ACCOUNT_TOTAL_ASSETS_AND_AVAILABLE_CASH",
+      "REFRESH_COMPLETED_CLOSE_AND_FX_FOR_NOTIONAL_NORMALIZATION",
+      "REASSESS_PORTFOLIO_CONCENTRATION_WITH_JOVO_POSITION"
+    ]
+  },
+  "fundamental_monitoring": {
+    "current_thesis_state": "PASS_WITH_PRICE_AND_SIZING_GATES",
+    "buy_review_invalidates_if": [
+      "H2_REVENUE_GROWTH_DECELERATES_MATERIALLY_WITHOUT_TRANSITORY_EXPLANATION",
+      "MILWAUKEE_OR_CORE_BRAND_GROWTH_DURABILITY_BREAKS",
+      "EBIT_MARGIN_IMPROVEMENT_REVERSES_MATERIALLY",
+      "FREE_CASH_FLOW_CONVERSION_DETERIORATES_MATERIALLY_VS_PROFIT",
+      "TARIFF_COMMODITY_OR_CHANNEL_PRESSURE_CAUSES_STRUCTURAL_MARGIN_DAMAGE",
+      "BALANCE_SHEET_QUALITY_DETERIORATES_MATERIALLY",
+      "MATERIAL_GOVERNANCE_AUDIT_OR_CAPITAL_ALLOCATION_ADVERSE_EVENT"
+    ],
+    "positive_monitoring": [
+      "H2_REVENUE_AND_MARGIN_DELIVERY",
+      "CASH_CONVERSION",
+      "CAPITAL_RETURN_DISCIPLINE",
+      "SHARE_REPURCHASE_EXECUTION_AT_SENSIBLE_VALUATION"
+    ]
+  },
+  "formal_plan": {
+    "current_action": "WATCH_NO_TRADE_WAIT_FOR_PRICE_OR_POSITION_SIZING_GATE",
+    "candidate_membership_change_authorized": false,
+    "real_position_change_authorized": false,
+    "simulation_position_change_authorized": false,
+    "target_portfolio_writeback_authorized": false,
+    "order_authorized": false,
+    "implementation_ready": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
