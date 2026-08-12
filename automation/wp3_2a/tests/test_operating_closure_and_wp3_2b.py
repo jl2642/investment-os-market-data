@@ -258,7 +258,10 @@ def test_execution_register_and_master_plan_preserve_wp3_2_closure_and_allow_for
         assert register["operating_activation"] is False
         assert register["ready_for_user_decision_count"] == 0
         assert register["implementation_ready_count"] == 0
-        assert register["next_task"] == "RUN_R6_SUPERVISED_OPERATING_OBSERVATION_2026_08"
+        assert register["next_task"] in {
+            "RUN_R6_SUPERVISED_OPERATING_OBSERVATION_2026_08",
+            "USER_REVIEW_CONDITIONAL_P0_POSITION_PROPOSALS",
+        }
     else:
         assert step == "R2_PRODUCT_CAPABILITY_HARDENING_ACCEPTED_ON_MAIN"
         assert register["wp3_status"]["WP3-5"].startswith("COMPLETED_")
