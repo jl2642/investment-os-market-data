@@ -1,0 +1,88 @@
+name: WP5 Industrial Fulian Trim Review Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/wp5_industrial_fulian_trim_review_validation.yml"
+      - "investment_os_runtime/00_CONTROL/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_ACCEPTANCE_RECORD.json"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_601138_TRIM_REVIEW_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_CURRENT.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-no-trade-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Validate exact scope and no protected economic mutations
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main
+          changed="$(git diff --name-only origin/main...HEAD | sort)"
+          printf '%s\n' "$changed"
+          allowed="$(cat <<'EOF' | sort
+.github/workflows/wp5_industrial_fulian_trim_review_validation.yml
+investment_os_runtime/00_CONTROL/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_ACCEPTANCE_RECORD.json
+investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_CURRENT.json
+investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_601138_TRIM_REVIEW_CURRENT.json
+EOF
+)"
+          test "$changed" = "$allowed"
+          ! printf '%s\n' "$changed" | grep -E '30_STATE_CURRENT/(10_REAL_ACCOUNT|20_SIMULATION|40_CANDIDATE)|ORDERS|EXECUTION' 
+
+      - name: Validate user decision and formal review semantics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          decision = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_601138_TRIM_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
+          review = json.loads(Path('investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_CURRENT.json').read_text(encoding='utf-8'))
+          acceptance = json.loads(Path('investment_os_runtime/00_CONTROL/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_ACCEPTANCE_RECORD.json').read_text(encoding='utf-8'))
+
+          assert decision['security_id'] == '601138.SH'
+          assert decision['user_decision'] == 'APPROVE_REVIEW'
+          assert decision['execution_instruction'] == 'NO_TRADE'
+          assert decision['review_authorized'] is True
+          assert decision['position_change_authorized'] is False
+          assert decision['order_authorized'] is False
+          assert decision['implementation_ready'] is False
+          assert decision['orders'] == 0
+          assert decision['trade_authority'] == 'NONE'
+
+          assert review['status'] == 'TRIM_REVIEW_APPROVED_NO_TRADE_MONITORING_ACTIVE'
+          assert review['formal_plan']['current_action'] == 'HOLD_600_SHARES_NO_ADD_NO_TRADE'
+          assert review['materiality_assessment']['recommendation'] == 'NO_TRADE_MATERIALITY_NOT_MET'
+          assert review['materiality_assessment']['recommended_operational_alert_tolerance_above_band_max_bps'] == 10.0
+          assert review['portfolio_context']['weight_excess_basis_points'] < 10.0
+          assert review['execution_granularity']['standard_board_lot_shares'] == 100
+          assert review['formal_plan']['position_change_authorized'] is False
+          assert review['formal_plan']['order_authorized'] is False
+          assert review['formal_plan']['implementation_ready'] is False
+          assert review['formal_plan']['orders'] == 0
+          assert review['formal_plan']['trade_authority'] == 'NONE'
+          assert review['fundamental_trigger_assessment']['currently_confirmed_trim_trigger'] is False
+
+          assert acceptance['user_decision'] == 'APPROVE_REVIEW'
+          assert acceptance['execution_instruction'] == 'NO_TRADE'
+          assert acceptance['economic_mutations'] == {
+              'real_account': 0,
+              'simulation': 0,
+              'candidate_membership': 0,
+              'orders': 0,
+          }
+          assert acceptance['trade_authority'] == 'NONE'
+          print({'security_id':'601138.SH','review':'APPROVED','trade':'NO_TRADE','orders':0,'trade_authority':'NONE'})
+          PY
