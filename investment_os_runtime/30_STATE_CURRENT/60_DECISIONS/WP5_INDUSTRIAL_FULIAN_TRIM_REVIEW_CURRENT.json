@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0.0",
+  "state_id": "WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_CURRENT",
+  "generated_at": "2026-08-12T10:05:00+08:00",
+  "security_id": "601138.SH",
+  "security_name": "工业富联",
+  "account": "SIMULATION",
+  "status": "TRIM_REVIEW_APPROVED_NO_TRADE_MONITORING_ACTIVE",
+  "user_decision_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_USER_DECISION_601138_TRIM_REVIEW_CURRENT.json",
+  "portfolio_context": {
+    "as_of": "2026-08-10",
+    "quantity": 600,
+    "unit_cost": 76.43,
+    "completed_close_mark": 69.18,
+    "market_value": 41508.0,
+    "simulation_total_assets": 1034651.29,
+    "current_weight": 0.0401178643,
+    "governed_weight_band": {"min": 0.025, "max": 0.04},
+    "weight_excess_vs_max": 0.0001178643,
+    "weight_excess_basis_points": 1.178643,
+    "excess_notional_rmb": 121.95,
+    "unrealized_pnl": -4350.0,
+    "unrealized_pnl_pct": -0.09485804
+  },
+  "valuation_context": {
+    "p0_base_case_implied_price": 65.510681,
+    "base_case_expected_return_vs_2026_08_10_close": -0.05304017,
+    "governed_add_hurdle": 0.15,
+    "interpretation": "NO_ADD; valuation alone does not authorize a trim, but provides no support for adding capital at the current P0 base case."
+  },
+  "execution_granularity": {
+    "exchange": "SSE",
+    "standard_board_lot_shares": 100,
+    "one_lot_notional_at_2026_08_10_close_rmb": 6918.0,
+    "weight_after_hypothetical_100_share_trim": 0.0334315535,
+    "economic_observation": "The 1.18bp / RMB121.95 weight excess is immaterial relative to the smallest standard 100-share reduction of roughly RMB6,918. No trade is justified solely to cure this mechanical breach."
+  },
+  "materiality_assessment": {
+    "recommendation": "NO_TRADE_MATERIALITY_NOT_MET",
+    "recommended_operational_alert_tolerance_above_band_max_bps": 10.0,
+    "recommended_alert_weight": 0.041,
+    "rule_semantics": "The 4.0% investment band remains unchanged. The extra 10bp is an operational alert tolerance to prevent de-minimis drift from creating repetitive user prompts; it is not a new target weight or automatic trading rule.",
+    "formal_trim_review_reopens_if": [
+      "COMPLETED_CLOSE_WEIGHT_ABOVE_4_10_PERCENT",
+      "NEW_MATERIAL_FUNDAMENTAL_TRIM_TRIGGER",
+      "NEW_MATERIAL_VALUATION_TRIGGER",
+      "USER_REQUESTS_EARLY_REVIEW"
+    ]
+  },
+  "fundamental_trigger_assessment": {
+    "source_reunderwrite_path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json",
+    "latest_issuer_primary_evidence_in_governed_reunderwrite": "2026Q1_AND_PRIOR_PRIMARY_DISCLOSURES",
+    "current_judgment": "RETAIN_REDUCED_WEIGHT_NO_ADD_PENDING_CONCENTRATION_AND_VALUATION_GATES",
+    "currently_confirmed_trim_trigger": false,
+    "trim_or_exit_triggers": [
+      "CLOUD_AI_SERVER_REVENUE_OR_ORDER_VISIBILITY_DECELERATES_MATERIALLY",
+      "MAJOR_CUSTOMER_SHARE_OR_PRICING_PRESSURE_CAUSES_MARGIN_COMPRESSION",
+      "OPERATING_CASH_FLOW_AGAIN_DIVERGES_MATERIALLY_FROM_PROFIT_WITHOUT_TEMPORARY_WORKING_CAPITAL_EXPLANATION",
+      "AI_INFRASTRUCTURE_CAPEX_ENTERS_SUSTAINED_DOWNWARD_CYCLE",
+      "COMPLETED_CLOSE_VALUATION_MOVES_ABOVE_BULL_CASE_HURDLE_WITHOUT_MATCHING_EARNINGS_UPGRADES"
+    ],
+    "fresh_evidence_requirement_before_any_trade_recommendation": "Refresh issuer-specific H1/other material primary-source evidence when available; do not execute on parent-company or thematic AI headlines alone."
+  },
+  "formal_plan": {
+    "current_action": "HOLD_600_SHARES_NO_ADD_NO_TRADE",
+    "hypothetical_trim_unit_if_later_approved": 100,
+    "hypothetical_post_trim_quantity": 500,
+    "hypothetical_post_trim_weight_at_same_price_and_total_assets": 0.0334315535,
+    "preferred_execution_logic": "Do not trim for the current 1.18bp mechanical breach. Reassess at >=4.10% completed-close weight or on a material fundamental/valuation trigger; if a true trim is later approved, 100 shares is the first practical review increment.",
+    "position_change_authorized": false,
+    "order_authorized": false,
+    "implementation_ready": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
