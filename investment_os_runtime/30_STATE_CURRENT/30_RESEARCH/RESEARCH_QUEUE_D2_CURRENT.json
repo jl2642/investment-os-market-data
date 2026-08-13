@@ -1,0 +1,118 @@
+{
+  "as_of": "2026-08-13T09:22:00+08:00",
+  "consumer_policy": {
+    "bounded_batch_size": 3,
+    "event_trigger": "PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES",
+    "fail_closed": true,
+    "idempotence": "UNCHANGED_INPUT_WATERMARK_DOES_NOT_RESET_COMPLETED_WORK",
+    "manual_dispatch": "BREAK_GLASS_ONLY",
+    "recovery_cadence": "WEEKDAYS_00:35_UTC_08:35_ASIA_SHANGHAI",
+    "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_CONSUMER"
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "trade_authority": "NONE"
+  },
+  "queue": [
+    {
+      "archetype": "DEFENSIVE_VALUE_CASH_RICH",
+      "attempt_count": 0,
+      "baseline_source_count": 0,
+      "candidate_membership_mutation_authorized": false,
+      "d1_disposition": "ADVANCE_TO_D2_DEEP_RESEARCH",
+      "d1_rank": 1,
+      "d2_questions": [
+        "Normalize 2024-2026 earnings for tax-policy effects and non-core income.",
+        "Explain working-capital seasonality, receivables and inventory conversion.",
+        "Quantify sustainable dividend capacity and capital-allocation discipline.",
+        "Separate publishing/distribution economics from low-margin ancillary businesses.",
+        "Define valuation and fundamental invalidation bands."
+      ],
+      "decision_mutation_authorized": false,
+      "first_rejection": "If normalized earnings depend mainly on tax-policy benefits or receivables/inventory consume cash without operating improvement, the apparent value case weakens materially.",
+      "input_watermark": "PENDING_FIRST_AUTO_CONSUMER_BUILD",
+      "last_attempt_at": null,
+      "order_generation_authorized": false,
+      "primary_source_count": 0,
+      "real_account_mutation_authorized": false,
+      "security_id": "000719.SZ",
+      "security_name": "中原传媒",
+      "semantic_research_required": true,
+      "simulation_mutation_authorized": false,
+      "status": "PENDING_AUTO_RESEARCH",
+      "trade_authority": "NONE"
+    },
+    {
+      "archetype": "DEFENSIVE_HYDRO_CASHFLOW",
+      "attempt_count": 0,
+      "baseline_source_count": 0,
+      "candidate_membership_mutation_authorized": false,
+      "d1_disposition": "ADVANCE_TO_D2_DEEP_RESEARCH",
+      "d1_rank": 2,
+      "d2_questions": [
+        "Normalize generation and profit across dry/normal/wet hydrology years.",
+        "Rebuild debt, financing-cost and maturity profile.",
+        "Quantify dividend capacity under normalized hydrology.",
+        "Compare valuation and cash yield with 长江电力 and utility alternatives.",
+        "Define water-level, leverage and valuation invalidation triggers."
+      ],
+      "decision_mutation_authorized": false,
+      "first_rejection": "If normalized-water earnings, leverage and financing costs imply materially lower through-cycle free cash flow than the current run-rate suggests, do not advance beyond research.",
+      "input_watermark": "PENDING_FIRST_AUTO_CONSUMER_BUILD",
+      "last_attempt_at": null,
+      "order_generation_authorized": false,
+      "primary_source_count": 0,
+      "real_account_mutation_authorized": false,
+      "security_id": "002039.SZ",
+      "security_name": "黔源电力",
+      "semantic_research_required": true,
+      "simulation_mutation_authorized": false,
+      "status": "PENDING_AUTO_RESEARCH",
+      "trade_authority": "NONE"
+    },
+    {
+      "archetype": "QUALITY_GROWTH_TESTING_INFRASTRUCTURE",
+      "attempt_count": 0,
+      "baseline_source_count": 0,
+      "candidate_membership_mutation_authorized": false,
+      "d1_disposition": "ADVANCE_TO_D2_DEEP_RESEARCH_VALUATION_GATED",
+      "d1_rank": 3,
+      "d2_questions": [
+        "Separate organic growth from acquisition/consolidation effects.",
+        "Model utilization, pricing, incremental margins and ROIC for new testing capacity.",
+        "Assess convertible-bond dilution and balance-sheet implications.",
+        "Map competitive moat and customer concentration.",
+        "Define valuation ceiling and utilization/ROIC kill conditions."
+      ],
+      "decision_mutation_authorized": false,
+      "first_rejection": "If new testing capacity produces weak utilization/ROIC or acquisition-driven growth masks weak organic growth, the valuation premium is not justified.",
+      "input_watermark": "PENDING_FIRST_AUTO_CONSUMER_BUILD",
+      "last_attempt_at": null,
+      "order_generation_authorized": false,
+      "primary_source_count": 0,
+      "real_account_mutation_authorized": false,
+      "security_id": "301215.SZ",
+      "security_name": "中汽股份",
+      "semantic_research_required": true,
+      "simulation_mutation_authorized": false,
+      "status": "PENDING_AUTO_RESEARCH",
+      "trade_authority": "NONE"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_20260811",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_20260813_BOOTSTRAP",
+  "status": "D2_AUTO_CONSUMER_INSTALL_PENDING_FIRST_RUN",
+  "summary": {
+    "batch_capacity": 3,
+    "blocked_count": 0,
+    "completed_count": 0,
+    "manual_trigger_required": false,
+    "pending_count": 3,
+    "routed_count": 3
+  }
+}

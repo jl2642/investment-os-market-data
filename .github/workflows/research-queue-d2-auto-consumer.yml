@@ -1,0 +1,126 @@
+name: Research Queue D2 Auto Consumer
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/research_queue_d2/**"
+      - ".github/workflows/research-queue-d2-auto-consumer.yml"
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/**"
+  push:
+    branches: [main]
+    paths:
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D1/**"
+      - "automation/research_queue_d2/**"
+      - ".github/workflows/research-queue-d2-auto-consumer.yml"
+  schedule:
+    - cron: "35 0 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: research-queue-d2-auto-consumer-${{ github.event_name }}
+  cancel-in-progress: false
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install runtime
+        run: python -m pip install --retries 5 --timeout 30 -r requirements.txt
+      - name: Compile and unit test D2 consumer
+        run: |
+          python -m py_compile \
+            automation/research_queue_d2/build_d2_queue.py \
+            automation/research_queue_d2/validate_d2_queue.py
+          python -m pytest -q automation/research_queue_d2/tests/test_d2_queue.py
+      - name: Build deterministic queue state without network
+        run: python automation/research_queue_d2/build_d2_queue.py
+      - name: Validate zero-economic-mutation contract
+        run: python automation/research_queue_d2/validate_d2_queue.py
+      - name: Enforce generated scope on PR
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main
+          changed="$(git diff --name-only origin/main...HEAD)"
+          echo "$changed"
+          if echo "$changed" | grep -Eq '^investment_os_runtime/30_STATE_CURRENT/(10_REAL_ACCOUNT|20_SIMULATION|40_CANDIDATE|50_DECISION_INTERFACE|60_DECISIONS)/'; then
+            echo "D2_PROTECTED_STATE_MUTATION"
+            exit 1
+          fi
+
+  operate:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install runtime
+        run: python -m pip install --retries 5 --timeout 30 -r requirements.txt
+      - name: Discover primary disclosure evidence and refresh D2 Current
+        run: python automation/research_queue_d2/build_d2_queue.py --discover-primary-sources
+      - name: Validate D2 operating state
+        run: python automation/research_queue_d2/validate_d2_queue.py
+      - name: Prove protected economic domains unchanged
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          if echo "$changed" | grep -Eq '^investment_os_runtime/30_STATE_CURRENT/(10_REAL_ACCOUNT|20_SIMULATION|40_CANDIDATE|50_DECISION_INTERFACE|60_DECISIONS)/'; then
+            echo "D2_PROTECTED_STATE_MUTATION"
+            exit 1
+          fi
+      - name: Publish governed D2 operating-state branch
+        env:
+          WP3R_PUBLISH_BRANCH: automation/research-queue-d2-current
+          WP3R_BASE_BRANCH: main
+        run: |
+          bash automation/wp3_r/publish_current_safely.sh \
+            "research: refresh D2 auto-consumer operating state" \
+            investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/
+      - name: Record operating summary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Research Queue D2 Auto Consumer
+          - D1→D2 routes are consumed automatically; manual dispatch is break-glass only.
+          - Recovery cadence: weekdays 08:35 Asia/Shanghai.
+          - Primary disclosure discovery: CNINFO via AkShare.
+          - Semantic deep research remains fail-closed and is owned by the ChatGPT-native D2 research consumer.
+          - Publication is to a governed automation branch; Canonical promotion remains PR-gated.
+          - Candidate / Real / Simulation / Decision economic mutations: 0.
+          - Orders: 0.
+          - trade_authority: NONE.
+          EOF
