@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260813_R1_002039",
+  "security_id": "002039.SZ",
+  "security_name": "黔源电力",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "HOLD_RESEARCH_COMPLETE_NO_DECISION",
+  "facts": {
+    "2023_net_profit_rmb_m": 264.78,
+    "2024_net_profit_rmb_m": 218.21,
+    "2025_net_profit_rmb_m": 600.13,
+    "2025_revenue_rmb_b": 3.2854,
+    "2025_cfo_rmb_b": 2.4345,
+    "2025_generation_100m_kwh": 121.20,
+    "2024_generation_100m_kwh": 70.51,
+    "2025_short_term_borrowings_rmb_b": 1.360,
+    "2025_long_term_borrowings_rmb_b": 3.721,
+    "2025_current_portion_long_debt_rmb_b": 0.927,
+    "2024_equivalent_three_bucket_debt_rmb_b": 7.527,
+    "2025_equivalent_three_bucket_debt_rmb_b": 6.008,
+    "2025_interest_expense_rmb_m": 215.29,
+    "2025_total_dividend_rmb_m": 209.5,
+    "2025_dividend_payout_pct": 34.91,
+    "2026_h1_net_profit_guidance_rmb_m": [220,255],
+    "2026_h1_inflow_growth_pct": 67.4
+  },
+  "d2_answers": [
+    {"question": "Normalize generation and profit across dry/normal/wet hydrology years.", "fact": "2024 generation was 70.51亿kWh and attributable profit RMB218m; 2025 generation rose to 121.20亿kWh and profit to RMB600m as water inflow rose sharply. 2026 H1 profit guidance of RMB220-255m is again explicitly linked to 67.4% higher inflow.", "interpretation": "2025 is a wet-year earnings outcome, not a safe through-cycle baseline. 2023-2025 history supports a dry/weak case around RMB220-270m and a wet case around RMB600m.", "assumption": "A through-cycle normal-water earnings band of RMB300-400m is used for valuation and dividend stress testing pending a longer basin-level hydrology series.", "judgment": "COMPLETE as a research normalization, with the normal case explicitly marked as analyst assumption."},
+    {"question": "Rebuild debt, financing-cost and maturity profile.", "fact": "At end-2025 short-term borrowings were RMB1.36bn, long-term borrowings RMB3.721bn and current portion of long-term debt RMB0.927bn, versus about RMB7.527bn across the same three buckets at end-2024. 2025 interest expense fell to RMB215m.", "interpretation": "Debt reduction was meaningful in the wet year, but financing cost remains large relative to normalized-water earnings.", "judgment": "COMPLETE. Debt service is a central earnings-normalization constraint; refinancing or leverage reversal would materially weaken the defensive case."},
+    {"question": "Quantify dividend capacity under normalized hydrology.", "fact": "2025 total dividend was about RMB209.5m, 34.91% of wet-year profit.", "assumption": "Applying a 35-45% payout to RMB300-400m normalized earnings gives RMB105-180m sustainable annual dividends, about RMB0.25-0.42/share.", "judgment": "COMPLETE. Wet-year dividends should not be extrapolated without normalized hydrology."},
+    {"question": "Compare valuation and cash yield with 长江电力 and utility alternatives.", "fact": "Recent July 2026 market snapshots showed 黔源电力 around 13x trailing P/E and about 2.5% dividend yield, versus 长江电力 around 19x P/E and roughly 3.5% yield. 黔源's trailing multiple is flattered by exceptional wet-year profit.", "interpretation": "On normalized RMB300-400m earnings, EPS is only about RMB0.82-0.94 and the effective normalized P/E is materially higher than trailing P/E. The apparent discount to 长江电力 narrows or may disappear after hydrology normalization, while 黔源 carries higher leverage and hydrology volatility.", "judgment": "COMPLETE. Do not award a 长江电力-like quality multiple until normalized free cash flow and leverage prove durable."},
+    {"question": "Define water-level, leverage and valuation invalidation triggers.", "judgment": "Research gates: (1) normalized earnings <RMB300m without clear recovery; (2) gross financial debt reverses upward materially or interest expense stops declining; (3) dividend plus maintenance/growth capex requires re-leveraging; (4) valuation >15x normalized EPS without a lower-leverage or higher-normalized-generation case. Any trigger keeps the name out of decision-grade promotion."}
+  ],
+  "first_rejection_test": "NOT_TRIGGERED_BUT_2025_WET_YEAR_RUN_RATE_REJECTED_AS_NORMALIZED_BASE",
+  "sources": [
+    {"type": "PRIMARY_DISCLOSURE_DISCOVERED", "title": "2025年年度报告", "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=002039&announcementId=1225074758&orgId=gssz0002039&announcementTime=2026-04-03"},
+    {"type": "PRIMARY_DISCLOSURE_DISCOVERED", "title": "2026年半年度业绩预告", "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=002039&announcementId=1225416666&orgId=gssz0002039&announcementTime=2026-07-10"},
+    {"type": "DISCLOSURE_MIRROR", "title": "2025年年度报告", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12058089&stockid=002039"},
+    {"type": "MARKET_SNAPSHOT_SECONDARY", "title": "黔源电力 market snapshot", "url": "https://www.google.com/finance/beta/quote/002039:SHE?hl=zh"},
+    {"type": "MARKET_SNAPSHOT_SECONDARY", "title": "长江电力 market snapshot", "url": "https://www.google.com/finance/beta/quote/600900:SHA?hl=zh"}
+  ],
+  "controls": {"candidate_membership_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "decision_mutations": 0, "orders": 0, "trade_authority": "NONE"}
+}
