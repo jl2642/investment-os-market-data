@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260813_R1_000719",
+  "security_id": "000719.SZ",
+  "security_name": "中原传媒",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "HOLD_RESEARCH_COMPLETE_NO_DECISION",
+  "facts": {
+    "2025_reported_net_profit_rmb_b": 1.37565,
+    "2025_adjusted_net_profit_rmb_b": 1.34288,
+    "2025_adjusted_growth_pct": 7.44,
+    "2025_income_tax_expense_rmb_m": 23.26,
+    "2024_income_tax_expense_rmb_m": 282.93,
+    "2026_q1_revenue_growth_pct": -2.09,
+    "2026_q1_adjusted_net_profit_growth_pct": 0.89,
+    "2026_q1_cfo_rmb_m": -245.32,
+    "2025_dividend_per_share_rmb": 0.66,
+    "2025_dividend_total_rmb_m": 675.31,
+    "payout_vs_adjusted_profit_pct": 50.29,
+    "tax_policy_expiry": "2027-12-31",
+    "segments": {"publishing_gross_margin_pct": 37.41, "distribution_gross_margin_pct": 31.93, "materials_sales_gross_margin_pct": 5.85}
+  },
+  "d2_answers": [
+    {"question": "Normalize 2024-2026 earnings for tax-policy effects and non-core income.", "fact": "2025 reported profit rose 33.57%, but adjusted profit rose only 7.44%; income-tax expense fell from RMB282.93m in 2024 to RMB23.26m in 2025. Relevant cultural-enterprise income-tax exemption and publishing VAT preferences run through 2027-12-31.", "interpretation": "The headline 2025 growth rate materially overstates recurring operating growth. A working normalized earnings base is approximately RMB1.25-1.35bn while the current tax regime remains in force; 2026 Q1 adjusted profit growth of only 0.89% supports a low-single-digit near-term core growth assumption.", "judgment": "COMPLETE. Treat post-2027 tax normalization as a discrete downside scenario rather than capitalizing 2025 headline growth."},
+    {"question": "Explain working-capital seasonality, receivables and inventory conversion.", "fact": "2025 quarterly CFO was strongly seasonal (Q1 negative, Q2 strongly positive, Q3 negative, Q4 strongly positive). 2026 Q1 CFO remained negative at RMB245.32m but improved YoY. Q1 2026 receivables and inventory rose versus year-end while revenue fell 2.09%.", "interpretation": "The negative Q1 cash flow is consistent with historical seasonal working-capital build, but the 2026 Q1 rise in receivables/inventory requires H1/H2 unwind.", "judgment": "COMPLETE with monitoring gate: trailing-12-month CFO should remain broadly at or above normalized net profit; persistent receivable/inventory growth without revenue recovery invalidates the cash-rich value thesis."},
+    {"question": "Quantify sustainable dividend capacity and capital-allocation discipline.", "fact": "The 2025 dividend is RMB0.66/share, about RMB675m total, roughly 50.3% of adjusted profit. Q1 2026 cash remained above RMB6bn and reported balance-sheet leverage is low.", "interpretation": "A 45-55% payout on normalized RMB1.25-1.35bn earnings implies roughly RMB560-740m annual cash dividends, or approximately RMB0.55-0.72/share, before any post-2027 tax step-down.", "judgment": "COMPLETE. Dividend capacity is currently well supported, but payout sustainability must be re-underwritten for 2028 if tax preferences are not renewed."},
+    {"question": "Separate publishing/distribution economics from low-margin ancillary businesses.", "fact": "2025 publishing gross margin was 37.41%, distribution 31.93%, while materials sales gross margin was only 5.85% and materials revenue declined materially.", "interpretation": "Publishing/distribution generate the economic franchise; materials sales inflate revenue scale but contribute little economic value.", "judgment": "COMPLETE. Valuation should be anchored to publishing/distribution earnings and cash generation, not consolidated revenue multiples."},
+    {"question": "Define valuation and fundamental invalidation bands.", "assumption": "Use normalized EPS of about RMB1.22-1.32 under the current tax regime and no structural growth premium.", "judgment": "Research valuation bands: <=8x normalized P/E = defensive value zone (~RMB9.8-10.6/share); 8-10x = fair/watch (~RMB9.8-13.2); >11x requires durable growth or evidence that post-2027 tax economics are preserved. Fundamental invalidation: tax support lapses without operating offset, TTM CFO persistently below normalized earnings, receivables/inventory fail to unwind, or governance/operating disruption becomes material."}
+  ],
+  "first_rejection_test": "NOT_TRIGGERED_ON_CURRENT_EVIDENCE_BUT_TAX_AND_WORKING_CAPITAL_GATES_ACTIVE",
+  "sources": [
+    {"type": "PRIMARY_DISCLOSURE_DISCOVERED", "title": "2025年年度报告", "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000719&announcementId=1225112362&orgId=gssz0000719&announcementTime=2026-04-17"},
+    {"type": "PRIMARY_DISCLOSURE_DISCOVERED", "title": "2026年一季度报告", "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000719&announcementId=1225175812&orgId=gssz0000719&announcementTime=2026-04-27"},
+    {"type": "DISCLOSURE_MIRROR", "title": "2025年年度报告", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12102061&stockid=000719"},
+    {"type": "DISCLOSURE_MIRROR", "title": "2026年一季度报告", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12201439&stockid=000719"}
+  ],
+  "controls": {"candidate_membership_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "decision_mutations": 0, "orders": 0, "trade_authority": "NONE"}
+}
