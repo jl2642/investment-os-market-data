@@ -97,7 +97,7 @@ def discover_cninfo(security_id: str, *, start_date: str, end_date: str) -> tupl
     )
     records.sort(
         key=lambda item: (
-            -sum(keyword in item["title"] for keyword in keywords),
+            sum(keyword in item["title"] for keyword in keywords),
             item["publication_time"],
             item["title"],
         ),
