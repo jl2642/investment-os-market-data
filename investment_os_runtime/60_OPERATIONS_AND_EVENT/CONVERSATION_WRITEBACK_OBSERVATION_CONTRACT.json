@@ -1,0 +1,82 @@
+{
+  "contract_id": "CONVERSATION_WRITEBACK_OBSERVATION_V1",
+  "effective_status": "PROPOSED_IN_PR_NOT_ACTIVE_UNTIL_MERGED",
+  "purpose": "Persist decision-relevant observations from substantive investment conversations without converting ordinary discussion into investment-state mutations.",
+  "classifications": {
+    "NO_WRITEBACK": "Casual market discussion, exploratory hypothesis, emotional reaction or unverified opinion; no persistence.",
+    "OBSERVATION_WRITEBACK": "Evidence-backed decision-preparation finding with a future trigger, review condition or next research action; may be persisted automatically in the observation domain during an active governed ChatGPT interaction.",
+    "STATE_UPDATE_PROPOSAL": "User-confirmed transaction, holding, cash, valuation or other state fact that would change an investment-state domain; must follow the existing state writeback gate.",
+    "POLICY_PROPOSAL": "Repeated multi-case evidence suggesting a tunable policy change; proposal only until regression/evidence review and explicit user approval.",
+    "CORE_PROPOSAL": "Long-lived objective, philosophy or safety-boundary change; proposal only and never automatically applied."
+  },
+  "default_classification": "NO_WRITEBACK",
+  "observation_auto_write": {
+    "allowed": true,
+    "separate_user_confirmation_required": false,
+    "scope": "OBSERVATION_DOMAIN_ONLY",
+    "requires": [
+      "SUBSTANTIVE_INVESTMENT_RELEVANCE",
+      "SOURCE_OR_USER_EVIDENCE",
+      "DECISION_RELEVANT_FOLLOW_UP",
+      "CONFIDENCE_RECORDED",
+      "TRIGGER_OR_REVIEW_DATE_RECORDED",
+      "NEXT_ACTION_RECORDED"
+    ],
+    "forbidden_mutations": [
+      "REAL_ACCOUNT_HOLDINGS",
+      "SIMULATION_HOLDINGS",
+      "CASH_BALANCE",
+      "CANDIDATE_MEMBERSHIP",
+      "THESIS_STATUS",
+      "POLICY_EFFECTIVE_STATE",
+      "CORE_STATIC",
+      "TRADE_PERMISSION",
+      "ORDER"
+    ]
+  },
+  "observation_schema": {
+    "required_fields": [
+      "observation_id",
+      "created_at",
+      "status",
+      "object_id",
+      "object_name",
+      "domain",
+      "finding",
+      "evidence_refs",
+      "confidence",
+      "trigger_or_review_condition",
+      "review_or_expiry_date",
+      "next_action",
+      "promotion_route"
+    ],
+    "status_values": [
+      "ACTIVE",
+      "MATURED",
+      "EXPIRED",
+      "WEAKENED",
+      "STRENGTHENED",
+      "ROUTED_TO_RESEARCH",
+      "CLOSED_NO_ACTION"
+    ],
+    "confidence_values": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ],
+    "promotion_route_values": [
+      "NONE",
+      "RESEARCH",
+      "STATE_UPDATE_PROPOSAL",
+      "POLICY_PROPOSAL",
+      "CORE_PROPOSAL"
+    ]
+  },
+  "maintenance": {
+    "weekly_cleanup": true,
+    "monthly_discipline_review_consumes_observations": true,
+    "expired_observations_must_not_remain_actionable": true,
+    "no_silent_promotion": true
+  },
+  "trade_authority": "NONE"
+}
