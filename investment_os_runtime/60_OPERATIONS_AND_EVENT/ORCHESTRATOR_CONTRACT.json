@@ -54,6 +54,27 @@
       "output": "ACCEPTED_OR_LKG"
     }
   ],
+  "conversation_writeback_triage": {
+    "classifications": [
+      "NO_WRITEBACK",
+      "OBSERVATION_WRITEBACK",
+      "STATE_UPDATE_PROPOSAL",
+      "POLICY_PROPOSAL",
+      "CORE_PROPOSAL"
+    ],
+    "default": "NO_WRITEBACK",
+    "observation_writeback_separate_user_confirmation_required": false,
+    "observation_domain_may_not_mutate": [
+      "REAL_ACCOUNT",
+      "SIMULATION",
+      "CANDIDATE",
+      "THESIS",
+      "POLICY",
+      "CORE_STATIC",
+      "TRADE_PERMISSION"
+    ],
+    "state_policy_core_changes_remain_proposal_only": true
+  },
   "hard_gates": [
     "AUTHORITY_VALID",
     "SCHEMA_VALID",

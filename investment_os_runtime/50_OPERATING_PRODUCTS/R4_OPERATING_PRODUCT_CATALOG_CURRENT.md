@@ -6,17 +6,24 @@
 - 产品数量：`7`
 - Operating Activation：`false`
 - 下一阶段：`R5_ATTRIBUTION_AND_CALIBRATION_DEVELOPMENT_AFTER_R4_PRESENT_ON_MAIN`
-- 当前口径修订：`2026-08-13 USER_CONFIRMED_DAILY_SCOPE_PATCH`
+- 当前口径修订：`2026-08-13 USER_CONFIRMED_DAILY_SCOPE_PATCH + INVESTMENT_CONSTITUTION_EVOLUTION_V1_PROPOSED`
 
 | 产品 | 开发默认节奏 | 核心职责 |
 |---|---|---|
 | 统一运营状态页 | Whenever any upstream Current changes; no schedule is activated in R4 | Show authoritative watermarks, product readiness, blockers and the sole next operating step. |
-| 日度运营简报 | Development default: trading days 23:15 Asia/Shanghai after portfolio/NAV refresh | Surface state changes, material events, abnormal moves, stale inputs and required follow-up without full attribution. |
-| 周度组合与候选池审查 | Development default: Saturday 09:30 Asia/Shanghai after Friday close and NAV completion | Review sleeve drift, position exceptions, Candidate lifecycle changes and unresolved evidence gaps. |
-| 月度投资复盘 | Development default: T+1 10:00 after month-end close, NAV and transaction continuity are complete | Provide portfolio performance, structural drift, decision history and a clearly separated R5 attribution placeholder. |
-| 季度组合与候选池重估 | Development default: after quarter-end portfolio/NAV close and required financial refresh; target T+5 10:00 | Re-underwrite portfolio roles, financial evidence, valuation ranges and Candidate promotions or removals. |
-| 年度策略复盘 | Development default: within the first ten trading days after year-end data completeness | Review annual portfolio outcomes, research process, Candidate conversion and strategy governance; R5 supplies final attribution. |
+| 日度运营简报 | Development default: trading days 23:15 Asia/Shanghai after portfolio/NAV refresh | Surface state changes, material events, abnormal moves, stale inputs and required follow-up; default valid conclusion is NO ACTION. |
+| 周度组合与候选池审查 | Development default: Saturday 09:30 Asia/Shanghai after Friday close and NAV completion | Review sleeve drift, position exceptions, Candidate/thesis changes and clean the Observation queue: mature, expire, strengthen, weaken or route to research. |
+| 月度投资复盘 | Development default: T+1 10:00 after month-end close, NAV and transaction continuity are complete | Provide portfolio attribution plus an Investment Discipline Review covering chasing, averaging-down, cost anchoring, turnover, cash-deployment pressure, concentration drift and process-vs-outcome; output no more than three calibration proposals. |
+| 季度组合与候选池重估 | Development default: after quarter-end portfolio/NAV close and required financial refresh; target T+5 10:00 | Re-underwrite portfolio roles, financial evidence, valuation ranges, ETF/cash opportunity cost, long-horizon thesis evidence and Candidate lifecycle. |
+| 年度策略复盘 | Development default: within the first ten trading days after year-end data completeness | Audit investment objective, risk capacity, constitution, behavioral errors, opportunity cost, rule effectiveness and rule simplification; R5 supplies final attribution. |
 | 事件与异常警报 | On evidence ingest; development fallback is no more frequent than hourly when later activated | Classify material company, portfolio, market and data-quality events and route them to the correct review gate. |
+
+## 对话写回与Observation
+
+- 每次实质性投资讨论按`NO_WRITEBACK`、`OBSERVATION_WRITEBACK`、`STATE_UPDATE_PROPOSAL`、`POLICY_PROPOSAL`、`CORE_PROPOSAL`分类；用户不需要逐次询问“是否写后台”。
+- 证据支持、具有未来触发/复核条件且可能影响后续判断的结论，应登记为Observation；普通行情观点、探索性假设和未经验证意见不持久化。
+- Observation必须记录对象、账户/研究域、finding、evidence、confidence、trigger、review/expiry date、next action和promotion route；Observation登记本身不是BUY/SELL/ADD/REDUCE信号。
+- 受治理ChatGPT可在当前互动中自动登记Observation，无需逐条再次确认；任何真实/模拟持仓、Candidate、Thesis、Policy或Core变化仍必须走原有Proposal和用户确认门禁。
 
 ## 日度持仓与估值范围
 
