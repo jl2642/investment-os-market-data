@@ -51,7 +51,7 @@ jobs:
           python -m py_compile \
             automation/research_queue_d2/build_d2_queue.py \
             automation/research_queue_d2/validate_d2_queue.py
-          pytest -q automation/research_queue_d2/tests/test_d2_queue.py
+          python -m pytest -q automation/research_queue_d2/tests/test_d2_queue.py
       - name: Build deterministic queue state without network
         run: python automation/research_queue_d2/build_d2_queue.py
       - name: Validate zero-economic-mutation contract
