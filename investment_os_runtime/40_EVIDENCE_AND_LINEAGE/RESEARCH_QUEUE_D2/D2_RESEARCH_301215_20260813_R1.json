@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260813_R1_301215",
+  "security_id": "301215.SZ",
+  "security_name": "中汽股份",
+  "status": "D2_RESEARCH_HOLD_EVIDENCE_GAP",
+  "research_disposition": "HOLD_NOT_DECISION_GRADE",
+  "facts": {
+    "2025_revenue_rmb_m": 577.77,
+    "2025_net_profit_rmb_m": 212.68,
+    "2025_adjusted_net_profit_rmb_m": 181.90,
+    "2025_cfo_rmb_m": 300.16,
+    "2025_top5_customer_share_pct": 57.25,
+    "2025_related_party_customer_share_pct": 20.17,
+    "2026_q1_revenue_growth_restated_pct": 11.27,
+    "2026_q1_adjusted_net_profit_growth_restated_pct": 75.50,
+    "convertible_bond_gross_rmb_b": 1.03904,
+    "convertible_bond_net_proceeds_rmb_b": 1.03048,
+    "conversion_price_rmb": 5.99,
+    "estimated_max_new_shares_m": 173.46,
+    "estimated_pre_conversion_dilution_pct": 13.12,
+    "salt_city_project_investment_rmb_b": 1.281,
+    "salt_city_project_stage": "RAMPING"
+  },
+  "d2_answers": [
+    {"question": "Separate organic growth from acquisition/consolidation effects.", "fact": "The Sep-2025 acquisition of the Hulunbuir extreme-testing center was under common control, so historical comparatives were restated. 2026 Q1 adjusted profit growth of 75.5% explicitly includes the acquired entity, and the company also states that the Salt City proving ground began generating revenue from 2024 H2.", "interpretation": "Reported YoY growth mixes organic ramp, same-control consolidation and prior-period restatement. The current disclosures do not provide a clean standalone pro-forma bridge by entity.", "judgment": "PARTIAL. Organic direction is positive, but exact organic growth remains unproven."},
+    {"question": "Model utilization, pricing, incremental margins and ROIC for new testing capacity.", "fact": "The Salt City smart-connected proving ground has about RMB1.281bn investment and was still described as capacity-ramping; 2025 realized project benefits were far below mature expected benefits. H1 2025 disclosures show depreciation from new facilities raising costs.", "interpretation": "Incremental margins can improve sharply with utilization because the cost base is fixed-asset heavy, but no sufficiently granular utilization, price/mix or project-level incremental EBITDA/ROIC series is disclosed.", "judgment": "BLOCKED. This is the decisive unresolved D2 question; do not mark D2 complete until project-level utilization and return proxies can be reconstructed from subsequent H1/H2 disclosures."},
+    {"question": "Assess convertible-bond dilution and balance-sheet implications.", "fact": "The 2026 convertible bond raised RMB1.039bn gross / RMB1.030bn net at a RMB5.99 conversion price. Full conversion would imply roughly 173.5m new shares, about 13.1% of the current weighted share base before conversion (about 11.6% of post-conversion shares). Proceeds fund another large ice/snow testing base.", "interpretation": "The bond initially adds funding capacity and execution runway but introduces meaningful future dilution and doubles down on capital-intensive proving-ground expansion before the prior major project has demonstrated mature returns.", "judgment": "COMPLETE. Dilution/capital-efficiency risk is material."},
+    {"question": "Map competitive moat and customer concentration.", "fact": "2025 top-five customers were 57.25% of revenue; controlling shareholder 中汽中心 alone represented 20.17%. The company operates complementary proving grounds across Salt City, Hulunbuir, Hainan and Changchun and has specialized smart-connected/extreme-climate test infrastructure.", "interpretation": "The moat is physical/scenario infrastructure plus the CATARC ecosystem and nationwide climate coverage, but customer concentration and related-party demand reduce the independence of the demand signal.", "judgment": "COMPLETE with concentration risk active."},
+    {"question": "Define valuation ceiling and utilization/ROIC kill conditions.", "assumption": "Until mature project ROIC is demonstrated, use a maximum research multiple of about 30x normalized RMB220-250m earnings (EPS roughly RMB0.17-0.19), implying an analytical ceiling around RMB5.0-5.7/share before considering full-conversion dilution.", "judgment": "Kill conditions: (1) Salt City utilization/benefits remain well below mature plan after another full operating year; (2) combined new-project after-tax return fails to clear an 8-10% research hurdle after ramp; (3) customer/related-party concentration rises while third-party growth slows; (4) conversion dilution occurs without proportionate earnings accretion. Because condition (1) cannot yet be evidenced, status remains HOLD/EVIDENCE_GAP."}
+  ],
+  "first_rejection_test": "NOT_FORMALLY_TRIGGERED_BUT_CAPACITY_ROIC_EVIDENCE_INSUFFICIENT",
+  "sources": [
+    {"type": "DISCLOSURE_MIRROR", "title": "2025年年度报告", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12265113&stockid=301215"},
+    {"type": "DISCLOSURE_MIRROR", "title": "2026年一季度报告", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12265097&stockid=301215"},
+    {"type": "DISCLOSURE_MIRROR", "title": "可转换公司债券上市公告书", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12409517&stockid=301215"},
+    {"type": "PRIMARY_IR", "title": "中汽股份2025年半年度业绩说明会", "url": "https://irm.cninfo.com.cn/interview/interview/activityInfo?activityId=1256784474153705472"}
+  ],
+  "controls": {"candidate_membership_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "decision_mutations": 0, "orders": 0, "trade_authority": "NONE"},
+  "evidence_gap": {"material": true, "missing": "Project-level utilization, realized pricing/mix and incremental return series sufficient to calculate mature ROIC for Salt City and to underwrite the new ice/snow base.", "recovery": "Revisit at next formal H1/H2/annual disclosure or a primary-source IR disclosure with utilization/benefit metrics.", "manual_user_input_required": false}
+}
