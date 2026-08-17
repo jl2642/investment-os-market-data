@@ -1,5 +1,6 @@
 {
   "blocked_or_exception_count": 1,
+  "duplicate_replaced_on_latest_build": false,
   "entries": [
     {
       "compatibility_workflow_run_id": 30968030681,
@@ -42,16 +43,44 @@
       "validation_status": "REMOTE_PR_GATES_PASS_MERGED_TO_MAIN",
       "workflow_name": "Canonical Position Update / User-Confirmed Intraday / WP2-R Compatible",
       "workflow_run_attempt": 1
+    },
+    {
+      "canonical_source_commit": "66021aceec696de0c5136d673c62c436fbbd5d42",
+      "exceptions": [
+        "NO_EOD_SNAPSHOT_CREATED",
+        "OBSERVATION_BUILD_FAILED",
+        "UPSTREAM_OUTPUT_NOT_OBSERVABLE"
+      ],
+      "idempotency_key": "R2 WP2-R tracked price and NAV refresh:31985934901:1",
+      "market_data_watermark": null,
+      "observed_at": "2026-08-17T01:47:12Z",
+      "position_watermark": null,
+      "report_ids": {
+        "DAILY": "DAILY_3e8a68fbc5a1982aa165",
+        "STATUS": "STATUS_c2e34e4ae3988271230e"
+      },
+      "run_id": "RUN_1788fb89b8ed027f7896",
+      "run_manifest": "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/WP2R_31985934901_a1_FALLBACK.json",
+      "snapshot_ids": {},
+      "status": "FAIL",
+      "trade_authority": "NONE",
+      "upstream_conclusion": "success",
+      "upstream_run_attempt": 1,
+      "upstream_run_id": "31985934901"
     }
   ],
-  "failure_count": 0,
+  "failure_count": 2,
+  "latest_observed_at": "2026-08-17T01:47:12Z",
+  "latest_run_id": "RUN_1788fb89b8ed027f7896",
   "ledger_id": "P0_I1_OPERATING_RUN_LEDGER_CURRENT",
+  "missed_run_detection": "PARTIAL_REQUIRES_EXCHANGE_CALENDAR_INTEGRATION",
   "operating_activation": false,
   "orders": 0,
   "post_merge_closure_id": "POSITION_UPDATE_20260804_POST_MERGE_CLOSURE",
-  "run_count": 1,
+  "recovery_sla": "PENDING_R6_EVIDENCE",
+  "run_count": 2,
   "schema_version": "1.0.0",
-  "status": "PASS_WITH_EXCEPTIONS_CANONICAL_ON_MAIN",
-  "success_count": 1,
+  "status": "OBSERVATION_ACTIVE_NOT_PRODUCTION_ACCEPTED",
+  "success_count": 0,
   "trade_authority": "NONE"
 }
