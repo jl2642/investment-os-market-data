@@ -18,6 +18,11 @@ on:
       - "config/fmdl2_incremental_refresh.json"
       - "config/fmdl2_full_backfill_plan.json"
       - ".github/workflows/fmdl-2b4-full-rebase.yml"
+  schedule:
+    # GitHub cron is UTC. 08:00 UTC = 16:00 Asia/Shanghai.
+    # Weekday scheduling is only a wake-up signal; the Sina exchange calendar
+    # and the gap detector decide whether any recovery work is actually needed.
+    - cron: "0 8 * * 1-5"
   workflow_dispatch:
 
 permissions:
@@ -56,14 +61,20 @@ jobs:
             tests/test_round1_governed_publication_workflows.py
 
   prepare-recovery:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    outputs:
+      recovery_required: ${{ steps.assess.outputs.required }}
+      target_session: ${{ steps.assess.outputs.target }}
+      previous_session: ${{ steps.assess.outputs.previous }}
+      gap_count: ${{ steps.assess.outputs.gap_count }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -76,15 +87,66 @@ jobs:
           from scripts.validate_fmdl2b4_freshness import validate_manual_recovery_window
           validate_manual_recovery_window()
           PY
+      - name: Assess multi-session recovery need
+        id: assess
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from scripts.fmdl2b4_history import ROOT, load_current_manifest
+          from scripts.run_incremental_history_refresh import completed_sessions_between
+          from scripts.validate_fmdl2b4_freshness import latest_completed_trade_date
+
+          prior = load_current_manifest(ROOT)
+          previous = str(prior["as_of_date"])
+          target = latest_completed_trade_date()
+          if previous > target:
+              raise RuntimeError(
+                  f"HISTORY_CURRENT_{previous}_AHEAD_OF_LATEST_COMPLETED_SESSION_{target}"
+              )
+          sessions = completed_sessions_between(previous, target) if target > previous else []
+          required = len(sessions) >= 2
+          payload = {
+              "status": "RECOVERY_REQUIRED" if required else "NO_OP_RECOVERY_NOT_REQUIRED",
+              "previous_as_of_date": previous,
+              "target_as_of_date": target,
+              "missing_completed_sessions": sessions,
+              "missing_completed_session_count": len(sessions),
+              "recovery_required": required,
+              "trade_authority": "NONE",
+          }
+          print(json.dumps(payload, ensure_ascii=False))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"required={'true' if required else 'false'}\n")
+              handle.write(f"previous={previous}\n")
+              handle.write(f"target={target}\n")
+              handle.write(f"gap_count={len(sessions)}\n")
+          PY
+      - name: Record no-op recovery watch
+        if: steps.assess.outputs.required != 'true'
+        run: |
+          {
+            echo "## FMDL 2B-4 Auto-Recovery Watch"
+            echo "- status: \`NO_OP_RECOVERY_NOT_REQUIRED\`"
+            echo "- history_current: \`${{ steps.assess.outputs.previous }}\`"
+            echo "- latest_completed_session: \`${{ steps.assess.outputs.target }}\`"
+            echo "- missing_completed_session_count: \`${{ steps.assess.outputs.gap_count }}\`"
+            echo "- 24-shard full rebase started: \`NO\`"
+            echo "- trade_authority: \`NONE\`"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Refresh and freeze one completed-session Market Current
+        if: steps.assess.outputs.required == 'true'
         run: |
           python pipeline/run_daily.py --trigger manual
           python -m scripts.refresh_investment_os_interface
           python scripts/validate_investment_os_interface.py
           python -m scripts.validate_fmdl2b4_freshness
       - name: Confirm multi-session recovery is actually required
+        if: steps.assess.outputs.required == 'true'
         run: python -m scripts.build_fmdl2b4_full_rebase_candidate --plan-only
       - name: Upload frozen recovery inputs
+        if: steps.assess.outputs.required == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: fmdl2b4-rebase-market-current
@@ -96,7 +158,7 @@ jobs:
             outputs/status/FMDL2B4_FULL_REBASE_PLAN.json
 
   full-history-shards:
-    if: github.event_name == 'workflow_dispatch'
+    if: needs.prepare-recovery.outputs.recovery_required == 'true'
     needs: prepare-recovery
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -136,7 +198,7 @@ jobs:
           path: outputs/recovery/fmdl2b4/
 
   aggregate-validate-stage:
-    if: github.event_name == 'workflow_dispatch'
+    if: needs.full-history-shards.result == 'success'
     needs: full-history-shards
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -218,6 +280,7 @@ jobs:
           {
             echo "### Governed recovery handoff"
             echo "- result_branch: \`$RESULT_BRANCH\`"
+            echo "- trigger: \`${{ github.event_name }}\`"
             echo "- direct_main_push: disabled"
             echo "- daily_incremental_gate_relaxed: false"
             echo "- next_gate: independent review + PR promotion"
@@ -228,8 +291,10 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## FMDL 2B-4 Multi-Session Recovery
-          - Recovery is manual-only and cannot replace the normal daily fast path.
-          - On A-share trading days, manual recovery is fail-closed before 15:30 Asia/Shanghai so intraday spot data cannot be mislabeled as a completed close.
+          - The normal daily incremental path remains authoritative for ordinary one-session updates.
+          - A weekday 16:00 Asia/Shanghai watch checks the exchange calendar and starts Full Rebase only when at least two completed sessions are missing.
+          - Manual workflow_dispatch remains available as an emergency recovery entrypoint and uses the same conditional gap gate.
+          - On A-share trading days, recovery is fail-closed before 15:30 Asia/Shanghai so intraday spot data cannot be mislabeled as a completed close.
           - A single completed-session Market Current is frozen before all 24 shards.
           - Unresolved symbols preserve their prior LKG and remain quarantined.
           - Factors are rebuilt only after the recovery history candidate passes.
