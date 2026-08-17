@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import random
+import re
 import statistics
 import time
 import urllib.error
@@ -201,8 +202,70 @@ def eastmoney(output: Path, page_size: int, timeout: int) -> tuple[list[dict], d
     }
 
 
+def completed_session_from_sina_calendar(raw: bytes, now_shanghai: datetime | None = None) -> str | None:
+    """Return the latest completed SSE trading session from Sina's trade calendar.
+
+    The Sina full-universe endpoint exposes intraday quote times but no reliable
+    trading date.  The provider's KLC_TD_SH calendar is therefore used only as
+    a date authority.  Before the 15:05 Shanghai close buffer, today's session
+    is excluded so a manual/pre-close run cannot mislabel intraday data as a
+    completed close.
+    """
+    text = raw.decode("gb18030", errors="ignore")
+    sessions = sorted(set(re.findall(r"\b\d{4}-\d{2}-\d{2}\b", text)))
+    if not sessions:
+        return None
+    now_shanghai = now_shanghai or datetime.now(ZoneInfo("Asia/Shanghai"))
+    today = now_shanghai.date().isoformat()
+    eligible = [session for session in sessions if session <= today]
+    if eligible and eligible[-1] == today and (now_shanghai.hour, now_shanghai.minute) < (15, 5):
+        eligible = eligible[:-1]
+    return eligible[-1] if eligible else None
+
+
+def sina_session_probe(output: Path, timeout: int) -> tuple[str | None, dict]:
+    url = "https://finance.sina.com.cn/realstock/company/klc_td_sh.txt"
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 Investment-OS-WP3-2A/1.0",
+            "Referer": "https://finance.sina.com.cn/",
+            "Accept": "text/plain,*/*",
+        },
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        raw = response.read()
+    raw_path = output / "sina_trade_calendar_probe.txt"
+    raw_path.write_bytes(raw)
+    session = completed_session_from_sina_calendar(raw)
+    return session, {
+        "file": raw_path.name,
+        "size_bytes": len(raw),
+        "sha256": sha256_bytes(raw),
+        "request_url": url,
+        "calendar": "KLC_TD_SH",
+        "derived_session": session,
+        "status": "PASS" if session else "UNRESOLVED",
+    }
+
+
 def sina(output: Path, page_size: int, timeout: int, manual_session: str | None) -> tuple[list[dict], dict]:
     url = "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData"
+    provider_session = manual_session
+    session_probe = None
+    freshness_authority = "WORKFLOW_DISPATCH_OVERRIDE" if manual_session else "UNRESOLVED"
+    if not provider_session:
+        try:
+            provider_session, session_probe = sina_session_probe(output, timeout)
+        except Exception as exc:
+            session_probe = {
+                "status": "FAIL",
+                "error": f"{type(exc).__name__}: {exc}",
+                "derived_session": None,
+            }
+        if provider_session:
+            freshness_authority = "PROVIDER_TRADE_CALENDAR_KLC_TD_SH"
+
     rows: list[dict] = []
     raw_pages = []
     page = 1
@@ -237,7 +300,7 @@ def sina(output: Path, page_size: int, timeout: int, manual_session: str | None)
                 "float_market_cap": clean(item.get("nmc")), "source_provider": "sina_public",
                 "source_market_id": None,
                 "source_timestamp": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
-                "provider_session_date": manual_session,
+                "provider_session_date": provider_session,
             })
         if len(batch) < page_size:
             break
@@ -247,9 +310,10 @@ def sina(output: Path, page_size: int, timeout: int, manual_session: str | None)
         time.sleep(0.2)
     return rows, {
         "provider": "sina_public", "declared_total": len(rows), "raw_pages": raw_pages,
-        "derived_session": manual_session,
-        "derived_session_ratio": 1.0 if manual_session else 0.0,
-        "freshness_authority": "WORKFLOW_DISPATCH_OVERRIDE" if manual_session else "UNRESOLVED",
+        "derived_session": provider_session,
+        "derived_session_ratio": 1.0 if provider_session else 0.0,
+        "session_probe": session_probe,
+        "freshness_authority": freshness_authority,
     }
 
 

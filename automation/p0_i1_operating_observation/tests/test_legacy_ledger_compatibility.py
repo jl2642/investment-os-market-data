@@ -65,9 +65,14 @@ class LegacyLedgerCompatibilityTest(unittest.TestCase):
             self.assertEqual(result["trade_authority"], "NONE")
 
             updated = json.loads(ledger_path.read_text(encoding="utf-8"))
-            latest = updated["entries"][-1]
-            self.assertEqual(latest["upstream_run_id"], "legacy-ledger-regression")
-            self.assertTrue(latest.get("run_manifest"))
+            matches = [
+                row
+                for row in updated["entries"]
+                if row.get("upstream_run_id") == "legacy-ledger-regression"
+            ]
+            self.assertEqual(len(matches), 1, matches)
+            regression_row = matches[0]
+            self.assertTrue(regression_row.get("run_manifest"))
 
 
 if __name__ == "__main__":
