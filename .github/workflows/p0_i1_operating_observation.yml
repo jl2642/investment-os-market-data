@@ -35,6 +35,11 @@ env:
 
 jobs:
   observe:
+    # workflow_run also fires for WP2-R pull-request validation. Those runs do
+    # not publish automation/wp2r-eod-* production branches and therefore are
+    # not operating observations. P0-I1 keeps its own pull_request CI path,
+    # while only non-PR upstream WP2-R completions enter the operating observer.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.event != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -250,6 +255,7 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## P0-I1 Operating Observation
           - Follows the existing WP2-R schedule; adds no new market-data schedule
+          - Ignores WP2-R pull-request validation completions because they do not publish production result branches
           - Persists Run Manifest, EOD snapshots when eligible, STATUS/DAILY products, report manifests and run ledger
           - If the normal observer cannot read real inputs, a minimal fail-closed record is still persisted
           - Scheduled evidence is stored in immutable artifacts and governed branches, never pushed directly to protected main
