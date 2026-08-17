@@ -171,12 +171,20 @@ def test_corrupted_recovery_shard_hash_fails_before_current_mutation(
     assert not (tmp_path / "outputs/history/refresh_candidate").exists()
 
 
-def test_recovery_workflow_is_manual_only_governed_and_never_direct_pushes_main() -> None:
+def test_recovery_workflow_has_conditional_auto_watch_and_never_direct_pushes_main() -> None:
     workflow = Path(".github/workflows/fmdl-2b4-full-rebase.yml").read_text(encoding="utf-8")
 
     assert "workflow_dispatch:" in workflow
-    assert "schedule:" not in workflow
-    assert workflow.count("if: github.event_name == 'workflow_dispatch'") >= 3
+    assert "schedule:" in workflow
+    assert 'cron: "0 8 * * 1-5"' in workflow
+    assert "08:00 UTC = 16:00 Asia/Shanghai" in workflow
+    assert "Assess multi-session recovery need" in workflow
+    assert "missing_completed_session_count" in workflow
+    assert "required = len(sessions) >= 2" in workflow
+    assert "NO_OP_RECOVERY_NOT_REQUIRED" in workflow
+    assert "steps.assess.outputs.required == 'true'" in workflow
+    assert "needs.prepare-recovery.outputs.recovery_required == 'true'" in workflow
+    assert "validate_manual_recovery_window" in workflow
     assert "TRADE_AUTHORITY: NONE" in workflow
     assert "automation/fmdl2b4-rebase-" in workflow
     assert "git push origin main" not in workflow
