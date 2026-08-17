@@ -223,14 +223,14 @@ def main() -> int:
     elif interface_accepted_on_main:
         execution.update(
             {
-                "current_step": "WP5_F_OPERATING_PROPOSAL_PENDING_MERGE",
+                "current_step": "WP5_F_OPERATING_PROPOSAL_CURRENT_IF_PRESENT_ON_MAIN",
                 "github_merge_sha": canonical_interface_merge_sha,
                 "latest_governed_merge_sha": canonical_interface_merge_sha,
-                "next_task": "MERGE_GOVERNED_WP5_F_CONTINUITY_PROPOSAL",
-                "overall_status": "WP5_F_INTERFACE_ACCEPTED_OPERATING_PROPOSAL_PENDING_MERGE",
+                "next_task": next_task,
+                "overall_status": "WP5_F_INTERFACE_ACCEPTED_REQUEST_CURRENT_IF_PRESENT_ON_MAIN",
             }
         )
-        wp5["status"] = "POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN_PROPOSAL_PENDING_MERGE"
+        wp5["status"] = "POSITION_CONTINUITY_INTERFACE_ACCEPTED_REQUEST_CURRENT_IF_PRESENT_ON_MAIN"
     else:
         execution.update(
             {
@@ -281,12 +281,12 @@ def main() -> int:
         registry,
         {
             "asset_id": "WP5_POSITION_CONTINUITY_REQUEST_CURRENT",
-            "authority": "CANONICAL_CURRENT" if payload_accepted_on_main else "GOVERNED_BRANCH_CANDIDATE",
+            "authority": "CANONICAL_CURRENT" if payload_accepted_on_main else "CURRENT_IF_PRESENT_ON_MAIN",
             "format": "JSON",
             "location": str(request_path.relative_to(root)),
             "merge_sha": canonical_interface_merge_sha if payload_accepted_on_main else None,
             "role": "Current user confirmation request derived from completed-close and delta-ledger watermarks",
-            "status": "CURRENT" if payload_accepted_on_main else "BRANCH_CANDIDATE_PENDING_MERGE",
+            "status": "CURRENT" if payload_accepted_on_main else "CURRENT_IF_PRESENT_ON_MAIN",
             "trade_authority": TRADE_AUTHORITY,
         },
     )
@@ -294,8 +294,8 @@ def main() -> int:
         registry["registry_status"] = "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN"
         registry["status"] = "GITHUB_CURRENT_WP5_F_ACCEPTED_FILE_LIBRARY_PENDING"
     elif interface_accepted_on_main:
-        registry["registry_status"] = "WP5_F_OPERATING_PROPOSAL_PENDING_MERGE"
-        registry["status"] = "GITHUB_CURRENT_WP5_F_INTERFACE_ACCEPTED_PROPOSAL_PENDING_MERGE"
+        registry["registry_status"] = "WP5_F_OPERATING_PROPOSAL_CURRENT_IF_PRESENT_ON_MAIN"
+        registry["status"] = "GITHUB_CURRENT_WP5_F_INTERFACE_ACCEPTED_REQUEST_CURRENT_IF_PRESENT_ON_MAIN"
     else:
         registry["registry_status"] = "WP5_E_ACCEPTED_ON_MAIN_WP5_F_BRANCH_CANDIDATE"
         registry["status"] = "GITHUB_CURRENT_WP5_E_ACCEPTED_WP5_F_PENDING_MERGE_FILE_LIBRARY_PENDING"
