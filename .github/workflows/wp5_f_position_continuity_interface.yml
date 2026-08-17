@@ -85,12 +85,10 @@ jobs:
         id: mode
         shell: bash
         run: |
-          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            echo "mode=post-merge" >> "$GITHUB_OUTPUT"
-          elif [[ ("${GITHUB_EVENT_NAME}" == "schedule" || "${GITHUB_EVENT_NAME}" == "workflow_dispatch") && "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            echo "mode=operating" >> "$GITHUB_OUTPUT"
-          else
+          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/agent/wp5-f-continuity-interface" ]]; then
             echo "mode=branch" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=operating" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build Canonical closure and continuity request
@@ -99,13 +97,7 @@ jobs:
           set -Eeuo pipefail
           python -m py_compile automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py
           MODE="${{ steps.mode.outputs.mode }}"
-          if [[ "$MODE" == "post-merge" ]]; then
-            python automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py \
-              --repo-root . \
-              --mode post-merge \
-              --accepted-pr 150 \
-              --wp5-f-merge-sha "${GITHUB_SHA}"
-          elif [[ "$MODE" == "operating" ]]; then
+          if [[ "$MODE" == "operating" ]]; then
             WP5_F_MERGE_SHA="$(python - <<'PY'
           import json
           from pathlib import Path
@@ -150,15 +142,17 @@ jobs:
           assert contract['prohibitions']['automatic_quantity_or_cost_mutation'] is True
           assert request['latest_completed_close_date'] == marks['data_watermark']['latest_mark_date']
           assert request['continuity_confirmed_through'] == ledger['continuity_confirmed_through']
+          assert request['requested_scope']['start_exclusive'] <= request['requested_scope']['end_inclusive']
           assert request['status'] in {
               'WAITING_FOR_NEXT_COMPLETED_CLOSE',
               'USER_POSITION_CONTINUITY_CONFIRMATION_REQUIRED',
               'POSITION_CONTINUITY_CURRENT',
           }
+          continuity_date = str(request['continuity_confirmed_through'])[:10]
           if request['latest_completed_close_date'] <= '2026-07-24':
               assert request['status'] == 'WAITING_FOR_NEXT_COMPLETED_CLOSE'
               assert request['user_response_required'] is False
-          elif request['continuity_confirmed_through'] < request['latest_completed_close_date']:
+          elif continuity_date < request['latest_completed_close_date']:
               assert request['status'] == 'USER_POSITION_CONTINUITY_CONFIRMATION_REQUIRED'
               assert request['user_response_required'] is True
           else:
@@ -166,18 +160,18 @@ jobs:
               assert request['user_response_required'] is False
 
           mode = '${{ steps.mode.outputs.mode }}'
-          if mode == 'branch':
+          if mode == 'operating' and acceptance.get('accepted_on_main') is True:
+              assert acceptance['status'] == 'WP5_F_ACCEPTED_ON_MAIN'
+              assert acceptance['accepted_pr'] == 150
+              assert acceptance['wp5_f_merge_sha']
+              assert execution['current_step'] == 'WP5_F_OPERATING_PROPOSAL_CURRENT_IF_PRESENT_ON_MAIN'
+              assert execution['overall_status'] == 'WP5_F_INTERFACE_ACCEPTED_REQUEST_CURRENT_IF_PRESENT_ON_MAIN'
+          else:
               assert acceptance['status'] == 'WP5_F_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE'
               assert acceptance['accepted_on_main'] is False
               assert acceptance['accepted_pr'] is None
               assert execution['current_step'] == 'WP5_F_POSITION_CONTINUITY_INTERFACE_INSTALLED_ON_BRANCH'
               assert execution['next_task'] == 'USER_MERGE_WP5_F_POSITION_CONTINUITY_INTERFACE_PR'
-          else:
-              assert acceptance['status'] == 'WP5_F_ACCEPTED_ON_MAIN'
-              assert acceptance['accepted_on_main'] is True
-              assert acceptance['accepted_pr'] == 150
-              assert acceptance['wp5_f_merge_sha']
-              assert execution['current_step'] == 'WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN'
 
           assert gate['implementation_ready_count'] == 0
           assert queue['ready_for_user_decision_count'] == 0
@@ -278,7 +272,7 @@ jobs:
               --base main \
               --head "$BRANCH" \
               --title "WP5-F: governed continuity state ${RUN_MODE}" \
-              --body $'## WP5-F governed publication\n\nPublish the validated position-continuity request/state through protected-main governance.\n\n- no direct main push\n- no automatic Real or Simulation mutation\n- no Candidate mutation\n- ready_for_user_decision remains governed separately\n- orders = 0\n- trade_authority = NONE')"
+              --body $'## WP5-F governed publication\n\nPublish the validated position-continuity request/state through protected-main governance.\n\n- proposal state is CURRENT_IF_PRESENT_ON_MAIN until merged\n- existing interface acceptance is not rewritten by an unmerged operating proposal\n- no direct main push\n- no automatic Real or Simulation mutation\n- no Candidate mutation\n- orders = 0\n- trade_authority = NONE')"
           fi
           echo "WP5_F_PROMOTION_PR=$PR_URL"
           echo "DIRECT_MAIN_PUSH=DISABLED"
@@ -288,11 +282,12 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## WP5-F Position Continuity Interface
-          - Closes PR #149 Canonical lineage using its actual merge SHA
+          - Keeps the already-merged interface Acceptance Record separate from each new operating proposal
           - Derives the user confirmation request from completed-close and delta-ledger watermarks
+          - Normalizes timestamp continuity watermarks to trading dates before interval comparison
+          - Enforces start_exclusive <= end_inclusive
           - Never infers zero transactions from silence or from market marks
-          - Supports explicit zero-delta confirmation or structured transaction-delta reporting
-          - Scheduled/post-merge state publication uses a governed branch + PR; direct main push is disabled
+          - Scheduled/main publication uses CURRENT_IF_PRESENT_ON_MAIN plus a governed branch + PR
           - Preserves Real, Simulation, Candidate and legacy-decision economic identity
           - Ready for user decision: 0
           - Orders: 0
