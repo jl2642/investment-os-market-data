@@ -1,17 +1,56 @@
 {
   "state_id": "OBSERVATION_REGISTER_CURRENT_V1",
-  "status": "EMPTY_BASELINE_PROPOSED_IN_PR",
-  "as_of": "2026-08-13T13:31:00+08:00",
+  "status": "CURRENT_ACTIVE",
+  "as_of": "2026-08-17T10:46:00+08:00",
   "contract": "investment_os_runtime/60_OPERATIONS_AND_EVENT/CONVERSATION_WRITEBACK_OBSERVATION_CONTRACT.json",
   "domain": "OBSERVATION_DECISION_PREPARATION",
   "append_only_source_backed": true,
   "automatic_observation_write_allowed": true,
   "automatic_investment_state_mutation_allowed": false,
-  "observations": [],
+  "observations": [
+    {
+      "observation_id": "OBS_20260817_601138_H1_REUNDERWRITE",
+      "created_at": "2026-08-17T10:46:00+08:00",
+      "status": "ACTIVE",
+      "object_id": "601138.SH",
+      "object_name": "工业富联",
+      "domain": "SIMULATION_POSITION_REUNDERWRITE",
+      "finding": "Fresh 2026Q1 and 2026H1 preannouncement evidence materially weakens the prior trim bias. Current research posture is HOLD 600 shares, remove trim bias, and treat the name as a conditional ADD candidate. The prior P0 base-case implied price of CNY65.510681 is stale and must not independently drive ADD or REDUCE. A formal ADD review requires full-H1 earnings-quality validation plus a completed-close valuation/portfolio-fit gate; the current screen-grade ADD review zone is approximately CNY58 or below.",
+      "evidence_refs": [
+        "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_INDUSTRIAL_FULIAN_TRIM_REVIEW_CURRENT.json",
+        "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12247356&stockid=601138",
+        "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12438274&stockid=601138"
+      ],
+      "confidence": "MEDIUM",
+      "trigger_or_review_condition": "REUNDERWRITE_WHEN_FORMAL_2026_H1_REPORT_IS_AVAILABLE; IF_H1_QUALITY_PASSES_AND_COMPLETED_CLOSE_LE_58_RMB_ROUTE_TO_FORMAL_ADD_REVIEW; IF_COMPLETED_CLOSE_APPROACHES_OR_EXCEEDS_80_RMB_WITHOUT_MATCHING_EARNINGS_UPGRADE_REOPEN_TRIM_REVIEW",
+      "review_or_expiry_date": "2026-09-30",
+      "next_action": "REFRESH_2026_H1_CASH_CONVERSION_INVENTORY_RECEIVABLES_MARGIN_AND_RECALCULATE_ADD_TRIM_THRESHOLDS",
+      "promotion_route": "STATE_UPDATE_PROPOSAL"
+    },
+    {
+      "observation_id": "OBS_20260817_605090_REAL_CONCENTRATION_H1",
+      "created_at": "2026-08-17T10:46:00+08:00",
+      "status": "ACTIVE",
+      "object_id": "605090.SH",
+      "object_name": "九丰能源",
+      "domain": "REAL_ACCOUNT_CONCENTRATION_REUNDERWRITE",
+      "finding": "At the 2026-08-14 completed close, the tracked Real account holds 9,900 shares at CNY36.31 with market value CNY359,469, approximately 43.9% of tracked Real total assets. This concentration is decision-relevant and requires issuer-specific H1/post-print reunderwriting before any new ADD or REDUCE proposal. Position continuity is only user-confirmed through 2026-08-11T09:27:00+08:00, so no later zero-delta assumption is permitted.",
+      "evidence_refs": [
+        "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+      ],
+      "confidence": "MEDIUM",
+      "trigger_or_review_condition": "WHEN_FORMAL_2026_H1_REPORT_OR_OTHER_MATERIAL_ISSUER_EVIDENCE_IS_AVAILABLE_AND_REAL_POSITION_CONTINUITY_IS_CONFIRMED_THROUGH_THE_REVIEW_CLOSE",
+      "review_or_expiry_date": "2026-09-30",
+      "next_action": "RUN_605090_REAL_ACCOUNT_CONCENTRATION_REUNDERWRITE_BEFORE_ANY_ADD_OR_REDUCE_PROPOSAL",
+      "promotion_route": "RESEARCH"
+    }
+  ],
   "counts": {
-    "active": 0,
-    "total": 0
+    "active": 2,
+    "total": 2
   },
-  "note": "No historical observations were backfilled in the baseline to avoid retroactive interpretation. New qualifying observations are recorded prospectively after this contract becomes active.",
+  "note": "Prospective decision-preparation observations are persisted under the active conversation writeback contract. Observation entries do not authorize portfolio, Candidate, Thesis, policy, trade-permission or order mutations.",
   "trade_authority": "NONE"
 }
