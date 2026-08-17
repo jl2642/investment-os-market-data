@@ -18,6 +18,7 @@ from scripts.fmdl2b4_history import ROOT, read_json
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
 MARKET_CLOSE = time(15, 0)
 POST_CLOSE_PUBLICATION_GRACE_END = time(15, 30)
+MANUAL_RECOVERY_EARLIEST = time(15, 30)
 
 
 def _local_now(current: datetime | None = None) -> datetime:
@@ -35,6 +36,36 @@ def _trade_dates() -> list:
     if column is None:
         raise RuntimeError("TRADING_CALENDAR_DATE_COLUMN_MISSING")
     return sorted(set(pd.to_datetime(calendar[column], errors="coerce").dropna().dt.date))
+
+
+def validate_manual_recovery_window(current: datetime | None = None) -> dict:
+    """Fail closed when a full rebase is started before A-share data is settled.
+
+    The full-rebase workflow fetches a live market-wide spot snapshot before it
+    rebuilds history. On a trading day before 15:30 Shanghai, that snapshot can
+    contain intraday values even though the logical as-of date is the previous
+    completed session. Recovery is therefore allowed only after the post-close
+    publication grace window on trading days. Non-trading days are safe because
+    the latest available spot snapshot corresponds to the prior completed close.
+    """
+    local_now = _local_now(current)
+    dates = _trade_dates()
+    today = local_now.date()
+    today_is_trade_day = today in dates
+    errors: list[str] = []
+    if today_is_trade_day and local_now.time() < MANUAL_RECOVERY_EARLIEST:
+        errors.append("FULL_REBASE_REQUIRES_POST_CLOSE_1530_ON_TRADING_DAY")
+    result = {
+        "status": "PASS" if not errors else "FAIL",
+        "business_time": local_now.isoformat(),
+        "today_is_trade_day": today_is_trade_day,
+        "manual_recovery_earliest": MANUAL_RECOVERY_EARLIEST.isoformat(timespec="minutes"),
+        "errors": errors,
+    }
+    print(json.dumps(result, ensure_ascii=False))
+    if errors:
+        raise RuntimeError(";".join(errors))
+    return result
 
 
 def acceptable_completed_trade_dates(current: datetime | None = None) -> list[str]:
