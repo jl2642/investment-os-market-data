@@ -187,6 +187,13 @@ def main() -> int:
         existing_acceptance.get("accepted_on_main") and canonical_interface_merge_sha
     ) or bool(args.mode == "post-merge" and args.wp5_f_merge_sha)
     payload_accepted_on_main = bool(args.mode == "post-merge" and args.wp5_f_merge_sha)
+    request_promotion_status = (
+        "CURRENT"
+        if payload_accepted_on_main
+        else "CURRENT_IF_PRESENT_ON_MAIN"
+        if interface_accepted_on_main
+        else "BRANCH_CANDIDATE_PENDING_MERGE"
+    )
 
     wp5 = execution.setdefault("wp5", {})
     wp5.update(
@@ -200,6 +207,7 @@ def main() -> int:
             "position_continuity_interface_installed": True,
             "position_continuity_request_path": str(request_path.relative_to(root)),
             "position_continuity_request_status": request_status,
+            "position_continuity_request_promotion_status": request_promotion_status,
             "user_position_continuity_confirmed": continuity_current,
             "fresh_completed_close_for_action": fresh_close,
             "position_mutation_allowed": False,
@@ -223,14 +231,14 @@ def main() -> int:
     elif interface_accepted_on_main:
         execution.update(
             {
-                "current_step": "WP5_F_OPERATING_PROPOSAL_CURRENT_IF_PRESENT_ON_MAIN",
+                "current_step": "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN",
                 "github_merge_sha": canonical_interface_merge_sha,
                 "latest_governed_merge_sha": canonical_interface_merge_sha,
                 "next_task": next_task,
-                "overall_status": "WP5_F_INTERFACE_ACCEPTED_REQUEST_CURRENT_IF_PRESENT_ON_MAIN",
+                "overall_status": "WP5_F_ACCEPTED_ON_MAIN_OPERATING_GATE_ACTIVE",
             }
         )
-        wp5["status"] = "POSITION_CONTINUITY_INTERFACE_ACCEPTED_REQUEST_CURRENT_IF_PRESENT_ON_MAIN"
+        wp5["status"] = "POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN"
     else:
         execution.update(
             {
@@ -281,12 +289,12 @@ def main() -> int:
         registry,
         {
             "asset_id": "WP5_POSITION_CONTINUITY_REQUEST_CURRENT",
-            "authority": "CANONICAL_CURRENT" if payload_accepted_on_main else "CURRENT_IF_PRESENT_ON_MAIN",
+            "authority": "CANONICAL_CURRENT" if payload_accepted_on_main else request_promotion_status,
             "format": "JSON",
             "location": str(request_path.relative_to(root)),
             "merge_sha": canonical_interface_merge_sha if payload_accepted_on_main else None,
             "role": "Current user confirmation request derived from completed-close and delta-ledger watermarks",
-            "status": "CURRENT" if payload_accepted_on_main else "CURRENT_IF_PRESENT_ON_MAIN",
+            "status": request_promotion_status,
             "trade_authority": TRADE_AUTHORITY,
         },
     )
@@ -294,7 +302,7 @@ def main() -> int:
         registry["registry_status"] = "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN"
         registry["status"] = "GITHUB_CURRENT_WP5_F_ACCEPTED_FILE_LIBRARY_PENDING"
     elif interface_accepted_on_main:
-        registry["registry_status"] = "WP5_F_OPERATING_PROPOSAL_CURRENT_IF_PRESENT_ON_MAIN"
+        registry["registry_status"] = "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN_REQUEST_CURRENT_IF_PRESENT_ON_MAIN"
         registry["status"] = "GITHUB_CURRENT_WP5_F_INTERFACE_ACCEPTED_REQUEST_CURRENT_IF_PRESENT_ON_MAIN"
     else:
         registry["registry_status"] = "WP5_E_ACCEPTED_ON_MAIN_WP5_F_BRANCH_CANDIDATE"
@@ -348,6 +356,7 @@ def main() -> int:
                 "latest_completed_close_date": latest_close,
                 "continuity_confirmed_through": continuity_through,
                 "request_status": request_status,
+                "request_promotion_status": request_promotion_status,
                 "next_task": next_task,
                 "interface_accepted_on_main": interface_accepted_on_main,
                 "payload_accepted_on_main": payload_accepted_on_main,
