@@ -13,38 +13,27 @@ on:
       - "tests/test_fmdl3efinal_acceptance.py"
       - "docs/FMDL-3E-FINAL_*.md"
       - ".github/workflows/fmdl-3efinal-operational-closure.yml"
-  push:
-    branches: [main]
-    paths:
-      - "config/fmdl3efinal_operational_closure.json"
-      - "scripts/fmdl3efinal_core.py"
-      - "scripts/run_fmdl3efinal_acceptance.py"
-      - "scripts/validate_fmdl3efinal_candidate.py"
-      - "scripts/publish_fmdl3efinal.py"
-      - "scripts/run_fmdl3efinal_cycle.py"
-      - "tests/test_fmdl3efinal_acceptance.py"
-      - "docs/FMDL-3E-FINAL_*.md"
-      - ".github/workflows/fmdl-3efinal-operational-closure.yml"
-  schedule:
-    - cron: "45 11 * * 1-5"
   workflow_dispatch:
     inputs:
       force_refresh:
-        description: Force the FMDL-3E operational refresh chain
+        description: "Run the retired FMDL-3E chain for diagnostic evidence only"
         required: false
         default: false
         type: boolean
 
+# FMDL-3E Final is retained as historical/forensic validation only.
+# Current production operations are governed by the newer daily and FMDL-7
+# control chains. This workflow must not schedule itself or publish to main.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: fmdl-3efinal-${{ github.ref }}
+  group: fmdl-3efinal-diagnostic-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   canonical-acceptance:
-    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -73,26 +62,9 @@ jobs:
           path: outputs/fmdl3e/operational/candidate/
           if-no-files-found: error
           retention-days: 30
-      - name: Publish canonical closure
-        if: github.event_name == 'push'
-        run: python -m scripts.publish_fmdl3efinal
-      - name: Commit accepted canonical state
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/status outputs/fmdl3e/operational datasets/fmdl3e/operational/releases
-          if git diff --cached --quiet; then
-            echo "No accepted FMDL-3E-Final state changes to commit"
-          else
-            git commit -m "data: publish FMDL-3E-Final canonical closure [skip ci]"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
 
-  operational-cycle:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+  diagnostic-cycle:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 70
     steps:
@@ -106,32 +78,26 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-      - name: Run controlled operating cycle
+      - name: Run diagnostic cycle without publication authority
         run: |
           FORCE=""
           if [ "${{ inputs.force_refresh }}" = "true" ]; then FORCE="--force-refresh"; fi
           python -m scripts.run_fmdl3efinal_cycle $FORCE
-      - name: Upload operating evidence
+      - name: Upload diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fmdl3efinal-operational-cycle
+          name: fmdl3efinal-diagnostic-cycle
           path: |
             outputs/fmdl3e/incremental/candidate/
             outputs/fmdl3e/final/candidate/
             outputs/fmdl3e/operational/candidate/
           if-no-files-found: warn
           retention-days: 30
-      - name: Commit accepted operating state
-        shell: bash
+      - name: Confirm retired production authority
+        if: always()
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/status outputs/fmdl3e datasets/fmdl3e
-          if git diff --cached --quiet; then
-            echo "NO_OP_ALREADY_CURRENT"
-          else
-            git commit -m "data: operate FMDL-3E canonical cycle [skip ci]"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+          echo "FMDL_3E_FINAL_MODE=DIAGNOSTIC_ONLY"
+          echo "SCHEDULED_PRODUCTION=DISABLED"
+          echo "DIRECT_MAIN_PUSH=DISABLED"
+          echo "TRADE_AUTHORITY=NONE"
