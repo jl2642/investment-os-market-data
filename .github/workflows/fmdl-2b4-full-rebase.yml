@@ -7,6 +7,7 @@ on:
     paths:
       - "scripts/build_fmdl2b4_full_rebase_candidate.py"
       - "tests/test_fmdl2b4_full_rebase.py"
+      - "tests/test_fmdl2b4_recovery_window.py"
       - "scripts/run_full_backfill_shard.py"
       - "scripts/run_incremental_history_refresh.py"
       - "scripts/finalize_b4_history_candidate.py"
@@ -49,6 +50,7 @@ jobs:
           python -m py_compile scripts/build_fmdl2b4_full_rebase_candidate.py scripts/validate_fmdl2b4_freshness.py
           pytest -q \
             tests/test_fmdl2b4_full_rebase.py \
+            tests/test_fmdl2b4_recovery_window.py \
             tests/test_fmdl2b4_incremental_refresh.py \
             tests/test_fmdl2b4_snapshot_identity.py \
             tests/test_round1_governed_publication_workflows.py
