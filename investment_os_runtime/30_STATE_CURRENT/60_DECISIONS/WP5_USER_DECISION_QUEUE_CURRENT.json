@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-07-27T11:30:59.486324+08:00",
+  "generated_at": "2026-08-17T09:45:22.006652+08:00",
   "items": [
     {
       "queue_id": "WP5-Q1",
-      "required_evidence": "User confirms no Real or Simulation quantity/cost changes through 2026-07-24, or supplies transaction deltas",
-      "status": "PENDING_USER_CONFIRMATION",
+      "required_evidence": "User confirms no Real or Simulation quantity/cost changes through 2026-08-10, or supplies transaction deltas",
+      "status": "COMPLETE",
       "subject": "Position continuity confirmation"
     },
     {
       "queue_id": "WP5-Q2",
       "required_evidence": "Completed A-share close after 2026-07-24",
-      "status": "PENDING_MARKET_CLOSE",
+      "status": "COMPLETE",
       "subject": "Fresh completed-close market marks"
     },
     {
@@ -40,7 +40,7 @@
     {
       "queue_id": "WP5-Q6",
       "required_evidence": "Fresh completed close, position continuity and governed weight/return triggers",
-      "status": "BLOCKED_PENDING_NEXT_COMPLETED_CLOSE",
+      "status": "CONDITIONAL_PROPOSALS_READY_PENDING_USER_DECISION_NO_IMPLEMENTATION",
       "subject": "P0 post-close action gate"
     }
   ],
@@ -52,8 +52,8 @@
   "position_continuity_request_path": "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/WP5_POSITION_CONTINUITY_REQUEST_CURRENT.json",
   "position_continuity_request_status": "WAITING_FOR_NEXT_COMPLETED_CLOSE",
   "post_close_action_gate_path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json",
-  "ready_for_user_decision_count": 0,
+  "ready_for_user_decision_count": 1,
   "state_id": "WP5_USER_DECISION_QUEUE_CURRENT",
-  "status": "BLOCKED_PENDING_NEXT_COMPLETED_CLOSE",
+  "status": "CONDITIONAL_PROPOSALS_READY_PENDING_USER_DECISION_NO_IMPLEMENTATION",
   "trade_authority": "NONE"
 }
