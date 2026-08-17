@@ -44,6 +44,16 @@ def unchanged_request(existing: dict, latest_close: str, continuity_through: str
     )
 
 
+def session_date(value: object) -> str:
+    """Normalize a date or ISO timestamp to YYYY-MM-DD for interval semantics."""
+    text = str(value or "").strip()
+    if len(text) < 10:
+        raise ValueError(f"SESSION_DATE_UNRESOLVED:{text!r}")
+    candidate = text[:10]
+    datetime.strptime(candidate, "%Y-%m-%d")
+    return candidate
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
@@ -78,10 +88,11 @@ def main() -> int:
     existing_acceptance = read_json_if_exists(acceptance_path)
 
     now = datetime.now(ZoneInfo("Asia/Shanghai")).isoformat()
-    latest_close = str(marks["data_watermark"]["latest_mark_date"])
+    latest_close = session_date(marks["data_watermark"]["latest_mark_date"])
     continuity_through = str(ledger["continuity_confirmed_through"])
+    continuity_date = session_date(continuity_through)
     fresh_close = latest_close > RESEARCH_BASELINE_CLOSE
-    continuity_current = continuity_through >= latest_close
+    continuity_current = continuity_date >= latest_close
 
     if not fresh_close:
         request_status = "WAITING_FOR_NEXT_COMPLETED_CLOSE"
@@ -101,6 +112,7 @@ def main() -> int:
         if unchanged_request(existing_request, latest_close, continuity_through, request_status)
         else now
     )
+    scope_start = continuity_date if continuity_date < latest_close else latest_close
     request = {
         "schema_version": "1.0.0",
         "request_id": "WP5_POSITION_CONTINUITY_REQUEST_CURRENT",
@@ -112,7 +124,7 @@ def main() -> int:
         "fresh_completed_close_after_research": fresh_close,
         "user_response_required": response_required,
         "requested_scope": {
-            "start_exclusive": continuity_through,
+            "start_exclusive": scope_start,
             "end_inclusive": latest_close,
             "accounts": ["REAL_ACCOUNT", "SIMULATION"],
         },
@@ -166,15 +178,27 @@ def main() -> int:
     )
     write_json(wp5e_acceptance_path, wp5e_acceptance)
 
-    resolved_merge_sha = args.wp5_f_merge_sha or existing_acceptance.get("wp5_f_merge_sha")
-    accepted_on_main = args.mode == "post-merge" and bool(args.wp5_f_merge_sha)
-    if args.mode == "operating":
-        accepted_on_main = bool(resolved_merge_sha)
+    canonical_interface_merge_sha = (
+        args.wp5_f_merge_sha
+        if args.mode == "post-merge" and args.wp5_f_merge_sha
+        else existing_acceptance.get("wp5_f_merge_sha")
+    )
+    interface_accepted_on_main = bool(
+        existing_acceptance.get("accepted_on_main") and canonical_interface_merge_sha
+    ) or bool(args.mode == "post-merge" and args.wp5_f_merge_sha)
+    payload_accepted_on_main = bool(args.mode == "post-merge" and args.wp5_f_merge_sha)
+    request_promotion_status = (
+        "CURRENT"
+        if payload_accepted_on_main
+        else "CURRENT_IF_PRESENT_ON_MAIN"
+        if interface_accepted_on_main
+        else "BRANCH_CANDIDATE_PENDING_MERGE"
+    )
 
     wp5 = execution.setdefault("wp5", {})
     wp5.update(
         {
-            "branch": "main" if accepted_on_main else BRANCH,
+            "branch": "main" if payload_accepted_on_main else BRANCH,
             "post_close_action_gate_installed": True,
             "post_close_action_gate_accepted_on_main": True,
             "post_close_action_gate_merge_sha": WP5_E_MERGE_SHA,
@@ -183,6 +207,7 @@ def main() -> int:
             "position_continuity_interface_installed": True,
             "position_continuity_request_path": str(request_path.relative_to(root)),
             "position_continuity_request_status": request_status,
+            "position_continuity_request_promotion_status": request_promotion_status,
             "user_position_continuity_confirmed": continuity_current,
             "fresh_completed_close_for_action": fresh_close,
             "position_mutation_allowed": False,
@@ -192,20 +217,29 @@ def main() -> int:
         }
     )
 
-    if accepted_on_main:
-        wp5_f_merge_sha = str(resolved_merge_sha)
+    if payload_accepted_on_main:
         execution.update(
             {
                 "current_step": "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN",
-                "github_merge_sha": wp5_f_merge_sha,
-                "latest_governed_merge_sha": wp5_f_merge_sha,
+                "github_merge_sha": canonical_interface_merge_sha,
+                "latest_governed_merge_sha": canonical_interface_merge_sha,
+                "next_task": next_task,
+                "overall_status": "WP5_F_ACCEPTED_ON_MAIN_OPERATING_GATE_ACTIVE",
+            }
+        )
+        wp5["status"] = "POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN"
+    elif interface_accepted_on_main:
+        execution.update(
+            {
+                "current_step": "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN",
+                "github_merge_sha": canonical_interface_merge_sha,
+                "latest_governed_merge_sha": canonical_interface_merge_sha,
                 "next_task": next_task,
                 "overall_status": "WP5_F_ACCEPTED_ON_MAIN_OPERATING_GATE_ACTIVE",
             }
         )
         wp5["status"] = "POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN"
     else:
-        wp5_f_merge_sha = None
         execution.update(
             {
                 "current_step": "WP5_F_POSITION_CONTINUITY_INTERFACE_INSTALLED_ON_BRANCH",
@@ -220,9 +254,9 @@ def main() -> int:
     execution["trade_authority"] = TRADE_AUTHORITY
     write_json(execution_path, execution)
 
-    registry["active_branch_candidate"] = None if accepted_on_main else BRANCH
-    registry["github_merge_sha"] = WP5_E_MERGE_SHA if not accepted_on_main else wp5_f_merge_sha
-    registry["latest_governed_merge_sha"] = WP5_E_MERGE_SHA if not accepted_on_main else wp5_f_merge_sha
+    registry["active_branch_candidate"] = None if payload_accepted_on_main else BRANCH
+    registry["github_merge_sha"] = canonical_interface_merge_sha or WP5_E_MERGE_SHA
+    registry["latest_governed_merge_sha"] = canonical_interface_merge_sha or WP5_E_MERGE_SHA
     if args.mode != "operating" or not unchanged_request(existing_request, latest_close, continuity_through, request_status):
         registry["date"] = now[:10]
     upsert_asset(
@@ -242,12 +276,12 @@ def main() -> int:
         registry,
         {
             "asset_id": "WP5_POSITION_CONTINUITY_CONTRACT",
-            "authority": "CANONICAL_CURRENT" if accepted_on_main else "GOVERNED_BRANCH_CANDIDATE",
+            "authority": "CANONICAL_CURRENT" if interface_accepted_on_main else "GOVERNED_BRANCH_CANDIDATE",
             "format": "JSON",
             "location": "investment_os_runtime/00_CONTROL/WP5_POSITION_CONTINUITY_CONTRACT.json",
-            "merge_sha": wp5_f_merge_sha,
+            "merge_sha": canonical_interface_merge_sha,
             "role": "User-authoritative zero-delta confirmation and transaction-delta reporting contract",
-            "status": "CURRENT" if accepted_on_main else "BRANCH_CANDIDATE_PENDING_MERGE",
+            "status": "CURRENT" if interface_accepted_on_main else "BRANCH_CANDIDATE_PENDING_MERGE",
             "trade_authority": TRADE_AUTHORITY,
         },
     )
@@ -255,58 +289,58 @@ def main() -> int:
         registry,
         {
             "asset_id": "WP5_POSITION_CONTINUITY_REQUEST_CURRENT",
-            "authority": "CANONICAL_CURRENT" if accepted_on_main else "GOVERNED_BRANCH_CANDIDATE",
+            "authority": "CANONICAL_CURRENT" if payload_accepted_on_main else request_promotion_status,
             "format": "JSON",
             "location": str(request_path.relative_to(root)),
-            "merge_sha": wp5_f_merge_sha,
+            "merge_sha": canonical_interface_merge_sha if payload_accepted_on_main else None,
             "role": "Current user confirmation request derived from completed-close and delta-ledger watermarks",
-            "status": "CURRENT" if accepted_on_main else "BRANCH_CANDIDATE_PENDING_MERGE",
+            "status": request_promotion_status,
             "trade_authority": TRADE_AUTHORITY,
         },
     )
-    registry["registry_status"] = (
-        "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN"
-        if accepted_on_main
-        else "WP5_E_ACCEPTED_ON_MAIN_WP5_F_BRANCH_CANDIDATE"
-    )
-    registry["status"] = (
-        "GITHUB_CURRENT_WP5_F_ACCEPTED_FILE_LIBRARY_PENDING"
-        if accepted_on_main
-        else "GITHUB_CURRENT_WP5_E_ACCEPTED_WP5_F_PENDING_MERGE_FILE_LIBRARY_PENDING"
-    )
+    if payload_accepted_on_main:
+        registry["registry_status"] = "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN"
+        registry["status"] = "GITHUB_CURRENT_WP5_F_ACCEPTED_FILE_LIBRARY_PENDING"
+    elif interface_accepted_on_main:
+        registry["registry_status"] = "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTED_ON_MAIN_REQUEST_CURRENT_IF_PRESENT_ON_MAIN"
+        registry["status"] = "GITHUB_CURRENT_WP5_F_INTERFACE_ACCEPTED_REQUEST_CURRENT_IF_PRESENT_ON_MAIN"
+    else:
+        registry["registry_status"] = "WP5_E_ACCEPTED_ON_MAIN_WP5_F_BRANCH_CANDIDATE"
+        registry["status"] = "GITHUB_CURRENT_WP5_E_ACCEPTED_WP5_F_PENDING_MERGE_FILE_LIBRARY_PENDING"
     write_json(registry_path, registry)
 
-    acceptance_state = {
-        "mode": args.mode,
-        "status": "WP5_F_ACCEPTED_ON_MAIN" if accepted_on_main else "WP5_F_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE",
-        "accepted_on_main": accepted_on_main,
-        "accepted_pr": args.accepted_pr if accepted_on_main else None,
-        "wp5_e_merge_sha": WP5_E_MERGE_SHA,
-        "wp5_f_merge_sha": wp5_f_merge_sha,
-        "latest_completed_close_date": latest_close,
-        "continuity_confirmed_through": continuity_through,
-        "request_status": request_status,
-    }
-    acceptance_generated_at = (
-        existing_acceptance.get("generated_at", now)
-        if all(existing_acceptance.get(key) == value for key, value in acceptance_state.items())
-        else now
-    )
-    acceptance = {
-        "acceptance_id": "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_V1",
-        "generated_at": acceptance_generated_at,
-        **acceptance_state,
-        "ready_for_user_decision_count": 0,
-        "implementation_ready_count": 0,
-        "economic_mutations": {
-            "real_account": 0,
-            "simulation": 0,
-            "candidate_membership": 0,
-            "orders": 0,
-        },
-        "trade_authority": TRADE_AUTHORITY,
-    }
-    write_json(acceptance_path, acceptance)
+    if payload_accepted_on_main or not interface_accepted_on_main:
+        acceptance_state = {
+            "mode": args.mode,
+            "status": "WP5_F_ACCEPTED_ON_MAIN" if payload_accepted_on_main else "WP5_F_ACCEPTED_ON_BRANCH_PENDING_USER_MERGE",
+            "accepted_on_main": payload_accepted_on_main,
+            "accepted_pr": args.accepted_pr if payload_accepted_on_main else None,
+            "wp5_e_merge_sha": WP5_E_MERGE_SHA,
+            "wp5_f_merge_sha": canonical_interface_merge_sha if payload_accepted_on_main else None,
+            "latest_completed_close_date": latest_close,
+            "continuity_confirmed_through": continuity_through,
+            "request_status": request_status,
+        }
+        acceptance_generated_at = (
+            existing_acceptance.get("generated_at", now)
+            if all(existing_acceptance.get(key) == value for key, value in acceptance_state.items())
+            else now
+        )
+        acceptance = {
+            "acceptance_id": "WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_V1",
+            "generated_at": acceptance_generated_at,
+            **acceptance_state,
+            "ready_for_user_decision_count": 0,
+            "implementation_ready_count": 0,
+            "economic_mutations": {
+                "real_account": 0,
+                "simulation": 0,
+                "candidate_membership": 0,
+                "orders": 0,
+            },
+            "trade_authority": TRADE_AUTHORITY,
+        }
+        write_json(acceptance_path, acceptance)
 
     queue["ready_for_user_decision_count"] = 0
     queue["orders"] = 0
@@ -322,8 +356,10 @@ def main() -> int:
                 "latest_completed_close_date": latest_close,
                 "continuity_confirmed_through": continuity_through,
                 "request_status": request_status,
+                "request_promotion_status": request_promotion_status,
                 "next_task": next_task,
-                "accepted_on_main": accepted_on_main,
+                "interface_accepted_on_main": interface_accepted_on_main,
+                "payload_accepted_on_main": payload_accepted_on_main,
                 "mutations": 0,
                 "orders": 0,
             },
