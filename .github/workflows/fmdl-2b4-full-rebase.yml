@@ -12,6 +12,7 @@ on:
       - "scripts/finalize_b4_history_candidate.py"
       - "scripts/run_b4_factor_refresh.py"
       - "scripts/validate_fmdl2b4_candidate.py"
+      - "scripts/validate_fmdl2b4_freshness.py"
       - "scripts/publish_fmdl2b4.py"
       - "config/fmdl2_incremental_refresh.json"
       - "config/fmdl2_full_backfill_plan.json"
@@ -45,7 +46,7 @@ jobs:
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
       - name: Validate recovery contract and existing FMDL regression suite
         run: |
-          python -m py_compile scripts/build_fmdl2b4_full_rebase_candidate.py
+          python -m py_compile scripts/build_fmdl2b4_full_rebase_candidate.py scripts/validate_fmdl2b4_freshness.py
           pytest -q \
             tests/test_fmdl2b4_full_rebase.py \
             tests/test_fmdl2b4_incremental_refresh.py \
@@ -67,6 +68,12 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Require settled post-close market window
+        run: |
+          python - <<'PY'
+          from scripts.validate_fmdl2b4_freshness import validate_manual_recovery_window
+          validate_manual_recovery_window()
+          PY
       - name: Refresh and freeze one completed-session Market Current
         run: |
           python pipeline/run_daily.py --trigger manual
@@ -220,6 +227,7 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## FMDL 2B-4 Multi-Session Recovery
           - Recovery is manual-only and cannot replace the normal daily fast path.
+          - On A-share trading days, manual recovery is fail-closed before 15:30 Asia/Shanghai so intraday spot data cannot be mislabeled as a completed close.
           - A single completed-session Market Current is frozen before all 24 shards.
           - Unresolved symbols preserve their prior LKG and remain quarantined.
           - Factors are rebuilt only after the recovery history candidate passes.
