@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260818_R2_000719",
+  "security_id": "000719.SZ",
+  "security_name": "中原传媒",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "HOLD_RESEARCH_COMPLETE_NO_DECISION",
+  "source_artifact": "D2_RESEARCH_000719_20260813_R1.json",
+  "research_update_type": "PRIMARY_EVIDENCE_REFRESH_AND_GOVERNANCE_ADDENDUM",
+  "d2_question_status": {
+    "normalize_earnings": "COMPLETE_NO_CHANGE",
+    "working_capital": "COMPLETE_NO_CHANGE",
+    "dividend_capacity": "COMPLETE_NO_CHANGE",
+    "business_mix": "COMPLETE_NO_CHANGE",
+    "valuation_and_invalidation": "COMPLETE_WITH_GOVERNANCE_GATE_ADDED"
+  },
+  "facts": [
+    {
+      "type": "FACT",
+      "statement": "The 2026-08-17 automatic CNINFO discovery still contains the 2025 annual report, 2026 Q1 report and 2025 dividend disclosure used by the R1 semantic work; no newer earnings release in the discovered set changes the R1 normalized-earnings conclusions."
+    },
+    {
+      "type": "FACT",
+      "statement": "A CNINFO disclosure dated 2026-08-01 is titled '关于高级管理人员被留置调查的公告'. The discovered primary-source metadata does not contain a final investigation conclusion."
+    },
+    {
+      "type": "FACT",
+      "statement": "A 2026-08-12 CNINFO disclosure reports progress on a bank-credit guarantee for Henan Xinhua Materials Group Co., Ltd.; it does not by itself evidence a change to the R1 normalized publishing/distribution economics."
+    }
+  ],
+  "interpretation": "The refreshed primary set does not reopen the five completed D2 economic questions. The detention/investigation disclosure is, however, a distinct governance risk signal that should be monitored separately from the tax, working-capital and valuation gates.",
+  "judgment": "D2 remains COMPLETE/HOLD with no decision promotion. Add a governance invalidation gate: reopen semantic underwriting if the investigation produces a material operating, accounting, internal-control or capital-allocation consequence.",
+  "first_rejection_test": "NOT_TRIGGERED_ON_CURRENT_EVIDENCE_BUT_TAX_WORKING_CAPITAL_AND_GOVERNANCE_GATES_ACTIVE",
+  "next_gate": "MONITOR_POST_2027_TAX; H1_H2_WORKING_CAPITAL_UNWIND; INVESTIGATION_OUTCOME_AND_ANY_CONTROL_OR_OPERATING_IMPACT; NO_DECISION_PROMOTION",
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE_DISCOVERED",
+      "title": "2025年年度报告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000719&announcementId=1225112362&orgId=gssz0000719&announcementTime=2026-04-17"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE_DISCOVERED",
+      "title": "2026年一季度报告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000719&announcementId=1225175812&orgId=gssz0000719&announcementTime=2026-04-27"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE_DISCOVERED",
+      "title": "关于高级管理人员被留置调查的公告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000719&announcementId=1225451356&orgId=gssz0000719&announcementTime=2026-08-01"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE_DISCOVERED",
+      "title": "关于为河南新华物资集团有限公司提供银行综合授信担保的进展公告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000719&announcementId=1225467899&orgId=gssz0000719&announcementTime=2026-08-12"
+    }
+  ],
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
