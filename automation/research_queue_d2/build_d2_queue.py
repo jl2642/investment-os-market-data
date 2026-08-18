@@ -16,6 +16,15 @@ D2_EVIDENCE_DIR = ROOT / "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH
 
 BATCH_SIZE = 3
 TRADE_AUTHORITY = "NONE"
+SEMANTIC_TERMINAL_STATUSES = {"D2_RESEARCH_COMPLETE", "D2_RESEARCH_HOLD_EVIDENCE_GAP"}
+SEMANTIC_PASSTHROUGH_FIELDS = (
+    "research_disposition",
+    "semantic_artifact",
+    "first_rejection_test",
+    "next_gate",
+    "evidence_gap",
+    "manual_user_input_required",
+)
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -106,6 +115,22 @@ def discover_cninfo(security_id: str, *, start_date: str, end_date: str) -> tupl
     return records[:20], None
 
 
+def semantic_state_is_same_input(prior: dict[str, Any], previous: dict[str, Any], d1: dict[str, Any], watermark: str) -> bool:
+    """Compatibility gate for semantic states written before input_watermark was retained.
+
+    A semantic terminal state is preserved when either its object watermark matches or the
+    D2 state's source D1 state id still matches the current D1 state id. A genuine D1 state
+    change reopens research rather than silently carrying a stale semantic conclusion.
+    """
+    if previous.get("input_watermark") == watermark:
+        return True
+    if previous.get("status") in SEMANTIC_TERMINAL_STATUSES:
+        prior_d1 = prior.get("source_d1_state_id")
+        current_d1 = d1.get("state_id")
+        return bool(prior_d1 and current_d1 and prior_d1 == current_d1)
+    return False
+
+
 def build_state(*, discover_primary_sources: bool, now: datetime | None = None) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     now = now or datetime.now(timezone.utc)
     now_iso = now.replace(microsecond=0).isoformat()
@@ -125,7 +150,7 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
         security_id = str(obj["security_id"])
         watermark = canonical_hash(obj)
         previous = prior_by_id.get(security_id, {})
-        same_input = previous.get("input_watermark") == watermark
+        same_input = semantic_state_is_same_input(prior, previous, d1, watermark)
         previous_status = previous.get("status") if same_input else None
         attempts = int(previous.get("attempt_count", 0)) if same_input else 0
 
@@ -138,8 +163,8 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
             if discovery_error:
                 discovery_errors.append({"security_id": security_id, "error": discovery_error})
 
-        if previous_status == "D2_RESEARCH_COMPLETE":
-            status = previous_status
+        if previous_status in SEMANTIC_TERMINAL_STATUSES:
+            status = str(previous_status)
         elif cninfo:
             status = "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
             attempts += 1
@@ -147,9 +172,10 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
             status = "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY"
             attempts += 1
         else:
-            status = previous_status or "PENDING_AUTO_RESEARCH"
+            status = str(previous_status or "PENDING_AUTO_RESEARCH")
 
-        queue.append({
+        semantic_required = status != "D2_RESEARCH_COMPLETE"
+        row: dict[str, Any] = {
             "security_id": security_id,
             "security_name": obj.get("security_name"),
             "d1_rank": obj.get("d1_rank"),
@@ -159,48 +185,55 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
             "d2_questions": obj.get("d2_questions", []),
             "first_rejection": obj.get("first_rejection"),
             "baseline_source_count": len(baseline),
-            "primary_source_count": len(cninfo) if discover_primary_sources else int(previous.get("primary_source_count", 0)),
+            "primary_source_count": max(int(previous.get("primary_source_count", 0)), len(cninfo)) if discover_primary_sources else int(previous.get("primary_source_count", 0)),
             "status": status,
             "attempt_count": attempts,
             "last_attempt_at": now_iso if discover_primary_sources else previous.get("last_attempt_at"),
-            "semantic_research_required": True,
+            "semantic_research_required": semantic_required,
             "candidate_membership_mutation_authorized": False,
             "real_account_mutation_authorized": False,
             "simulation_mutation_authorized": False,
             "decision_mutation_authorized": False,
             "order_generation_authorized": False,
             "trade_authority": TRADE_AUTHORITY,
-        })
+        }
+        if same_input:
+            for field in SEMANTIC_PASSTHROUGH_FIELDS:
+                if field in previous:
+                    row[field] = previous[field]
+        queue.append(row)
 
-    pending_statuses = {
+    active_pending_statuses = {
         "PENDING_AUTO_RESEARCH",
         "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
         "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
     }
-    pending = [row for row in queue if row["status"] in pending_statuses]
+    active_pending = [row for row in queue if row["status"] in active_pending_statuses]
     completed = [row for row in queue if row["status"] == "D2_RESEARCH_COMPLETE"]
-    blocked = [row for row in queue if row["status"].startswith("AUTO_RESEARCH_BLOCKED")]
+    holds = [row for row in queue if row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
+    blocked = [row for row in queue if row["status"].startswith("AUTO_RESEARCH_BLOCKED") or row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
 
     state = {
         "schema_version": "1.0.0",
         "state_id": f"RESEARCH_QUEUE_D2_CURRENT_{now.strftime('%Y%m%dT%H%M%SZ')}",
         "as_of": now_iso,
-        "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING" if pending else "D2_AUTO_CONSUMER_ACTIVE_NO_PENDING_WORK",
+        "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING" if active_pending else "D2_AUTO_CONSUMER_ACTIVE_NO_PENDING_WORK",
         "source_d1_state_id": d1.get("state_id"),
         "consumer_policy": {
             "bounded_batch_size": BATCH_SIZE,
             "event_trigger": "PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES",
             "recovery_cadence": "WEEKDAYS_00:35_UTC_08:35_ASIA_SHANGHAI",
             "manual_dispatch": "BREAK_GLASS_ONLY",
-            "idempotence": "UNCHANGED_INPUT_WATERMARK_DOES_NOT_RESET_COMPLETED_WORK",
+            "idempotence": "UNCHANGED_D1_STATE_OR_INPUT_WATERMARK_PRESERVES_SEMANTIC_TERMINAL_WORK",
             "fail_closed": True,
             "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_CONSUMER",
         },
         "queue": queue,
         "summary": {
             "routed_count": len(queue),
-            "pending_count": len(pending),
+            "pending_count": len(active_pending),
             "completed_count": len(completed),
+            "hold_evidence_gap_count": len(holds),
             "blocked_count": len(blocked),
             "batch_capacity": BATCH_SIZE,
             "manual_trigger_required": False,
@@ -216,7 +249,7 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
     }
 
     oldest = None
-    for row in pending:
+    for row in active_pending:
         when = row.get("last_attempt_at")
         if when and (oldest is None or when < oldest):
             oldest = when
@@ -225,14 +258,16 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
         "schema_version": "1.0.0",
         "as_of": now_iso,
         "status": "PASS_D2_CONSUMER_LIVE" if queue else "PASS_D2_CONSUMER_LIVE_NO_ROUTED_WORK",
-        "d2_pending_count": len(pending),
+        "d2_pending_count": len(active_pending),
         "d2_completed_count": len(completed),
+        "d2_hold_evidence_gap_count": len(holds),
         "d2_blocked_count": len(blocked),
         "oldest_pending_attempt_at": oldest,
         "last_consumer_attempt_at": now_iso if discover_primary_sources else prior.get("as_of"),
         "next_recovery_cadence": "NEXT_WEEKDAY_08:35_ASIA_SHANGHAI",
         "manual_trigger_required": False,
         "blocked_items": [row["security_id"] for row in blocked],
+        "completed_items": [row["security_id"] for row in completed],
         "trade_authority": TRADE_AUTHORITY,
     }
 
