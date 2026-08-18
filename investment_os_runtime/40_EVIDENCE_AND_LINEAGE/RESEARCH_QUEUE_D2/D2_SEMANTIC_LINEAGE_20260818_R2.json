@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "lineage_id": "D2_SEMANTIC_LINEAGE_20260818_R2",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_20260811",
+  "source_primary_discovery_state_id": "RESEARCH_QUEUE_D2_CURRENT_20260817T020559Z",
+  "source_evidence_artifact": "RESEARCH_QUEUE_D2_EVIDENCE_20260817T020559Z.json",
+  "outputs": [
+    {
+      "security_id": "000719.SZ",
+      "artifact": "D2_RESEARCH_000719_20260818_R2.json",
+      "status": "D2_RESEARCH_COMPLETE",
+      "change": "GOVERNANCE_GATE_ADDED_NO_ECONOMIC_DECISION_PROMOTION"
+    },
+    {
+      "security_id": "002039.SZ",
+      "artifact": "D2_RESEARCH_002039_20260813_R1.json",
+      "status": "D2_RESEARCH_COMPLETE",
+      "change": "NO_MATERIAL_SEMANTIC_CHANGE"
+    },
+    {
+      "security_id": "301215.SZ",
+      "artifact": "D2_RESEARCH_301215_20260818_R2.json",
+      "status": "D2_RESEARCH_HOLD_EVIDENCE_GAP",
+      "change": "PRIMARY_SOURCE_DISCOVERY_RECOVERED_BUT_UTILIZATION_AND_ROIC_GAP_REMAINS"
+    }
+  ],
+  "governance_repair": {
+    "issue": "RECOVERY_CONSUMER_RESET_SEMANTIC_TERMINAL_STATES_WHEN_LEGACY_SEMANTIC_CURRENT_OMITTED_INPUT_WATERMARK",
+    "repair": "PRESERVE_SEMANTIC_TERMINAL_STATE_WHEN_SOURCE_D1_STATE_ID_IS_UNCHANGED; REOPEN_ON_GENUINE_D1_STATE_CHANGE",
+    "tests_added": true
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

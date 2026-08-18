@@ -7,6 +7,16 @@ ROOT = Path(__file__).resolve().parents[2]
 D2_CURRENT = ROOT / "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json"
 D2_LIVENESS = ROOT / "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json"
 
+ACTIVE_PENDING_STATUSES = {
+    "PENDING_AUTO_RESEARCH",
+    "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+    "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+}
+SEMANTIC_TERMINAL_STATUSES = {
+    "D2_RESEARCH_COMPLETE",
+    "D2_RESEARCH_HOLD_EVIDENCE_GAP",
+}
+
 
 def load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -25,7 +35,12 @@ def main() -> int:
     assert len({row["security_id"] for row in queue}) == len(queue)
     for row in queue:
         assert row["d2_questions"]
-        assert row["semantic_research_required"] is True
+        status = row["status"]
+        assert status in ACTIVE_PENDING_STATUSES | SEMANTIC_TERMINAL_STATUSES
+        if status == "D2_RESEARCH_COMPLETE":
+            assert row["semantic_research_required"] is False
+        else:
+            assert row["semantic_research_required"] is True
         assert row["candidate_membership_mutation_authorized"] is False
         assert row["real_account_mutation_authorized"] is False
         assert row["simulation_mutation_authorized"] is False
@@ -43,13 +58,34 @@ def main() -> int:
         "trade_authority": "NONE",
     }
     assert liveness["trade_authority"] == "NONE"
-    assert state["summary"]["pending_count"] + state["summary"]["completed_count"] == len(queue)
-    assert state["summary"]["blocked_count"] <= state["summary"]["pending_count"]
+
+    active_pending = [row for row in queue if row["status"] in ACTIVE_PENDING_STATUSES]
+    completed = [row for row in queue if row["status"] == "D2_RESEARCH_COMPLETE"]
+    holds = [row for row in queue if row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
+    blocked = [
+        row for row in queue
+        if row["status"].startswith("AUTO_RESEARCH_BLOCKED")
+        or row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"
+    ]
+
+    assert state["summary"]["pending_count"] == len(active_pending)
+    assert state["summary"]["completed_count"] == len(completed)
+    assert state["summary"].get("hold_evidence_gap_count", len(holds)) == len(holds)
+    assert state["summary"]["blocked_count"] == len(blocked)
+    assert len(active_pending) + len(completed) + len(holds) == len(queue)
+
+    assert liveness["d2_pending_count"] == len(active_pending)
+    assert liveness["d2_completed_count"] == len(completed)
+    if "d2_hold_evidence_gap_count" in liveness:
+        assert liveness["d2_hold_evidence_gap_count"] == len(holds)
+    assert liveness["d2_blocked_count"] == len(blocked)
 
     print({
         "d2_routes": len(queue),
-        "pending": state["summary"]["pending_count"],
-        "blocked": state["summary"]["blocked_count"],
+        "pending": len(active_pending),
+        "completed": len(completed),
+        "holds": len(holds),
+        "blocked": len(blocked),
         "manual_trigger_required": False,
         "orders": 0,
         "trade_authority": "NONE",
