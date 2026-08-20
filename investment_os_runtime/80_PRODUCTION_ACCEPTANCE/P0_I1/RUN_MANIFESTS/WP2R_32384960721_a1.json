@@ -1,0 +1,42 @@
+{
+  "canonical_commit_after": "b3d35df0eede13079ef4ee77dbb4b49ba6bce641",
+  "canonical_commit_before": "b3d35df0eede13079ef4ee77dbb4b49ba6bce641",
+  "canonical_commit_semantics": "OBSERVED_UPSTREAM_OUTPUT_COMMIT_BEFORE_OBSERVER_EVIDENCE_COMMIT",
+  "completed_at": "2026-08-20T15:15:28Z",
+  "exceptions": [
+    "ASSET_TIE_OUT_FAILED",
+    "CORPORATE_ACTIONS_NOT_UNIFIED",
+    "INCOME_AND_FEES_NOT_UNIFIED",
+    "POSITION_CONTINUITY_LAGS_MARK_WATERMARK"
+  ],
+  "idempotency_key": "R2 WP2-R tracked price and NAV refresh:32384960721:1",
+  "inputs": [
+    "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json",
+    "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json"
+  ],
+  "market_data_watermark": "2026-08-20",
+  "observed_at": "2026-08-20T15:16:20Z",
+  "orders": 0,
+  "outputs": [
+    "investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/DAILY_CURRENT.json",
+    "investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/STATUS_CURRENT.json",
+    "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/EOD_SNAPSHOTS/2026-08-20/REAL_32384960721_a1.json",
+    "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/EOD_SNAPSHOTS/2026-08-20/SIMULATION_32384960721_a1.json",
+    "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/REPORT_MANIFESTS/DAILY_2026-08-20_32384960721_a1.json",
+    "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/REPORT_MANIFESTS/STATUS_2026-08-20_32384960721_a1.json"
+  ],
+  "position_watermark": "2026-08-11T09:27:00+08:00",
+  "run_id": "RUN_c812b45606fe085f6142",
+  "started_at": "2026-08-20T15:14:42Z",
+  "status": "PASS_WITH_EXCEPTIONS",
+  "trade_authority": "NONE",
+  "trigger_type": "workflow_run",
+  "upstream_conclusion": "success",
+  "upstream_run_attempt": 1,
+  "upstream_run_id": "32384960721",
+  "upstream_run_url": "https://github.com/jl2642/investment-os-market-data/actions/runs/32384960721",
+  "workflow_name": "R2 WP2-R tracked price and NAV refresh"
+}
