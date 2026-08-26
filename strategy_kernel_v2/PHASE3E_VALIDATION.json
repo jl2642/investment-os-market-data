@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3E",
+  "status": "PASS_COMPLETE_BOUNDED_STRUCTURAL_ABLATION_NO_SINGLE_COMPONENT_RESTORES_REPLAY",
+  "as_of": "2026-08-26",
+  "parent_phase3d_head": "783603157e12a3073f98c840fa056bfa0b36648c",
+  "mode": "STRUCTURAL_INPUT_BURDEN_ABLATION_AND_ROBUSTNESS",
+  "contract": {
+    "frozen_before_ablation_run": true,
+    "one_component_at_a_time": true,
+    "phase3d_realized_outcomes_used_to_select_ablation": false,
+    "phase3d_returns_used_to_tune_requirements": false,
+    "proxy_substitution_allowed": false,
+    "subjective_mapping_allowed": false,
+    "fixed_phase3b_models_overwritten": false,
+    "revised_model_execution_on_seed": false,
+    "winner_selection": false
+  },
+  "ablation_build": {
+    "workflow": "Strategy Kernel Phase 3E Ablation Robustness",
+    "run_number": 2,
+    "run_id": 32962577969,
+    "conclusion": "SUCCESS",
+    "artifact_id": 9604451241,
+    "artifact_name": "phase3e-ablation-results",
+    "artifact_zip_sha256": "8a0482cae489d6e00a6e9d7c8b9f5648d0f6deee5ca24a26956942c4ae677bcd",
+    "tests": 8,
+    "checkpoint_count": 7,
+    "feature_security_instance_count": 33,
+    "historical_source_reads": 29
+  },
+  "phase2_ablation": {
+    "fixed_baseline_evaluable_instances": 0,
+    "single_component_ablation_count": 4,
+    "drop_probability_evaluable_instances": 0,
+    "drop_confidence_evaluable_instances": 0,
+    "drop_concentration_cost_evaluable_instances": 0,
+    "drop_execution_friction_evaluable_instances": 0,
+    "single_component_unlock_count": 0
+  },
+  "simple_pareto_ablation": {
+    "fixed_baseline_evaluable_instances": 0,
+    "single_component_ablation_count": 5,
+    "drop_return_proxy_evaluable_instances": 0,
+    "drop_downside_resilience_evaluable_instances": 0,
+    "drop_evidence_quality_evaluable_instances": 0,
+    "drop_concentration_cost_evaluable_instances": 0,
+    "drop_execution_friction_evaluable_instances": 0,
+    "single_component_unlock_count": 0
+  },
+  "combined_finding": {
+    "single_component_ablation_count": 9,
+    "single_component_ablation_unlock_count": 0,
+    "finding": "NO_SINGLE_COMPONENT_ABLATION_RESTORES_HISTORICAL_REPLAY",
+    "interpretation": "Historical non-replayability is not attributable to one isolated required field. It reflects a multi-input contract burden and structural mismatch between fixed candidate schemas and contemporaneous governed historical data."
+  },
+  "adjacent_observables": {
+    "scenario_context_instances": 5,
+    "return_context_instances": 20,
+    "confidence_context_instances": 20,
+    "concentration_context_instances": 8,
+    "execution_context_instances": 8,
+    "evidence_quality_context_instances": 26,
+    "downside_context_instances": 26,
+    "all_contract_substitution_allowed": false,
+    "interpretation": "Related contemporaneous information exists, but it is not contract-equivalent to the fixed Phase 3B fields and therefore cannot be silently substituted."
+  },
+  "model_revision": {
+    "material_revised_model_form_created": false,
+    "same_seed_model_tuning_performed": false,
+    "new_model_identity_required_for_material_revision": true,
+    "required_loopback_for_material_revision": "PHASE_3B_CONTRACT_DEFINITION_THEN_PHASE_3C_REPLAY",
+    "broader_or_holdout_history_required_before_promotion": true
+  },
+  "phase_boundary": {
+    "phase3e_started": true,
+    "phase3e_complete": true,
+    "phase3f_start_allowed": true,
+    "phase3f_promotion_eligible": false,
+    "phase3_historical_validation_complete": false,
+    "phase4_entry_allowed": false,
+    "phase5_migration_allowed": false
+  },
+  "required_next_action": "PHASE_3F_HISTORICAL_PROMOTION_GATE_WITH_PROMOTION_INELIGIBLE_OR_GOVERNED_NEW_MODEL_LOOPBACK",
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

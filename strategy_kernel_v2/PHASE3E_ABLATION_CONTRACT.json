@@ -1,0 +1,162 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3E",
+  "status": "FROZEN_STRUCTURAL_ABLATION_NO_OUTCOME_TUNING",
+  "parent_phase3d_head": "783603157e12a3073f98c840fa056bfa0b36648c",
+  "mode": "STRUCTURAL_INPUT_BURDEN_ABLATION_AND_ROBUSTNESS",
+  "evaluation_corpus": {
+    "source": "PHASE3A_POINT_IN_TIME_LEDGER_VIA_PHASE3C_MODEL_NEUTRAL_FEATURE_EXTRACTION",
+    "checkpoint_count": 7,
+    "security_count": 8,
+    "exact_registered_commit_path_required": true,
+    "phase3d_realized_outcomes_may_select_ablation": false,
+    "phase3d_returns_may_tune_requirements": false
+  },
+  "rules": {
+    "one_component_at_a_time": true,
+    "fixed_phase3b_models_are_not_overwritten": true,
+    "proxy_substitution_allowed": false,
+    "subjective_mapping_allowed": false,
+    "retrospective_probability_creation_allowed": false,
+    "retrospective_confidence_creation_allowed": false,
+    "retrospective_cost_score_creation_allowed": false,
+    "model_execution_under_revised_contract_allowed": false,
+    "winner_selection_allowed": false,
+    "same_seed_performance_claim_allowed": false,
+    "material_revision_requires_new_model_identity": true,
+    "material_revision_requires_return_to_phase3b_then_phase3c": true
+  },
+  "phase2_variants": [
+    {
+      "variant_id": "P2_BASELINE_FIXED_3B",
+      "removed_component": null,
+      "required_feature_keys": [
+        "explicit_probability_scenarios",
+        "explicit_confidence",
+        "explicit_portfolio_concentration_cost",
+        "explicit_execution_friction"
+      ]
+    },
+    {
+      "variant_id": "P2_DROP_PROBABILITY",
+      "removed_component": "probability",
+      "required_feature_keys": [
+        "wp5_unweighted_scenarios",
+        "explicit_confidence",
+        "explicit_portfolio_concentration_cost",
+        "explicit_execution_friction"
+      ]
+    },
+    {
+      "variant_id": "P2_DROP_CONFIDENCE",
+      "removed_component": "confidence",
+      "required_feature_keys": [
+        "explicit_probability_scenarios",
+        "explicit_portfolio_concentration_cost",
+        "explicit_execution_friction"
+      ]
+    },
+    {
+      "variant_id": "P2_DROP_CONCENTRATION_COST",
+      "removed_component": "portfolio_concentration_cost",
+      "required_feature_keys": [
+        "explicit_probability_scenarios",
+        "explicit_confidence",
+        "explicit_execution_friction"
+      ]
+    },
+    {
+      "variant_id": "P2_DROP_EXECUTION_FRICTION",
+      "removed_component": "execution_friction",
+      "required_feature_keys": [
+        "explicit_probability_scenarios",
+        "explicit_confidence",
+        "explicit_portfolio_concentration_cost"
+      ]
+    }
+  ],
+  "simple_variants": [
+    {
+      "variant_id": "SIMPLE_BASELINE_FIXED_3B",
+      "removed_component": null,
+      "required_feature_keys": [
+        "explicit_simple_return_proxy",
+        "explicit_simple_downside_resilience",
+        "explicit_simple_evidence_quality",
+        "explicit_simple_concentration_cost",
+        "explicit_simple_execution_friction"
+      ]
+    },
+    {
+      "variant_id": "SIMPLE_DROP_RETURN_PROXY",
+      "removed_component": "return_proxy",
+      "required_feature_keys": [
+        "explicit_simple_downside_resilience",
+        "explicit_simple_evidence_quality",
+        "explicit_simple_concentration_cost",
+        "explicit_simple_execution_friction"
+      ]
+    },
+    {
+      "variant_id": "SIMPLE_DROP_DOWNSIDE_RESILIENCE",
+      "removed_component": "downside_resilience",
+      "required_feature_keys": [
+        "explicit_simple_return_proxy",
+        "explicit_simple_evidence_quality",
+        "explicit_simple_concentration_cost",
+        "explicit_simple_execution_friction"
+      ]
+    },
+    {
+      "variant_id": "SIMPLE_DROP_EVIDENCE_QUALITY",
+      "removed_component": "evidence_quality",
+      "required_feature_keys": [
+        "explicit_simple_return_proxy",
+        "explicit_simple_downside_resilience",
+        "explicit_simple_concentration_cost",
+        "explicit_simple_execution_friction"
+      ]
+    },
+    {
+      "variant_id": "SIMPLE_DROP_CONCENTRATION_COST",
+      "removed_component": "concentration_cost",
+      "required_feature_keys": [
+        "explicit_simple_return_proxy",
+        "explicit_simple_downside_resilience",
+        "explicit_simple_evidence_quality",
+        "explicit_simple_execution_friction"
+      ]
+    },
+    {
+      "variant_id": "SIMPLE_DROP_EXECUTION_FRICTION",
+      "removed_component": "execution_friction",
+      "required_feature_keys": [
+        "explicit_simple_return_proxy",
+        "explicit_simple_downside_resilience",
+        "explicit_simple_evidence_quality",
+        "explicit_simple_concentration_cost"
+      ]
+    }
+  ],
+  "adjacent_observable_inventory": {
+    "scenario_context": ["wp5_unweighted_scenarios"],
+    "return_context": ["wp5_base_case_expected_return", "candidate_archive_proxy_return_20260624_to_20260710_pct", "candidate_archive_current_sim_pnl_pct"],
+    "confidence_context": ["candidate_archive_race_confidence"],
+    "concentration_context": ["real_account_weight_mechanical", "wp5_current_weight", "00669_research_weight"],
+    "execution_context": ["wp5_implementation_ready", "wp5_broker_verified", "00669_board_lot_sizing_mismatch", "00669_implementation_ready", "real_action_execution_status", "real_action_permission", "real_action_constraints"],
+    "evidence_quality_context": ["wp5_source_count", "wp5_all_primary_documents", "core2_research_grade", "d2_source_count", "candidate_archive_evidence_score", "candidate_archive_quality_score"],
+    "downside_context": ["wp5_unweighted_scenarios", "d2_first_rejection_test", "candidate_archive_risk_penalty"]
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

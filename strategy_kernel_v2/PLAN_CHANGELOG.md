@@ -199,3 +199,51 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Phase 3F consequence:** promotion to Phase 4 requires at least one historically replayable candidate, measurable 3D evidence, accepted 3E robustness and broader historical coverage. If no candidate becomes historically evaluable, only `REJECT_V2_FORM` or `CONTINUE_SHADOW_RESEARCH` are permitted.
 
 **Not changed:** macro lifecycle Phase 0→5 and Phase 3 sequence 3A→3F remain unchanged. No effective policy/economic state changed; `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-26 — Phase 3D bounded negative-result measurability closeout
+**Reason:** Phase 3C proved both candidate forms historically non-replayable, so 3D could not honestly fabricate candidate outcomes merely to complete calibration/regret analysis. The governed Post-3C decision therefore authorized only negative-result measurability and outcome observability.
+
+**Contract and execution:**
+- froze 1/3/5 exchange-session horizons, entry/outcome conventions, source fallback and missing-data policy before any realized outcomes were loaded;
+- required absent candidate metrics to remain `NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS`;
+- audited repository-governed market history first, then used reputable historical daily-close data only where the frozen horizon required missing daily observations;
+- horizon changes after outcome loading = 0; retrospective candidate-output synthesis = 0.
+
+**Result:**
+- 29 Legacy instance observations were reconstructed mechanically from Phase 3C;
+- 100 candidate security×model×checkpoint records remained performance-nonmeasurable;
+- 5 Legacy `RETAINED` forward-price observations were measurable, all repeated 601138 checkpoints;
+- 16 `NO_ACTION` plus 7 `PRIORITIZED` rows were opportunity observations only;
+- one simulation `REDUCED` posture remained observation-only because no executed counterfactual existed;
+- measurable regret = 0; measurable calibration = 0; candidate comparative performance unavailable; winner selection forbidden.
+
+**Interpretation:** 3D answered the measurability question but did not establish a candidate-vs-Legacy performance ranking. Repeated 601138 retained-return observations are descriptive diagnostics, not independent trials or promotion evidence.
+
+**Promotion consequence:** Phase 3E may start under the Post-3C loopback guard. `phase3f_promotion_eligible=false`; Phase 4 remains unavailable and Phase 5 unauthorized.
+
+**Not changed:** no effective policy, Candidate membership, Real/Simulation position, target portfolio, user investment decision, recommendation, order authority or trade authority changed; `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-26 — Phase 3E structural ablation / robustness closeout
+**Reason:** Phase 3C/3D showed that fixed candidate models could not be historically replayed or performance-compared. Phase 3E therefore tested whether that failure could be attributed to one isolated model requirement without using realized returns to tune a replacement model.
+
+**Governed contract:**
+- reused the exact Phase 3A/3C point-in-time corpus;
+- excluded Phase 3D realized returns from ablation selection and requirement tuning;
+- preserved fixed Phase 3B model identities;
+- removed exactly one required component at a time;
+- prohibited proxy substitution, subjective remapping, retrospective probability/confidence/cost-score creation, revised-model execution, same-seed performance claims and winner selection.
+
+**Result:**
+- 7 checkpoints, 33 feature-security instances and 29 exact historical source reads;
+- Phase-2 baseline evaluable = 0; four single-component ablations all remained 0;
+- Simple-Pareto baseline evaluable = 0; five single-component ablations all remained 0;
+- total single-component ablations = 9; replay unlocks = 0;
+- finding = `NO_SINGLE_COMPONENT_ABLATION_RESTORES_HISTORICAL_REPLAY`.
+
+**Robustness interpretation:** related contemporaneous information is not absent. Scenario context appears in 5 instances, return context in 20, confidence context in 20, concentration context in 8, execution context in 8, evidence-quality context in 26 and downside context in 26. But these proxy-like observables are not contract-equivalent to the fixed Phase 3B fields and may not be silently substituted. Non-replayability is therefore best treated as a multi-input contract burden / structural schema mismatch rather than a single-field defect.
+
+**Model-revision consequence:** no revised candidate model was created in 3E. Any material redesign requires a new model/version identity and must return through governed 3B contract definition and 3C replay. The seven seed checkpoints may not be outcome-tuned and then presented as independent validation; broader or holdout history remains required.
+
+**Phase 3F consequence:** Phase 3F may now start procedurally, but promotion eligibility remains false. Under current evidence only `REJECT_V2_FORM` or `CONTINUE_SHADOW_RESEARCH` are valid gate outcomes; `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION` remains blocked because there is no historically replayable candidate, no measurable candidate 3D performance evidence and no broader historical coverage.
+
+**Not changed:** no effective Core Static rule, Candidate state, Real/Simulation state, target portfolio, user decision, recommendation, order authority or trade authority changed; `orders=0`, `trade_authority=NONE`.
