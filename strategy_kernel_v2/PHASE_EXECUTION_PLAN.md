@@ -10,32 +10,49 @@ Input: Canonical Core Static on main. Output: semantic rule inventory and treatm
 Input: existing Canonical decisions/research/account states. Output: Decision Object v2 shadow adapter. Acceptance: canonical no-trade decisions preserved; missing valuation never fabricated.
 
 ### Phase 1C — UNDERWRITING EXTRACTION — VALIDATED SHADOW-ONLY
-**Objective:** extract, not invent, the underwriting already contained in Canonical research.
+Coverage: 601138.SH, 605090.SH, HKEX:00669, 000719.SZ, 002039.SZ, 301215.SZ, 000333.SZ, 600900.SH.
+Acceptance: 11/11 regression tests, 8/8 schema validations, deterministic bundle, explicit evidence/freshness gaps, zero economic authority.
 
-**Coverage set:** 601138.SH, 605090.SH, HKEX:00669, 000719.SZ, 002039.SZ, 301215.SZ, 000333.SZ, 600900.SH.
+### Phase 2 — SHADOW CAPITAL COMPARATOR
 
-**Required fields where evidenced:** business economics, normalized earnings/cash flow, durability, balance-sheet/capital-allocation observations, thesis, falsifiers, valuation evidence, portfolio context, research quality, explicit gaps and provenance.
+#### Phase 2A — Comparator Contract / Engine — VALIDATED SHADOW-ONLY
+**Objective:** build the auditable comparison mechanism without yet deciding a utility function.
 
-**Acceptance:**
-- all 8 objects generated deterministically from explicit extraction specifications;
-- gaps are explicit and block promotion when material;
-- D2 complete is not treated as BUY/Candidate permission;
-- price-only trigger is not a user decision;
-- concentration alone is not a trim/sell signal;
-- accepted 601138 no-trade semantics are preserved;
-- no valuation scenario is created unless explicitly supplied by Canonical evidence;
-- shadow comparison readiness is separately encoded from decision readiness;
-- all mutation permissions false; `orders=0`; `trade_authority=NONE`.
+**Input gate:**
+- `NOT_READY` objects remain blocked regardless of price refresh;
+- `READY_AFTER_REFRESH` objects require a governed overlay that explicitly satisfies every Phase 1C refresh requirement;
+- probability-weighted valuation scenarios, confidence, portfolio concentration cost and execution friction must be explicit; no silent defaults.
 
-**Validation:** 11/11 regression tests pass; 8/8 generated objects pass `underwriting_object_v1.schema.json`; deterministic generated bundle matches the registry.
+**Comparator outputs:**
+- probability-weighted expected annualized total return;
+- worst-scenario annualized total return;
+- probability of loss;
+- explicit confidence;
+- portfolio concentration cost;
+- execution friction;
+- optional excess expected return versus an explicitly supplied cash/reference baseline;
+- Pareto frontier / dominance relationships.
 
-### Phase 2 — SHADOW CAPITAL COMPARATOR — NOT STARTED
-**Precondition:** consume only objects whose `comparison_readiness` is `READY_NOW` or whose specified `refresh_requirements` have been satisfied by a fresh governed research input. Do not silently override stale or missing valuation/fundamental gates.
+**Explicit non-output:** no scalar policy score, no target weight, no BUY/SELL instruction, no user decision, no Candidate mutation, no economic writeback.
 
-Comparator output is research-only relative ranking/diagnostics. It may compare existing positions, candidates, ETFs and cash, but cannot create a user decision or economic mutation.
+**Validation:** 12/12 Phase 2A unit tests pass; capital-comparison schema validation passes; current Phase 1C gate report correctly returns 0 eligible / 8 blocked absent refresh.
+
+#### Phase 2B — Governed Refresh Adapters — NEXT
+Map fresh governed issuer/valuation/market artifacts to explicit comparator overlays. The adapter must preserve source provenance and may satisfy only the requirements evidenced by the source. Price data cannot cure a material fundamental evidence gap.
+
+Priority refresh paths:
+1. 601138 issuer H1/major primary evidence + completed-close valuation;
+2. HKEX:00669 completed close + FX normalization, while preserving price-band-only research semantics;
+3. 000719 and 002039 fresh normalized valuation and stated issuer checks;
+4. 000333 and 600900 surface/refresh scenario valuation payloads plus issuer-specific limitation refresh;
+5. 605090 requires issuer-specific re-underwrite before comparison;
+6. 301215 remains event/data-dependent until utilization/project-economics evidence appears.
+
+#### Phase 2C — Current Shadow Comparison Pack — GATED
+When at least two economically meaningful non-reference capital uses are eligible, build a research-only comparison pack with an explicit reference/cash alternative. If the threshold is not met, output `NO_COMPARISON` rather than manufacturing rankings.
 
 ### Phase 3 — POINT-IN-TIME REPLAY / CALIBRATION
-Mandatory before any effective policy relaxation or migration. Replay using only contemporaneously available evidence; assess forecast calibration, false-negative reduction, false-positive cost, downside capture, turnover and opportunity-cost regret.
+Mandatory before any effective policy relaxation or migration. Replay using only contemporaneously available evidence; assess forecast calibration, false-negative reduction, false-positive cost, downside capture, turnover and opportunity-cost regret. Candidate scoring/sizing policies are hypotheses to be tested here, not hard-coded in Phase 2.
 
 ### Effective migration
 Separate governed proposal only after Phase 3. Never inferred from shadow research performance alone.
