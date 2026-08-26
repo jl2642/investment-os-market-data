@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "program": "STRATEGY_KERNEL_V2",
   "program_version": "1.0",
   "contract_status": "CONTROLLED_MASTER",
@@ -17,6 +17,18 @@
     "direct_phase3_to_phase5_forbidden": true,
     "macro_phase_omission_forbidden": true,
     "program_amendment_required_for_macro_change": true
+  },
+  "phase3_internal_evaluation_policy": {
+    "phase3_subphase_sequence": ["3A", "3B", "3C", "3D", "3E", "3F"],
+    "post3c_negative_replayability_may_complete_phase3c": true,
+    "phase3d_missing_candidate_outputs_must_be_nonmeasurable": true,
+    "phase3d_hypothetical_candidate_outputs_forbidden": true,
+    "phase3d_outcome_definitions_must_be_preregistered_before_loading_realized_outcomes": true,
+    "phase3e_revised_model_forms_must_be_versioned": true,
+    "phase3e_revised_forms_must_return_to_phase3b_and_phase3c": true,
+    "phase3f_promotion_requires_historically_replayable_candidate": true,
+    "phase3f_promotion_requires_broader_historical_coverage": true,
+    "if_no_candidate_historically_evaluable_phase3f_outcomes": ["REJECT_V2_FORM", "CONTINUE_SHADOW_RESEARCH"]
   },
   "authority_boundaries_through_phase4": {
     "effective_core_static_change_authorized": false,

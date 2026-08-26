@@ -1,93 +1,79 @@
 # Strategy Kernel v2 — Overall Development Roadmap
 
 ## Master-program authority
-`MASTER_PROGRAM_CHARTER.md` and `PROGRAM_CONTRACT.json` define the macro lifecycle. This roadmap expands that lifecycle; it may not silently delete, reorder, bypass, or reinterpret a macro phase. Any macro lifecycle change requires an explicit governed `PROGRAM_AMENDMENT` with rationale and impact assessment.
+`MASTER_PROGRAM_CHARTER.md` and `PROGRAM_CONTRACT.json` define the macro lifecycle. This roadmap may refine execution but may not silently delete, reorder, bypass, or reinterpret a macro phase. Controlled-plan changes must keep Charter, Contract, State, Roadmap, Execution Plan, Changelog and Current Status synchronized.
 
-## Governance rule: the plan is a controlled development object
-Any change to phase order, scope, dependencies, acceptance criteria, model-evaluation target, or economic/authority boundaries MUST update `MASTER_PROGRAM_CHARTER.md`, `PROGRAM_CONTRACT.json`, `PROGRAM_STATE.json`, this roadmap, `PHASE_EXECUTION_PLAN.md`, `PLAN_CHANGELOG.md`, and `CURRENT_PHASE_STATUS.json` in the same governed change-set. `program_consistency.py` must pass before implementation advances.
-
-Hard boundaries through Phase 4: no live trading, no order creation, no automatic Candidate membership/tier mutation, no Real or Simulation economic mutation, no target-portfolio writeback, `orders=0`, `trade_authority=NONE`.
+Hard boundaries through Phase 4: no live trading, no order creation, no automatic Candidate mutation, no Real/Simulation economic mutation, no target-portfolio writeback; `orders=0`, `trade_authority=NONE`.
 
 ## Macro roadmap
-
 ### Phase 0 — System Audit — COMPLETE
-- **0B Current-main rule audit — COMPLETE.**
-- Inventory existing Core Static semantics and separate investment principles from research controls, portfolio discipline, execution/data safety, and governance.
-- Preserve Legacy as the baseline to be tested rather than assuming its gates are either correct or too restrictive.
+Legacy/Core Static semantics inventoried and preserved as the baseline.
 
-### Phase 1 — Decision & Underwriting Layer — COMPLETE SHADOW
-- **1B Decision Object v2 shadow adapter — COMPLETE / PR #298.**
-  - Normalize existing Canonical decision states without changing effective policy.
-  - Preserve 601138 accepted NO_TRADE semantics, HKEX:00669 price-band-as-research-trigger semantics, and 605090 concentration as a diagnostic rather than an automatic sell signal.
-- **1C Underwriting Extraction — VALIDATED SHADOW-ONLY / PR #299.**
-  - Extract existing Canonical issuer research into a common Underwriting Object.
-  - Unknown or missing evidence remains explicit; no research, valuation, scenario probability, or confidence is synthesized merely to complete a schema.
+### Phase 1 — Decision & Underwriting — COMPLETE SHADOW
+- 1B Decision Object v2 — COMPLETE / PR #298.
+- 1C Underwriting Extraction — VALIDATED SHADOW-ONLY / PR #299.
+No missing evidence, valuation, probability or confidence is synthesized merely to complete a schema.
 
-### Phase 2 — Capital Comparison Infrastructure — COMPLETE SHADOW / STACKED REVIEW
-- **2A Comparator Contract / Engine — VALIDATED SHADOW-ONLY / PR #300.**
-  - Transparent multi-dimensional vectors plus Pareto frontier; no unvalidated scalar score.
-  - Expected return, downside, probability of loss, confidence, concentration cost and execution friction remain measurement fields, not effective policy weights.
-  - Current Phase 1C baseline returned 0 eligible / 8 blocked absent governed refresh.
-- **2B Governed Refresh Adapters — VALIDATED SHADOW-ONLY / PR #301.**
-  - Exact governed refresh coverage is required.
-  - `NOT_READY` cannot be cured by price/valuation alone; material fundamental gaps require governed fundamental re-underwrite.
-  - Source decision readiness and Canonical authority remain unchanged.
-- **2C Current Shadow Comparison Pack — VALIDATED COMPLETE / PR #302 / current pack `NO_COMPARISON`.**
-  - Actual main + newer governed production evidence was inventoried for all eight objects.
-  - Fresh 2026-08-25 A-share market marks exist for part of the set, but zero objects satisfy the full Phase 2B refresh plus Phase 2A probabilistic-comparison input contract without adding new assumptions.
-  - Zero real refresh packets were fabricated/applied; 0 eligible / 8 blocked; no ranking manufactured.
-- **Program Governance Correction — VALIDATED / PR #303.**
-  - Restored mandatory Phase 4 forward validation, prohibited direct Phase 3→5 promotion, and added machine-enforced lifecycle consistency.
-  - Accepted as the governed parent for continued stacked shadow development; Canonical `main` remains unchanged and protected.
+### Phase 2 — Capital Comparison Infrastructure — COMPLETE SHADOW
+- 2A Comparator Contract / Engine — VALIDATED / PR #300: transparent multi-dimensional vectors + Pareto; no scalar policy score.
+- 2B Governed Refresh Adapters — VALIDATED / PR #301: readiness requires exact governed evidence coverage.
+- 2C Current Shadow Comparison Pack — VALIDATED / PR #302: `NO_COMPARISON`, 0 eligible / 8 blocked, no fabricated refresh packets.
+- Program Governance Correction — VALIDATED / PR #303: restored mandatory Phase 4 and prohibited direct Phase 3→5 promotion.
 
-### Phase 3 — Historical Replay & Calibration — IN PROGRESS / 3C COMPLETE_TERMINAL_NONREPLAYABILITY / 3D BLOCKED
-Mandatory point-in-time validation before any forward promotion. Phase 3 tests model form as well as parameters; strong historical results do not authorize effective migration.
+### Phase 3 — Historical Replay & Calibration — IN PROGRESS
+Internal sequence remains exactly `3A → 3B → 3C → 3D → 3E → 3F`.
 
-Internal steps:
-- **3A Point-in-time Evidence Ledger — VALIDATED COMPLETE_SCOPE_BOUNDED / PR #304.**
-  - Canonical-only registry contains 29 immutable evidence records across seven replay checkpoints from 2026-07-26 through 2026-08-18 and the eight current Strategy Kernel v2 objects.
-  - Research, market, portfolio, Candidate and decision context are bound to Canonical commit availability rather than filename/as-of date alone.
-  - The ledger selects the latest version available at each checkpoint and preserves stale embedded watermarks rather than retrospectively refreshing them.
-  - 000719/301215 R1 is visible at the 2026-08-13 checkpoint; R2 becomes visible only after the 2026-08-18 Canonical merge.
-  - Derived ledger output is rebuilt from the registry/checkpoints rather than committed as an authority artifact.
-  - This seven-checkpoint window is sufficient for bounded engineering but is **not statistically sufficient for 3F promotion**.
-- **3B Competing Model Forms — VALIDATED COMPLETE_CONTRACT_ONLY / PR #305.**
-  - Fixed three model forms: `LEGACY_POLICY_BASELINE`, `PHASE2_PROBABILISTIC_VECTOR`, and `SIMPLE_NON_PROBABILISTIC_PARETO`.
-  - Every model consumes the same immutable shared observation packet; model-specific evidence fetch is forbidden.
-  - Missing model inputs fail closed as `NOT_EVALUABLE`; no probability, scenario, confidence, concentration or execution input may be added merely to make a model run.
-  - Phase 3B defines model forms and fairness rules only; it does not perform historical decision replay or select a winner.
-- **3C Decision / Capital Replay — VALIDATED COMPLETE_BOUNDED_REPLAY_TERMINAL_NONREPLAYABILITY / PR #306.**
-  - 3C-1 reads historical evidence only by the exact Phase 3A registered `commit_sha:path` using full Git history and extracts model-neutral fields with checkpoint-local provenance.
-  - 3C-2 runs all three fixed 3B model forms on the same packet; no model may read sources itself.
-  - Real bounded validation successfully read all **29 registered historical sources** across the **7 checkpoints**.
-  - Legacy dispositions/states are mechanically replayable for **29 security×checkpoint instances**.
-  - Phase-2 probabilistic/vector evaluable instances = **0**; simple non-probabilistic Pareto evaluable instances = **0**.
-  - Subjective feature fills = 0; probability backfills = 0; scenario backfills = 0; model-specific evidence fetches = 0.
-  - A full Canonical-tree recovery audit then scanned `investment_os_runtime`, `evidence`, and `outputs` across all seven checkpoint commits: **673** keyword-candidate file occurrences, **114** exact-model-field file occurrences and **147** proxy-like-field file occurrences were inspected.
-  - Complete Phase-2 probability/vector packet occurrences = **0**; complete simple-Pareto packet occurrences = **0**; unregistered complete packet occurrences = **0** for both candidate forms.
-  - Therefore the blocker is not a Phase 3A registry omission. `PHASE2_PROBABILISTIC_VECTOR` and `SIMPLE_NON_PROBABILISTIC_PARETO` are recorded as **historically non-replayable on the bounded corpus under the fixed Phase 3B contracts** rather than supplied with retrospective transformations.
-  - This is a **model-form replayability/input-burden finding**, not a comparative-performance finding. Phase 3C is complete as a terminal negative finding; no winner is selected.
-- **3D Calibration & Regret Analysis — BLOCKED / NOT STARTED:** the existing 3D entry rule requires governed candidate replay evidence suitable for comparison with Legacy. Because both candidate forms have zero contemporaneous replay outputs, no regret/calibration metric may be manufactured from the 29-vs-0/0 asymmetry. A separate governed post-3C evaluation-path decision is required before 3D can start.
-- **3E Ablation / Robustness — NOT STARTED:** remove probability, confidence, concentration cost, execution friction or other components one at a time to determine incremental value versus complexity. The 3C non-replayability finding is evidence about model complexity/usability, but Phase 3C itself does not silently rewrite the fixed Phase 3B forms.
-- **3F Historical Promotion Gate:** allowed outcomes are `REJECT_V2_FORM`, `CONTINUE_SHADOW_RESEARCH`, or `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. Phase 3 may never authorize Phase 5 directly. Current promotion eligibility remains false pending a governed post-3C path, valid 3D–3E evidence and broader historical coverage.
+#### 3A Point-in-time Evidence Ledger — VALIDATED COMPLETE_SCOPE_BOUNDED / PR #304
+29 Canonical evidence records, 7 checkpoints, 8 securities, exact availability/commit provenance, no-hindsight selection. This engineering seed is not statistically sufficient for 3F.
+
+#### 3B Competing Model Forms — VALIDATED COMPLETE_CONTRACT_ONLY / PR #305
+Fixed forms:
+1. `LEGACY_POLICY_BASELINE`
+2. `PHASE2_PROBABILISTIC_VECTOR`
+3. `SIMPLE_NON_PROBABILISTIC_PARETO`
+
+Every form consumes the same immutable shared packet. Missing inputs fail closed; model-specific evidence fetch and retrospective input creation are forbidden.
+
+#### 3C Decision / Capital Replay — VALIDATED COMPLETE_TERMINAL_NONREPLAYABILITY / PR #306
+- exact registered historical source reads: 29/29 across 7 checkpoints;
+- Legacy evaluable security×checkpoint instances: 29;
+- Phase-2 probabilistic/vector evaluable instances: 0;
+- simple-Pareto evaluable instances: 0;
+- probability/scenario backfills, subjective fills and model-specific fetches: 0.
+
+A full Canonical-tree recovery audit inspected 673 keyword-candidate file occurrences, including 114 exact-model-field and 147 proxy-like-field occurrences. Complete Phase-2 packets = 0; complete simple-Pareto packets = 0; unregistered complete packets omitted by 3A = 0 for both forms.
+
+Therefore both candidate forms are historically non-replayable on the bounded corpus under their fixed 3B contracts. This is a model-form/input-burden finding, not comparative performance evidence.
+
+#### Governed Post-3C Evaluation Path — APPROVED
+The governance gate does not create a new subphase. Approved path:
+- reject retrospective input synthesis;
+- reject silent 3B contract rewrite;
+- reject skipping 3D;
+- allow 3D to start only as `NEGATIVE_RESULT_MEASURABILITY_AND_REGRET_OBSERVABILITY`.
+
+Before realized outcomes are loaded, 3D must pre-register outcome horizons and reference definitions. Legacy metrics may be measured where evidence supports them. Candidate metrics requiring nonexistent contemporaneous outputs must be `NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS`. Hypothetical candidate decisions, synthetic candidate returns/regret and cross-model winner selection are forbidden.
+
+#### 3D Calibration & Regret Analysis — READY TO START / NOT STARTED
+Authorized scope is negative-result/measurability analysis only. Outcome data are evaluation targets and may not feed back into historical inputs or model parameters.
+
+#### 3E Ablation / Robustness — NOT STARTED
+Test probability, confidence, concentration cost, execution friction and later transformations one component at a time. Phase 3C non-replayability is accepted complexity/usability evidence.
+
+Any materially revised model form must be versioned and must return through governed 3B contract definition and 3C replay. It may not overwrite the historical 3B candidate identity. Same-seed outcome-tuned redesign is forbidden; broader or holdout historical validation is required.
+
+#### 3F Historical Promotion Gate — NOT ELIGIBLE
+Allowed outcomes remain `REJECT_V2_FORM`, `CONTINUE_SHADOW_RESEARCH`, or `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`.
+
+Promotion to Phase 4 requires at least one candidate with valid point-in-time historical replay, measurable 3D evidence, accepted 3E robustness evidence and broader historical coverage. If no candidate becomes historically evaluable, only `REJECT_V2_FORM` or `CONTINUE_SHADOW_RESEARCH` are allowed.
 
 ### Phase 4 — Forward Parallel Shadow Validation — MANDATORY / NOT STARTED
-- Run Legacy and surviving candidate Strategy Kernel model(s) in parallel on genuinely future, previously unseen market/research states for multiple complete decision cycles.
-- Measure recommendation usefulness, stability, forecast calibration, opportunity-cost regret, false-positive cost, missed-opportunity regret, turnover, downside behavior, operational robustness and explainability without hindsight.
-- Phase 4 is mandatory even if Phase 3 is strong; historical replay may not substitute for forward validation.
-- Exit may only be `REJECT_OR_REVISE`, `EXTEND_FORWARD_VALIDATION`, or `ELIGIBLE_FOR_PHASE_5_GOVERNED_MIGRATION_PROPOSAL`.
+Run Legacy and surviving candidate model(s) in parallel on genuinely future, unseen evidence for multiple complete cycles. Measure usefulness, calibration, stability, regret, turnover, downside behavior, operational robustness and explainability without hindsight.
+
+Exit only: `REJECT_OR_REVISE`, `EXTEND_FORWARD_VALIDATION`, or `ELIGIBLE_FOR_PHASE_5_GOVERNED_MIGRATION_PROPOSAL`.
 
 ### Phase 5 — Governed Migration — NOT STARTED / NOT AUTHORIZED
-Requires accepted Phase 3 historical evidence, accepted Phase 4 forward evidence, and a separate governed migration approval.
-
-Planned internal steps:
-- **5A Migration Proposal**
-- **5B Rule-by-rule Treatment Map**
-- **5C Limited Activation**
-- **5D Rollback Observation**
-- **5E Final Governed Acceptance**
-
-No Strategy/Core migration is inferred automatically from shadow research performance.
+Requires separately accepted Phase 3 historical evidence, Phase 4 forward evidence and a governed migration proposal. Planned sequence: 5A Proposal → 5B Rule Map → 5C Limited Activation → 5D Rollback Observation → 5E Final Acceptance.
 
 ## Current program state
-Phase 2 shadow infrastructure and the Program Governance Correction are validated on the stacked development chain. Phase 3A and Phase 3B are accepted for bounded stacked shadow development. Phase 3C is now complete for the bounded corpus: its replay infrastructure is validated, Legacy has 29 mechanically replayable historical instances, and a full Canonical-tree audit proves that neither fixed candidate model had a complete contemporaneous input packet to replay and that no unregistered complete packet was omitted by Phase 3A. This is a terminal negative replayability finding, not comparative performance evidence. Phase 3D remains blocked pending a separate governed decision on the subsequent evaluation path; Phase 3 historical validation is incomplete, Phase 3F promotion eligibility is false, Phase 4 remains mandatory but unavailable, and Phase 5 is not authorized. Canonical `main` remains unchanged.
+Phase 3C is complete as a terminal bounded negative replayability finding. The governed post-3C path decision is approved, so Phase 3D is now eligible to start only in negative-result/measurability mode; Phase 3D has not started. Phase 3 historical validation remains incomplete, 3F is not eligible, Phase 4 is mandatory but unavailable, and Phase 5 is unauthorized. Canonical `main` remains unchanged.

@@ -184,3 +184,18 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Workflow hygiene / corrections:** the recovery process briefly reintroduced a duplicate Phase 3C workflow; it was detected and removed, leaving `.github/workflows/strategy-kernel-phase3c-historical-replay.yml` as the single authoritative Phase 3C workflow. The first replayability-audit run also exposed a direct-execution import-path harness bug, which was fixed without changing audit semantics. The optimized tree audit then passed on GitHub Actions run #24 / `32951389195` together with 19/19 Phase 3C tests, 23/23 Phase 3B dependency tests, 24/24 Phase 3A dependency tests and `PROGRAM_CONSISTENCY_PASS`.
 
 **Not changed:** the macro Phase 0→5 lifecycle and internal Phase 3A→3F decomposition remain unchanged. No effective Strategy/Core rule, Candidate state, Real/Simulation state, target portfolio, user investment decision, recommendation, order authority or trade authority changed; `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-26 — Governed Post-3C Evaluation Path Decision
+**Trigger:** Phase 3C completed with a genuine bounded negative replayability finding: Legacy has 29 replayable instances, both fixed candidate forms have 0, and full Canonical-tree audit proved that no complete registered or unregistered candidate packet existed.
+
+**Decision:** approve `PHASE3D_NEGATIVE_RESULT_MEASURABILITY_THEN_PHASE3E_ABLATION`.
+
+**Rejected:** retrospective input synthesis; silent Phase 3B contract rewrite; skipping Phase 3D.
+
+**Phase 3D treatment:** 3D may start only in `NEGATIVE_RESULT_MEASURABILITY_AND_REGRET_OBSERVABILITY` mode. Evaluation horizons, outcome definitions and reference conventions must be fixed before realized outcomes are loaded. Legacy metrics may be measured where supported. Candidate metrics dependent on absent historical outputs must be `NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS`. Hypothetical candidate decisions, synthetic candidate return/regret/calibration values and cross-model winner selection are forbidden.
+
+**Phase 3E treatment:** Phase 3C non-replayability becomes valid complexity/input-burden evidence. Any materially revised model form must be versioned and return through governed Phase 3B contract definition and Phase 3C replay. The same seven seed checkpoints may not be outcome-tuned and then represented as independent validation; broader or holdout historical validation is required.
+
+**Phase 3F consequence:** promotion to Phase 4 requires at least one historically replayable candidate, measurable 3D evidence, accepted 3E robustness and broader historical coverage. If no candidate becomes historically evaluable, only `REJECT_V2_FORM` or `CONTINUE_SHADOW_RESEARCH` are permitted.
+
+**Not changed:** macro lifecycle Phase 0→5 and Phase 3 sequence 3A→3F remain unchanged. No effective policy/economic state changed; `orders=0`, `trade_authority=NONE`.
