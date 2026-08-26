@@ -3,19 +3,23 @@
   "program": "STRATEGY_KERNEL_V2",
   "as_of": "2026-08-26",
   "canonical_main_sha": "5c5df9082688f65332c79fef3b9cbfa893a06908",
-  "stacked_base_pr": 298,
-  "current_phase": "PHASE_1C_UNDERWRITING_EXTRACTION",
+  "stacked_base_prs": [298, 299],
+  "current_phase": "PHASE_2A_SHADOW_CAPITAL_COMPARATOR_ENGINE",
   "status": "VALIDATED_SHADOW_ONLY_AWAITING_GOVERNED_REVIEW",
-  "validation": {"unit_tests_passed":11,"schema_objects_passed":8,"generated_bundle_match":true},
-  "next_phase": "PHASE_2_SHADOW_CAPITAL_COMPARATOR",
+  "validation": {
+    "phase2a_unit_tests_passed": 12,
+    "capital_comparison_schema_passed": true,
+    "current_phase1c_gate_report": {"eligible": 0, "blocked": 8}
+  },
+  "next_phase": "PHASE_2B_GOVERNED_REFRESH_ADAPTERS",
   "next_phase_status": "NOT_STARTED",
-  "next_phase_gate": "SATISFY_PER_OBJECT_REFRESH_REQUIREMENTS_BEFORE_COMPARISON",
   "plan_sync_required_on_any_execution_change": true,
   "effective_core_static_changes": 0,
   "candidate_membership_mutations": 0,
   "real_account_mutations": 0,
   "simulation_mutations": 0,
   "target_portfolio_writebacks": 0,
+  "user_decisions_generated": 0,
   "orders": 0,
   "trade_authority": "NONE"
 }

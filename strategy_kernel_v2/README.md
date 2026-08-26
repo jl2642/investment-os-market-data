@@ -1,13 +1,14 @@
-# Strategy Kernel v2 — Phase 1C Underwriting Extraction
+# Strategy Kernel v2 — Governed Shadow Research
 
-Shadow-only extraction layer stacked on Phase 0B/1B. It converts explicitly reviewed Canonical research into eight Underwriting Object v1 objects while preserving evidence gaps and zero economic authority.
+Current development state: **Phase 2A validated shadow-only**.
 
-Key design choice: **comparison readiness is not decision readiness**. A security may become eligible for a future research-only comparator after a specified refresh without becoming a Candidate, a user decision, an implementation plan, or an order.
+- Phase 0B: current-main rule audit.
+- Phase 1B: Decision Object v2 shadow adapter.
+- Phase 1C: eight-object Underwriting Extraction.
+- Phase 2A: transparent capital-comparison vector + Pareto frontier; no unvalidated scalar score.
+- Next: Phase 2B governed refresh adapters, then gated Phase 2C current shadow comparison pack.
+- Phase 3 point-in-time replay/calibration remains mandatory before any effective Strategy/Core migration.
 
-Phase 1C deliberately does not fabricate valuation scenarios. Where Canonical state says scenarios exist but the current extractable payload does not expose them, the object records the gap and requires refresh/surfacing before comparison.
-
-The extraction specifications are in `source_registry.py`; `build_all()` deterministically emits the eight shadow objects. `generate_phase1c_bundle.py` serializes them to `generated/UNDERWRITING_OBJECTS_PHASE1C.json`.
-
-Validation status: **11/11 regression tests PASS; 8/8 objects PASS schema validation**. See `PHASE1C_VALIDATION.json` and the synchronized `DEVELOPMENT_ROADMAP.md`, `PHASE_EXECUTION_PLAN.md`, `PLAN_CHANGELOG.md`, and `CURRENT_PHASE_STATUS.json`.
+The plan is itself a controlled development object: Roadmap, Phase Execution Plan, Plan Changelog and Current Phase Status must change in the same governed change-set whenever execution scope/order/dependencies/acceptance criteria change.
 
 No economic authority is granted: `orders=0`, `trade_authority=NONE`.

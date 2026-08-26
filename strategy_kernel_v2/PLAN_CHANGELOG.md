@@ -1,26 +1,24 @@
 # Strategy Kernel v2 — Plan Changelog
 
 ## 2026-08-26 — Phase 1C plan synchronization
-**Reason:** Phase 1B established a Decision Object interface, but direct capital comparison would still conflate research completeness, valuation freshness and action readiness.
-
-**Changed:**
-- formalized Phase 1C Underwriting Extraction before Phase 2;
-- explicitly separated underwriting completeness, shadow comparison readiness, and decision/implementation readiness;
-- added a Phase 2 pre-comparison refresh gate rather than inserting an ungoverned ad-hoc valuation step;
-- encoded the rule that any future execution-plan adjustment must update roadmap, execution plan, changelog and phase status in the same governed change-set.
-
-**Not changed:**
-- no effective investment policy, Core Static rule, Candidate membership, economic state, target weight, order authority or trade authority changed;
-- Phase 3 remains mandatory before any effective Strategy/Core migration;
-- `orders=0`, `trade_authority=NONE` remain invariant.
+Phase 1C was formalized between Decision Object normalization and capital comparison so underwriting completeness, comparison readiness and decision readiness are not conflated. No effective policy or authority changed.
 
 ## 2026-08-26 — Phase 1C validation closeout
-**Reason:** implementation had been written before the generated bundle and regression-validation record were persisted; phase status must not run ahead of actual implementation.
+Persisted deterministic bundle, tests and validation record; synchronized implementation status to validated shadow-only. No phase-order or authority change.
+
+## 2026-08-26 — Phase 2 execution refinement
+**Reason:** deep-research findings and Phase 1C evidence gaps show that immediately creating a single ranked score would embed unvalidated utility weights and risk confusing measurement with policy.
 
 **Changed:**
-- added deterministic bundle generation and the persisted eight-object shadow bundle;
-- added Phase 1C regression tests and validation artifact;
-- synchronized Roadmap, Execution Plan, Manifest and Current Phase Status from IMPLEMENTED to VALIDATED SHADOW-ONLY.
+- retained top-level Phase 2 but split execution into 2A Comparator Contract/Engine, 2B Governed Refresh Adapters, and 2C Current Shadow Comparison Pack;
+- Phase 2A uses transparent return/downside/confidence/concentration/execution vectors and a weight-free Pareto frontier;
+- explicitly prohibits a scalar policy score in 2A;
+- requires every `READY_AFTER_REFRESH` item to satisfy all recorded refresh requirements through a governed overlay;
+- keeps `NOT_READY` material evidence gaps blocked even if fresh market prices exist;
+- requires an explicit rate/provenance for any cash/reference baseline;
+- Phase 2C requires at least two meaningful non-reference eligible capital uses or emits `NO_COMPARISON`.
 
 **Not changed:**
-- phase order, Phase 2 preconditions, Phase 3 migration requirement, economic authority boundaries, and all Canonical investment decisions remain unchanged.
+- top-level order remains Phase 2 then mandatory Phase 3 before any effective migration;
+- no Core Static rule, Candidate membership, economic state, target weight, user decision, order authority or trade authority changes;
+- `orders=0`, `trade_authority=NONE` remain invariant.

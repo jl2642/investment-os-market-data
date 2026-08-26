@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "capital_comparison_v1.schema.json",
+  "title": "Strategy Kernel v2 Phase 2A Capital Comparison",
+  "type": "object",
+  "required": ["schema_version","phase","mode","policy_score","eligible_count","blocked_count","pareto_frontier","vectors","blocked","user_decision_generated","economic_preference_writeback","controls"],
+  "properties": {
+    "schema_version": {"const":"1.0.0"},
+    "phase": {"const":"2A"},
+    "mode": {"const":"TRANSPARENT_VECTOR_PLUS_PARETO"},
+    "policy_score": {"type":"null"},
+    "eligible_count": {"type":"integer","minimum":0},
+    "blocked_count": {"type":"integer","minimum":0},
+    "pareto_frontier": {"type":"array","items":{"type":"string"}},
+    "vectors": {"type":"object"},
+    "blocked": {"type":"array"},
+    "user_decision_generated": {"const":false},
+    "economic_preference_writeback": {"const":false},
+    "controls": {
+      "type":"object",
+      "required":["candidate_membership_change_authorized","real_position_change_authorized","simulation_position_change_authorized","target_portfolio_writeback_authorized","order_authorized","implementation_ready","orders","trade_authority"],
+      "properties": {
+        "candidate_membership_change_authorized":{"const":false},
+        "real_position_change_authorized":{"const":false},
+        "simulation_position_change_authorized":{"const":false},
+        "target_portfolio_writeback_authorized":{"const":false},
+        "order_authorized":{"const":false},
+        "implementation_ready":{"const":false},
+        "orders":{"const":0},
+        "trade_authority":{"const":"NONE"}
+      }
+    }
+  }
+}
