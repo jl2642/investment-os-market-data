@@ -5,13 +5,17 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parent
+REPO_ROOT = ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from strategy_kernel_v2.build_phase3a_ledger import POINTS, REGISTRY, build
 
-ROOT = Path(__file__).resolve().parent
 VALIDATION = ROOT / "PHASE3A_VALIDATION.json"
 DERIVED_LEDGER = ROOT / "generated" / "PHASE3A_POINT_IN_TIME_EVIDENCE_LEDGER.json"
-REPO_ROOT = ROOT.parent
 
 
 def load_json(path: Path) -> dict:
