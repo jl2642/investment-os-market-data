@@ -22,6 +22,8 @@ jobs:
           python-version: '3.11'
       - name: Run Phase 3B regression tests
         run: python -m unittest strategy_kernel_v2.tests.test_phase3b
+      - name: Validate Phase 3B acceptance contract
+        run: python strategy_kernel_v2/validate_phase3b.py
       - name: Re-run Phase 3A dependency tests
         run: python -m unittest strategy_kernel_v2.tests.test_phase3a
       - name: Validate program consistency
