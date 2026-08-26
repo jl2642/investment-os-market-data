@@ -111,3 +111,30 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Scope judgment:** Phase 3A is accepted as `VALIDATED_COMPLETE_SCOPE_BOUNDED`, sufficient to start Phase 3B model-form plumbing. It is not accepted as statistically sufficient historical coverage. `phase3_historical_validation_complete=false` and `phase3f_promotion_eligible=false`; broader date/regime coverage and Phase 3B–3E remain mandatory before Phase 3F can pass.
 
 **Not changed:** no effective Strategy/Core rule, Candidate state, Real/Simulation state, target portfolio, user investment decision, order authority or trade authority changed.
+
+## 2026-08-26 — Phase 3B competing model forms / contract-only acceptance
+**Reason:** historical replay would be biased if the Phase-2 probabilistic/vector architecture were treated as the default winner, or if competing models quietly received different evidence. A lower-complexity challenger and an immutable shared-input contract are required before any historical decision replay.
+
+**Implemented:**
+- added one `SHARED_OBSERVATION_PACKET` binding the same checkpoint timestamp, opportunity set, Phase 3A selected evidence, structured observations and optional reference asset for every model;
+- structured observations must cite `provenance_evidence_ids` already inside the selected Phase 3A snapshot; model-specific evidence fetch is forbidden;
+- missing model inputs fail closed as `NOT_EVALUABLE_NO_BACKFILL`;
+- fixed exactly three model forms: `LEGACY_POLICY_BASELINE`, `PHASE2_PROBABILISTIC_VECTOR`, and `SIMPLE_NON_PROBABILISTIC_PARETO`;
+- Legacy is contemporaneous disposition/state passthrough only and may not be retrospectively reinterpreted;
+- the Phase-2 form preserves explicit scenario probabilities and transparent return/downside/confidence/concentration/execution vectors plus Pareto dominance, with no scalar policy score;
+- the simple challenger uses explicit non-probabilistic return/downside/evidence-quality/concentration/execution dimensions plus Pareto dominance, so probability assignment and model complexity remain hypotheses rather than baked-in advantages.
+
+**Phase boundary:** Phase 3B does not extract historical source features, replay decisions/capital, calibrate probabilities or parameters, select a winning model, or generate comparative performance conclusions. Those tasks remain Phase 3C/3D.
+
+**Real-seed observation:** the seven Phase 3A checkpoints contain immutable evidence references but no model-neutral structured historical feature layer. Accordingly all 21 model×checkpoint combinations remain 0 evaluable in Phase 3B. This is the required fail-closed result, not a model-performance finding. Synthetic fixtures are used only to prove model mechanics.
+
+**Validation:**
+- 23/23 Phase 3B contract/regression tests pass in GitHub Actions;
+- 24/24 Phase 3A dependency tests remain green;
+- shared input fingerprints are identical across all model forms;
+- model-specific evidence fetches=0; retrospective probability/scenario backfills=0;
+- scalar policy scores=0; target weights=0; recommendations/user decisions=0; `orders=0`; `trade_authority=NONE`.
+
+**Promotion consequence:** Phase 3B is accepted as `VALIDATED_COMPLETE_CONTRACT_ONLY`, sufficient to start Phase 3C point-in-time feature extraction and decision/capital replay. `phase3_historical_validation_complete=false`, `phase3f_promotion_eligible=false`, Phase 4 entry remains forbidden, and Phase 5 remains unauthorized.
+
+**Not changed:** no effective Strategy/Core rule, Candidate state, Real/Simulation state, target portfolio, user investment decision, order authority or trade authority changed.

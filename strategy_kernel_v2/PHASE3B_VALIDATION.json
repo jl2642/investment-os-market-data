@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3B",
+  "status": "PASS_CONTRACT_ONLY",
+  "as_of": "2026-08-26",
+  "parent_phase3a_head": "451bd6dcd41ff9c9fd5e61657aef0077be4f5d2b",
+  "canonical_main_sha": "5c5df9082688f65332c79fef3b9cbfa893a06908",
+  "scope": {
+    "model_form_count": 3,
+    "model_forms": [
+      "LEGACY_POLICY_BASELINE",
+      "PHASE2_PROBABILISTIC_VECTOR",
+      "SIMPLE_NON_PROBABILISTIC_PARETO"
+    ],
+    "phase3a_seed_checkpoints": 7,
+    "phase3a_seed_evidence_records": 29,
+    "historical_structured_feature_extraction_completed": false,
+    "historical_decision_replay_completed": false,
+    "historical_calibration_completed": false,
+    "model_winner_selected": false
+  },
+  "validation": {
+    "phase3b_contract_tests_passed_github": 23,
+    "phase3a_dependency_tests_passed_github": 24,
+    "program_consistency_passed": true,
+    "shared_input_fingerprint_required_for_all_models": true,
+    "model_specific_evidence_fetches": 0,
+    "retrospective_probability_backfills": 0,
+    "retrospective_scenario_backfills": 0,
+    "scalar_policy_scores_generated": 0,
+    "target_weights_generated": 0,
+    "investment_recommendations_generated": 0,
+    "user_decisions_generated": 0,
+    "real_seed_structured_observation_packets": 0,
+    "real_seed_evaluable_model_checkpoint_pairs": 0,
+    "real_seed_fail_closed_expected": true,
+    "synthetic_fixtures_used_for_model_mechanics_only": true
+  },
+  "model_form_findings": {
+    "legacy_baseline": "CONTEMPORANEOUS_STATE_PASSTHROUGH_ONLY_NO_RETROSPECTIVE_REINTERPRETATION",
+    "phase2_probabilistic_vector": "EXPLICIT_SCENARIOS_AND_VECTOR_INPUTS_ONLY_NO_DEFAULTS_NO_SCALAR_SCORE",
+    "simple_non_probabilistic_pareto": "EXPLICIT_TRANSPARENT_DIMENSIONS_ONLY_NO_PROBABILITY_REQUIREMENT_NO_SCALAR_SCORE",
+    "comparative_performance_conclusion": "NONE_PHASE3C_AND_PHASE3D_NOT_RUN"
+  },
+  "promotion": {
+    "phase3c_start_allowed": true,
+    "phase3_historical_validation_complete": false,
+    "phase3f_promotion_eligible": false,
+    "historical_coverage_expansion_required_before_phase3f": true,
+    "phase4_entry_allowed": false,
+    "phase5_migration_allowed": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3B",
+  "status": "VALIDATED_COMPLETE_CONTRACT_ONLY",
+  "parent_phase3a_head": "451bd6dcd41ff9c9fd5e61657aef0077be4f5d2b",
+  "shared_input_contract": {
+    "mode": "SHARED_OBSERVATION_PACKET",
+    "same_timestamp_required": true,
+    "same_opportunity_set_required": true,
+    "same_selected_evidence_required": true,
+    "same_reference_asset_required": true,
+    "model_specific_evidence_fetch_forbidden": true,
+    "structured_observation_provenance_must_resolve_inside_phase3a_snapshot": true,
+    "missing_model_inputs_policy": "NOT_EVALUABLE_NO_BACKFILL"
+  },
+  "model_forms": [
+    {
+      "model_form": "LEGACY_POLICY_BASELINE",
+      "family": "RULE_AND_STATE_PASSTHROUGH",
+      "purpose": "Preserve contemporaneously recorded Legacy disposition/state as the historical baseline without retrospective reinterpretation.",
+      "required_structured_inputs": ["legacy_disposition", "provenance_evidence_ids"],
+      "ranking_generated": false,
+      "probability_required": false
+    },
+    {
+      "model_form": "PHASE2_PROBABILISTIC_VECTOR",
+      "family": "PROBABILITY_WEIGHTED_VECTOR_PLUS_PARETO",
+      "purpose": "Test the Phase 2A architecture using only explicit contemporaneous scenarios and vector inputs.",
+      "required_structured_inputs": ["valuation_scenarios", "confidence", "portfolio_concentration_cost", "execution_friction", "provenance_evidence_ids"],
+      "ranking_generated": false,
+      "scalar_policy_score_generated": false,
+      "probability_required": true
+    },
+    {
+      "model_form": "SIMPLE_NON_PROBABILISTIC_PARETO",
+      "family": "NON_PROBABILISTIC_TRANSPARENT_PARETO",
+      "purpose": "Provide a lower-complexity challenger that can be evaluated without assigning retrospective scenario probabilities.",
+      "required_structured_inputs": ["return_proxy", "downside_resilience", "evidence_quality", "concentration_cost", "execution_friction", "provenance_evidence_ids"],
+      "maximize": ["return_proxy", "downside_resilience", "evidence_quality"],
+      "minimize": ["concentration_cost", "execution_friction"],
+      "ranking_generated": false,
+      "probability_required": false
+    }
+  ],
+  "phase_boundary": {
+    "phase3b_extracts_historical_features": false,
+    "phase3b_replays_decisions": false,
+    "phase3b_calibrates_parameters": false,
+    "phase3b_selects_winning_model": false,
+    "phase3c_required_for_decision_replay": true,
+    "phase3d_required_for_calibration_and_regret": true
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

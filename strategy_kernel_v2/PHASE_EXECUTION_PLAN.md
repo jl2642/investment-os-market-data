@@ -48,8 +48,7 @@ Acceptance: 11/11 regression tests, 8/8 schema validations, deterministic bundle
 **Objective:** map future governed issuer/valuation/market evidence into comparison-ready shadow inputs without loosening the Phase 1C evidence contract.
 
 **Refresh packet contract:**
-- explicit `security_id`, `as_of`, `governed=true` and non-empty provenance;
-- explicit evidence classes (`PRICE_MARK`, `FX`, `VALUATION`, `FUNDAMENTAL_REUNDERWRITE`, `PORTFOLIO_CONTEXT`, `EXECUTION_FEASIBILITY`, `GOVERNANCE_CHECK`);
+- explicit `security_id`, `as_of`, governed provenance and evidence-class coverage;
 - exact lists of satisfied Phase 1C refresh requirements and resolved material evidence gaps;
 - explicit probability-weighted valuation scenarios;
 - explicit confidence, portfolio concentration cost and execution friction.
@@ -71,30 +70,15 @@ Acceptance: 11/11 regression tests, 8/8 schema validations, deterministic bundle
 ### Phase 2C — Current Shadow Comparison Pack — VALIDATED COMPLETE / NO_COMPARISON
 **Objective:** test the Phase 2A/2B contract against real currently stored governed evidence rather than synthetic or analyst-filled inputs.
 
-**Evidence sources actually inspected:**
-- Canonical `main` SHA `5c5df9082688f65332c79fef3b9cbfa893a06908`;
-- WP4/WP4B Core research;
-- D2 research for 000719/002039/301215;
-- 601138 WP5 P0 primary-source re-underwrite and Canonical decision semantics;
-- HKEX:00669 Canonical BUY REVIEW and P5C valuation context;
-- latest validated governed WP2-R 2026-08-25 marks in PR #296;
-- latest governed FMDL 2026-08-25 market release.
-
 **Observed result:**
 - 8/8 securities inventoried;
-- fresh completed closes exist for 000333, 600900, 601138 and 605090 in the governed 2026-08-25 portfolio-mark production;
-- 601138 legacy bear/base/bull scenario values exist but no scenario probabilities are stored; the current Phase 1C fundamental refresh requirement is not fully cleared;
-- 000333/600900 WP4B says driver-based scenarios are complete, but Current exposes only completion status, not the scenario payload/probabilities needed by Phase 2A;
-- 00669 has official H1 evidence and a governed research price framework, but no newly bound completed-close+FX probabilistic refresh packet;
-- 000719/002039 have valuation frameworks/ranges, not probability-weighted annualized-return scenarios;
-- 605090 and 301215 retain material fundamental evidence gaps and are not curable by price refresh;
-- explicit confidence, portfolio concentration cost and execution friction inputs are not available as a complete governed current packet for any object.
-
-**Acceptance result:** zero real governed refresh packets can be constructed without inventing new assumptions; eligible non-reference uses = 0; blocked = 8. Persist `NO_COMPARISON`. This is a successful fail-closed Phase 2C outcome, not a failed run.
+- zero real governed refresh packets can be constructed without inventing new assumptions;
+- eligible non-reference uses = 0; blocked = 8;
+- persist `NO_COMPARISON` as a successful fail-closed outcome.
 
 **Validation:** Phase 2C pack-builder tests 10/10 pass; fabricated scenario/input count=0; user decision count=0; economic/Candidate mutations=0; `orders=0`; `trade_authority=NONE`.
 
-## Phase 3 — HISTORICAL REPLAY & CALIBRATION — IN PROGRESS / 3A COMPLETE_SCOPE_BOUNDED
+## Phase 3 — HISTORICAL REPLAY & CALIBRATION — IN PROGRESS / 3A + 3B COMPLETE_BOUNDED
 Mandatory before forward promotion. Phase 3 uses only contemporaneously available evidence and explicitly tests **model form** as well as parameter values. Probability-weighted scenarios, confidence/vector representation and any scalar utility/position-sizing rule remain hypotheses.
 
 ### Phase 3A — Point-in-time Evidence Ledger — VALIDATED COMPLETE_SCOPE_BOUNDED
@@ -103,64 +87,64 @@ Mandatory before forward promotion. Phase 3 uses only contemporaneously availabl
 **Implemented contract:**
 - evidence version identity is separate from `evidence_as_of`; replay eligibility is controlled by offset-aware `available_at`;
 - Canonical source path + immutable commit SHA + provenance status are mandatory;
-- by default only `CANONICAL_MAIN` evidence is replay-eligible; governed open-PR evidence must be explicitly enabled and is excluded from the current canonical ledger;
+- by default only `CANONICAL_MAIN` evidence is replay-eligible;
 - the latest version of each stable `evidence_key` available at or before the checkpoint is selected;
 - later versions remain visible only as `future_evidence_ids` and cannot replace an earlier version;
-- global market/portfolio/Candidate snapshots are bound to the exact Canonical checkpoint commit, preserving embedded stale watermarks instead of refreshing them retrospectively;
 - missing requirements are explicit and fail closed;
 - retrospective probability/scenario backfill, model output, investment recommendation, user-decision generation, Candidate mutation, account mutation, target writeback and orders are disabled.
 
-**Current bounded registry:**
-- 29 Canonical evidence records;
-- seven Canonical replay checkpoints from `2026-07-26T12:59:24Z` through `2026-08-18T01:46:25Z`;
-- eight Strategy Kernel v2 securities;
-- evidence classes include research, market, portfolio, Candidate and decision context;
-- representative critical historical paths were remotely resolved at their registered commits, including WP4, WP4B, 601138 WP5, HKCU P5C, HKCU 00669 BUY REVIEW, D2 R1 and D2 R2.
+**Current bounded registry:** 29 Canonical evidence records, seven Canonical replay checkpoints from `2026-07-26T12:59:24Z` through `2026-08-18T01:46:25Z`, eight securities, and research/market/portfolio/Candidate/decision evidence classes.
 
-**No-hindsight acceptance examples:**
-- the 2026-08-07 P5C valuation context is not available to replay until its 2026-08-08 Canonical merge;
-- at the 2026-08-13 D2 R1 checkpoint, 000719 and 301215 select R1 and list their R2 artifacts as future evidence;
-- R2 becomes selectable only at the 2026-08-18 PR #285 Canonical merge;
-- an early Core2-only checkpoint does not even list unrelated future 00669/601138 evidence as in-scope future evidence.
+**Validation:** 24/24 Phase 3A tests pass; every declared checkpoint requirement is reproducible; detected hindsight contamination=0; retrospective probability/scenario backfills=0; `orders=0`; `trade_authority=NONE`.
 
-**Validation:** 24/24 local Phase 3A tests pass: 16 generic contract/regression tests plus 8 real-registry acceptance tests. Every declared checkpoint requirement is reproducible within the bounded registry; detected hindsight contamination=0; retrospective probability/scenario backfills=0; `orders=0`; `trade_authority=NONE`.
+**Scope boundary:** this seven-checkpoint window is sufficient for 3B/3C engineering but not historical/statistical sufficiency. `phase3_historical_validation_complete=false` and `phase3f_promotion_eligible=false`; broader dates/regimes and all remaining gates are mandatory before 3F.
 
-**Derived artifact policy:** the ledger is deterministically rebuilt from `PHASE3A_EVIDENCE_REGISTRY.json` and `PHASE3A_DECISION_POINTS.json`; a hand-maintained derived ledger is not committed as authority. This rule was adopted after a manual materialization mismatch was detected and removed during implementation.
+### Phase 3B — Competing Model Forms — VALIDATED COMPLETE_CONTRACT_ONLY
+**Objective:** prevent the program from assuming the Phase-2 probabilistic/vector form is already correct, while also preventing competing models from receiving different historical information.
 
-**Scope boundary:** this seven-checkpoint window is sufficient to start 3B model-form plumbing but is not evidence of historical/statistical sufficiency. `phase3_historical_validation_complete=false` and `phase3f_promotion_eligible=false`. Before 3F can pass, historical coverage must be expanded across additional decision dates/market regimes and all 3B–3E gates must pass.
+**Shared observation packet:** every model receives the exact same:
+- checkpoint timestamp;
+- opportunity-security set;
+- Phase 3A selected evidence IDs and records;
+- provenance-bound structured observations;
+- reference asset, if one is explicitly supplied.
 
-### Phase 3B — Competing Model Forms — NEXT / NOT STARTED
-**Objective:** prevent the program from assuming the Phase-2 model form is already correct.
+Structured observations may cite only evidence IDs already selected by the Phase 3A checkpoint. Model-specific evidence fetch is forbidden. Missing model-specific inputs produce `NOT_EVALUABLE`; they may not be retrospectively filled merely to make a model run.
 
-Run at minimum:
-1. Legacy decision baseline;
-2. Phase-2 probabilistic/vector architecture;
-3. a simpler non-probabilistic / Pareto alternative.
+**Fixed model forms:**
+1. `LEGACY_POLICY_BASELINE` — contemporaneously recorded Legacy disposition/state passthrough. It does not reinterpret historical evidence using present-day reasoning and does not manufacture a Legacy ranking when no contemporaneous disposition is structured.
+2. `PHASE2_PROBABILISTIC_VECTOR` — explicit contemporaneous scenario probabilities plus expected return, downside, probability of loss, confidence, concentration cost and execution friction, followed by weight-free Pareto dominance. It preserves the Phase 2A mathematical form but does not import Phase 2B current-refresh semantics into historical replay and introduces no scalar policy score.
+3. `SIMPLE_NON_PROBABILISTIC_PARETO` — lower-complexity challenger using explicit return proxy, downside resilience, evidence quality, concentration cost and execution friction, with transparent Pareto dominance and no probability requirement.
 
-**Input gate:** use identical Phase 3A snapshots, opportunity sets, reference assets and timestamps. A model may not receive evidence that another model does not receive. Missing contemporaneous probabilities/scenarios remain missing; Phase 3B may not manufacture them merely to make the probabilistic model runnable.
+**Acceptance boundary:** Phase 3B defines model forms and fairness rules only. It does not extract point-in-time historical features from source files, run decision/capital replay, calibrate probabilities or parameters, select a winning model, generate target weights, or produce comparative performance conclusions.
 
-**Acceptance:** identical information set, opportunity set, reference asset and timestamp for each model; no model-specific hindsight advantage; model outputs persist rationale and uncertainty. If a model cannot operate on the contemporaneous information set, that is an observed model limitation rather than permission to backfill data.
+**Real-seed result:** the seven Phase 3A checkpoints currently contain immutable evidence references but not a model-neutral structured historical feature layer. Therefore the correct Phase 3B real-seed result is 0 evaluable across all 21 model×checkpoint combinations. Synthetic fixtures are used only to validate model mechanics and must not be interpreted as historical performance evidence.
 
-### Phase 3C — Decision / Capital Replay
-Generate shadow-only relative capital judgments across historical opportunity sets. Track which opportunities would be admitted, blocked, prioritized, retained, reduced, or left as NO_ACTION under each model.
+**Validation:** 23/23 Phase 3B contract/regression tests pass in GitHub Actions; 24/24 Phase 3A dependency tests remain green; `PROGRAM_CONSISTENCY_PASS`; no model-specific evidence fetch, retrospective scenario/probability backfill, scalar policy score, target weight, recommendation, user decision, order or trade is produced.
 
-**Non-output:** no Canonical Candidate mutation, portfolio mutation, target weight writeback, user decision, order or trade.
+### Phase 3C — Decision / Capital Replay — NEXT / NOT STARTED
+**Objective:** produce the first actual historical comparison across the three fixed model forms without changing their information sets.
+
+**Stage 3C-1 — Point-in-time structured feature extraction:**
+- load only each Phase 3A evidence record's exact registered repository path at its exact registered commit;
+- extract model-neutral structured observations from that contemporaneous source state;
+- every extracted field must retain `provenance_evidence_ids` resolving inside the checkpoint's selected Phase 3A evidence;
+- later research, filings, prices, Candidate states and decisions remain inaccessible;
+- do not assign retrospective scenario probabilities merely because the probabilistic model needs them;
+- do not use the present-day Phase 1C `source_registry.py` as a historical feature source unless the corresponding content is independently present at the historical checkpoint.
+
+**Stage 3C-2 — Shared-packet model execution:**
+- run Legacy, Phase-2 probabilistic/vector and simple non-probabilistic/Pareto forms on the same immutable packet;
+- track `NOT_EVALUABLE`, admitted, blocked, prioritized, retained, reduced and `NO_ACTION` shadow states only where the model contract genuinely supports them;
+- persist rationale, missing inputs and uncertainty without filling gaps differently by model.
+
+**Non-output:** no Canonical Candidate mutation, portfolio mutation, target weight writeback, user decision, investment recommendation, order or trade.
 
 ### Phase 3D — Calibration & Regret Analysis
-Measure:
-- forecast calibration and scenario coverage where forecasts were genuinely available;
-- false-positive cost;
-- false-negative / missed-opportunity regret;
-- downside capture and adverse-path behavior;
-- turnover and decision instability;
-- opportunity-cost regret versus cash/reference and contemporaneously available alternatives.
-
-The success criterion is not maximum backtested return in isolation.
+Measure forecast calibration/scenario coverage where genuinely available, false-positive cost, false-negative/missed-opportunity regret, downside behavior, turnover/decision instability and opportunity-cost regret versus contemporaneous cash/reference and alternatives. Maximum backtested return is not the success criterion.
 
 ### Phase 3E — Ablation / Robustness
-Remove or simplify candidate components one at a time, including probability weights, confidence, concentration cost, execution friction and any later utility transformation.
-
-**Acceptance:** identify which components add repeatable decision value and which are merely complexity. No component enters proposed policy simply because it is theoretically attractive.
+Remove or simplify candidate components one at a time, including probability weights, confidence, concentration cost, execution friction and any later utility transformation. Identify which components add repeatable decision value and which are merely complexity.
 
 ### Phase 3F — Historical Promotion Gate
 Allowed outcomes only:
@@ -168,48 +152,18 @@ Allowed outcomes only:
 - `CONTINUE_SHADOW_RESEARCH`;
 - `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`.
 
-`PROMOTE_TO_PHASE_5` is forbidden.
-
-Current entry eligibility: **false**. Phase 3A's bounded seven-checkpoint window does not satisfy the coverage breadth needed for this gate; 3B–3E and broader historical/regime coverage are mandatory first.
-
-Phase 3 passing is evidence that a candidate architecture deserves forward testing; it is not evidence sufficient for effective migration.
+`PROMOTE_TO_PHASE_5` is forbidden. Current entry eligibility is **false**: 3C–3E and broader historical/regime coverage remain mandatory first.
 
 ## Phase 4 — FORWARD PARALLEL SHADOW VALIDATION — MANDATORY / NOT STARTED
 **Objective:** test surviving candidate Strategy Kernel model(s) on genuinely future evidence that was not available during design, replay, or calibration.
 
-**Execution:**
-- run Legacy and candidate model(s) in parallel for multiple complete decision cycles;
-- freeze or tightly govern model/policy changes during measurement windows so forward evidence remains interpretable;
-- record decisions, uncertainty, blocked reasons, subsequent outcomes and operational failures prospectively;
-- preserve `orders=0` and all economic mutation permissions=false.
+**Execution:** run Legacy and candidate models in parallel for multiple complete decision cycles; freeze or tightly govern model/policy changes during measurement windows; record decisions, uncertainty, blocked reasons, subsequent outcomes and operational failures prospectively; preserve `orders=0` and all economic mutation permissions=false.
 
-**Acceptance dimensions:**
-- recommendation usefulness and explainability;
-- calibration and stability;
-- false-positive cost and missed-opportunity regret;
-- turnover and decision churn;
-- downside behavior;
-- portfolio opportunity-cost quality;
-- operational robustness and evidence integrity.
-
-**Exit outcomes only:**
-- `REJECT_OR_REVISE`;
-- `EXTEND_FORWARD_VALIDATION`;
-- `ELIGIBLE_FOR_PHASE_5_GOVERNED_MIGRATION_PROPOSAL`.
-
-Historical Phase 3 performance may not substitute for Phase 4.
+**Exit outcomes only:** `REJECT_OR_REVISE`, `EXTEND_FORWARD_VALIDATION`, or `ELIGIBLE_FOR_PHASE_5_GOVERNED_MIGRATION_PROPOSAL`. Historical Phase 3 performance may not substitute for Phase 4.
 
 ## Phase 5 — GOVERNED MIGRATION — NOT STARTED / NOT AUTHORIZED
-**Entry prerequisites:**
-- Phase 3 historical validation complete and separately accepted;
-- Phase 4 forward validation complete and separately accepted;
-- a distinct governed migration proposal approved.
+**Entry prerequisites:** Phase 3 historical validation complete and separately accepted; Phase 4 forward validation complete and separately accepted; distinct governed migration proposal approved.
 
-**Execution sequence:**
-- **5A Migration Proposal:** state exactly which Strategy/Core semantics are proposed for effective change and why;
-- **5B Rule-by-rule Treatment Map:** KEEP / MODIFY / DELETE / ADD with Legacy compatibility and rollback mapping;
-- **5C Limited Activation:** activate only the approved subset under explicit monitoring;
-- **5D Rollback Observation:** maintain rollback path and observe for unintended economic/decision behavior;
-- **5E Final Governed Acceptance:** only after limited activation evidence is satisfactory.
+**Execution sequence:** 5A Migration Proposal → 5B Rule-by-rule Treatment Map → 5C Limited Activation → 5D Rollback Observation → 5E Final Governed Acceptance.
 
 Effective migration is never inferred automatically from shadow performance.
