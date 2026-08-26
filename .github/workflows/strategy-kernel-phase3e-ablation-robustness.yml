@@ -22,7 +22,7 @@ jobs:
       - name: Run Phase 3E ablation tests
         run: python -m unittest strategy_kernel_v2.tests.test_phase3e
       - name: Build deterministic Phase 3E ablation result
-        run: python strategy_kernel_v2/build_phase3e_results.py
+        run: python -m strategy_kernel_v2.build_phase3e_results
       - name: Validate Phase 3D dependency
         run: python strategy_kernel_v2/validate_phase3d.py
       - name: Validate program consistency
