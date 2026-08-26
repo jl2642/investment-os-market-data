@@ -138,3 +138,27 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Promotion consequence:** Phase 3B is accepted as `VALIDATED_COMPLETE_CONTRACT_ONLY`, sufficient to start Phase 3C point-in-time feature extraction and decision/capital replay. `phase3_historical_validation_complete=false`, `phase3f_promotion_eligible=false`, Phase 4 entry remains forbidden, and Phase 5 remains unauthorized.
 
 **Not changed:** no effective Strategy/Core rule, Candidate state, Real/Simulation state, target portfolio, user investment decision, order authority or trade authority changed.
+
+## 2026-08-26 — Phase 3C bounded replay / candidate-input blocker
+**Reason:** Phase 3B proved only the competing model contracts. Phase 3C must determine whether those model forms can actually be replayed from contemporaneously available historical evidence without hindsight or analyst-filled inputs.
+
+**Implemented:**
+- added a model-neutral historical feature extractor that reads only exact Phase 3A registered `commit_sha:path` sources via `git show`;
+- all source access occurs before model execution and every extracted field retains checkpoint-local provenance;
+- added a bounded replay harness that feeds the same immutable packet to Legacy, Phase-2 probabilistic/vector and simple non-probabilistic/Pareto forms;
+- added a full-history GitHub Actions workflow plus 19 Phase 3C tests and a real seven-checkpoint acceptance validator;
+- fixed two implementation-only defects found by CI before real replay: the 3A wrapper-to-list API adapter and standalone validator import bootstrap. Neither defect affected historical content or model semantics.
+
+**Real bounded result:**
+- all 29 registered Phase 3A historical sources were successfully read at their exact registered commits/paths across seven checkpoints;
+- Legacy evaluable security×checkpoint instances = **29**;
+- Phase-2 probabilistic/vector evaluable instances = **0**;
+- simple non-probabilistic/Pareto evaluable instances = **0**;
+- subjective feature fills=0; model-specific evidence fetches=0; retrospective probability backfills=0; retrospective scenario backfills=0;
+- Phase 3C tests 19/19 PASS; Phase 3B dependency tests 23/23 PASS; Phase 3A dependency tests 24/24 PASS; `PROGRAM_CONSISTENCY_PASS`.
+
+**Interpretation:** the point-in-time replay infrastructure is valid and Legacy historical states are mechanically reproducible, but the registered historical corpus does not contain the complete explicit contemporaneous input packet required by either candidate model. This is a historical input availability / model replayability finding, not evidence that Legacy outperforms either candidate. No comparative return, regret, calibration or winner conclusion is permitted from a 29-vs-0/0 replay set.
+
+**Gate consequence:** Phase 3C is **in progress**, not complete. Phase 3D remains blocked. The next 3C step is to search for independently provable contemporaneous missing inputs and register them only if they genuinely existed; if they did not exist, the affected model must be recorded as historically non-replayable for this window rather than supplied with retrospective probabilities/scores. Any new transformation from raw facts into probability/confidence or simple-Pareto dimensions would change the model/input contract and requires separate governed design treatment.
+
+**Not changed:** the macro Phase 0→5 lifecycle and internal Phase 3A→3F sequence remain unchanged. No effective Strategy/Core rule, Candidate state, Real/Simulation state, target portfolio, user investment decision, recommendation, order authority or trade authority changed; `orders=0`, `trade_authority=NONE`.
