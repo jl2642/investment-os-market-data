@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "decision": "POST_PHASE3F_RESEARCH_PATH",
+  "status": "APPROVED_GOVERNED_DUAL_TRACK_RESEARCH_LOOPBACK",
+  "as_of": "2026-08-26",
+  "parent_phase3f_head": "90a3adb37905f7c9a617e7d2ad5178e8788f02d4",
+  "trigger": {
+    "phase3f_gate_outcome": "CONTINUE_SHADOW_RESEARCH",
+    "promotion_requirements_passed": 1,
+    "promotion_requirements_total": 4,
+    "fixed_candidate_forms_status": "NOT_PROMOTABLE_IN_CURRENT_FORM",
+    "terminal_rejection_evidence": false,
+    "phase4_entry_allowed": false
+  },
+  "evidence_basis": {
+    "candidate_replayable_instances": 0,
+    "measurable_candidate_phase3d_metrics": 0,
+    "phase3e_single_component_ablation_count": 9,
+    "phase3e_single_component_replay_unlocks": 0,
+    "bounded_seed_checkpoint_count": 7,
+    "adjacent_observables": {
+      "scenario_context_instances": 5,
+      "return_context_instances": 20,
+      "confidence_context_instances": 20,
+      "concentration_context_instances": 8,
+      "execution_context_instances": 8,
+      "evidence_quality_context_instances": 26,
+      "downside_context_instances": 26
+    }
+  },
+  "alternatives": [
+    {
+      "id": "HISTORY_EXPANSION_ONLY_FIRST",
+      "decision": "REJECTED_AS_PRIMARY_PATH",
+      "reason": "The bounded evidence shows a multi-input schema mismatch. Expanding similar history before revising the candidate contract is likely to add more non-replayable observations without resolving the structural blocker."
+    },
+    {
+      "id": "MODEL_REDESIGN_ONLY_WITHOUT_HOLDOUT",
+      "decision": "REJECTED_AS_PROMOTION_PATH",
+      "reason": "A redesigned model may restore replayability, but Phase 3F independently requires broader or holdout history before Phase 4 promotion."
+    },
+    {
+      "id": "RETROSPECTIVE_PROXY_SUBSTITUTION_OR_OUTCOME_TUNING",
+      "decision": "REJECTED",
+      "reason": "Adjacent observables are design evidence, not permission to relabel historical fields or tune mappings using realized Phase 3D outcomes."
+    },
+    {
+      "id": "NEW_IDENTITY_EVIDENCE_NATIVE_R2_PLUS_INDEPENDENT_HOLDOUT_EXPANSION",
+      "decision": "APPROVED",
+      "reason": "This addresses the demonstrated schema mismatch while preserving an independent route to satisfy broader historical coverage."
+    }
+  ],
+  "approved_path": {
+    "program_mode": "GOVERNED_PHASE3_RESEARCH_LOOPBACK",
+    "priority_order": [
+      "R2_ARCHITECTURE_AND_CONTRACT_FREEZE",
+      "R2_PHASE3B_CONTRACT_DEFINITION",
+      "R2_PHASE3C_POINT_IN_TIME_REPLAY_ON_DEVELOPMENT_CORPUS",
+      "INDEPENDENT_HOLDOUT_COVERAGE_BUILD",
+      "R2_PHASE3D_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+      "R2_PHASE3E_ROBUSTNESS_IF_SUPPORTED",
+      "REPEAT_PHASE3F_PROMOTION_GATE"
+    ],
+    "parallel_requirement": "HOLDOUT_SELECTION_CONTRACT_MUST_BE_FROZEN_BEFORE_HOLDOUT_OUTCOMES_OR_MODEL_RESULTS_ARE_USED",
+    "phase4_entry_remains_blocked": true
+  },
+  "r2_architecture_direction": {
+    "working_identity": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2_DESIGN",
+    "new_model_identity_required_before_execution": true,
+    "probability_required_as_universal_input": false,
+    "scalar_policy_score_allowed": false,
+    "silent_proxy_substitution_allowed": false,
+    "subjective_mapping_allowed": false,
+    "retrospective_probability_creation_allowed": false,
+    "realized_outcome_tuning_allowed": false,
+    "missingness_must_remain_explicit": true,
+    "context_fields_may_be_applicability_aware": true,
+    "design_hypotheses": [
+      "Prefer directly contemporaneous evidence-native observables over retrospectively synthesized probability/confidence/cost scores.",
+      "Do not require concentration or execution context universally when the historical record shows those concepts are only applicable or available for a subset of security instances.",
+      "Separate universal decision evidence from portfolio/execution overlays rather than forcing every context into one all-or-nothing input packet.",
+      "Preserve Pareto or otherwise weight-free comparison semantics unless a future governed contract separately justifies weights."
+    ],
+    "fixed_phase3b_forms_preserved_for_audit": true,
+    "phase2_probabilistic_vector_treatment": "PRESERVE_AS_RESEARCH_REFERENCE_NOT_PRIMARY_REDESIGN_PATH",
+    "simple_pareto_v1_treatment": "PRESERVE_AS_RESEARCH_REFERENCE_NOT_OVERWRITTEN"
+  },
+  "development_corpus_firewall": {
+    "seven_seed_checkpoints_may_inform_contract_design": true,
+    "phase3d_realized_outcomes_may_inform_contract_design": false,
+    "seven_seed_checkpoints_may_count_as_independent_holdout": false,
+    "same_seed_tuning_may_count_as_validation": false,
+    "all_r2_transforms_must_be_frozen_before_any_claimed_holdout_evaluation": true
+  },
+  "holdout_coverage_contract_requirements": {
+    "disjoint_from_seven_seed_checkpoints": true,
+    "checkpoint_selection_may_use_realized_outcomes": false,
+    "point_in_time_availability_provenance_required": true,
+    "exact_source_identity_required": true,
+    "later_evidence_backfill_forbidden": true,
+    "coverage_must_expand_dates_or_regimes_beyond_current_seed": true,
+    "quantitative_sufficiency_threshold_must_be_frozen_before_holdout_results": true
+  },
+  "promotion_reentry": {
+    "material_revision_loopback": "PHASE_3B_R2_CONTRACT_DEFINITION_THEN_PHASE_3C_R2_REPLAY",
+    "phase3d_and_phase3e_must_be_repeated_as_applicable": true,
+    "later_phase3f_re_evaluation_required": true,
+    "direct_phase3f_to_phase4_without_new_evidence": false,
+    "phase4_entry_allowed_now": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
