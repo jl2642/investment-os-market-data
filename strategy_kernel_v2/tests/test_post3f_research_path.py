@@ -70,7 +70,25 @@ class Post3FResearchPathTests(unittest.TestCase):
         self.assertEqual(self.state["post3f_research_path"], self.current["validation"]["post3f_research_path"])
         self.assertEqual(self.state["r2_working_architecture_identity"], self.current["validation"]["r2_working_architecture_identity"])
         self.assertTrue(self.state["r2_phase3b_contract_definition_start_allowed"])
-        self.assertFalse(self.state["r2_phase3b_contract_definition_started"])
+
+        phase = self.current["current_phase"]
+        if phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
+            self.assertFalse(self.state["r2_phase3b_contract_definition_started"])
+            self.assertEqual(self.current["next_phase"], "PHASE_3B_R2_REVISED_MODEL_CONTRACT")
+        elif phase == "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
+            contract = load("PHASE3B_R2_MODEL_CONTRACT.json")
+            self.assertEqual(contract["status"], "FROZEN_REVISED_MODEL_CONTRACT_NO_HISTORICAL_REPLAY")
+            self.assertEqual(contract["model"]["model_form"], "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2")
+            self.assertTrue(self.state["r2_phase3b_contract_definition_started"])
+            self.assertTrue(self.state["r2_phase3b_contract_definition_complete"])
+            self.assertTrue(self.current["validation"]["r2_phase3b_contract_definition_complete"])
+            self.assertFalse(self.state["r2_phase3c_replay_started"])
+            self.assertFalse(self.current["validation"]["r2_real_historical_replay_executed"])
+            self.assertFalse(self.current["validation"]["r2_historical_performance_claimed"])
+            self.assertEqual(self.current["next_phase"], "PHASE_3C_R2_POINT_IN_TIME_REPLAY")
+        else:
+            self.fail("unexpected current phase for Post-3F monotonic regression: " + str(phase))
+
         self.assertFalse(self.state["phase4_entry_allowed"])
         self.assertFalse(self.current["validation"]["phase4_entry_allowed"])
 
