@@ -30,9 +30,28 @@ def validate():
         if any(row[k] != CANDIDATE_SENTINEL for k in ("calibration","regret","return_attribution")): errors.append("CANDIDATE_SENTINEL_DRIFT")
     if r["interpretation_controls"]["candidate_performance_comparison_available"] or r["interpretation_controls"]["cross_model_winner_selected"]: errors.append("INVALID_COMPARATIVE_CONCLUSION")
     if v["legacy_measurability"]["measurable_regret_instances"] != 0 or v["legacy_measurability"]["measurable_calibration_instances"] != 0: errors.append("UNSUPPORTED_LEGACY_METRIC")
-    if not s["phase3d_complete"] or not s["phase3d_outcomes_loaded"] or not s["phase3e_start_allowed"] or s["phase3e_started"]: errors.append("PROGRAM_STATE_PHASE3D_CLOSEOUT_MISMATCH")
-    if not c["validation"]["phase3d_complete"] or not c["validation"]["phase3e_start_allowed"] or c["validation"]["phase3f_promotion_eligible"]: errors.append("CURRENT_STATUS_PHASE3D_CLOSEOUT_MISMATCH")
-    if s["phase3f_promotion_eligible"] or s["phase4_forward_validation_complete"] or s["phase5_migration_allowed"]: errors.append("DOWNSTREAM_GATE_PREMATURE")
+
+    # Phase 3D remains accepted after a legally governed downstream Phase 3E start.
+    # A downstream start is valid only if 3D is complete, the 3E contract is frozen,
+    # and no later promotion authority has been granted.
+    if not s["phase3d_complete"] or not s["phase3d_outcomes_loaded"] or not s["phase3e_start_allowed"]:
+        errors.append("PROGRAM_STATE_PHASE3D_CLOSEOUT_MISMATCH")
+    if s.get("phase3e_started"):
+        p3e_contract_path = SK / "PHASE3E_ABLATION_CONTRACT.json"
+        if not p3e_contract_path.exists():
+            errors.append("PHASE3E_STARTED_WITHOUT_CONTRACT")
+        else:
+            p3e_contract = json.loads(p3e_contract_path.read_text(encoding="utf-8"))
+            if p3e_contract.get("status") != "FROZEN_STRUCTURAL_ABLATION_NO_OUTCOME_TUNING":
+                errors.append("PHASE3E_CONTRACT_NOT_FROZEN")
+        if not s.get("phase3e_revised_forms_must_return_to_phase3b_phase3c"):
+            errors.append("PHASE3E_LOOPBACK_GUARD_MISSING")
+    if not c["validation"]["phase3d_complete"] or not c["validation"].get("phase3e_start_allowed") or c["validation"]["phase3f_promotion_eligible"]:
+        errors.append("CURRENT_STATUS_PHASE3D_CLOSEOUT_MISMATCH")
+    if s.get("phase3e_started") != c["validation"].get("phase3e_started"):
+        errors.append("PHASE3E_STARTED_STATUS_MISMATCH")
+    if s["phase3f_promotion_eligible"] or s["phase4_forward_validation_complete"] or s["phase5_migration_allowed"]:
+        errors.append("DOWNSTREAM_GATE_PREMATURE")
     if r["orders"] != 0 or r["trade_authority"] != "NONE": errors.append("AUTHORITY_CHANGED")
     return errors
 
