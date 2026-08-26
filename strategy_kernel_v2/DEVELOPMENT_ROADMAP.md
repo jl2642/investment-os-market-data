@@ -40,7 +40,7 @@ Hard boundaries through Phase 4: no live trading, no order creation, no automati
   - Restored mandatory Phase 4 forward validation, prohibited direct Phase 3→5 promotion, and added machine-enforced lifecycle consistency.
   - Accepted as the governed parent for continued stacked shadow development; Canonical `main` remains unchanged and protected.
 
-### Phase 3 — Historical Replay & Calibration — IN PROGRESS / 3C INPUT-REPLAYABILITY GATE
+### Phase 3 — Historical Replay & Calibration — IN PROGRESS / 3C COMPLETE_TERMINAL_NONREPLAYABILITY / 3D BLOCKED
 Mandatory point-in-time validation before any forward promotion. Phase 3 tests model form as well as parameters; strong historical results do not authorize effective migration.
 
 Internal steps:
@@ -56,19 +56,20 @@ Internal steps:
   - Every model consumes the same immutable shared observation packet; model-specific evidence fetch is forbidden.
   - Missing model inputs fail closed as `NOT_EVALUABLE`; no probability, scenario, confidence, concentration or execution input may be added merely to make a model run.
   - Phase 3B defines model forms and fairness rules only; it does not perform historical decision replay or select a winner.
-- **3C Decision / Capital Replay — IN PROGRESS / BOUNDED LEGACY REPLAY VALIDATED / CANDIDATE INPUT BLOCKED / PR #306 DRAFT.**
-  - 3C-1 now reads historical evidence only by the exact Phase 3A registered `commit_sha:path` using full Git history and extracts model-neutral fields with checkpoint-local provenance.
+- **3C Decision / Capital Replay — VALIDATED COMPLETE_BOUNDED_REPLAY_TERMINAL_NONREPLAYABILITY / PR #306.**
+  - 3C-1 reads historical evidence only by the exact Phase 3A registered `commit_sha:path` using full Git history and extracts model-neutral fields with checkpoint-local provenance.
   - 3C-2 runs all three fixed 3B model forms on the same packet; no model may read sources itself.
   - Real bounded validation successfully read all **29 registered historical sources** across the **7 checkpoints**.
   - Legacy dispositions/states are mechanically replayable for **29 security×checkpoint instances**.
-  - Phase-2 probabilistic/vector evaluable instances = **0** because the registered historical corpus does not contain a complete explicit contemporaneous probability/vector packet.
-  - Simple non-probabilistic Pareto evaluable instances = **0** because the registered historical corpus does not contain a complete explicit five-field simple-Pareto packet.
+  - Phase-2 probabilistic/vector evaluable instances = **0**; simple non-probabilistic Pareto evaluable instances = **0**.
   - Subjective feature fills = 0; probability backfills = 0; scenario backfills = 0; model-specific evidence fetches = 0.
-  - This is an **input-availability/model-usability finding**, not a comparative performance finding. `phase3c_complete=false` and Phase 3D remains blocked.
-  - Next within 3C: determine whether additional contemporaneously available, independently provable historical inputs can be registered/recovered without hindsight; otherwise record the relevant candidate model as historically non-replayable rather than fabricate inputs.
-- **3D Calibration & Regret Analysis — BLOCKED / NOT STARTED:** requires at least one candidate model to have a governed, point-in-time replay set suitable for comparison with Legacy. No regret/calibration metric may be produced from the current 29-vs-0/0 replay asymmetry.
-- **3E Ablation / Robustness:** remove probability, confidence, concentration cost, execution friction or other components one at a time to determine incremental value versus complexity. A Phase 3C non-replayability finding may later become evidence in 3E, but 3C may not silently rewrite the fixed 3B model forms.
-- **3F Historical Promotion Gate:** allowed outcomes are `REJECT_V2_FORM`, `CONTINUE_SHADOW_RESEARCH`, or `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. Phase 3 may never authorize Phase 5 directly. Current promotion eligibility remains false pending valid 3C–3E evidence and broader historical coverage.
+  - A full Canonical-tree recovery audit then scanned `investment_os_runtime`, `evidence`, and `outputs` across all seven checkpoint commits: **673** keyword-candidate file occurrences, **114** exact-model-field file occurrences and **147** proxy-like-field file occurrences were inspected.
+  - Complete Phase-2 probability/vector packet occurrences = **0**; complete simple-Pareto packet occurrences = **0**; unregistered complete packet occurrences = **0** for both candidate forms.
+  - Therefore the blocker is not a Phase 3A registry omission. `PHASE2_PROBABILISTIC_VECTOR` and `SIMPLE_NON_PROBABILISTIC_PARETO` are recorded as **historically non-replayable on the bounded corpus under the fixed Phase 3B contracts** rather than supplied with retrospective transformations.
+  - This is a **model-form replayability/input-burden finding**, not a comparative-performance finding. Phase 3C is complete as a terminal negative finding; no winner is selected.
+- **3D Calibration & Regret Analysis — BLOCKED / NOT STARTED:** the existing 3D entry rule requires governed candidate replay evidence suitable for comparison with Legacy. Because both candidate forms have zero contemporaneous replay outputs, no regret/calibration metric may be manufactured from the 29-vs-0/0 asymmetry. A separate governed post-3C evaluation-path decision is required before 3D can start.
+- **3E Ablation / Robustness — NOT STARTED:** remove probability, confidence, concentration cost, execution friction or other components one at a time to determine incremental value versus complexity. The 3C non-replayability finding is evidence about model complexity/usability, but Phase 3C itself does not silently rewrite the fixed Phase 3B forms.
+- **3F Historical Promotion Gate:** allowed outcomes are `REJECT_V2_FORM`, `CONTINUE_SHADOW_RESEARCH`, or `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. Phase 3 may never authorize Phase 5 directly. Current promotion eligibility remains false pending a governed post-3C path, valid 3D–3E evidence and broader historical coverage.
 
 ### Phase 4 — Forward Parallel Shadow Validation — MANDATORY / NOT STARTED
 - Run Legacy and surviving candidate Strategy Kernel model(s) in parallel on genuinely future, previously unseen market/research states for multiple complete decision cycles.
@@ -89,4 +90,4 @@ Planned internal steps:
 No Strategy/Core migration is inferred automatically from shadow research performance.
 
 ## Current program state
-Phase 2 shadow infrastructure and the Program Governance Correction are validated on the stacked development chain. Phase 3A and Phase 3B are accepted for bounded stacked shadow development. Phase 3C replay infrastructure now passes real full-history validation, and Legacy has 29 mechanically replayable historical instances across the seven seed checkpoints; however both candidate model forms have zero evaluable historical instances under the existing no-hindsight input contract. Phase 3C therefore remains in progress, Phase 3D is blocked, Phase 3 historical validation is incomplete, Phase 3F promotion eligibility is false, Phase 4 remains mandatory but unavailable, and Phase 5 is not authorized. Canonical `main` remains unchanged.
+Phase 2 shadow infrastructure and the Program Governance Correction are validated on the stacked development chain. Phase 3A and Phase 3B are accepted for bounded stacked shadow development. Phase 3C is now complete for the bounded corpus: its replay infrastructure is validated, Legacy has 29 mechanically replayable historical instances, and a full Canonical-tree audit proves that neither fixed candidate model had a complete contemporaneous input packet to replay and that no unregistered complete packet was omitted by Phase 3A. This is a terminal negative replayability finding, not comparative performance evidence. Phase 3D remains blocked pending a separate governed decision on the subsequent evaluation path; Phase 3 historical validation is incomplete, Phase 3F promotion eligibility is false, Phase 4 remains mandatory but unavailable, and Phase 5 is not authorized. Canonical `main` remains unchanged.
