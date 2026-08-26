@@ -34,7 +34,7 @@ Security invariants remain: 601138 NO_TRADE semantics unchanged; 00669 price ban
 ### Phase 2C — Current Shadow Comparison Pack — VALIDATED COMPLETE / NO_COMPARISON
 Real governed evidence produced 0 eligible / 8 blocked without fabricated refresh packets. `NO_COMPARISON` is the accepted fail-closed result.
 
-## Phase 3 — HISTORICAL REPLAY & CALIBRATION — IN PROGRESS / PHASE 3C BLOCKER ACTIVE
+## Phase 3 — HISTORICAL REPLAY & CALIBRATION — IN PROGRESS / PHASE 3C COMPLETE_TERMINAL_NONREPLAYABILITY / PHASE 3D BLOCKED
 Phase 3 uses only contemporaneously available evidence and tests model form as well as parameters. Historical success cannot authorize migration and Phase 3 can promote only to Phase 4.
 
 ### Phase 3A — Point-in-time Evidence Ledger — VALIDATED COMPLETE_SCOPE_BOUNDED
@@ -58,12 +58,12 @@ Every model receives the same immutable shared observation packet. Structured ob
 
 Validation: 23/23 Phase 3B tests, 24/24 Phase 3A dependency tests and program consistency passed on PR #305. Phase 3B itself does not perform historical replay.
 
-### Phase 3C — Decision / Capital Replay — IN PROGRESS / BOUNDED REPLAY VALIDATED / CANDIDATE INPUT BLOCKED
+### Phase 3C — Decision / Capital Replay — VALIDATED COMPLETE_BOUNDED_REPLAY_TERMINAL_NONREPLAYABILITY
 **Objective:** produce actual point-in-time replay across the fixed model forms without changing their information sets.
 
-#### Stage 3C-1 — Point-in-time structured feature extraction — INFRASTRUCTURE VALIDATED
+#### Stage 3C-1 — Point-in-time structured feature extraction — VALIDATED
 - only the Phase 3A selected evidence set is eligible;
-- each historical source is loaded from its exact registered `commit_sha:path` using `git show` and full Git history;
+- each registered historical source is loaded from its exact registered `commit_sha:path` using `git show` and full Git history;
 - extraction occurs once, before model execution, and is model-neutral;
 - every extracted field retains provenance resolving inside the checkpoint;
 - present-day `source_registry.py` is not a substitute for historical state;
@@ -71,8 +71,8 @@ Validation: 23/23 Phase 3B tests, 24/24 Phase 3A dependency tests and program co
 - unweighted scenarios remain unweighted;
 - missing probability, confidence, concentration, execution or simple-Pareto inputs remain missing.
 
-#### Stage 3C-2 — Shared-packet model replay — PARTIAL / LEGACY VALIDATED / CANDIDATES BLOCKED
-Real seven-checkpoint validation result:
+#### Stage 3C-2 — Shared-packet model replay — VALIDATED WITH TERMINAL CANDIDATE NONREPLAYABILITY FINDING
+Real seven-checkpoint replay result:
 - registered historical sources read successfully by exact commit/path: **29/29**;
 - Legacy evaluable security×checkpoint instances: **29**;
 - Phase-2 probabilistic/vector evaluable instances: **0**;
@@ -82,29 +82,40 @@ Real seven-checkpoint validation result:
 - retrospective probability backfills: **0**;
 - retrospective scenario backfills: **0**.
 
-The replay engine and historical provenance path therefore work. The blocker is not a runtime failure: the registered historical corpus lacks the complete explicit contemporaneous input packet required by either candidate model. In particular, historical unweighted Bear/Base/Bull scenarios such as 601138 may be preserved as evidence but may not be assigned retrospective probabilities solely to make the probabilistic model run.
+The replay engine and historical provenance path work. Historical unweighted Bear/Base/Bull scenarios such as 601138 remain evidence but are not assigned retrospective probabilities merely to make the probabilistic model run. Explicit `NO_DECISION`, `NOT_DECISION_GRADE`, `WATCH`, and `NO_TRADE` semantics remain `NO_ACTION`, so research holds are not rewritten as portfolio retention.
 
-**Acceptance status:** `phase3c_started=true`, `phase3c_complete=false`. Legacy bounded replay is accepted; candidate comparative replay is not available. This is an input-availability/model-usability result, not a comparative-performance result.
+#### Phase 3C continuation gate — RESOLVED VIA HISTORICAL NONREPLAYABILITY FINDING
+The gate required either recovery of genuinely contemporaneous complete model inputs or an explicit non-replayability finding. A full Canonical checkpoint-tree audit scanned `investment_os_runtime`, `evidence`, and `outputs` across all seven checkpoint commits and found:
+- keyword-candidate file occurrences: **673**;
+- exact-model-field file occurrences: **114**;
+- proxy-like legacy-field file occurrences: **147**;
+- complete Phase-2 probability/vector packet occurrences: **0**;
+- complete simple-Pareto five-field packet occurrences: **0**;
+- unregistered complete Phase-2 packet occurrences: **0**;
+- unregistered complete simple-Pareto packet occurrences: **0**.
 
-#### Phase 3C continuation gate — REQUIRED BEFORE 3D
-The next 3C action must be governed and may take only evidence-preserving paths:
-1. search for additional contemporaneously available historical sources that independently contain the missing candidate-model inputs and register them with exact availability/provenance if they genuinely existed; or
-2. if such inputs did not exist, explicitly record the affected model form as historically non-replayable for this window rather than manufacture counterfactual probabilities/scores.
+Conclusion: `NO_COMPLETE_CANDIDATE_MODEL_INPUT_PACKET_FOUND_IN_CANONICAL_CHECKPOINT_TREES`.
 
-Any proposal to create a new transformation from raw historical facts into probability/confidence or simple-Pareto dimensions changes the model/input contract and requires an explicit governed design amendment; it is not an ordinary 3C data-cleaning step.
+Therefore:
+- Phase 3A did **not** omit an independently recoverable complete candidate-model packet;
+- `PHASE2_PROBABILISTIC_VECTOR` is historically non-replayable on the bounded corpus without retrospective input creation;
+- `SIMPLE_NON_PROBABILISTIC_PARETO` is historically non-replayable on the bounded corpus without adding new transformation rules;
+- proxy-like historical fields remain facts and may not be relabelled into the fixed Phase 3B model dimensions.
 
-**3D entry gate:** false until at least one candidate model has a valid point-in-time replay set suitable for comparison, or governance explicitly determines that historical non-replayability itself is the Phase 3C terminal finding and revises the subsequent evaluation path. Phase 3C cannot silently skip into Phase 3D.
+**Acceptance status:** `phase3c_started=true`, `phase3c_complete=true`. Phase 3C is complete as a **terminal negative model replayability/input-burden finding**, not a comparative-performance finding. No model winner is selected.
+
+**3D entry gate:** **false**. The existing 3D entry rule still requires governed candidate replay evidence suitable for comparison with Legacy. A separate governed post-3C decision must determine the subsequent evaluation path before 3D can start. Phase 3C completion does not silently revise Phase 3B or the Phase 3A→3F sequence.
 
 **Non-output:** no Canonical Candidate mutation, portfolio mutation, target weight writeback, user decision, recommendation, order, or trade.
 
 ### Phase 3D — Calibration & Regret Analysis — BLOCKED / NOT STARTED
-Requires governed candidate replay evidence. When eligible, measure forecast calibration/scenario coverage where genuinely available, false-positive cost, missed-opportunity regret, downside behavior, turnover/decision instability and opportunity-cost regret versus contemporaneous references. Maximum backtested return is not the success criterion.
+Requires governed candidate replay evidence or a separately governed revision of the subsequent evaluation path. No forecast calibration, false-positive cost, missed-opportunity regret, downside comparison, turnover comparison or opportunity-cost regret may be invented for candidate models that generated no contemporaneous replay outputs.
 
 ### Phase 3E — Ablation / Robustness — NOT STARTED
-Remove or simplify probability weights, confidence, concentration cost, execution friction and later utility transformations one at a time. Phase 3C non-replayability may later be evidence about complexity/usability, but 3C may not silently rewrite the fixed 3B model forms.
+Remove or simplify probability weights, confidence, concentration cost, execution friction and later utility transformations one at a time. The Phase 3C non-replayability finding is now accepted evidence about complexity/usability, but Phase 3C itself does not silently rewrite the fixed Phase 3B model forms.
 
 ### Phase 3F — Historical Promotion Gate — NOT ELIGIBLE
-Allowed outcomes only: `REJECT_V2_FORM`, `CONTINUE_SHADOW_RESEARCH`, or `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. `PROMOTE_TO_PHASE_5` is forbidden. Broader historical coverage and valid completion of 3C–3E remain mandatory.
+Allowed outcomes only: `REJECT_V2_FORM`, `CONTINUE_SHADOW_RESEARCH`, or `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. `PROMOTE_TO_PHASE_5` is forbidden. Broader historical coverage and a governed path through 3D–3E remain mandatory.
 
 ## Phase 4 — FORWARD PARALLEL SHADOW VALIDATION — MANDATORY / NOT STARTED
 Run Legacy and surviving candidate models in parallel on genuinely future evidence for multiple complete cycles. Freeze or tightly govern changes during measurement windows. Measure usefulness, calibration, stability, regret, turnover, downside behavior, operational robustness and explainability. Preserve all zero-authority controls.
