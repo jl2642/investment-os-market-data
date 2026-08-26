@@ -1,6 +1,14 @@
 """Real bounded Phase 3C acceptance validator against the seven Phase 3A checkpoints."""
 from __future__ import annotations
 
+from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parent
+REPO_ROOT = ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from strategy_kernel_v2.historical_replay import (
     CachingRegisteredSourceLoader,
     build_phase3c_replay,
@@ -9,8 +17,8 @@ from strategy_kernel_v2.historical_replay import (
 
 
 def main() -> None:
-    registry, points = load_default_phase3c_inputs(".")
-    loader = CachingRegisteredSourceLoader(".")
+    registry, points = load_default_phase3c_inputs(REPO_ROOT)
+    loader = CachingRegisteredSourceLoader(REPO_ROOT)
     replay = build_phase3c_replay(registry, points, source_loader=loader)
 
     if replay["checkpoint_count"] != 7:
