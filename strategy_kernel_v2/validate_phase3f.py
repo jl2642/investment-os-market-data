@@ -83,8 +83,24 @@ def validate() -> list[str]:
         errors.append("PHASE3F_STATE_LOOPBACK_MISMATCH")
 
     cv = current["validation"]
-    if current.get("current_phase") != "PHASE_3F_HISTORICAL_PROMOTION_GATE":
-        errors.append("CURRENT_PHASE_NOT_3F")
+    current_phase = current.get("current_phase")
+    if current_phase == "PHASE_3F_HISTORICAL_PROMOTION_GATE":
+        pass
+    elif current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
+        decision_path = ROOT / "PHASE3_POST3F_RESEARCH_PATH_DECISION.json"
+        if not decision_path.exists():
+            errors.append("POST3F_CURRENT_WITHOUT_DECISION_ARTIFACT")
+        else:
+            decision = json.loads(decision_path.read_text(encoding="utf-8"))
+            if decision.get("status") != "APPROVED_GOVERNED_DUAL_TRACK_RESEARCH_LOOPBACK":
+                errors.append("POST3F_DECISION_NOT_GOVERNED")
+        if cv.get("post3f_research_path_decision_complete") is not True:
+            errors.append("POST3F_CURRENT_DECISION_NOT_COMPLETE")
+        if state.get("r2_phase3b_contract_definition_started"):
+            errors.append("POST3F_VALIDATOR_SEES_R2_ALREADY_STARTED")
+    else:
+        errors.append("CURRENT_PHASE_NOT_3F_OR_GOVERNED_POST3F")
+
     if cv.get("phase3f_started") is not True or cv.get("phase3f_complete") is not True:
         errors.append("CURRENT_PHASE3F_NOT_COMPLETE")
     if cv.get("phase3f_gate_outcome") != "CONTINUE_SHADOW_RESEARCH":

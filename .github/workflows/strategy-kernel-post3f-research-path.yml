@@ -1,0 +1,31 @@
+name: Strategy Kernel Post-3F Research Path
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-post3f-research-path.yml'
+  workflow_dispatch:
+
+jobs:
+  post3f-research-path:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Post-3F research path tests
+        run: python -m unittest strategy_kernel_v2.tests.test_post3f_research_path
+      - name: Validate Post-3F research path
+        run: python -m strategy_kernel_v2.validate_post3f_research_path
+      - name: Validate Phase 3F dependency
+        run: python -m strategy_kernel_v2.validate_phase3f
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Run program governance regressions
+        run: python -m unittest strategy_kernel_v2.tests.test_program_governance
