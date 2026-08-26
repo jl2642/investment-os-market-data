@@ -1,0 +1,364 @@
+{
+  "authority_domains_included": [
+    "CANONICAL_MAIN"
+  ],
+  "controls": {
+    "candidate_mutation_allowed": false,
+    "hindsight_allowed": false,
+    "investment_recommendation_generation_allowed": false,
+    "order_authorized": false,
+    "orders": 0,
+    "real_position_mutation_allowed": false,
+    "retrospective_probability_backfill_allowed": false,
+    "retrospective_scenario_backfill_allowed": false,
+    "simulation_position_mutation_allowed": false,
+    "target_portfolio_writeback_allowed": false,
+    "trade_authority": "NONE",
+    "user_decision_generation_allowed": false
+  },
+  "decision_point_count": 7,
+  "evidence_record_count": 29,
+  "investment_recommendation_generated": false,
+  "missing_data_policy": "EXPLICIT_UNAVAILABLE_NO_BACKFILL",
+  "mode": "POINT_IN_TIME_EVIDENCE_LEDGER",
+  "model_output_generated": false,
+  "phase": "3A",
+  "schema_version": "1.0.0",
+  "selection_rule": "LATEST_AVAILABLE_VERSION_PER_EVIDENCE_KEY_AT_OR_BEFORE_CHECKPOINT",
+  "snapshots": [
+    {
+      "allowed_authority_domains": [
+        "CANONICAL_MAIN"
+      ],
+      "at": "2026-07-26T12:59:24Z",
+      "checkpoint_type": "CANONICAL_MAIN_REPLAY_CHECKPOINT",
+      "decision_point_id": "CP_20260726_WP4_AUDIT",
+      "future_evidence_ids": [
+        "CANDIDATE_STATE_20260727_R2_BASELINE",
+        "CANDIDATE_STATE_20260727_WP5_P0",
+        "CANDIDATE_STATE_20260808_HKCU_P5C",
+        "CANDIDATE_STATE_20260812_00669_BUY_REVIEW",
+        "CANDIDATE_STATE_20260813_D2_R1",
+        "CANDIDATE_STATE_20260818_D2_R2",
+        "DECISION_00669_BUY_REVIEW_20260812",
+        "MARKET_PORTFOLIO_MARKS_20260727_R2_BASELINE",
+        "MARKET_PORTFOLIO_MARKS_20260727_WP5_P0",
+        "MARKET_PORTFOLIO_MARKS_20260808_HKCU_P5C",
+        "MARKET_PORTFOLIO_MARKS_20260812_00669_BUY_REVIEW",
+        "MARKET_PORTFOLIO_MARKS_20260813_D2_R1",
+        "MARKET_PORTFOLIO_MARKS_20260818_D2_R2",
+        "REAL_ACCOUNT_STATE_20260727_R2_BASELINE",
+        "REAL_ACCOUNT_STATE_20260727_WP5_P0",
+        "REAL_ACCOUNT_STATE_20260808_HKCU_P5C",
+        "REAL_ACCOUNT_STATE_20260812_00669_BUY_REVIEW",
+        "REAL_ACCOUNT_STATE_20260813_D2_R1",
+        "REAL_ACCOUNT_STATE_20260818_D2_R2",
+        "RESEARCH_00669_VALUATION_P5C_20260808",
+        "RESEARCH_601138_P0_20260727",
+        "RESEARCH_CORE2_WP4B_20260727"
+      ],
+      "opportunity_security_ids": [
+        "000333.SZ",
+        "600900.SH"
+      ],
+      "required_evidence_keys": [
+        "CANDIDATE_STATE",
+        "RESEARCH_CORE2"
+      ],
+      "selected_evidence": [
+        {
+          "authority_domain": "CANONICAL_MAIN",
+          "availability_basis": "CANONICAL_MAIN_COMMIT",
+          "available_at": "2026-07-26T12:59:24Z",
+          "evidence_as_of": "2026-07-24_CLOSE",
+          "evidence_class": "CANDIDATE",
+          "evidence_id": "CANDIDATE_STATE_20260726",
+          "evidence_key": "CANDIDATE_STATE",
+          "notes": "Canonical checkpoint snapshot; source Candidate state is earlier than checkpoint and remains no-auto-mutation.",
+          "security_ids": [],
+          "source": {
+            "commit_sha": "3456d3c5783d628c5e8377671fd99c522e2b7d4f",
+            "path": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+            "provenance_status": "CANONICAL_MAIN",
+            "repository": "jl2642/investment-os-market-data"
+          }
+        },
+        {
+          "authority_domain": "CANONICAL_MAIN",
+          "availability_basis": "CANONICAL_MAIN_COMMIT",
+          "available_at": "2026-07-26T12:59:24Z",
+          "evidence_as_of": "2026-07-26",
+          "evidence_class": "RESEARCH",
+          "evidence_id": "RESEARCH_CORE2_WP4_20260726",
+          "evidence_key": "RESEARCH_CORE2",
+          "notes": "WP4 canonical audit-closure version; later WP4B must not leak backward.",
+          "security_ids": [
+            "000333.SZ",
+            "600900.SH"
+          ],
+          "source": {
+            "commit_sha": "3456d3c5783d628c5e8377671fd99c522e2b7d4f",
+            "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json",
+            "provenance_status": "CANONICAL_MAIN",
+            "repository": "jl2642/investment-os-market-data"
+          }
+        }
+      ],
+      "selected_evidence_ids": [
+        "CANDIDATE_STATE_20260726",
+        "RESEARCH_CORE2_WP4_20260726"
+      ],
+      "snapshot_complete_for_declared_requirements": true,
+      "superseded_evidence_ids": [],
+      "unavailable_required_evidence_keys": []
+    },
+    {
+      "allowed_authority_domains": [
+        "CANONICAL_MAIN"
+      ],
+      "at": "2026-07-27T01:06:48Z",
+      "checkpoint_type": "CANONICAL_MAIN_REPLAY_CHECKPOINT",
+      "decision_point_id": "CP_20260727_R2_BASELINE",
+      "future_evidence_ids": [
+        "CANDIDATE_STATE_20260727_WP5_P0",
+        "CANDIDATE_STATE_20260808_HKCU_P5C",
+        "CANDIDATE_STATE_20260812_00669_BUY_REVIEW",
+        "CANDIDATE_STATE_20260813_D2_R1",
+        "CANDIDATE_STATE_20260818_D2_R2",
+        "DECISION_00669_BUY_REVIEW_20260812",
+        "MARKET_PORTFOLIO_MARKS_20260727_WP5_P0",
+        "MARKET_PORTFOLIO_MARKS_20260808_HKCU_P5C",
+        "MARKET_PORTFOLIO_MARKS_20260812_00669_BUY_REVIEW",
+        "MARKET_PORTFOLIO_MARKS_20260813_D2_R1",
+        "MARKET_PORTFOLIO_MARKS_20260818_D2_R2",
+        "REAL_ACCOUNT_STATE_20260727_WP5_P0",
+        "REAL_ACCOUNT_STATE_20260808_HKCU_P5C",
+        "REAL_ACCOUNT_STATE_20260812_00669_BUY_REVIEW",
+        "REAL_ACCOUNT_STATE_20260813_D2_R1",
+        "REAL_ACCOUNT_STATE_20260818_D2_R2",
+        "RESEARCH_00669_VALUATION_P5C_20260808",
+        "RESEARCH_601138_P0_20260727",
+        "RESEARCH_D2_000719_R1_20260813",
+        "RESEARCH_D2_000719_R2_20260818",
+        "RESEARCH_D2_002039_R1_20260813",
+        "RESEARCH_D2_301215_R1_20260813",
+        "RESEARCH_D2_301215_R2_20260818"
+      ],
+      "opportunity_security_ids": [
+        "000333.SZ",
+        "000719.SZ",
+        "002039.SZ",
+        "301215.SZ",
+        "600900.SH",
+        "601138.SH",
+        "605090.SH",
+        "HKEX:00669"
+      ],
+      "required_evidence_keys": [
+        "CANDIDATE_STATE",
+        "MARKET_PORTFOLIO_MARKS",
+        "REAL_ACCOUNT_STATE",
+        "RESEARCH_CORE2"
+      ],
+      "selected_evidence": [
+        {
+          "authority_domain": "CANONICAL_MAIN",
+          "availability_basis": "CANONICAL_MAIN_COMMIT",
+          "available_at": "2026-07-27T01:06:48Z",
+          "evidence_as_of": "STATE_AS_STORED_AT_CANONICAL_COMMIT",
+          "evidence_class": "CANDIDATE",
+          "evidence_id": "CANDIDATE_STATE_20260727_R2_BASELINE",
+          "evidence_key": "CANDIDATE_STATE",
+          "notes": "Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.",
+          "security_ids": [],
+          "source": {
+            "commit_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
+            "path": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+            "provenance_status": "CANONICAL_MAIN",
+            "repository": "jl2642/investment-os-market-data"
+          }
+        },
+        {
+          "authority_domain": "CANONICAL_MAIN",
+          "availability_basis": "CANONICAL_MAIN_COMMIT",
+          "available_at": "2026-07-27T01:06:48Z",
+          "evidence_as_of": "STATE_AS_STORED_AT_CANONICAL_COMMIT",
+          "evidence_class": "MARKET",
+          "evidence_id": "MARKET_PORTFOLIO_MARKS_20260727_R2_BASELINE",
+          "evidence_key": "MARKET_PORTFOLIO_MARKS",
+          "notes": "Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.",
+          "security_ids": [],
+          "source": {
+            "commit_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
+            "path": "investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json",
+            "provenance_status": "CANONICAL_MAIN",
+            "repository": "jl2642/investment-os-market-data"
+          }
+        },
+        {
+          "authority_domain": "CANONICAL_MAIN",
+          "availability_basis": "CANONICAL_MAIN_COMMIT",
+          "available_at": "2026-07-27T01:06:48Z",
+          "evidence_as_of": "STATE_AS_STORED_AT_CANONICAL_COMMIT",
+          "evidence_class": "PORTFOLIO",
+          "evidence_id": "REAL_ACCOUNT_STATE_20260727_R2_BASELINE",
+          "evidence_key": "REAL_ACCOUNT_STATE",
+          "notes": "Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.",
+          "security_ids": [],
+          "source": {
+            "commit_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
+            "path": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json",
+            "provenance_status": "CANONICAL_MAIN",
+            "repository": "jl2642/investment-os-market-data"
+          }
+        },
+        {
+          "authority_domain": "CANONICAL_MAIN",
+          "availability_basis": "CANONICAL_MAIN_COMMIT",
+          "available_at": "2026-07-27T01:06:48Z",
+          "evidence_as_of": "2026-07-27",
+          "evidence_class": "RESEARCH",
+          "evidence_id": "RESEARCH_CORE2_WP4B_20260727",
+          "evidence_key": "RESEARCH_CORE2",
+          "notes": "R2 Core2 hardening version superseding the WP4 stream from this checkpoint onward.",
+          "security_ids": [
+            "000333.SZ",
+            "600900.SH"
+          ],
+          "source": {
+            "commit_sha": "33a5484f2ca919e80eef96a6750f801f751f8bdf",
+            "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json",
+            "provenance_status": "CANONICAL_MAIN",
+            "repository": "jl2642/investment-os-market-data"
+          }
+        }
+      ],
+      "selected_evidence_ids": [
+        "CANDIDATE_STATE_20260727_R2_BASELINE",
+        "MARKET_PORTFOLIO_MARKS_20260727_R2_BASELINE",
+        "REAL_ACCOUNT_STATE_20260727_R2_BASELINE",
+        "RESEARCH_CORE2_WP4B_20260727"
+      ],
+      "snapshot_complete_for_declared_requirements": true,
+      "superseded_evidence_ids": [
+        "CANDIDATE_STATE_20260726",
+        "RESEARCH_CORE2_WP4_20260726"
+      ],
+      "unavailable_required_evidence_keys": []
+    },
+    {
+      "allowed_authority_domains": ["CANONICAL_MAIN"],
+      "at": "2026-07-27T03:13:12Z",
+      "checkpoint_type": "CANONICAL_MAIN_REPLAY_CHECKPOINT",
+      "decision_point_id": "CP_20260727_WP5_P0",
+      "future_evidence_ids": ["CANDIDATE_STATE_20260808_HKCU_P5C", "CANDIDATE_STATE_20260812_00669_BUY_REVIEW", "CANDIDATE_STATE_20260813_D2_R1", "CANDIDATE_STATE_20260818_D2_R2", "DECISION_00669_BUY_REVIEW_20260812", "MARKET_PORTFOLIO_MARKS_20260808_HKCU_P5C", "MARKET_PORTFOLIO_MARKS_20260812_00669_BUY_REVIEW", "MARKET_PORTFOLIO_MARKS_20260813_D2_R1", "MARKET_PORTFOLIO_MARKS_20260818_D2_R2", "REAL_ACCOUNT_STATE_20260808_HKCU_P5C", "REAL_ACCOUNT_STATE_20260812_00669_BUY_REVIEW", "REAL_ACCOUNT_STATE_20260813_D2_R1", "REAL_ACCOUNT_STATE_20260818_D2_R2", "RESEARCH_00669_VALUATION_P5C_20260808", "RESEARCH_D2_000719_R1_20260813", "RESEARCH_D2_000719_R2_20260818", "RESEARCH_D2_002039_R1_20260813", "RESEARCH_D2_301215_R1_20260813", "RESEARCH_D2_301215_R2_20260818"],
+      "opportunity_security_ids": ["000333.SZ", "000719.SZ", "002039.SZ", "301215.SZ", "600900.SH", "601138.SH", "605090.SH", "HKEX:00669"],
+      "required_evidence_keys": ["CANDIDATE_STATE", "MARKET_PORTFOLIO_MARKS", "REAL_ACCOUNT_STATE", "RESEARCH_601138_P0", "RESEARCH_CORE2"],
+      "selected_evidence": [
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T03:13:12Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"CANDIDATE","evidence_id":"CANDIDATE_STATE_20260727_WP5_P0","evidence_key":"CANDIDATE_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"70f651ff042fbf815ad8e0346cabad02693745d9","path":"investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T03:13:12Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"MARKET","evidence_id":"MARKET_PORTFOLIO_MARKS_20260727_WP5_P0","evidence_key":"MARKET_PORTFOLIO_MARKS","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"70f651ff042fbf815ad8e0346cabad02693745d9","path":"investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T03:13:12Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"PORTFOLIO","evidence_id":"REAL_ACCOUNT_STATE_20260727_WP5_P0","evidence_key":"REAL_ACCOUNT_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"70f651ff042fbf815ad8e0346cabad02693745d9","path":"investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T03:13:12Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_601138_P0_20260727","evidence_key":"RESEARCH_601138_P0","notes":"Primary-source P0 re-underwrite; scenarios are not retrospectively assigned probabilities.","security_ids":["601138.SH"],"source":{"commit_sha":"70f651ff042fbf815ad8e0346cabad02693745d9","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T01:06:48Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_CORE2_WP4B_20260727","evidence_key":"RESEARCH_CORE2","notes":"R2 Core2 hardening version superseding the WP4 stream from this checkpoint onward.","security_ids":["000333.SZ","600900.SH"],"source":{"commit_sha":"33a5484f2ca919e80eef96a6750f801f751f8bdf","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}}
+      ],
+      "selected_evidence_ids": ["CANDIDATE_STATE_20260727_WP5_P0", "MARKET_PORTFOLIO_MARKS_20260727_WP5_P0", "REAL_ACCOUNT_STATE_20260727_WP5_P0", "RESEARCH_601138_P0_20260727", "RESEARCH_CORE2_WP4B_20260727"],
+      "snapshot_complete_for_declared_requirements": true,
+      "superseded_evidence_ids": ["CANDIDATE_STATE_20260726", "CANDIDATE_STATE_20260727_R2_BASELINE", "MARKET_PORTFOLIO_MARKS_20260727_R2_BASELINE", "REAL_ACCOUNT_STATE_20260727_R2_BASELINE", "RESEARCH_CORE2_WP4_20260726"],
+      "unavailable_required_evidence_keys": []
+    },
+    {
+      "allowed_authority_domains": ["CANONICAL_MAIN"],
+      "at": "2026-08-08T14:17:09Z",
+      "checkpoint_type": "CANONICAL_MAIN_REPLAY_CHECKPOINT",
+      "decision_point_id": "CP_20260808_HKCU_P5C",
+      "future_evidence_ids": ["CANDIDATE_STATE_20260812_00669_BUY_REVIEW","CANDIDATE_STATE_20260813_D2_R1","CANDIDATE_STATE_20260818_D2_R2","DECISION_00669_BUY_REVIEW_20260812","MARKET_PORTFOLIO_MARKS_20260812_00669_BUY_REVIEW","MARKET_PORTFOLIO_MARKS_20260813_D2_R1","MARKET_PORTFOLIO_MARKS_20260818_D2_R2","REAL_ACCOUNT_STATE_20260812_00669_BUY_REVIEW","REAL_ACCOUNT_STATE_20260813_D2_R1","REAL_ACCOUNT_STATE_20260818_D2_R2","RESEARCH_D2_000719_R1_20260813","RESEARCH_D2_000719_R2_20260818","RESEARCH_D2_002039_R1_20260813","RESEARCH_D2_301215_R1_20260813","RESEARCH_D2_301215_R2_20260818"],
+      "opportunity_security_ids": ["000333.SZ","000719.SZ","002039.SZ","301215.SZ","600900.SH","601138.SH","605090.SH","HKEX:00669"],
+      "required_evidence_keys": ["CANDIDATE_STATE","MARKET_PORTFOLIO_MARKS","REAL_ACCOUNT_STATE","RESEARCH_00669_VALUATION","RESEARCH_601138_P0","RESEARCH_CORE2"],
+      "selected_evidence": [
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-08T14:17:09Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"CANDIDATE","evidence_id":"CANDIDATE_STATE_20260808_HKCU_P5C","evidence_key":"CANDIDATE_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"d851ba142ea8a0c4355db82f91f4cd43ba740790","path":"investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-08T14:17:09Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"MARKET","evidence_id":"MARKET_PORTFOLIO_MARKS_20260808_HKCU_P5C","evidence_key":"MARKET_PORTFOLIO_MARKS","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"d851ba142ea8a0c4355db82f91f4cd43ba740790","path":"investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-08T14:17:09Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"PORTFOLIO","evidence_id":"REAL_ACCOUNT_STATE_20260808_HKCU_P5C","evidence_key":"REAL_ACCOUNT_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"d851ba142ea8a0c4355db82f91f4cd43ba740790","path":"investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-08T14:17:09Z","evidence_as_of":"2026-08-07","evidence_class":"RESEARCH","evidence_id":"RESEARCH_00669_VALUATION_P5C_20260808","evidence_key":"RESEARCH_00669_VALUATION","notes":"P5C valuation context became Canonical only at PR #246 merge; as-of date is not treated as availability time.","security_ids":["HKEX:00669"],"source":{"commit_sha":"d851ba142ea8a0c4355db82f91f4cd43ba740790","path":"evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T03:13:12Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_601138_P0_20260727","evidence_key":"RESEARCH_601138_P0","notes":"Primary-source P0 re-underwrite; scenarios are not retrospectively assigned probabilities.","security_ids":["601138.SH"],"source":{"commit_sha":"70f651ff042fbf815ad8e0346cabad02693745d9","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T01:06:48Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_CORE2_WP4B_20260727","evidence_key":"RESEARCH_CORE2","notes":"R2 Core2 hardening version superseding the WP4 stream from this checkpoint onward.","security_ids":["000333.SZ","600900.SH"],"source":{"commit_sha":"33a5484f2ca919e80eef96a6750f801f751f8bdf","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}}
+      ],
+      "selected_evidence_ids": ["CANDIDATE_STATE_20260808_HKCU_P5C","MARKET_PORTFOLIO_MARKS_20260808_HKCU_P5C","REAL_ACCOUNT_STATE_20260808_HKCU_P5C","RESEARCH_00669_VALUATION_P5C_20260808","RESEARCH_601138_P0_20260727","RESEARCH_CORE2_WP4B_20260727"],
+      "snapshot_complete_for_declared_requirements": true,
+      "superseded_evidence_ids": ["CANDIDATE_STATE_20260726","CANDIDATE_STATE_20260727_R2_BASELINE","CANDIDATE_STATE_20260727_WP5_P0","MARKET_PORTFOLIO_MARKS_20260727_R2_BASELINE","MARKET_PORTFOLIO_MARKS_20260727_WP5_P0","REAL_ACCOUNT_STATE_20260727_R2_BASELINE","REAL_ACCOUNT_STATE_20260727_WP5_P0","RESEARCH_CORE2_WP4_20260726"],
+      "unavailable_required_evidence_keys": []
+    },
+    {
+      "allowed_authority_domains": ["CANONICAL_MAIN"],
+      "at": "2026-08-12T05:16:27Z",
+      "checkpoint_type": "CANONICAL_MAIN_REPLAY_CHECKPOINT",
+      "decision_point_id": "CP_20260812_00669_BUY_REVIEW",
+      "future_evidence_ids": ["CANDIDATE_STATE_20260813_D2_R1","CANDIDATE_STATE_20260818_D2_R2","MARKET_PORTFOLIO_MARKS_20260813_D2_R1","MARKET_PORTFOLIO_MARKS_20260818_D2_R2","REAL_ACCOUNT_STATE_20260813_D2_R1","REAL_ACCOUNT_STATE_20260818_D2_R2","RESEARCH_D2_000719_R1_20260813","RESEARCH_D2_000719_R2_20260818","RESEARCH_D2_002039_R1_20260813","RESEARCH_D2_301215_R1_20260813","RESEARCH_D2_301215_R2_20260818"],
+      "opportunity_security_ids": ["000333.SZ","000719.SZ","002039.SZ","301215.SZ","600900.SH","601138.SH","605090.SH","HKEX:00669"],
+      "required_evidence_keys": ["CANDIDATE_STATE","DECISION_00669_BUY_REVIEW","MARKET_PORTFOLIO_MARKS","REAL_ACCOUNT_STATE","RESEARCH_00669_VALUATION","RESEARCH_601138_P0","RESEARCH_CORE2"],
+      "selected_evidence": [
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-12T05:16:27Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"CANDIDATE","evidence_id":"CANDIDATE_STATE_20260812_00669_BUY_REVIEW","evidence_key":"CANDIDATE_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"156fbb5af7309cb1e753c6397fd800d38263e3b3","path":"investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-12T05:16:27Z","evidence_as_of":"2026-08-12","evidence_class":"DECISION","evidence_id":"DECISION_00669_BUY_REVIEW_20260812","evidence_key":"DECISION_00669_BUY_REVIEW","notes":"Canonical BUY_REVIEW_COMPLETE_NO_TRADE state; price bands remain research triggers, not historical execution signals.","security_ids":["HKEX:00669"],"source":{"commit_sha":"156fbb5af7309cb1e753c6397fd800d38263e3b3","path":"investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/HKCU_TTI_00669_BUY_REVIEW_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-12T05:16:27Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"MARKET","evidence_id":"MARKET_PORTFOLIO_MARKS_20260812_00669_BUY_REVIEW","evidence_key":"MARKET_PORTFOLIO_MARKS","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"156fbb5af7309cb1e753c6397fd800d38263e3b3","path":"investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-12T05:16:27Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"PORTFOLIO","evidence_id":"REAL_ACCOUNT_STATE_20260812_00669_BUY_REVIEW","evidence_key":"REAL_ACCOUNT_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"156fbb5af7309cb1e753c6397fd800d38263e3b3","path":"investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-08T14:17:09Z","evidence_as_of":"2026-08-07","evidence_class":"RESEARCH","evidence_id":"RESEARCH_00669_VALUATION_P5C_20260808","evidence_key":"RESEARCH_00669_VALUATION","notes":"P5C valuation context became Canonical only at PR #246 merge; as-of date is not treated as availability time.","security_ids":["HKEX:00669"],"source":{"commit_sha":"d851ba142ea8a0c4355db82f91f4cd43ba740790","path":"evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T03:13:12Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_601138_P0_20260727","evidence_key":"RESEARCH_601138_P0","notes":"Primary-source P0 re-underwrite; scenarios are not retrospectively assigned probabilities.","security_ids":["601138.SH"],"source":{"commit_sha":"70f651ff042fbf815ad8e0346cabad02693745d9","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T01:06:48Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_CORE2_WP4B_20260727","evidence_key":"RESEARCH_CORE2","notes":"R2 Core2 hardening version superseding the WP4 stream from this checkpoint onward.","security_ids":["000333.SZ","600900.SH"],"source":{"commit_sha":"33a5484f2ca919e80eef96a6750f801f751f8bdf","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}}
+      ],
+      "selected_evidence_ids": ["CANDIDATE_STATE_20260812_00669_BUY_REVIEW","DECISION_00669_BUY_REVIEW_20260812","MARKET_PORTFOLIO_MARKS_20260812_00669_BUY_REVIEW","REAL_ACCOUNT_STATE_20260812_00669_BUY_REVIEW","RESEARCH_00669_VALUATION_P5C_20260808","RESEARCH_601138_P0_20260727","RESEARCH_CORE2_WP4B_20260727"],
+      "snapshot_complete_for_declared_requirements": true,
+      "superseded_evidence_ids": ["CANDIDATE_STATE_20260726","CANDIDATE_STATE_20260727_R2_BASELINE","CANDIDATE_STATE_20260727_WP5_P0","CANDIDATE_STATE_20260808_HKCU_P5C","MARKET_PORTFOLIO_MARKS_20260727_R2_BASELINE","MARKET_PORTFOLIO_MARKS_20260727_WP5_P0","MARKET_PORTFOLIO_MARKS_20260808_HKCU_P5C","REAL_ACCOUNT_STATE_20260727_R2_BASELINE","REAL_ACCOUNT_STATE_20260727_WP5_P0","REAL_ACCOUNT_STATE_20260808_HKCU_P5C","RESEARCH_CORE2_WP4_20260726"],
+      "unavailable_required_evidence_keys": []
+    },
+    {
+      "allowed_authority_domains": ["CANONICAL_MAIN"],
+      "at": "2026-08-13T01:56:14Z",
+      "checkpoint_type": "CANONICAL_MAIN_REPLAY_CHECKPOINT",
+      "decision_point_id": "CP_20260813_D2_R1",
+      "future_evidence_ids": ["CANDIDATE_STATE_20260818_D2_R2","MARKET_PORTFOLIO_MARKS_20260818_D2_R2","REAL_ACCOUNT_STATE_20260818_D2_R2","RESEARCH_D2_000719_R2_20260818","RESEARCH_D2_301215_R2_20260818"],
+      "opportunity_security_ids": ["000333.SZ","000719.SZ","002039.SZ","301215.SZ","600900.SH","601138.SH","605090.SH","HKEX:00669"],
+      "required_evidence_keys": ["CANDIDATE_STATE","DECISION_00669_BUY_REVIEW","MARKET_PORTFOLIO_MARKS","REAL_ACCOUNT_STATE","RESEARCH_00669_VALUATION","RESEARCH_601138_P0","RESEARCH_CORE2","RESEARCH_D2_000719","RESEARCH_D2_002039","RESEARCH_D2_301215"],
+      "selected_evidence": [
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-13T01:56:14Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"CANDIDATE","evidence_id":"CANDIDATE_STATE_20260813_D2_R1","evidence_key":"CANDIDATE_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"6b12c652839d7c4ca7ce7191550fc04b43c52b0c","path":"investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-12T05:16:27Z","evidence_as_of":"2026-08-12","evidence_class":"DECISION","evidence_id":"DECISION_00669_BUY_REVIEW_20260812","evidence_key":"DECISION_00669_BUY_REVIEW","notes":"Canonical BUY_REVIEW_COMPLETE_NO_TRADE state; price bands remain research triggers, not historical execution signals.","security_ids":["HKEX:00669"],"source":{"commit_sha":"156fbb5af7309cb1e753c6397fd800d38263e3b3","path":"investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/HKCU_TTI_00669_BUY_REVIEW_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-13T01:56:14Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"MARKET","evidence_id":"MARKET_PORTFOLIO_MARKS_20260813_D2_R1","evidence_key":"MARKET_PORTFOLIO_MARKS","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"6b12c652839d7c4ca7ce7191550fc04b43c52b0c","path":"investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-13T01:56:14Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"PORTFOLIO","evidence_id":"REAL_ACCOUNT_STATE_20260813_D2_R1","evidence_key":"REAL_ACCOUNT_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"6b12c652839d7c4ca7ce7191550fc04b43c52b0c","path":"investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-08T14:17:09Z","evidence_as_of":"2026-08-07","evidence_class":"RESEARCH","evidence_id":"RESEARCH_00669_VALUATION_P5C_20260808","evidence_key":"RESEARCH_00669_VALUATION","notes":"P5C valuation context became Canonical only at PR #246 merge; as-of date is not treated as availability time.","security_ids":["HKEX:00669"],"source":{"commit_sha":"d851ba142ea8a0c4355db82f91f4cd43ba740790","path":"evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T03:13:12Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_601138_P0_20260727","evidence_key":"RESEARCH_601138_P0","notes":"Primary-source P0 re-underwrite; scenarios are not retrospectively assigned probabilities.","security_ids":["601138.SH"],"source":{"commit_sha":"70f651ff042fbf815ad8e0346cabad02693745d9","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T01:06:48Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_CORE2_WP4B_20260727","evidence_key":"RESEARCH_CORE2","notes":"R2 Core2 hardening version superseding the WP4 stream from this checkpoint onward.","security_ids":["000333.SZ","600900.SH"],"source":{"commit_sha":"33a5484f2ca919e80eef96a6750f801f751f8bdf","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-13T01:56:14Z","evidence_as_of":"2026-08-13","evidence_class":"RESEARCH","evidence_id":"RESEARCH_D2_000719_R1_20260813","evidence_key":"RESEARCH_D2_000719","notes":"R1 semantic research is available only after Canonical D2 R1 promotion.","security_ids":["000719.SZ"],"source":{"commit_sha":"6b12c652839d7c4ca7ce7191550fc04b43c52b0c","path":"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_000719_20260813_R1.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-13T01:56:14Z","evidence_as_of":"2026-08-13","evidence_class":"RESEARCH","evidence_id":"RESEARCH_D2_002039_R1_20260813","evidence_key":"RESEARCH_D2_002039","notes":"R1 semantic research is available only after Canonical D2 R1 promotion.","security_ids":["002039.SZ"],"source":{"commit_sha":"6b12c652839d7c4ca7ce7191550fc04b43c52b0c","path":"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_002039_20260813_R1.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-13T01:56:14Z","evidence_as_of":"2026-08-13","evidence_class":"RESEARCH","evidence_id":"RESEARCH_D2_301215_R1_20260813","evidence_key":"RESEARCH_D2_301215","notes":"R1 semantic research is available only after Canonical D2 R1 promotion.","security_ids":["301215.SZ"],"source":{"commit_sha":"6b12c652839d7c4ca7ce7191550fc04b43c52b0c","path":"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_301215_20260813_R1.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}}
+      ],
+      "selected_evidence_ids": ["CANDIDATE_STATE_20260813_D2_R1","DECISION_00669_BUY_REVIEW_20260812","MARKET_PORTFOLIO_MARKS_20260813_D2_R1","REAL_ACCOUNT_STATE_20260813_D2_R1","RESEARCH_00669_VALUATION_P5C_20260808","RESEARCH_601138_P0_20260727","RESEARCH_CORE2_WP4B_20260727","RESEARCH_D2_000719_R1_20260813","RESEARCH_D2_002039_R1_20260813","RESEARCH_D2_301215_R1_20260813"],
+      "snapshot_complete_for_declared_requirements": true,
+      "superseded_evidence_ids": ["CANDIDATE_STATE_20260726","CANDIDATE_STATE_20260727_R2_BASELINE","CANDIDATE_STATE_20260727_WP5_P0","CANDIDATE_STATE_20260808_HKCU_P5C","CANDIDATE_STATE_20260812_00669_BUY_REVIEW","MARKET_PORTFOLIO_MARKS_20260727_R2_BASELINE","MARKET_PORTFOLIO_MARKS_20260727_WP5_P0","MARKET_PORTFOLIO_MARKS_20260808_HKCU_P5C","MARKET_PORTFOLIO_MARKS_20260812_00669_BUY_REVIEW","REAL_ACCOUNT_STATE_20260727_R2_BASELINE","REAL_ACCOUNT_STATE_20260727_WP5_P0","REAL_ACCOUNT_STATE_20260808_HKCU_P5C","REAL_ACCOUNT_STATE_20260812_00669_BUY_REVIEW","RESEARCH_CORE2_WP4_20260726"],
+      "unavailable_required_evidence_keys": []
+    },
+    {
+      "allowed_authority_domains": ["CANONICAL_MAIN"],
+      "at": "2026-08-18T01:46:25Z",
+      "checkpoint_type": "CANONICAL_MAIN_REPLAY_CHECKPOINT",
+      "decision_point_id": "CP_20260818_D2_R2",
+      "future_evidence_ids": [],
+      "opportunity_security_ids": ["000333.SZ","000719.SZ","002039.SZ","301215.SZ","600900.SH","601138.SH","605090.SH","HKEX:00669"],
+      "required_evidence_keys": ["CANDIDATE_STATE","DECISION_00669_BUY_REVIEW","MARKET_PORTFOLIO_MARKS","REAL_ACCOUNT_STATE","RESEARCH_00669_VALUATION","RESEARCH_601138_P0","RESEARCH_CORE2","RESEARCH_D2_000719","RESEARCH_D2_002039","RESEARCH_D2_301215"],
+      "selected_evidence": [
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-18T01:46:25Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"CANDIDATE","evidence_id":"CANDIDATE_STATE_20260818_D2_R2","evidence_key":"CANDIDATE_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"5c5df9082688f65332c79fef3b9cbfa893a06908","path":"investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-12T05:16:27Z","evidence_as_of":"2026-08-12","evidence_class":"DECISION","evidence_id":"DECISION_00669_BUY_REVIEW_20260812","evidence_key":"DECISION_00669_BUY_REVIEW","notes":"Canonical BUY_REVIEW_COMPLETE_NO_TRADE state; price bands remain research triggers, not historical execution signals.","security_ids":["HKEX:00669"],"source":{"commit_sha":"156fbb5af7309cb1e753c6397fd800d38263e3b3","path":"investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/HKCU_TTI_00669_BUY_REVIEW_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-18T01:46:25Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"MARKET","evidence_id":"MARKET_PORTFOLIO_MARKS_20260818_D2_R2","evidence_key":"MARKET_PORTFOLIO_MARKS","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"5c5df9082688f65332c79fef3b9cbfa893a06908","path":"investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-18T01:46:25Z","evidence_as_of":"STATE_AS_STORED_AT_CANONICAL_COMMIT","evidence_class":"PORTFOLIO","evidence_id":"REAL_ACCOUNT_STATE_20260818_D2_R2","evidence_key":"REAL_ACCOUNT_STATE","notes":"Checkpoint-bound Canonical snapshot. Embedded state/data watermark may predate availability; replay must preserve that staleness rather than backfill.","security_ids":[],"source":{"commit_sha":"5c5df9082688f65332c79fef3b9cbfa893a06908","path":"investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-08T14:17:09Z","evidence_as_of":"2026-08-07","evidence_class":"RESEARCH","evidence_id":"RESEARCH_00669_VALUATION_P5C_20260808","evidence_key":"RESEARCH_00669_VALUATION","notes":"P5C valuation context became Canonical only at PR #246 merge; as-of date is not treated as availability time.","security_ids":["HKEX:00669"],"source":{"commit_sha":"d851ba142ea8a0c4355db82f91f4cd43ba740790","path":"evidence/hkcu_p5c/HKCU_P5C_VALUATION_CONTEXT_20260807.csv","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T03:13:12Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_601138_P0_20260727","evidence_key":"RESEARCH_601138_P0","notes":"Primary-source P0 re-underwrite; scenarios are not retrospectively assigned probabilities.","security_ids":["601138.SH"],"source":{"commit_sha":"70f651ff042fbf815ad8e0346cabad02693745d9","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP5_P0_EXTERNAL_REUNDERWRITE_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-07-27T01:06:48Z","evidence_as_of":"2026-07-27","evidence_class":"RESEARCH","evidence_id":"RESEARCH_CORE2_WP4B_20260727","evidence_key":"RESEARCH_CORE2","notes":"R2 Core2 hardening version superseding the WP4 stream from this checkpoint onward.","security_ids":["000333.SZ","600900.SH"],"source":{"commit_sha":"33a5484f2ca919e80eef96a6750f801f751f8bdf","path":"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4B_CORE2_RESEARCH_CURRENT.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-18T01:46:25Z","evidence_as_of":"2026-08-18","evidence_class":"RESEARCH","evidence_id":"RESEARCH_D2_000719_R2_20260818","evidence_key":"RESEARCH_D2_000719","notes":"R2 is selected only at/after PR #285 Canonical merge; it must not replace R1 in earlier replay checkpoints.","security_ids":["000719.SZ"],"source":{"commit_sha":"5c5df9082688f65332c79fef3b9cbfa893a06908","path":"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_000719_20260818_R2.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-13T01:56:14Z","evidence_as_of":"2026-08-13","evidence_class":"RESEARCH","evidence_id":"RESEARCH_D2_002039_R1_20260813","evidence_key":"RESEARCH_D2_002039","notes":"R1 semantic research is available only after Canonical D2 R1 promotion.","security_ids":["002039.SZ"],"source":{"commit_sha":"6b12c652839d7c4ca7ce7191550fc04b43c52b0c","path":"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_002039_20260813_R1.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}},
+        {"authority_domain":"CANONICAL_MAIN","availability_basis":"CANONICAL_MAIN_COMMIT","available_at":"2026-08-18T01:46:25Z","evidence_as_of":"2026-08-18","evidence_class":"RESEARCH","evidence_id":"RESEARCH_D2_301215_R2_20260818","evidence_key":"RESEARCH_D2_301215","notes":"R2 is selected only at/after PR #285 Canonical merge; it must not replace R1 in earlier replay checkpoints.","security_ids":["301215.SZ"],"source":{"commit_sha":"5c5df9082688f65332c79fef3b9cbfa893a06908","path":"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_301215_20260818_R2.json","provenance_status":"CANONICAL_MAIN","repository":"jl2642/investment-os-market-data"}}
+      ],
+      "selected_evidence_ids": ["CANDIDATE_STATE_20260818_D2_R2","DECISION_00669_BUY_REVIEW_20260812","MARKET_PORTFOLIO_MARKS_20260818_D2_R2","REAL_ACCOUNT_STATE_20260818_D2_R2","RESEARCH_00669_VALUATION_P5C_20260808","RESEARCH_601138_P0_20260727","RESEARCH_CORE2_WP4B_20260727","RESEARCH_D2_000719_R2_20260818","RESEARCH_D2_002039_R1_20260813","RESEARCH_D2_301215_R2_20260818"],
+      "snapshot_complete_for_declared_requirements": true,
+      "superseded_evidence_ids": ["CANDIDATE_STATE_20260726","CANDIDATE_STATE_20260727_R2_BASELINE","CANDIDATE_STATE_20260727_WP5_P0","CANDIDATE_STATE_20260808_HKCU_P5C","CANDIDATE_STATE_20260812_00669_BUY_REVIEW","CANDIDATE_STATE_20260813_D2_R1","MARKET_PORTFOLIO_MARKS_20260727_R2_BASELINE","MARKET_PORTFOLIO_MARKS_20260727_WP5_P0","MARKET_PORTFOLIO_MARKS_20260808_HKCU_P5C","MARKET_PORTFOLIO_MARKS_20260812_00669_BUY_REVIEW","MARKET_PORTFOLIO_MARKS_20260813_D2_R1","REAL_ACCOUNT_STATE_20260727_R2_BASELINE","REAL_ACCOUNT_STATE_20260727_WP5_P0","REAL_ACCOUNT_STATE_20260808_HKCU_P5C","REAL_ACCOUNT_STATE_20260812_00669_BUY_REVIEW","REAL_ACCOUNT_STATE_20260813_D2_R1","RESEARCH_CORE2_WP4_20260726","RESEARCH_D2_000719_R1_20260813","RESEARCH_D2_301215_R1_20260813"],
+      "unavailable_required_evidence_keys": []
+    }
+  ],
+  "user_decision_generated": false
+}
