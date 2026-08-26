@@ -1,0 +1,28 @@
+name: Strategy Kernel Phase 3B Competing Model Forms
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-phase3b-competing-model-forms.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase3b-model-forms:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 3B regression tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3b
+      - name: Re-run Phase 3A dependency tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3a
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
