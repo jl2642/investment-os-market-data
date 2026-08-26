@@ -26,6 +26,8 @@ jobs:
         run: python -m unittest strategy_kernel_v2.tests.test_phase3c
       - name: Validate real bounded Phase 3C replay
         run: python strategy_kernel_v2/validate_phase3c.py
+      - name: Audit historical candidate-model replayability
+        run: python strategy_kernel_v2/phase3c_replayability_audit.py
       - name: Re-run Phase 3B dependency tests
         run: python -m unittest strategy_kernel_v2.tests.test_phase3b
       - name: Re-run Phase 3A dependency tests
