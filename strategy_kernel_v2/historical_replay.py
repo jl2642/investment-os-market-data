@@ -57,13 +57,26 @@ class CachingRegisteredSourceLoader:
 
 
 def _normalize_legacy_disposition(disposition: str) -> str | None:
+    """Map contemporaneous Legacy text without turning research holds into portfolio holds."""
     text = disposition.upper()
+
+    # Explicit absence of an investment decision must dominate generic HOLD tokens.
+    # Examples: HOLD_RESEARCH_COMPLETE_NO_DECISION, HOLD_NOT_DECISION_GRADE.
+    if any(
+        token in text
+        for token in (
+            "NO_DECISION",
+            "NOT_DECISION_GRADE",
+            "WATCH",
+            "NO_TRADE",
+            "NO_ACTION",
+        )
+    ):
+        return "NO_ACTION"
     if any(token in text for token in ("REDUCE", "TRIM", "EXIT")):
         return "REDUCED"
     if any(token in text for token in ("HOLD", "RETAIN")):
         return "RETAINED"
-    if any(token in text for token in ("WATCH", "NO_TRADE", "NO_DECISION", "NO_ACTION")):
-        return "NO_ACTION"
     if any(token in text for token in ("PRIORITY", "PREPARE", "REVIEW_PRIORITY")):
         return "PRIORITIZED"
     buy_or_add = any(token in text for token in ("BUY", "ADD", "ADMIT"))
@@ -211,10 +224,18 @@ def build_phase3c_replay(
         + aggregate["SIMPLE_NON_PROBABILISTIC_PARETO"]["evaluable_security_instances"]
     )
 
+    if candidate_evaluable > 0:
+        replay_status = "BOUNDED_REPLAY_AVAILABLE_FOR_MULTI_MODEL_COMPARISON"
+    elif aggregate["LEGACY_POLICY_BASELINE"]["evaluable_security_instances"] > 0:
+        replay_status = "PARTIAL_REPLAY_MODEL_INPUT_COVERAGE_BLOCKED"
+    else:
+        replay_status = "NO_HISTORICAL_REPLAY_EVALUABLE"
+
     return {
         "schema_version": "1.0.0",
         "phase": "3C",
         "mode": "BOUNDED_POINT_IN_TIME_DECISION_CAPITAL_REPLAY",
+        "replay_status": replay_status,
         "checkpoint_count": len(checkpoint_results),
         "feature_extraction_mode": "EXACT_REGISTERED_COMMIT_PATH_GIT_SHOW",
         "model_specific_evidence_fetches": 0,
