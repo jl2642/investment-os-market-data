@@ -197,7 +197,6 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Phase 3E treatment:** Phase 3C non-replayability becomes valid complexity/input-burden evidence. Any materially revised model form must be versioned and return through governed Phase 3B contract definition and Phase 3C replay. The same seven seed checkpoints may not be outcome-tuned and then represented as independent validation; broader or holdout historical validation is required.
 
 **Phase 3F consequence:** promotion to Phase 4 requires at least one historically replayable candidate, measurable 3D evidence, accepted 3E robustness and broader historical coverage. If no candidate becomes historically evaluable, only `REJECT_V2_FORM` or `CONTINUE_SHADOW_RESEARCH` are permitted.
-
 **Not changed:** macro lifecycle Phase 0→5 and Phase 3 sequence 3A→3F remain unchanged. No effective policy/economic state changed; `orders=0`, `trade_authority=NONE`.
 
 ## 2026-08-26 — Phase 3D bounded negative-result measurability closeout
@@ -247,3 +246,29 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Phase 3F consequence:** Phase 3F may now start procedurally, but promotion eligibility remains false. Under current evidence only `REJECT_V2_FORM` or `CONTINUE_SHADOW_RESEARCH` are valid gate outcomes; `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION` remains blocked because there is no historically replayable candidate, no measurable candidate 3D performance evidence and no broader historical coverage.
 
 **Not changed:** no effective Core Static rule, Candidate state, Real/Simulation state, target portfolio, user decision, recommendation, order authority or trade authority changed; `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-26 — Phase 3F Historical Promotion Gate / negative closeout
+**Reason:** Phase 3A–3E completed the bounded historical program, but Phase 4 entry requires a separate formal gate. The gate must not equate absence of measurable candidate outputs with economic underperformance.
+
+**Gate contract:**
+- promotion requires all four mandatory requirements: valid candidate point-in-time historical replay, measurable candidate Phase 3D evidence, accepted Phase 3E robustness and broader historical coverage;
+- `REJECT_V2_FORM` requires affirmative terminal rejection evidence, not merely failure to qualify for promotion;
+- nonmeasurability and current-form nonreplayability are not by themselves economic rejection conclusions;
+- any material model revision must receive a new identity and loop back through governed 3B→3C;
+- no retrospective input creation, same-seed independent-validation claim, winner selection, economic mutation, order or trade authority is allowed.
+
+**Gate result:**
+- candidate historical replay = **FAIL**, 0 replayable candidate instances;
+- candidate 3D measurability = **FAIL**, no comparative performance and 0 measurable candidate metrics;
+- Phase 3E robustness = **PASS**, 9 single-component ablations / 0 replay unlocks under frozen no-outcome-tuning rules;
+- broader historical coverage = **FAIL**, current evidence remains a seven-checkpoint bounded seed;
+- mandatory requirements passed = **1/4**;
+- `phase3f_promotion_eligible=false`; `phase4_entry_allowed=false`.
+
+**Terminal-rejection test:** not met. Candidate economic performance is not measurable, no comparative underperformance/winner conclusion exists, and Phase 3E shows adjacent contemporaneous information plus a governed redesign path. The fixed Phase 3B candidate forms are therefore `NOT_PROMOTABLE_IN_CURRENT_FORM`, but a terminal economic rejection claim is unsupported.
+
+**Decision:** `CONTINUE_SHADOW_RESEARCH`.
+
+**Governed continuation:** Phase 3 remains open. A material revision must use a new model/version identity and return through `Phase 3B contract definition → Phase 3C replay`; legitimate broader/holdout historical coverage may also be added without retrospective input creation. Missing 3D/3E evidence must then be regenerated as applicable, and a later 3F gate must pass before Phase 4 begins.
+
+**Not changed:** no effective policy, Candidate membership, Real/Simulation position, target portfolio, user decision, recommendation, order authority or trade authority changed; `orders=0`, `trade_authority=NONE`. Phase 4 remains mandatory but blocked; Phase 5 remains unauthorized.

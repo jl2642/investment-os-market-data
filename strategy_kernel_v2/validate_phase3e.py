@@ -128,8 +128,11 @@ def validate() -> list[str]:
         errors.append("PHASE5_PREMATURELY_ALLOWED")
 
     cv = current["validation"]
-    if current.get("current_phase") != "PHASE_3E_ABLATION_AND_ROBUSTNESS":
-        errors.append("CURRENT_PHASE_NOT_3E")
+    if current.get("current_phase") not in {
+        "PHASE_3E_ABLATION_AND_ROBUSTNESS",
+        "PHASE_3F_HISTORICAL_PROMOTION_GATE",
+    }:
+        errors.append("CURRENT_PHASE_NOT_3E_OR_LEGAL_3F_DOWNSTREAM")
     if cv.get("phase3e_started") is not True or cv.get("phase3e_complete") is not True:
         errors.append("CURRENT_PHASE3E_NOT_COMPLETE")
     if cv.get("phase3e_single_component_ablation_count") != 9:
@@ -140,6 +143,17 @@ def validate() -> list[str]:
         errors.append("CURRENT_PHASE3F_START_NOT_ALLOWED")
     if cv.get("phase3f_promotion_eligible") is not False:
         errors.append("CURRENT_PHASE3F_PREMATURELY_ELIGIBLE")
+
+    if current.get("current_phase") == "PHASE_3F_HISTORICAL_PROMOTION_GATE":
+        phase3f_contract = load("PHASE3F_PROMOTION_GATE_CONTRACT.json")
+        if phase3f_contract.get("status") != "FROZEN_HISTORICAL_PROMOTION_GATE":
+            errors.append("LEGAL_3F_DOWNSTREAM_WITHOUT_FROZEN_GATE")
+        if state.get("phase3f_started") is not True:
+            errors.append("LEGAL_3F_DOWNSTREAM_WITHOUT_START")
+        if state.get("phase4_entry_allowed") is not False:
+            errors.append("LEGAL_3F_DOWNSTREAM_PREMATURE_PHASE4")
+        if state.get("phase3f_material_revision_loopback") != "PHASE_3B_CONTRACT_DEFINITION_THEN_PHASE_3C_REPLAY":
+            errors.append("LEGAL_3F_DOWNSTREAM_LOOPBACK_DRIFT")
 
     for surface_name, surface in [
         ("CONTRACT", contract["authority_boundaries"]),
