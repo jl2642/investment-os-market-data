@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "program_version": "1.0",
+  "contract_status": "CONTROLLED_MASTER",
+  "macro_lifecycle": [
+    {"phase": 0, "name": "SYSTEM_AUDIT", "promotion_target": 1},
+    {"phase": 1, "name": "DECISION_AND_UNDERWRITING", "promotion_target": 2},
+    {"phase": 2, "name": "CAPITAL_COMPARISON_INFRASTRUCTURE", "promotion_target": 3},
+    {"phase": 3, "name": "HISTORICAL_REPLAY_AND_CALIBRATION", "promotion_target": 4},
+    {"phase": 4, "name": "FORWARD_PARALLEL_SHADOW_VALIDATION", "promotion_target": 5},
+    {"phase": 5, "name": "GOVERNED_MIGRATION", "promotion_target": null}
+  ],
+  "mandatory_gates": {
+    "phase3_historical_validation_required_for_phase4": true,
+    "phase4_forward_validation_required_for_phase5": true,
+    "direct_phase3_to_phase5_forbidden": true,
+    "macro_phase_omission_forbidden": true,
+    "program_amendment_required_for_macro_change": true
+  },
+  "authority_boundaries_through_phase4": {
+    "effective_core_static_change_authorized": false,
+    "candidate_membership_change_authorized": false,
+    "real_position_change_authorized": false,
+    "simulation_position_change_authorized": false,
+    "target_portfolio_writeback_authorized": false,
+    "order_authorized": false,
+    "implementation_ready": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
