@@ -15,6 +15,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Run Phase 3C-R2A reconstruction tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3c_r2a
+      - name: Validate Phase 3C-R2A against real point-in-time history
+        run: python -m strategy_kernel_v2.validate_phase3c_r2a
+      - name: Validate Phase 3B-R2 parent contract
+        run: python -m strategy_kernel_v2.validate_phase3b_r2
+      - name: Validate Post-3F research-path dependency
+        run: python -m strategy_kernel_v2.validate_post3f_research_path
+      - name: Validate frozen Phase 3F gate remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3f
       - name: Validate frozen contract before outcome build
         run: python strategy_kernel_v2/validate_phase3d_contract.py
       - name: Build Phase 3D realized outcomes
@@ -27,3 +37,10 @@ jobs:
           name: phase3d-instance-results
           path: strategy_kernel_v2/PHASE3D_INSTANCE_RESULTS.json
           if-no-files-found: error
+      - name: Upload deterministic Phase 3C-R2A reconstruction
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3c-r2a-reconstruction-via-phase3d-carrier
+          path: strategy_kernel_v2/generated/PHASE3C_R2A_RECONSTRUCTION.json
+          if-no-files-found: ignore
