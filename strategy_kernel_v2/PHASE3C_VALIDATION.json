@@ -1,16 +1,16 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "program": "STRATEGY_KERNEL_V2",
   "phase": "3C",
   "status": "PASS_BOUNDED_REPLAY_WITH_CANDIDATE_INPUT_BLOCKER",
   "as_of": "2026-08-26",
   "parent_phase3b_head": "ac3e89947d9f4e53f1f54468b0bae2611ea402fd",
   "canonical_main_sha": "5c5df9082688f65332c79fef3b9cbfa893a06908",
-  "validated_head_before_state_closeout": "66cf933048a60ab8e87891f2b640bc8fcdf5af21",
+  "validated_candidate_head": "02dd3369ca25512e359e9f91e8c9adae6edbfd58",
   "validation_run": {
-    "workflow": "Strategy Kernel Phase 3C Historical Replay",
-    "run_number": 3,
-    "run_id": 32940310453,
+    "workflow": "Strategy Kernel Phase 3C Decision Capital Replay",
+    "run_number": 1,
+    "run_id": 32946509462,
     "conclusion": "SUCCESS",
     "phase3c_tests_passed": 19,
     "phase3b_dependency_tests_passed": 23,
@@ -50,6 +50,10 @@
     "phase5_migration_allowed": false
   },
   "required_next_action": "GOVERNED_PHASE3C_HISTORICAL_INPUT_RECOVERY_OR_MODEL_REPLAYABILITY_DECISION_WITHOUT_HINDSIGHT_BACKFILL",
+  "workflow_hygiene": {
+    "authoritative_workflow": ".github/workflows/strategy-kernel-phase3c-historical-replay.yml",
+    "duplicate_recovery_workflow_removed": true
+  },
   "authority_boundaries": {
     "effective_core_static_changes": 0,
     "candidate_membership_mutations": 0,
