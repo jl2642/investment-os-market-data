@@ -1,0 +1,29 @@
+name: Strategy Kernel Phase 3D Realized Outcomes
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-phase3d-realized-outcomes.yml'
+jobs:
+  phase3d-realized-outcomes:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate frozen contract before outcome build
+        run: python strategy_kernel_v2/validate_phase3d_contract.py
+      - name: Build Phase 3D realized outcomes
+        run: python strategy_kernel_v2/build_phase3d_results.py
+      - name: Validate zero-authority program state
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Upload deterministic Phase 3D result
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3d-instance-results
+          path: strategy_kernel_v2/PHASE3D_INSTANCE_RESULTS.json
+          if-no-files-found: error

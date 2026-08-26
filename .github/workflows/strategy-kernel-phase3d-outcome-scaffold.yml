@@ -1,0 +1,23 @@
+name: Strategy Kernel Phase 3D Outcome Scaffold
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-phase3d-outcome-scaffold.yml'
+jobs:
+  phase3d-outcome-scaffold:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build mechanical Phase 3D instance scaffold
+        run: python strategy_kernel_v2/build_phase3d_scaffold.py
+      - name: Validate Phase 3D contract freeze
+        run: python strategy_kernel_v2/validate_phase3d_contract.py
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py

@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3D",
+  "status": "PASS_COMPLETE_BOUNDED_NEGATIVE_RESULT_MEASURABILITY_NO_COMPARATIVE_MODEL_PERFORMANCE",
+  "as_of": "2026-08-26",
+  "parent_post3c_head": "b959735c241d9a0ff699339aa697e8b9d511a1ca",
+  "mode": "NEGATIVE_RESULT_MEASURABILITY_AND_REGRET_OBSERVABILITY",
+  "contract": {
+    "frozen_before_realized_outcomes": true,
+    "fixed_horizons_trading_sessions": [1, 3, 5],
+    "horizon_change_count_after_outcome_loading": 0,
+    "candidate_output_synthesis_count": 0
+  },
+  "outcome_source": {
+    "repository_governed_history_audited_first": true,
+    "repository_history_complete": false,
+    "reputable_market_data_fallback_used": true,
+    "selected_result_latest_date": "2026-08-24",
+    "source_manifest": "PHASE3D_OUTCOME_SOURCE_MANIFEST.json"
+  },
+  "realized_outcome_build": {
+    "workflow": "Strategy Kernel Phase 3D Realized Outcomes",
+    "run_number": 1,
+    "run_id": 32960958312,
+    "conclusion": "SUCCESS",
+    "artifact_id": 9603842258,
+    "artifact_name": "phase3d-instance-results",
+    "artifact_zip_sha256": "ba27c1dcc4160079da54934df2b6dab55b7544c59fd2d1d7afb0d37d8dc0e1bb",
+    "legacy_instance_count": 29,
+    "candidate_security_model_checkpoint_count": 100,
+    "candidate_group_record_count": 14,
+    "historical_source_reads": 29
+  },
+  "legacy_measurability": {
+    "retained_forward_price_instances": 5,
+    "no_action_opportunity_only_instances": 16,
+    "prioritized_research_opportunity_only_instances": 7,
+    "simulation_reduction_posture_observation_only_instances": 1,
+    "measurable_regret_instances": 0,
+    "measurable_calibration_instances": 0,
+    "retained_only_forward_price_summary": {
+      "1": {"n": 5, "mean": -0.00107198, "median": -0.00564024, "min": -0.02975231, "max": 0.02157676},
+      "3": {"n": 5, "mean": -0.02518399, "median": -0.03784101, "min": -0.08940349, "max": 0.04009146},
+      "5": {"n": 5, "mean": -0.05149173, "median": -0.05746951, "min": -0.11475890, "max": 0.00287835}
+    },
+    "independence_warning": "The five RETAINED observations are repeated checkpoints of 601138.SH and are not five independent securities or independent trials."
+  },
+  "candidate_measurability": {
+    "phase2_probabilistic_vector": "NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS",
+    "simple_non_probabilistic_pareto": "NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS",
+    "candidate_comparative_performance_available": false,
+    "candidate_regret_metrics_generated": 0,
+    "candidate_calibration_metrics_generated": 0,
+    "candidate_return_attribution_metrics_generated": 0
+  },
+  "interpretation": {
+    "legacy_winner_conclusion": false,
+    "candidate_winner_conclusion": false,
+    "cross_model_ranking": "NONE",
+    "statistical_significance_claim": "NONE",
+    "phase3c_nonreplayability_confirmed_as_evaluation_constraint": true,
+    "finding": "Phase 3D can observe realized paths for Legacy postures, but cannot measure candidate performance or comparative regret/calibration because the candidates generated no contemporaneous replay outputs. The bounded retained observations are descriptive only."
+  },
+  "phase_boundary": {
+    "phase3d_started": true,
+    "phase3d_outcomes_loaded": true,
+    "phase3d_complete": true,
+    "phase3e_start_allowed": true,
+    "phase3e_started": false,
+    "phase3_historical_validation_complete": false,
+    "phase3f_promotion_eligible": false,
+    "phase4_entry_allowed": false,
+    "phase5_migration_allowed": false
+  },
+  "required_next_action": "PHASE_3E_ABLATION_AND_ROBUSTNESS_UNDER_POST3C_LOOPBACK_GUARD",
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
