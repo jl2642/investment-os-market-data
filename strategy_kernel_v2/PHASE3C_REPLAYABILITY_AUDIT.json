@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3C",
+  "audit_mode": "CANONICAL_CHECKPOINT_TREE_HISTORICAL_INPUT_RECOVERY_AND_REPLAYABILITY",
+  "as_of": "2026-08-26",
+  "audit_source_head": "33c1f4afd2e82705d087cb88700f243822d84cb7",
+  "canonical_main_sha": "5c5df9082688f65332c79fef3b9cbfa893a06908",
+  "workflow": {
+    "name": "Strategy Kernel Phase 3C Historical Replay",
+    "run_number": 24,
+    "run_id": 32951389195,
+    "conclusion": "SUCCESS"
+  },
+  "scope": {
+    "canonical_checkpoint_count": 7,
+    "scan_roots": [
+      "investment_os_runtime",
+      "evidence",
+      "outputs"
+    ],
+    "keyword_candidate_file_occurrences": 673,
+    "exact_model_field_file_occurrences": 114,
+    "proxy_like_field_file_occurrences": 147
+  },
+  "candidate_model_packet_findings": {
+    "phase2_probabilistic_complete_packet_file_occurrences": 0,
+    "simple_pareto_complete_packet_file_occurrences": 0,
+    "unregistered_phase2_complete_packet_file_occurrences": 0,
+    "unregistered_simple_complete_packet_file_occurrences": 0,
+    "phase3a_registry_omission_found": false,
+    "complete_candidate_model_inputs_recoverable_without_new_assumptions": false
+  },
+  "proxy_policy": {
+    "legacy_proxy_fields_may_remain_historical_facts": true,
+    "legacy_proxy_fields_may_be_relabelled_as_phase3b_model_inputs": false,
+    "examples": [
+      "evidence_score",
+      "quality_score",
+      "portfolio_fit_score",
+      "risk_penalty",
+      "race_confidence",
+      "current_weight",
+      "base_case_expected_return",
+      "return_vs_completed_close",
+      "driver_based_scenarios"
+    ]
+  },
+  "conclusion": "NO_COMPLETE_CANDIDATE_MODEL_INPUT_PACKET_FOUND_IN_CANONICAL_CHECKPOINT_TREES",
+  "governed_interpretation": {
+    "phase2_probabilistic_vector": "HISTORICALLY_NONREPLAYABLE_ON_CURRENT_BOUNDED_CORPUS_WITHOUT_RETROSPECTIVE_INPUT_CREATION",
+    "simple_non_probabilistic_pareto": "HISTORICALLY_NONREPLAYABLE_ON_CURRENT_BOUNDED_CORPUS_WITHOUT_NEW_TRANSFORMATION_RULES",
+    "legacy_policy_baseline": "BOUNDED_HISTORICAL_REPLAY_AVAILABLE",
+    "finding_type": "MODEL_FORM_REPLAYABILITY_AND_INPUT_BURDEN_FINDING_NOT_PERFORMANCE_CONCLUSION",
+    "hindsight_backfill_authorized": false,
+    "phase3a_reopen_required_for_missing_registration": false
+  },
+  "phase_gate": {
+    "phase3c_replayability_audit_complete": true,
+    "phase3c_terminal_nonreplayability_finding_supported": true,
+    "phase3d_start_allowed_by_this_audit": false,
+    "governed_subsequent_evaluation_path_decision_required_before_phase3d": true,
+    "phase3f_promotion_eligible": false,
+    "phase4_entry_allowed": false,
+    "phase5_migration_allowed": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
