@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3C",
+  "status": "PASS_BOUNDED_REPLAY_WITH_CANDIDATE_INPUT_BLOCKER",
+  "as_of": "2026-08-26",
+  "parent_phase3b_head": "ac3e89947d9f4e53f1f54468b0bae2611ea402fd",
+  "canonical_main_sha": "5c5df9082688f65332c79fef3b9cbfa893a06908",
+  "validated_head_before_state_closeout": "66cf933048a60ab8e87891f2b640bc8fcdf5af21",
+  "validation_run": {
+    "workflow": "Strategy Kernel Phase 3C Historical Replay",
+    "run_number": 3,
+    "run_id": 32940310453,
+    "conclusion": "SUCCESS",
+    "phase3c_tests_passed": 19,
+    "phase3b_dependency_tests_passed": 23,
+    "phase3a_dependency_tests_passed": 24,
+    "program_consistency_passed": true
+  },
+  "bounded_replay": {
+    "phase3a_checkpoints": 7,
+    "registered_historical_sources_read": 29,
+    "source_read_mode": "GIT_SHOW_EXACT_REGISTERED_COMMIT_PATH",
+    "legacy_evaluable_security_checkpoint_instances": 29,
+    "phase2_probabilistic_evaluable_security_checkpoint_instances": 0,
+    "simple_pareto_evaluable_security_checkpoint_instances": 0,
+    "candidate_comparative_replay_available": false,
+    "model_specific_evidence_fetches": 0,
+    "subjective_feature_fills": 0,
+    "retrospective_probability_backfills": 0,
+    "retrospective_scenario_backfills": 0
+  },
+  "finding": {
+    "legacy_replay": "BOUNDED_REPLAY_OPERATIONAL",
+    "candidate_models": "BLOCKED_MISSING_EXPLICIT_CONTEMPORANEOUS_MODEL_INPUTS",
+    "interpretation": "The replay infrastructure works and contemporaneous Legacy states are mechanically reproducible, but the registered historical corpus does not contain the complete explicit probability/vector packet required by the Phase-2 model or the complete explicit five-field packet required by the simple Pareto challenger. This is an input-availability/model-usability finding, not a comparative performance conclusion.",
+    "historical_performance_conclusion": "NONE",
+    "model_winner_selected": false
+  },
+  "phase_boundary": {
+    "phase3c_started": true,
+    "phase3c_complete": false,
+    "phase3c_1_feature_extraction_infrastructure_validated": true,
+    "phase3c_2_legacy_replay_validated": true,
+    "phase3c_2_candidate_replay_complete": false,
+    "phase3d_start_allowed": false,
+    "phase3_historical_validation_complete": false,
+    "phase3f_promotion_eligible": false,
+    "phase4_entry_allowed": false,
+    "phase5_migration_allowed": false
+  },
+  "required_next_action": "GOVERNED_PHASE3C_HISTORICAL_INPUT_RECOVERY_OR_MODEL_REPLAYABILITY_DECISION_WITHOUT_HINDSIGHT_BACKFILL",
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
