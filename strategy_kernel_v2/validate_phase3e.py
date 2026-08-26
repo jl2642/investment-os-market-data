@@ -12,6 +12,56 @@ def load(name: str):
     return json.loads((ROOT / name).read_text(encoding="utf-8"))
 
 
+def _validate_post3f_and_r2(errors: list[str], state: dict, current: dict, require_r2: bool) -> None:
+    decision_path = ROOT / "PHASE3_POST3F_RESEARCH_PATH_DECISION.json"
+    if not decision_path.exists():
+        errors.append("LEGAL_POST3F_DOWNSTREAM_WITHOUT_DECISION")
+        return
+    decision = json.loads(decision_path.read_text(encoding="utf-8"))
+    if decision.get("status") != "APPROVED_GOVERNED_DUAL_TRACK_RESEARCH_LOOPBACK":
+        errors.append("LEGAL_POST3F_DOWNSTREAM_DECISION_NOT_GOVERNED")
+    if decision.get("trigger", {}).get("phase3f_gate_outcome") != "CONTINUE_SHADOW_RESEARCH":
+        errors.append("LEGAL_POST3F_DOWNSTREAM_PHASE3F_OUTCOME_DRIFT")
+    if state.get("phase3f_started") is not True or state.get("phase3f_complete") is not True:
+        errors.append("LEGAL_POST3F_DOWNSTREAM_WITHOUT_PHASE3F_COMPLETE")
+    if state.get("phase3f_gate_outcome") != "CONTINUE_SHADOW_RESEARCH":
+        errors.append("LEGAL_POST3F_DOWNSTREAM_GATE_OUTCOME_DRIFT")
+    if state.get("phase3f_promotion_eligible") is not False:
+        errors.append("LEGAL_POST3F_DOWNSTREAM_PROMOTION_ELIGIBLE")
+    if state.get("phase4_entry_allowed") is not False or current["validation"].get("phase4_entry_allowed") is not False:
+        errors.append("LEGAL_POST3F_DOWNSTREAM_PREMATURE_PHASE4")
+    if current["validation"].get("post3f_research_path_decision_complete") is not True:
+        errors.append("LEGAL_POST3F_DOWNSTREAM_DECISION_NOT_COMPLETE")
+
+    if require_r2:
+        r2_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
+        if not r2_path.exists():
+            errors.append("LEGAL_R2_DOWNSTREAM_WITHOUT_CONTRACT")
+            return
+        r2 = json.loads(r2_path.read_text(encoding="utf-8"))
+        if r2.get("status") != "FROZEN_REVISED_MODEL_CONTRACT_NO_HISTORICAL_REPLAY":
+            errors.append("LEGAL_R2_DOWNSTREAM_CONTRACT_NOT_FROZEN")
+        if r2.get("model", {}).get("new_identity") is not True:
+            errors.append("LEGAL_R2_DOWNSTREAM_NEW_IDENTITY_FALSE")
+        if r2.get("model", {}).get("overwrites_prior_model") is not False:
+            errors.append("LEGAL_R2_DOWNSTREAM_OVERWRITES_PRIOR")
+        firewall = r2.get("development_corpus_firewall", {})
+        if firewall.get("phase3d_realized_outcomes_may_select_fields") is not False:
+            errors.append("LEGAL_R2_DOWNSTREAM_OUTCOME_TUNING_FIELDS")
+        if firewall.get("phase3d_realized_outcomes_may_select_thresholds") is not False:
+            errors.append("LEGAL_R2_DOWNSTREAM_OUTCOME_TUNING_THRESHOLDS")
+        if firewall.get("phase3d_realized_outcomes_may_select_mappings") is not False:
+            errors.append("LEGAL_R2_DOWNSTREAM_OUTCOME_TUNING_MAPPINGS")
+        if state.get("r2_phase3b_contract_definition_started") is not True or state.get("r2_phase3b_contract_definition_complete") is not True:
+            errors.append("LEGAL_R2_DOWNSTREAM_STATE_NOT_COMPLETE")
+        if state.get("r2_real_historical_replay_executed") is not False or state.get("r2_historical_performance_claimed") is not False:
+            errors.append("LEGAL_R2_DOWNSTREAM_PREMATURE_REPLAY_OR_PERFORMANCE")
+        if state.get("r2_phase3c_replay_started") is not False:
+            errors.append("LEGAL_R2_DOWNSTREAM_3C_ALREADY_STARTED")
+    elif state.get("r2_phase3b_contract_definition_started") is not False:
+        errors.append("LEGAL_POST3F_DOWNSTREAM_R2_ALREADY_STARTED")
+
+
 def validate() -> list[str]:
     errors: list[str] = []
     contract = load("PHASE3E_ABLATION_CONTRACT.json")
@@ -133,9 +183,10 @@ def validate() -> list[str]:
         "PHASE_3E_ABLATION_AND_ROBUSTNESS",
         "PHASE_3F_HISTORICAL_PROMOTION_GATE",
         "POST_PHASE3F_RESEARCH_PATH_DECISION",
+        "PHASE_3B_R2_REVISED_MODEL_CONTRACT",
     }
     if current_phase not in allowed_current_phases:
-        errors.append("CURRENT_PHASE_NOT_3E_OR_LEGAL_3F_OR_POST3F_DOWNSTREAM")
+        errors.append("CURRENT_PHASE_NOT_3E_OR_LEGAL_DOWNSTREAM")
     if cv.get("phase3e_started") is not True or cv.get("phase3e_complete") is not True:
         errors.append("CURRENT_PHASE3E_NOT_COMPLETE")
     if cv.get("phase3e_single_component_ablation_count") != 9:
@@ -157,29 +208,10 @@ def validate() -> list[str]:
             errors.append("LEGAL_3F_DOWNSTREAM_PREMATURE_PHASE4")
         if state.get("phase3f_material_revision_loopback") != "PHASE_3B_CONTRACT_DEFINITION_THEN_PHASE_3C_REPLAY":
             errors.append("LEGAL_3F_DOWNSTREAM_LOOPBACK_DRIFT")
-
-    if current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
-        decision_path = ROOT / "PHASE3_POST3F_RESEARCH_PATH_DECISION.json"
-        if not decision_path.exists():
-            errors.append("LEGAL_POST3F_DOWNSTREAM_WITHOUT_DECISION")
-        else:
-            decision = json.loads(decision_path.read_text(encoding="utf-8"))
-            if decision.get("status") != "APPROVED_GOVERNED_DUAL_TRACK_RESEARCH_LOOPBACK":
-                errors.append("LEGAL_POST3F_DOWNSTREAM_DECISION_NOT_GOVERNED")
-            if decision.get("trigger", {}).get("phase3f_gate_outcome") != "CONTINUE_SHADOW_RESEARCH":
-                errors.append("LEGAL_POST3F_DOWNSTREAM_PHASE3F_OUTCOME_DRIFT")
-        if state.get("phase3f_started") is not True or state.get("phase3f_complete") is not True:
-            errors.append("LEGAL_POST3F_DOWNSTREAM_WITHOUT_PHASE3F_COMPLETE")
-        if state.get("phase3f_gate_outcome") != "CONTINUE_SHADOW_RESEARCH":
-            errors.append("LEGAL_POST3F_DOWNSTREAM_GATE_OUTCOME_DRIFT")
-        if state.get("phase3f_promotion_eligible") is not False:
-            errors.append("LEGAL_POST3F_DOWNSTREAM_PROMOTION_ELIGIBLE")
-        if state.get("phase4_entry_allowed") is not False or cv.get("phase4_entry_allowed") is not False:
-            errors.append("LEGAL_POST3F_DOWNSTREAM_PREMATURE_PHASE4")
-        if cv.get("post3f_research_path_decision_complete") is not True:
-            errors.append("LEGAL_POST3F_DOWNSTREAM_DECISION_NOT_COMPLETE")
-        if state.get("r2_phase3b_contract_definition_started") is not False:
-            errors.append("LEGAL_POST3F_DOWNSTREAM_R2_ALREADY_STARTED")
+    elif current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
+        _validate_post3f_and_r2(errors, state, current, False)
+    elif current_phase == "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
+        _validate_post3f_and_r2(errors, state, current, True)
 
     for surface_name, surface in [
         ("CONTRACT", contract["authority_boundaries"]),
