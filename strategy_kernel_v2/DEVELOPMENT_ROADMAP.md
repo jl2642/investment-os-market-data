@@ -10,10 +10,11 @@ Hard boundaries throughout development: no live trading, no order creation, no a
    - Inventory existing Core Static semantics and separate investment principles from research controls, portfolio discipline, execution/data safety, and governance.
 2. **Phase 1B — Decision Object v2 shadow adapter — COMPLETE / stacked base PR #298**
    - Normalize existing Canonical decision states without changing effective policy.
-3. **Phase 1C — Underwriting Extraction — IMPLEMENTED SHADOW-ONLY**
+3. **Phase 1C — Underwriting Extraction — VALIDATED SHADOW-ONLY / AWAITING GOVERNED REVIEW**
    - Extract existing Canonical issuer research into a common Underwriting Object.
    - Unknown or missing evidence remains explicit; no research or valuation is synthesized merely to complete a schema.
-4. **Phase 2 — Shadow Capital Comparator — NEXT, gated**
+   - Eight objects are generated deterministically; 11/11 regression tests and 8/8 schema validations pass.
+4. **Phase 2 — Shadow Capital Comparator — NOT STARTED / GATED**
    - Compare capital uses only after each input passes the pre-comparison refresh gate.
    - The gate requires a sufficiently current completed-close valuation anchor and any issuer-specific refresh explicitly required by Phase 1C.
    - Shadow comparison eligibility is distinct from user-decision readiness and implementation readiness.

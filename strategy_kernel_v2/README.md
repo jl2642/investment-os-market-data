@@ -6,4 +6,8 @@ Key design choice: **comparison readiness is not decision readiness**. A securit
 
 Phase 1C deliberately does not fabricate valuation scenarios. Where Canonical state says scenarios exist but the current extractable payload does not expose them, the object records the gap and requires refresh/surfacing before comparison.
 
-The extraction specifications are in `source_registry.py`; `build_all()` deterministically emits the eight shadow objects. See `DEVELOPMENT_ROADMAP.md`, `PHASE_EXECUTION_PLAN.md`, `PLAN_CHANGELOG.md`, and `CURRENT_PHASE_STATUS.json` for the synchronized governed plan.
+The extraction specifications are in `source_registry.py`; `build_all()` deterministically emits the eight shadow objects. `generate_phase1c_bundle.py` serializes them to `generated/UNDERWRITING_OBJECTS_PHASE1C.json`.
+
+Validation status: **11/11 regression tests PASS; 8/8 objects PASS schema validation**. See `PHASE1C_VALIDATION.json` and the synchronized `DEVELOPMENT_ROADMAP.md`, `PHASE_EXECUTION_PLAN.md`, `PLAN_CHANGELOG.md`, and `CURRENT_PHASE_STATUS.json`.
+
+No economic authority is granted: `orders=0`, `trade_authority=NONE`.

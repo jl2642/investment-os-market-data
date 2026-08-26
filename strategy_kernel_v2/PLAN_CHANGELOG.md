@@ -13,3 +13,14 @@
 - no effective investment policy, Core Static rule, Candidate membership, economic state, target weight, order authority or trade authority changed;
 - Phase 3 remains mandatory before any effective Strategy/Core migration;
 - `orders=0`, `trade_authority=NONE` remain invariant.
+
+## 2026-08-26 — Phase 1C validation closeout
+**Reason:** implementation had been written before the generated bundle and regression-validation record were persisted; phase status must not run ahead of actual implementation.
+
+**Changed:**
+- added deterministic bundle generation and the persisted eight-object shadow bundle;
+- added Phase 1C regression tests and validation artifact;
+- synchronized Roadmap, Execution Plan, Manifest and Current Phase Status from IMPLEMENTED to VALIDATED SHADOW-ONLY.
+
+**Not changed:**
+- phase order, Phase 2 preconditions, Phase 3 migration requirement, economic authority boundaries, and all Canonical investment decisions remain unchanged.

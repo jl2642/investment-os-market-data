@@ -9,10 +9,10 @@ Input: Canonical Core Static on main. Output: semantic rule inventory and treatm
 ### Phase 1B — COMPLETE
 Input: existing Canonical decisions/research/account states. Output: Decision Object v2 shadow adapter. Acceptance: canonical no-trade decisions preserved; missing valuation never fabricated.
 
-### Phase 1C — UNDERWRITING EXTRACTION
+### Phase 1C — UNDERWRITING EXTRACTION — VALIDATED SHADOW-ONLY
 **Objective:** extract, not invent, the underwriting already contained in Canonical research.
 
-**Initial coverage set:** 601138.SH, 605090.SH, HKEX:00669, 000719.SZ, 002039.SZ, 301215.SZ, 000333.SZ, 600900.SH.
+**Coverage set:** 601138.SH, 605090.SH, HKEX:00669, 000719.SZ, 002039.SZ, 301215.SZ, 000333.SZ, 600900.SH.
 
 **Required fields where evidenced:** business economics, normalized earnings/cash flow, durability, balance-sheet/capital-allocation observations, thesis, falsifiers, valuation evidence, portfolio context, research quality, explicit gaps and provenance.
 
@@ -27,7 +27,9 @@ Input: existing Canonical decisions/research/account states. Output: Decision Ob
 - shadow comparison readiness is separately encoded from decision readiness;
 - all mutation permissions false; `orders=0`; `trade_authority=NONE`.
 
-### Phase 2 — SHADOW CAPITAL COMPARATOR
+**Validation:** 11/11 regression tests pass; 8/8 generated objects pass `underwriting_object_v1.schema.json`; deterministic generated bundle matches the registry.
+
+### Phase 2 — SHADOW CAPITAL COMPARATOR — NOT STARTED
 **Precondition:** consume only objects whose `comparison_readiness` is `READY_NOW` or whose specified `refresh_requirements` have been satisfied by a fresh governed research input. Do not silently override stale or missing valuation/fundamental gates.
 
 Comparator output is research-only relative ranking/diagnostics. It may compare existing positions, candidates, ETFs and cash, but cannot create a user decision or economic mutation.
