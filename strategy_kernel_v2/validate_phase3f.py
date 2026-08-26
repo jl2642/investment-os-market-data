@@ -13,6 +13,22 @@ def load(name: str):
     return json.loads((ROOT / name).read_text(encoding="utf-8"))
 
 
+def _validate_post3f(errors: list[str], state: dict, current: dict) -> None:
+    decision_path = ROOT / "PHASE3_POST3F_RESEARCH_PATH_DECISION.json"
+    if not decision_path.exists():
+        errors.append("POST3F_CURRENT_WITHOUT_DECISION_ARTIFACT")
+        return
+    decision = json.loads(decision_path.read_text(encoding="utf-8"))
+    if decision.get("status") != "APPROVED_GOVERNED_DUAL_TRACK_RESEARCH_LOOPBACK":
+        errors.append("POST3F_DECISION_NOT_GOVERNED")
+    if decision.get("trigger", {}).get("phase3f_gate_outcome") != "CONTINUE_SHADOW_RESEARCH":
+        errors.append("POST3F_DECISION_PHASE3F_OUTCOME_DRIFT")
+    if current["validation"].get("post3f_research_path_decision_complete") is not True:
+        errors.append("POST3F_CURRENT_DECISION_NOT_COMPLETE")
+    if state.get("phase4_entry_allowed") is not False:
+        errors.append("POST3F_PREMATURE_PHASE4")
+
+
 def validate() -> list[str]:
     errors = list(validate_program_consistency())
     result = evaluate_phase3f()
@@ -87,19 +103,30 @@ def validate() -> list[str]:
     if current_phase == "PHASE_3F_HISTORICAL_PROMOTION_GATE":
         pass
     elif current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
-        decision_path = ROOT / "PHASE3_POST3F_RESEARCH_PATH_DECISION.json"
-        if not decision_path.exists():
-            errors.append("POST3F_CURRENT_WITHOUT_DECISION_ARTIFACT")
-        else:
-            decision = json.loads(decision_path.read_text(encoding="utf-8"))
-            if decision.get("status") != "APPROVED_GOVERNED_DUAL_TRACK_RESEARCH_LOOPBACK":
-                errors.append("POST3F_DECISION_NOT_GOVERNED")
-        if cv.get("post3f_research_path_decision_complete") is not True:
-            errors.append("POST3F_CURRENT_DECISION_NOT_COMPLETE")
+        _validate_post3f(errors, state, current)
         if state.get("r2_phase3b_contract_definition_started"):
             errors.append("POST3F_VALIDATOR_SEES_R2_ALREADY_STARTED")
+    elif current_phase == "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
+        _validate_post3f(errors, state, current)
+        r2_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
+        if not r2_path.exists():
+            errors.append("PHASE3F_R2_DOWNSTREAM_WITHOUT_CONTRACT")
+        else:
+            r2 = json.loads(r2_path.read_text(encoding="utf-8"))
+            if r2.get("status") != "FROZEN_REVISED_MODEL_CONTRACT_NO_HISTORICAL_REPLAY":
+                errors.append("PHASE3F_R2_DOWNSTREAM_CONTRACT_NOT_FROZEN")
+            if r2.get("model", {}).get("new_identity") is not True or r2.get("model", {}).get("overwrites_prior_model") is not False:
+                errors.append("PHASE3F_R2_DOWNSTREAM_IDENTITY_GUARD_BROKEN")
+            if r2.get("phase_boundary", {}).get("phase4_entry_allowed") is not False:
+                errors.append("PHASE3F_R2_DOWNSTREAM_PREMATURE_PHASE4")
+        if state.get("r2_phase3b_contract_definition_started") is not True or state.get("r2_phase3b_contract_definition_complete") is not True:
+            errors.append("PHASE3F_R2_DOWNSTREAM_NOT_COMPLETE")
+        if state.get("r2_real_historical_replay_executed") is not False or state.get("r2_historical_performance_claimed") is not False:
+            errors.append("PHASE3F_R2_DOWNSTREAM_PREMATURE_REPLAY_OR_PERFORMANCE")
+        if state.get("r2_phase3c_replay_started") is not False:
+            errors.append("PHASE3F_R2_DOWNSTREAM_3C_ALREADY_STARTED")
     else:
-        errors.append("CURRENT_PHASE_NOT_3F_OR_GOVERNED_POST3F")
+        errors.append("CURRENT_PHASE_NOT_3F_OR_GOVERNED_POST3F_OR_R2")
 
     if cv.get("phase3f_started") is not True or cv.get("phase3f_complete") is not True:
         errors.append("CURRENT_PHASE3F_NOT_COMPLETE")
