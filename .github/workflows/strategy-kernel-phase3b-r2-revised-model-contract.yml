@@ -1,0 +1,35 @@
+name: Strategy Kernel Phase 3B-R2 Revised Model Contract
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-phase3b-r2-revised-model-contract.yml'
+  workflow_dispatch:
+
+jobs:
+  phase3b-r2-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 3B-R2 contract tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3b_r2
+      - name: Validate Phase 3B-R2 acceptance
+        run: python -m strategy_kernel_v2.validate_phase3b_r2
+      - name: Validate Post-3F dependency
+        run: python -m strategy_kernel_v2.validate_post3f_research_path
+      - name: Validate Phase 3F historical gate remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3f
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Run program governance regressions
+        run: python -m unittest strategy_kernel_v2.tests.test_program_governance
+      - name: Re-run original Phase 3B contract tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3b
