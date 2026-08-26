@@ -52,6 +52,7 @@ PROXY_KEYS = {
 SCAN_ROOTS = ("investment_os_runtime", "evidence", "outputs")
 TEXT_SUFFIXES = {".json", ".csv", ".md", ".txt"}
 SEARCH_PATTERN = "|".join(re.escape(term) for term in sorted(set(EXACT_SEARCH_TERMS) | PROXY_KEYS))
+EXPECTED_TERMINAL_CONCLUSION = "NO_COMPLETE_CANDIDATE_MODEL_INPUT_PACKET_FOUND_IN_CANONICAL_CHECKPOINT_TREES"
 
 
 def _run(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
@@ -230,7 +231,7 @@ def build_audit(repo_root: str | Path = ".") -> dict[str, Any]:
     elif phase2_complete or simple_complete:
         conclusion = "COMPLETE_INPUTS_EXIST_ONLY_IN_ALREADY_SELECTED_HISTORICAL_PATHS_REVIEW_EXTRACTOR"
     else:
-        conclusion = "NO_COMPLETE_CANDIDATE_MODEL_INPUT_PACKET_FOUND_IN_CANONICAL_CHECKPOINT_TREES"
+        conclusion = EXPECTED_TERMINAL_CONCLUSION
 
     return {
         "schema_version": "1.0.0",
@@ -253,10 +254,29 @@ def build_audit(repo_root: str | Path = ".") -> dict[str, Any]:
     }
 
 
+def assert_current_corpus_terminal_finding(result: Mapping[str, Any]) -> None:
+    """Fail closed if the historical-tree finding drifts from the governed closeout."""
+    if result["checkpoint_count"] != 7:
+        raise AssertionError("PHASE3C_REPLAYABILITY_CHECKPOINT_COUNT_DRIFT")
+    if result["complete_phase2_packet_file_occurrences"] != 0:
+        raise AssertionError("PHASE3C_PHASE2_COMPLETE_PACKET_DISCOVERED_REVIEW_REQUIRED")
+    if result["complete_simple_packet_file_occurrences"] != 0:
+        raise AssertionError("PHASE3C_SIMPLE_COMPLETE_PACKET_DISCOVERED_REVIEW_REQUIRED")
+    if result["unregistered_complete_phase2_packet_file_occurrences"] != 0:
+        raise AssertionError("PHASE3C_UNREGISTERED_PHASE2_PACKET_DISCOVERED_REVIEW_REQUIRED")
+    if result["unregistered_complete_simple_packet_file_occurrences"] != 0:
+        raise AssertionError("PHASE3C_UNREGISTERED_SIMPLE_PACKET_DISCOVERED_REVIEW_REQUIRED")
+    if result["conclusion"] != EXPECTED_TERMINAL_CONCLUSION:
+        raise AssertionError("PHASE3C_REPLAYABILITY_CONCLUSION_DRIFT:" + str(result["conclusion"]))
+    if result["orders"] != 0 or result["trade_authority"] != "NONE":
+        raise AssertionError("PHASE3C_REPLAYABILITY_AUTHORITY_BOUNDARY_BROKEN")
+
+
 if __name__ == "__main__":
     result = build_audit(REPO_ROOT)
+    assert_current_corpus_terminal_finding(result)
     print(
-        "PHASE3C_REPLAYABILITY_AUDIT "
+        "PHASE3C_REPLAYABILITY_AUDIT_PASS "
         f"checkpoints={result['checkpoint_count']} "
         f"keyword_files={result['keyword_candidate_file_occurrences']} "
         f"exact_field_files={result['exact_model_field_file_occurrences']} "
