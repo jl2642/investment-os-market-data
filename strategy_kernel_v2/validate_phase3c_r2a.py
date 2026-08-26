@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# CI retrigger marker only; no model, replay, transform, gate, or economic semantics changed.
 import json
 from pathlib import Path
 
