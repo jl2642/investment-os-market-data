@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 import unittest
 
 from strategy_kernel_v2.point_in_time_ledger import build_point_in_time_ledger
@@ -199,6 +201,81 @@ class Phase3AEvidenceLedgerTest(unittest.TestCase):
             [x["decision_point_id"] for x in out["snapshots"]],
             ["P1", "P2"],
         )
+
+
+class Phase3ARealRegistryTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        root = Path(__file__).resolve().parents[1]
+        cls.registry = json.loads((root / "PHASE3A_EVIDENCE_REGISTRY.json").read_text(encoding="utf-8"))
+        cls.points = json.loads((root / "PHASE3A_DECISION_POINTS.json").read_text(encoding="utf-8"))
+        cls.out = build_point_in_time_ledger(
+            cls.registry["records"],
+            cls.points["decision_points"],
+            allowed_authority_domains=("CANONICAL_MAIN",),
+        )
+
+    def snapshot(self, point_id):
+        return next(x for x in self.out["snapshots"] if x["decision_point_id"] == point_id)
+
+    def test_real_registry_counts(self):
+        self.assertEqual(self.out["evidence_record_count"], 29)
+        self.assertEqual(self.out["decision_point_count"], 7)
+
+    def test_every_declared_checkpoint_requirement_is_reproducible(self):
+        self.assertTrue(
+            all(x["snapshot_complete_for_declared_requirements"] for x in self.out["snapshots"])
+        )
+        self.assertTrue(
+            all(not x["unavailable_required_evidence_keys"] for x in self.out["snapshots"])
+        )
+
+    def test_registry_is_canonical_only(self):
+        self.assertEqual(
+            {x["authority_domain"] for x in self.registry["records"]},
+            {"CANONICAL_MAIN"},
+        )
+
+    def test_d2_r2_cannot_leak_into_r1_checkpoint(self):
+        r1 = self.snapshot("CP_20260813_D2_R1")
+        self.assertIn("RESEARCH_D2_000719_R1_20260813", r1["selected_evidence_ids"])
+        self.assertIn("RESEARCH_D2_301215_R1_20260813", r1["selected_evidence_ids"])
+        self.assertNotIn("RESEARCH_D2_000719_R2_20260818", r1["selected_evidence_ids"])
+        self.assertNotIn("RESEARCH_D2_301215_R2_20260818", r1["selected_evidence_ids"])
+        self.assertIn("RESEARCH_D2_000719_R2_20260818", r1["future_evidence_ids"])
+        self.assertIn("RESEARCH_D2_301215_R2_20260818", r1["future_evidence_ids"])
+
+    def test_d2_r2_selected_only_after_canonical_merge(self):
+        r2 = self.snapshot("CP_20260818_D2_R2")
+        self.assertIn("RESEARCH_D2_000719_R2_20260818", r2["selected_evidence_ids"])
+        self.assertIn("RESEARCH_D2_301215_R2_20260818", r2["selected_evidence_ids"])
+        self.assertIn("RESEARCH_D2_000719_R1_20260813", r2["superseded_evidence_ids"])
+        self.assertIn("RESEARCH_D2_301215_R1_20260813", r2["superseded_evidence_ids"])
+        self.assertEqual(r2["future_evidence_ids"], [])
+
+    def test_earliest_core2_checkpoint_does_not_see_unrelated_future_assets(self):
+        first = self.snapshot("CP_20260726_WP4_AUDIT")
+        self.assertEqual(
+            first["selected_evidence_ids"],
+            ["CANDIDATE_STATE_20260726", "RESEARCH_CORE2_WP4_20260726"],
+        )
+        self.assertNotIn("RESEARCH_00669_VALUATION_P5C_20260808", first["future_evidence_ids"])
+        self.assertNotIn("RESEARCH_601138_P0_20260727", first["future_evidence_ids"])
+
+    def test_as_of_and_availability_are_explicitly_distinct(self):
+        valuation = next(
+            x for x in self.registry["records"]
+            if x["evidence_id"] == "RESEARCH_00669_VALUATION_P5C_20260808"
+        )
+        self.assertEqual(valuation["evidence_as_of"], "2026-08-07")
+        self.assertEqual(valuation["available_at"], "2026-08-08T14:17:09Z")
+
+    def test_no_phase3a_economic_or_decision_authority(self):
+        self.assertFalse(self.out["model_output_generated"])
+        self.assertFalse(self.out["investment_recommendation_generated"])
+        self.assertFalse(self.out["user_decision_generated"])
+        self.assertEqual(self.out["controls"]["orders"], 0)
+        self.assertEqual(self.out["controls"]["trade_authority"], "NONE")
 
 
 if __name__ == "__main__":
