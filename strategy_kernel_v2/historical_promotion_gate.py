@@ -63,15 +63,31 @@ def evaluate_phase3f() -> dict:
 
     all_promotion_requirements_pass = all(x["passed"] for x in requirements.values())
 
-    terminal_rejection_evidence = bool(
-        req_measurable
-        and c3d["interpretation"].get("candidate_winner_conclusion") is False
-        and False
+    adjacent = c3e["adjacent_observables"]
+    adjacent_context_count = sum(
+        int(adjacent[key])
+        for key in [
+            "scenario_context_instances",
+            "return_context_instances",
+            "confidence_context_instances",
+            "concentration_context_instances",
+            "execution_context_instances",
+            "evidence_quality_context_instances",
+            "downside_context_instances",
+        ]
     )
-    # The current corpus contains no measurable candidate performance. 3E also
-    # inventories adjacent contemporaneous observables and preserves a governed
-    # redesign loopback. Therefore current nonreplayability cannot be interpreted
-    # as measurable economic failure or a terminal rejection finding.
+    redesign_path_exists = (
+        c3e["model_revision"]["new_model_identity_required_for_material_revision"] is True
+        and c3e["model_revision"]["required_loopback_for_material_revision"]
+        == "PHASE_3B_CONTRACT_DEFINITION_THEN_PHASE_3C_REPLAY"
+    )
+
+    rejection_components = {
+        "measurable_candidate_economic_failure": False,
+        "validated_structural_incoherence_without_governed_redesign_path": (adjacent_context_count == 0 and not redesign_path_exists),
+        "governed_program_decision_to_abandon_candidate_family": False,
+    }
+    terminal_rejection_evidence = any(rejection_components.values())
 
     if all_promotion_requirements_pass:
         outcome = "PROMOTE_TO_PHASE_4_FORWARD_VALIDATION"
@@ -88,6 +104,9 @@ def evaluate_phase3f() -> dict:
         "promotion_requirement_total_count": len(requirements),
         "all_promotion_requirements_pass": all_promotion_requirements_pass,
         "terminal_rejection_evidence": terminal_rejection_evidence,
+        "terminal_rejection_components": rejection_components,
+        "adjacent_context_count": adjacent_context_count,
+        "governed_redesign_path_exists": redesign_path_exists,
         "gate_outcome": outcome,
         "current_fixed_candidate_forms_status": "NOT_PROMOTABLE_IN_CURRENT_FORM",
         "economic_rejection_conclusion_available": False,
