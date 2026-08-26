@@ -115,7 +115,12 @@ Requires governed candidate replay evidence or a separately governed revision of
 Remove or simplify probability weights, confidence, concentration cost, execution friction and later utility transformations one at a time. The Phase 3C non-replayability finding is now accepted evidence about complexity/usability, but Phase 3C itself does not silently rewrite the fixed Phase 3B model forms.
 
 ### Phase 3F — Historical Promotion Gate — NOT ELIGIBLE
-Allowed outcomes only: `REJECT_V2_FORM`, `CONTINUE_SHADOW_RESEARCH`, or `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. `PROMOTE_TO_PHASE_5` is forbidden. Broader historical coverage and a governed path through 3D–3E remain mandatory.
+Allowed outcomes only:
+- `REJECT_V2_FORM`;
+- `CONTINUE_SHADOW_RESEARCH`;
+- `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`.
+
+`PROMOTE_TO_PHASE_5` is forbidden. Broader historical coverage and a governed path through 3D–3E remain mandatory.
 
 ## Phase 4 — FORWARD PARALLEL SHADOW VALIDATION — MANDATORY / NOT STARTED
 Run Legacy and surviving candidate models in parallel on genuinely future evidence for multiple complete cycles. Freeze or tightly govern changes during measurement windows. Measure usefulness, calibration, stability, regret, turnover, downside behavior, operational robustness and explainability. Preserve all zero-authority controls.
