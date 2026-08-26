@@ -20,11 +20,11 @@ Missing evidence remains explicit; no valuation/probability/confidence is synthe
 - 2C Current Shadow Comparison Pack — VALIDATED / PR #302: `NO_COMPARISON`, 0 eligible / 8 blocked.
 - Program Governance Correction — VALIDATED / PR #303: Phase 4 restored; direct Phase 3→5 prohibited.
 
-### Phase 3 — Historical Replay & Calibration — IN PROGRESS
-Internal sequence remains exactly `3A → 3B → 3C → 3D → 3E → 3F`.
+### Phase 3 — Historical Replay & Calibration — IN PROGRESS / 3F GATE COMPLETE / RESEARCH LOOPBACK REQUIRED
+Internal sequence remains exactly `3A → 3B → 3C → 3D → 3E → 3F`. A completed negative 3F gate does not itself complete Phase 3; governed redesign/replay or broader historical evidence is required before a later 3F re-evaluation can pass.
 
 #### 3A Point-in-time Evidence Ledger — VALIDATED COMPLETE_SCOPE_BOUNDED / PR #304
-29 Canonical evidence records, 7 checkpoints, 8 securities, exact availability/commit provenance, no-hindsight selection. Seed remains statistically insufficient for 3F.
+29 Canonical evidence records, 7 checkpoints, 8 securities, exact availability/commit provenance, no-hindsight selection. Seed remains statistically insufficient for Phase 4 promotion.
 
 #### 3B Competing Model Forms — VALIDATED COMPLETE_CONTRACT_ONLY / PR #305
 Fixed forms: `LEGACY_POLICY_BASELINE`, `PHASE2_PROBABILISTIC_VECTOR`, `SIMPLE_NON_PROBABILISTIC_PARETO`. Same immutable input packet; missing inputs fail closed.
@@ -53,12 +53,6 @@ Descriptive retained-only price-return means are approximately -0.11% at 1 sessi
 #### 3E Ablation / Robustness — VALIDATED COMPLETE_STRUCTURAL_ABLATION / PR #309
 3E uses only the same Phase 3A/3C point-in-time feature corpus. Phase 3D realized returns are explicitly excluded from ablation selection and requirement tuning.
 
-Ablation contract:
-- fixed Phase 3B model identities are preserved;
-- one requirement is removed at a time;
-- proxy/adjacent observables may be inventoried but may not substitute for contract fields;
-- no subjective mapping, retrospective probability/confidence/cost-score creation, revised-model execution, winner selection or same-seed performance claim is allowed.
-
 Bounded result across 7 checkpoints / 33 feature-security instances / 29 exact historical source reads:
 - Phase-2 fixed baseline evaluable instances: **0**;
 - Phase-2 single-component ablations: **4**, all **0** evaluable;
@@ -67,24 +61,37 @@ Bounded result across 7 checkpoints / 33 feature-security instances / 29 exact h
 - total single-component ablations: **9**;
 - ablations that restore any historical replay coverage: **0**.
 
-Finding: `NO_SINGLE_COMPONENT_ABLATION_RESTORES_HISTORICAL_REPLAY`. Historical non-replayability is therefore not attributable to one isolated required field; it reflects a multi-input contract burden / structural mismatch between the fixed candidate schemas and contemporaneous governed history.
+Finding: `NO_SINGLE_COMPONENT_ABLATION_RESTORES_HISTORICAL_REPLAY`. Historical non-replayability is a multi-input contract burden / structural mismatch, not one isolated missing field. Related contemporaneous information exists but is not contract-equivalent; silent proxy substitution remains forbidden.
 
-Related contemporaneous information does exist, but is not contract-equivalent: scenario context appears in 5 security-instances, return context in 20, confidence context in 20, concentration context in 8, execution context in 8, evidence-quality context in 26 and downside context in 26. These observations are complexity-design evidence only; silent proxy substitution remains forbidden.
+No revised model form is created in 3E. Any material redesign must receive a new model/version identity and return through governed 3B→3C. The seven seed checkpoints may not be tuned and represented as independent validation; broader or holdout history remains required.
 
-No revised model form is created in 3E. Any material redesign must receive a new model/version identity and **return through governed 3B contract definition and 3C replay**. The seven seed checkpoints may not be tuned and then represented as independent validation; broader or holdout history remains required.
+#### 3F Historical Promotion Gate — COMPLETE / CONTINUE_SHADOW_RESEARCH / PR #310
+The gate contract distinguishes failure to qualify for Phase 4 from evidence of terminal economic model failure.
 
-#### 3F Historical Promotion Gate — READY TO START / PROMOTION NOT ELIGIBLE
-3F is now procedurally startable because 3A–3E are complete, but current evidence does **not** satisfy promotion eligibility.
+Mandatory Phase 4 promotion requirements and current result:
+1. candidate point-in-time historical replay — **FAIL**: 0 candidate replayable instances;
+2. measurable candidate Phase 3D evidence — **FAIL**: no candidate comparative performance, regret, calibration or return-attribution metrics;
+3. accepted Phase 3E robustness — **PASS**: 9 single-component ablations, 0 replay unlocks, no outcome tuning;
+4. broader historical coverage — **FAIL**: current seed remains 7 checkpoints and scope-bounded.
 
-`PROMOTE_TO_PHASE_4_FORWARD_VALIDATION` requires at least one candidate with valid point-in-time historical replay, measurable 3D candidate evidence, accepted 3E robustness evidence and broader historical coverage. The fixed candidate forms still have 0 historical replayable instances and no measurable candidate regret/calibration/performance evidence, while the seven-checkpoint seed is also too narrow.
+Gate score: **1/4 mandatory requirements passed**. Therefore `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION` is forbidden.
 
-Therefore the current 3F gate may only produce `REJECT_V2_FORM` or `CONTINUE_SHADOW_RESEARCH`. Promotion to Phase 4 is not currently permitted. If a materially revised candidate is proposed, it must loop back to governed 3B→3C rather than bypass 3F evidence requirements.
+The gate outcome is `CONTINUE_SHADOW_RESEARCH`, not `REJECT_V2_FORM`, because candidate economic performance was not measurable, no comparative underperformance/winner conclusion exists, and Phase 3E identified adjacent contemporaneous observables plus a governed redesign path. Current fixed Phase 3B candidate forms are nevertheless `NOT_PROMOTABLE_IN_CURRENT_FORM`.
 
-### Phase 4 — Forward Parallel Shadow Validation — MANDATORY / NOT STARTED
-Run Legacy and surviving candidate model(s) in parallel on genuinely future unseen evidence across multiple complete cycles. Phase 4 remains mandatory and unavailable until Phase 3 passes.
+Any material revision must:
+- receive a new model/version identity;
+- preserve the original fixed 3B forms for historical audit;
+- loop back through governed `Phase 3B contract definition → Phase 3C replay`;
+- not count outcome-tuned seven-seed work as independent validation;
+- obtain broader or holdout historical evidence before another 3F promotion attempt.
+
+Phase 3 remains open. A later 3F re-evaluation may occur only after the missing promotion evidence is actually produced. Phase 4 remains blocked.
+
+### Phase 4 — Forward Parallel Shadow Validation — MANDATORY / NOT STARTED / BLOCKED BY PHASE 3F
+Run Legacy and surviving candidate model(s) in parallel on genuinely future unseen evidence across multiple complete cycles. Historical replay cannot substitute for Phase 4. Entry remains forbidden until a later Phase 3F gate passes all mandatory historical requirements.
 
 ### Phase 5 — Governed Migration — NOT STARTED / NOT AUTHORIZED
 Requires separately accepted Phase 3 historical evidence, Phase 4 forward evidence and a governed migration proposal. Direct Phase 3→5 remains forbidden.
 
 ## Current program state
-Phase 3E is complete as bounded structural-ablation evidence: no single removed input restored candidate replayability, while adjacent contemporaneous information confirms that the problem is schema/contract fit rather than total absence of historical information. Phase 3F may now start only as a governed historical promotion gate with `phase3f_promotion_eligible=false`. Phase 3 historical validation remains incomplete, Phase 4 remains mandatory but unavailable, Phase 5 is unauthorized, and Canonical `main` remains unchanged.
+Phase 3F has completed a negative promotion gate with `CONTINUE_SHADOW_RESEARCH`: the fixed candidate forms are not promotable in their current form, but the evidence does not support a terminal economic rejection claim. Phase 3 historical validation remains incomplete. The governed next path is either a new-identity model redesign that loops back through 3B→3C, or legitimate historical coverage expansion; both require subsequent 3D/3E evidence as applicable and a new 3F gate before Phase 4 can begin. Phase 4 remains mandatory and blocked, Phase 5 remains unauthorized, and Canonical `main` remains unchanged.
