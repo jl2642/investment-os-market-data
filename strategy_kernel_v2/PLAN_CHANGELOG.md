@@ -68,3 +68,19 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Not changed:** Phase 0–2 implementation semantics and all authority boundaries remain unchanged; `orders=0`, `trade_authority=NONE`.
 
 **Promotion consequence:** Phase 3 implementation may start only after this correction is governed and the program-consistency check passes. Phase 3 can promote only to Phase 4; Phase 5 requires separate Phase 3 + Phase 4 evidence.
+
+## 2026-08-26 — Program consistency validator acceptance hardening
+**Reason:** final governance acceptance review found that the first validator checked the Charter, Roadmap and Execution Plan but did not actually read `PLAN_CHANGELOG.md`, despite the Charter listing it as a controlled artifact. It also hard-coded the temporary Phase 2 → 3 state and checked only part of the machine-readable promotion contract.
+
+**Changed:**
+- `PLAN_CHANGELOG.md` is now read by the validator and must contain the roadmap-drift correction record while that correction flag is active;
+- all mandatory promotion gates in `PROGRAM_CONTRACT.json` must be true;
+- current macro phase must follow the contract-declared promotion edge dynamically rather than a Phase-2-specific hard code;
+- Phase 3/4/5 completion and entry dependencies are machine-checked;
+- `PROGRAM_STATE.json` and `CURRENT_PHASE_STATUS.json` must remain in lockstep on promotion, phase-start and authority fields;
+- zero-mutation and `orders=0` / `trade_authority=NONE` invariants are checked across the controlled state surfaces;
+- governance regression coverage is expanded accordingly.
+
+**Not changed:** no macro lifecycle, investment model, Core Static rule, Candidate state, portfolio state, target weight, user decision, order authority or trade authority changed.
+
+**Promotion consequence:** Phase 3A remains blocked until this hardened validator passes on the governed correction head.
