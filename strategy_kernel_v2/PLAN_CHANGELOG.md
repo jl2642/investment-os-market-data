@@ -84,3 +84,30 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Not changed:** no macro lifecycle, investment model, Core Static rule, Candidate state, portfolio state, target weight, user decision, order authority or trade authority changed.
 
 **Promotion consequence:** Phase 3A remains blocked until this hardened validator passes on the governed correction head.
+
+## 2026-08-26 — Phase 3A Point-in-time Evidence Ledger / bounded acceptance
+**Reason:** historical replay cannot be valid if a file's embedded `as_of` date is confused with the date the information actually became Canonical. The same problem applies to later research revisions, market marks, Candidate state and portfolio context.
+
+**Implemented:**
+- added a pure point-in-time ledger engine with offset-aware `available_at`, immutable source commit identity, explicit authority domain and stable evidence-stream keys;
+- default replay authority is `CANONICAL_MAIN` only;
+- later versions are excluded until their availability timestamp and remain visible only as future evidence;
+- checkpoint-bound Candidate, Real Account and market/portfolio marks preserve the exact Canonical state at that checkpoint, including stale embedded watermarks;
+- added a real registry of 29 Canonical evidence records and seven Canonical replay checkpoints spanning 2026-07-26 through 2026-08-18 across the eight current Strategy Kernel v2 objects;
+- bound decision-relevant streams including WP4/WP4B, 601138 WP5 P0, HKCU P5C valuation, HKCU 00669 BUY REVIEW and D2 R1/R2;
+- added deterministic materialization from registry + checkpoint inputs rather than treating a copied derived ledger as authority.
+
+**Implementation correction during review:** an initially hand-materialized derived ledger accidentally listed out-of-scope 00669/601138 future evidence in the first Core2-only checkpoint. The source registry and builder were correct; the hand-derived file was deleted immediately. Real-registry tests now verify that unrelated future assets are not surfaced and the ledger is rebuilt from authority inputs. No economic or policy state was affected.
+
+**Validation:**
+- 16 generic no-hindsight/authority/validation tests pass;
+- 8 real-registry acceptance tests pass;
+- total local Phase 3A suite = 24/24;
+- all seven declared checkpoint requirement sets are reproducible in the bounded registry;
+- at the 2026-08-13 checkpoint, 000719/301215 R1 is selected while R2 remains future evidence;
+- R2 becomes selectable only at the 2026-08-18 Canonical merge;
+- retrospective probability backfills=0; retrospective scenario backfills=0; generated model/recommendation/user decision=0; `orders=0`; `trade_authority=NONE`.
+
+**Scope judgment:** Phase 3A is accepted as `VALIDATED_COMPLETE_SCOPE_BOUNDED`, sufficient to start Phase 3B model-form plumbing. It is not accepted as statistically sufficient historical coverage. `phase3_historical_validation_complete=false` and `phase3f_promotion_eligible=false`; broader date/regime coverage and Phase 3B–3E remain mandatory before Phase 3F can pass.
+
+**Not changed:** no effective Strategy/Core rule, Candidate state, Real/Simulation state, target portfolio, user investment decision, order authority or trade authority changed.
