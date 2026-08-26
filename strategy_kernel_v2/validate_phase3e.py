@@ -128,11 +128,14 @@ def validate() -> list[str]:
         errors.append("PHASE5_PREMATURELY_ALLOWED")
 
     cv = current["validation"]
-    if current.get("current_phase") not in {
+    current_phase = current.get("current_phase")
+    allowed_current_phases = {
         "PHASE_3E_ABLATION_AND_ROBUSTNESS",
         "PHASE_3F_HISTORICAL_PROMOTION_GATE",
-    }:
-        errors.append("CURRENT_PHASE_NOT_3E_OR_LEGAL_3F_DOWNSTREAM")
+        "POST_PHASE3F_RESEARCH_PATH_DECISION",
+    }
+    if current_phase not in allowed_current_phases:
+        errors.append("CURRENT_PHASE_NOT_3E_OR_LEGAL_3F_OR_POST3F_DOWNSTREAM")
     if cv.get("phase3e_started") is not True or cv.get("phase3e_complete") is not True:
         errors.append("CURRENT_PHASE3E_NOT_COMPLETE")
     if cv.get("phase3e_single_component_ablation_count") != 9:
@@ -144,7 +147,7 @@ def validate() -> list[str]:
     if cv.get("phase3f_promotion_eligible") is not False:
         errors.append("CURRENT_PHASE3F_PREMATURELY_ELIGIBLE")
 
-    if current.get("current_phase") == "PHASE_3F_HISTORICAL_PROMOTION_GATE":
+    if current_phase == "PHASE_3F_HISTORICAL_PROMOTION_GATE":
         phase3f_contract = load("PHASE3F_PROMOTION_GATE_CONTRACT.json")
         if phase3f_contract.get("status") != "FROZEN_HISTORICAL_PROMOTION_GATE":
             errors.append("LEGAL_3F_DOWNSTREAM_WITHOUT_FROZEN_GATE")
@@ -154,6 +157,29 @@ def validate() -> list[str]:
             errors.append("LEGAL_3F_DOWNSTREAM_PREMATURE_PHASE4")
         if state.get("phase3f_material_revision_loopback") != "PHASE_3B_CONTRACT_DEFINITION_THEN_PHASE_3C_REPLAY":
             errors.append("LEGAL_3F_DOWNSTREAM_LOOPBACK_DRIFT")
+
+    if current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
+        decision_path = ROOT / "PHASE3_POST3F_RESEARCH_PATH_DECISION.json"
+        if not decision_path.exists():
+            errors.append("LEGAL_POST3F_DOWNSTREAM_WITHOUT_DECISION")
+        else:
+            decision = json.loads(decision_path.read_text(encoding="utf-8"))
+            if decision.get("status") != "APPROVED_GOVERNED_DUAL_TRACK_RESEARCH_LOOPBACK":
+                errors.append("LEGAL_POST3F_DOWNSTREAM_DECISION_NOT_GOVERNED")
+            if decision.get("trigger", {}).get("phase3f_gate_outcome") != "CONTINUE_SHADOW_RESEARCH":
+                errors.append("LEGAL_POST3F_DOWNSTREAM_PHASE3F_OUTCOME_DRIFT")
+        if state.get("phase3f_started") is not True or state.get("phase3f_complete") is not True:
+            errors.append("LEGAL_POST3F_DOWNSTREAM_WITHOUT_PHASE3F_COMPLETE")
+        if state.get("phase3f_gate_outcome") != "CONTINUE_SHADOW_RESEARCH":
+            errors.append("LEGAL_POST3F_DOWNSTREAM_GATE_OUTCOME_DRIFT")
+        if state.get("phase3f_promotion_eligible") is not False:
+            errors.append("LEGAL_POST3F_DOWNSTREAM_PROMOTION_ELIGIBLE")
+        if state.get("phase4_entry_allowed") is not False or cv.get("phase4_entry_allowed") is not False:
+            errors.append("LEGAL_POST3F_DOWNSTREAM_PREMATURE_PHASE4")
+        if cv.get("post3f_research_path_decision_complete") is not True:
+            errors.append("LEGAL_POST3F_DOWNSTREAM_DECISION_NOT_COMPLETE")
+        if state.get("r2_phase3b_contract_definition_started") is not False:
+            errors.append("LEGAL_POST3F_DOWNSTREAM_R2_ALREADY_STARTED")
 
     for surface_name, surface in [
         ("CONTRACT", contract["authority_boundaries"]),
