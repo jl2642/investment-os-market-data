@@ -136,12 +136,18 @@ def _summarize_model_checkpoint(model_output: Mapping[str, Any]) -> dict[str, An
 
 
 def build_phase3c_replay(
-    registry: Mapping[str, Any],
-    decision_points: Mapping[str, Any],
+    registry: Mapping[str, Any] | list[Mapping[str, Any]],
+    decision_points: Mapping[str, Any] | list[Mapping[str, Any]],
     *,
     source_loader: Callable[[Mapping[str, Any]], Any],
 ) -> dict[str, Any]:
-    ledger = build_point_in_time_ledger(registry, decision_points)
+    evidence_records = registry["records"] if isinstance(registry, Mapping) else registry
+    points = (
+        decision_points["decision_points"]
+        if isinstance(decision_points, Mapping)
+        else decision_points
+    )
+    ledger = build_point_in_time_ledger(evidence_records, points)
     checkpoint_results = []
     aggregate = {
         model_form: {
