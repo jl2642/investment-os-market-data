@@ -1,14 +1,9 @@
-# Strategy Kernel v2 — Governed Shadow Research
+# Strategy Kernel v2 — governed shadow research program
 
-Current development state: **Phase 2A validated shadow-only**.
+Current status: Phase 0B/1B complete, Phase 1C validated, Phase 2A comparator engine validated, Phase 2B governed refresh adapters validated; Phase 2C is next and gated on real governed refresh evidence.
 
-- Phase 0B: current-main rule audit.
-- Phase 1B: Decision Object v2 shadow adapter.
-- Phase 1C: eight-object Underwriting Extraction.
-- Phase 2A: transparent capital-comparison vector + Pareto frontier; no unvalidated scalar score.
-- Next: Phase 2B governed refresh adapters, then gated Phase 2C current shadow comparison pack.
-- Phase 3 point-in-time replay/calibration remains mandatory before any effective Strategy/Core migration.
+Core rule: do not confuse data freshness, research completeness, shadow comparison readiness, user-decision readiness or execution authority.
 
-The plan is itself a controlled development object: Roadmap, Phase Execution Plan, Plan Changelog and Current Phase Status must change in the same governed change-set whenever execution scope/order/dependencies/acceptance criteria change.
+Phase 2A measures capital-use vectors and Pareto dominance without an uncalibrated scalar score. Phase 2B can satisfy refresh gates only with explicit governed provenance; material evidence gaps require a fundamental re-underwrite and cannot be cleared by price updates alone.
 
-No economic authority is granted: `orders=0`, `trade_authority=NONE`.
+No phase changes effective Core Static or economic state. `orders=0`, `trade_authority=NONE`.

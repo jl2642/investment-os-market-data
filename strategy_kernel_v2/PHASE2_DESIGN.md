@@ -1,21 +1,14 @@
 # Strategy Kernel v2 — Phase 2 Design
 
-Phase 2 is refined into three governed subphases without changing the top-level Roadmap order.
+Phase 2 is split into three governed subphases without changing the top-level Roadmap order.
 
-## Phase 2A — Comparator Contract / Engine
-Build the research-only comparison contract. It must:
-- preserve every Phase 1C refresh/evidence gate;
-- require explicit probability-weighted valuation scenarios and explicit confidence/portfolio-cost/execution-friction inputs;
-- output a transparent vector rather than an unvalidated one-number score;
-- compute a Pareto frontier as a weight-free dominance diagnostic;
-- allow an explicit cash/reference baseline only when the caller supplies its rate and provenance;
-- never generate a user decision, target weight, Candidate mutation, order, or economic writeback.
+## 2A — Comparator Contract / Engine
+Preserve evidence gates; require explicit probability-weighted scenarios and vector inputs; output transparent vectors and Pareto dominance; do not hard-code a scalar utility score before Phase 3 calibration.
 
-### Why no scalar score in 2A
-A scalar score would silently encode utility weights between return, downside, confidence, concentration and execution friction before Phase 3 has calibrated them. Phase 2A therefore persists the components and dominance relationships. Phase 3 may later test candidate scoring/sizing policies against point-in-time outcomes.
+## 2B — Governed Refresh Adapters
+A refresh packet must carry `as_of`, governed provenance, evidence classes, exact satisfied requirements, explicit material-gap resolutions, valuation scenarios and comparison vector inputs. `READY_AFTER_REFRESH` needs all recorded requirements. `NOT_READY` cannot be cured by price/valuation alone: it requires `FUNDAMENTAL_REUNDERWRITE` and resolution of every material gap. The adapter creates only a refreshed shadow copy and preserves source `decision_readiness`, Canonical actions and authority controls.
 
-## Phase 2B — Governed Refresh Adapters
-Map fresh governed research/valuation artifacts into comparator inputs. The adapter may satisfy an existing Phase 1C refresh requirement only with explicit provenance; it may not cure a `NOT_READY` material evidence gap with price data alone.
+This distinction is deliberate: **comparison readiness is not user-decision readiness**. A newly refreshed research object can enter a shadow comparison without becoming a Candidate, implementation plan or trade authorization.
 
-## Phase 2C — Current Shadow Comparison Pack
-When enough objects are eligible, produce an auditable research-only comparison pack across positions/candidates/reference assets. `NO_COMPARISON` is valid if refresh requirements are not met. Any relative frontier result remains non-authoritative until Phase 3 replay/calibration and a separate effective-policy migration.
+## 2C — Current Shadow Comparison Pack
+Source real current governed refresh packets from production/research evidence, apply 2B, then feed only eligible shadow objects to 2A. `NO_COMPARISON` remains a valid output. Relative frontier results remain non-authoritative until Phase 3 replay/calibration and a separate effective-policy migration.

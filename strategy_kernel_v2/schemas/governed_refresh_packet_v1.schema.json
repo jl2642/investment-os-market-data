@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "governed_refresh_packet_v1.schema.json",
+  "title": "Strategy Kernel v2 Governed Refresh Packet v1",
+  "type": "object",
+  "required": ["schema_version", "security_id", "as_of", "governed", "provenance", "evidence_classes", "satisfied_requirements", "resolved_evidence_gaps", "valuation_scenarios", "comparison_inputs"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "security_id": {"type": "string", "minLength": 1},
+    "as_of": {"type": "string", "minLength": 1},
+    "governed": {"const": true},
+    "provenance": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["source_type", "locator"], "properties": {"source_type": {"type": "string", "minLength": 1}, "locator": {"type": "string", "minLength": 1}, "sha": {"type": "string"}, "run_id": {"type": "string"}}}},
+    "evidence_classes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["PRICE_MARK", "FX", "VALUATION", "FUNDAMENTAL_REUNDERWRITE", "PORTFOLIO_CONTEXT", "EXECUTION_FEASIBILITY", "GOVERNANCE_CHECK"]}},
+    "satisfied_requirements": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "resolved_evidence_gaps": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "valuation_scenarios": {"type": "array", "minItems": 2, "items": {"type": "object", "required": ["name", "probability", "annualized_total_return"], "properties": {"name": {"type": "string"}, "probability": {"type": "number", "minimum": 0, "maximum": 1}, "annualized_total_return": {"type": "number"}}}},
+    "comparison_inputs": {"type": "object", "required": ["confidence", "portfolio_concentration_cost", "execution_friction"], "properties": {"confidence": {"type": "number", "minimum": 0, "maximum": 1}, "portfolio_concentration_cost": {"type": "number", "minimum": 0, "maximum": 1}, "execution_friction": {"type": "number", "minimum": 0, "maximum": 1}}},
+    "notes": {"type": "string"}
+  },
+  "additionalProperties": false
+}
