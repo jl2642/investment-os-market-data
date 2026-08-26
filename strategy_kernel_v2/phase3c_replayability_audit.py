@@ -12,9 +12,14 @@ import io
 import json
 from pathlib import Path
 import subprocess
+import sys
 from typing import Any, Iterable, Mapping
 
-from strategy_kernel_v2.point_in_time_ledger import build_point_in_time_ledger
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from strategy_kernel_v2.point_in_time_ledger import build_point_in_time_ledger  # noqa: E402
 
 PHASE2_REQUIRED = {
     "confidence",
@@ -272,7 +277,7 @@ def build_audit(repo_root: str | Path = ".") -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    result = build_audit(Path(__file__).resolve().parents[1])
+    result = build_audit(REPO_ROOT)
     print(
         "PHASE3C_REPLAYABILITY_AUDIT "
         f"checkpoints={result['checkpoint_count']} "
