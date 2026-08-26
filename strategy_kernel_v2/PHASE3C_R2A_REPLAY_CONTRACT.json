@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3C-R2A",
+  "status": "FROZEN_R2A_RECONSTRUCTION_ONLY_NO_PARETO_NO_OUTCOMES",
+  "as_of": "2026-08-26",
+  "parent_phase3b_r2_head": "a71b73b024ee80b8e851908d6591f5dac3826a19",
+  "model_form": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
+  "model_version": "R2.0.0_RESEARCH",
+  "purpose": "Reconstruct provenance-complete R2 input profiles from the seven existing Phase 3A point-in-time development checkpoints using only the frozen model-neutral extraction path and the frozen 20-rule R2 transform catalog.",
+  "development_corpus": {
+    "source": "PHASE3A_POINT_IN_TIME_EVIDENCE_LEDGER",
+    "checkpoint_count": 7,
+    "expected_unique_registered_historical_source_reads": 29,
+    "independent_holdout": false,
+    "may_count_as_independent_validation": false,
+    "checkpoint_selection_may_use_realized_outcomes": false
+  },
+  "input_contract": {
+    "phase3a_selected_evidence_only": true,
+    "exact_registered_commit_path_reads_only": true,
+    "reuse_historical_feature_extractor": true,
+    "model_neutral_feature_rows_required": true,
+    "model_specific_evidence_fetch_forbidden": true,
+    "later_evidence_backfill_forbidden": true,
+    "present_day_state_substitution_forbidden": true,
+    "subjective_mapping_forbidden": true,
+    "retrospective_probability_creation_forbidden": true,
+    "retrospective_confidence_creation_forbidden": true,
+    "retrospective_cost_score_creation_forbidden": true
+  },
+  "transform_contract": {
+    "source_contract": "PHASE3B_R2_MODEL_CONTRACT.json",
+    "transform_rule_count": 20,
+    "frozen_catalog_only": true,
+    "new_transform_rules_allowed": false,
+    "threshold_tuning_allowed": false,
+    "realized_outcome_tuning_allowed": false,
+    "missingness_must_remain_explicit": true,
+    "absence_is_not_zero": true,
+    "absence_is_not_not_applicable": true,
+    "unknown_applicability_preserved_when_source_does_not_explicitly_establish_not_applicable": true
+  },
+  "output_contract": {
+    "profile_state_values": ["PRESENT", "MISSING", "TRANSFORM_FAILURE"],
+    "absent_dimension_applicability_state": "UNKNOWN_APPLICABILITY",
+    "exact_signature_metadata_may_be_constructed": true,
+    "pareto_dominance_execution_allowed": false,
+    "cross_signature_comparison_allowed": false,
+    "scalar_score_allowed": false,
+    "dimension_weights_allowed": false,
+    "ranking_allowed": false,
+    "winner_selection_allowed": false,
+    "target_weight_generation_allowed": false
+  },
+  "phase_boundary": {
+    "r2a_reads_point_in_time_historical_sources": true,
+    "r2a_reconstructs_r2_profiles": true,
+    "r2a_executes_pareto": false,
+    "r2a_generates_historical_performance": false,
+    "r2a_loads_phase3d_realized_outcomes": false,
+    "r2a_builds_independent_holdout": false,
+    "r2a_selects_winner": false,
+    "successful_r2a_allows_only_phase3c_r2b_start": true,
+    "phase4_entry_allowed": false
+  },
+  "acceptance": {
+    "checkpoint_count_must_equal": 7,
+    "unique_registered_historical_source_reads_must_equal": 29,
+    "frozen_transform_rule_count_must_equal": 20,
+    "model_specific_evidence_fetch_count_must_equal": 0,
+    "subjective_feature_fill_count_must_equal": 0,
+    "later_evidence_backfill_count_must_equal": 0,
+    "pareto_comparison_count_must_equal": 0,
+    "historical_performance_metric_count_must_equal": 0,
+    "holdout_checkpoint_count_must_equal": 0,
+    "deterministic_rebuild_required": true,
+    "all_emitted_dimensions_require_selected_evidence_provenance": true,
+    "phase4_entry_allowed_must_be": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
