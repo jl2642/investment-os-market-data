@@ -1,0 +1,335 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3B-R2",
+  "status": "FROZEN_REVISED_MODEL_CONTRACT_NO_HISTORICAL_REPLAY",
+  "as_of": "2026-08-26",
+  "parent_post3f_head": "5e74ef23e9909441bd715b7389700d9c3eb2bc6f",
+  "model": {
+    "model_form": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
+    "model_version": "R2.0.0_RESEARCH",
+    "family": "TYPED_EVIDENCE_PARTIAL_ORDER_WITH_EXACT_APPLICABILITY_SIGNATURES",
+    "material_revision": true,
+    "new_identity": true,
+    "overwrites_prior_model": false,
+    "purpose": "Build a weight-free point-in-time candidate profile from explicitly contemporaneous evidence-native observables while preserving missingness and context applicability."
+  },
+  "preserved_reference_forms": [
+    "LEGACY_POLICY_BASELINE",
+    "PHASE2_PROBABILISTIC_VECTOR",
+    "SIMPLE_NON_PROBABILISTIC_PARETO"
+  ],
+  "reference_form_treatment": {
+    "legacy_baseline_remains_baseline": true,
+    "phase2_probabilistic_vector_immutable": true,
+    "simple_pareto_v1_immutable": true,
+    "old_candidate_forms_count_as_r2": false
+  },
+  "shared_input_contract": {
+    "mode": "SHARED_OBSERVATION_PACKET",
+    "same_timestamp_required": true,
+    "same_opportunity_set_required": true,
+    "same_selected_evidence_required": true,
+    "same_reference_asset_required": true,
+    "model_specific_evidence_fetch_forbidden": true,
+    "r2_transform_may_read_only_model_neutral_feature_row": true,
+    "feature_provenance_must_resolve_inside_shared_packet": true,
+    "later_evidence_backfill_forbidden": true,
+    "missing_input_policy": "PRESERVE_EXPLICITLY_NO_FILL"
+  },
+  "dimension_architecture": {
+    "layers": ["CORE_DECISION", "PORTFOLIO_OVERLAY", "EXECUTION_OVERLAY"],
+    "core_categories": ["REWARD", "DOWNSIDE", "EVIDENCE_OR_COMPLETENESS"],
+    "dimension_states": ["PRESENT", "MISSING", "UNKNOWN_APPLICABILITY"],
+    "absence_is_not_zero": true,
+    "absence_is_not_automatically_not_applicable": true,
+    "explicit_not_applicable_requires_source_evidence": true,
+    "profile_evaluable_min_present_core_dimensions": 1,
+    "comparison_evaluable_min_present_core_dimensions": 2,
+    "comparison_requires_evidence_or_completeness_dimension": true,
+    "comparison_group_min_profiles": 2
+  },
+  "comparison_semantics": {
+    "method": "PARETO_WITHIN_EXACT_COMPARISON_SIGNATURE",
+    "exact_signature_components": ["dimension_id", "layer", "direction", "scale_id", "transform_semantics_version"],
+    "cross_signature_dominance_forbidden": true,
+    "missing_dimension_fill_forbidden": true,
+    "overlay_ignored_when_missing": false,
+    "scalar_policy_score_allowed": false,
+    "dimension_weights_allowed": false,
+    "ranking_generated": false,
+    "target_weights_generated": false,
+    "winner_selection_allowed_in_3b_r2": false
+  },
+  "transform_catalog": [
+    {
+      "rule_id": "R2_WP5_BASE_CASE_EXPECTED_RETURN_V1",
+      "source_feature_key": "wp5_base_case_expected_return",
+      "dimension_id": "REWARD_EXPECTED_RETURN",
+      "category": "REWARD",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "WP5_EXPECTED_RETURN_DECIMAL",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_FINITE_NUMBER"}
+    },
+    {
+      "rule_id": "R2_WP5_WORST_SCENARIO_RETURN_V1",
+      "source_feature_key": "wp5_unweighted_scenarios",
+      "dimension_id": "DOWNSIDE_WORST_SCENARIO_RETURN",
+      "category": "DOWNSIDE",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "WP5_SCENARIO_RETURN_DECIMAL",
+      "transform_semantics_version": "1",
+      "operation": {"type": "MIN_LIST_FIELD", "field": "return_vs_completed_close"}
+    },
+    {
+      "rule_id": "R2_WP5_SOURCE_COUNT_V1",
+      "source_feature_key": "wp5_source_count",
+      "dimension_id": "EVIDENCE_SOURCE_COUNT",
+      "category": "EVIDENCE_OR_COMPLETENESS",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "WP5_PRIMARY_SOURCE_COUNT",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+    },
+    {
+      "rule_id": "R2_WP5_ALL_PRIMARY_DOCUMENTS_V1",
+      "source_feature_key": "wp5_all_primary_documents",
+      "dimension_id": "EVIDENCE_ALL_PRIMARY_DOCUMENTS",
+      "category": "EVIDENCE_OR_COMPLETENESS",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "BOOLEAN_0_1",
+      "transform_semantics_version": "1",
+      "operation": {"type": "BOOLEAN_TO_0_1"}
+    },
+    {
+      "rule_id": "R2_CANDIDATE_ARCHIVE_EVIDENCE_SCORE_V1",
+      "source_feature_key": "candidate_archive_evidence_score",
+      "dimension_id": "EVIDENCE_SCORE",
+      "category": "EVIDENCE_OR_COMPLETENESS",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "CANDIDATE_ARCHIVE_0_100",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 100}
+    },
+    {
+      "rule_id": "R2_CANDIDATE_ARCHIVE_QUALITY_SCORE_V1",
+      "source_feature_key": "candidate_archive_quality_score",
+      "dimension_id": "EVIDENCE_QUALITY_SCORE",
+      "category": "EVIDENCE_OR_COMPLETENESS",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "CANDIDATE_ARCHIVE_0_100",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 100}
+    },
+    {
+      "rule_id": "R2_CANDIDATE_ARCHIVE_RISK_PENALTY_V1",
+      "source_feature_key": "candidate_archive_risk_penalty",
+      "dimension_id": "DOWNSIDE_RISK_PENALTY",
+      "category": "DOWNSIDE",
+      "layer": "CORE_DECISION",
+      "direction": "MINIMIZE",
+      "scale_id": "CANDIDATE_ARCHIVE_RISK_PENALTY",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+    },
+    {
+      "rule_id": "R2_CANDIDATE_ARCHIVE_VALUATION_SCORE_V1",
+      "source_feature_key": "candidate_archive_valuation_score_coarse",
+      "dimension_id": "REWARD_VALUATION_ATTRACTIVENESS",
+      "category": "REWARD",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "CANDIDATE_ARCHIVE_0_100",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 100}
+    },
+    {
+      "rule_id": "R2_CANDIDATE_ARCHIVE_PORTFOLIO_FIT_V1",
+      "source_feature_key": "candidate_archive_portfolio_fit_score",
+      "dimension_id": "PORTFOLIO_FIT_SCORE",
+      "category": "PORTFOLIO_CONTEXT",
+      "layer": "PORTFOLIO_OVERLAY",
+      "direction": "MAXIMIZE",
+      "scale_id": "CANDIDATE_ARCHIVE_0_100",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 100}
+    },
+    {
+      "rule_id": "R2_D2_SOURCE_COUNT_V1",
+      "source_feature_key": "d2_source_count",
+      "dimension_id": "EVIDENCE_SOURCE_COUNT",
+      "category": "EVIDENCE_OR_COMPLETENESS",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "D2_DISCLOSURE_SOURCE_COUNT",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+    },
+    {
+      "rule_id": "R2_D2_REJECTION_GATE_V1",
+      "source_feature_key": "d2_first_rejection_test",
+      "dimension_id": "DOWNSIDE_REJECTION_GATE_CLEAR",
+      "category": "DOWNSIDE",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "D2_REJECTION_GATE_BOOLEAN",
+      "transform_semantics_version": "1",
+      "operation": {"type": "PREFIX_GATE", "pass_prefix": "NOT_TRIGGERED", "fail_prefix": "TRIGGERED"}
+    },
+    {
+      "rule_id": "R2_CORE2_LIMITATION_COUNT_V1",
+      "source_feature_key": "core2_decision_grade_limitation_count",
+      "dimension_id": "EVIDENCE_LIMITATION_COUNT",
+      "category": "EVIDENCE_OR_COMPLETENESS",
+      "layer": "CORE_DECISION",
+      "direction": "MINIMIZE",
+      "scale_id": "CORE2_LIMITATION_COUNT",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+    },
+    {
+      "rule_id": "R2_CORE2_READY_FOR_USER_DECISION_V1",
+      "source_feature_key": "core2_ready_for_user_decision",
+      "dimension_id": "EVIDENCE_DECISION_READINESS",
+      "category": "EVIDENCE_OR_COMPLETENESS",
+      "layer": "CORE_DECISION",
+      "direction": "MAXIMIZE",
+      "scale_id": "BOOLEAN_0_1",
+      "transform_semantics_version": "1",
+      "operation": {"type": "BOOLEAN_TO_0_1"}
+    },
+    {
+      "rule_id": "R2_CANDIDATE_RESEARCH_GAP_COUNT_V1",
+      "source_feature_key": "candidate_research_gap_count",
+      "dimension_id": "EVIDENCE_RESEARCH_GAP_COUNT",
+      "category": "EVIDENCE_OR_COMPLETENESS",
+      "layer": "CORE_DECISION",
+      "direction": "MINIMIZE",
+      "scale_id": "CANDIDATE_RESEARCH_GAP_COUNT",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+    },
+    {
+      "rule_id": "R2_REAL_ACCOUNT_WEIGHT_V1",
+      "source_feature_key": "real_account_weight_mechanical",
+      "dimension_id": "PORTFOLIO_CURRENT_WEIGHT",
+      "category": "PORTFOLIO_CONTEXT",
+      "layer": "PORTFOLIO_OVERLAY",
+      "direction": "MINIMIZE",
+      "scale_id": "REAL_ACCOUNT_WEIGHT_DECIMAL",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 1}
+    },
+    {
+      "rule_id": "R2_WP5_CURRENT_WEIGHT_V1",
+      "source_feature_key": "wp5_current_weight",
+      "dimension_id": "PORTFOLIO_WP5_CURRENT_WEIGHT",
+      "category": "PORTFOLIO_CONTEXT",
+      "layer": "PORTFOLIO_OVERLAY",
+      "direction": "MINIMIZE",
+      "scale_id": "WP5_CURRENT_WEIGHT_DECIMAL",
+      "transform_semantics_version": "1",
+      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 1}
+    },
+    {
+      "rule_id": "R2_WP5_IMPLEMENTATION_READY_V1",
+      "source_feature_key": "wp5_implementation_ready",
+      "dimension_id": "EXECUTION_WP5_IMPLEMENTATION_READY",
+      "category": "EXECUTION_CONTEXT",
+      "layer": "EXECUTION_OVERLAY",
+      "direction": "MAXIMIZE",
+      "scale_id": "BOOLEAN_0_1",
+      "transform_semantics_version": "1",
+      "operation": {"type": "BOOLEAN_TO_0_1"}
+    },
+    {
+      "rule_id": "R2_WP5_BROKER_VERIFIED_V1",
+      "source_feature_key": "wp5_broker_verified",
+      "dimension_id": "EXECUTION_WP5_BROKER_VERIFIED",
+      "category": "EXECUTION_CONTEXT",
+      "layer": "EXECUTION_OVERLAY",
+      "direction": "MAXIMIZE",
+      "scale_id": "BOOLEAN_0_1",
+      "transform_semantics_version": "1",
+      "operation": {"type": "BOOLEAN_TO_0_1"}
+    },
+    {
+      "rule_id": "R2_00669_IMPLEMENTATION_READY_V1",
+      "source_feature_key": "00669_implementation_ready",
+      "dimension_id": "EXECUTION_00669_IMPLEMENTATION_READY",
+      "category": "EXECUTION_CONTEXT",
+      "layer": "EXECUTION_OVERLAY",
+      "direction": "MAXIMIZE",
+      "scale_id": "BOOLEAN_0_1",
+      "transform_semantics_version": "1",
+      "operation": {"type": "BOOLEAN_TO_0_1"}
+    },
+    {
+      "rule_id": "R2_00669_BOARD_LOT_MISMATCH_V1",
+      "source_feature_key": "00669_board_lot_sizing_mismatch",
+      "dimension_id": "EXECUTION_00669_BOARD_LOT_MISMATCH",
+      "category": "EXECUTION_CONTEXT",
+      "layer": "EXECUTION_OVERLAY",
+      "direction": "MINIMIZE",
+      "scale_id": "BOOLEAN_0_1",
+      "transform_semantics_version": "1",
+      "operation": {"type": "BOOLEAN_TO_0_1"}
+    }
+  ],
+  "preserved_unmapped_context": [
+    "candidate_archive_race_confidence",
+    "candidate_archive_current_sim_pnl_pct",
+    "candidate_archive_proxy_return_20260624_to_20260710_pct",
+    "candidate_archive_legacy_60d_return_pct_20260624",
+    "00669_valuation_interpretation",
+    "00669_historical_pe_context",
+    "00669_reference_pe_context",
+    "00669_research_weight",
+    "real_action_execution_status",
+    "real_action_permission",
+    "real_action_constraints"
+  ],
+  "unmapped_context_policy": {
+    "may_be_carried_for_audit": true,
+    "may_affect_pareto_without_new_contract": false,
+    "categorical_string_to_numeric_mapping_forbidden": true,
+    "trailing_return_context_is_not_automatically_reward_dimension": true
+  },
+  "development_corpus_firewall": {
+    "seven_seed_checkpoints_may_test_mechanical_replayability": true,
+    "seven_seed_checkpoints_are_independent_validation": false,
+    "phase3d_realized_outcomes_may_select_fields": false,
+    "phase3d_realized_outcomes_may_select_thresholds": false,
+    "phase3d_realized_outcomes_may_select_mappings": false,
+    "same_seed_tuning_may_count_as_validation": false
+  },
+  "phase_boundary": {
+    "phase3b_r2_defines_contract": true,
+    "phase3b_r2_reads_historical_sources": false,
+    "phase3b_r2_executes_real_historical_replay": false,
+    "phase3b_r2_claims_replay_coverage": false,
+    "phase3b_r2_claims_performance": false,
+    "phase3b_r2_selects_winner": false,
+    "phase3c_r2_required_for_point_in_time_replay": true,
+    "independent_holdout_required_before_later_phase3f_promotion": true,
+    "phase4_entry_allowed": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
