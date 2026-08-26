@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "underwriting_object_v1.schema.json",
+  "title": "Strategy Kernel v2 Underwriting Object v1",
+  "type": "object",
+  "required": ["schema_version","security_id","security_name","provenance","underwriting","valuation","portfolio_context","research_quality","readiness","controls"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "security_id": {"type": "string"},
+    "security_name": {"type": "string"},
+    "provenance": {"type":"object","required":["canonical_main_sha","source_paths"],"properties":{"canonical_main_sha":{"type":"string","minLength":40,"maxLength":40},"source_paths":{"type":"array","minItems":1,"items":{"type":"string"}}}},
+    "underwriting": {"type":"object","required":["business_economics","normalized_earnings_cashflow","thesis","falsifiers"],"properties":{"business_economics":{"type":["object","null"]},"normalized_earnings_cashflow":{"type":["object","null"]},"durability":{"type":["object","null"]},"balance_sheet_capital_allocation":{"type":["object","null"]},"thesis":{"type":["string","null"]},"falsifiers":{"type":"array","items":{"type":"string"}}}},
+    "valuation": {"type":"object","required":["status","scenarios","research_triggers_are_orders"],"properties":{"status":{"enum":["AVAILABLE","PARTIAL","AVAILABLE_STALE","UNAVAILABLE"]},"anchor":{"type":["object","null"]},"framework":{"type":["object","null"]},"scenarios":{"type":"array","items":{"type":"object"}},"research_triggers_are_orders":{"const":false}}},
+    "portfolio_context":{"type":["object","null"]},
+    "research_quality":{"type":"object","required":["completeness","evidence_gaps"],"properties":{"completeness":{"enum":["COMPLETE_RESEARCH_ONLY","PARTIAL","MATERIAL_EVIDENCE_GAP"]},"evidence_gaps":{"type":"array","items":{"type":"string"}}}},
+    "readiness":{"type":"object","required":["decision_readiness","comparison_readiness","refresh_requirements"],"properties":{"decision_readiness":{"enum":["RESEARCH_ONLY","EVIDENCE_GAP"]},"comparison_readiness":{"enum":["READY_NOW","READY_AFTER_REFRESH","NOT_READY"]},"refresh_requirements":{"type":"array","items":{"type":"string"}}}},
+    "controls":{"type":"object","required":["candidate_membership_change_authorized","real_position_change_authorized","simulation_position_change_authorized","target_portfolio_writeback_authorized","order_authorized","implementation_ready","orders","trade_authority"],"properties":{"candidate_membership_change_authorized":{"const":false},"real_position_change_authorized":{"const":false},"simulation_position_change_authorized":{"const":false},"target_portfolio_writeback_authorized":{"const":false},"order_authorized":{"const":false},"implementation_ready":{"const":false},"orders":{"const":0},"trade_authority":{"const":"NONE"}}}
+  }
+}
