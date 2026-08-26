@@ -94,21 +94,42 @@ Acceptance: 11/11 regression tests, 8/8 schema validations, deterministic bundle
 
 **Validation:** Phase 2C pack-builder tests 10/10 pass; fabricated scenario/input count=0; user decision count=0; economic/Candidate mutations=0; `orders=0`; `trade_authority=NONE`.
 
-## Phase 3 — HISTORICAL REPLAY & CALIBRATION — NEXT / NOT STARTED
+## Phase 3 — HISTORICAL REPLAY & CALIBRATION — IN PROGRESS / 3A COMPLETE_SCOPE_BOUNDED
 Mandatory before forward promotion. Phase 3 uses only contemporaneously available evidence and explicitly tests **model form** as well as parameter values. Probability-weighted scenarios, confidence/vector representation and any scalar utility/position-sizing rule remain hypotheses.
 
-### Phase 3A — Point-in-time Evidence Ledger
-**Objective:** build immutable historical evidence snapshots for each replay decision timestamp.
+### Phase 3A — Point-in-time Evidence Ledger — VALIDATED COMPLETE_SCOPE_BOUNDED
+**Objective:** build immutable historical evidence snapshots for replay timestamps without hindsight.
 
-**Requirements:**
-- only evidence available at or before the historical timestamp may be included;
-- no later filing, later price, later research conclusion, or later Candidate state may leak backward;
-- retrospective probability/scenario backfill is prohibited unless the probability/scenario was actually contemporaneously recorded with provenance;
-- missing evidence remains explicit.
+**Implemented contract:**
+- evidence version identity is separate from `evidence_as_of`; replay eligibility is controlled by offset-aware `available_at`;
+- Canonical source path + immutable commit SHA + provenance status are mandatory;
+- by default only `CANONICAL_MAIN` evidence is replay-eligible; governed open-PR evidence must be explicitly enabled and is excluded from the current canonical ledger;
+- the latest version of each stable `evidence_key` available at or before the checkpoint is selected;
+- later versions remain visible only as `future_evidence_ids` and cannot replace an earlier version;
+- global market/portfolio/Candidate snapshots are bound to the exact Canonical checkpoint commit, preserving embedded stale watermarks instead of refreshing them retrospectively;
+- missing requirements are explicit and fail closed;
+- retrospective probability/scenario backfill, model output, investment recommendation, user-decision generation, Candidate mutation, account mutation, target writeback and orders are disabled.
 
-**Acceptance:** reproducible evidence ledger, point-in-time provenance, no hindsight contamination in sampled dates, and explicit unavailable-data states.
+**Current bounded registry:**
+- 29 Canonical evidence records;
+- seven Canonical replay checkpoints from `2026-07-26T12:59:24Z` through `2026-08-18T01:46:25Z`;
+- eight Strategy Kernel v2 securities;
+- evidence classes include research, market, portfolio, Candidate and decision context;
+- representative critical historical paths were remotely resolved at their registered commits, including WP4, WP4B, 601138 WP5, HKCU P5C, HKCU 00669 BUY REVIEW, D2 R1 and D2 R2.
 
-### Phase 3B — Competing Model Forms
+**No-hindsight acceptance examples:**
+- the 2026-08-07 P5C valuation context is not available to replay until its 2026-08-08 Canonical merge;
+- at the 2026-08-13 D2 R1 checkpoint, 000719 and 301215 select R1 and list their R2 artifacts as future evidence;
+- R2 becomes selectable only at the 2026-08-18 PR #285 Canonical merge;
+- an early Core2-only checkpoint does not even list unrelated future 00669/601138 evidence as in-scope future evidence.
+
+**Validation:** 24/24 local Phase 3A tests pass: 16 generic contract/regression tests plus 8 real-registry acceptance tests. Every declared checkpoint requirement is reproducible within the bounded registry; detected hindsight contamination=0; retrospective probability/scenario backfills=0; `orders=0`; `trade_authority=NONE`.
+
+**Derived artifact policy:** the ledger is deterministically rebuilt from `PHASE3A_EVIDENCE_REGISTRY.json` and `PHASE3A_DECISION_POINTS.json`; a hand-maintained derived ledger is not committed as authority. This rule was adopted after a manual materialization mismatch was detected and removed during implementation.
+
+**Scope boundary:** this seven-checkpoint window is sufficient to start 3B model-form plumbing but is not evidence of historical/statistical sufficiency. `phase3_historical_validation_complete=false` and `phase3f_promotion_eligible=false`. Before 3F can pass, historical coverage must be expanded across additional decision dates/market regimes and all 3B–3E gates must pass.
+
+### Phase 3B — Competing Model Forms — NEXT / NOT STARTED
 **Objective:** prevent the program from assuming the Phase-2 model form is already correct.
 
 Run at minimum:
@@ -116,7 +137,9 @@ Run at minimum:
 2. Phase-2 probabilistic/vector architecture;
 3. a simpler non-probabilistic / Pareto alternative.
 
-**Acceptance:** identical information set, opportunity set, reference asset and timestamp for each model; no model-specific hindsight advantage; model outputs persist rationale and uncertainty.
+**Input gate:** use identical Phase 3A snapshots, opportunity sets, reference assets and timestamps. A model may not receive evidence that another model does not receive. Missing contemporaneous probabilities/scenarios remain missing; Phase 3B may not manufacture them merely to make the probabilistic model runnable.
+
+**Acceptance:** identical information set, opportunity set, reference asset and timestamp for each model; no model-specific hindsight advantage; model outputs persist rationale and uncertainty. If a model cannot operate on the contemporaneous information set, that is an observed model limitation rather than permission to backfill data.
 
 ### Phase 3C — Decision / Capital Replay
 Generate shadow-only relative capital judgments across historical opportunity sets. Track which opportunities would be admitted, blocked, prioritized, retained, reduced, or left as NO_ACTION under each model.
@@ -146,6 +169,8 @@ Allowed outcomes only:
 - `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`.
 
 `PROMOTE_TO_PHASE_5` is forbidden.
+
+Current entry eligibility: **false**. Phase 3A's bounded seven-checkpoint window does not satisfy the coverage breadth needed for this gate; 3B–3E and broader historical/regime coverage are mandatory first.
 
 Phase 3 passing is evidence that a candidate architecture deserves forward testing; it is not evidence sufficient for effective migration.
 

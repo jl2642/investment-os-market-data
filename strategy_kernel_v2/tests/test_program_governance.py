@@ -43,9 +43,11 @@ class ProgramGovernanceTest(unittest.TestCase):
     def test_phase5_not_authorized(self):
         self.assertFalse(self.state["phase5_migration_allowed"])
 
-    def test_phase3_not_started(self):
-        self.assertFalse(self.state["phase3_implementation_started"])
-        self.assertEqual(self.state["macro_phase"], 2)
+    def test_phase3_started_matches_macro_phase(self):
+        self.assertEqual(
+            bool(self.state["phase3_implementation_started"]),
+            self.state["macro_phase"] >= 3,
+        )
 
     def test_contract_promotion_edge_matches_state(self):
         lifecycle = {item["phase"]: item for item in self.contract["macro_lifecycle"]}
