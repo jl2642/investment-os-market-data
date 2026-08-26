@@ -12,6 +12,16 @@ from typing import Any, Mapping
 CANDIDATE_SENTINEL = "NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS"
 
 
+def _legacy_outcome_class(status: str) -> str:
+    if status == "RETAINED":
+        return "MEASURABLE_FORWARD_PRICE_RETURN_IF_PRICES_AVAILABLE"
+    if status == "REDUCED":
+        return "POSTURE_OUTCOME_OBSERVATION_ONLY_NO_EXECUTED_COUNTERFACTUAL"
+    if status in {"NO_ACTION", "PRIORITIZED"}:
+        return "OPPORTUNITY_OBSERVATION_ONLY"
+    return "OBSERVATION_ONLY_UNCLASSIFIED_CAPITAL_AUTHORITY"
+
+
 def build_measurability_scaffold(phase3c_replay: Mapping[str, Any]) -> dict[str, Any]:
     legacy_rows: list[dict[str, Any]] = []
     candidate_rows: list[dict[str, Any]] = []
@@ -29,16 +39,8 @@ def build_measurability_scaffold(phase3c_replay: Mapping[str, Any]) -> dict[str,
                 "legacy_status": row["status"],
                 "legacy_disposition": row.get("legacy_disposition"),
                 "provenance_evidence_ids": list(row.get("provenance_evidence_ids", [])),
-                "outcome_class": (
-                    "MEASURABLE_FORWARD_PRICE_RETURN_IF_PRICES_AVAILABLE"
-                    if row["status"] in {"RETAINED", "REDUCED", "ADMITTED", "PRIORITIZED"}
-                    else "OPPORTUNITY_OBSERVATION_ONLY"
-                ),
-                "regret_status": (
-                    "NOT_MEASURABLE_NO_CONTEMPORANEOUS_COUNTERFACTUAL"
-                    if row["status"] != "BLOCKED"
-                    else "NOT_APPLICABLE"
-                ),
+                "outcome_class": _legacy_outcome_class(row["status"]),
+                "regret_status": "NOT_MEASURABLE_NO_CONTEMPORANEOUS_COUNTERFACTUAL",
             })
 
         for model_form in ("PHASE2_PROBABILISTIC_VECTOR", "SIMPLE_NON_PROBABILISTIC_PARETO"):
