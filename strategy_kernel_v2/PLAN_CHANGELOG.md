@@ -162,3 +162,25 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Gate consequence:** Phase 3C is **in progress**, not complete. Phase 3D remains blocked. The next 3C step is to search for independently provable contemporaneous missing inputs and register them only if they genuinely existed; if they did not exist, the affected model must be recorded as historically non-replayable for this window rather than supplied with retrospective probabilities/scores. Any new transformation from raw facts into probability/confidence or simple-Pareto dimensions would change the model/input contract and requires separate governed design treatment.
 
 **Not changed:** the macro Phase 0→5 lifecycle and internal Phase 3A→3F sequence remain unchanged. No effective Strategy/Core rule, Candidate state, Real/Simulation state, target portfolio, user investment decision, recommendation, order authority or trade authority changed; `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-26 — Phase 3C Canonical-tree replayability audit / terminal negative closeout
+**Reason:** the bounded replay showed 29 Legacy-evaluable instances but 0/0 candidate-model instances. Before treating that asymmetry as a model-form finding, Phase 3C had to rule out the simpler explanation that complete contemporaneous candidate inputs existed elsewhere in the Canonical checkpoint trees but had been omitted from the Phase 3A registry.
+
+**Audit:**
+- scanned the complete Canonical checkpoint trees for all seven replay commits under `investment_os_runtime`, `evidence`, and `outputs`;
+- used exact candidate-model field signatures and separately tracked proxy-like legacy fields without remapping them;
+- inspected **673** keyword-candidate file occurrences, including **114** exact-model-field file occurrences and **147** proxy-like legacy-field file occurrences;
+- complete Phase-2 probability/vector packet occurrences = **0**;
+- complete simple-Pareto five-field packet occurrences = **0**;
+- unregistered complete Phase-2 packet occurrences = **0**;
+- unregistered complete simple-Pareto packet occurrences = **0**.
+
+**Conclusion:** `NO_COMPLETE_CANDIDATE_MODEL_INPUT_PACKET_FOUND_IN_CANONICAL_CHECKPOINT_TREES`. The candidate replay blocker is not a Phase 3A registration omission. `PHASE2_PROBABILISTIC_VECTOR` is historically non-replayable on the bounded corpus without retrospective input creation, and `SIMPLE_NON_PROBABILISTIC_PARETO` is historically non-replayable without new transformation rules. Existing proxy-like fields remain historical facts and may not be relabelled as the fixed Phase 3B model inputs.
+
+**Phase 3C closeout:** Phase 3C is accepted as `COMPLETE_BOUNDED_REPLAY_TERMINAL_NONREPLAYABILITY_FINDING`. This completion is a negative replayability/input-burden finding, not a performance conclusion. No model winner is selected and no comparative regret/calibration result exists.
+
+**Downstream gate:** Phase 3D remains **BLOCKED** under the existing plan because neither candidate model has a valid contemporaneous replay set. A separate governed post-3C evaluation-path decision is required before Phase 3D can start. This closeout does not silently rewrite Phase 3B or alter the Phase 3A→3F sequence.
+
+**Workflow hygiene / corrections:** the recovery process briefly reintroduced a duplicate Phase 3C workflow; it was detected and removed, leaving `.github/workflows/strategy-kernel-phase3c-historical-replay.yml` as the single authoritative Phase 3C workflow. The first replayability-audit run also exposed a direct-execution import-path harness bug, which was fixed without changing audit semantics. The optimized tree audit then passed on GitHub Actions run #24 / `32951389195` together with 19/19 Phase 3C tests, 23/23 Phase 3B dependency tests, 24/24 Phase 3A dependency tests and `PROGRAM_CONSISTENCY_PASS`.
+
+**Not changed:** the macro Phase 0→5 lifecycle and internal Phase 3A→3F decomposition remain unchanged. No effective Strategy/Core rule, Candidate state, Real/Simulation state, target portfolio, user investment decision, recommendation, order authority or trade authority changed; `orders=0`, `trade_authority=NONE`.
