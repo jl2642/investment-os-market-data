@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.0.1",
   "program": "STRATEGY_KERNEL_V2",
   "phase": "3C-R2A",
   "status": "FROZEN_R2A_RECONSTRUCTION_ONLY_NO_PARETO_NO_OUTCOMES",
@@ -8,6 +8,14 @@
   "model_form": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
   "model_version": "R2.0.0_RESEARCH",
   "purpose": "Reconstruct provenance-complete R2 input profiles from the seven existing Phase 3A point-in-time development checkpoints using only the frozen model-neutral extraction path and the frozen 20-rule R2 transform catalog.",
+  "execution_round_contract": {
+    "phase3c_r2_total_execution_rounds": 2,
+    "this_round": "R2A_REPLAY_CONTRACT_AND_PIT_RECONSTRUCTION",
+    "next_round": "R2B_MECHANICAL_REPLAY_FULL_AUDIT_AND_FINAL_ACCEPTANCE",
+    "r2a_is_pre_mechanical_replay_acceptance_gate": true,
+    "formal_r2_mechanical_replay_starts_only_in_r2b": true,
+    "r2a_completion_does_not_claim_phase3c_r2_replay_complete": true
+  },
   "development_corpus": {
     "source": "PHASE3A_POINT_IN_TIME_EVIDENCE_LEDGER",
     "checkpoint_count": 7,
