@@ -1,0 +1,31 @@
+name: Strategy Kernel Phase 3E Final Acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-phase3e-final-acceptance.yml'
+  workflow_dispatch:
+
+jobs:
+  phase3e-final-acceptance:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 3E regression tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3e
+      - name: Validate Phase 3E acceptance
+        run: python -m strategy_kernel_v2.validate_phase3e
+      - name: Validate Phase 3D dependency
+        run: python strategy_kernel_v2/validate_phase3d.py
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Run program governance regressions
+        run: python -m unittest strategy_kernel_v2.tests.test_program_governance
