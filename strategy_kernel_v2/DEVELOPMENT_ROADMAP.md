@@ -14,9 +14,9 @@ Hard boundaries throughout development: no live trading, no order creation, no a
    - Extract existing Canonical issuer research into a common Underwriting Object.
    - Unknown or missing evidence remains explicit; no research or valuation is synthesized merely to complete a schema.
 4. **Phase 2 — Shadow Capital Comparator — IN DEVELOPMENT, research-only**
-   - **2A Comparator Contract / Engine — VALIDATED SHADOW-ONLY**: transparent multi-dimensional vectors plus Pareto frontier; no unvalidated scalar score.
-   - **2B Governed Refresh Adapters — NEXT**: satisfy per-object freshness requirements only with explicit governed provenance; `NOT_READY` material evidence gaps cannot be cured by price refresh alone.
-   - **2C Current Shadow Comparison Pack — GATED**: compare only eligible positions/candidates/reference assets; `NO_COMPARISON` is a valid output when refresh/evidence gates remain unsatisfied.
+   - **2A Comparator Contract / Engine — VALIDATED SHADOW-ONLY / draft PR #300**: transparent multi-dimensional vectors plus Pareto frontier; no unvalidated scalar score. Current real gate baseline remains 0 eligible / 8 blocked absent governed refresh.
+   - **2B Governed Refresh Adapters — VALIDATED SHADOW-ONLY / awaiting governed review**: satisfy per-object freshness/evidence requirements only through explicit governed refresh packets. `READY_AFTER_REFRESH` requires exact requirement coverage. `NOT_READY` cannot be cured by price/valuation alone; it requires `FUNDAMENTAL_REUNDERWRITE` plus resolution of every material evidence gap. Source decision readiness and all Canonical authority remain unchanged.
+   - **2C Current Shadow Comparison Pack — NEXT / GATED**: source real current governed refresh packets, apply 2B, and compare only eligible positions/candidates/reference assets. `NO_COMPARISON` is a valid output when refresh/evidence gates remain unsatisfied.
 5. **Phase 3 — Point-in-time replay and calibration — MANDATORY before effective policy migration**
    - Compare legacy vs v2 false negatives, false positives, turnover, downside, forecast calibration and opportunity-cost regret using information available at the historical point in time.
    - Test whether any candidate scalar utility/position-sizing policy improves decisions before such weights can enter Strategy Kernel policy.
@@ -24,6 +24,6 @@ Hard boundaries throughout development: no live trading, no order creation, no a
    - May be considered only after Phase 3 and a separate governed approval.
 
 ## Phase 2 architectural rule
-Phase 2 separates **measurement from policy**. Phase 2A measures expected return, downside, probability of loss, confidence, concentration cost and execution friction, and exposes Pareto dominance. It does not assign a one-number investment score because those utility weights are themselves hypotheses requiring Phase 3 calibration.
+Phase 2 separates **measurement, governed evidence refresh and policy**. Phase 2A measures expected return, downside, probability of loss, confidence, concentration cost and execution friction and exposes Pareto dominance. Phase 2B governs how new evidence can make an object comparison-ready without mutating the source decision state. Neither subphase assigns a one-number investment score or authorizes action; utility weights and sizing remain hypotheses for Phase 3.
 
-Passing a shadow comparison gate never authorizes a Candidate mutation, portfolio mutation, user decision, order, or trade.
+Passing a shadow comparison gate never authorizes a Candidate mutation, portfolio mutation, user decision, order or trade.
