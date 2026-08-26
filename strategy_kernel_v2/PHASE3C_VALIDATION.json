@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.2.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3C",
+  "status": "PASS_COMPLETE_BOUNDED_REPLAY_TERMINAL_NONREPLAYABILITY_FINDING",
+  "as_of": "2026-08-26",
+  "parent_phase3b_head": "ac3e89947d9f4e53f1f54468b0bae2611ea402fd",
+  "canonical_main_sha": "5c5df9082688f65332c79fef3b9cbfa893a06908",
+  "replayability_audit_source_head": "33c1f4afd2e82705d087cb88700f243822d84cb7",
+  "validation_run": {
+    "workflow": "Strategy Kernel Phase 3C Historical Replay",
+    "run_number": 24,
+    "run_id": 32951389195,
+    "conclusion": "SUCCESS",
+    "phase3c_tests_passed": 19,
+    "phase3b_dependency_tests_passed": 23,
+    "phase3a_dependency_tests_passed": 24,
+    "program_consistency_passed": true
+  },
+  "bounded_replay": {
+    "phase3a_checkpoints": 7,
+    "registered_historical_sources_read": 29,
+    "source_read_mode": "GIT_SHOW_EXACT_REGISTERED_COMMIT_PATH",
+    "legacy_evaluable_security_checkpoint_instances": 29,
+    "phase2_probabilistic_evaluable_security_checkpoint_instances": 0,
+    "simple_pareto_evaluable_security_checkpoint_instances": 0,
+    "candidate_comparative_replay_available": false,
+    "model_specific_evidence_fetches": 0,
+    "subjective_feature_fills": 0,
+    "retrospective_probability_backfills": 0,
+    "retrospective_scenario_backfills": 0
+  },
+  "historical_input_recovery_audit": {
+    "complete": true,
+    "scan_scope": ["investment_os_runtime", "evidence", "outputs"],
+    "keyword_candidate_file_occurrences": 673,
+    "exact_model_field_file_occurrences": 114,
+    "proxy_like_field_file_occurrences": 147,
+    "complete_phase2_packet_file_occurrences": 0,
+    "complete_simple_packet_file_occurrences": 0,
+    "unregistered_complete_phase2_packet_file_occurrences": 0,
+    "unregistered_complete_simple_packet_file_occurrences": 0,
+    "phase3a_registry_omission_found": false,
+    "conclusion": "NO_COMPLETE_CANDIDATE_MODEL_INPUT_PACKET_FOUND_IN_CANONICAL_CHECKPOINT_TREES"
+  },
+  "finding": {
+    "legacy_replay": "BOUNDED_REPLAY_OPERATIONAL",
+    "phase2_probabilistic_vector": "HISTORICALLY_NONREPLAYABLE_ON_CURRENT_BOUNDED_CORPUS_WITHOUT_RETROSPECTIVE_INPUT_CREATION",
+    "simple_non_probabilistic_pareto": "HISTORICALLY_NONREPLAYABLE_ON_CURRENT_BOUNDED_CORPUS_WITHOUT_NEW_TRANSFORMATION_RULES",
+    "interpretation": "The full Canonical-tree recovery audit found no complete candidate-model packet, including no unregistered packet omitted by Phase 3A. Candidate-model non-replayability is therefore a genuine model-form/input-burden finding for this bounded historical corpus, not a registry failure and not a comparative performance conclusion.",
+    "historical_performance_conclusion": "NONE_CANDIDATE_MODELS_HAVE_NO_CONTEMPORANEOUS_REPLAY_OUTPUTS",
+    "model_winner_selected": false
+  },
+  "phase_boundary": {
+    "phase3c_started": true,
+    "phase3c_complete": true,
+    "phase3c_terminal_nonreplayability_finding": true,
+    "phase3c_1_feature_extraction_infrastructure_validated": true,
+    "phase3c_2_legacy_replay_validated": true,
+    "phase3c_2_candidate_replay_complete": false,
+    "phase3c_candidate_models_historically_nonreplayable": true,
+    "phase3d_start_allowed": false,
+    "governed_subsequent_evaluation_path_decision_required_before_phase3d": true,
+    "phase3_historical_validation_complete": false,
+    "phase3f_promotion_eligible": false,
+    "phase4_entry_allowed": false,
+    "phase5_migration_allowed": false
+  },
+  "required_next_action": "GOVERNED_PHASE3_POST_3C_EVALUATION_PATH_DECISION_BEFORE_PHASE3D_NO_SILENT_MODEL_REWRITE",
+  "workflow_hygiene": {
+    "authoritative_workflow": ".github/workflows/strategy-kernel-phase3c-historical-replay.yml",
+    "duplicate_recovery_workflow_removed": true
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

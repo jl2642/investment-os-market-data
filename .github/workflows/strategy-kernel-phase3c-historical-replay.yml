@@ -1,0 +1,36 @@
+name: Strategy Kernel Phase 3C Historical Replay
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-phase3c-historical-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase3c-historical-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 3C regression tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3c
+      - name: Validate real bounded Phase 3C replay
+        run: python strategy_kernel_v2/validate_phase3c.py
+      - name: Audit historical candidate-model replayability
+        run: python strategy_kernel_v2/phase3c_replayability_audit.py
+      - name: Re-run Phase 3B dependency tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3b
+      - name: Re-run Phase 3A dependency tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3a
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py

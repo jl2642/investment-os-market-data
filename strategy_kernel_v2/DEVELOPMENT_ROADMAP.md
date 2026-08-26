@@ -40,7 +40,7 @@ Hard boundaries through Phase 4: no live trading, no order creation, no automati
   - Restored mandatory Phase 4 forward validation, prohibited direct Phase 3→5 promotion, and added machine-enforced lifecycle consistency.
   - Accepted as the governed parent for continued stacked shadow development; Canonical `main` remains unchanged and protected.
 
-### Phase 3 — Historical Replay & Calibration — IN PROGRESS / 3A + 3B COMPLETE_BOUNDED
+### Phase 3 — Historical Replay & Calibration — IN PROGRESS / 3C COMPLETE_TERMINAL_NONREPLAYABILITY / 3D BLOCKED
 Mandatory point-in-time validation before any forward promotion. Phase 3 tests model form as well as parameters; strong historical results do not authorize effective migration.
 
 Internal steps:
@@ -49,24 +49,27 @@ Internal steps:
   - Research, market, portfolio, Candidate and decision context are bound to Canonical commit availability rather than filename/as-of date alone.
   - The ledger selects the latest version available at each checkpoint and preserves stale embedded watermarks rather than retrospectively refreshing them.
   - 000719/301215 R1 is visible at the 2026-08-13 checkpoint; R2 becomes visible only after the 2026-08-18 Canonical merge.
-  - Derived ledger output is rebuilt from the registry/checkpoints rather than committed as an authority artifact, preventing hand-maintained derived-file drift.
-  - This seven-checkpoint window is sufficient to support model-form plumbing, but is **not statistically sufficient for 3F promotion**. Historical coverage/regime breadth must be expanded before the historical promotion gate can pass.
+  - Derived ledger output is rebuilt from the registry/checkpoints rather than committed as an authority artifact.
+  - This seven-checkpoint window is sufficient for bounded engineering but is **not statistically sufficient for 3F promotion**.
 - **3B Competing Model Forms — VALIDATED COMPLETE_CONTRACT_ONLY / PR #305.**
-  - Established one immutable shared observation packet: identical timestamp, opportunity set, selected Phase 3A evidence, structured observations and explicit reference asset for every model.
-  - Structured observations may cite only evidence already selected by the Phase 3A checkpoint; model-specific evidence fetch is forbidden and missing model inputs fail closed as `NOT_EVALUABLE`.
-  - Fixed three model forms for later replay: `LEGACY_POLICY_BASELINE`, `PHASE2_PROBABILISTIC_VECTOR`, and `SIMPLE_NON_PROBABILISTIC_PARETO`.
-  - Legacy is contemporaneous state/disposition passthrough only; it may not be reconstructed through retrospective interpretation.
-  - The Phase-2 form preserves explicit probability scenarios plus transparent return/downside/confidence/concentration/execution vectors and Pareto dominance; no scalar utility score is introduced.
-  - The simple challenger uses explicit non-probabilistic return/downside/evidence-quality/concentration/execution dimensions and Pareto dominance, preventing complexity or probability assumptions from being treated as inherently superior.
-  - Current seven Phase 3A seed checkpoints contain evidence references but no model-ready structured historical feature layer. Therefore all 21 model×checkpoint combinations correctly remain 0 evaluable in 3B. Synthetic fixtures validate mechanics only and are not historical performance evidence.
-  - Phase 3B does **not** extract historical features, replay decisions, calibrate parameters, select a winning model, or produce comparative performance conclusions.
-- **3C Decision / Capital Replay — NEXT / NOT STARTED.**
-  - First extract model-neutral structured observations from the exact Phase 3A source path + commit for each checkpoint; every extracted field must retain provenance inside that checkpoint and later evidence must remain inaccessible.
-  - Then run the three fixed 3B model forms on identical shared packets and compare admitted, blocked, prioritized, retained, reduced or `NO_ACTION` shadow outcomes.
-  - Feature extraction and model execution must remain separable so a model cannot gain a richer information set through its own adapter.
-- **3D Calibration & Regret Analysis:** measure false positives, false negatives, downside capture, turnover, forecast calibration and opportunity-cost regret versus cash/reference and available alternatives.
-- **3E Ablation / Robustness:** remove probability, confidence, concentration cost, execution friction or other components one at a time to determine incremental value versus complexity.
-- **3F Historical Promotion Gate:** allowed outcomes are `REJECT_V2_FORM`, `CONTINUE_SHADOW_RESEARCH`, or `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. Phase 3 may never authorize Phase 5 directly. Current promotion eligibility remains false pending broader historical coverage and completion of 3C–3E.
+  - Fixed three model forms: `LEGACY_POLICY_BASELINE`, `PHASE2_PROBABILISTIC_VECTOR`, and `SIMPLE_NON_PROBABILISTIC_PARETO`.
+  - Every model consumes the same immutable shared observation packet; model-specific evidence fetch is forbidden.
+  - Missing model inputs fail closed as `NOT_EVALUABLE`; no probability, scenario, confidence, concentration or execution input may be added merely to make a model run.
+  - Phase 3B defines model forms and fairness rules only; it does not perform historical decision replay or select a winner.
+- **3C Decision / Capital Replay — VALIDATED COMPLETE_BOUNDED_REPLAY_TERMINAL_NONREPLAYABILITY / PR #306.**
+  - 3C-1 reads historical evidence only by the exact Phase 3A registered `commit_sha:path` using full Git history and extracts model-neutral fields with checkpoint-local provenance.
+  - 3C-2 runs all three fixed 3B model forms on the same packet; no model may read sources itself.
+  - Real bounded validation successfully read all **29 registered historical sources** across the **7 checkpoints**.
+  - Legacy dispositions/states are mechanically replayable for **29 security×checkpoint instances**.
+  - Phase-2 probabilistic/vector evaluable instances = **0**; simple non-probabilistic Pareto evaluable instances = **0**.
+  - Subjective feature fills = 0; probability backfills = 0; scenario backfills = 0; model-specific evidence fetches = 0.
+  - A full Canonical-tree recovery audit then scanned `investment_os_runtime`, `evidence`, and `outputs` across all seven checkpoint commits: **673** keyword-candidate file occurrences, **114** exact-model-field file occurrences and **147** proxy-like-field file occurrences were inspected.
+  - Complete Phase-2 probability/vector packet occurrences = **0**; complete simple-Pareto packet occurrences = **0**; unregistered complete packet occurrences = **0** for both candidate forms.
+  - Therefore the blocker is not a Phase 3A registry omission. `PHASE2_PROBABILISTIC_VECTOR` and `SIMPLE_NON_PROBABILISTIC_PARETO` are recorded as **historically non-replayable on the bounded corpus under the fixed Phase 3B contracts** rather than supplied with retrospective transformations.
+  - This is a **model-form replayability/input-burden finding**, not a comparative-performance finding. Phase 3C is complete as a terminal negative finding; no winner is selected.
+- **3D Calibration & Regret Analysis — BLOCKED / NOT STARTED:** the existing 3D entry rule requires governed candidate replay evidence suitable for comparison with Legacy. Because both candidate forms have zero contemporaneous replay outputs, no regret/calibration metric may be manufactured from the 29-vs-0/0 asymmetry. A separate governed post-3C evaluation-path decision is required before 3D can start.
+- **3E Ablation / Robustness — NOT STARTED:** remove probability, confidence, concentration cost, execution friction or other components one at a time to determine incremental value versus complexity. The 3C non-replayability finding is evidence about model complexity/usability, but Phase 3C itself does not silently rewrite the fixed Phase 3B forms.
+- **3F Historical Promotion Gate:** allowed outcomes are `REJECT_V2_FORM`, `CONTINUE_SHADOW_RESEARCH`, or `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. Phase 3 may never authorize Phase 5 directly. Current promotion eligibility remains false pending a governed post-3C path, valid 3D–3E evidence and broader historical coverage.
 
 ### Phase 4 — Forward Parallel Shadow Validation — MANDATORY / NOT STARTED
 - Run Legacy and surviving candidate Strategy Kernel model(s) in parallel on genuinely future, previously unseen market/research states for multiple complete decision cycles.
@@ -87,4 +90,4 @@ Planned internal steps:
 No Strategy/Core migration is inferred automatically from shadow research performance.
 
 ## Current program state
-Phase 2 shadow infrastructure and the Program Governance Correction are validated on the stacked development chain. Phase 3 is in progress: Phase 3A is complete for a bounded seven-checkpoint Canonical evidence window and Phase 3B has validated the three competing model-form contracts on a common fail-closed input surface. No real historical model comparison has yet been run because point-in-time structured feature extraction and decision/capital replay are Phase 3C work. Phase 3 historical validation as a whole is not complete, Phase 3F promotion eligibility is false, Phase 4 remains mandatory, and Phase 5 is not authorized. Canonical `main` remains unchanged.
+Phase 2 shadow infrastructure and the Program Governance Correction are validated on the stacked development chain. Phase 3A and Phase 3B are accepted for bounded stacked shadow development. Phase 3C is now complete for the bounded corpus: its replay infrastructure is validated, Legacy has 29 mechanically replayable historical instances, and a full Canonical-tree audit proves that neither fixed candidate model had a complete contemporaneous input packet to replay and that no unregistered complete packet was omitted by Phase 3A. This is a terminal negative replayability finding, not comparative performance evidence. Phase 3D remains blocked pending a separate governed decision on the subsequent evaluation path; Phase 3 historical validation is incomplete, Phase 3F promotion eligibility is false, Phase 4 remains mandatory but unavailable, and Phase 5 is not authorized. Canonical `main` remains unchanged.
