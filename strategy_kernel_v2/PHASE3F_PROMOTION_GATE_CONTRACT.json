@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3F",
+  "status": "FROZEN_HISTORICAL_PROMOTION_GATE",
+  "as_of": "2026-08-26",
+  "purpose": "Decide whether Phase 3 historical evidence supports entry to Phase 4 without changing model contracts, creating retrospective inputs, or inferring economic performance from nonmeasurability.",
+  "mandatory_promotion_requirements": {
+    "candidate_point_in_time_historical_replay": true,
+    "candidate_phase3d_evidence_measurable": true,
+    "phase3e_robustness_accepted": true,
+    "broader_historical_coverage": true
+  },
+  "decision_logic": {
+    "promote_only_if_all_mandatory_requirements_pass": true,
+    "reject_only_if_terminal_rejection_evidence_exists": true,
+    "otherwise_continue_shadow_research": true,
+    "nonmeasurability_is_not_economic_underperformance": true,
+    "candidate_nonreplayability_is_not_by_itself_terminal_rejection": true
+  },
+  "terminal_rejection_evidence_definition": {
+    "measurable_candidate_economic_failure": true,
+    "validated_structural_incoherence_without_governed_redesign_path": true,
+    "governed_program_decision_to_abandon_candidate_family": true,
+    "mere_absence_of_contemporaneous_candidate_outputs": false,
+    "mere_failure_of_current_promotion_requirements": false
+  },
+  "allowed_gate_outcomes": [
+    "PROMOTE_TO_PHASE_4_FORWARD_VALIDATION",
+    "REJECT_V2_FORM",
+    "CONTINUE_SHADOW_RESEARCH"
+  ],
+  "current_form_treatment": {
+    "fixed_phase3b_models_may_be_overwritten": false,
+    "material_revision_requires_new_model_identity": true,
+    "material_revision_requires_loopback": "PHASE_3B_CONTRACT_DEFINITION_THEN_PHASE_3C_REPLAY",
+    "same_seed_tuning_may_count_as_independent_validation": false,
+    "broader_or_holdout_history_required_before_promotion": true
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
