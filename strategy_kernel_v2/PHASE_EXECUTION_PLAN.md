@@ -59,21 +59,38 @@ Acceptance: 11/11 regression tests, 8/8 schema validations, deterministic bundle
 3. 605090 concentration remains a re-underwrite diagnostic, never an automatic sell signal;
 4. 301215 remains blocked until project-level utilization/economics gaps are actually resolved by governed fundamental evidence.
 
-**Validation:** 13/13 Phase 2B unit tests pass; governed refresh packet schema validates; price-only material-gap overrides=0; decision-readiness mutations=0; Canonical/economic mutations=0. No real current refresh packet is fabricated merely to advance the phase.
+**Validation:** 13/13 Phase 2B unit tests pass; governed refresh packet schema validates; price-only material-gap overrides=0; decision-readiness mutations=0; Canonical/economic mutations=0.
 
-#### Phase 2C — Current Shadow Comparison Pack — NEXT / GATED
-Source real current governed refresh packets through the approved 2B contract, then feed only eligible refreshed shadow objects to 2A. Priority refresh paths remain:
-1. 601138 issuer H1/major primary evidence + completed-close valuation;
-2. HKEX:00669 completed close + FX normalization while preserving research-only price-band semantics;
-3. 000719 and 002039 fresh normalized valuation and stated issuer checks;
-4. 000333 and 600900 surface/refresh scenario valuation payloads plus issuer-specific limitation refresh;
-5. 605090 issuer-specific re-underwrite, normalized earnings/cash-flow and valuation framework;
-6. 301215 remains event/data-dependent until utilization/project-economics evidence appears.
+#### Phase 2C — Current Shadow Comparison Pack — VALIDATED COMPLETE / NO_COMPARISON
+**Objective:** test the Phase 2A/2B contract against real currently stored governed evidence rather than synthetic or analyst-filled inputs.
 
-When at least two economically meaningful non-reference capital uses are eligible, build a research-only comparison pack with an explicit reference/cash alternative. If that threshold is not met, output `NO_COMPARISON` rather than manufacturing rankings.
+**Evidence sources actually inspected:**
+- Canonical `main` SHA `5c5df9082688f65332c79fef3b9cbfa893a06908`;
+- WP4/WP4B Core research;
+- D2 research for 000719/002039/301215;
+- 601138 WP5 P0 primary-source re-underwrite and Canonical decision semantics;
+- HKEX:00669 Canonical BUY REVIEW and P5C valuation context;
+- latest validated governed WP2-R 2026-08-25 marks in PR #296;
+- latest governed FMDL 2026-08-25 market release.
 
-### Phase 3 — POINT-IN-TIME REPLAY / CALIBRATION
-Mandatory before any effective policy relaxation or migration. Replay using only contemporaneously available evidence; assess forecast calibration, false-negative reduction, false-positive cost, downside capture, turnover and opportunity-cost regret. Candidate scoring/sizing policies are hypotheses to be tested here, not hard-coded in Phase 2.
+**Observed result:**
+- 8/8 securities inventoried;
+- fresh completed closes exist for 000333, 600900, 601138 and 605090 in the governed 2026-08-25 portfolio-mark production;
+- 601138 legacy bear/base/bull scenario values exist but no scenario probabilities are stored; the current Phase 1C fundamental refresh requirement is not fully cleared;
+- 000333/600900 WP4B says driver-based scenarios are complete, but Current exposes only completion status, not the scenario payload/probabilities needed by Phase 2A;
+- 00669 has official H1 evidence and a governed research price framework, but no newly bound completed-close+FX probabilistic refresh packet;
+- 000719/002039 have valuation frameworks/ranges, not probability-weighted annualized-return scenarios;
+- 605090 and 301215 retain material fundamental evidence gaps and are not curable by price refresh;
+- explicit confidence, portfolio concentration cost and execution friction inputs are not available as a complete governed current packet for any object.
+
+**Acceptance result:** zero real governed refresh packets can be constructed without inventing new assumptions; eligible non-reference uses = 0; blocked = 8. Persist `NO_COMPARISON`. This is a successful fail-closed Phase 2C outcome, not a failed run.
+
+**Validation:** Phase 2C pack-builder tests 10/10 pass; fabricated scenario/input count=0; user decision count=0; economic/Candidate mutations=0; `orders=0`; `trade_authority=NONE`.
+
+### Phase 3 — POINT-IN-TIME REPLAY / CALIBRATION — NEXT
+Mandatory before any effective policy relaxation or migration. Replay using only contemporaneously available evidence; assess forecast calibration, false-negative reduction, false-positive cost, downside capture, turnover and opportunity-cost regret.
+
+Phase 3 must explicitly test the **model form** as well as parameter values. Probability-weighted scenarios, confidence/vector representation and any scalar utility/position-sizing rule remain hypotheses. The fact that the current legacy research objects do not store those fields is evidence about the existing process, not permission to backfill them retrospectively without point-in-time provenance.
 
 ### Effective migration
 Separate governed proposal only after Phase 3. Never inferred from shadow research performance alone.
