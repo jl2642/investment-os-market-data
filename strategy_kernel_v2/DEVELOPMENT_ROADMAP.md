@@ -1,20 +1,29 @@
 # Strategy Kernel v2 — Overall Development Roadmap
 
 ## Governance rule: the plan is a controlled development object
-Any change to phase order, scope, dependencies, acceptance criteria, or economic/authority boundaries MUST update this roadmap, `PHASE_EXECUTION_PLAN.md`, `PLAN_CHANGELOG.md`, and `CURRENT_PHASE_STATUS.json` in the same governed change-set as implementation.
+Any change to phase order, scope, dependencies, acceptance criteria, or economic/authority boundaries MUST update this roadmap, `PHASE_EXECUTION_PLAN.md`, `PLAN_CHANGELOG.md`, and `CURRENT_PHASE_STATUS.json` in the same governed change-set (branch/PR) as the implementation change. Implementation may not advance while plan documents lag.
 
 Hard boundaries throughout development: no live trading, no order creation, no automatic Candidate membership/tier mutation, no Real or Simulation economic mutation, no target-portfolio writeback, `orders=0`, `trade_authority=NONE`.
 
 ## Roadmap
-1. **Phase 0B — Current-main rule audit — COMPLETE**.
-2. **Phase 1B — Decision Object v2 shadow adapter — COMPLETE / draft PR #298**.
-3. **Phase 1C — Underwriting Extraction — VALIDATED SHADOW-ONLY / draft PR #299**.
-4. **Phase 2 — Shadow Capital Comparator — IN DEVELOPMENT, research-only**.
-   - **2A Comparator Contract / Engine — VALIDATED SHADOW-ONLY / draft PR #300**: transparent multi-dimensional vectors plus Pareto frontier; no unvalidated scalar score.
-   - **2B Governed Refresh Adapters — VALIDATED SHADOW-ONLY**: refresh packets require explicit governed provenance. `READY_AFTER_REFRESH` needs exact requirement coverage; `NOT_READY` cannot be cured by price/valuation alone and needs a full fundamental re-underwrite resolving all material gaps. Decision readiness and Canonical authority are preserved.
-   - **2C Current Shadow Comparison Pack — NEXT / GATED**: source real current governed refresh packets, then compare only eligible assets. `NO_COMPARISON` remains valid if evidence/freshness gates are unsatisfied.
-5. **Phase 3 — Point-in-time replay and calibration — MANDATORY before effective policy migration**: compare false negatives, false positives, turnover, downside, forecast calibration and opportunity-cost regret; test any future scalar utility/sizing policy here, not in Phase 2.
-6. **Effective Strategy/Core migration — NOT STARTED**: separate governed approval only after Phase 3.
+1. **Phase 0B — Current-main rule audit — COMPLETE**
+   - Inventory existing Core Static semantics and separate investment principles from research controls, portfolio discipline, execution/data safety, and governance.
+2. **Phase 1B — Decision Object v2 shadow adapter — COMPLETE / draft PR #298**
+   - Normalize existing Canonical decision states without changing effective policy.
+3. **Phase 1C — Underwriting Extraction — VALIDATED SHADOW-ONLY / draft PR #299**
+   - Extract existing Canonical issuer research into a common Underwriting Object.
+   - Unknown or missing evidence remains explicit; no research or valuation is synthesized merely to complete a schema.
+4. **Phase 2 — Shadow Capital Comparator — IN DEVELOPMENT, research-only**
+   - **2A Comparator Contract / Engine — VALIDATED SHADOW-ONLY / draft PR #300**: transparent multi-dimensional vectors plus Pareto frontier; no unvalidated scalar score. Current real gate baseline remains 0 eligible / 8 blocked absent governed refresh.
+   - **2B Governed Refresh Adapters — VALIDATED SHADOW-ONLY / awaiting governed review**: satisfy per-object freshness/evidence requirements only through explicit governed refresh packets. `READY_AFTER_REFRESH` requires exact requirement coverage. `NOT_READY` cannot be cured by price/valuation alone; it requires `FUNDAMENTAL_REUNDERWRITE` plus resolution of every material evidence gap. Source decision readiness and all Canonical authority remain unchanged.
+   - **2C Current Shadow Comparison Pack — NEXT / GATED**: source real current governed refresh packets, apply 2B, and compare only eligible positions/candidates/reference assets. `NO_COMPARISON` is a valid output when refresh/evidence gates remain unsatisfied.
+5. **Phase 3 — Point-in-time replay and calibration — MANDATORY before effective policy migration**
+   - Compare legacy vs v2 false negatives, false positives, turnover, downside, forecast calibration and opportunity-cost regret using information available at the historical point in time.
+   - Test whether any candidate scalar utility/position-sizing policy improves decisions before such weights can enter Strategy Kernel policy.
+6. **Effective Strategy/Core migration — NOT STARTED**
+   - May be considered only after Phase 3 and a separate governed approval.
 
-## Architectural rule
-Phase 2 separates **measurement, evidence refresh and policy**. A shadow comparison result cannot create Candidate membership, a user decision, a target weight, an order or a trade.
+## Phase 2 architectural rule
+Phase 2 separates **measurement, governed evidence refresh and policy**. Phase 2A measures expected return, downside, probability of loss, confidence, concentration cost and execution friction and exposes Pareto dominance. Phase 2B governs how new evidence can make an object comparison-ready without mutating the source decision state. Neither subphase assigns a one-number investment score or authorizes action; utility weights and sizing remain hypotheses for Phase 3.
+
+Passing a shadow comparison gate never authorizes a Candidate mutation, portfolio mutation, user decision, order or trade.
