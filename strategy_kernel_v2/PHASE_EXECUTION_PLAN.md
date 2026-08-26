@@ -65,7 +65,7 @@ Test removal/simplification of probability, confidence, concentration cost, exec
 If 3E proposes a materially revised form:
 - assign a new model/version identity;
 - do not overwrite any fixed 3B historical form;
-- route the revised form back through governed 3B contract definition and 3C replay before any 3F promotion;
+- the revised form must **return through governed 3B contract definition and 3C replay** before any 3F promotion;
 - forbid tuning on the same seven seed checkpoints and then presenting that seed as independent validation;
 - require broader or holdout historical validation.
 
