@@ -1,9 +1,8 @@
 """Audit Canonical checkpoint trees for contemporaneous candidate-model inputs.
 
-The audit is deliberately stricter than a keyword search. It distinguishes exact
-model fields from legacy/proxy-like fields and never maps a proxy into a Phase 3B
-model dimension. A historical file can unblock candidate replay only if a complete
-input packet is explicitly present in the checkpoint tree.
+The audit distinguishes exact model fields from legacy/proxy-like fields and never
+maps a proxy into a Phase 3B model dimension. It scans each Canonical checkpoint tree
+with git-grep first, then parses only matching historical files.
 """
 from __future__ import annotations
 
@@ -11,6 +10,7 @@ import csv
 import io
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 from typing import Any, Iterable, Mapping
@@ -21,11 +21,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from strategy_kernel_v2.point_in_time_ledger import build_point_in_time_ledger  # noqa: E402
 
-PHASE2_REQUIRED = {
-    "confidence",
-    "portfolio_concentration_cost",
-    "execution_friction",
-}
+PHASE2_REQUIRED = {"confidence", "portfolio_concentration_cost", "execution_friction"}
 SIMPLE_REQUIRED = {
     "return_proxy",
     "downside_resilience",
@@ -36,11 +32,7 @@ SIMPLE_REQUIRED = {
 EXACT_SEARCH_TERMS = sorted(
     PHASE2_REQUIRED
     | SIMPLE_REQUIRED
-    | {
-        "valuation_scenarios",
-        "probability",
-        "annualized_total_return",
-    }
+    | {"valuation_scenarios", "probability", "annualized_total_return"}
 )
 PROXY_KEYS = {
     "evidence_score",
@@ -59,16 +51,11 @@ PROXY_KEYS = {
 }
 SCAN_ROOTS = ("investment_os_runtime", "evidence", "outputs")
 TEXT_SUFFIXES = {".json", ".csv", ".md", ".txt"}
+SEARCH_PATTERN = "|".join(re.escape(term) for term in sorted(set(EXACT_SEARCH_TERMS) | PROXY_KEYS))
 
 
 def _run(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        args,
-        cwd=str(repo_root),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    return subprocess.run(args, cwd=str(repo_root), text=True, capture_output=True, check=False)
 
 
 def _tree_paths(repo_root: Path, commit_sha: str) -> list[str]:
@@ -80,6 +67,24 @@ def _tree_paths(repo_root: Path, commit_sha: str) -> list[str]:
         for line in completed.stdout.splitlines()
         if line.strip() and Path(line.strip()).suffix.lower() in TEXT_SUFFIXES
     )
+
+
+def _matching_paths(repo_root: Path, commit_sha: str, allowed_paths: set[str]) -> list[str]:
+    completed = _run(
+        repo_root,
+        ["git", "grep", "-l", "-I", "-E", SEARCH_PATTERN, commit_sha, "--", *SCAN_ROOTS],
+    )
+    if completed.returncode not in (0, 1):
+        raise RuntimeError("CHECKPOINT_GREP_FAILED:" + commit_sha + ":" + completed.stderr.strip())
+    matches = []
+    prefix = commit_sha + ":"
+    for line in completed.stdout.splitlines():
+        value = line.strip()
+        if value.startswith(prefix):
+            value = value[len(prefix):]
+        if value in allowed_paths:
+            matches.append(value)
+    return sorted(set(matches))
 
 
 def _show(repo_root: Path, commit_sha: str, path: str) -> str:
@@ -125,9 +130,7 @@ def _scenario_list_is_probability_weighted(value: Any) -> bool:
     if not isinstance(value, list) or len(value) < 2:
         return False
     for row in value:
-        if not isinstance(row, Mapping):
-            return False
-        if "probability" not in row:
+        if not isinstance(row, Mapping) or "probability" not in row:
             return False
         if not ({"annualized_total_return", "return_vs_completed_close"} & set(row)):
             return False
@@ -139,12 +142,9 @@ def _complete_phase2_mappings(value: Any) -> int:
     for mapping in _walk_mappings(value):
         if not PHASE2_REQUIRED <= set(mapping):
             continue
-        scenarios = mapping.get("valuation_scenarios")
-        if _scenario_list_is_probability_weighted(scenarios):
+        if _scenario_list_is_probability_weighted(mapping.get("valuation_scenarios")):
             count += 1
-            continue
-        scenarios = mapping.get("scenarios")
-        if _scenario_list_is_probability_weighted(scenarios):
+        elif _scenario_list_is_probability_weighted(mapping.get("scenarios")):
             count += 1
     return count
 
@@ -157,14 +157,11 @@ def _registered_paths_for_snapshot(snapshot: Mapping[str, Any]) -> set[str]:
     return {str(record["source"]["path"]) for record in snapshot["selected_evidence"]}
 
 
-def audit_checkpoint(
-    *,
-    repo_root: Path,
-    point: Mapping[str, Any],
-    snapshot: Mapping[str, Any],
-) -> dict[str, Any]:
+def audit_checkpoint(*, repo_root: Path, point: Mapping[str, Any], snapshot: Mapping[str, Any]) -> dict[str, Any]:
     commit_sha = point["canonical_commit_sha"]
-    paths = _tree_paths(repo_root, commit_sha)
+    tree_paths = _tree_paths(repo_root, commit_sha)
+    tree_path_set = set(tree_paths)
+    paths = _matching_paths(repo_root, commit_sha, tree_path_set)
     registered_paths = _registered_paths_for_snapshot(snapshot)
 
     exact_field_files: list[dict[str, Any]] = []
@@ -172,14 +169,8 @@ def audit_checkpoint(
     complete_phase2: list[dict[str, Any]] = []
     complete_simple: list[dict[str, Any]] = []
 
-    exact_terms_lower = tuple(term.lower() for term in EXACT_SEARCH_TERMS)
-    proxy_terms_lower = tuple(term.lower() for term in PROXY_KEYS)
-
     for path in paths:
         raw = _show(repo_root, commit_sha, path)
-        lower = raw.lower()
-        if not any(term in lower for term in exact_terms_lower + proxy_terms_lower):
-            continue
         parsed = _parse(path, raw)
         keys = _all_keys(parsed) if not isinstance(parsed, str) else set()
         exact_keys = sorted(set(EXACT_SEARCH_TERMS) & keys)
@@ -187,30 +178,23 @@ def audit_checkpoint(
         registered = path in registered_paths
 
         if exact_keys:
-            exact_field_files.append(
-                {"path": path, "registered_selected_path": registered, "exact_keys": exact_keys}
-            )
+            exact_field_files.append({"path": path, "registered_selected_path": registered, "exact_keys": exact_keys})
         if proxy_keys:
-            proxy_field_files.append(
-                {"path": path, "registered_selected_path": registered, "proxy_keys": proxy_keys}
-            )
+            proxy_field_files.append({"path": path, "registered_selected_path": registered, "proxy_keys": proxy_keys})
 
         p2_count = _complete_phase2_mappings(parsed) if not isinstance(parsed, str) else 0
         simple_count = _complete_simple_mappings(parsed) if not isinstance(parsed, str) else 0
         if p2_count:
-            complete_phase2.append(
-                {"path": path, "registered_selected_path": registered, "complete_mapping_count": p2_count}
-            )
+            complete_phase2.append({"path": path, "registered_selected_path": registered, "complete_mapping_count": p2_count})
         if simple_count:
-            complete_simple.append(
-                {"path": path, "registered_selected_path": registered, "complete_mapping_count": simple_count}
-            )
+            complete_simple.append({"path": path, "registered_selected_path": registered, "complete_mapping_count": simple_count})
 
     return {
         "decision_point_id": point["decision_point_id"],
         "at": point["at"],
         "canonical_commit_sha": commit_sha,
-        "tree_text_file_count": len(paths),
+        "tree_text_file_count": len(tree_paths),
+        "keyword_candidate_file_count": len(paths),
         "registered_selected_path_count": len(registered_paths),
         "exact_model_field_files": exact_field_files,
         "proxy_like_field_files": proxy_field_files,
@@ -228,26 +212,18 @@ def build_audit(repo_root: str | Path = ".") -> dict[str, Any]:
     ledger = build_point_in_time_ledger(registry["records"], points_doc["decision_points"])
     snapshots = {row["decision_point_id"]: row for row in ledger["snapshots"]}
 
-    checkpoint_results = []
-    for point in points_doc["decision_points"]:
-        checkpoint_results.append(
-            audit_checkpoint(
-                repo_root=root,
-                point=point,
-                snapshot=snapshots[point["decision_point_id"]],
-            )
-        )
+    checkpoint_results = [
+        audit_checkpoint(repo_root=root, point=point, snapshot=snapshots[point["decision_point_id"]])
+        for point in points_doc["decision_points"]
+    ]
 
     phase2_complete = sum(len(row["complete_phase2_packet_files"]) for row in checkpoint_results)
     simple_complete = sum(len(row["complete_simple_packet_files"]) for row in checkpoint_results)
-    phase2_unregistered = sum(
-        len(row["unregistered_complete_phase2_packet_files"]) for row in checkpoint_results
-    )
-    simple_unregistered = sum(
-        len(row["unregistered_complete_simple_packet_files"]) for row in checkpoint_results
-    )
+    phase2_unregistered = sum(len(row["unregistered_complete_phase2_packet_files"]) for row in checkpoint_results)
+    simple_unregistered = sum(len(row["unregistered_complete_simple_packet_files"]) for row in checkpoint_results)
     exact_files = sum(len(row["exact_model_field_files"]) for row in checkpoint_results)
     proxy_files = sum(len(row["proxy_like_field_files"]) for row in checkpoint_results)
+    keyword_files = sum(row["keyword_candidate_file_count"] for row in checkpoint_results)
 
     if phase2_unregistered or simple_unregistered:
         conclusion = "POTENTIAL_UNREGISTERED_COMPLETE_INPUTS_REQUIRE_GOVERNED_REVIEW"
@@ -262,6 +238,7 @@ def build_audit(repo_root: str | Path = ".") -> dict[str, Any]:
         "mode": "HISTORICAL_INPUT_RECOVERY_AND_REPLAYABILITY_AUDIT",
         "checkpoint_count": len(checkpoint_results),
         "scan_roots": list(SCAN_ROOTS),
+        "keyword_candidate_file_occurrences": keyword_files,
         "exact_model_field_file_occurrences": exact_files,
         "proxy_like_field_file_occurrences": proxy_files,
         "complete_phase2_packet_file_occurrences": phase2_complete,
@@ -281,6 +258,7 @@ if __name__ == "__main__":
     print(
         "PHASE3C_REPLAYABILITY_AUDIT "
         f"checkpoints={result['checkpoint_count']} "
+        f"keyword_files={result['keyword_candidate_file_occurrences']} "
         f"exact_field_files={result['exact_model_field_file_occurrences']} "
         f"proxy_files={result['proxy_like_field_file_occurrences']} "
         f"phase2_complete={result['complete_phase2_packet_file_occurrences']} "
