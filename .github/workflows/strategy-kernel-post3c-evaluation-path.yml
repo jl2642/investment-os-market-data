@@ -1,0 +1,42 @@
+name: Strategy Kernel Post-3C Evaluation Path
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/PHASE3_POST3C_EVALUATION_PATH_DECISION.json'
+      - 'strategy_kernel_v2/PHASE3_POST3C_EVALUATION_PATH_DECISION.md'
+      - 'strategy_kernel_v2/PROGRAM_CONTRACT.json'
+      - 'strategy_kernel_v2/PROGRAM_STATE.json'
+      - 'strategy_kernel_v2/CURRENT_PHASE_STATUS.json'
+      - 'strategy_kernel_v2/MASTER_PROGRAM_CHARTER.md'
+      - 'strategy_kernel_v2/DEVELOPMENT_ROADMAP.md'
+      - 'strategy_kernel_v2/PHASE_EXECUTION_PLAN.md'
+      - 'strategy_kernel_v2/PLAN_CHANGELOG.md'
+      - 'strategy_kernel_v2/program_consistency.py'
+      - 'strategy_kernel_v2/validate_post3c_evaluation_path.py'
+      - 'strategy_kernel_v2/tests/test_post3c_evaluation_path.py'
+      - '.github/workflows/strategy-kernel-post3c-evaluation-path.yml'
+  workflow_dispatch:
+
+jobs:
+  post3c-evaluation-path:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run post-3C governance tests
+        run: python -m unittest strategy_kernel_v2.tests.test_post3c_evaluation_path
+      - name: Validate post-3C evaluation path
+        run: python strategy_kernel_v2/validate_post3c_evaluation_path.py
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Re-run Phase 3C regression tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3c
+      - name: Re-run Phase 3B dependency tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3b
+      - name: Re-run Phase 3A dependency tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3a
