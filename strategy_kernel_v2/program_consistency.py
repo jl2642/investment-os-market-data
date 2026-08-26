@@ -46,7 +46,6 @@ def validate_program_consistency():
     if lifecycle != EXPECTED:
         errors.append("MACRO_LIFECYCLE_MISMATCH")
 
-    # Charter, roadmap and execution plan must explicitly carry every macro phase.
     for phase, _ in EXPECTED:
         for name in ("CHARTER", "ROADMAP", "EXECUTION"):
             if f"Phase {phase}" not in texts[name]:
@@ -64,8 +63,6 @@ def validate_program_consistency():
         if gates.get(key) is not True:
             errors.append("MANDATORY_GATE_FALSE_" + key)
 
-    # Program state must follow the contract's declared promotion edge rather than
-    # a validator hard-coded to one temporary phase.
     lifecycle_map = {item["phase"]: item for item in contract["macro_lifecycle"]}
     macro_phase = state["macro_phase"]
     if macro_phase not in lifecycle_map:
@@ -90,8 +87,6 @@ def validate_program_consistency():
     if (macro_phase >= 3) != bool(state["phase3_implementation_started"]):
         errors.append("PROGRAM_STATE_PHASE3_STARTED_MISMATCH")
 
-    # Human-readable current status and machine state must agree on every
-    # promotion- and authority-relevant field.
     state_current_pairs = [
         ("current_macro_phase", "macro_phase"),
         ("next_macro_phase", "next_macro_phase"),
@@ -137,6 +132,69 @@ def validate_program_consistency():
             errors.append("CHANGELOG_MISSING_ROADMAP_DRIFT_CORRECTION")
         if "Phase 4" not in changelog or "Phase 3" not in changelog:
             errors.append("CHANGELOG_MISSING_PHASE_RESTORATION_RECORD")
+
+    # Governed post-3C negative-result path.
+    policy = contract.get("phase3_internal_evaluation_policy")
+    if not policy:
+        errors.append("PHASE3_INTERNAL_EVALUATION_POLICY_MISSING")
+    else:
+        if policy.get("phase3_subphase_sequence") != ["3A", "3B", "3C", "3D", "3E", "3F"]:
+            errors.append("PHASE3_SUBPHASE_SEQUENCE_MISMATCH")
+        for key in [
+            "post3c_negative_replayability_may_complete_phase3c",
+            "phase3d_missing_candidate_outputs_must_be_nonmeasurable",
+            "phase3d_hypothetical_candidate_outputs_forbidden",
+            "phase3d_outcome_definitions_must_be_preregistered_before_loading_realized_outcomes",
+            "phase3e_revised_model_forms_must_be_versioned",
+            "phase3e_revised_forms_must_return_to_phase3b_and_phase3c",
+            "phase3f_promotion_requires_historically_replayable_candidate",
+            "phase3f_promotion_requires_broader_historical_coverage",
+        ]:
+            if policy.get(key) is not True:
+                errors.append("PHASE3_INTERNAL_POLICY_FALSE_" + key)
+
+    decision_path = ROOT / "PHASE3_POST3C_EVALUATION_PATH_DECISION.json"
+    if state.get("post3c_evaluation_path_decision_complete"):
+        if not decision_path.exists():
+            errors.append("POST3C_DECISION_ARTIFACT_MISSING")
+        else:
+            decision = json.loads(decision_path.read_text(encoding="utf-8"))
+            approved = {row["id"]: row["decision"] for row in decision["alternatives"]}
+            if approved.get("PHASE3D_NEGATIVE_RESULT_MEASURABILITY_PATH") != "APPROVED":
+                errors.append("POST3C_APPROVED_PATH_MISSING")
+            for rejected in [
+                "RETROSPECTIVE_INPUT_SYNTHESIS",
+                "SILENT_PHASE3B_CONTRACT_REWRITE",
+                "SKIP_PHASE3D_TO_PHASE3E",
+            ]:
+                if approved.get(rejected) != "REJECTED":
+                    errors.append("POST3C_REJECTED_PATH_NOT_REJECTED_" + rejected)
+            if decision["approved_path"]["phase3d_rules"].get("candidate_metrics_without_contemporaneous_outputs") != "NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS":
+                errors.append("POST3C_NONMEASURABLE_SENTINEL_MISSING")
+
+        if not state.get("phase3c_complete"):
+            errors.append("POST3C_DECISION_BEFORE_PHASE3C_COMPLETE")
+        if state.get("governed_subsequent_evaluation_path_decision_required_before_phase3d"):
+            errors.append("POST3C_GATE_STILL_MARKED_REQUIRED")
+        if not state.get("phase3d_start_allowed"):
+            errors.append("POST3C_DECISION_DID_NOT_UNLOCK_PHASE3D")
+        if current["validation"].get("post3c_evaluation_path_decision_complete") is not True:
+            errors.append("CURRENT_POST3C_DECISION_NOT_COMPLETE")
+        if current["validation"].get("phase3d_start_allowed") is not True:
+            errors.append("CURRENT_PHASE3D_NOT_ALLOWED")
+        if state.get("phase3d_started") or current["validation"].get("phase3d_started"):
+            errors.append("PHASE3D_STARTED_DURING_GOVERNANCE_GATE")
+        if state.get("phase3f_promotion_eligible") or current["validation"].get("phase3f_promotion_eligible"):
+            errors.append("PHASE3F_PREMATURELY_ELIGIBLE")
+
+        for name in ("CHARTER", "ROADMAP", "EXECUTION", "CHANGELOG"):
+            if "NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS" not in texts[name]:
+                errors.append(f"{name}_MISSING_POST3C_NONMEASURABLE_POLICY")
+        if "return through governed 3B" not in texts["ROADMAP"] or "return through governed 3B" not in texts["EXECUTION"]:
+            errors.append("PHASE3E_RETURN_TO_3B_3C_TEXT_GUARD_MISSING")
+
+    if state.get("phase3d_started") and not state.get("phase3d_start_allowed"):
+        errors.append("PHASE3D_STARTED_WITHOUT_PERMISSION")
 
     return errors
 
