@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Decision Object v2 Shadow",
+  "type": "object",
+  "required": ["schema_version", "security_id", "as_of", "main_sha", "evidence", "underwriting", "valuation", "portfolio_fit", "decision", "authority"],
+  "properties": {
+    "schema_version": {"const": "2.1.0-shadow"},
+    "security_id": {"type": "string", "minLength": 1},
+    "as_of": {"type": "string", "minLength": 1},
+    "main_sha": {"type": "string", "minLength": 7},
+    "evidence": {"type": "object", "required": ["completeness", "confidence", "material_gaps"]},
+    "underwriting": {"type": "object", "required": ["thesis", "kill_conditions"]},
+    "valuation": {"type": "object", "required": ["state", "method", "valuation_confidence", "scenarios"], "properties": {"state": {"enum": ["UNAVAILABLE", "INCOMPLETE", "AVAILABLE_SHADOW", "DECISION_GRADE"]}, "method": {"type": "string"}, "valuation_confidence": {"type": "number", "minimum": 0, "maximum": 1}, "scenarios": {"type": "array"}}},
+    "portfolio_fit": {"type": "object", "required": ["current_weight", "execution_feasibility"]},
+    "decision": {"type": "object", "required": ["comparability_state", "research_action", "economic_preference", "reason_codes"]},
+    "authority": {"type": "object", "required": ["orders", "trade_authority", "economic_state_mutation_authorized", "candidate_membership_mutation_authorized", "target_portfolio_writeback_authorized", "real_position_change_authorized", "simulation_position_change_authorized", "order_authorized", "implementation_ready"], "properties": {"orders": {"const": 0}, "trade_authority": {"const": "NONE"}, "economic_state_mutation_authorized": {"const": false}, "candidate_membership_mutation_authorized": {"const": false}, "target_portfolio_writeback_authorized": {"const": false}, "real_position_change_authorized": {"const": false}, "simulation_position_change_authorized": {"const": false}, "order_authorized": {"const": false}, "implementation_ready": {"const": false}}, "additionalProperties": false}
+  }
+}
