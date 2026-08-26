@@ -62,18 +62,44 @@ def validate():
         errors.append("PROGRAM_STATE_POST3F_DECISION_NOT_COMPLETE")
     if state.get("post3f_research_path") != "NEW_IDENTITY_EVIDENCE_NATIVE_R2_PLUS_INDEPENDENT_HOLDOUT_EXPANSION":
         errors.append("PROGRAM_STATE_POST3F_PATH_MISMATCH")
-    if not state.get("r2_phase3b_contract_definition_start_allowed") or state.get("r2_phase3b_contract_definition_started"):
-        errors.append("PROGRAM_STATE_R2_ENTRY_MISMATCH")
-    if current.get("current_phase") != "POST_PHASE3F_RESEARCH_PATH_DECISION":
-        errors.append("CURRENT_PHASE_POST3F_MISMATCH")
-    if current["validation"].get("post3f_research_path_decision_complete") is not True:
-        errors.append("CURRENT_POST3F_DECISION_NOT_COMPLETE")
-    if current.get("next_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
-        errors.append("CURRENT_NEXT_PHASE_R2_MISMATCH")
+    if not state.get("r2_phase3b_contract_definition_start_allowed"):
+        errors.append("PROGRAM_STATE_R2_ENTRY_NOT_ALLOWED")
 
+    current_phase = current.get("current_phase")
+    cv = current["validation"]
+    if current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
+        if state.get("r2_phase3b_contract_definition_started"):
+            errors.append("PROGRAM_STATE_R2_PREMATURE_START_IN_POST3F")
+        if current.get("next_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
+            errors.append("CURRENT_NEXT_PHASE_R2_MISMATCH")
+    elif current_phase == "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
+        contract_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
+        if not contract_path.exists():
+            errors.append("R2_CURRENT_WITHOUT_FROZEN_CONTRACT")
+        else:
+            contract = json.loads(contract_path.read_text(encoding="utf-8"))
+            if contract.get("status") != "FROZEN_REVISED_MODEL_CONTRACT_NO_HISTORICAL_REPLAY":
+                errors.append("R2_CURRENT_CONTRACT_NOT_FROZEN")
+            if contract.get("model", {}).get("model_form") != "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2":
+                errors.append("R2_CURRENT_MODEL_IDENTITY_DRIFT")
+        if state.get("r2_phase3b_contract_definition_started") is not True or state.get("r2_phase3b_contract_definition_complete") is not True:
+            errors.append("R2_CURRENT_STATE_NOT_COMPLETE")
+        if cv.get("r2_phase3b_contract_definition_started") is not True or cv.get("r2_phase3b_contract_definition_complete") is not True:
+            errors.append("R2_CURRENT_STATUS_NOT_COMPLETE")
+        if state.get("r2_phase3c_replay_start_allowed") is not True or state.get("r2_phase3c_replay_started") is not False:
+            errors.append("R2_CURRENT_PHASE3C_BOUNDARY_DRIFT")
+        if cv.get("r2_real_historical_replay_executed") is not False or cv.get("r2_historical_performance_claimed") is not False:
+            errors.append("R2_CURRENT_PREMATURE_REPLAY_OR_PERFORMANCE")
+        if current.get("next_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
+            errors.append("R2_CURRENT_NEXT_PHASE_NOT_3C_R2")
+    else:
+        errors.append("CURRENT_PHASE_NOT_POST3F_OR_GOVERNED_R2")
+
+    if cv.get("post3f_research_path_decision_complete") is not True:
+        errors.append("CURRENT_POST3F_DECISION_NOT_COMPLETE")
     if state.get("phase3_historical_validation_complete") or state.get("phase4_entry_allowed") or state.get("phase4_forward_validation_complete") or state.get("phase5_migration_allowed"):
         errors.append("DOWNSTREAM_PHASE_PREMATURE")
-    if current["validation"].get("phase4_entry_allowed"):
+    if cv.get("phase4_entry_allowed"):
         errors.append("CURRENT_PHASE4_PREMATURE")
 
     controls = decision["authority_boundaries"]
@@ -90,4 +116,4 @@ if __name__ == "__main__":
     errors = validate()
     if errors:
         raise AssertionError(";".join(errors))
-    print("POST3F_RESEARCH_PATH_PASS path=EVIDENCE_NATIVE_R2_PLUS_HOLDOUT next=PHASE_3B_R2 phase4_entry_allowed=false orders=0 trade_authority=NONE")
+    print("POST3F_RESEARCH_PATH_PASS path=EVIDENCE_NATIVE_R2_PLUS_HOLDOUT phase3b_r2_contract_complete=true phase4_entry_allowed=false orders=0 trade_authority=NONE")
