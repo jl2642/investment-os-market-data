@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "decision": "GOVERNED_POST_3C_EVALUATION_PATH",
+  "as_of": "2026-08-26",
+  "source_phase3c_head": "6772fb1d8ec4fa315513fd5046e9258849c3884d",
+  "macro_lifecycle_unchanged": true,
+  "phase3_subphase_sequence_unchanged": ["3A", "3B", "3C", "3D", "3E", "3F"],
+  "phase3c_finding": {
+    "legacy_evaluable_instances": 29,
+    "phase2_probabilistic_evaluable_instances": 0,
+    "simple_pareto_evaluable_instances": 0,
+    "phase3a_registry_omission_found": false,
+    "candidate_models_historically_nonreplayable": true
+  },
+  "alternatives": [
+    {
+      "id": "RETROSPECTIVE_INPUT_SYNTHESIS",
+      "decision": "REJECTED",
+      "reason": "Would fabricate probability/confidence/concentration/execution or simple-Pareto inputs after observing history."
+    },
+    {
+      "id": "SILENT_PHASE3B_CONTRACT_REWRITE",
+      "decision": "REJECTED",
+      "reason": "Would change the fixed competing model forms without a governed versioned redesign."
+    },
+    {
+      "id": "SKIP_PHASE3D_TO_PHASE3E",
+      "decision": "REJECTED",
+      "reason": "Would break the governed 3A-to-3F sequence and erase the explicit measurability consequence of Phase 3C."
+    },
+    {
+      "id": "PHASE3D_NEGATIVE_RESULT_MEASURABILITY_PATH",
+      "decision": "APPROVED",
+      "reason": "Preserves sequence and no-hindsight rules while allowing Phase 3D to formally distinguish measurable Legacy diagnostics from candidate metrics that do not exist."
+    }
+  ],
+  "approved_path": {
+    "phase3d_start_allowed_after_acceptance": true,
+    "phase3d_mode": "NEGATIVE_RESULT_MEASURABILITY_AND_REGRET_OBSERVABILITY",
+    "phase3d_rules": {
+      "pre_register_outcome_horizons_and_reference_definitions_before_loading_realized_outcomes": true,
+      "legacy_metrics_may_be_measured_when_source_and_outcome_data_support_them": true,
+      "candidate_metrics_without_contemporaneous_outputs": "NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS",
+      "hypothetical_candidate_decisions_forbidden": true,
+      "retrospective_candidate_output_generation_forbidden": true,
+      "cross_model_winner_selection_forbidden_when_candidate_outputs_absent": true,
+      "outcome_data_may_not_feed_back_into_replayed_inputs_or_parameters": true
+    },
+    "phase3e_mode": "ABLATION_AND_INPUT_BURDEN_ROBUSTNESS",
+    "phase3e_rules": {
+      "test_probability_confidence_concentration_execution_and_other_components_individually": true,
+      "phase3c_nonreplayability_is_valid_complexity_usability_evidence": true,
+      "revised_model_forms_must_be_versioned_new_forms": true,
+      "revised_model_forms_may_not_overwrite_phase3b_historical_forms": true,
+      "revised_forms_require_return_to_phase3b_and_phase3c_before_any_phase3f_promotion": true,
+      "same_seed_outcome_tuning_forbidden": true,
+      "broader_or_holdout_historical_validation_required_for_revised_forms": true
+    },
+    "phase3f_rules": {
+      "promote_to_phase4_requires_at_least_one_candidate_with_valid_point_in_time_historical_replay": true,
+      "promote_to_phase4_requires_measurable_phase3d_evidence": true,
+      "promote_to_phase4_requires_phase3e_robustness": true,
+      "promote_to_phase4_requires_broader_historical_coverage": true,
+      "if_no_candidate_becomes_historically_evaluable_allowed_outcomes": ["REJECT_V2_FORM", "CONTINUE_SHADOW_RESEARCH"],
+      "direct_phase3_to_phase5_forbidden": true
+    }
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
