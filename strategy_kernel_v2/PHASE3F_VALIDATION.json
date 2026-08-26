@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "3F",
+  "status": "PASS_COMPLETE_HISTORICAL_PROMOTION_GATE_CONTINUE_SHADOW_RESEARCH",
+  "as_of": "2026-08-26",
+  "parent_phase3e_head": "907ea28a15acefec8f9d8100c84855aed1389d75",
+  "gate_contract": "PHASE3F_PROMOTION_GATE_CONTRACT.json",
+  "promotion_requirements": {
+    "candidate_point_in_time_historical_replay": {
+      "passed": false,
+      "observed_candidate_replayable_instances": 0
+    },
+    "candidate_phase3d_evidence_measurable": {
+      "passed": false,
+      "candidate_comparative_performance_available": false,
+      "measurable_candidate_metric_count": 0
+    },
+    "phase3e_robustness_accepted": {
+      "passed": true,
+      "single_component_ablation_count": 9,
+      "single_component_ablation_unlock_count": 0
+    },
+    "broader_historical_coverage": {
+      "passed": false,
+      "current_checkpoint_count": 7,
+      "coverage_expansion_required": true
+    }
+  },
+  "promotion_requirement_pass_count": 1,
+  "promotion_requirement_total_count": 4,
+  "promotion_eligible": false,
+  "phase4_entry_allowed": false,
+  "terminal_rejection_evidence": false,
+  "economic_rejection_conclusion_available": false,
+  "gate_outcome": "CONTINUE_SHADOW_RESEARCH",
+  "current_fixed_candidate_forms_status": "NOT_PROMOTABLE_IN_CURRENT_FORM",
+  "interpretation": {
+    "finding": "The fixed Phase 3B candidate forms fail the historical promotion gate because they have no valid point-in-time candidate replay, no measurable Phase 3D candidate evidence, and insufficient historical coverage. Phase 3E robustness is complete but did not restore replayability through any single-component ablation.",
+    "why_not_promote": "Three of four mandatory promotion requirements fail.",
+    "why_not_terminal_reject": "Candidate economic performance was not measurable, no comparative winner or underperformance result exists, and Phase 3E identified adjacent contemporaneous observables plus a governed redesign path. Nonmeasurability and schema mismatch therefore do not constitute terminal economic rejection evidence.",
+    "fixed_form_consequence": "Current fixed candidate forms are research-only and not promotable to Phase 4.",
+    "program_consequence": "Phase 3 remains open for governed research loopback; Phase 4 remains blocked."
+  },
+  "required_next_research_path": {
+    "material_revision_requires_new_model_identity": true,
+    "loopback": "PHASE_3B_CONTRACT_DEFINITION_THEN_PHASE_3C_REPLAY",
+    "same_seed_tuning_may_count_as_independent_validation": false,
+    "broader_or_holdout_history_required_before_promotion": true,
+    "direct_phase3f_to_phase4_without_revalidation": false
+  },
+  "phase_boundary": {
+    "phase3f_started": true,
+    "phase3f_complete": true,
+    "phase3f_promotion_eligible": false,
+    "phase3_historical_validation_complete": false,
+    "phase4_entry_allowed": false,
+    "phase4_forward_validation_complete": false,
+    "phase5_migration_allowed": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
