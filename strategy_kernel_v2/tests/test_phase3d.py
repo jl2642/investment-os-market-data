@@ -11,7 +11,13 @@ class Phase3DCloseoutTests(unittest.TestCase):
     def setUpClass(cls):
         cls.v=load('PHASE3D_VALIDATION.json'); cls.s=load('PROGRAM_STATE.json'); cls.c=load('CURRENT_PHASE_STATUS.json'); cls.m=load('PHASE3D_OUTCOME_SOURCE_MANIFEST.json')
     def test_complete(self): self.assertTrue(self.s['phase3d_complete']); self.assertTrue(self.s['phase3d_outcomes_loaded'])
-    def test_phase3e_only_next(self): self.assertTrue(self.s['phase3e_start_allowed']); self.assertFalse(self.s['phase3e_started']); self.assertFalse(self.s['phase3f_promotion_eligible'])
+    def test_phase3e_is_only_legal_next_stage(self):
+        self.assertTrue(self.s['phase3e_start_allowed'])
+        self.assertFalse(self.s['phase3f_promotion_eligible'])
+        if self.s['phase3e_started']:
+            contract=load('PHASE3E_ABLATION_CONTRACT.json')
+            self.assertEqual(contract['status'],'FROZEN_STRUCTURAL_ABLATION_NO_OUTCOME_TUNING')
+            self.assertTrue(self.s['phase3e_revised_forms_must_return_to_phase3b_phase3c'])
     def test_horizons_unchanged(self): self.assertEqual(self.v['contract']['fixed_horizons_trading_sessions'],[1,3,5]); self.assertEqual(self.v['contract']['horizon_change_count_after_outcome_loading'],0)
     def test_candidate_nonmeasurable(self): self.assertEqual(self.v['candidate_measurability']['phase2_probabilistic_vector'],'NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS'); self.assertEqual(self.v['candidate_measurability']['simple_non_probabilistic_pareto'],'NOT_MEASURABLE_NO_CONTEMPORANEOUS_OUTPUTS')
     def test_no_comparative_performance(self): self.assertFalse(self.v['candidate_measurability']['candidate_comparative_performance_available']); self.assertFalse(self.v['interpretation']['legacy_winner_conclusion']); self.assertFalse(self.v['interpretation']['candidate_winner_conclusion'])
