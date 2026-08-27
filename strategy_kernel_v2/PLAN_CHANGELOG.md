@@ -479,3 +479,16 @@ The accepted V2 14-checkpoint selection was rebuilt deterministically. Replay us
 **Interpretation:** Phase 3E-R2 is complete and its robustness evaluation is accepted as evidence completion only. Positive robustness, statistical significance, economic winner and Phase 4 promotion are not claimed.
 
 **Governed consequence:** Repeat Phase 3F is mandatory and now start-allowed, but not started. Phase 3 historical validation remains incomplete; Phase 4 remains blocked; `orders=0`; `trade_authority=NONE`.
+
+
+## 2026-08-27 — Repeat Phase 3F R2 historical promotion gate passed 4/4
+
+**Inherited contract:** `PHASE3F_PROMOTION_GATE_CONTRACT.json`, git blob `4ce0d23558d0fa80cdc9f58004e7e1ab39b077f2`; four mandatory requirements unchanged.
+
+**Result:** 4/4 PASS; `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. Gate SHA-256 `af174d3adb0bb70afa306f26fa0c2a66eb925e04421962dcfae5573b404d22ec`; workflow run `33057016736`; artifact ID `9640103462`; digest `sha256:8c95d53459b5086dd85e4aa94af9573b8d6e44ba64ffbc331ea393c687fd9071`.
+
+**Requirements:** independent R2 PIT replay PASS; Phase 3D-R2 measurable evidence PASS; Phase 3E-R2 robustness evaluation accepted PASS; broader independent Holdout coverage PASS.
+
+**Interpretation:** no post-result promotion threshold was created. Phase 3E-R2 sensitivity remains material and must be carried into Phase 4 design and monitoring.
+
+**Governed consequence:** Phase 3 historical validation complete; Phase 4 entry/start allowed; Phase 4 not started; orders=0; trade_authority=NONE.

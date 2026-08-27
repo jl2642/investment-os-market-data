@@ -68,6 +68,41 @@ def validate():
     if result.get("orders") != 0 or result.get("trade_authority") != "NONE":
         errors.append("REPEAT3F_AUTHORITY_DRIFT")
 
+    state = _load(ADAPTER_FILE.parent / "PROGRAM_STATE.json")
+    current = _load(ADAPTER_FILE.parent / "CURRENT_PHASE_STATUS.json")
+    cv = current.get("validation", {})
+    if state.get("repeat_phase3f_complete") is True:
+        expected = {
+            "repeat_phase3f_started": True,
+            "repeat_phase3f_complete": True,
+            "repeat_phase3f_status": "COMPLETE_REPEAT_PHASE3F_R2_HISTORICAL_PROMOTION_GATE",
+            "repeat_phase3f_promotion_requirement_pass_count": 4,
+            "repeat_phase3f_promotion_requirement_total_count": 4,
+            "repeat_phase3f_all_promotion_requirements_pass": True,
+            "repeat_phase3f_promotion_eligible": True,
+            "repeat_phase3f_terminal_rejection_evidence": False,
+            "repeat_phase3f_gate_outcome": "PROMOTE_TO_PHASE_4_FORWARD_VALIDATION",
+            "repeat_phase3f_gate_sha256": result["repeat_phase3f_gate_sha256"],
+            "repeat_phase3f_post_result_promotion_threshold_created": False,
+            "repeat_phase3f_robustness_sensitivity_carry_forward_required": True,
+            "phase3_historical_validation_complete": True,
+            "phase4_entry_allowed": True,
+            "phase4_start_allowed": True,
+            "phase4_started": False,
+            "phase4_forward_validation_complete": False,
+        }
+        for key, value in expected.items():
+            if state.get(key) != value:
+                errors.append("REPEAT3F_CLOSEOUT_STATE_DRIFT:" + key)
+            if cv.get(key) != value:
+                errors.append("REPEAT3F_CLOSEOUT_CURRENT_DRIFT:" + key)
+        if current.get("current_phase") != "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE":
+            errors.append("REPEAT3F_CLOSEOUT_CURRENT_PHASE_DRIFT")
+        if current.get("status") != "REPEAT_PHASE3F_4_OF_4_PASS_PHASE4_FORWARD_VALIDATION_AUTHORIZED_NOT_STARTED":
+            errors.append("REPEAT3F_CLOSEOUT_STATUS_DRIFT")
+        if current.get("next_phase") != "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION":
+            errors.append("REPEAT3F_CLOSEOUT_NEXT_DRIFT")
+
     if not errors:
         write_default(result)
     return errors, result

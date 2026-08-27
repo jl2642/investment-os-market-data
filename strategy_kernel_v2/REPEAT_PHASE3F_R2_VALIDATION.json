@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "REPEAT_PHASE_3F",
+  "status": "PASS_COMPLETE_REPEAT_PHASE3F_R2_PROMOTE_TO_PHASE4_FORWARD_VALIDATION",
+  "parent_pr": 332,
+  "candidate_head": "b1fad34061c383189ba5e55f39258620e393a17d",
+  "inherited_contract": {
+    "status": "FROZEN_HISTORICAL_PROMOTION_GATE",
+    "git_blob_sha": "4ce0d23558d0fa80cdc9f58004e7e1ab39b077f2",
+    "requirements_unchanged": true,
+    "requirement_count": 4
+  },
+  "gate": {
+    "promotion_requirement_pass_count": 4,
+    "promotion_requirement_total_count": 4,
+    "all_promotion_requirements_pass": true,
+    "gate_outcome": "PROMOTE_TO_PHASE_4_FORWARD_VALIDATION",
+    "gate_sha256": "af174d3adb0bb70afa306f26fa0c2a66eb925e04421962dcfae5573b404d22ec",
+    "workflow_run": 33057016736,
+    "artifact_id": 9640103462,
+    "artifact_digest": "sha256:8c95d53459b5086dd85e4aa94af9573b8d6e44ba64ffbc331ea393c687fd9071"
+  },
+  "requirements": {
+    "candidate_point_in_time_historical_replay": {
+      "passed": true,
+      "holdout_replay_status": "PASS_INDEPENDENT_HOLDOUT_REPLAY_OPERATIONAL",
+      "accepted_checkpoints": 14,
+      "replay_sha256": "5b66a60eabe2c294d2a396b5fbae74ba19769376d01f5fec77a012461e1a4aaa"
+    },
+    "candidate_phase3d_evidence_measurable": {
+      "passed": true,
+      "structurally_measurable": true,
+      "edge_horizon_records": 162,
+      "measurement_status": "COMPLETE_R2_DETERMINISTIC_PERFORMANCE_MEASUREMENT_DESCRIPTIVE_ONLY",
+      "measurement_sha256": "a3e474745dc8074be363f3d9b8e7082923bd67adeff6c6e42431e1f6a406edad"
+    },
+    "phase3e_robustness_accepted": {
+      "passed": true,
+      "evaluation_accepted": true,
+      "positive_robustness_claimed": false,
+      "observed_predeclared_axis_sensitivity": true,
+      "robustness_sha256": "6cbd096716dc577dc643577795556d765d452b50a09f2e05ee5f253bd1b7e32f"
+    },
+    "broader_historical_coverage": {
+      "passed": true,
+      "holdout_v2_selection_outcome": "PASS_SELECTION_SUFFICIENCY",
+      "checkpoints": 14,
+      "distinct_utc_dates": 10,
+      "distinct_iso_weeks": 5,
+      "distinct_evidence_regimes": 9,
+      "unique_securities": 18,
+      "opportunity_profile_instances": 252,
+      "failed_thresholds": []
+    }
+  },
+  "interpretation": {
+    "terminal_rejection_evidence": false,
+    "post_result_promotion_threshold_created": false,
+    "economic_winner_selected": false,
+    "statistical_significance_claimed": false,
+    "robustness_sensitivity_carry_forward_required": true,
+    "note": "Promotion follows the inherited frozen four-requirement contract. The material 52-vs-2 signature imbalance and security/signature/weighting sensitivity remain mandatory Phase 4 design and monitoring constraints; they were not retrofitted into Phase 3F."
+  },
+  "governed_consequence": {
+    "phase3_historical_validation_complete": true,
+    "phase4_entry_allowed": true,
+    "phase4_start_allowed": true,
+    "phase4_started": false,
+    "phase4_forward_validation_complete": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
