@@ -79,12 +79,28 @@ class Phase3DR2Round1Tests(unittest.TestCase):
         self.assertEqual(self.result["orders"], 0)
         self.assertEqual(self.result["trade_authority"], "NONE")
 
-        # Before first remote acceptance, governed state remains at the parent
-        # boundary. This prevents a contract freeze from masquerading as a
-        # completed Phase 3D-R2 execution.
+        # The same test remains valid before and after the governed two-step
+        # closeout. Round-1 completion may start Phase 3D-R2, but may not start
+        # outcome acquisition or performance measurement.
         self.assertTrue(self.state["phase3d_r2_start_allowed"])
-        self.assertFalse(self.state["phase3d_r2_started"])
-        self.assertFalse(self.current["validation"]["phase3d_r2_started"])
+        if self.state.get("phase3d_r2_round1_evidence_audit_complete"):
+            self.assertTrue(self.state["phase3d_r2_started"])
+            self.assertTrue(self.current["validation"]["phase3d_r2_started"])
+            self.assertTrue(self.state["phase3d_r2_round1_contract_frozen"])
+            self.assertEqual(
+                self.state["phase3d_r2_round1_outcome"],
+                ROUND1_PASS,
+            )
+            self.assertTrue(self.state["phase3d_r2_outcome_evidence_acquisition_start_allowed"])
+            self.assertFalse(self.state["phase3d_r2_outcome_evidence_acquisition_started"])
+            self.assertFalse(self.state["phase3d_r2_performance_measurement_start_allowed"])
+            self.assertEqual(
+                self.current["next_phase"],
+                "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
+            )
+        else:
+            self.assertFalse(self.state["phase3d_r2_started"])
+            self.assertFalse(self.current["validation"]["phase3d_r2_started"])
 
 
 if __name__ == "__main__":
