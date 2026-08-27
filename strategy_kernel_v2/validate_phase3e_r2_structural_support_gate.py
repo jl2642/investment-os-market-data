@@ -19,6 +19,10 @@ def validate():
     contract = load_contract()
     errors.extend(validate_contract(contract))
     result = build_structural_support_gate()
+    state = json.loads((ROOT / "PROGRAM_STATE.json").read_text(encoding="utf-8"))
+    current = json.loads((ROOT / "CURRENT_PHASE_STATUS.json").read_text(encoding="utf-8"))
+    cv = current.get("validation", {})
+    closeout = state.get("phase3e_r2_structural_support_gate_complete") is True
 
     if result.get("status") != contract["classification"]["pass_status"]:
         errors.append("R2E_SUPPORT_GATE_NOT_PASS")
@@ -58,6 +62,41 @@ def validate():
             errors.append("R2E_SUPPORT_FORBIDDEN_FLAG:" + key)
     if result.get("integrity_errors"):
         errors.extend("R2E_SUPPORT_INTEGRITY:" + item for item in result["integrity_errors"])
+
+    if closeout:
+        expected = {
+            "phase3e_r2_structural_support_gate_frozen": True,
+            "phase3e_r2_structural_support_gate_complete": True,
+            "phase3e_r2_structural_support_gate_status": result["status"],
+            "phase3e_r2_structural_support_gate_sha256": result["gate_sha256"],
+            "phase3e_r2_structurally_supported": True,
+            "phase3e_r2_result_value_reads_for_support_gate": 0,
+            "phase3e_r2_post_result_numeric_thresholds_created": 0,
+            "phase3e_r2_robustness_plan_frozen": True,
+            "phase3e_r2_robustness_axis_count": 5,
+            "phase3e_r2_checkpoint_jackknife_planned_count": 13,
+            "phase3e_r2_security_jackknife_planned_count": 7,
+            "phase3e_r2_signature_jackknife_planned_count": 2,
+            "phase3e_r2_horizon_strata_planned_count": 3,
+            "phase3e_r2_aggregation_weighting_scheme_count": 3,
+            "phase3e_r2_start_allowed": True,
+            "phase3e_r2_robustness_execution_start_allowed": True,
+            "phase3e_r2_started": False,
+            "phase3e_r2_robustness_started": False,
+            "phase3e_r2_complete": False,
+            "repeat_phase3f_started": False,
+            "phase3_historical_validation_complete": False,
+            "phase4_entry_allowed": False,
+        }
+        for key, value in expected.items():
+            if state.get(key) != value:
+                errors.append("R2E_SUPPORT_CLOSEOUT_STATE_DRIFT:" + key)
+            if cv.get(key) != value:
+                errors.append("R2E_SUPPORT_CLOSEOUT_CURRENT_DRIFT:" + key)
+        if current.get("status") != "PHASE3E_R2_STRUCTURAL_SUPPORT_PASS_ROBUSTNESS_READY_PHASE4_BLOCKED":
+            errors.append("R2E_SUPPORT_CLOSEOUT_STATUS_DRIFT")
+        if current.get("next_phase") != "PHASE_3E_R2_ROBUSTNESS_EXECUTION":
+            errors.append("R2E_SUPPORT_CLOSEOUT_NEXT_DRIFT")
 
     controls = result["controls"]
     for key, value in controls.items():

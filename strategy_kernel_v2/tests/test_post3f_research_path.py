@@ -123,7 +123,11 @@ class Post3FResearchPathTests(unittest.TestCase):
                     )
                     expected_next = (
                         (
-                            "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                            (
+                                "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                                if self.current["validation"].get("phase3e_r2_structural_support_gate_complete")
+                                else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                            )
                             if self.current["validation"].get("phase3d_r2_performance_measurement_complete")
                             else "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
                         )
@@ -161,7 +165,11 @@ class Post3FResearchPathTests(unittest.TestCase):
             self.assertEqual(self.current["validation"]["phase3d_r2_performance_started"], performance_complete)
             self.assertEqual(
                 self.current["next_phase"],
-                "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                (
+                    "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                    if self.current["validation"].get("phase3e_r2_structural_support_gate_complete")
+                    else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                )
                 if performance_complete
                 else (
                     "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"

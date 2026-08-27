@@ -162,7 +162,12 @@ def build_structural_support_gate() -> dict[str, Any]:
         parent_errors.append("R2_SUPPORT_DECISION_ALREADY_MADE")
     if state.get("phase3e_r2_started") is not False:
         parent_errors.append("PHASE3E_R2_ALREADY_STARTED")
-    if current.get("next_phase") != "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT":
+    expected_next = (
+        "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+        if state.get("phase3e_r2_structural_support_gate_complete") is True
+        else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+    )
+    if current.get("next_phase") != expected_next:
         parent_errors.append("R2E_SUPPORT_CURRENT_NEXT_PHASE_DRIFT")
 
     measurement_population = perf_contract.get("measurement_population", {})

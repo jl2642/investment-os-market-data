@@ -78,7 +78,11 @@ def validate():
         if current.get("current_phase") != "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED":
             errors.append("R2_OUTCOME_EVIDENCE_CURRENT_PHASE_DRIFT")
         expected_next = (
-            "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+            (
+                "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                if state.get("phase3e_r2_structural_support_gate_complete") is True
+                else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+            )
             if performance_complete
             else "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
         )

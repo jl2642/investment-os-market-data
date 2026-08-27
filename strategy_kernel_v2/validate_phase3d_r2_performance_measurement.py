@@ -31,7 +31,12 @@ def validate():
     if closeout:
         if state.get("phase3d_r2_performance_started") is not True:
             errors.append("R2_PERF_CLOSEOUT_NOT_STARTED")
-        if current.get("next_phase") != "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT":
+        expected_next = (
+            "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+            if state.get("phase3e_r2_structural_support_gate_complete") is True
+            else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+        )
+        if current.get("next_phase") != expected_next:
             errors.append("R2_PERF_CLOSEOUT_NEXT_PHASE_DRIFT")
         if cv.get("phase3d_r2_performance_started") is not True:
             errors.append("R2_PERF_CURRENT_CLOSEOUT_NOT_STARTED")
@@ -120,8 +125,8 @@ def validate():
             "phase3d_r2_phase3e_support_decision_made": False,
             "phase3d_r2_complete": True,
             "phase3e_r2_structural_support_gate_required": True,
-            "phase3e_r2_structural_support_gate_frozen": False,
-            "phase3e_r2_start_allowed": False,
+            "phase3e_r2_structural_support_gate_frozen": state.get("phase3e_r2_structural_support_gate_complete") is True,
+            "phase3e_r2_start_allowed": state.get("phase3e_r2_structural_support_gate_complete") is True,
             "phase3e_r2_started": False,
             "repeat_phase3f_started": False,
             "phase3_historical_validation_complete": False,
@@ -132,7 +137,12 @@ def validate():
                 errors.append("R2_PERF_CLOSEOUT_STATE_DRIFT:" + key)
             if cv.get(key) != value:
                 errors.append("R2_PERF_CLOSEOUT_CURRENT_DRIFT:" + key)
-        if current.get("status") != "PHASE3D_R2_PERFORMANCE_COMPLETE_3E_SUPPORT_GATE_REQUIRED_PHASE4_BLOCKED":
+        expected_status = (
+            "PHASE3E_R2_STRUCTURAL_SUPPORT_PASS_ROBUSTNESS_READY_PHASE4_BLOCKED"
+            if state.get("phase3e_r2_structural_support_gate_complete") is True
+            else "PHASE3D_R2_PERFORMANCE_COMPLETE_3E_SUPPORT_GATE_REQUIRED_PHASE4_BLOCKED"
+        )
+        if current.get("status") != expected_status:
             errors.append("R2_PERF_CLOSEOUT_STATUS_DRIFT")
 
     if not errors:

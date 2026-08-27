@@ -164,7 +164,11 @@ def validate() -> list[str]:
             expected_next = (
                 (
                     (
-                        "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                        (
+                            "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                            if state.get("phase3e_r2_structural_support_gate_complete") is True
+                            else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                        )
                         if state.get("phase3d_r2_performance_measurement_complete") is True
                         else "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
                     )
