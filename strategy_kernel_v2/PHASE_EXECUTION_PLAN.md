@@ -205,7 +205,7 @@ Classification: `PASS_MECHANICAL_REPLAY_OPERATIONAL`.
 
 This closes development-corpus R2 replay only. It does not claim historical performance, independent validation, a global model winner, Phase 3 completion or Phase 4 eligibility.
 
-#### R2-3 Independent Point-in-Time Holdout Coverage — NEXT / NOT STARTED
+#### R2-3 Independent Point-in-Time Holdout Coverage — IN PROGRESS / H0 CONTRACT FROZEN / H1 NEXT
 Before any holdout result is observed, freeze:
 1. quantitative sufficiency threshold;
 2. checkpoint/date/regime selection rules;
@@ -215,7 +215,19 @@ Before any holdout result is observed, freeze:
 6. no-later-backfill rule;
 7. broader date/regime coverage requirement.
 
-Then build and replay the frozen R2 model on the independent historical holdout.
+H0 contract freeze is **COMPLETE**:
+- frozen protected-main universe: `6323f4c... → 5c5df908...`;
+- all seven Phase 3A seed checkpoint commits excluded;
+- selector = census of all eligible distinct decision-evidence fingerprints;
+- discretionary/random/manual subsampling forbidden;
+- realized outcomes, Phase 3D results and R2 replayability/results forbidden during selection;
+- minimum coverage = 12 checkpoints / 6 UTC dates / 4 ISO weeks / 4 evidence-regime signatures / 6 securities / 48 opportunity-profile instances;
+- at least 2 checkpoints must fall strictly outside the original seed time span;
+- no single UTC date may exceed 40% and no single evidence regime may exceed 50% of accepted Holdout checkpoints.
+
+H1 next: build the deterministic candidate ledger and test the above sufficiency thresholds **without running R2**.
+
+Only after H1 selection acceptance may H2 run frozen R2 on the accepted Holdout.
 
 Holdout is not a Phase 3G and is not a direct Phase 4 gate.
 
