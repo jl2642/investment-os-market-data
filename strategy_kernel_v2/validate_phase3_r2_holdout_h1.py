@@ -216,10 +216,40 @@ def validate() -> tuple[list[str], dict]:
         for key, expected in expected_state.items():
             if state.get(key) != expected:
                 errors.append("H1_STATE_DRIFT:" + key)
+        extra_state = {
+            "holdout_h1_selection_ledger_sha256": first["selection_ledger_sha256"],
+            "holdout_h1_max_single_utc_date_fraction": observed["maximum_single_utc_date_fraction"],
+            "holdout_h1_max_single_evidence_regime_fraction": observed["maximum_single_evidence_regime_fraction"],
+            "holdout_v1_coverage_sufficient": first["h2_start_allowed"],
+            "holdout_coverage_expansion_required": not first["h2_start_allowed"],
+            "holdout_threshold_relaxation_after_result_allowed": False,
+            "holdout_v2_pre_result_contract_required": not first["h2_start_allowed"],
+        }
+        failed_thresholds = sorted(key for key, passed in checks.items() if not passed)
+        extra_state["holdout_h1_failed_thresholds"] = failed_thresholds
+        for key, expected in extra_state.items():
+            if state.get(key) != expected:
+                errors.append("H1_STATE_EXTRA_DRIFT:" + key)
         cv = current.get("validation", {})
-        for key, expected in expected_state.items():
+        for key, expected in {**expected_state, **extra_state}.items():
             if key in cv and cv.get(key) != expected:
                 errors.append("H1_CURRENT_VALIDATION_DRIFT:" + key)
+        if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+            errors.append("H1_CURRENT_PHASE_DRIFT")
+        expected_status = (
+            "H1_SELECTION_SUFFICIENT_H2_READY_PHASE4_BLOCKED"
+            if first["h2_start_allowed"]
+            else "H1_SELECTION_INSUFFICIENT_COVERAGE_EXPANSION_REQUIRED_H2_BLOCKED_PHASE4_BLOCKED"
+        )
+        if current.get("status") != expected_status:
+            errors.append("H1_CURRENT_STATUS_DRIFT")
+        expected_next = (
+            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+            if first["h2_start_allowed"]
+            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+        )
+        if current.get("next_phase") != expected_next:
+            errors.append("H1_NEXT_PHASE_DRIFT")
 
     if not errors:
         write_default(first)
