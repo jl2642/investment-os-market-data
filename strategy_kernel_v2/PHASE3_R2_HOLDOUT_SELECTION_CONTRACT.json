@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "PHASE_3_R2_INDEPENDENT_POINT_IN_TIME_HOLDOUT",
+  "subphase": "H0_SELECTION_AND_SUFFICIENCY_CONTRACT_FREEZE",
+  "status": "FROZEN_BEFORE_HOLDOUT_SELECTION_OR_R2_REPLAY",
+  "as_of": "2026-08-27",
+  "parent_program_plan_sync_pr": 319,
+  "parent_program_plan_sync_head": "3e8c6057295e604f4feddc83761f3cd044cf952b",
+  "parent_r2b_pr": 318,
+  "parent_r2b_head": "c73e8de83d20a0f1b7d3871fffcf677d27db5405",
+  "model_form": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
+  "model_version": "R2.0.1_RESEARCH",
+  "purpose": "Freeze an outcome-blind, deterministic and non-cherry-picked historical holdout selection contract before any holdout checkpoint ledger is built or any R2 replay result is observed.",
+  "holdout_identity": {
+    "holdout_id": "R2_INDEPENDENT_PIT_HOLDOUT_V1",
+    "holdout_is_macro_phase": false,
+    "holdout_is_phase3g": false,
+    "holdout_is_direct_phase4_gate": false,
+    "seven_seed_checkpoints_are_development_only": true,
+    "independent_validation_claim_allowed_only_after_selection_and_replay_gates_pass": true
+  },
+  "frozen_repository_universe": {
+    "repository": "jl2642/investment-os-market-data",
+    "source_branch": "main",
+    "source_branch_must_be_protected": true,
+    "open_pr_heads_allowed": false,
+    "start_commit_inclusive": "6323f4c0617b3df3907b4e76c36b441d666fc4b0",
+    "start_at": "2026-07-24T05:42:53Z",
+    "start_reason": "Single-repository Investment OS control foundation; chosen from governance chronology, not model results or realized outcomes.",
+    "end_commit_inclusive": "5c5df9082688f65332c79fef3b9cbfa893a06908",
+    "end_at": "2026-08-18T01:46:25Z",
+    "end_reason": "Protected-main head frozen at Holdout H0 design time; fixes the historical universe before selection and replay.",
+    "future_commits_may_enter_v1_holdout": false,
+    "universe_extension_requires_new_version_and_pre_result_contract_amendment": true
+  },
+  "seed_firewall": {
+    "excluded_checkpoint_ids": [
+      "CP_20260726_WP4_AUDIT",
+      "CP_20260727_R2_BASELINE",
+      "CP_20260727_WP5_P0",
+      "CP_20260808_HKCU_P5C",
+      "CP_20260812_00669_BUY_REVIEW",
+      "CP_20260813_D2_R1",
+      "CP_20260818_D2_R2"
+    ],
+    "excluded_commit_shas": [
+      "3456d3c5783d628c5e8377671fd99c522e2b7d4f",
+      "33a5484f2ca919e80eef96a6750f801f751f8bdf",
+      "70f651ff042fbf815ad8e0346cabad02693745d9",
+      "d851ba142ea8a0c4355db82f91f4cd43ba740790",
+      "156fbb5af7309cb1e753c6397fd800d38263e3b3",
+      "6b12c652839d7c4ca7ce7191550fc04b43c52b0c",
+      "5c5df9082688f65332c79fef3b9cbfa893a06908"
+    ],
+    "seed_first_at": "2026-07-26T12:59:24Z",
+    "seed_last_at": "2026-08-18T01:46:25Z",
+    "exact_seed_commit_reuse_forbidden": true,
+    "exact_seed_source_identity_set_reuse_forbidden": true,
+    "seed_checkpoint_relabeling_forbidden": true,
+    "same_seed_outcome_tuning_as_holdout_forbidden": true
+  },
+  "outcome_and_model_firewall": {
+    "realized_outcomes_may_be_read_during_selection": false,
+    "phase3d_results_may_be_read_during_selection": false,
+    "r2_profile_values_may_be_computed_during_selection": false,
+    "r2_pareto_replay_may_run_during_selection": false,
+    "r2_replayability_status_may_influence_selection": false,
+    "future_return_may_influence_selection": false,
+    "regret_or_calibration_may_influence_selection": false,
+    "manual_include_or_exclude_based_on_expected_model_behavior": false,
+    "selector_changes_after_first_holdout_r2_result_forbidden": true
+  },
+  "frozen_evidence_families": {
+    "required_base_families": [
+      "CANDIDATE_STATE"
+    ],
+    "context_families": [
+      "REAL_ACCOUNT_STATE",
+      "MARKET_PORTFOLIO_MARKS"
+    ],
+    "research_or_decision_families": [
+      "RESEARCH_CORE2",
+      "RESEARCH_601138_P0",
+      "RESEARCH_00669_VALUATION",
+      "DECISION_00669_BUY_REVIEW",
+      "RESEARCH_D2_000719",
+      "RESEARCH_D2_002039",
+      "RESEARCH_D2_301215"
+    ],
+    "minimum_research_or_decision_families_present_per_checkpoint": 1,
+    "family_availability_must_be_point_in_time": true,
+    "exact_source_path_and_commit_required": true,
+    "family_alias_or_proxy_substitution_forbidden": true
+  },
+  "deterministic_selector": {
+    "mode": "CENSUS_OF_ALL_ELIGIBLE_DISTINCT_DECISION_EVIDENCE_FINGERPRINTS",
+    "chronological_traversal": "ASCENDING_COMMIT_TIME_THEN_COMMIT_SHA",
+    "eligible_commit_must_be_on_frozen_main_ancestry": true,
+    "eligible_commit_must_be_within_frozen_universe": true,
+    "eligible_commit_must_not_be_seed_commit": true,
+    "candidate_state_must_exist": true,
+    "opportunity_security_set_must_be_nonempty": true,
+    "minimum_research_or_decision_family_count": 1,
+    "decision_evidence_fingerprint_components": [
+      "available_frozen_evidence_family_id",
+      "exact_source_path",
+      "exact_source_commit_sha_or_blob_identity",
+      "opportunity_security_ids"
+    ],
+    "fingerprint_must_differ_from_previous_selected_checkpoint": true,
+    "pure_docs_ci_or_infrastructure_change_without_fingerprint_change_is_not_checkpoint": true,
+    "all_eligible_distinct_fingerprints_must_be_selected": true,
+    "discretionary_subsampling_allowed": false,
+    "random_sampling_allowed": false,
+    "manual_cherry_pick_allowed": false,
+    "evidence_regime_signature": "SORTED_SET_OF_AVAILABLE_FROZEN_EVIDENCE_FAMILY_IDS",
+    "regime_definition_may_not_use_prices_returns_or_outcomes": true
+  },
+  "quantitative_sufficiency_gate": {
+    "minimum_holdout_checkpoints": 12,
+    "minimum_distinct_utc_dates": 6,
+    "minimum_distinct_iso_weeks": 4,
+    "minimum_distinct_evidence_regime_signatures": 4,
+    "minimum_unique_securities": 6,
+    "minimum_opportunity_profile_instances": 48,
+    "minimum_checkpoints_strictly_outside_seed_time_span": 2,
+    "maximum_single_utc_date_fraction": 0.4,
+    "maximum_single_evidence_regime_fraction": 0.5,
+    "all_thresholds_must_pass": true,
+    "failure_means": "INSUFFICIENT_HOLDOUT_COVERAGE_DO_NOT_RUN_PROMOTION_GATE",
+    "threshold_change_after_holdout_selection_or_replay_result_forbidden": true
+  },
+  "point_in_time_provenance": {
+    "checkpoint_requires_canonical_commit_sha": true,
+    "checkpoint_requires_commit_timestamp": true,
+    "checkpoint_requires_opportunity_security_ids": true,
+    "every_evidence_row_requires_family_id": true,
+    "every_evidence_row_requires_exact_source_path": true,
+    "every_evidence_row_requires_exact_source_commit_or_blob_identity": true,
+    "every_evidence_row_requires_available_at_or_before_checkpoint": true,
+    "later_evidence_backfill_forbidden": true,
+    "present_day_substitution_forbidden": true,
+    "open_pr_evidence_forbidden": true
+  },
+  "h0_acceptance": {
+    "frozen_main_head_must_equal": "5c5df9082688f65332c79fef3b9cbfa893a06908",
+    "seed_checkpoint_count_must_equal": 7,
+    "seed_commit_count_must_equal": 7,
+    "minimum_holdout_checkpoints_must_equal": 12,
+    "selector_must_be_census": true,
+    "discretionary_subsampling_allowed_must_be": false,
+    "realized_outcomes_read_count_must_equal": 0,
+    "r2_replay_count_must_equal": 0,
+    "holdout_checkpoint_ledger_count_must_equal": 0,
+    "holdout_build_started_must_be": false,
+    "phase3_historical_validation_complete_must_be": false,
+    "phase4_entry_allowed_must_be": false
+  },
+  "downstream_sequence": [
+    "H1_HOLDOUT_CANDIDATE_LEDGER_BUILD_AND_SELECTION_ACCEPTANCE",
+    "H2_FROZEN_R2_REPLAY_ON_ACCEPTED_HOLDOUT",
+    "H3_HOLDOUT_COVERAGE_AND_REPLAY_FINAL_ACCEPTANCE",
+    "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+    "PHASE_3E_R2_ROBUSTNESS_IF_SUPPORTED",
+    "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+  ],
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
