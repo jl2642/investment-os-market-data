@@ -55,11 +55,19 @@ def _validate_post3f_and_r2(errors: list[str], state: dict, current: dict, requi
         if state.get("r2_phase3b_contract_definition_started") is not True or state.get("r2_phase3b_contract_definition_complete") is not True:
             errors.append("LEGAL_R2_DOWNSTREAM_STATE_NOT_COMPLETE")
         r2b_downstream = state.get("r2_phase3c_r2b_complete") is True
+        holdout_h1_downstream = state.get("holdout_h1_started") is True
         if r2b_downstream:
             if state.get("r2_real_historical_replay_executed") is not True or state.get("r2_phase3c_replay_started") is not True:
                 errors.append("LEGAL_R2B_DOWNSTREAM_REPLAY_STATE_INVALID")
-            if state.get("r2_historical_performance_claimed") is not False or state.get("holdout_build_started") is not False:
-                errors.append("LEGAL_R2B_DOWNSTREAM_PERFORMANCE_OR_HOLDOUT_DRIFT")
+            if state.get("r2_historical_performance_claimed") is not False:
+                errors.append("LEGAL_R2B_DOWNSTREAM_PERFORMANCE_DRIFT")
+            if holdout_h1_downstream:
+                if state.get("holdout_h1_complete") is not True or state.get("holdout_build_started") is not True:
+                    errors.append("LEGAL_HOLDOUT_H1_DOWNSTREAM_STATE_INVALID")
+                if state.get("holdout_h2_started") is not False:
+                    errors.append("LEGAL_HOLDOUT_H1_PREMATURE_H2")
+            elif state.get("holdout_build_started") is not False:
+                errors.append("LEGAL_R2B_DOWNSTREAM_PREMATURE_HOLDOUT")
         else:
             if state.get("r2_real_historical_replay_executed") is not False or state.get("r2_historical_performance_claimed") is not False:
                 errors.append("LEGAL_R2_DOWNSTREAM_PREMATURE_REPLAY_OR_PERFORMANCE")
@@ -192,6 +200,7 @@ def validate() -> list[str]:
         "POST_PHASE3F_RESEARCH_PATH_DECISION",
         "PHASE_3B_R2_REVISED_MODEL_CONTRACT",
         "PHASE_3C_R2_POINT_IN_TIME_REPLAY",
+        "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE",
     }
     if current_phase not in allowed_current_phases:
         errors.append("CURRENT_PHASE_NOT_3E_OR_LEGAL_DOWNSTREAM")
@@ -218,7 +227,7 @@ def validate() -> list[str]:
             errors.append("LEGAL_3F_DOWNSTREAM_LOOPBACK_DRIFT")
     elif current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
         _validate_post3f_and_r2(errors, state, current, False)
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}:
         _validate_post3f_and_r2(errors, state, current, True)
 
     for surface_name, surface in [

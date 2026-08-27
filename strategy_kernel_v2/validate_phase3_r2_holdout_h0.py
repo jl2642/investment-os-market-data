@@ -234,10 +234,23 @@ def validate() -> list[str]:
             errors.append("HOLDOUT_H0_FUTURE_ARTIFACT_PREMATURELY_PRESENT")
 
     cv = current.get("validation", {})
-    if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
-        errors.append("HOLDOUT_H0_CURRENT_PHASE_DRIFT")
-    if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
-        errors.append("HOLDOUT_H0_NEXT_PHASE_DRIFT")
+    if downstream_started:
+        if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+            errors.append("HOLDOUT_H0_LEGAL_H1_CURRENT_PHASE_DRIFT")
+        if current.get("next_phase") not in {
+            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY",
+            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION",
+        }:
+            errors.append("HOLDOUT_H0_LEGAL_H1_NEXT_PHASE_DRIFT")
+        if state.get("holdout_h1_complete") is not True:
+            errors.append("HOLDOUT_H0_LEGAL_H1_NOT_COMPLETE")
+        if state.get("holdout_h2_started") is not False:
+            errors.append("HOLDOUT_H0_LEGAL_H1_PREMATURE_H2")
+    else:
+        if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
+            errors.append("HOLDOUT_H0_CURRENT_PHASE_DRIFT")
+        if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+            errors.append("HOLDOUT_H0_NEXT_PHASE_DRIFT")
     for key, expected in (
         ("holdout_selection_contract_frozen", True),
         ("holdout_h0_complete", True),

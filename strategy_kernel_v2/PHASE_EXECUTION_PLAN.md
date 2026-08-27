@@ -205,7 +205,7 @@ Classification: `PASS_MECHANICAL_REPLAY_OPERATIONAL`.
 
 This closes development-corpus R2 replay only. It does not claim historical performance, independent validation, a global model winner, Phase 3 completion or Phase 4 eligibility.
 
-#### R2-3 Independent Point-in-Time Holdout Coverage — IN PROGRESS / H0 CONTRACT FROZEN / H1 NEXT
+#### R2-3 Independent Point-in-Time Holdout Coverage — IN PROGRESS / H1 FAILS SUFFICIENCY / COVERAGE EXPANSION NEXT
 Before any holdout result is observed, freeze:
 1. quantitative sufficiency threshold;
 2. checkpoint/date/regime selection rules;
@@ -225,9 +225,24 @@ H0 contract freeze is **COMPLETE**:
 - at least 1 checkpoint must fall strictly outside the original seed time span; H0.1 corrected the prior impossible value of 2 before H1 selection began, because the frozen universe ends at the last seed and only one eligible pre-first-seed research fingerprint exists;
 - no single UTC date may exceed 40% and no single evidence regime may exceed 50% of accepted Holdout checkpoints.
 
-H1 next: build the deterministic candidate ledger and test the above sufficiency thresholds **without running R2**.
+H1 deterministic candidate ledger is **COMPLETE**:
+- canonical first-parent Holdout checkpoints = **8**;
+- distinct UTC dates = **8**;
+- distinct ISO weeks = **5**;
+- distinct evidence regimes = **6**;
+- unique securities = **8**;
+- opportunity-profile instances = **64**;
+- outside-seed checkpoints = **1**;
+- maximum single-date concentration = **12.5%**;
+- maximum single-regime concentration = **37.5%**;
+- failed threshold = **minimum_holdout_checkpoints (8 < 12)**;
+- all other frozen thresholds = PASS;
+- realized outcomes read = 0;
+- R2 Holdout replay count = 0.
 
-Only after H1 selection acceptance may H2 run frozen R2 on the accepted Holdout.
+Therefore H2 is **BLOCKED**.
+
+Next: expand independent Holdout coverage under a new pre-result contract version. The frozen minimum checkpoint threshold remains 12 and may not be reduced after observing H1.
 
 Holdout is not a Phase 3G and is not a direct Phase 4 gate.
 

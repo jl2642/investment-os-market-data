@@ -329,3 +329,17 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Why this is not result tuning:** H1 had not started, no Holdout candidate ledger existed, R2 Holdout replay count remained 0 and realized outcomes used for selection remained 0. The correction used source-availability metadata only. All other frozen gates remain unchanged: >=12 checkpoints, >=6 UTC dates, >=4 ISO weeks, >=4 evidence regimes, >=6 securities, >=48 opportunity-profile instances, <=40% single-date concentration and <=50% single-regime concentration.
 
 **Boundary:** no selector result, R2 output, outcome, Phase 4 authority or economic/trading state changed.
+
+## 2026-08-27 — Independent PIT Holdout H1 deterministic census result
+
+**Result:** `FAIL_SELECTION_SUFFICIENCY`.
+
+The H0/H0.1 selector was executed on protected-main first-parent history only. It selected **8** distinct canonical decision-evidence fingerprints. Coverage observed: 8 UTC dates, 5 ISO weeks, 6 evidence-regime signatures, 8 securities, 64 opportunity-profile instances, 1 checkpoint outside the original seed span, 12.5% maximum single-date concentration and 37.5% maximum single-regime concentration.
+
+**Only failed frozen requirement:** `minimum_holdout_checkpoints = 12`; observed = 8. Every other H0.1 sufficiency condition passed.
+
+**Selection integrity:** 7 seed commits were excluded; 30 first-parent commits were structurally ineligible; 99 had no frozen decision-evidence fingerprint change; no seed source-identity set was selected. R2 profile computation/replay and realized-outcome reads remained zero.
+
+**Governed consequence:** H2 Frozen R2 Replay is blocked. The checkpoint threshold is not relaxed after observing H1. Further work must remain inside Independent Holdout Coverage and use a new pre-result coverage-expansion contract version before any new selection result. Phase 3D-R2, Phase 3E-R2, repeat Phase 3F and Phase 4 remain downstream and blocked.
+
+**Evidence:** selection ledger SHA-256 `bc918818c6b2e59ee48c6b13769330e6a34b7cee011a3c0337efc24351be09d5`; workflow artifact ID `9631813910`, digest `sha256:13a127667aefc29c60b45433c4c8826852a35b90813a7d579a93a70c9cddd2a9`.

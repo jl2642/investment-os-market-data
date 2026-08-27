@@ -97,6 +97,16 @@ class Post3FResearchPathTests(unittest.TestCase):
             self.assertFalse(self.current["validation"]["r2_historical_performance_claimed"])
             self.assertFalse(self.current["validation"]["holdout_build_started"])
             self.assertEqual(self.current["next_phase"], "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE")
+        elif phase == "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+            self.assertTrue(self.state["r2_phase3c_r2b_complete"])
+            self.assertTrue(self.state["holdout_h1_started"])
+            self.assertTrue(self.state["holdout_h1_complete"])
+            self.assertTrue(self.current["validation"]["holdout_build_started"])
+            self.assertEqual(self.current["validation"]["holdout_h1_outcome"], "FAIL_SELECTION_SUFFICIENCY")
+            self.assertFalse(self.current["validation"]["holdout_h2_start_allowed"])
+            self.assertFalse(self.current["validation"]["holdout_h2_started"])
+            self.assertFalse(self.current["validation"]["r2_historical_performance_claimed"])
+            self.assertEqual(self.current["next_phase"], "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION")
         else:
             self.fail("unexpected current phase for Post-3F monotonic regression: " + str(phase))
 

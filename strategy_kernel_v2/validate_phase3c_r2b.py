@@ -141,6 +141,7 @@ def validate() -> tuple[list[str], dict]:
     current = load("CURRENT_PHASE_STATUS.json")
     cv = current["validation"]
 
+    holdout_h1_downstream = state.get("holdout_h1_started") is True
     expected_state = {
         "r2_phase3c_replay_start_allowed": True,
         "r2_phase3c_replay_started": True,
@@ -156,7 +157,7 @@ def validate() -> tuple[list[str], dict]:
         "r2_phase3c_r2b_realized_outcomes_loaded": False,
         "r2_phase3c_r2b_holdout_started": False,
         "r2_independent_holdout_start_allowed": True,
-        "holdout_build_started": False,
+        "holdout_build_started": True if holdout_h1_downstream else False,
         "phase3_historical_validation_complete": False,
         "phase4_entry_allowed": False,
     }
@@ -180,12 +181,22 @@ def validate() -> tuple[list[str], dict]:
         if state.get(state_key) != first.get(result_key):
             errors.append("R2B_STATE_COUNT_MISMATCH:" + state_key)
 
-    if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
-        errors.append("R2B_CURRENT_PHASE_MISMATCH")
-    if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
-        errors.append("R2B_NEXT_PHASE_MISMATCH")
-    if current.get("status") != "R2_MECHANICAL_REPLAY_COMPLETE_READY_FOR_INDEPENDENT_HOLDOUT_PHASE4_BLOCKED":
-        errors.append("R2B_CURRENT_STATUS_MISMATCH")
+    if holdout_h1_downstream:
+        if state.get("holdout_h1_complete") is not True or state.get("holdout_h2_started") is not False:
+            errors.append("R2B_LEGAL_HOLDOUT_H1_STATE_INVALID")
+        if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+            errors.append("R2B_CURRENT_HOLDOUT_H1_PHASE_MISMATCH")
+        if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
+            errors.append("R2B_CURRENT_HOLDOUT_H1_NEXT_PHASE_MISMATCH")
+        if current.get("status") != "H1_SELECTION_INSUFFICIENT_COVERAGE_EXPANSION_REQUIRED_H2_BLOCKED_PHASE4_BLOCKED":
+            errors.append("R2B_CURRENT_HOLDOUT_H1_STATUS_MISMATCH")
+    else:
+        if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
+            errors.append("R2B_CURRENT_PHASE_MISMATCH")
+        if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+            errors.append("R2B_NEXT_PHASE_MISMATCH")
+        if current.get("status") != "R2_MECHANICAL_REPLAY_COMPLETE_READY_FOR_INDEPENDENT_HOLDOUT_PHASE4_BLOCKED":
+            errors.append("R2B_CURRENT_STATUS_MISMATCH")
 
     current_expected = {
         "r2_phase3c_replay_started": True,
@@ -201,7 +212,7 @@ def validate() -> tuple[list[str], dict]:
         "r2_phase3c_r2b_realized_outcomes_loaded": False,
         "r2_phase3c_r2b_holdout_started": False,
         "r2_independent_holdout_start_allowed": True,
-        "holdout_build_started": False,
+        "holdout_build_started": True if holdout_h1_downstream else False,
         "phase3_historical_validation_complete": False,
         "phase4_entry_allowed": False,
     }
