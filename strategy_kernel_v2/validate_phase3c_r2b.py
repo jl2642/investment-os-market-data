@@ -144,6 +144,7 @@ def validate() -> tuple[list[str], dict]:
     holdout_h1_downstream = state.get("holdout_h1_started") is True
     holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
     phase3d_r2_downstream = state.get("phase3d_r2_started") is True
+    repeat_done = state.get("repeat_phase3f_complete") is True
     expected_state = {
         "r2_phase3c_replay_start_allowed": True,
         "r2_phase3c_replay_started": True,
@@ -160,8 +161,8 @@ def validate() -> tuple[list[str], dict]:
         "r2_phase3c_r2b_holdout_started": False,
         "r2_independent_holdout_start_allowed": True,
         "holdout_build_started": True if holdout_h1_downstream else False,
-        "phase3_historical_validation_complete": False,
-        "phase4_entry_allowed": False,
+        "phase3_historical_validation_complete": repeat_done,
+        "phase4_entry_allowed": repeat_done,
     }
     for key, expected in expected_state.items():
         if state.get(key) is not expected:
@@ -208,6 +209,8 @@ def validate() -> tuple[list[str], dict]:
                 else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
             )
         )
+        if repeat_done:
+            expected_current_phase = "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
         if current.get("current_phase") != expected_current_phase:
             errors.append("R2B_CURRENT_HOLDOUT_H1_PHASE_MISMATCH")
         holdout_v2_pass = (
@@ -272,6 +275,9 @@ def validate() -> tuple[list[str], dict]:
                 )
             )
         )
+        if repeat_done:
+            expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
+            expected_status = "REPEAT_PHASE3F_4_OF_4_PASS_PHASE4_FORWARD_VALIDATION_AUTHORIZED_NOT_STARTED"
         if current.get("next_phase") != expected_next:
             errors.append("R2B_CURRENT_HOLDOUT_NEXT_PHASE_MISMATCH")
         if current.get("status") != expected_status:
@@ -299,8 +305,8 @@ def validate() -> tuple[list[str], dict]:
         "r2_phase3c_r2b_holdout_started": False,
         "r2_independent_holdout_start_allowed": True,
         "holdout_build_started": True if holdout_h1_downstream else False,
-        "phase3_historical_validation_complete": False,
-        "phase4_entry_allowed": False,
+        "phase3_historical_validation_complete": repeat_done,
+        "phase4_entry_allowed": repeat_done,
     }
     for key, expected in current_expected.items():
         if cv.get(key) is not expected:

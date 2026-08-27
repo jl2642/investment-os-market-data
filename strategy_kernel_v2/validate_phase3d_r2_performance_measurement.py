@@ -28,6 +28,7 @@ def validate():
     if state.get("phase3d_r2_performance_start_allowed") is not True:
         errors.append("R2_PERF_START_NOT_ALLOWED")
     closeout = state.get("phase3d_r2_performance_measurement_complete") is True
+    repeat_done = state.get("repeat_phase3f_complete") is True
     if closeout:
         if state.get("phase3d_r2_performance_started") is not True:
             errors.append("R2_PERF_CLOSEOUT_NOT_STARTED")
@@ -40,6 +41,8 @@ def validate():
             if state.get("phase3e_r2_structural_support_gate_complete") is True
             else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
         )
+        if repeat_done:
+            expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
         if current.get("next_phase") != expected_next:
             errors.append("R2_PERF_CLOSEOUT_NEXT_PHASE_DRIFT")
         if cv.get("phase3d_r2_performance_started") is not True:
@@ -132,9 +135,9 @@ def validate():
             "phase3e_r2_structural_support_gate_frozen": state.get("phase3e_r2_structural_support_gate_complete") is True,
             "phase3e_r2_start_allowed": state.get("phase3e_r2_structural_support_gate_complete") is True,
             "phase3e_r2_started": state.get("phase3e_r2_complete") is True,
-            "repeat_phase3f_started": False,
-            "phase3_historical_validation_complete": False,
-            "phase4_entry_allowed": False,
+            "repeat_phase3f_started": repeat_done,
+            "phase3_historical_validation_complete": repeat_done,
+            "phase4_entry_allowed": repeat_done,
         }
         for key, value in expected.items():
             if state.get(key) != value:
@@ -150,6 +153,8 @@ def validate():
             if state.get("phase3e_r2_structural_support_gate_complete") is True
             else "PHASE3D_R2_PERFORMANCE_COMPLETE_3E_SUPPORT_GATE_REQUIRED_PHASE4_BLOCKED"
         )
+        if repeat_done:
+            expected_status = "REPEAT_PHASE3F_4_OF_4_PASS_PHASE4_FORWARD_VALIDATION_AUTHORIZED_NOT_STARTED"
         if current.get("status") != expected_status:
             errors.append("R2_PERF_CLOSEOUT_STATUS_DRIFT")
 

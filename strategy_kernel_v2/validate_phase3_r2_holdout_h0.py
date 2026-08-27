@@ -234,6 +234,7 @@ def validate() -> list[str]:
             errors.append("HOLDOUT_H0_FUTURE_ARTIFACT_PREMATURELY_PRESENT")
 
     cv = current.get("validation", {})
+    repeat_done = state.get("repeat_phase3f_complete") is True
     if downstream_started:
         phase3d_r2_downstream = state.get("phase3d_r2_started") is True
         phase3e_r2_downstream = state.get("phase3e_r2_started") is True
@@ -246,6 +247,8 @@ def validate() -> list[str]:
                 else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
             )
         )
+        if repeat_done:
+            expected_current_phase = "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
         if current.get("current_phase") != expected_current_phase:
             errors.append("HOLDOUT_H0_LEGAL_H1_CURRENT_PHASE_DRIFT")
         if current.get("next_phase") not in {
@@ -257,6 +260,7 @@ def validate() -> list[str]:
             "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT",
             "PHASE_3E_R2_ROBUSTNESS_EXECUTION",
             "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE",
+            "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION",
         }:
             errors.append("HOLDOUT_H0_LEGAL_H1_NEXT_PHASE_DRIFT")
         if state.get("holdout_h1_complete") is not True:
@@ -297,10 +301,10 @@ def validate() -> list[str]:
 
     if state.get("r2_independent_holdout_start_allowed") is not True:
         errors.append("HOLDOUT_H0_PARENT_GATE_NOT_ALLOWED")
-    if state.get("phase3_historical_validation_complete") is not False:
-        errors.append("HOLDOUT_H0_PREMATURE_PHASE3_COMPLETE")
-    if state.get("phase4_entry_allowed") is not False:
-        errors.append("HOLDOUT_H0_PREMATURE_PHASE4")
+    if state.get("phase3_historical_validation_complete") is not repeat_done:
+        errors.append("HOLDOUT_H0_PHASE3_COMPLETE_DRIFT")
+    if state.get("phase4_entry_allowed") is not repeat_done:
+        errors.append("HOLDOUT_H0_PHASE4_ENTRY_DRIFT")
 
     for surface_name, surface in (
         ("CONTRACT", contract["authority_boundaries"]),

@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "REPEAT_PHASE_3F",
+  "status": "FROZEN_R2_EVIDENCE_ADAPTER_TO_EXISTING_PHASE3F_CONTRACT",
+  "frozen_at": "2026-08-27",
+  "parent_phase3e_r2_pr": 331,
+  "parent_phase3e_r2_final_head": "2b8827508007b9da23e05f297f930a877bb526a1",
+  "inherited_gate_contract": {
+    "path": "strategy_kernel_v2/PHASE3F_PROMOTION_GATE_CONTRACT.json",
+    "git_blob_sha": "4ce0d23558d0fa80cdc9f58004e7e1ab39b077f2",
+    "status": "FROZEN_HISTORICAL_PROMOTION_GATE",
+    "mandatory_requirement_count": 4,
+    "requirements_unchanged": true,
+    "decision_logic_unchanged": true,
+    "terminal_rejection_logic_unchanged": true,
+    "allowed_outcomes_unchanged": true
+  },
+  "r2_evidence_bindings": {
+    "candidate_point_in_time_historical_replay": {
+      "required_state": {
+        "independent_holdout_final_acceptance_complete": true,
+        "independent_holdout_replay_complete": true,
+        "independent_holdout_replay_outcome": "PASS_INDEPENDENT_HOLDOUT_REPLAY_OPERATIONAL",
+        "independent_holdout_replay_transform_failures": 0,
+        "independent_holdout_replay_audit_error_count": 0
+      },
+      "bound_replay_sha256": "5b66a60eabe2c294d2a396b5fbae74ba19769376d01f5fec77a012461e1a4aaa"
+    },
+    "candidate_phase3d_evidence_measurable": {
+      "required_state": {
+        "phase3d_r2_structurally_measurable": true,
+        "phase3d_r2_complete": true,
+        "phase3d_r2_performance_measurement_complete": true,
+        "phase3d_r2_performance_measurement_status": "COMPLETE_R2_DETERMINISTIC_PERFORMANCE_MEASUREMENT_DESCRIPTIVE_ONLY"
+      },
+      "bound_measurement_sha256": "a3e474745dc8074be363f3d9b8e7082923bd67adeff6c6e42431e1f6a406edad",
+      "minimum_measurable_metric_records": 1,
+      "expected_edge_horizon_record_count": 162
+    },
+    "phase3e_robustness_accepted": {
+      "required_state": {
+        "phase3e_r2_complete": true,
+        "phase3e_r2_robustness_complete": true,
+        "phase3e_r2_robustness_status": "COMPLETE_R2_PREDECLARED_ROBUSTNESS_EVALUATION_DESCRIPTIVE_ONLY",
+        "phase3e_r2_robustness_evaluation_accepted": true
+      },
+      "bound_robustness_sha256": "6cbd096716dc577dc643577795556d765d452b50a09f2e05ee5f253bd1b7e32f",
+      "positive_robustness_claim_is_not_an_inherited_requirement": true,
+      "post_result_numeric_threshold_may_be_added": false,
+      "observed_predeclared_axis_sensitivity_must_be_carried_forward": true
+    },
+    "broader_historical_coverage": {
+      "required_state": {
+        "holdout_v2_selection_complete": true,
+        "holdout_v2_selection_outcome": "PASS_SELECTION_SUFFICIENCY",
+        "holdout_v2_coverage_sufficient": true
+      },
+      "inherited_frozen_minimums": {
+        "checkpoints": 12,
+        "distinct_utc_dates": 6,
+        "distinct_iso_weeks": 4,
+        "distinct_evidence_regimes": 4,
+        "unique_securities": 6,
+        "opportunity_profile_instances": 48,
+        "checkpoints_strictly_outside_seed_time_span": 1,
+        "max_single_utc_date_fraction": 0.4,
+        "max_single_evidence_regime_fraction": 0.5
+      }
+    }
+  },
+  "interpretation_discipline": {
+    "no_new_promotion_requirement": true,
+    "no_post_result_numeric_threshold": true,
+    "descriptive_performance_direction_is_not_a_new_gate": true,
+    "robustness_axis_sensitivity_is_not_a_new_gate": true,
+    "robustness_axis_sensitivity_must_inform_phase4_design_if_promoted": true,
+    "phase4_cannot_start_until_repeat_gate_is_accepted": true
+  },
+  "candidate_state_discipline": {
+    "repeat_phase3f_started_before_acceptance": false,
+    "repeat_phase3f_complete_before_acceptance": false,
+    "phase3_historical_validation_complete_before_acceptance": false,
+    "phase4_entry_allowed_before_acceptance": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

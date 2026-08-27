@@ -137,6 +137,7 @@ def validate() -> tuple[list[str], dict]:
     # Before closeout, replay is computed as a candidate while governed state still
     # says H2 not started. After closeout, bind state exactly to the observed result.
     if state.get("independent_holdout_replay_complete") is True:
+        repeat_done = state.get("repeat_phase3f_complete") is True
         expected_state = {
             "holdout_h2_started": True,
             "independent_holdout_replay_complete": True,
@@ -151,9 +152,9 @@ def validate() -> tuple[list[str], dict]:
             "phase3d_r2_start_allowed": first["phase3d_r2_start_allowed"],
             "phase3d_r2_started": phase3d_r2_downstream,
             "phase3e_r2_started": state.get("phase3e_r2_complete") is True,
-            "repeat_phase3f_started": False,
-            "phase3_historical_validation_complete": False,
-            "phase4_entry_allowed": False,
+            "repeat_phase3f_started": repeat_done,
+            "phase3_historical_validation_complete": repeat_done,
+            "phase4_entry_allowed": repeat_done,
         }
         for key, expected in expected_state.items():
             if state.get(key) != expected:
@@ -178,6 +179,8 @@ def validate() -> tuple[list[str], dict]:
                 else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
             )
         )
+        if repeat_done:
+            expected_current_phase = "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
         if current.get("current_phase") != expected_current_phase:
             errors.append("HOLDOUT_REPLAY_CURRENT_PHASE_DRIFT")
         expected_next = (
@@ -205,6 +208,8 @@ def validate() -> tuple[list[str], dict]:
                 else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_REVIEW"
             )
         )
+        if repeat_done:
+            expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
         if current.get("next_phase") != expected_next:
             errors.append("HOLDOUT_REPLAY_NEXT_PHASE_DRIFT")
     else:

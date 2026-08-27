@@ -322,7 +322,7 @@ The robustness plan is now frozen before execution:
 
 Only one axis changed at a time. No simultaneous multi-axis search, result-driven subset selection, model/transform mutation, dominance recomputation, outcome refetch or outcome-value mutation occurred. All five predefined tests completed with zero integrity errors. The result is accepted as completed robustness evidence, not as a positive robustness claim: security/signature/weighting sensitivity is material descriptively, including a 52-versus-2 exact-signature imbalance and an equal-signature +1-session result of 32.69% concordance / -0.5001% mean spread versus equal-edge 62.96% / +0.0276%. These limitations are mandatory inputs to R2-6 Repeat Phase 3F. The old 3E result for original candidate forms remains historical-only evidence.
 
-#### R2-6 Repeat Phase 3F — MANDATORY / AUTHORIZED / NOT STARTED
+#### R2-6 Repeat Phase 3F — COMPLETE / 4 OF 4 PASS / PROMOTE TO PHASE 4 FORWARD VALIDATION
 Re-evaluate all four Phase 4 promotion requirements:
 1. valid R2 point-in-time historical replay;
 2. measurable R2 Phase 3D evidence;
@@ -342,3 +342,7 @@ Run Legacy and surviving candidate model(s) in parallel on genuinely future evid
 
 ## Phase 5 — GOVERNED MIGRATION — NOT STARTED / NOT AUTHORIZED
 Requires accepted Phase 3 and Phase 4 evidence plus a separate governed migration proposal. Effective migration is never inferred automatically from shadow performance.
+
+
+#### R2-6 Final acceptance
+Repeat Phase 3F reused the original frozen four-requirement promotion contract unchanged. Result = **4/4 PASS** and `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. Phase 3 is complete. Phase 4 is now entry-authorized but remains not started. The observed Phase 3E-R2 signature/security/weighting sensitivity must be explicitly preserved in the Phase 4 forward-shadow contract and monitoring plan.
