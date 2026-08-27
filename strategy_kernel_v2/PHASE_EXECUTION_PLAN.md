@@ -292,10 +292,36 @@ Therefore **Phase 3D-R2 is AUTHORIZED / NOT STARTED**. The replay result does no
 
 Holdout is not a Phase 3G and is not a direct Phase 4 gate.
 
-#### R2-4 Phase 3D-R2 — REQUIRED IF MEASURABLE / NOT STARTED
-After holdout replay, determine whether R2 outputs support the already governed calibration/regret/performance questions. Reuse the existing 1/3/5 trading-session outcome convention unless a separately governed pre-outcome amendment is justified.
+#### R2-4 Phase 3D-R2 — IN PROGRESS / ROUND 1 COMPLETE / OUTCOME EVIDENCE ACQUISITION NEXT
+Round 1 is **COMPLETE** with:
+`PASS_R2_MEASURABILITY_CONTRACT_FROZEN_EVIDENCE_ACQUISITION_REQUIRED`.
 
-If candidate metrics remain nonmeasurable, record them explicitly as nonmeasurable; do not skip the requirement and do not synthesize outcomes.
+The R2-specific measurability contract was frozen before any R2 outcome value was read. The evaluation unit is checkpoint-local exact-signature dominance edges, not synthetic trades or target portfolios. Fixed exchange-session observation horizons are 1 / 3 / 5, with 5 sessions primary.
+
+Accepted outcome-blind structural denominators:
+- Holdout checkpoints = **14**;
+- comparable checkpoints = **13**;
+- distinct comparable exact signatures = **4**;
+- comparable groups = **27**;
+- comparable profiles = **85**;
+- dominance edges = **54**;
+- edge-endpoint securities = **7**.
+
+Round 1 outcome activity remains zero:
+- R2 outcome-manifest content reads = **0**;
+- realized-outcome value reads = **0**;
+- future-return computations = **0**;
+- performance metrics = **0**.
+
+Before any realized outcomes were observed, the primary 5-session coverage gate was frozen:
+- measurable dominance-edge fraction >= **80%**;
+- measurable comparable-group fraction >= **80%**;
+- measurable comparable-checkpoint fraction >= **75%**;
+- measurable-edge exact signatures >= **2**.
+
+A new R2-specific `PHASE3D_R2_OUTCOME_SOURCE_MANIFEST.json` is mandatory; the historical Phase 3D outcome manifest cannot be reused as R2 authority. The next authorized action is **R2 outcome-evidence acquisition only**. Performance computation remains blocked until that source manifest is frozen and the coverage gate is evaluated.
+
+If the gate fails, classify R2 Phase 3D evidence as nonmeasurable/insufficient; do not synthesize missing outcomes and do not treat nonmeasurability as economic underperformance.
 
 #### R2-5 Phase 3E-R2 — REQUIRED IF SUPPORTED / NOT STARTED
 Evaluate R2-specific robustness without using realized outcomes to tune fields, thresholds, mappings or comparison rules. The old 3E result for the original candidate forms is preserved as historical evidence but does not automatically satisfy R2 robustness.
