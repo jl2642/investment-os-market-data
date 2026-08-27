@@ -40,15 +40,37 @@ def validate() -> tuple[list[str], dict]:
     if state.get("phase3d_r2_start_allowed") is not True:
         errors.append("PHASE3D_R2_START_NOT_AUTHORIZED")
 
-    # Round 1 first-run discipline: freeze/audit while governed state still says
-    # Phase 3D-R2 authorized but not started. Closeout occurs only after the
-    # remote candidate result is observed.
-    if state.get("phase3d_r2_started") is not False:
-        errors.append("PHASE3D_R2_PRE_CLOSEOUT_STATE_ALREADY_STARTED")
-    if current.get("validation", {}).get("phase3d_r2_started") is not False:
-        errors.append("PHASE3D_R2_PRE_CLOSEOUT_CURRENT_ALREADY_STARTED")
-    if current.get("next_phase") != "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED":
-        errors.append("PHASE3D_R2_PRE_CLOSEOUT_NEXT_PHASE_DRIFT")
+    # Monotonic two-step discipline. Before first remote acceptance, governed
+    # state remains at the parent boundary. After acceptance, only descriptive
+    # Round-1 state may advance; the frozen contract itself is unchanged.
+    cv = current.get("validation", {})
+    round1_closed = state.get("phase3d_r2_round1_evidence_audit_complete") is True
+    if round1_closed:
+        if state.get("phase3d_r2_started") is not True or cv.get("phase3d_r2_started") is not True:
+            errors.append("PHASE3D_R2_CLOSEOUT_STARTED_STATE_DRIFT")
+        if state.get("phase3d_r2_round1_contract_frozen") is not True:
+            errors.append("PHASE3D_R2_CLOSEOUT_CONTRACT_FLAG_FALSE")
+        if state.get("phase3d_r2_round1_outcome") != ROUND1_PASS:
+            errors.append("PHASE3D_R2_CLOSEOUT_OUTCOME_DRIFT")
+        if state.get("phase3d_r2_measurability_status") != "PENDING_OUTCOME_EVIDENCE_ACQUISITION":
+            errors.append("PHASE3D_R2_CLOSEOUT_MEASURABILITY_DRIFT")
+        if state.get("phase3d_r2_outcome_evidence_acquisition_start_allowed") is not True:
+            errors.append("PHASE3D_R2_CLOSEOUT_ACQUISITION_GATE_NOT_OPEN")
+        if state.get("phase3d_r2_outcome_evidence_acquisition_started") is not False:
+            errors.append("PHASE3D_R2_CLOSEOUT_PREMATURE_ACQUISITION")
+        if state.get("phase3d_r2_performance_measurement_start_allowed") is not False:
+            errors.append("PHASE3D_R2_CLOSEOUT_PREMATURE_PERFORMANCE_GATE")
+        if current.get("current_phase") != "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED":
+            errors.append("PHASE3D_R2_CLOSEOUT_CURRENT_PHASE_DRIFT")
+        if current.get("next_phase") != "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION":
+            errors.append("PHASE3D_R2_CLOSEOUT_NEXT_PHASE_DRIFT")
+    else:
+        if state.get("phase3d_r2_started") is not False:
+            errors.append("PHASE3D_R2_PRE_CLOSEOUT_STATE_ALREADY_STARTED")
+        if cv.get("phase3d_r2_started") is not False:
+            errors.append("PHASE3D_R2_PRE_CLOSEOUT_CURRENT_ALREADY_STARTED")
+        if current.get("next_phase") != "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED":
+            errors.append("PHASE3D_R2_PRE_CLOSEOUT_NEXT_PHASE_DRIFT")
 
     if result.get("status") != ROUND1_PASS:
         errors.append("PHASE3D_R2_ROUND1_RESULT_NOT_PASS")
