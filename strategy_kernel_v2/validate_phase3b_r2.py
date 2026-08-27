@@ -167,6 +167,7 @@ if __name__ == "__main__":
     contract = load_contract()
     print(
         "PHASE3B_R2_ACCEPTANCE_PASS model=EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2 "
+        f"model_version={contract['model']['model_version']} "
         f"transform_rules={len(contract['transform_catalog'])} exact_signature_pareto=true "
         "real_historical_replay=false phase3c_r2_start_allowed=true phase4_entry_allowed=false "
         "orders=0 trade_authority=NONE"
