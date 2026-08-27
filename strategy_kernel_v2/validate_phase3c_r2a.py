@@ -125,8 +125,17 @@ def validate() -> tuple[list[str], dict]:
         if holdout_h1_downstream:
             if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
                 errors.append("R2A_LEGAL_HOLDOUT_H1_CURRENT_PHASE_DRIFT")
-            if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
-                errors.append("R2A_LEGAL_HOLDOUT_H1_NEXT_PHASE_DRIFT")
+            holdout_v2_pass = (
+                state.get("holdout_v2_selection_complete") is True
+                and state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
+            )
+            expected_next = (
+                "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                if holdout_v2_pass
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+            )
+            if current.get("next_phase") != expected_next:
+                errors.append("R2A_LEGAL_HOLDOUT_NEXT_PHASE_DRIFT")
         else:
             if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
                 errors.append("R2A_LEGAL_R2B_CURRENT_PHASE_DRIFT")
