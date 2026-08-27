@@ -101,7 +101,7 @@ def _blob_at(repo: Path, sha: str, path: str) -> str | None:
 
 
 def _last_change_commit(repo: Path, sha: str, path: str) -> str:
-    value = _git(repo, "log", "-1", "--format=%H", sha, "--", path)
+    value = _git(repo, "log", "--first-parent", "-1", "--format=%H", sha, "--", path)
     if not value:
         raise AssertionError("H1_SOURCE_PRESENT_WITHOUT_CHANGE_COMMIT:" + path)
     return value
@@ -249,7 +249,7 @@ def _universe_commits(repo: Path, start_sha: str, end_sha: str) -> list[str]:
     raw = _git(
         repo,
         "rev-list",
-        "--ancestry-path",
+        "--first-parent",
         f"{parent}..{end_sha}",
     )
     commits = [line for line in raw.splitlines() if line]
