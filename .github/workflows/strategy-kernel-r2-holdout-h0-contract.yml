@@ -1,0 +1,43 @@
+name: Strategy Kernel R2 Holdout H0 Contract Freeze
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-r2-holdout-h0-contract.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: strategy-kernel-r2-holdout-h0-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  holdout-h0-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Holdout H0 contract tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3_r2_holdout_h0
+      - name: Validate Holdout H0 contract freeze
+        run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_h0
+      - name: Re-validate Phase 3C-R2B parent
+        run: python -m strategy_kernel_v2.validate_phase3c_r2b
+      - name: Re-validate Phase 3C-R2A parent
+        run: python -m strategy_kernel_v2.validate_phase3c_r2a
+      - name: Re-validate Phase 3B-R2 contract
+        run: python -m strategy_kernel_v2.validate_phase3b_r2
+      - name: Validate Post-3F research path
+        run: python -m strategy_kernel_v2.validate_post3f_research_path
+      - name: Validate historical Phase 3F gate remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3f
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Run program governance regressions
+        run: python -m unittest strategy_kernel_v2.tests.test_program_governance
