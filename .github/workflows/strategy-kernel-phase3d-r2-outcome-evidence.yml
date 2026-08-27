@@ -1,0 +1,58 @@
+name: Strategy Kernel Phase 3D-R2 Outcome Evidence Acquisition
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - 'scripts/validate_fmdl2b4_freshness.py'
+      - 'scripts/benchmark_historical_sources.py'
+      - 'requirements.txt'
+      - '.github/workflows/strategy-kernel-phase3d-r2-outcome-evidence.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: strategy-kernel-phase3d-r2-outcome-evidence-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  outcome-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Freeze and test outcome-evidence contract
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3d_r2_outcome_evidence
+      - name: Re-validate Phase 3D-R2 Round 1
+        run: python -m strategy_kernel_v2.validate_phase3d_r2_measurability
+      - name: Acquire and validate bounded outcome evidence
+        run: python -m strategy_kernel_v2.validate_phase3d_r2_outcome_evidence
+      - name: Validate accepted Independent Holdout remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3_r2_independent_holdout_replay
+      - name: Validate Phase 3C-R2B remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3c_r2b
+      - name: Validate Phase 3B-R2 remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3b_r2
+      - name: Validate historical Phase 3F remains blocked
+        run: python -m strategy_kernel_v2.validate_phase3f
+      - name: Validate Post-3F path
+        run: python -m strategy_kernel_v2.validate_post3f_research_path
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Upload immutable outcome-evidence ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3d-r2-outcome-evidence
+          retention-days: 30
+          if-no-files-found: ignore
+          path: strategy_kernel_v2/generated/PHASE3D_R2_OUTCOME_EVIDENCE_LEDGER.json
