@@ -272,3 +272,34 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Governed continuation:** Phase 3 remains open. A material revision must use a new model/version identity and return through `Phase 3B contract definition → Phase 3C replay`; legitimate broader/holdout historical coverage may also be added without retrospective input creation. Missing 3D/3E evidence must then be regenerated as applicable, and a later 3F gate must pass before Phase 4 begins.
 
 **Not changed:** no effective policy, Candidate membership, Real/Simulation position, target portfolio, user decision, recommendation, order authority or trade authority changed; `orders=0`, `trade_authority=NONE`. Phase 4 remains mandatory but blocked; Phase 5 remains unauthorized.
+
+## 2026-08-27 — Post-3F R2 loopback completion through Phase 3C-R2B and program-plan synchronization
+
+**Reason:** the original Phase 3F promotion gate closed at 1/4 with `CONTINUE_SHADOW_RESEARCH`. Subsequent governed work actually completed the approved new-identity R2 loopback through Phase 3B-R2 and Phase 3C-R2, while the execution-oriented Roadmap and Phase Execution Plan still primarily described the pre-R2 negative-gate state. This synchronization removes that control-document lag before independent holdout work begins.
+
+**Governed R2 path actually completed:**
+- PR #311 — Post-3F research path decision approved `NEW_IDENTITY_EVIDENCE_NATIVE_R2_PLUS_INDEPENDENT_HOLDOUT_EXPANSION`;
+- PR #312 — Phase 3B-R2 froze `EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2`;
+- PR #316 — Phase 3C-R2A accepted exact PIT reconstruction on the seven development checkpoints; R2.0.1 canonical-prefix patch retained 20 transform rules and used no outcomes;
+- PR #318 — Phase 3C-R2B accepted the first real R2 mechanical replay and full audit.
+
+**Accepted R2B result:** 7 checkpoints, 29 exact registered historical source reads, 33 profiles, 26 comparison-contract-evaluable profiles, 15 exact-signature groups, 9 comparable groups, 6 singleton groups, 20 comparable profile instances, 26 directional Pareto pair checks, 4 dominance edges, 17 local frontier instances, 3 dominated instances, 0 transform failures, 0 outcomes and 0 holdout records. Classification = `PASS_MECHANICAL_REPLAY_OPERATIONAL`.
+
+**Interpretation:** this proves bounded development-corpus R2 replay operability only. It is not historical performance evidence, independent validation, a global winner, Phase 3 completion or Phase 4 eligibility.
+
+**Remaining Phase 3 execution path is frozen as:**
+`Independent Point-in-Time Holdout Coverage → Phase 3D-R2 measurability/performance if supported → Phase 3E-R2 robustness if supported → Repeat Phase 3F Historical Promotion Gate`.
+
+**Explicit anti-drift rules:**
+- Holdout is not Phase 3G;
+- no Phase 3C-R2C round is authorized;
+- Holdout may not directly promote to Phase 4;
+- the seven development checkpoints may not be relabeled as independent holdout;
+- R2-specific 3D/3E evidence must be produced where measurable/supported and must otherwise remain explicitly nonmeasurable/insufficient;
+- a repeat Phase 3F gate is mandatory;
+- only a later 4/4 promotion PASS may authorize Phase 4;
+- no macro lifecycle change is made.
+
+**Control synchronization:** `DEVELOPMENT_ROADMAP.md` and `PHASE_EXECUTION_PLAN.md` are updated to the accepted R2B state and remaining Phase 3 path. `MASTER_PROGRAM_CHARTER.md` and `PROGRAM_CONTRACT.json` require no macro change because their Phase 0→5 lifecycle and Phase 3 loopback rules were already correct.
+
+**Not changed:** no effective policy, Candidate membership, Real/Simulation position, target portfolio, user decision, investment recommendation, order authority or trade authority changed. `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.

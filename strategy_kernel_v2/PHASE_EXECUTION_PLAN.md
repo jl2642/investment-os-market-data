@@ -15,7 +15,7 @@ Legacy/Core Static baseline inventoried.
 ## Phase 2 — CAPITAL COMPARISON INFRASTRUCTURE — COMPLETE SHADOW
 2A comparator, 2B governed refresh and 2C real-evidence pack are validated. Current real pack remains `NO_COMPARISON`, 0 eligible / 8 blocked, with no fabricated refresh packets.
 
-## Phase 3 — HISTORICAL REPLAY & CALIBRATION — IN PROGRESS / 3F GATE COMPLETE / LOOPBACK REQUIRED
+## Phase 3 — HISTORICAL REPLAY & CALIBRATION — IN PROGRESS / R2 DEVELOPMENT REPLAY COMPLETE / HOLDOUT NEXT / PHASE 4 BLOCKED
 Internal order remains exactly `3A → 3B → 3C → 3D → 3E → 3F`. A negative 3F gate may reopen governed Phase 3 research, but may not bypass the fixed macro lifecycle or directly enter Phase 4.
 
 ### Phase 3A — Point-in-time Evidence Ledger — COMPLETE_SCOPE_BOUNDED
@@ -150,6 +150,97 @@ The seven seed checkpoints may not be outcome-tuned and then represented as inde
 `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION` remains blocked.
 
 `PROMOTE_TO_PHASE_5` is forbidden.
+
+### Governed R2 loopback execution — B/C COMPLETE / HOLDOUT NEXT
+
+#### R2-0 Post-3F path decision — COMPLETE / PR #311
+Approved path:
+`NEW_IDENTITY_EVIDENCE_NATIVE_R2_PLUS_INDEPENDENT_HOLDOUT_EXPANSION`.
+
+Frozen execution order:
+1. R2 architecture/contract freeze;
+2. 3B-R2 contract definition;
+3. 3C-R2 development-corpus PIT replay;
+4. Independent Point-in-Time Holdout Coverage;
+5. 3D-R2 measurability/performance if supported;
+6. 3E-R2 robustness if supported;
+7. Repeat Phase 3F promotion gate.
+
+The seven original checkpoints remain development corpus and may not be relabeled as holdout.
+
+#### R2-1 Phase 3B-R2 — COMPLETE / PR #312
+Model identity: `EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2`.
+
+Current research version: `R2.0.1_RESEARCH`.
+- frozen transform rules = 20;
+- exact-signature Pareto only;
+- missingness remains explicit;
+- no scalar policy score, weights, ranking or global winner;
+- no realized-outcome tuning;
+- no Phase 4 authority.
+
+#### R2-2 Phase 3C-R2 — COMPLETE / PR #316 + #318
+Phase 3C-R2 has exactly two execution rounds:
+- **3C-R2A:** PIT reconstruction only, no Pareto/outcomes/holdout;
+- **3C-R2B:** mechanical exact-signature replay + full audit + final acceptance.
+
+Accepted R2B development-corpus result:
+- checkpoints = **7**;
+- exact source reads = **29**;
+- R2 profiles = **33**;
+- comparison-contract-evaluable profiles = **26**;
+- exact-signature groups = **15**;
+- comparable groups = **9**;
+- singleton groups = **6**;
+- comparable profile instances = **20**;
+- directional Pareto pair checks = **26**;
+- dominance edges = **4**;
+- local frontier instances = **17**;
+- dominated instances = **3**;
+- transform failures = **0**;
+- outcomes = **0**;
+- holdout = **0**.
+
+Classification: `PASS_MECHANICAL_REPLAY_OPERATIONAL`.
+
+This closes development-corpus R2 replay only. It does not claim historical performance, independent validation, a global model winner, Phase 3 completion or Phase 4 eligibility.
+
+#### R2-3 Independent Point-in-Time Holdout Coverage — NEXT / NOT STARTED
+Before any holdout result is observed, freeze:
+1. quantitative sufficiency threshold;
+2. checkpoint/date/regime selection rules;
+3. disjointness from the seven development checkpoints;
+4. outcome-blind selection;
+5. exact PIT availability/source provenance requirements;
+6. no-later-backfill rule;
+7. broader date/regime coverage requirement.
+
+Then build and replay the frozen R2 model on the independent historical holdout.
+
+Holdout is not a Phase 3G and is not a direct Phase 4 gate.
+
+#### R2-4 Phase 3D-R2 — REQUIRED IF MEASURABLE / NOT STARTED
+After holdout replay, determine whether R2 outputs support the already governed calibration/regret/performance questions. Reuse the existing 1/3/5 trading-session outcome convention unless a separately governed pre-outcome amendment is justified.
+
+If candidate metrics remain nonmeasurable, record them explicitly as nonmeasurable; do not skip the requirement and do not synthesize outcomes.
+
+#### R2-5 Phase 3E-R2 — REQUIRED IF SUPPORTED / NOT STARTED
+Evaluate R2-specific robustness without using realized outcomes to tune fields, thresholds, mappings or comparison rules. The old 3E result for the original candidate forms is preserved as historical evidence but does not automatically satisfy R2 robustness.
+
+#### R2-6 Repeat Phase 3F — MANDATORY / NOT STARTED
+Re-evaluate all four Phase 4 promotion requirements:
+1. valid R2 point-in-time historical replay;
+2. measurable R2 Phase 3D evidence;
+3. accepted R2 Phase 3E robustness;
+4. broader independent historical coverage.
+
+Only a later **4/4 PASS** may authorize `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`.
+
+Current boundaries remain:
+`phase3_historical_validation_complete=false`;
+`phase4_entry_allowed=false`;
+`orders=0`;
+`trade_authority=NONE`.
 
 ## Phase 4 — FORWARD PARALLEL SHADOW VALIDATION — MANDATORY / NOT STARTED / BLOCKED
 Run Legacy and surviving candidate model(s) in parallel on genuinely future evidence across multiple complete cycles. Historical replay cannot substitute for Phase 4. Phase 4 cannot start until a later 3F gate passes all mandatory historical requirements.

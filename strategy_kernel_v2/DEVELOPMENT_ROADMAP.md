@@ -20,7 +20,7 @@ Missing evidence remains explicit; no valuation/probability/confidence is synthe
 - 2C Current Shadow Comparison Pack — VALIDATED / PR #302: `NO_COMPARISON`, 0 eligible / 8 blocked.
 - Program Governance Correction — VALIDATED / PR #303: Phase 4 restored; direct Phase 3→5 prohibited.
 
-### Phase 3 — Historical Replay & Calibration — IN PROGRESS / 3F GATE COMPLETE / RESEARCH LOOPBACK REQUIRED
+### Phase 3 — Historical Replay & Calibration — IN PROGRESS / R2 DEVELOPMENT REPLAY COMPLETE / INDEPENDENT HOLDOUT NEXT / PHASE 4 BLOCKED
 Internal sequence remains exactly `3A → 3B → 3C → 3D → 3E → 3F`. A completed negative 3F gate does not itself complete Phase 3; governed redesign/replay or broader historical evidence is required before a later 3F re-evaluation can pass.
 
 #### 3A Point-in-time Evidence Ledger — VALIDATED COMPLETE_SCOPE_BOUNDED / PR #304
@@ -87,6 +87,25 @@ Any material revision must:
 
 Phase 3 remains open. A later 3F re-evaluation may occur only after the missing promotion evidence is actually produced. Phase 4 remains blocked.
 
+#### Governed Post-3F R2 Loopback — B/C COMPLETE, HOLDOUT NEXT / PR #311 → #312 → #316 → #318
+The negative 3F gate did not authorize a direct Phase 4 entry. PR #311 froze the governed research path as a new-identity evidence-native R2 redesign plus independent point-in-time holdout expansion.
+
+Completed R2 loopback:
+- **Post-3F path decision / PR #311 — COMPLETE:** approved `NEW_IDENTITY_EVIDENCE_NATIVE_R2_PLUS_INDEPENDENT_HOLDOUT_EXPANSION`; the seven seed checkpoints remain development corpus only.
+- **3B-R2 / PR #312 — COMPLETE:** froze `EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2`; current patched research identity is `R2.0.1_RESEARCH`, 20 frozen transforms, exact-signature Pareto only, no scalar score, no winner, no outcome tuning.
+- **3C-R2A / PR #316 — COMPLETE / ACCEPTED:** exact PIT reconstruction across 7 checkpoints / 29 registered historical source reads / 33 R2 profiles; 171 present dimensions, 489 explicit missing dimensions, 0 transform failures; no Pareto execution, outcomes or holdout use.
+- **3C-R2B / PR #318 — COMPLETE / ACCEPTED:** first real R2 mechanical historical replay completed on the development corpus. Final result: 15 exact-signature groups, 9 comparable groups, 6 singleton groups, 20 comparable profiles, 26 directional Pareto pair checks, 4 dominance edges, 17 local frontier instances and 3 dominated instances; `PASS_MECHANICAL_REPLAY_OPERATIONAL`. These are local replay relations, not performance evidence or a global winner.
+
+The remaining Phase 3 path is frozen as:
+`Independent Point-in-Time Holdout Coverage → Phase 3D-R2 measurability/performance if supported → Phase 3E-R2 robustness if supported → Repeat Phase 3F Historical Promotion Gate`.
+
+Important boundaries:
+- Holdout is **not** a new macro phase and is **not** a direct Phase 4 entrance.
+- No 3C-R2C round is authorized; 3C-R2 consists only of R2A reconstruction and R2B mechanical replay/final acceptance.
+- R2D/R2E evidence has not yet been produced. If evidence is not measurable/supported, it must remain explicitly nonmeasurable/insufficient rather than being skipped or fabricated.
+- Repeat Phase 3F is mandatory before Phase 4. Phase 4 may start only if all promotion requirements then pass.
+- `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
+
 ### Phase 4 — Forward Parallel Shadow Validation — MANDATORY / NOT STARTED / BLOCKED BY PHASE 3F
 Run Legacy and surviving candidate model(s) in parallel on genuinely future unseen evidence across multiple complete cycles. Historical replay cannot substitute for Phase 4. Entry remains forbidden until a later Phase 3F gate passes all mandatory historical requirements.
 
@@ -94,4 +113,4 @@ Run Legacy and surviving candidate model(s) in parallel on genuinely future unse
 Requires separately accepted Phase 3 historical evidence, Phase 4 forward evidence and a governed migration proposal. Direct Phase 3→5 remains forbidden.
 
 ## Current program state
-Phase 3F has completed a negative promotion gate with `CONTINUE_SHADOW_RESEARCH`: the fixed candidate forms are not promotable in their current form, but the evidence does not support a terminal economic rejection claim. Phase 3 historical validation remains incomplete. The governed next path is either a new-identity model redesign that loops back through 3B→3C, or legitimate historical coverage expansion; both require subsequent 3D/3E evidence as applicable and a new 3F gate before Phase 4 can begin. Phase 4 remains mandatory and blocked, Phase 5 remains unauthorized, and Canonical `main` remains unchanged.
+The original Phase 3F gate remains a 1/4 negative gate with `CONTINUE_SHADOW_RESEARCH`, but the governed R2 loopback has now completed its B/C work: Post-3F path decision #311, 3B-R2 #312, 3C-R2A #316 and 3C-R2B #318 are accepted on the stacked shadow chain. R2.0.1 is mechanically replay-operational on the seven-checkpoint development corpus, but this is not independent historical validation and does not satisfy the Phase 3D/3E/broader-coverage requirements needed for promotion. The next authorized work is **Independent Point-in-Time Holdout Coverage**, followed by R2-specific 3D/3E evidence as supported and a mandatory repeat 3F gate. Phase 3 historical validation remains incomplete, Phase 4 remains mandatory and blocked, Phase 5 remains unauthorized, and Canonical `main` remains unchanged.
