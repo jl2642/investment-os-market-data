@@ -265,9 +265,13 @@ def validate() -> tuple[list[str], dict]:
                 )
             )
             expected_next = (
-                "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
-                if evidence_complete
-                else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+                "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                if performance_complete
+                else (
+                    "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                    if evidence_complete
+                    else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+                )
             )
         elif replay_downstream:
             expected_status = "INDEPENDENT_HOLDOUT_REPLAY_PASS_PHASE3D_R2_READY_PHASE4_BLOCKED"
