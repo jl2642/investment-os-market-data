@@ -124,7 +124,11 @@ class Post3FResearchPathTests(unittest.TestCase):
                     expected_next = (
                         (
                             (
-                                "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                                (
+                                    "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+                                    if self.current["validation"].get("phase3e_r2_complete")
+                                    else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                                )
                                 if self.current["validation"].get("phase3e_r2_structural_support_gate_complete")
                                 else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
                             )
@@ -166,7 +170,11 @@ class Post3FResearchPathTests(unittest.TestCase):
             self.assertEqual(
                 self.current["next_phase"],
                 (
-                    "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                    (
+                        "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+                        if self.current["validation"].get("phase3e_r2_complete")
+                        else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                    )
                     if self.current["validation"].get("phase3e_r2_structural_support_gate_complete")
                     else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
                 )
@@ -177,6 +185,18 @@ class Post3FResearchPathTests(unittest.TestCase):
                     else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
                 ),
             )
+        elif phase == "PHASE_3E_R2_ROBUSTNESS_EXECUTION":
+            self.assertTrue(self.current["validation"]["phase3d_r2_complete"])
+            self.assertTrue(self.current["validation"]["phase3e_r2_structural_support_gate_complete"])
+            self.assertTrue(self.current["validation"]["phase3e_r2_started"])
+            self.assertTrue(self.current["validation"]["phase3e_r2_robustness_started"])
+            self.assertTrue(self.current["validation"]["phase3e_r2_robustness_complete"])
+            self.assertTrue(self.current["validation"]["phase3e_r2_complete"])
+            self.assertTrue(self.current["validation"]["phase3e_r2_robustness_evaluation_accepted"])
+            self.assertFalse(self.current["validation"]["phase3e_r2_positive_robustness_claimed"])
+            self.assertTrue(self.current["validation"]["repeat_phase3f_start_allowed"])
+            self.assertFalse(self.current["validation"]["repeat_phase3f_started"])
+            self.assertEqual(self.current["next_phase"], "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE")
         else:
             self.fail("unexpected current phase for Post-3F monotonic regression: " + str(phase))
 

@@ -57,6 +57,50 @@ def validate():
     if result.get("integrity_errors"):
         errors.extend("R2E_ROBUSTNESS_INTEGRITY:" + item for item in result["integrity_errors"])
 
+    from pathlib import Path
+    import json
+    root = Path(__file__).resolve().parent
+    state = json.loads((root / "PROGRAM_STATE.json").read_text(encoding="utf-8"))
+    current = json.loads((root / "CURRENT_PHASE_STATUS.json").read_text(encoding="utf-8"))
+    cv = current.get("validation", {})
+    closeout = state.get("phase3e_r2_complete") is True
+    if closeout:
+        expected = {
+            "phase3e_r2_started": True,
+            "phase3e_r2_robustness_started": True,
+            "phase3e_r2_robustness_complete": True,
+            "phase3e_r2_complete": True,
+            "phase3e_r2_robustness_status": result["status"],
+            "phase3e_r2_robustness_sha256": result["robustness_sha256"],
+            "phase3e_r2_robustness_test_count": 5,
+            "phase3e_r2_checkpoint_jackknife_count": 13,
+            "phase3e_r2_security_jackknife_count": 7,
+            "phase3e_r2_signature_strata_count": 2,
+            "phase3e_r2_signature_jackknife_count": 2,
+            "phase3e_r2_aggregation_scheme_horizon_record_count": 9,
+            "phase3e_r2_robustness_evaluation_accepted": True,
+            "phase3e_r2_positive_robustness_claimed": False,
+            "phase3e_r2_statistical_significance_claimed": False,
+            "phase3e_r2_robustness_pass_fail_threshold_defined": False,
+            "phase3e_r2_robustness_completion_evidence_only": True,
+            "repeat_phase3f_start_allowed": True,
+            "repeat_phase3f_started": False,
+            "repeat_phase3f_complete": False,
+            "phase3_historical_validation_complete": False,
+            "phase4_entry_allowed": False,
+        }
+        for key, value in expected.items():
+            if state.get(key) != value:
+                errors.append("R2E_ROBUSTNESS_CLOSEOUT_STATE_DRIFT:" + key)
+            if cv.get(key) != value:
+                errors.append("R2E_ROBUSTNESS_CLOSEOUT_CURRENT_DRIFT:" + key)
+        if current.get("current_phase") != "PHASE_3E_R2_ROBUSTNESS_EXECUTION":
+            errors.append("R2E_ROBUSTNESS_CLOSEOUT_CURRENT_PHASE_DRIFT")
+        if current.get("status") != "PHASE3E_R2_COMPLETE_REPEAT_PHASE3F_REQUIRED_PHASE4_BLOCKED":
+            errors.append("R2E_ROBUSTNESS_CLOSEOUT_STATUS_DRIFT")
+        if current.get("next_phase") != "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE":
+            errors.append("R2E_ROBUSTNESS_CLOSEOUT_NEXT_DRIFT")
+
     controls = result["controls"]
     for key, value in controls.items():
         if key == "trade_authority":

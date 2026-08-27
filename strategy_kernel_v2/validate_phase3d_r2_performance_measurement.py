@@ -32,7 +32,11 @@ def validate():
         if state.get("phase3d_r2_performance_started") is not True:
             errors.append("R2_PERF_CLOSEOUT_NOT_STARTED")
         expected_next = (
-            "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+            (
+                "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+                if state.get("phase3e_r2_complete") is True
+                else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+            )
             if state.get("phase3e_r2_structural_support_gate_complete") is True
             else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
         )
@@ -127,7 +131,7 @@ def validate():
             "phase3e_r2_structural_support_gate_required": True,
             "phase3e_r2_structural_support_gate_frozen": state.get("phase3e_r2_structural_support_gate_complete") is True,
             "phase3e_r2_start_allowed": state.get("phase3e_r2_structural_support_gate_complete") is True,
-            "phase3e_r2_started": False,
+            "phase3e_r2_started": state.get("phase3e_r2_complete") is True,
             "repeat_phase3f_started": False,
             "phase3_historical_validation_complete": False,
             "phase4_entry_allowed": False,
@@ -138,7 +142,11 @@ def validate():
             if cv.get(key) != value:
                 errors.append("R2_PERF_CLOSEOUT_CURRENT_DRIFT:" + key)
         expected_status = (
-            "PHASE3E_R2_STRUCTURAL_SUPPORT_PASS_ROBUSTNESS_READY_PHASE4_BLOCKED"
+            (
+                "PHASE3E_R2_COMPLETE_REPEAT_PHASE3F_REQUIRED_PHASE4_BLOCKED"
+                if state.get("phase3e_r2_complete") is True
+                else "PHASE3E_R2_STRUCTURAL_SUPPORT_PASS_ROBUSTNESS_READY_PHASE4_BLOCKED"
+            )
             if state.get("phase3e_r2_structural_support_gate_complete") is True
             else "PHASE3D_R2_PERFORMANCE_COMPLETE_3E_SUPPORT_GATE_REQUIRED_PHASE4_BLOCKED"
         )

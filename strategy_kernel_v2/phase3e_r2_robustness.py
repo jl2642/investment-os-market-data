@@ -255,9 +255,23 @@ def build_robustness_results() -> dict[str, Any]:
         integrity_errors.append("R2E_ROBUSTNESS_PLAN_NOT_FROZEN")
     if state.get("phase3e_r2_robustness_execution_start_allowed") is not True:
         integrity_errors.append("R2E_ROBUSTNESS_START_NOT_ALLOWED")
-    if state.get("phase3e_r2_started") is not False or state.get("phase3e_r2_robustness_started") is not False:
-        integrity_errors.append("R2E_ROBUSTNESS_CANDIDATE_STATE_ALREADY_STARTED")
-    if current.get("next_phase") != "PHASE_3E_R2_ROBUSTNESS_EXECUTION":
+    closeout = state.get("phase3e_r2_complete") is True
+    expected_started = closeout
+    if state.get("phase3e_r2_started") is not expected_started or state.get("phase3e_r2_robustness_started") is not expected_started:
+        integrity_errors.append("R2E_ROBUSTNESS_STATE_START_DRIFT")
+    expected_current_phase = (
+        "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+        if closeout
+        else current.get("current_phase")
+    )
+    if closeout and current.get("current_phase") != expected_current_phase:
+        integrity_errors.append("R2E_ROBUSTNESS_CURRENT_PHASE_DRIFT")
+    expected_next = (
+        "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+        if closeout
+        else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+    )
+    if current.get("next_phase") != expected_next:
         integrity_errors.append("R2E_ROBUSTNESS_CURRENT_NEXT_DRIFT")
 
     performance = build_performance_measurement()

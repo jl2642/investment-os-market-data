@@ -464,3 +464,18 @@ The accepted V2 14-checkpoint selection was rebuilt deterministically. Replay us
 **Meaning:** PASS authorizes execution of the frozen robustness program only. It is not an economic-performance endorsement, robustness conclusion or Phase 4 promotion.
 
 **Governed consequence:** `phase3e_r2_start_allowed=true`; `phase3e_r2_robustness_execution_start_allowed=true`; robustness not yet started; next = `PHASE_3E_R2_ROBUSTNESS_EXECUTION`. Repeat Phase 3F remains not started and mandatory. Phase 4 remains blocked. `orders=0`, `trade_authority=NONE`.
+
+
+## 2026-08-27 — Phase 3E-R2 predefined robustness execution accepted
+
+**Parent:** accepted structural support PR #330 @ `47cf9df36f6a541a6f58ecd4487c67e91e26f1bf`.
+
+**Execution:** all five predeclared one-axis-at-a-time robustness tests completed: 1/3/5-session horizon stratification; 13 checkpoint jackknifes; 7 security jackknifes; 2-signature stratification/jackknife; and 9 equal-edge/equal-checkpoint/equal-signature × horizon weighting records. Integrity errors = 0.
+
+**Evidence:** robustness SHA-256 `6cbd096716dc577dc643577795556d765d452b50a09f2e05ee5f253bd1b7e32f`; workflow run `33054269550`; artifact ID `9638968464`; artifact digest `sha256:b066063b230e348e99b115efa1821e4305847caf91930852ed09ff7f3228b6ee`.
+
+**Descriptive sensitivity carried forward:** checkpoint jackknife is comparatively bounded, while security/signature/aggregation weighting materially changes direction and magnitude. The two exact signatures contain 52 and 2 edges. At +1 session, equal-edge = 62.96% concordance / +0.0276% mean spread, equal-checkpoint = 65.38% / +0.1132%, and equal-signature = 32.69% / -0.5001%. Security jackknife ranges widen to 39.29%-73.33% concordance at +3 and +5 sessions. No post-result pass/fail threshold is invented.
+
+**Interpretation:** Phase 3E-R2 is complete and its robustness evaluation is accepted as evidence completion only. Positive robustness, statistical significance, economic winner and Phase 4 promotion are not claimed.
+
+**Governed consequence:** Repeat Phase 3F is mandatory and now start-allowed, but not started. Phase 3 historical validation remains incomplete; Phase 4 remains blocked; `orders=0`; `trade_authority=NONE`.

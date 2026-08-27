@@ -295,7 +295,11 @@ def validate() -> list[str]:
             (
                 (
                     (
-                        "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                        (
+                            "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+                            if state.get("phase3e_r2_complete") is True
+                            else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                        )
                         if state.get("phase3e_r2_structural_support_gate_complete") is True
                         else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
                     )
@@ -330,10 +334,15 @@ def validate() -> list[str]:
         if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
             errors.append("V2_NEXT_PHASE_DRIFT")
 
+    phase3e_r2_downstream = state.get("phase3e_r2_started") is True
     expected_current_phase = (
-        "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
-        if phase3d_r2_downstream
-        else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+        "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+        if phase3e_r2_downstream
+        else (
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+            if phase3d_r2_downstream
+            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+        )
     )
     if current.get("current_phase") != expected_current_phase:
         errors.append("V2_CURRENT_PHASE_DRIFT")

@@ -72,7 +72,7 @@ def validate():
             errors.append("PROGRAM_STATE_R2_PREMATURE_START_IN_POST3F")
         if current.get("next_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
             errors.append("CURRENT_NEXT_PHASE_R2_MISMATCH")
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}:
         contract_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
         if not contract_path.exists():
             errors.append("R2_CURRENT_WITHOUT_FROZEN_CONTRACT")
@@ -88,8 +88,8 @@ def validate():
             errors.append("R2_CURRENT_STATUS_NOT_COMPLETE")
         if state.get("r2_phase3c_replay_start_allowed") is not True:
             errors.append("R2_CURRENT_PHASE3C_START_NOT_ALLOWED")
-        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"}
-        holdout_h1_downstream = current_phase in {"INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"}
+        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}
+        holdout_h1_downstream = current_phase in {"INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}
         holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
         if r2b_downstream:
             if state.get("r2_phase3c_replay_started") is not True or state.get("r2_phase3c_r2b_complete") is not True:
@@ -123,7 +123,11 @@ def validate():
                     (
                         (
                             (
-                                "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                                (
+                                    "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+                                    if cv.get("phase3e_r2_complete") is True
+                                    else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                                )
                                 if cv.get("phase3e_r2_structural_support_gate_complete") is True
                                 else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
                             )

@@ -106,7 +106,7 @@ def validate() -> list[str]:
         _validate_post3f(errors, state, current)
         if state.get("r2_phase3b_contract_definition_started"):
             errors.append("POST3F_VALIDATOR_SEES_R2_ALREADY_STARTED")
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}:
         _validate_post3f(errors, state, current)
         r2_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
         if not r2_path.exists():
@@ -121,8 +121,8 @@ def validate() -> list[str]:
                 errors.append("PHASE3F_R2_DOWNSTREAM_PREMATURE_PHASE4")
         if state.get("r2_phase3b_contract_definition_started") is not True or state.get("r2_phase3b_contract_definition_complete") is not True:
             errors.append("PHASE3F_R2_DOWNSTREAM_NOT_COMPLETE")
-        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"}
-        holdout_h1_downstream = current_phase in {"INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"}
+        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}
+        holdout_h1_downstream = current_phase in {"INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}
         holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
         if r2b_downstream:
             if state.get("r2_phase3c_r2b_complete") is not True:
