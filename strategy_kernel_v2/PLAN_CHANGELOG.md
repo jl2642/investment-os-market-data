@@ -447,3 +447,20 @@ The accepted V2 14-checkpoint selection was rebuilt deterministically. Replay us
 **Governed consequence:** Phase 3D-R2 is COMPLETE. Phase 3E-R2 remains NOT STARTED / NOT YET AUTHORIZED. Next = `PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT`. That gate must be result-value-blind: it may use measurement completeness/integrity and robustness evaluability, but may not invent concordance/spread cutoffs after seeing these values. Repeat Phase 3F remains mandatory; Phase 4 remains blocked.
 
 **Authority:** no model/transform/signature/Holdout/edge mutation; no Candidate/Real/Simulation/target-portfolio mutation; no recommendations, orders or trade authority. `orders=0`, `trade_authority=NONE`.
+
+
+## 2026-08-27 — Phase 3E-R2 Round 0 structural support gate
+
+**Parent:** accepted Phase 3D-R2 performance PR #329 @ `fdd638bd100ee6ecf60eac938e852b00052c0e33`.
+
+**Pre-execution discipline:** the support contract was frozen before any R2 robustness execution and explicitly prohibited reading observed endpoint returns, edge spreads, horizon concordance rates or horizon performance ordering. Gate decision inputs were limited to accepted parent identity/SHA, completeness counts, structural population counts, cluster multiplicity, robustness-axis feasibility and authority boundaries.
+
+**Result:** `PASS_R2_STRUCTURAL_SUPPORT_FOR_ROBUSTNESS`; 5/5 predefined robustness axes structurally evaluable; gate result-value reads = 0; post-result numeric thresholds created = 0.
+
+**Frozen robustness plan:** horizon stratification; 13 checkpoint jackknifes; 7 security jackknifes; 2-signature stratification/jackknife; equal-edge/equal-checkpoint/equal-signature weighting sensitivity. One axis at a time only; simultaneous multi-axis search and result-driven subset selection are forbidden.
+
+**Evidence:** gate SHA-256 `c6288bb86700af9de8089fd14e1be379bb1beef4d4eeb537cf1f2e471c37d404`; workflow run `33051990001`; artifact ID `9638041520`; artifact digest `sha256:119fa1175720cdcf83058a8b5b2e8068c31fc0d5fcf52d0d5a1c42c9b17d9d42`.
+
+**Meaning:** PASS authorizes execution of the frozen robustness program only. It is not an economic-performance endorsement, robustness conclusion or Phase 4 promotion.
+
+**Governed consequence:** `phase3e_r2_start_allowed=true`; `phase3e_r2_robustness_execution_start_allowed=true`; robustness not yet started; next = `PHASE_3E_R2_ROBUSTNESS_EXECUTION`. Repeat Phase 3F remains not started and mandatory. Phase 4 remains blocked. `orders=0`, `trade_authority=NONE`.
