@@ -41,7 +41,11 @@
     "entry_rule": "LATEST_SETTLED_TRADING_SESSION_CLOSE_AVAILABLE_UNDER_1530_CONSERVATIVE_POLICY",
     "same_day_entry_allowed_only_at_or_after_settled_publication_cutoff": true,
     "horizon_rule": "FIRST_THIRD_FIFTH_EXCHANGE_TRADING_SESSIONS_WITH_SESSION_DATE_STRICTLY_AFTER_CHECKPOINT_LOCAL_DATE",
-    "fixed_horizon_sessions": [1, 3, 5]
+    "fixed_horizon_sessions": [
+      1,
+      3,
+      5
+    ]
   },
   "price_source_policy": {
     "price_semantics": "UNADJUSTED_LOCAL_CURRENCY_CLOSE",
@@ -116,5 +120,12 @@
     "repeat_phase3f_started": false,
     "phase3_historical_validation_complete": false,
     "phase4_entry_allowed": false
+  },
+  "acquisition_runtime_policy": {
+    "per_call_attempts": 2,
+    "per_attempt_timeout_seconds": 15,
+    "retry_backoff_seconds": 1,
+    "fail_closed_on_all_provider_attempts_exhausted": true,
+    "rationale": "REUSE_EXISTING_FMDL_HISTORICAL_SOURCE_TIMEOUT_PATTERN_AND_PREVENT_HALF_OPEN_FREE_SOURCE_STALL"
   }
 }

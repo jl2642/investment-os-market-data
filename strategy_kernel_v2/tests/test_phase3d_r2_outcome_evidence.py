@@ -20,7 +20,10 @@ class Phase3DR2OutcomeEvidenceTests(unittest.TestCase):
         ]
 
     def test_contract_frozen_before_returns(self):
-        self.assertEqual(validate_contract(load_contract()), [])
+        contract = load_contract()
+        self.assertEqual(validate_contract(contract), [])
+        self.assertEqual(contract["acquisition_runtime_policy"]["per_call_attempts"], 2)
+        self.assertEqual(contract["acquisition_runtime_policy"]["per_attempt_timeout_seconds"], 15)
 
     def test_weekend_checkpoint_uses_prior_settled_close(self):
         row = derive_observation_dates("2026-07-26T17:29:01+08:00", self.calendar)

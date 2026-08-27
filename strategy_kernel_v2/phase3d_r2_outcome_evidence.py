@@ -17,7 +17,7 @@ from zoneinfo import ZoneInfo
 import akshare as ak
 import pandas as pd
 
-from scripts.benchmark_historical_sources import normalize_history, prefixed_symbol
+from scripts.benchmark_historical_sources import normalize_history, prefixed_symbol, timed_call
 from strategy_kernel_v2.phase3d_r2_measurability import build_measurability_audit
 
 ROOT = Path(__file__).resolve().parent
@@ -76,6 +76,13 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
         errors.append("R2_OUTCOME_EVIDENCE_PROVIDER_MIXING_OPEN")
     if price.get("qfq_companion_may_be_used_as_outcome_close") is not False:
         errors.append("R2_OUTCOME_EVIDENCE_QFQ_OUTCOME_OPEN")
+    runtime = contract.get("acquisition_runtime_policy", {})
+    if runtime.get("per_call_attempts") != 2:
+        errors.append("R2_OUTCOME_EVIDENCE_ATTEMPT_COUNT_DRIFT")
+    if runtime.get("per_attempt_timeout_seconds") != 15:
+        errors.append("R2_OUTCOME_EVIDENCE_TIMEOUT_DRIFT")
+    if runtime.get("retry_backoff_seconds") != 1.0:
+        errors.append("R2_OUTCOME_EVIDENCE_BACKOFF_DRIFT")
     ca = contract.get("corporate_action_status_policy", {})
     if ca.get("unresolved_blocks_performance") is not True:
         errors.append("R2_OUTCOME_EVIDENCE_UNRESOLVED_CA_NOT_BLOCKING")
@@ -137,11 +144,17 @@ def derive_observation_dates(
     }
 
 
-def _fetch_frame(call: Callable[[], pd.DataFrame], *, attempts: int = 2) -> tuple[pd.DataFrame | None, list[str]]:
+def _fetch_frame(
+    call: Callable[[], pd.DataFrame],
+    *,
+    attempts: int,
+    timeout_seconds: int,
+    backoff_seconds: float,
+) -> tuple[pd.DataFrame | None, list[str]]:
     errors: list[str] = []
     for attempt in range(1, attempts + 1):
         try:
-            frame = call()
+            frame, _latency = timed_call(call, timeout_seconds)
             normalized, _ = normalize_history(frame)
             if normalized.empty:
                 raise ValueError("NORMALIZED_HISTORY_EMPTY")
@@ -150,11 +163,20 @@ def _fetch_frame(call: Callable[[], pd.DataFrame], *, attempts: int = 2) -> tupl
         except Exception as exc:
             errors.append(f"attempt_{attempt}:{type(exc).__name__}:{str(exc)[:400]}")
             if attempt < attempts:
-                time_module.sleep(1.0 * attempt)
+                time_module.sleep(backoff_seconds * attempt)
     return None, errors
 
 
-def _provider_series(symbol: str, start_date: str, end_date: str, provider_id: str) -> dict[str, Any]:
+def _provider_series(
+    symbol: str,
+    start_date: str,
+    end_date: str,
+    provider_id: str,
+    *,
+    attempts: int,
+    timeout_seconds: int,
+    backoff_seconds: float,
+) -> dict[str, Any]:
     code = symbol.split(".")[0]
     start = start_date.replace("-", "")
     end = end_date.replace("-", "")
@@ -177,8 +199,18 @@ def _provider_series(symbol: str, start_date: str, end_date: str, provider_id: s
     else:
         raise ValueError("UNKNOWN_PROVIDER:" + provider_id)
 
-    raw, raw_errors = _fetch_frame(raw_call)
-    qfq, qfq_errors = _fetch_frame(qfq_call)
+    raw, raw_errors = _fetch_frame(
+        raw_call,
+        attempts=attempts,
+        timeout_seconds=timeout_seconds,
+        backoff_seconds=backoff_seconds,
+    )
+    qfq, qfq_errors = _fetch_frame(
+        qfq_call,
+        attempts=attempts,
+        timeout_seconds=timeout_seconds,
+        backoff_seconds=backoff_seconds,
+    )
     def closes(frame: pd.DataFrame | None) -> dict[str, float]:
         if frame is None:
             return {}
@@ -318,11 +350,20 @@ def build_outcome_evidence_ledger() -> dict[str, Any]:
     fetch_start = min(all_required_dates)
     fetch_end = max(all_required_dates)
 
+    runtime_policy = contract["acquisition_runtime_policy"]
     provider_payloads: dict[str, dict[str, Any]] = {}
     for sid in sorted(required_dates_by_security):
         provider_payloads[sid] = {}
         for provider_id in ("sina_daily", "eastmoney_hist"):
-            provider_payloads[sid][provider_id] = _provider_series(sid, fetch_start, fetch_end, provider_id)
+            provider_payloads[sid][provider_id] = _provider_series(
+                sid,
+                fetch_start,
+                fetch_end,
+                provider_id,
+                attempts=int(runtime_policy["per_call_attempts"]),
+                timeout_seconds=int(runtime_policy["per_attempt_timeout_seconds"]),
+                backoff_seconds=float(runtime_policy["retry_backoff_seconds"]),
+            )
 
     price_policy = contract["price_source_policy"]
     ca_policy = contract["corporate_action_status_policy"]
