@@ -364,6 +364,7 @@ def build_holdout_h1_ledger(repo_root: str | Path | None = None) -> dict[str, An
     audit_rows: list[dict[str, Any]] = []
     previous_main_fingerprint: str | None = None
     previous_selected_fingerprint: str | None = None
+    selected_fingerprints: set[str] = set()
 
     for sha in commits:
         at = _commit_time(repo, sha)
@@ -399,6 +400,8 @@ def build_holdout_h1_ledger(repo_root: str | Path | None = None) -> dict[str, An
             reason = "NO_FINGERPRINT_CHANGE_ON_THIS_MAIN_COMMIT"
         elif not differs_from_previous_selected:
             reason = "NO_CHANGE_FROM_PREVIOUS_SELECTED_CHECKPOINT"
+        elif fingerprint in selected_fingerprints:
+            reason = "DUPLICATE_PREVIOUSLY_SELECTED_FINGERPRINT"
         elif snapshot["source_identity_set_sha256"] in seed_source_identity_sets:
             reason = "EXACT_SEED_SOURCE_IDENTITY_SET_REUSE"
 
@@ -449,6 +452,7 @@ def build_holdout_h1_ledger(repo_root: str | Path | None = None) -> dict[str, An
                 }
             )
             previous_selected_fingerprint = fingerprint
+            selected_fingerprints.add(fingerprint)
 
         previous_main_fingerprint = fingerprint
 
