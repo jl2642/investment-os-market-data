@@ -196,6 +196,9 @@ def validate() -> tuple[list[str], dict]:
     # After closeout, state must match the exact deterministic result.
     if state.get("holdout_h1_complete") is True:
         observed = suff["observed"]
+        v2_downstream = state.get("holdout_v2_selection_complete") is True
+        v2_pass = state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
+        global_h2_start_allowed = v2_pass if v2_downstream else first["h2_start_allowed"]
         expected_state = {
             "holdout_h1_started": True,
             "holdout_build_started": True,
@@ -208,7 +211,7 @@ def validate() -> tuple[list[str], dict]:
             "holdout_h1_unique_securities": observed["unique_securities"],
             "holdout_h1_opportunity_profile_instances": observed["opportunity_profile_instances"],
             "holdout_h1_checkpoints_outside_seed_span": observed["checkpoints_strictly_outside_seed_time_span"],
-            "holdout_h2_start_allowed": first["h2_start_allowed"],
+            "holdout_h2_start_allowed": global_h2_start_allowed,
             "holdout_h2_started": False,
             "phase3_historical_validation_complete": False,
             "phase4_entry_allowed": False,
@@ -221,7 +224,7 @@ def validate() -> tuple[list[str], dict]:
             "holdout_h1_max_single_utc_date_fraction": observed["maximum_single_utc_date_fraction"],
             "holdout_h1_max_single_evidence_regime_fraction": observed["maximum_single_evidence_regime_fraction"],
             "holdout_v1_coverage_sufficient": first["h2_start_allowed"],
-            "holdout_coverage_expansion_required": not first["h2_start_allowed"],
+            "holdout_coverage_expansion_required": (not v2_pass) if v2_downstream else (not first["h2_start_allowed"]),
             "holdout_threshold_relaxation_after_result_allowed": False,
             "holdout_v2_pre_result_contract_required": not first["h2_start_allowed"],
         }
@@ -236,18 +239,30 @@ def validate() -> tuple[list[str], dict]:
                 errors.append("H1_CURRENT_VALIDATION_DRIFT:" + key)
         if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
             errors.append("H1_CURRENT_PHASE_DRIFT")
-        expected_status = (
-            "H1_SELECTION_SUFFICIENT_H2_READY_PHASE4_BLOCKED"
-            if first["h2_start_allowed"]
-            else "H1_SELECTION_INSUFFICIENT_COVERAGE_EXPANSION_REQUIRED_H2_BLOCKED_PHASE4_BLOCKED"
-        )
+        if v2_downstream:
+            expected_status = (
+                "V2_SELECTION_SUFFICIENT_H2_READY_PHASE4_BLOCKED"
+                if v2_pass
+                else "V2_SELECTION_INSUFFICIENT_COVERAGE_EXPANSION_REQUIRED_H2_BLOCKED_PHASE4_BLOCKED"
+            )
+            expected_next = (
+                "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                if v2_pass
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+            )
+        else:
+            expected_status = (
+                "H1_SELECTION_SUFFICIENT_H2_READY_PHASE4_BLOCKED"
+                if first["h2_start_allowed"]
+                else "H1_SELECTION_INSUFFICIENT_COVERAGE_EXPANSION_REQUIRED_H2_BLOCKED_PHASE4_BLOCKED"
+            )
+            expected_next = (
+                "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                if first["h2_start_allowed"]
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+            )
         if current.get("status") != expected_status:
             errors.append("H1_CURRENT_STATUS_DRIFT")
-        expected_next = (
-            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
-            if first["h2_start_allowed"]
-            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
-        )
         if current.get("next_phase") != expected_next:
             errors.append("H1_NEXT_PHASE_DRIFT")
 

@@ -119,6 +119,7 @@ def validate() -> list[str]:
         errors.append("R2_PHASE3C_NOT_ALLOWED_AFTER_CONTRACT")
     r2b_downstream = state.get("r2_phase3c_r2b_complete") is True
     holdout_h1_downstream = state.get("holdout_h1_started") is True
+    holdout_v2_downstream = state.get("holdout_v2_selection_complete") is True
     if r2b_downstream:
         if state.get("r2_phase3c_replay_started") is not True or state.get("r2_real_historical_replay_executed") is not True:
             errors.append("R2_LEGAL_R2B_DOWNSTREAM_REPLAY_STATE_INVALID")
@@ -141,8 +142,13 @@ def validate() -> list[str]:
         if holdout_h1_downstream:
             if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
                 errors.append("R2_CURRENT_HOLDOUT_H1_PHASE_MISMATCH")
-            if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
-                errors.append("R2_CURRENT_HOLDOUT_H1_NEXT_PHASE_MISMATCH")
+            expected_next = (
+                "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                if holdout_v2_downstream and state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+            )
+            if current.get("next_phase") != expected_next:
+                errors.append("R2_CURRENT_HOLDOUT_NEXT_PHASE_MISMATCH")
         else:
             if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
                 errors.append("R2_CURRENT_R2B_PHASE_MISMATCH")
