@@ -91,34 +91,51 @@ def validate() -> tuple[list[str], dict]:
         errors.append("R2A_PARENT_R2_CONTRACT_NOT_COMPLETE")
     if state.get("r2_phase3c_replay_start_allowed") is not True:
         errors.append("R2A_MECHANICAL_REPLAY_NOT_AUTHORIZED")
-    # R2A is the reconstruction acceptance gate before mechanical R2 replay.
-    if state.get("r2_phase3c_replay_started") is not False:
+    # R2A remains immutable even after governed R2B starts.
+    r2b_downstream = state.get("r2_phase3c_r2b_complete") is True
+    if r2b_downstream:
+        if state.get("r2_phase3c_replay_started") is not True:
+            errors.append("R2A_LEGAL_R2B_DOWNSTREAM_REPLAY_NOT_STARTED")
+    elif state.get("r2_phase3c_replay_started") is not False:
         errors.append("R2A_PREMATURE_MECHANICAL_REPLAY_START")
     if state.get("r2_phase3c_r2a_started") is not True or state.get("r2_phase3c_r2a_complete") is not True:
         errors.append("R2A_STATE_NOT_COMPLETE")
     if state.get("r2_pit_reconstruction_executed") is not True:
         errors.append("R2A_STATE_RECONSTRUCTION_NOT_EXECUTED")
-    if state.get("r2_phase3c_r2b_start_allowed") is not True or state.get("r2_phase3c_r2b_started") is not False:
+    if state.get("r2_phase3c_r2b_start_allowed") is not True:
         errors.append("R2A_STATE_R2B_GATE_DRIFT")
-    if state.get("r2_real_historical_replay_executed") is not False or state.get("holdout_build_started") is not False:
-        errors.append("R2A_PREMATURE_REPLAY_OR_HOLDOUT")
+    if r2b_downstream:
+        if state.get("r2_phase3c_r2b_started") is not True or state.get("r2_real_historical_replay_executed") is not True:
+            errors.append("R2A_LEGAL_R2B_DOWNSTREAM_STATE_INVALID")
+    else:
+        if state.get("r2_phase3c_r2b_started") is not False or state.get("r2_real_historical_replay_executed") is not False:
+            errors.append("R2A_PREMATURE_REPLAY")
+    if state.get("holdout_build_started") is not False:
+        errors.append("R2A_PREMATURE_HOLDOUT")
     if state.get("phase4_entry_allowed") is not False:
         errors.append("R2A_STATE_PREMATURE_PHASE4")
 
-    if current.get("current_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
-        errors.append("R2A_GOVERNED_PRE_REPLAY_PHASE_DRIFT")
-    if current.get("next_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
-        errors.append("R2A_NEXT_PHASE_MISMATCH")
-    for key, expected in (
+    if r2b_downstream:
+        if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
+            errors.append("R2A_LEGAL_R2B_CURRENT_PHASE_DRIFT")
+        if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+            errors.append("R2A_LEGAL_R2B_NEXT_PHASE_DRIFT")
+    else:
+        if current.get("current_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
+            errors.append("R2A_GOVERNED_PRE_REPLAY_PHASE_DRIFT")
+        if current.get("next_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
+            errors.append("R2A_NEXT_PHASE_MISMATCH")
+    expected_current = [
         ("r2_phase3c_r2a_complete", True),
         ("r2_pit_reconstruction_executed", True),
         ("r2a_pareto_executed", False),
         ("r2a_realized_outcomes_loaded", False),
         ("r2a_holdout_started", False),
         ("r2_phase3c_r2b_start_allowed", True),
-        ("r2_phase3c_r2b_started", False),
+        ("r2_phase3c_r2b_started", True if r2b_downstream else False),
         ("phase4_entry_allowed", False),
-    ):
+    ]
+    for key, expected in expected_current:
         if cv.get(key) is not expected:
             errors.append("R2A_CURRENT_STATUS_DRIFT:" + key)
 
