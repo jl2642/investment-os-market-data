@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.0.1",
   "program": "STRATEGY_KERNEL_V2",
   "phase": "3B-R2",
   "status": "FROZEN_REVISED_MODEL_CONTRACT_NO_HISTORICAL_REPLAY",
@@ -7,7 +7,7 @@
   "parent_post3f_head": "5e74ef23e9909441bd715b7389700d9c3eb2bc6f",
   "model": {
     "model_form": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
-    "model_version": "R2.0.0_RESEARCH",
+    "model_version": "R2.0.1_RESEARCH",
     "family": "TYPED_EVIDENCE_PARTIAL_ORDER_WITH_EXACT_APPLICABILITY_SIGNATURES",
     "material_revision": true,
     "new_identity": true,
@@ -38,9 +38,21 @@
     "missing_input_policy": "PRESERVE_EXPLICITLY_NO_FILL"
   },
   "dimension_architecture": {
-    "layers": ["CORE_DECISION", "PORTFOLIO_OVERLAY", "EXECUTION_OVERLAY"],
-    "core_categories": ["REWARD", "DOWNSIDE", "EVIDENCE_OR_COMPLETENESS"],
-    "dimension_states": ["PRESENT", "MISSING", "UNKNOWN_APPLICABILITY"],
+    "layers": [
+      "CORE_DECISION",
+      "PORTFOLIO_OVERLAY",
+      "EXECUTION_OVERLAY"
+    ],
+    "core_categories": [
+      "REWARD",
+      "DOWNSIDE",
+      "EVIDENCE_OR_COMPLETENESS"
+    ],
+    "dimension_states": [
+      "PRESENT",
+      "MISSING",
+      "UNKNOWN_APPLICABILITY"
+    ],
     "absence_is_not_zero": true,
     "absence_is_not_automatically_not_applicable": true,
     "explicit_not_applicable_requires_source_evidence": true,
@@ -51,7 +63,13 @@
   },
   "comparison_semantics": {
     "method": "PARETO_WITHIN_EXACT_COMPARISON_SIGNATURE",
-    "exact_signature_components": ["dimension_id", "layer", "direction", "scale_id", "transform_semantics_version"],
+    "exact_signature_components": [
+      "dimension_id",
+      "layer",
+      "direction",
+      "scale_id",
+      "transform_semantics_version"
+    ],
     "cross_signature_dominance_forbidden": true,
     "missing_dimension_fill_forbidden": true,
     "overlay_ignored_when_missing": false,
@@ -71,7 +89,9 @@
       "direction": "MAXIMIZE",
       "scale_id": "WP5_EXPECTED_RETURN_DECIMAL",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_FINITE_NUMBER"}
+      "operation": {
+        "type": "IDENTITY_FINITE_NUMBER"
+      }
     },
     {
       "rule_id": "R2_WP5_WORST_SCENARIO_RETURN_V1",
@@ -82,7 +102,10 @@
       "direction": "MAXIMIZE",
       "scale_id": "WP5_SCENARIO_RETURN_DECIMAL",
       "transform_semantics_version": "1",
-      "operation": {"type": "MIN_LIST_FIELD", "field": "return_vs_completed_close"}
+      "operation": {
+        "type": "MIN_LIST_FIELD",
+        "field": "return_vs_completed_close"
+      }
     },
     {
       "rule_id": "R2_WP5_SOURCE_COUNT_V1",
@@ -93,7 +116,9 @@
       "direction": "MAXIMIZE",
       "scale_id": "WP5_PRIMARY_SOURCE_COUNT",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+      "operation": {
+        "type": "IDENTITY_NONNEGATIVE_NUMBER"
+      }
     },
     {
       "rule_id": "R2_WP5_ALL_PRIMARY_DOCUMENTS_V1",
@@ -104,7 +129,9 @@
       "direction": "MAXIMIZE",
       "scale_id": "BOOLEAN_0_1",
       "transform_semantics_version": "1",
-      "operation": {"type": "BOOLEAN_TO_0_1"}
+      "operation": {
+        "type": "BOOLEAN_TO_0_1"
+      }
     },
     {
       "rule_id": "R2_CANDIDATE_ARCHIVE_EVIDENCE_SCORE_V1",
@@ -115,7 +142,11 @@
       "direction": "MAXIMIZE",
       "scale_id": "CANDIDATE_ARCHIVE_0_100",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 100}
+      "operation": {
+        "type": "IDENTITY_BOUNDED_NUMBER",
+        "min": 0,
+        "max": 100
+      }
     },
     {
       "rule_id": "R2_CANDIDATE_ARCHIVE_QUALITY_SCORE_V1",
@@ -126,7 +157,11 @@
       "direction": "MAXIMIZE",
       "scale_id": "CANDIDATE_ARCHIVE_0_100",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 100}
+      "operation": {
+        "type": "IDENTITY_BOUNDED_NUMBER",
+        "min": 0,
+        "max": 100
+      }
     },
     {
       "rule_id": "R2_CANDIDATE_ARCHIVE_RISK_PENALTY_V1",
@@ -137,7 +172,9 @@
       "direction": "MINIMIZE",
       "scale_id": "CANDIDATE_ARCHIVE_RISK_PENALTY",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+      "operation": {
+        "type": "IDENTITY_NONNEGATIVE_NUMBER"
+      }
     },
     {
       "rule_id": "R2_CANDIDATE_ARCHIVE_VALUATION_SCORE_V1",
@@ -148,7 +185,11 @@
       "direction": "MAXIMIZE",
       "scale_id": "CANDIDATE_ARCHIVE_0_100",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 100}
+      "operation": {
+        "type": "IDENTITY_BOUNDED_NUMBER",
+        "min": 0,
+        "max": 100
+      }
     },
     {
       "rule_id": "R2_CANDIDATE_ARCHIVE_PORTFOLIO_FIT_V1",
@@ -159,7 +200,11 @@
       "direction": "MAXIMIZE",
       "scale_id": "CANDIDATE_ARCHIVE_0_100",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 100}
+      "operation": {
+        "type": "IDENTITY_BOUNDED_NUMBER",
+        "min": 0,
+        "max": 100
+      }
     },
     {
       "rule_id": "R2_D2_SOURCE_COUNT_V1",
@@ -170,7 +215,9 @@
       "direction": "MAXIMIZE",
       "scale_id": "D2_DISCLOSURE_SOURCE_COUNT",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+      "operation": {
+        "type": "IDENTITY_NONNEGATIVE_NUMBER"
+      }
     },
     {
       "rule_id": "R2_D2_REJECTION_GATE_V1",
@@ -180,8 +227,18 @@
       "layer": "CORE_DECISION",
       "direction": "MAXIMIZE",
       "scale_id": "D2_REJECTION_GATE_BOOLEAN",
-      "transform_semantics_version": "1",
-      "operation": {"type": "PREFIX_GATE", "pass_prefix": "NOT_TRIGGERED", "fail_prefix": "TRIGGERED"}
+      "transform_semantics_version": "2",
+      "operation": {
+        "type": "PREFIX_GATE",
+        "pass_prefixes": [
+          "NOT_TRIGGERED",
+          "NOT_FORMALLY_TRIGGERED"
+        ],
+        "fail_prefixes": [
+          "TRIGGERED",
+          "FORMALLY_TRIGGERED"
+        ]
+      }
     },
     {
       "rule_id": "R2_CORE2_LIMITATION_COUNT_V1",
@@ -192,7 +249,9 @@
       "direction": "MINIMIZE",
       "scale_id": "CORE2_LIMITATION_COUNT",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+      "operation": {
+        "type": "IDENTITY_NONNEGATIVE_NUMBER"
+      }
     },
     {
       "rule_id": "R2_CORE2_READY_FOR_USER_DECISION_V1",
@@ -203,7 +262,9 @@
       "direction": "MAXIMIZE",
       "scale_id": "BOOLEAN_0_1",
       "transform_semantics_version": "1",
-      "operation": {"type": "BOOLEAN_TO_0_1"}
+      "operation": {
+        "type": "BOOLEAN_TO_0_1"
+      }
     },
     {
       "rule_id": "R2_CANDIDATE_RESEARCH_GAP_COUNT_V1",
@@ -214,7 +275,9 @@
       "direction": "MINIMIZE",
       "scale_id": "CANDIDATE_RESEARCH_GAP_COUNT",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_NONNEGATIVE_NUMBER"}
+      "operation": {
+        "type": "IDENTITY_NONNEGATIVE_NUMBER"
+      }
     },
     {
       "rule_id": "R2_REAL_ACCOUNT_WEIGHT_V1",
@@ -225,7 +288,11 @@
       "direction": "MINIMIZE",
       "scale_id": "REAL_ACCOUNT_WEIGHT_DECIMAL",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 1}
+      "operation": {
+        "type": "IDENTITY_BOUNDED_NUMBER",
+        "min": 0,
+        "max": 1
+      }
     },
     {
       "rule_id": "R2_WP5_CURRENT_WEIGHT_V1",
@@ -236,7 +303,11 @@
       "direction": "MINIMIZE",
       "scale_id": "WP5_CURRENT_WEIGHT_DECIMAL",
       "transform_semantics_version": "1",
-      "operation": {"type": "IDENTITY_BOUNDED_NUMBER", "min": 0, "max": 1}
+      "operation": {
+        "type": "IDENTITY_BOUNDED_NUMBER",
+        "min": 0,
+        "max": 1
+      }
     },
     {
       "rule_id": "R2_WP5_IMPLEMENTATION_READY_V1",
@@ -247,7 +318,9 @@
       "direction": "MAXIMIZE",
       "scale_id": "BOOLEAN_0_1",
       "transform_semantics_version": "1",
-      "operation": {"type": "BOOLEAN_TO_0_1"}
+      "operation": {
+        "type": "BOOLEAN_TO_0_1"
+      }
     },
     {
       "rule_id": "R2_WP5_BROKER_VERIFIED_V1",
@@ -258,7 +331,9 @@
       "direction": "MAXIMIZE",
       "scale_id": "BOOLEAN_0_1",
       "transform_semantics_version": "1",
-      "operation": {"type": "BOOLEAN_TO_0_1"}
+      "operation": {
+        "type": "BOOLEAN_TO_0_1"
+      }
     },
     {
       "rule_id": "R2_00669_IMPLEMENTATION_READY_V1",
@@ -269,7 +344,9 @@
       "direction": "MAXIMIZE",
       "scale_id": "BOOLEAN_0_1",
       "transform_semantics_version": "1",
-      "operation": {"type": "BOOLEAN_TO_0_1"}
+      "operation": {
+        "type": "BOOLEAN_TO_0_1"
+      }
     },
     {
       "rule_id": "R2_00669_BOARD_LOT_MISMATCH_V1",
@@ -280,7 +357,9 @@
       "direction": "MINIMIZE",
       "scale_id": "BOOLEAN_0_1",
       "transform_semantics_version": "1",
-      "operation": {"type": "BOOLEAN_TO_0_1"}
+      "operation": {
+        "type": "BOOLEAN_TO_0_1"
+      }
     }
   ],
   "preserved_unmapped_context": [
@@ -331,5 +410,20 @@
     "investment_recommendations_generated": 0,
     "orders": 0,
     "trade_authority": "NONE"
-  }
+  },
+  "contract_patch_history": [
+    {
+      "patch_id": "R2_0_1_D2_REJECTION_GATE_CANONICAL_PREFIX_COMPATIBILITY",
+      "discovered_in": "PHASE_3C_R2A_REAL_POINT_IN_TIME_RECONSTRUCTION",
+      "source_field": "d2_first_rejection_test",
+      "affected_rule_id": "R2_D2_REJECTION_GATE_V1",
+      "change_class": "PATCH_LEVEL_CANONICAL_SCHEMA_COMPATIBILITY",
+      "transform_rule_count_changed": false,
+      "dimension_architecture_changed": false,
+      "thresholds_changed": false,
+      "realized_outcomes_used": false,
+      "holdout_used": false,
+      "phase4_authority_changed": false
+    }
+  ]
 }
