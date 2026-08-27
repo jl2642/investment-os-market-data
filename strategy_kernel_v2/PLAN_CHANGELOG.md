@@ -319,3 +319,13 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Next gate:** H1 may build the deterministic Holdout candidate ledger and evaluate selection sufficiency only. R2 replay remains forbidden until H1 acceptance.
 
 **Not changed:** Holdout is not Phase 3G, direct Holdout→Phase4 remains forbidden, Repeat Phase 3F remains mandatory, `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-27 — Holdout H0.1 pre-selection feasibility correction
+
+**Finding before H1:** the frozen Holdout V1 universe ends exactly at the last development-seed timestamp. Availability-only source-history inspection showed that before the first seed, Candidate state plus at least one frozen research/decision family coexist at only one distinct eligible fingerprint (Core2 at 2026-07-26T11:58:08Z). Therefore the H0 requirement for at least 2 checkpoints strictly outside the full seed time span was impossible by construction.
+
+**Correction:** `minimum_checkpoints_strictly_outside_seed_time_span: 2 → 1`.
+
+**Why this is not result tuning:** H1 had not started, no Holdout candidate ledger existed, R2 Holdout replay count remained 0 and realized outcomes used for selection remained 0. The correction used source-availability metadata only. All other frozen gates remain unchanged: >=12 checkpoints, >=6 UTC dates, >=4 ISO weeks, >=4 evidence regimes, >=6 securities, >=48 opportunity-profile instances, <=40% single-date concentration and <=50% single-regime concentration.
+
+**Boundary:** no selector result, R2 output, outcome, Phase 4 authority or economic/trading state changed.
