@@ -118,7 +118,7 @@ class Phase3CR2BTests(unittest.TestCase):
         self.assertEqual(len(replay_profile["dimensions"]), 1)
         self.assertEqual(
             replay_profile["dimensions"][0]["dimension_id"],
-            "EVIDENCE_ARCHIVE_SCORE",
+            "EVIDENCE_SCORE",
         )
         self.assertFalse(replay_profile["comparison_contract_evaluable"])
 
