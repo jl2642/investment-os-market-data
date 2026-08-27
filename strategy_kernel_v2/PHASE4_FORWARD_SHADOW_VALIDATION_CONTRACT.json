@@ -1,0 +1,222 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "PHASE_4",
+  "subphase": "P4_0_FORWARD_PARALLEL_SHADOW_CONTRACT_FREEZE",
+  "status": "CANDIDATE_FORWARD_SHADOW_CONTRACT_PRE_EXECUTION",
+  "as_of": "2026-08-27",
+  "purpose": "Pre-register the genuinely-forward, parallel Legacy-versus-R2 shadow-validation protocol before any Phase 4 checkpoint can count as validation evidence.",
+  "parent_repeat_phase3f": {
+    "pr": 332,
+    "final_head": "b42c32446d5be923241a83e2bbe21d7e857317ac",
+    "status": "COMPLETE_REPEAT_PHASE3F_R2_HISTORICAL_PROMOTION_GATE",
+    "promotion_requirement_pass_count": 4,
+    "promotion_requirement_total_count": 4,
+    "gate_outcome": "PROMOTE_TO_PHASE_4_FORWARD_VALIDATION",
+    "gate_sha256": "af174d3adb0bb70afa306f26fa0c2a66eb925e04421962dcfae5573b404d22ec",
+    "phase3_historical_validation_complete": true,
+    "phase4_entry_allowed": true
+  },
+  "runner_set": {
+    "legacy": {
+      "model_form": "LEGACY_POLICY_BASELINE",
+      "family": "RULE_AND_STATE_PASSTHROUGH",
+      "semantics": "Capture the contemporaneously recorded effective Legacy disposition/state with exact provenance; do not retrospectively reinterpret it."
+    },
+    "candidate": {
+      "model_form": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
+      "model_version": "R2.0.1_RESEARCH",
+      "comparison_method": "PARETO_WITHIN_EXACT_COMPARISON_SIGNATURE",
+      "transform_rule_count": 20,
+      "scalar_policy_score_allowed": false,
+      "dimension_weights_allowed": false,
+      "cross_signature_dominance_allowed": false
+    },
+    "historical_only_not_forward_runners": [
+      "PHASE2_PROBABILISTIC_VECTOR",
+      "SIMPLE_NON_PROBABILISTIC_PARETO"
+    ],
+    "runner_set_may_change_during_phase4": false,
+    "material_candidate_revision_requires_restart": true
+  },
+  "shared_parallel_packet_contract": {
+    "mode": "SHARED_FORWARD_OBSERVATION_PACKET",
+    "same_checkpoint_timestamp_required": true,
+    "same_opportunity_set_required": true,
+    "same_selected_evidence_required": true,
+    "same_reference_asset_required": true,
+    "exact_source_identity_required": true,
+    "model_specific_evidence_fetch_forbidden": true,
+    "later_checkpoint_input_backfill_forbidden": true,
+    "r2_transform_may_read_only_model_neutral_feature_row": true,
+    "missingness_must_remain_explicit": true,
+    "legacy_disposition_must_be_contemporaneously_recorded": true,
+    "legacy_disposition_ordinal_mapping_created": false,
+    "legacy_and_r2_global_winner_comparison_created": false
+  },
+  "future_evidence_firewall": {
+    "eligibility_cutoff_rule": "SOURCE_AVAILABILITY_TIME_UTC_STRICTLY_AFTER_ACCEPTED_PHASE4_CONTRACT_FREEZE_HEAD_GIT_COMMIT_TIME",
+    "accepted_freeze_head_materialized_only_at_closeout": true,
+    "pre_freeze_evidence_may_count_as_phase4": false,
+    "historical_replay_may_substitute_for_phase4": false,
+    "future_checkpoint_selection_may_use_realized_outcomes": false,
+    "future_checkpoint_selection_may_use_r2_result_values": false,
+    "future_checkpoint_selection_may_use_legacy_result_values": false,
+    "selector": "CENSUS_OF_ALL_ELIGIBLE_SUBSTANTIVE_FORWARD_DECISION_EVIDENCE_CHECKPOINTS",
+    "manual_result_driven_checkpoint_selection_allowed": false,
+    "checkpoint_deduplication_key": "CANONICAL_DECISION_EVIDENCE_FINGERPRINT",
+    "source_lineage_must_resolve_at_checkpoint": true,
+    "checkpoint_packet_immutable_after_freeze": true,
+    "outcomes_may_be_loaded_only_after_fixed_horizon_maturity": true
+  },
+  "parallel_cycle_definition": {
+    "discovered_cycle": "A model-neutral substantive forward decision/evidence checkpoint satisfying the post-freeze availability rule.",
+    "complete_parallel_cycle_requires": [
+      "immutable_checkpoint_packet",
+      "exact_source_lineage",
+      "contemporaneous_legacy_disposition",
+      "r2_profile_generation_completed",
+      "r2_comparison_attempt_completed_under_frozen_exact-signature_semantics",
+      "same_opportunity_set_for_legacy_and_r2"
+    ],
+    "economically_mature_cycle_requires": [
+      "complete_parallel_cycle",
+      "plus_5_exchange_trading_session_endpoint_available",
+      "corporate_action_status_resolved_for_all_required_endpoints"
+    ],
+    "all_discovered_cycles_must_be_audited": true,
+    "incomplete_cycles_may_be_silently_dropped": false,
+    "model_output_failure_is_evidence_not_exclusion": true
+  },
+  "forward_sufficiency_gate": {
+    "minimum_complete_economically_mature_parallel_cycles": 12,
+    "minimum_distinct_utc_dates": 6,
+    "minimum_distinct_iso_weeks": 4,
+    "minimum_distinct_evidence_regimes": 4,
+    "minimum_unique_securities": 6,
+    "minimum_r2_profile_instances": 48,
+    "minimum_distinct_r2_dominance_edges": 24,
+    "minimum_distinct_comparison_signatures": 2,
+    "minimum_distinct_edges_per_observed_signature": 6,
+    "all_discovered_eligible_cycles_audited": true,
+    "all_counted_cycles_have_both_parallel_outputs": true,
+    "thresholds_may_change_after_forward_results": false
+  },
+  "economic_measurement_contract": {
+    "inheritance": "PHASE3D_R2_PERFORMANCE_MEASUREMENT_CONVENTIONS",
+    "fixed_horizon_exchange_trading_sessions": [1, 3, 5],
+    "entry_observation": "LATEST_OFFICIAL_CLOSE_AT_OR_BEFORE_CHECKPOINT_WITH_DATA_AVAILABLE_BY_CHECKPOINT",
+    "outcome_observation": "OFFICIAL_CLOSE_ON_FIXED_HORIZON_EXCHANGE_SESSION",
+    "endpoint_metric": "LOCAL_CURRENCY_PRICE_RETURN",
+    "edge_metric": "DOMINATOR_RETURN_MINUS_DOMINATED_RETURN",
+    "edge_concordance": "DOMINATOR_RETURN_GTE_DOMINATED_RETURN",
+    "corporate_action_status_required": true,
+    "total_return_claim_without_distribution_coverage_allowed": false,
+    "benchmark_adjusted_return_in_v1": false,
+    "fx_translation_in_v1": false,
+    "portfolio_pnl_in_v1": false,
+    "sharpe_in_v1": false,
+    "statistical_significance_required_for_v1_gate": false,
+    "p_value_gate_allowed": false
+  },
+  "mandatory_forward_summaries": {
+    "aggregation_schemes": [
+      "EQUAL_EDGE",
+      "EQUAL_CHECKPOINT",
+      "EQUAL_SIGNATURE"
+    ],
+    "per_horizon_metrics": [
+      "CONCORDANCE_RATE",
+      "MEAN_EDGE_RETURN_SPREAD"
+    ],
+    "signature_stratum_summaries_required": true,
+    "leave_one_security_out_required": true,
+    "leave_one_signature_out_required": true,
+    "legacy_disposition_return_context_required": true,
+    "legacy_disposition_return_context_is_descriptive_only": true,
+    "legacy_disposition_ordinalization_forbidden": true
+  },
+  "phase4_to_phase5_gate": {
+    "completion_outcomes": [
+      "PASS_PHASE4_FORWARD_VALIDATION_ELIGIBLE_FOR_PHASE5_PROPOSAL",
+      "CONTINUE_PHASE4_FORWARD_SHADOW_VALIDATION",
+      "FAIL_R2_FORWARD_VALIDATION_RETURN_TO_PHASE3_RESEARCH",
+      "FAIL_PHASE4_INTEGRITY_RESTART_REQUIRED"
+    ],
+    "integrity_requirements": {
+      "source_lineage_error_count": 0,
+      "r2_transform_failure_count": 0,
+      "outcome_leakage_count": 0,
+      "result_based_checkpoint_drop_count": 0,
+      "model_or_transform_mutation_count": 0,
+      "comparison_signature_mutation_count": 0,
+      "candidate_membership_mutation_count": 0,
+      "real_account_mutation_count": 0,
+      "simulation_mutation_count": 0,
+      "target_portfolio_writeback_count": 0,
+      "orders": 0,
+      "trade_authority": "NONE"
+    },
+    "directional_requirements": {
+      "apply_to_every_fixed_horizon": true,
+      "apply_to_every_aggregation_scheme": true,
+      "minimum_concordance_rate": 0.5,
+      "minimum_mean_edge_return_spread": 0.0,
+      "each_supported_signature_stratum_must_independently_pass": true,
+      "minimum_edges_for_supported_signature_stratum": 6
+    },
+    "security_robustness_requirement": {
+      "leave_one_security_out_must_be_evaluated": true,
+      "minimum_retained_edges_for_evaluable_jackknife": 12,
+      "every_evaluable_security_jackknife_must_pass_equal_edge_directional_requirements": true,
+      "insufficient_retained_edges_blocks_completion_instead_of_counting_as_pass": true
+    },
+    "signature_robustness_requirement": {
+      "leave_one_signature_out_must_be_evaluated": true,
+      "minimum_retained_edges_for_evaluable_jackknife": 6,
+      "every_evaluable_signature_jackknife_must_pass_equal_edge_directional_requirements": true,
+      "insufficient_retained_edges_blocks_completion_instead_of_counting_as_pass": true
+    },
+    "pass_requires": [
+      "integrity_requirements_all_pass",
+      "forward_sufficiency_gate_all_pass",
+      "directional_requirements_all_pass",
+      "security_robustness_requirement_all_pass",
+      "signature_robustness_requirement_all_pass"
+    ],
+    "insufficient_forward_evidence_outcome": "CONTINUE_PHASE4_FORWARD_SHADOW_VALIDATION",
+    "sufficient_but_directional_or_robustness_failure_outcome": "FAIL_R2_FORWARD_VALIDATION_RETURN_TO_PHASE3_RESEARCH",
+    "integrity_failure_outcome": "FAIL_PHASE4_INTEGRITY_RESTART_REQUIRED",
+    "pass_does_not_authorize_migration": true,
+    "pass_only_authorizes_separate_phase5_migration_proposal": true
+  },
+  "known_phase3_sensitivity_carry_forward": {
+    "required": true,
+    "historical_signature_edge_counts": [52, 2],
+    "historical_equal_edge_h1_concordance_rate": 0.62962962963,
+    "historical_equal_edge_h1_mean_edge_return_spread": 0.000276359547,
+    "historical_equal_signature_h1_concordance_rate": 0.326923076923,
+    "historical_equal_signature_h1_mean_edge_return_spread": -0.005001031166,
+    "interpretation": "Known signature/security/weighting sensitivity motivates prospective multi-scheme, per-signature and jackknife gates; it is not itself forward evidence."
+  },
+  "candidate_state_boundary": {
+    "contract_freeze_closeout_applied": false,
+    "phase4_contract_frozen": false,
+    "phase4_started": false,
+    "phase4_forward_observation_count": 0,
+    "phase4_realized_outcome_read_count": 0,
+    "phase4_complete": false,
+    "phase5_migration_allowed": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

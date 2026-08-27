@@ -1,0 +1,36 @@
+name: Strategy Kernel Phase 4 Forward Shadow Contract
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-phase4-forward-shadow-contract.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: strategy-kernel-phase4-forward-shadow-contract-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase4-forward-shadow-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test Phase 4 forward-shadow contract
+        run: python -m unittest strategy_kernel_v2.tests.test_phase4_forward_shadow_contract
+      - name: Validate Phase 4 forward-shadow contract
+        run: python -m strategy_kernel_v2.validate_phase4_forward_shadow_contract
+      - name: Re-validate Repeat Phase 3F promotion
+        run: python -m strategy_kernel_v2.validate_repeat_phase3f_r2
+      - name: Validate historical Phase 3F remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3f
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
