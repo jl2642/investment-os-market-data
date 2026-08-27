@@ -1,18 +1,18 @@
-name: Strategy Kernel Phase 3C-R2A PIT Reconstruction
+name: Strategy Kernel Phase 3C-R2B Mechanical Replay
 
 on:
   pull_request:
     paths:
       - 'strategy_kernel_v2/**'
-      - '.github/workflows/strategy-kernel-phase3c-r2a-pit-reconstruction.yml'
+      - '.github/workflows/strategy-kernel-phase3c-r2b-mechanical-replay.yml'
   workflow_dispatch:
 
 concurrency:
-  group: strategy-kernel-phase3c-r2a-${{ github.event.pull_request.number || github.ref }}
+  group: strategy-kernel-phase3c-r2b-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  phase3c-r2a-reconstruction:
+  phase3c-r2b-mechanical-replay:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout full history
@@ -23,37 +23,35 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Run Phase 3C-R2A tests
-        run: python -m unittest strategy_kernel_v2.tests.test_phase3c_r2a
-      - name: Validate Phase 3C-R2A against real point-in-time history
-        run: python -m strategy_kernel_v2.validate_phase3c_r2a
-      - name: Run Phase 3C-R2B mechanical replay tests
+      - name: Run Phase 3C-R2B tests
         run: python -m unittest strategy_kernel_v2.tests.test_phase3c_r2b
       - name: Validate Phase 3C-R2B mechanical replay and full audit
         run: python -m strategy_kernel_v2.validate_phase3c_r2b
-      - name: Validate Phase 3B-R2 dependency
+      - name: Re-validate Phase 3C-R2A parent
+        run: python -m strategy_kernel_v2.validate_phase3c_r2a
+      - name: Re-validate Phase 3B-R2 contract
         run: python -m strategy_kernel_v2.validate_phase3b_r2
-      - name: Validate original Phase 3C history infrastructure remains unchanged
-        run: python -m strategy_kernel_v2.validate_phase3c
-      - name: Validate Post-3F research-path dependency
+      - name: Validate Post-3F research path
         run: python -m strategy_kernel_v2.validate_post3f_research_path
       - name: Validate historical Phase 3F gate remains unchanged
         run: python -m strategy_kernel_v2.validate_phase3f
+      - name: Validate historical Phase 3E result remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3e
       - name: Validate program consistency
         run: python strategy_kernel_v2/program_consistency.py
       - name: Run program governance regressions
         run: python -m unittest strategy_kernel_v2.tests.test_program_governance
-      - name: Upload R2A reconstruction evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: phase3c-r2a-reconstruction
-          path: strategy_kernel_v2/generated/PHASE3C_R2A_RECONSTRUCTION.json
-          if-no-files-found: ignore
       - name: Upload R2B mechanical replay evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase3c-r2b-mechanical-replay-from-r2a-trusted-gate
+          name: phase3c-r2b-mechanical-replay
           path: strategy_kernel_v2/generated/PHASE3C_R2B_MECHANICAL_REPLAY.json
+          if-no-files-found: ignore
+      - name: Upload parent R2A reconstruction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3c-r2a-reconstruction-r2b-parent
+          path: strategy_kernel_v2/generated/PHASE3C_R2A_RECONSTRUCTION.json
           if-no-files-found: ignore
