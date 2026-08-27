@@ -106,7 +106,7 @@ def validate() -> list[str]:
         _validate_post3f(errors, state, current)
         if state.get("r2_phase3b_contract_definition_started"):
             errors.append("POST3F_VALIDATOR_SEES_R2_ALREADY_STARTED")
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"}:
         _validate_post3f(errors, state, current)
         r2_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
         if not r2_path.exists():
