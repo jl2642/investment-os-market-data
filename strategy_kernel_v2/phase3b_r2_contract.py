@@ -97,11 +97,27 @@ def _apply_operation(value: Any, operation: Mapping[str, Any], rule_id: str) -> 
     if kind == "PREFIX_GATE":
         if not isinstance(value, str):
             raise ValueError(rule_id + "_STRING_REQUIRED")
-        passed = str(operation["pass_prefix"])
-        failed = str(operation["fail_prefix"])
-        if value.startswith(passed):
+        pass_prefixes = operation.get("pass_prefixes")
+        fail_prefixes = operation.get("fail_prefixes")
+        if pass_prefixes is None:
+            pass_prefixes = [operation.get("pass_prefix")]
+        if fail_prefixes is None:
+            fail_prefixes = [operation.get("fail_prefix")]
+        if (
+            not isinstance(pass_prefixes, list)
+            or not pass_prefixes
+            or not all(isinstance(prefix, str) and prefix for prefix in pass_prefixes)
+        ):
+            raise ValueError(rule_id + "_PASS_PREFIX_SET_REQUIRED")
+        if (
+            not isinstance(fail_prefixes, list)
+            or not fail_prefixes
+            or not all(isinstance(prefix, str) and prefix for prefix in fail_prefixes)
+        ):
+            raise ValueError(rule_id + "_FAIL_PREFIX_SET_REQUIRED")
+        if any(value.startswith(prefix) for prefix in pass_prefixes):
             return 1.0
-        if value.startswith(failed):
+        if any(value.startswith(prefix) for prefix in fail_prefixes):
             return 0.0
         raise ValueError(rule_id + "_UNRECOGNIZED_GATE_STATE")
     raise ValueError("UNSUPPORTED_TRANSFORM_OPERATION:" + str(kind))

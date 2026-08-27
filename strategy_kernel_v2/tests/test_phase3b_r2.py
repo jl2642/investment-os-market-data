@@ -33,6 +33,7 @@ class Phase3BR2ContractTests(unittest.TestCase):
             "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
         )
         self.assertFalse(self.contract["model"]["overwrites_prior_model"])
+        self.assertEqual(self.contract["model"]["model_version"], "R2.0.1_RESEARCH")
         self.assertEqual(
             self.contract["preserved_reference_forms"],
             [
@@ -85,6 +86,19 @@ class Phase3BR2ContractTests(unittest.TestCase):
         dims = {d["dimension_id"]: d for d in clear["dimensions"]}
         self.assertEqual(dims["DOWNSIDE_REJECTION_GATE_CLEAR"]["value"], 1.0)
 
+        formally_clear = transform_model_neutral_row(
+            self.row(
+                "301215.SZ",
+                {
+                    "d2_source_count": 2,
+                    "d2_first_rejection_test": "NOT_FORMALLY_TRIGGERED_BUT_CAPACITY_ROIC_EVIDENCE_INSUFFICIENT",
+                },
+            ),
+            self.contract,
+        )
+        dims = {d["dimension_id"]: d for d in formally_clear["dimensions"]}
+        self.assertEqual(dims["DOWNSIDE_REJECTION_GATE_CLEAR"]["value"], 1.0)
+
         failed = transform_model_neutral_row(
             self.row(
                 "301215.SZ",
@@ -96,6 +110,19 @@ class Phase3BR2ContractTests(unittest.TestCase):
             self.contract,
         )
         dims = {d["dimension_id"]: d for d in failed["dimensions"]}
+        self.assertEqual(dims["DOWNSIDE_REJECTION_GATE_CLEAR"]["value"], 0.0)
+
+        formally_failed = transform_model_neutral_row(
+            self.row(
+                "X",
+                {
+                    "d2_source_count": 2,
+                    "d2_first_rejection_test": "FORMALLY_TRIGGERED_EVIDENCE_GAP",
+                },
+            ),
+            self.contract,
+        )
+        dims = {d["dimension_id"]: d for d in formally_failed["dimensions"]}
         self.assertEqual(dims["DOWNSIDE_REJECTION_GATE_CLEAR"]["value"], 0.0)
 
     def test_unrecognized_categorical_gate_fails_closed(self):
