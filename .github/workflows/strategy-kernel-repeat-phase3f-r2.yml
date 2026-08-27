@@ -1,0 +1,52 @@
+name: Strategy Kernel Repeat Phase 3F R2 Promotion Gate
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-repeat-phase3f-r2.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: strategy-kernel-repeat-phase3f-r2-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repeat-phase3f-r2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test inherited gate adapter
+        run: python -m unittest strategy_kernel_v2.tests.test_repeat_phase3f_r2
+      - name: Execute Repeat Phase 3F R2 gate
+        run: python -m strategy_kernel_v2.validate_repeat_phase3f_r2
+      - name: Re-validate Phase 3E-R2 robustness
+        run: python -m strategy_kernel_v2.validate_phase3e_r2_robustness
+      - name: Re-validate Phase 3D-R2 performance
+        run: python -m strategy_kernel_v2.validate_phase3d_r2_performance_measurement
+      - name: Re-validate Independent Holdout replay
+        run: python -m strategy_kernel_v2.validate_phase3_r2_independent_holdout_replay
+      - name: Re-validate Holdout V2 coverage contract
+        run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_v2_contract
+      - name: Validate original Phase 3F remains historical
+        run: python -m strategy_kernel_v2.validate_phase3f
+      - name: Validate Post-3F research path
+        run: python -m strategy_kernel_v2.validate_post3f_research_path
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Upload Repeat Phase 3F R2 gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repeat-phase3f-r2-gate
+          retention-days: 30
+          if-no-files-found: ignore
+          path: strategy_kernel_v2/generated/REPEAT_PHASE3F_R2_GATE_RESULT.json
