@@ -49,7 +49,22 @@ def validate() -> tuple[list[str], dict]:
     if first.get("present_dimension_instances", 0) <= 0:
         errors.append("R2A_NO_PRESENT_DIMENSIONS")
     if first.get("transform_failure_instances") != 0:
-        errors.append("R2A_TRANSFORM_FAILURES_PRESENT")
+        failure_details = []
+        for checkpoint in first.get("checkpoints", []):
+            for profile in checkpoint.get("profiles", []):
+                for dim in profile.get("dimension_states", []):
+                    if dim.get("state") == "TRANSFORM_FAILURE":
+                        failure_details.append({
+                            "decision_point_id": checkpoint.get("decision_point_id"),
+                            "security_id": profile.get("security_id"),
+                            "rule_id": dim.get("rule_id"),
+                            "reason": dim.get("reason"),
+                            "source_feature_key": dim.get("source_feature_key"),
+                        })
+        errors.append(
+            "R2A_TRANSFORM_FAILURES_PRESENT:"
+            + json.dumps(failure_details, ensure_ascii=False, sort_keys=True)
+        )
     if first.get("ranking_generated") is not False or first.get("winner_selected") is not False:
         errors.append("R2A_RANKING_OR_WINNER_GENERATED")
     if first.get("target_weights_generated") is not False or first.get("phase4_entry_allowed") is not False:
