@@ -66,8 +66,13 @@ def _validate_post3f_and_r2(errors: list[str], state: dict, current: dict, requi
                 if state.get("holdout_h1_complete") is not True or state.get("holdout_build_started") is not True:
                     errors.append("LEGAL_HOLDOUT_H1_DOWNSTREAM_STATE_INVALID")
                 if holdout_replay_downstream:
-                    if state.get("holdout_h2_started") is not True or state.get("phase3d_r2_started") is not False:
+                    if state.get("holdout_h2_started") is not True:
                         errors.append("LEGAL_HOLDOUT_REPLAY_DOWNSTREAM_STATE_INVALID")
+                    if state.get("phase3d_r2_started") is True:
+                        if state.get("phase3d_r2_round1_complete") is not True or state.get("phase3d_r2_performance_started") is not False:
+                            errors.append("LEGAL_PHASE3D_R2_ROUND1_DOWNSTREAM_STATE_INVALID")
+                    elif state.get("phase3d_r2_started") is not False:
+                        errors.append("LEGAL_PHASE3D_R2_STARTED_FLAG_INVALID")
                 elif state.get("holdout_h2_started") is not False:
                     errors.append("LEGAL_HOLDOUT_H1_PREMATURE_H2")
             elif state.get("holdout_build_started") is not False:
@@ -205,6 +210,7 @@ def validate() -> list[str]:
         "PHASE_3B_R2_REVISED_MODEL_CONTRACT",
         "PHASE_3C_R2_POINT_IN_TIME_REPLAY",
         "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE",
+        "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
     }
     if current_phase not in allowed_current_phases:
         errors.append("CURRENT_PHASE_NOT_3E_OR_LEGAL_DOWNSTREAM")
@@ -231,7 +237,7 @@ def validate() -> list[str]:
             errors.append("LEGAL_3F_DOWNSTREAM_LOOPBACK_DRIFT")
     elif current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
         _validate_post3f_and_r2(errors, state, current, False)
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"}:
         _validate_post3f_and_r2(errors, state, current, True)
 
     for surface_name, surface in [

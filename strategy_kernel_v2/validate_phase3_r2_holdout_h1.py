@@ -238,9 +238,24 @@ def validate() -> tuple[list[str], dict]:
         for key, expected in {**expected_state, **extra_state}.items():
             if key in cv and cv.get(key) != expected:
                 errors.append("H1_CURRENT_VALIDATION_DRIFT:" + key)
-        if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+        phase3d_r2_downstream = state.get("phase3d_r2_started") is True
+        expected_current_phase = (
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+            if phase3d_r2_downstream
+            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+        )
+        if current.get("current_phase") != expected_current_phase:
             errors.append("H1_CURRENT_PHASE_DRIFT")
-        if replay_downstream:
+        if phase3d_r2_downstream:
+            if state.get("phase3d_r2_round1_complete") is not True:
+                errors.append("H1_PHASE3D_R2_ROUND1_NOT_COMPLETE")
+            if state.get("phase3d_r2_round1_status") != "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED":
+                errors.append("H1_PHASE3D_R2_ROUND1_STATUS_DRIFT")
+            if state.get("phase3d_r2_performance_started") is not False:
+                errors.append("H1_PHASE3D_R2_PREMATURE_PERFORMANCE")
+            expected_status = "PHASE3D_R2_ROUND1_PARTIAL_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED_PHASE4_BLOCKED"
+            expected_next = "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+        elif replay_downstream:
             expected_status = "INDEPENDENT_HOLDOUT_REPLAY_PASS_PHASE3D_R2_READY_PHASE4_BLOCKED"
             expected_next = "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
         elif v2_downstream:

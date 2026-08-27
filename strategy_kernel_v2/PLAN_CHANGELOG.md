@@ -387,3 +387,21 @@ The accepted V2 14-checkpoint selection was rebuilt deterministically. Replay us
 **Evidence:** replay SHA-256 `5b66a60eabe2c294d2a396b5fbae74ba19769376d01f5fec77a012461e1a4aaa`; workflow artifact ID `9633465873`; artifact digest `sha256:17fb6fa2c122fd1542757a9cf887eb14a9ff0a99d113bce05ddb6e5e6f53f9ff`.
 
 **Governed consequence:** Independent Holdout replay/final acceptance is complete. Phase 3D-R2 is authorized **if measurable** but has not started. Phase 3E-R2, repeat Phase 3F and Phase 4 remain blocked. `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-27 — Phase 3D-R2 Round 1 measurability contract and evidence audit
+
+**Parent:** Independent PIT Holdout final acceptance PR #325 @ `4ac3d7d25ed65fd77747addbcbbd21ea47679332`.
+
+**Contract freeze:** before any R2 realized-return or performance calculation, the economic evaluation unit was frozen as the checkpoint-local exact-signature dominance edge. A dominance edge is not a trade, a local Pareto frontier is not a global winner, and no position size, target weight or P&L is inferred.
+
+**Outcome convention:** reuse the pre-existing 1/3/5 exchange-trading-session convention; endpoint metric is local-currency price return and the only pairwise economic relation eligible for later testing is dominator return minus dominated return. No benchmark adjustment, FX translation, Sharpe, assumed-trade hit rate, probability calibration, unsupported regret, scalar score or winner selection is authorized.
+
+**Evidence-readiness gate:** all 54 frozen dominance edges and both endpoints must have valid entry/horizon closes for all fixed horizons, exchange-session schedules, explicit corporate-action status and source lineage. Result-based edge dropping and proxy filling are forbidden. Partial evidence may be described but may not support an R2 performance claim.
+
+**Observed Round 1 result:** `PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED`. The R2 relation population is structurally measurable: 54 frozen dominance edges, 55 checkpoint-security endpoint instances and 7 distinct endpoint securities. Existing governed outcome inventory provides any price observation for only 3/7 endpoint securities; 4/7 have none. Exchange-session schedule readiness is 0/7, explicit corporate-action-status readiness is 0/7, and complete evidence coverage is 0/54 edges. Audit errors = 0.
+
+**Evidence:** audit SHA-256 `f1cc459b3d739afb12d55efa341783b69b8a8a647e209a020a6f8ee11662ad92`; workflow run `33044583361`; artifact ID `9635188727`; artifact digest `sha256:0ea0d78a43667099893fb0fb610b46a1c7a0797f604b8cf6ca6a7033bc115783`.
+
+**Governed consequence:** Phase 3D-R2 has started only through its Round 1 measurability/evidence audit. Performance remains **NOT STARTED / NOT AUTHORIZED**. Next = `PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION`. The PARTIAL result is explicitly not economic underperformance. Phase 3E-R2 and repeat Phase 3F remain not started; Phase 3 historical validation remains incomplete; Phase 4 remains blocked.
+
+**Authority:** no model transform/signature mutation, Holdout membership mutation, Candidate/Real/Simulation mutation, target-portfolio writeback, recommendation, order or trading authority. `orders=0`, `trade_authority=NONE`.
