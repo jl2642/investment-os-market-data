@@ -244,6 +244,7 @@ def validate() -> list[str]:
         if gate[key] is not False:
             errors.append("V2_DOWNSTREAM_GATE_PREMATURE:" + key)
 
+    selection_downstream = state.get("holdout_v2_selection_started") is True
     expected_state = {
         "holdout_v2_contract_frozen": True,
         "holdout_v2_contract_status": "FROZEN_PRE_RESULT_COVERAGE_EXPANSION_NO_R2_NO_OUTCOMES",
@@ -255,12 +256,8 @@ def validate() -> list[str]:
         "holdout_v2_added_substantive_family_count": 4,
         "holdout_v2_expanded_security_scope_count": 18,
         "holdout_v2_selection_start_allowed": True,
-        "holdout_v2_selection_started": False,
-        "holdout_v2_candidate_ledger_count": 0,
         "holdout_v2_r2_replay_count": 0,
         "holdout_v2_realized_outcome_read_count": 0,
-        "holdout_h2_start_allowed": False,
-        "holdout_coverage_expansion_required": True,
         "phase3_historical_validation_complete": False,
         "phase4_entry_allowed": False,
     }
@@ -270,12 +267,39 @@ def validate() -> list[str]:
         if cv.get(key) != expected:
             errors.append("V2_CURRENT_VALIDATION_DRIFT:" + key)
 
+    if selection_downstream:
+        if state.get("holdout_v2_selection_complete") is not True:
+            errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_NOT_COMPLETE")
+        if state.get("holdout_v2_candidate_ledger_count", 0) <= 0:
+            errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_LEDGER_EMPTY")
+        if state.get("holdout_h2_started") is not False:
+            errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_PREMATURE_H2")
+        selection_pass = state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
+        if state.get("holdout_h2_start_allowed") is not selection_pass:
+            errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_H2_GATE_DRIFT")
+        if state.get("holdout_coverage_expansion_required") is not (not selection_pass):
+            errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_COVERAGE_GATE_DRIFT")
+        expected_next = (
+            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+            if selection_pass
+            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+        )
+        if current.get("next_phase") != expected_next:
+            errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_NEXT_PHASE_DRIFT")
+    else:
+        for key, expected in (
+            ("holdout_v2_selection_started", False),
+            ("holdout_v2_candidate_ledger_count", 0),
+            ("holdout_h2_start_allowed", False),
+            ("holdout_coverage_expansion_required", True),
+        ):
+            if state.get(key) != expected or cv.get(key) != expected:
+                errors.append("V2_PRESELECTION_STATE_DRIFT:" + key)
+        if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
+            errors.append("V2_NEXT_PHASE_DRIFT")
+
     if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
         errors.append("V2_CURRENT_PHASE_DRIFT")
-    if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
-        errors.append("V2_NEXT_PHASE_DRIFT")
-    if current.get("status") != "H1_SELECTION_INSUFFICIENT_COVERAGE_EXPANSION_REQUIRED_H2_BLOCKED_PHASE4_BLOCKED":
-        errors.append("V2_CURRENT_STATUS_DRIFT")
 
     for surface_name, surface in (
         ("CONTRACT", contract["authority_boundaries"]),
