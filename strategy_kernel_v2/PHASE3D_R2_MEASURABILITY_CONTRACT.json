@@ -1,0 +1,167 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE3D_R2_MEASURABILITY_V1",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "PHASE_3D_R2",
+  "round": "ROUND_1_MEASURABILITY_CONTRACT_AND_EVIDENCE_AUDIT",
+  "status": "FROZEN_BEFORE_R2_OUTCOME_EVIDENCE_ACQUISITION",
+  "frozen_at": "2026-08-27",
+  "parent_holdout": {
+    "pr": 325,
+    "final_head": "4ac3d7d25ed65fd77747addbcbbd21ea47679332",
+    "replay_status": "PASS_INDEPENDENT_HOLDOUT_REPLAY_OPERATIONAL",
+    "replay_sha256": "5b66a60eabe2c294d2a396b5fbae74ba19769376d01f5fec77a012461e1a4aaa",
+    "checkpoint_count": 14,
+    "r2_profile_count": 105,
+    "comparable_group_count": 27,
+    "comparable_profile_count": 85,
+    "dominance_edge_count": 54,
+    "realized_outcome_read_count": 0,
+    "historical_performance_metric_count": 0
+  },
+  "freeze_order": {
+    "contract_must_precede_r2_outcome_evidence_acquisition": true,
+    "contract_must_precede_r2_realized_outcome_loading": true,
+    "realized_outcomes_read_at_freeze": false,
+    "future_returns_computed_at_freeze": false,
+    "performance_metrics_computed_at_freeze": false,
+    "outcome_availability_may_not_change_model_or_holdout_membership": true,
+    "outcome_availability_may_not_change_horizons_or_metric_semantics": true
+  },
+  "semantic_scope": {
+    "r2_output_is_portfolio_or_trade_instruction": false,
+    "r2_output_is_universal_numeric_return_forecast": false,
+    "r2_output_is_probability_forecast": false,
+    "r2_output_is_checkpoint_local_partial_order": true,
+    "dominance_edge_is_not_a_hypothetical_trade": true,
+    "pareto_frontier_is_not_a_target_portfolio": true,
+    "economic_performance_claim_requires_separate_outcome_support": true,
+    "short_horizon_return_association_may_be_descriptive_only_until_supported": true
+  },
+  "evaluation_units": {
+    "primary_structural_unit": "CHECKPOINT_LOCAL_EXACT_SIGNATURE_DOMINANCE_EDGE",
+    "eligible_groups": "COMPARABLE_EXACT_SIGNATURE_ONLY",
+    "singleton_groups_for_comparative_evaluation": false,
+    "cross_checkpoint_comparison_allowed": false,
+    "cross_signature_comparison_allowed": false,
+    "all_preexisting_holdout_edges_must_be_attempted_for_outcome_coverage": true,
+    "outcome_missingness_must_remain_explicit": true,
+    "edge_endpoint_selection_may_not_use_realized_outcomes": true
+  },
+  "horizons": {
+    "unit": "EXCHANGE_TRADING_SESSIONS_STRICTLY_AFTER_CHECKPOINT",
+    "fixed_sessions": [
+      1,
+      3,
+      5
+    ],
+    "primary_session": 5,
+    "secondary_sessions": [
+      1,
+      3
+    ],
+    "calendar_rule": "SECURITY_PRIMARY_EXCHANGE_CALENDAR",
+    "date_selection_rule": "NTH_VALID_TRADING_SESSION_STRICTLY_AFTER_CHECKPOINT_TIMESTAMP",
+    "no_calendar_day_substitution": true,
+    "no_post_outcome_horizon_selection": true,
+    "rationale": "Preserve the already governed Phase 3D observation convention for this bounded historical corpus; these horizons are outcome observations, not a claim that every R2 dimension is a 1/3/5-session forecast."
+  },
+  "price_and_return_conventions": {
+    "entry_observation": "LATEST_OFFICIAL_CLOSE_AT_OR_BEFORE_CHECKPOINT_WITH_DATA_AVAILABLE_BY_CHECKPOINT",
+    "outcome_observation": "OFFICIAL_CLOSE_ON_FIXED_HORIZON_SESSION",
+    "local_price_return_formula": "outcome_close / entry_close - 1",
+    "edge_return_spread_formula": "dominator_local_price_return - dominated_local_price_return",
+    "directional_concordance_definition": "dominator_local_price_return >= dominated_local_price_return",
+    "currency_translation": "NONE_FOR_WITHIN_SECURITY_LOCAL_RETURN",
+    "cross_currency_edge_return_spread_allowed": true,
+    "cross_currency_interpretation": "DIFFERENCE_OF_LOCAL_PERCENTAGE_RETURNS_ONLY_NO_FX_PNL_CLAIM",
+    "total_return_status": "NOT_MEASURABLE_WITHOUT_EXPLICIT_CORPORATE_ACTION_AND_DISTRIBUTION_DATA",
+    "missing_entry_price": "NOT_MEASURABLE_ENTRY_PRICE_MISSING",
+    "missing_horizon_price": "NOT_MEASURABLE_HORIZON_PRICE_MISSING"
+  },
+  "allowed_if_evidence_gate_passes": {
+    "instance_level_local_price_returns": true,
+    "edge_level_return_spread": true,
+    "edge_directional_concordance": true,
+    "checkpoint_signature_horizon_coverage_tables": true,
+    "descriptive_aggregation": true,
+    "sensitivity_by_fixed_horizon": true
+  },
+  "forbidden_metrics_or_claims": {
+    "synthetic_trade_return": true,
+    "portfolio_return": true,
+    "target_weight_return": true,
+    "turnover": true,
+    "sharpe": true,
+    "alpha": true,
+    "max_drawdown": true,
+    "regret_without_contemporaneous_counterfactual_allocation": true,
+    "probability_calibration": true,
+    "scalar_cross_model_score": true,
+    "global_ranking": true,
+    "winner_selection": true,
+    "statistical_significance_claim_without_separate_precommitted_design": true
+  },
+  "outcome_source_contract": {
+    "required_r2_manifest": "strategy_kernel_v2/PHASE3D_R2_OUTCOME_SOURCE_MANIFEST.json",
+    "legacy_phase3d_manifest_is_not_r2_authority": "strategy_kernel_v2/PHASE3D_OUTCOME_SOURCE_MANIFEST.json",
+    "source_priority": [
+      "GOVERNED_REPOSITORY_MARKET_DATA",
+      "PRIMARY_EXCHANGE_OR_ISSUER_SOURCE",
+      "REPUTABLE_MARKET_DATA_SOURCE"
+    ],
+    "required_observation_fields": [
+      "security_id",
+      "observation_date",
+      "close",
+      "close_semantics",
+      "source",
+      "retrieved_at"
+    ],
+    "same_date_same_close_semantics_required_for_substitution": true,
+    "all_edge_endpoint_securities_must_be_attempted": true,
+    "selective_outcome_collection_by_model_result_forbidden": true,
+    "manifest_may_be_created_only_after_this_contract": true
+  },
+  "performance_evidence_sufficiency_gate": {
+    "applies_only_after_r2_outcome_manifest_is_frozen": true,
+    "primary_horizon": 5,
+    "minimum_measurable_dominance_edge_fraction_primary_horizon": 0.8,
+    "minimum_measurable_comparable_group_fraction_primary_horizon": 0.8,
+    "minimum_measurable_comparable_checkpoint_fraction_primary_horizon": 0.75,
+    "minimum_distinct_exact_signatures_with_measurable_edges_primary_horizon": 2,
+    "all_coverage_denominators_frozen_from_parent_holdout_replay": true,
+    "threshold_relaxation_after_outcome_observation_forbidden": true,
+    "failure_to_meet_gate_is_nonmeasurability_not_economic_underperformance": true
+  },
+  "round1_evidence_audit": {
+    "audit_parent_head_only": true,
+    "read_realized_price_values": false,
+    "read_future_returns": false,
+    "compute_performance": false,
+    "check_required_r2_manifest_presence_at_parent_head": true,
+    "check_legacy_manifest_presence_without_using_it_as_r2_authority": true,
+    "classify_absent_r2_manifest_as": "PASS_R2_MEASURABILITY_CONTRACT_FROZEN_EVIDENCE_ACQUISITION_REQUIRED",
+    "fail_status": "FAIL_R2_MEASURABILITY_CONTRACT_OR_PARENT_AUDIT"
+  },
+  "phase_boundary": {
+    "phase3d_r2_start_allowed": true,
+    "phase3d_r2_round1_contract_freeze_may_execute": true,
+    "phase3d_r2_performance_measurement_allowed_before_evidence_gate": false,
+    "phase3e_r2_start_allowed": false,
+    "repeat_phase3f_start_allowed": false,
+    "phase3_historical_validation_complete": false,
+    "phase4_entry_allowed": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

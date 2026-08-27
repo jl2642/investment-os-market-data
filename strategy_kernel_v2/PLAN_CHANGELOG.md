@@ -387,3 +387,20 @@ The accepted V2 14-checkpoint selection was rebuilt deterministically. Replay us
 **Evidence:** replay SHA-256 `5b66a60eabe2c294d2a396b5fbae74ba19769376d01f5fec77a012461e1a4aaa`; workflow artifact ID `9633465873`; artifact digest `sha256:17fb6fa2c122fd1542757a9cf887eb14a9ff0a99d113bce05ddb6e5e6f53f9ff`.
 
 **Governed consequence:** Independent Holdout replay/final acceptance is complete. Phase 3D-R2 is authorized **if measurable** but has not started. Phase 3E-R2, repeat Phase 3F and Phase 4 remain blocked. `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-27 — Phase 3D-R2 Round 1 measurability contract and evidence audit
+
+**Parent:** Independent PIT Holdout final acceptance PR #325 @ `4ac3d7d25ed65fd77747addbcbbd21ea47679332`.
+
+**Reason:** the accepted R2 Holdout produced 54 checkpoint-local exact-signature dominance edges but no realized outcomes or historical performance. Because an R2 dominance edge is a partial-order relation rather than a hypothetical trade, Phase 3D-R2 could not legitimately infer P&L, target-portfolio returns or a global winner. Measurement semantics therefore had to be frozen before acquiring outcome evidence.
+
+**Frozen R2 measurability boundary:** fixed 1/3/5 exchange-session observations with 5 sessions primary; primary structural unit = checkpoint-local exact-signature dominance edge; cross-checkpoint/cross-signature comparison remains forbidden. Synthetic trade return, portfolio/target-weight return, Sharpe, alpha, max drawdown, probability calibration, unsupported regret, scalar ranking and winner selection are forbidden.
+
+**R2 outcome-source firewall:** a new `PHASE3D_R2_OUTCOME_SOURCE_MANIFEST.json` is required. The original `PHASE3D_OUTCOME_SOURCE_MANIFEST.json` is historical Phase 3D evidence only and is not R2 authority. Round 1 checked parent-head existence only and read no outcome values.
+
+**Precommitted 5-session evidence-sufficiency gate:** >=80% measurable dominance edges, >=80% measurable comparable groups, >=75% measurable comparable checkpoints and >=2 exact signatures with measurable edges. Threshold relaxation after outcome observation is forbidden. Gate failure means nonmeasurable/insufficient evidence, not economic underperformance.
+
+**Accepted Round 1 audit:** `PASS_R2_MEASURABILITY_CONTRACT_FROZEN_EVIDENCE_ACQUISITION_REQUIRED`; 14 checkpoints, 13 comparable checkpoints, 4 distinct comparable signatures, 27 comparable groups, 85 comparable profiles, 54 dominance edges and 7 edge-endpoint securities. Outcome-value reads = 0; future-return computations = 0; performance computations = 0; audit errors = 0. Audit SHA-256 = `4b74b1c60eea2a0cdff74f38eb39fdc7a6f0815bdbe9e21c01313162c9b1248a`. Workflow artifact ID = `9634714039`; digest = `sha256:d964aadfccbb7ea61da9bd12d059265644a3267bef63523d5c9f0126a94ea82a`.
+
+**Governed consequence:** Phase 3D-R2 is now started but incomplete. R2 outcome-evidence acquisition is authorized but not started; performance measurement remains unauthorized pending the frozen coverage gate. Phase 3E-R2 and repeat Phase 3F remain not started. `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
+

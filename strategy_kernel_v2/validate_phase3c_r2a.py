@@ -112,14 +112,16 @@ def validate() -> tuple[list[str], dict]:
             errors.append("R2A_PREMATURE_REPLAY")
     holdout_h1_downstream = state.get("holdout_h1_started") is True
     holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
+    phase3d_r2_round1_downstream = state.get("phase3d_r2_round1_evidence_audit_complete") is True
     if holdout_h1_downstream:
         if state.get("holdout_h1_complete") is not True or state.get("holdout_build_started") is not True:
             errors.append("R2A_LEGAL_HOLDOUT_H1_STATE_INVALID")
         if holdout_replay_downstream:
             if state.get("holdout_h2_started") is not True:
                 errors.append("R2A_LEGAL_HOLDOUT_REPLAY_H2_NOT_STARTED")
-            if state.get("phase3d_r2_started") is not False:
-                errors.append("R2A_LEGAL_HOLDOUT_REPLAY_PREMATURE_3D_R2")
+            expected_3d_started = True if phase3d_r2_round1_downstream else False
+            if state.get("phase3d_r2_started") is not expected_3d_started:
+                errors.append("R2A_LEGAL_HOLDOUT_REPLAY_3D_R2_STATE_DRIFT")
         elif state.get("holdout_h2_started") is not False:
             errors.append("R2A_LEGAL_HOLDOUT_H1_PREMATURE_H2")
     elif state.get("holdout_build_started") is not False:
@@ -129,19 +131,28 @@ def validate() -> tuple[list[str], dict]:
 
     if r2b_downstream:
         if holdout_h1_downstream:
-            if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+            expected_current_phase = (
+                "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+                if phase3d_r2_round1_downstream
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+            )
+            if current.get("current_phase") != expected_current_phase:
                 errors.append("R2A_LEGAL_HOLDOUT_H1_CURRENT_PHASE_DRIFT")
             holdout_v2_pass = (
                 state.get("holdout_v2_selection_complete") is True
                 and state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
             )
             expected_next = (
-                "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
-                if holdout_replay_downstream
+                "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+                if phase3d_r2_round1_downstream
                 else (
-                    "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
-                    if holdout_v2_pass
-                    else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+                    "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+                    if holdout_replay_downstream
+                    else (
+                        "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                        if holdout_v2_pass
+                        else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+                    )
                 )
             )
             if current.get("next_phase") != expected_next:

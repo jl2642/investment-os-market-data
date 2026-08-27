@@ -106,7 +106,12 @@ def validate() -> list[str]:
         _validate_post3f(errors, state, current)
         if state.get("r2_phase3b_contract_definition_started"):
             errors.append("POST3F_VALIDATOR_SEES_R2_ALREADY_STARTED")
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}:
+    elif current_phase in {
+        "PHASE_3B_R2_REVISED_MODEL_CONTRACT",
+        "PHASE_3C_R2_POINT_IN_TIME_REPLAY",
+        "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE",
+        "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+    }:
         _validate_post3f(errors, state, current)
         r2_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
         if not r2_path.exists():
@@ -121,9 +126,17 @@ def validate() -> list[str]:
                 errors.append("PHASE3F_R2_DOWNSTREAM_PREMATURE_PHASE4")
         if state.get("r2_phase3b_contract_definition_started") is not True or state.get("r2_phase3b_contract_definition_complete") is not True:
             errors.append("PHASE3F_R2_DOWNSTREAM_NOT_COMPLETE")
-        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}
-        holdout_h1_downstream = current_phase == "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+        r2b_downstream = current_phase in {
+            "PHASE_3C_R2_POINT_IN_TIME_REPLAY",
+            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE",
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+        }
+        holdout_h1_downstream = current_phase in {
+            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE",
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+        }
         holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
+        phase3d_r2_round1_downstream = state.get("phase3d_r2_round1_evidence_audit_complete") is True
         if r2b_downstream:
             if state.get("r2_phase3c_r2b_complete") is not True:
                 errors.append("PHASE3F_R2B_DOWNSTREAM_NOT_COMPLETE")
@@ -135,7 +148,8 @@ def validate() -> list[str]:
                 if state.get("holdout_h1_complete") is not True or state.get("holdout_build_started") is not True:
                     errors.append("PHASE3F_HOLDOUT_H1_DOWNSTREAM_STATE_INVALID")
                 if holdout_replay_downstream:
-                    if state.get("holdout_h2_started") is not True or state.get("phase3d_r2_started") is not False:
+                    expected_3d_started = True if phase3d_r2_round1_downstream else False
+                    if state.get("holdout_h2_started") is not True or state.get("phase3d_r2_started") is not expected_3d_started:
                         errors.append("PHASE3F_HOLDOUT_REPLAY_DOWNSTREAM_STATE_INVALID")
                 elif state.get("holdout_h2_started") is not False:
                     errors.append("PHASE3F_HOLDOUT_H1_PREMATURE_H2")

@@ -235,12 +235,19 @@ def validate() -> list[str]:
 
     cv = current.get("validation", {})
     if downstream_started:
-        if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+        phase3d_r2_round1_downstream = state.get("phase3d_r2_round1_evidence_audit_complete") is True
+        expected_current_phase = (
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+            if phase3d_r2_round1_downstream
+            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+        )
+        if current.get("current_phase") != expected_current_phase:
             errors.append("HOLDOUT_H0_LEGAL_H1_CURRENT_PHASE_DRIFT")
         if current.get("next_phase") not in {
             "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY",
             "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION",
             "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+            "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
         }:
             errors.append("HOLDOUT_H0_LEGAL_H1_NEXT_PHASE_DRIFT")
         if state.get("holdout_h1_complete") is not True:
@@ -249,8 +256,9 @@ def validate() -> list[str]:
         if replay_downstream:
             if state.get("holdout_h2_started") is not True:
                 errors.append("HOLDOUT_H0_LEGAL_REPLAY_H2_NOT_STARTED")
-            if state.get("phase3d_r2_started") is not False:
-                errors.append("HOLDOUT_H0_LEGAL_REPLAY_PREMATURE_3D_R2")
+            expected_3d_started = True if phase3d_r2_round1_downstream else False
+            if state.get("phase3d_r2_started") is not expected_3d_started:
+                errors.append("HOLDOUT_H0_LEGAL_REPLAY_3D_R2_STATE_DRIFT")
         elif state.get("holdout_h2_started") is not False:
             errors.append("HOLDOUT_H0_LEGAL_H1_PREMATURE_H2")
     else:
