@@ -227,7 +227,7 @@ def validate() -> list[str]:
     ):
         if fw[key] is not False:
             errors.append("V2_PRE_RESULT_FIREWALL_OPEN:" + key)
-    if V2_LEDGER.exists():
+    if V2_LEDGER.exists() and state.get("holdout_v2_selection_complete") is not True:
         errors.append("V2_SELECTION_LEDGER_PREMATURELY_EXISTS")
 
     gate = contract["next_gate"]
