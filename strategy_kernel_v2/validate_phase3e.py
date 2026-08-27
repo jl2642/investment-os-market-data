@@ -57,6 +57,7 @@ def _validate_post3f_and_r2(errors: list[str], state: dict, current: dict, requi
         r2b_downstream = state.get("r2_phase3c_r2b_complete") is True
         holdout_h1_downstream = state.get("holdout_h1_started") is True
         holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
+        phase3d_r2_round1_downstream = state.get("phase3d_r2_round1_evidence_audit_complete") is True
         if r2b_downstream:
             if state.get("r2_real_historical_replay_executed") is not True or state.get("r2_phase3c_replay_started") is not True:
                 errors.append("LEGAL_R2B_DOWNSTREAM_REPLAY_STATE_INVALID")
@@ -66,7 +67,8 @@ def _validate_post3f_and_r2(errors: list[str], state: dict, current: dict, requi
                 if state.get("holdout_h1_complete") is not True or state.get("holdout_build_started") is not True:
                     errors.append("LEGAL_HOLDOUT_H1_DOWNSTREAM_STATE_INVALID")
                 if holdout_replay_downstream:
-                    if state.get("holdout_h2_started") is not True or state.get("phase3d_r2_started") is not False:
+                    expected_3d_started = True if phase3d_r2_round1_downstream else False
+                    if state.get("holdout_h2_started") is not True or state.get("phase3d_r2_started") is not expected_3d_started:
                         errors.append("LEGAL_HOLDOUT_REPLAY_DOWNSTREAM_STATE_INVALID")
                 elif state.get("holdout_h2_started") is not False:
                     errors.append("LEGAL_HOLDOUT_H1_PREMATURE_H2")
