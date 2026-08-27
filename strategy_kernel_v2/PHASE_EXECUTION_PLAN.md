@@ -242,7 +242,21 @@ H1 deterministic candidate ledger is **COMPLETE**:
 
 Therefore H2 is **BLOCKED**.
 
-Next: expand independent Holdout coverage under a new pre-result contract version. The frozen minimum checkpoint threshold remains 12 and may not be reduced after observing H1.
+Coverage Expansion V2 pre-result contract is now **FROZEN**:
+- protected-main time universe unchanged: `6323f4c... → 5c5df908...`;
+- first-parent census selector unchanged;
+- seven development seeds remain excluded;
+- minimum checkpoint threshold remains **12** and every other H0.1 threshold is unchanged;
+- V1 evidence-family catalog is preserved;
+- added substantive model-neutral families = **4**: `RESEARCH_OBJECTS_CURRENT`, `R1_DECISION_COVERAGE_PACK_CURRENT` (context only), `RESEARCH_QUEUE_D1_CURRENT`, `RESEARCH_QUEUE_D2_CURRENT`;
+- pure D2 liveness, lineage-only metadata, prior Holdout results, Phase 3D outcomes, future returns, regret/calibration and R2 result artifacts are excluded;
+- research-security scope expands deterministically from **8 → 18**, without importing mixed fund/ETF security IDs from the R1 decision-coverage pack;
+- V2 selection started = false;
+- V2 ledger = 0;
+- R2 Holdout replay = 0;
+- realized outcomes read = 0.
+
+Next: run V2 deterministic selection only. H2 remains blocked unless the unchanged sufficiency gate passes.
 
 Holdout is not a Phase 3G and is not a direct Phase 4 gate.
 

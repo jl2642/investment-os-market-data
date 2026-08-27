@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE3_R2_HOLDOUT_COVERAGE_EXPANSION_V2",
+  "phase": "PHASE_3_R2_INDEPENDENT_POINT_IN_TIME_HOLDOUT",
+  "subphase": "HOLDOUT_COVERAGE_EXPANSION_V2_PRE_RESULT_CONTRACT_FREEZE",
+  "status": "FROZEN_PRE_RESULT_COVERAGE_EXPANSION_NO_R2_NO_OUTCOMES",
+  "frozen_at": "2026-08-27",
+  "parent_h1": {
+    "pr": 322,
+    "final_head": "f7647e199a286ed76c31cc207d7f2855ef31739e",
+    "result": "FAIL_SELECTION_SUFFICIENCY",
+    "selection_ledger_sha256": "bc918818c6b2e59ee48c6b13769330e6a34b7cee011a3c0337efc24351be09d5",
+    "selected_checkpoint_count": 8,
+    "failed_thresholds": [
+      "minimum_holdout_checkpoints"
+    ],
+    "minimum_checkpoint_requirement": 12,
+    "threshold_relaxation_after_result_allowed": false,
+    "r2_holdout_replay_count": 0,
+    "realized_outcomes_used_for_selection_count": 0
+  },
+  "unchanged_v1_contract": {
+    "protected_main_universe": {
+      "start_commit_inclusive": "6323f4c0617b3df3907b4e76c36b441d666fc4b0",
+      "end_commit_inclusive": "5c5df9082688f65332c79fef3b9cbfa893a06908",
+      "end_commit_is_current_protected_main_head_at_v2_freeze": true,
+      "forward_extension_without_new_protected_main_commit_forbidden": true
+    },
+    "selector": {
+      "mode": "CENSUS_OF_ALL_ELIGIBLE_DISTINCT_DECISION_EVIDENCE_FINGERPRINTS",
+      "protected_main_first_parent_only": true,
+      "checkpoint_must_change_fingerprint_on_that_main_commit": true,
+      "duplicate_fingerprint_selection_forbidden": true,
+      "discretionary_subsampling_allowed": false,
+      "random_sampling_allowed": false,
+      "manual_cherry_pick_allowed": false
+    },
+    "quantitative_sufficiency_gate": {
+      "minimum_holdout_checkpoints": 12,
+      "minimum_distinct_utc_dates": 6,
+      "minimum_distinct_iso_weeks": 4,
+      "minimum_distinct_evidence_regime_signatures": 4,
+      "minimum_unique_securities": 6,
+      "minimum_opportunity_profile_instances": 48,
+      "minimum_checkpoints_strictly_outside_seed_time_span": 1,
+      "maximum_single_utc_date_fraction": 0.4,
+      "maximum_single_evidence_regime_fraction": 0.5,
+      "threshold_change_after_h1_result_forbidden": true
+    },
+    "seed_firewall": {
+      "excluded_commit_shas": [
+        "3456d3c5783d628c5e8377671fd99c522e2b7d4f",
+        "33a5484f2ca919e80eef96a6750f801f751f8bdf",
+        "70f651ff042fbf815ad8e0346cabad02693745d9",
+        "d851ba142ea8a0c4355db82f91f4cd43ba740790",
+        "156fbb5af7309cb1e753c6397fd800d38263e3b3",
+        "6b12c652839d7c4ca7ce7191550fc04b43c52b0c",
+        "5c5df9082688f65332c79fef3b9cbfa893a06908"
+      ],
+      "exact_seed_source_identity_set_reuse_forbidden": true,
+      "seven_seed_checkpoints_may_count_as_holdout": false
+    }
+  },
+  "coverage_expansion": {
+    "mode": "MODEL_NEUTRAL_GOVERNED_RESEARCH_PIPELINE_COVERAGE_EXPANSION",
+    "purpose": "Increase independent historical coverage without changing the R2 model, using outcomes, relaxing thresholds, or inventing non-main history.",
+    "v1_family_catalog_preserved": true,
+    "added_substantive_families": [
+      {
+        "family_id": "RESEARCH_OBJECTS_CURRENT",
+        "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_OBJECTS_CURRENT.json",
+        "classification": "MODEL_NEUTRAL_RESEARCH_STATE",
+        "contributes_to_security_scope": true
+      },
+      {
+        "family_id": "R1_DECISION_COVERAGE_PACK_CURRENT",
+        "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/R1_DECISION_COVERAGE_PACK_CURRENT.json",
+        "classification": "MODEL_NEUTRAL_DECISION_CONTEXT",
+        "contributes_to_security_scope": false,
+        "reason_security_scope_excluded": "Mixed real-account fund/ETF and simulation holdings; retained only as contemporaneous decision context."
+      },
+      {
+        "family_id": "RESEARCH_QUEUE_D1_CURRENT",
+        "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json",
+        "classification": "MODEL_NEUTRAL_RESEARCH_STATE",
+        "contributes_to_security_scope": true
+      },
+      {
+        "family_id": "RESEARCH_QUEUE_D2_CURRENT",
+        "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json",
+        "classification": "MODEL_NEUTRAL_RESEARCH_STATE",
+        "contributes_to_security_scope": true
+      }
+    ],
+    "added_substantive_family_count": 4,
+    "expected_total_family_count_after_expansion": 14,
+    "explicitly_excluded_paths_or_classes": [
+      "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json",
+      "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_SEMANTIC_LINEAGE_*",
+      "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/RESEARCH_QUEUE_D2_EVIDENCE_*",
+      "strategy_kernel_v2/generated/PHASE3_R2_HOLDOUT_SELECTION_LEDGER.json",
+      "strategy_kernel_v2/generated/PHASE3_R2_HOLDOUT_REPLAY.json",
+      "strategy_kernel_v2/PHASE3D_*",
+      "realized_outcomes",
+      "future_returns",
+      "regret",
+      "calibration"
+    ]
+  },
+  "v2_security_scope": {
+    "derivation": "NORMALIZED_UNION_OF_V1_PHASE3A_SCOPE_PLUS_SECURITY_IDS_IN_END_COMMIT_RESEARCH_OBJECTS_CURRENT_RESEARCH_QUEUE_D1_CURRENT_RESEARCH_QUEUE_D2_CURRENT",
+    "normalization": {
+      "six_digit_code_starting_6": "APPEND_.SH",
+      "six_digit_code_starting_0_1_2_3": "APPEND_.SZ",
+      "already_suffixed_or_exchange_qualified": "PRESERVE"
+    },
+    "security_count": 18,
+    "security_ids": [
+      "000333.SZ",
+      "000719.SZ",
+      "000938.SZ",
+      "001286.SZ",
+      "002039.SZ",
+      "002396.SZ",
+      "002517.SZ",
+      "300308.SZ",
+      "301215.SZ",
+      "600018.SH",
+      "600036.SH",
+      "600900.SH",
+      "600941.SH",
+      "601088.SH",
+      "601138.SH",
+      "601985.SH",
+      "605090.SH",
+      "HKEX:00669"
+    ],
+    "v1_scope_must_be_subset": true,
+    "r1_decision_coverage_pack_security_ids_must_not_expand_scope": true
+  },
+  "pre_result_firewall": {
+    "v2_selection_started": false,
+    "v2_candidate_ledger_count": 0,
+    "r2_profile_compute_count": 0,
+    "r2_holdout_replay_count": 0,
+    "realized_outcome_read_count": 0,
+    "future_return_read_count": 0,
+    "phase3d_result_read_count": 0,
+    "result_based_family_addition_allowed": false,
+    "result_based_security_addition_allowed": false,
+    "threshold_relaxation_allowed": false,
+    "model_transform_change_allowed": false,
+    "model_signature_change_allowed": false
+  },
+  "next_gate": {
+    "v2_selection_start_allowed_after_contract_acceptance": true,
+    "v2_r2_replay_allowed_before_v2_selection_sufficiency_pass": false,
+    "h2_start_allowed_now": false,
+    "phase3d_r2_start_allowed_now": false,
+    "phase3e_r2_start_allowed_now": false,
+    "repeat_phase3f_start_allowed_now": false,
+    "phase4_entry_allowed": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

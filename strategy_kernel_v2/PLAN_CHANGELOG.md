@@ -343,3 +343,19 @@ The H0/H0.1 selector was executed on protected-main first-parent history only. I
 **Governed consequence:** H2 Frozen R2 Replay is blocked. The checkpoint threshold is not relaxed after observing H1. Further work must remain inside Independent Holdout Coverage and use a new pre-result coverage-expansion contract version before any new selection result. Phase 3D-R2, Phase 3E-R2, repeat Phase 3F and Phase 4 remain downstream and blocked.
 
 **Evidence:** selection ledger SHA-256 `bc918818c6b2e59ee48c6b13769330e6a34b7cee011a3c0337efc24351be09d5`; workflow artifact ID `9631813910`, digest `sha256:13a127667aefc29c60b45433c4c8826852a35b90813a7d579a93a70c9cddd2a9`.
+
+## 2026-08-27 — Independent PIT Holdout Coverage Expansion V2 pre-result contract freeze
+
+**Trigger:** H1 returned `FAIL_SELECTION_SUFFICIENCY` solely because 8 canonical checkpoints were below the frozen minimum of 12. No H1 threshold is relaxed.
+
+**Universe and selector preserved:** protected-main time universe remains `6323f4c0617b3df3907b4e76c36b441d666fc4b0 → 5c5df9082688f65332c79fef3b9cbfa893a06908`; first-parent census selection, seven-seed firewall, exact seed-source-set exclusion and all H0.1 quantitative thresholds remain unchanged.
+
+**Coverage-only expansion:** preserve all V1 families and add exactly four substantive model-neutral governed states: `RESEARCH_OBJECTS_CURRENT`, `R1_DECISION_COVERAGE_PACK_CURRENT` as decision context only, `RESEARCH_QUEUE_D1_CURRENT`, and `RESEARCH_QUEUE_D2_CURRENT`. Pure liveness, lineage-only evidence, prior Holdout result artifacts, Phase 3D outcomes, future returns, regret/calibration and R2 result artifacts are explicitly excluded from checkpoint creation.
+
+**Security scope:** deterministically normalize and union the V1 8-security scope with security IDs present at the frozen end commit in Research Objects, D1 Current and D2 Current. Frozen V2 research-security scope = **18 securities**. The mixed Real/Simulation fund/ETF IDs inside the R1 decision-coverage pack do not expand the security scope.
+
+**Pre-result firewall:** V2 selection has not started; V2 candidate ledger = 0; R2 profile compute = 0; R2 Holdout replay = 0; realized outcome/future return/Phase 3D reads = 0. Result-based family/security additions, threshold relaxation and R2 transform/signature changes are forbidden.
+
+**Next gate:** after remote acceptance of this contract, run V2 deterministic selection only. H2 remains blocked unless the unchanged 12-checkpoint/multi-axis sufficiency gate passes. Phase 3D-R2, Phase 3E-R2, repeat Phase 3F and Phase 4 remain blocked.
+
+**Authority:** no effective-policy, Candidate, Real/Simulation, target-portfolio, user-decision, investment-recommendation, order or trade-authority mutation. `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
