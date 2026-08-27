@@ -118,11 +118,19 @@ def validate() -> list[str]:
     if state.get("r2_phase3c_replay_start_allowed") is not True:
         errors.append("R2_PHASE3C_NOT_ALLOWED_AFTER_CONTRACT")
     r2b_downstream = state.get("r2_phase3c_r2b_complete") is True
+    holdout_h1_downstream = state.get("holdout_h1_started") is True
     if r2b_downstream:
         if state.get("r2_phase3c_replay_started") is not True or state.get("r2_real_historical_replay_executed") is not True:
             errors.append("R2_LEGAL_R2B_DOWNSTREAM_REPLAY_STATE_INVALID")
-        if state.get("r2_historical_performance_claimed") is not False or state.get("holdout_build_started") is not False:
-            errors.append("R2_LEGAL_R2B_DOWNSTREAM_PERFORMANCE_OR_HOLDOUT_DRIFT")
+        if state.get("r2_historical_performance_claimed") is not False:
+            errors.append("R2_LEGAL_R2B_DOWNSTREAM_PERFORMANCE_DRIFT")
+        if holdout_h1_downstream:
+            if state.get("holdout_h1_complete") is not True or state.get("holdout_build_started") is not True:
+                errors.append("R2_LEGAL_HOLDOUT_H1_DOWNSTREAM_STATE_INVALID")
+            if state.get("holdout_h2_started") is not False:
+                errors.append("R2_LEGAL_HOLDOUT_H1_PREMATURE_H2")
+        elif state.get("holdout_build_started") is not False:
+            errors.append("R2_LEGAL_R2B_DOWNSTREAM_PREMATURE_HOLDOUT")
     elif state.get("r2_phase3c_replay_started") is not False:
         errors.append("R2_PHASE3C_PREMATURELY_STARTED")
     if state.get("phase4_entry_allowed") is not False:
@@ -130,10 +138,16 @@ def validate() -> list[str]:
 
     cv = current.get("validation", {})
     if r2b_downstream:
-        if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
-            errors.append("R2_CURRENT_R2B_PHASE_MISMATCH")
-        if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
-            errors.append("R2_CURRENT_R2B_NEXT_PHASE_MISMATCH")
+        if holdout_h1_downstream:
+            if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+                errors.append("R2_CURRENT_HOLDOUT_H1_PHASE_MISMATCH")
+            if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
+                errors.append("R2_CURRENT_HOLDOUT_H1_NEXT_PHASE_MISMATCH")
+        else:
+            if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
+                errors.append("R2_CURRENT_R2B_PHASE_MISMATCH")
+            if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+                errors.append("R2_CURRENT_R2B_NEXT_PHASE_MISMATCH")
     else:
         if current.get("current_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
             errors.append("R2_CURRENT_PHASE_MISMATCH")
