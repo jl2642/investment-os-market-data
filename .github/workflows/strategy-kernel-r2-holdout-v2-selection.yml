@@ -1,0 +1,50 @@
+name: Strategy Kernel R2 Holdout V2 Deterministic Selection
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-r2-holdout-v2-selection.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: strategy-kernel-r2-holdout-v2-selection-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  holdout-v2-selection:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Re-validate accepted V2 pre-result contract
+        run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_v2_contract
+      - name: Run V2 deterministic selection tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3_r2_holdout_v2_selection
+      - name: Build and validate V2 deterministic selection ledger
+        run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_v2_selection
+      - name: Re-validate accepted H1 result
+        run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_h1
+      - name: Re-validate Phase 3C-R2B parent
+        run: python -m strategy_kernel_v2.validate_phase3c_r2b
+      - name: Validate Post-3F research path
+        run: python -m strategy_kernel_v2.validate_post3f_research_path
+      - name: Validate historical Phase 3F gate remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3f
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Run program governance regressions
+        run: python -m unittest strategy_kernel_v2.tests.test_program_governance
+      - name: Upload V2 selection ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3-r2-holdout-v2-selection-ledger
+          path: strategy_kernel_v2/generated/PHASE3_R2_HOLDOUT_V2_SELECTION_LEDGER.json
+          if-no-files-found: ignore
