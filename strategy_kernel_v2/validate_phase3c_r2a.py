@@ -110,16 +110,28 @@ def validate() -> tuple[list[str], dict]:
     else:
         if state.get("r2_phase3c_r2b_started") is not False or state.get("r2_real_historical_replay_executed") is not False:
             errors.append("R2A_PREMATURE_REPLAY")
-    if state.get("holdout_build_started") is not False:
+    holdout_h1_downstream = state.get("holdout_h1_started") is True
+    if holdout_h1_downstream:
+        if state.get("holdout_h1_complete") is not True or state.get("holdout_build_started") is not True:
+            errors.append("R2A_LEGAL_HOLDOUT_H1_STATE_INVALID")
+        if state.get("holdout_h2_started") is not False:
+            errors.append("R2A_LEGAL_HOLDOUT_H1_PREMATURE_H2")
+    elif state.get("holdout_build_started") is not False:
         errors.append("R2A_PREMATURE_HOLDOUT")
     if state.get("phase4_entry_allowed") is not False:
         errors.append("R2A_STATE_PREMATURE_PHASE4")
 
     if r2b_downstream:
-        if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
-            errors.append("R2A_LEGAL_R2B_CURRENT_PHASE_DRIFT")
-        if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
-            errors.append("R2A_LEGAL_R2B_NEXT_PHASE_DRIFT")
+        if holdout_h1_downstream:
+            if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+                errors.append("R2A_LEGAL_HOLDOUT_H1_CURRENT_PHASE_DRIFT")
+            if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
+                errors.append("R2A_LEGAL_HOLDOUT_H1_NEXT_PHASE_DRIFT")
+        else:
+            if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
+                errors.append("R2A_LEGAL_R2B_CURRENT_PHASE_DRIFT")
+            if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+                errors.append("R2A_LEGAL_R2B_NEXT_PHASE_DRIFT")
     else:
         if current.get("current_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
             errors.append("R2A_GOVERNED_PRE_REPLAY_PHASE_DRIFT")
