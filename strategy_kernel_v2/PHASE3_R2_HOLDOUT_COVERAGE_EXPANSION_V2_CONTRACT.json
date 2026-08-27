@@ -46,6 +46,65 @@
       "maximum_single_utc_date_fraction": 0.4,
       "maximum_single_evidence_regime_fraction": 0.5,
       "threshold_change_after_h1_result_forbidden": true
+    },
+    "seed_firewall": {
+      "excluded_commit_shas": [
+        "3456d3c5783d628c5e8377671fd99c522e2b7d4f",
+        "33a5484f2ca919e80eef96a6750f801f751f8bdf",
+        "70f651ff042fbf815ad8e0346cabad02693745d9",
+        "d851ba142ea8a0c4355db82f91f4cd43ba740790",
+        "156fbb5af7309cb1e753c6397fd800d38263e3b3",
+        "6b12c652839d7c4ca7ce7191550fc04b43c52b0c",
+        "5c5df9082688f65332c79fef3b9cbfa893a06908"
+      ],
+      "exact_seed_source_identity_set_reuse_forbidden": true,
+      "seven_seed_checkpoints_may_count_as_holdout": false
     }
+  },
+  "coverage_expansion": {
+    "mode": "MODEL_NEUTRAL_GOVERNED_RESEARCH_PIPELINE_COVERAGE_EXPANSION",
+    "purpose": "Increase independent historical coverage without changing the R2 model, using outcomes, relaxing thresholds, or inventing non-main history.",
+    "v1_family_catalog_preserved": true,
+    "added_substantive_families": [
+      {
+        "family_id": "RESEARCH_OBJECTS_CURRENT",
+        "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_OBJECTS_CURRENT.json",
+        "classification": "MODEL_NEUTRAL_RESEARCH_STATE",
+        "contributes_to_security_scope": true
+      },
+      {
+        "family_id": "R1_DECISION_COVERAGE_PACK_CURRENT",
+        "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/R1_DECISION_COVERAGE_PACK_CURRENT.json",
+        "classification": "MODEL_NEUTRAL_DECISION_CONTEXT",
+        "contributes_to_security_scope": false,
+        "reason_security_scope_excluded": "Mixed real-account fund/ETF and simulation holdings; retained only as contemporaneous decision context."
+      },
+      {
+        "family_id": "RESEARCH_QUEUE_D1_CURRENT",
+        "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json",
+        "classification": "MODEL_NEUTRAL_RESEARCH_STATE",
+        "contributes_to_security_scope": true
+      },
+      {
+        "family_id": "RESEARCH_QUEUE_D2_CURRENT",
+        "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json",
+        "classification": "MODEL_NEUTRAL_RESEARCH_STATE",
+        "contributes_to_security_scope": true
+      }
+    ],
+    "added_substantive_family_count": 4,
+    "expected_total_family_count_after_expansion": 14,
+    "explicitly_excluded_paths_or_classes": [
+      "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json",
+      "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_SEMANTIC_LINEAGE_*",
+      "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/RESEARCH_QUEUE_D2_EVIDENCE_*",
+      "strategy_kernel_v2/generated/PHASE3_R2_HOLDOUT_SELECTION_LEDGER.json",
+      "strategy_kernel_v2/generated/PHASE3_R2_HOLDOUT_REPLAY.json",
+      "strategy_kernel_v2/PHASE3D_*",
+      "realized_outcomes",
+      "future_returns",
+      "regret",
+      "calibration"
+    ]
   }
 }
