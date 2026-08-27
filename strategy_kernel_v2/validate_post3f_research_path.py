@@ -72,7 +72,7 @@ def validate():
             errors.append("PROGRAM_STATE_R2_PREMATURE_START_IN_POST3F")
         if current.get("next_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
             errors.append("CURRENT_NEXT_PHASE_R2_MISMATCH")
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION", "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"}:
         contract_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
         if not contract_path.exists():
             errors.append("R2_CURRENT_WITHOUT_FROZEN_CONTRACT")
@@ -88,8 +88,8 @@ def validate():
             errors.append("R2_CURRENT_STATUS_NOT_COMPLETE")
         if state.get("r2_phase3c_replay_start_allowed") is not True:
             errors.append("R2_CURRENT_PHASE3C_START_NOT_ALLOWED")
-        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}
-        holdout_h1_downstream = current_phase in {"INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}
+        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION", "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"}
+        holdout_h1_downstream = current_phase in {"INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION", "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"}
         holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
         if r2b_downstream:
             if state.get("r2_phase3c_replay_started") is not True or state.get("r2_phase3c_r2b_complete") is not True:
@@ -148,6 +148,8 @@ def validate():
                         )
                     )
                 )
+                if state.get("repeat_phase3f_complete") is True:
+                    expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
                 if current.get("next_phase") != expected_next:
                     errors.append("HOLDOUT_CURRENT_NEXT_PHASE_DRIFT")
             else:
@@ -167,10 +169,15 @@ def validate():
 
     if cv.get("post3f_research_path_decision_complete") is not True:
         errors.append("CURRENT_POST3F_DECISION_NOT_COMPLETE")
-    if state.get("phase3_historical_validation_complete") or state.get("phase4_entry_allowed") or state.get("phase4_forward_validation_complete") or state.get("phase5_migration_allowed"):
-        errors.append("DOWNSTREAM_PHASE_PREMATURE")
-    if cv.get("phase4_entry_allowed"):
-        errors.append("CURRENT_PHASE4_PREMATURE")
+    repeat_done = state.get("repeat_phase3f_complete") is True
+    if state.get("phase3_historical_validation_complete") is not repeat_done:
+        errors.append("DOWNSTREAM_PHASE3_COMPLETION_DRIFT")
+    if state.get("phase4_entry_allowed") is not repeat_done:
+        errors.append("DOWNSTREAM_PHASE4_ENTRY_DRIFT")
+    if state.get("phase4_forward_validation_complete") or state.get("phase5_migration_allowed"):
+        errors.append("DOWNSTREAM_LATER_PHASE_PREMATURE")
+    if cv.get("phase4_entry_allowed") is not repeat_done:
+        errors.append("CURRENT_PHASE4_ENTRY_DRIFT")
 
     controls = decision["authority_boundaries"]
     for key in ["effective_core_static_changes", "candidate_membership_mutations", "real_account_mutations", "simulation_mutations", "target_portfolio_writebacks", "user_decisions_generated", "investment_recommendations_generated", "orders"]:

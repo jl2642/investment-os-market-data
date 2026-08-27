@@ -132,8 +132,9 @@ def validate() -> tuple[list[str], dict]:
             errors.append("R2A_LEGAL_HOLDOUT_H1_PREMATURE_H2")
     elif state.get("holdout_build_started") is not False:
         errors.append("R2A_PREMATURE_HOLDOUT")
-    if state.get("phase4_entry_allowed") is not False:
-        errors.append("R2A_STATE_PREMATURE_PHASE4")
+    repeat_done = state.get("repeat_phase3f_complete") is True
+    if state.get("phase4_entry_allowed") is not repeat_done:
+        errors.append("R2A_STATE_PHASE4_ENTRY_DRIFT")
 
     if r2b_downstream:
         if holdout_h1_downstream:
@@ -147,6 +148,8 @@ def validate() -> tuple[list[str], dict]:
                     else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
                 )
             )
+            if repeat_done:
+                expected_current_phase = "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
             if current.get("current_phase") != expected_current_phase:
                 errors.append("R2A_LEGAL_HOLDOUT_H1_CURRENT_PHASE_DRIFT")
             holdout_v2_pass = (
@@ -182,6 +185,8 @@ def validate() -> tuple[list[str], dict]:
                     )
                 )
             )
+            if repeat_done:
+                expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
             if current.get("next_phase") != expected_next:
                 errors.append("R2A_LEGAL_HOLDOUT_NEXT_PHASE_DRIFT")
         else:
@@ -202,7 +207,7 @@ def validate() -> tuple[list[str], dict]:
         ("r2a_holdout_started", False),
         ("r2_phase3c_r2b_start_allowed", True),
         ("r2_phase3c_r2b_started", True if r2b_downstream else False),
-        ("phase4_entry_allowed", False),
+        ("phase4_entry_allowed", repeat_done),
     ]
     for key, expected in expected_current:
         if cv.get(key) is not expected:

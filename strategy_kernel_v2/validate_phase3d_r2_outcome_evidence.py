@@ -51,6 +51,7 @@ def validate():
         result = load_frozen_pack()
         performance_complete = state.get("phase3d_r2_performance_measurement_complete") is True
         errors.extend(validate_frozen_pack(result, round1))
+        repeat_done = state.get("repeat_phase3f_complete") is True
         expected = {
             "phase3d_r2_outcome_evidence_acquisition_started": True,
             "phase3d_r2_outcome_evidence_acquisition_complete": True,
@@ -66,9 +67,9 @@ def validate():
             "phase3d_r2_performance_started": performance_complete,
             "phase3d_r2_complete": performance_complete,
             "phase3e_r2_started": state.get("phase3e_r2_complete") is True,
-            "repeat_phase3f_started": False,
-            "phase3_historical_validation_complete": False,
-            "phase4_entry_allowed": False,
+            "repeat_phase3f_started": repeat_done,
+            "phase3_historical_validation_complete": repeat_done,
+            "phase4_entry_allowed": repeat_done,
         }
         for key, value in expected.items():
             if state.get(key) != value:
@@ -80,6 +81,8 @@ def validate():
             if state.get("phase3e_r2_started") is True
             else "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
         )
+        if repeat_done:
+            expected_current_phase = "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
         if current.get("current_phase") != expected_current_phase:
             errors.append("R2_OUTCOME_EVIDENCE_CURRENT_PHASE_DRIFT")
         expected_next = (
@@ -95,6 +98,8 @@ def validate():
             if performance_complete
             else "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
         )
+        if repeat_done:
+            expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
         if current.get("next_phase") != expected_next:
             errors.append("R2_OUTCOME_EVIDENCE_NEXT_PHASE_DRIFT")
         if state.get("orders") != 0 or current.get("orders") != 0:

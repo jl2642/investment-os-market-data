@@ -246,6 +246,7 @@ def validate() -> list[str]:
 
     selection_downstream = state.get("holdout_v2_selection_started") is True
     replay_downstream = state.get("independent_holdout_replay_complete") is True
+    repeat_done = state.get("repeat_phase3f_complete") is True
     expected_state = {
         "holdout_v2_contract_frozen": True,
         "holdout_v2_contract_status": "FROZEN_PRE_RESULT_COVERAGE_EXPANSION_NO_R2_NO_OUTCOMES",
@@ -259,8 +260,8 @@ def validate() -> list[str]:
         "holdout_v2_selection_start_allowed": True,
         "holdout_v2_r2_replay_count": 0,
         "holdout_v2_realized_outcome_read_count": 0,
-        "phase3_historical_validation_complete": False,
-        "phase4_entry_allowed": False,
+        "phase3_historical_validation_complete": repeat_done,
+        "phase4_entry_allowed": repeat_done,
     }
     for key, expected in expected_state.items():
         if state.get(key) != expected:
@@ -320,6 +321,8 @@ def validate() -> list[str]:
                 )
             )
         )
+        if repeat_done:
+            expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
         if current.get("next_phase") != expected_next:
             errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_NEXT_PHASE_DRIFT")
     else:
@@ -344,6 +347,8 @@ def validate() -> list[str]:
             else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
         )
     )
+    if repeat_done:
+        expected_current_phase = "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
     if current.get("current_phase") != expected_current_phase:
         errors.append("V2_CURRENT_PHASE_DRIFT")
 

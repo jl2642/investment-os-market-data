@@ -172,6 +172,8 @@ def build_structural_support_gate() -> dict[str, Any]:
         if state.get("phase3e_r2_structural_support_gate_complete") is True
         else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
     )
+    if state.get("repeat_phase3f_complete") is True:
+        expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
     if current.get("next_phase") != expected_next:
         parent_errors.append("R2E_SUPPORT_CURRENT_NEXT_PHASE_DRIFT")
 

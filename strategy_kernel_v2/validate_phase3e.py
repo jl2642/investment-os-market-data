@@ -28,8 +28,9 @@ def _validate_post3f_and_r2(errors: list[str], state: dict, current: dict, requi
         errors.append("LEGAL_POST3F_DOWNSTREAM_GATE_OUTCOME_DRIFT")
     if state.get("phase3f_promotion_eligible") is not False:
         errors.append("LEGAL_POST3F_DOWNSTREAM_PROMOTION_ELIGIBLE")
-    if state.get("phase4_entry_allowed") is not False or current["validation"].get("phase4_entry_allowed") is not False:
-        errors.append("LEGAL_POST3F_DOWNSTREAM_PREMATURE_PHASE4")
+    repeat_done = state.get("repeat_phase3f_complete") is True
+    if state.get("phase4_entry_allowed") is not repeat_done or current["validation"].get("phase4_entry_allowed") is not repeat_done:
+        errors.append("LEGAL_POST3F_DOWNSTREAM_PHASE4_DRIFT")
     if current["validation"].get("post3f_research_path_decision_complete") is not True:
         errors.append("LEGAL_POST3F_DOWNSTREAM_DECISION_NOT_COMPLETE")
 
@@ -194,8 +195,9 @@ def validate() -> list[str]:
         errors.append("PHASE3F_START_NOT_ALLOWED_AFTER_3E")
     if state.get("phase3f_promotion_eligible") is not False:
         errors.append("PHASE3F_PREMATURE_PROMOTION_ELIGIBILITY")
-    if state.get("phase3_historical_validation_complete") is not False:
-        errors.append("PHASE3_PREMATURELY_COMPLETE")
+    repeat_done = state.get("repeat_phase3f_complete") is True
+    if state.get("phase3_historical_validation_complete") is not repeat_done:
+        errors.append("PHASE3_COMPLETION_DRIFT")
     if state.get("phase4_forward_validation_complete") is not False:
         errors.append("PHASE4_PREMATURELY_COMPLETE")
     if state.get("phase5_migration_allowed") is not False:
@@ -212,6 +214,7 @@ def validate() -> list[str]:
         "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE",
         "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
         "PHASE_3E_R2_ROBUSTNESS_EXECUTION",
+        "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE",
     }
     if current_phase not in allowed_current_phases:
         errors.append("CURRENT_PHASE_NOT_3E_OR_LEGAL_DOWNSTREAM")
@@ -238,7 +241,7 @@ def validate() -> list[str]:
             errors.append("LEGAL_3F_DOWNSTREAM_LOOPBACK_DRIFT")
     elif current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
         _validate_post3f_and_r2(errors, state, current, False)
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION", "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"}:
         _validate_post3f_and_r2(errors, state, current, True)
 
     for surface_name, surface in [

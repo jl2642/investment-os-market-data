@@ -197,11 +197,23 @@ class Post3FResearchPathTests(unittest.TestCase):
             self.assertTrue(self.current["validation"]["repeat_phase3f_start_allowed"])
             self.assertFalse(self.current["validation"]["repeat_phase3f_started"])
             self.assertEqual(self.current["next_phase"], "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE")
+        elif phase == "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE":
+            self.assertTrue(self.current["validation"]["repeat_phase3f_started"])
+            self.assertTrue(self.current["validation"]["repeat_phase3f_complete"])
+            self.assertTrue(self.current["validation"]["repeat_phase3f_all_promotion_requirements_pass"])
+            self.assertEqual(self.current["validation"]["repeat_phase3f_promotion_requirement_pass_count"], 4)
+            self.assertEqual(self.current["validation"]["repeat_phase3f_gate_outcome"], "PROMOTE_TO_PHASE_4_FORWARD_VALIDATION")
+            self.assertTrue(self.current["validation"]["phase3_historical_validation_complete"])
+            self.assertTrue(self.current["validation"]["phase4_entry_allowed"])
+            self.assertTrue(self.current["validation"]["phase4_start_allowed"])
+            self.assertFalse(self.current["validation"]["phase4_started"])
+            self.assertEqual(self.current["next_phase"], "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION")
         else:
             self.fail("unexpected current phase for Post-3F monotonic regression: " + str(phase))
 
-        self.assertFalse(self.state["phase4_entry_allowed"])
-        self.assertFalse(self.current["validation"]["phase4_entry_allowed"])
+        repeat_done = self.state.get("repeat_phase3f_complete") is True
+        self.assertEqual(self.state["phase4_entry_allowed"], repeat_done)
+        self.assertEqual(self.current["validation"]["phase4_entry_allowed"], repeat_done)
 
     def test_zero_authority(self):
         controls = self.decision["authority_boundaries"]

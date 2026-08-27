@@ -148,10 +148,11 @@ def validate() -> list[str]:
             errors.append("R2_LEGAL_R2B_DOWNSTREAM_PREMATURE_HOLDOUT")
     elif state.get("r2_phase3c_replay_started") is not False:
         errors.append("R2_PHASE3C_PREMATURELY_STARTED")
-    if state.get("phase4_entry_allowed") is not False:
-        errors.append("R2_STATE_PREMATURE_PHASE4")
+    if state.get("phase4_entry_allowed") is not repeat_done:
+        errors.append("R2_STATE_PHASE4_ENTRY_DRIFT")
 
     cv = current.get("validation", {})
+    repeat_done = state.get("repeat_phase3f_complete") is True
     if r2b_downstream:
         if holdout_h1_downstream:
             phase3e_r2_downstream = state.get("phase3e_r2_started") is True
@@ -164,6 +165,8 @@ def validate() -> list[str]:
                     else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
                 )
             )
+            if repeat_done:
+                expected_current_phase = "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
             if current.get("current_phase") != expected_current_phase:
                 errors.append("R2_CURRENT_HOLDOUT_H1_PHASE_MISMATCH")
             expected_next = (
@@ -195,6 +198,8 @@ def validate() -> list[str]:
                     )
                 )
             )
+            if repeat_done:
+                expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
             if current.get("next_phase") != expected_next:
                 errors.append("R2_CURRENT_HOLDOUT_NEXT_PHASE_MISMATCH")
         else:
@@ -218,8 +223,8 @@ def validate() -> list[str]:
         errors.append("R2_CURRENT_PREMATURE_REPLAY")
     if cv.get("r2_historical_performance_claimed") is not False:
         errors.append("R2_CURRENT_PREMATURE_PERFORMANCE")
-    if cv.get("phase4_entry_allowed") is not False:
-        errors.append("R2_CURRENT_PREMATURE_PHASE4")
+    if cv.get("phase4_entry_allowed") is not repeat_done:
+        errors.append("R2_CURRENT_PHASE4_ENTRY_DRIFT")
 
     for surface_name, surface in [
         ("CONTRACT", contract["authority_boundaries"]),

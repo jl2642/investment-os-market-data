@@ -25,8 +25,9 @@ def _validate_post3f(errors: list[str], state: dict, current: dict) -> None:
         errors.append("POST3F_DECISION_PHASE3F_OUTCOME_DRIFT")
     if current["validation"].get("post3f_research_path_decision_complete") is not True:
         errors.append("POST3F_CURRENT_DECISION_NOT_COMPLETE")
-    if state.get("phase4_entry_allowed") is not False:
-        errors.append("POST3F_PREMATURE_PHASE4")
+    repeat_done = state.get("repeat_phase3f_complete") is True
+    if state.get("phase4_entry_allowed") is not repeat_done:
+        errors.append("POST3F_PHASE4_ENTRY_DRIFT")
 
 
 def validate() -> list[str]:
@@ -89,10 +90,11 @@ def validate() -> list[str]:
         errors.append("PHASE3F_STATE_PREMATURE_PROMOTION")
     if state.get("phase3f_terminal_rejection_evidence") is not False:
         errors.append("PHASE3F_STATE_TERMINAL_REJECTION_DRIFT")
-    if state.get("phase3_historical_validation_complete") is not False:
-        errors.append("PHASE3_PREMATURE_COMPLETE")
-    if state.get("phase4_entry_allowed") is not False or state.get("phase4_forward_validation_complete") is not False:
-        errors.append("PHASE4_PREMATURE_ENTRY")
+    repeat_done = state.get("repeat_phase3f_complete") is True
+    if state.get("phase3_historical_validation_complete") is not repeat_done:
+        errors.append("PHASE3_COMPLETION_DRIFT")
+    if state.get("phase4_entry_allowed") is not repeat_done or state.get("phase4_forward_validation_complete") is not False:
+        errors.append("PHASE4_ENTRY_OR_COMPLETION_DRIFT")
     if state.get("phase5_migration_allowed") is not False:
         errors.append("PHASE5_PREMATURE_ENTRY")
     if state.get("phase3f_material_revision_loopback") != "PHASE_3B_CONTRACT_DEFINITION_THEN_PHASE_3C_REPLAY":
@@ -106,7 +108,7 @@ def validate() -> list[str]:
         _validate_post3f(errors, state, current)
         if state.get("r2_phase3b_contract_definition_started"):
             errors.append("POST3F_VALIDATOR_SEES_R2_ALREADY_STARTED")
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION", "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"}:
         _validate_post3f(errors, state, current)
         r2_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
         if not r2_path.exists():
@@ -121,8 +123,8 @@ def validate() -> list[str]:
                 errors.append("PHASE3F_R2_DOWNSTREAM_PREMATURE_PHASE4")
         if state.get("r2_phase3b_contract_definition_started") is not True or state.get("r2_phase3b_contract_definition_complete") is not True:
             errors.append("PHASE3F_R2_DOWNSTREAM_NOT_COMPLETE")
-        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}
-        holdout_h1_downstream = current_phase in {"INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}
+        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION", "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"}
+        holdout_h1_downstream = current_phase in {"INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION", "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"}
         holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
         if r2b_downstream:
             if state.get("r2_phase3c_r2b_complete") is not True:
@@ -158,10 +160,10 @@ def validate() -> list[str]:
         errors.append("CURRENT_PHASE3F_NOT_COMPLETE")
     if cv.get("phase3f_gate_outcome") != "CONTINUE_SHADOW_RESEARCH":
         errors.append("CURRENT_PHASE3F_OUTCOME_MISMATCH")
-    if cv.get("phase3f_promotion_eligible") is not False or cv.get("phase4_entry_allowed") is not False:
-        errors.append("CURRENT_PHASE3F_PREMATURE_PHASE4")
-    if cv.get("phase3_historical_validation_complete") is not False:
-        errors.append("CURRENT_PHASE3_PREMATURE_COMPLETE")
+    if cv.get("phase3f_promotion_eligible") is not False or cv.get("phase4_entry_allowed") is not repeat_done:
+        errors.append("CURRENT_PHASE3F_OR_PHASE4_DRIFT")
+    if cv.get("phase3_historical_validation_complete") is not repeat_done:
+        errors.append("CURRENT_PHASE3_COMPLETION_DRIFT")
 
     if result["required_research_path"]["loopback"] != "PHASE_3B_CONTRACT_DEFINITION_THEN_PHASE_3C_REPLAY":
         errors.append("PHASE3F_RESULT_LOOPBACK_MISMATCH")

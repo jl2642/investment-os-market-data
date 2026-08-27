@@ -64,6 +64,7 @@ def validate():
     current = json.loads((root / "CURRENT_PHASE_STATUS.json").read_text(encoding="utf-8"))
     cv = current.get("validation", {})
     closeout = state.get("phase3e_r2_complete") is True
+    repeat_done = state.get("repeat_phase3f_complete") is True
     if closeout:
         expected = {
             "phase3e_r2_started": True,
@@ -84,21 +85,24 @@ def validate():
             "phase3e_r2_robustness_pass_fail_threshold_defined": False,
             "phase3e_r2_robustness_completion_evidence_only": True,
             "repeat_phase3f_start_allowed": True,
-            "repeat_phase3f_started": False,
-            "repeat_phase3f_complete": False,
-            "phase3_historical_validation_complete": False,
-            "phase4_entry_allowed": False,
+            "repeat_phase3f_started": repeat_done,
+            "repeat_phase3f_complete": repeat_done,
+            "phase3_historical_validation_complete": repeat_done,
+            "phase4_entry_allowed": repeat_done,
         }
         for key, value in expected.items():
             if state.get(key) != value:
                 errors.append("R2E_ROBUSTNESS_CLOSEOUT_STATE_DRIFT:" + key)
             if cv.get(key) != value:
                 errors.append("R2E_ROBUSTNESS_CLOSEOUT_CURRENT_DRIFT:" + key)
-        if current.get("current_phase") != "PHASE_3E_R2_ROBUSTNESS_EXECUTION":
+        expected_current_phase = "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE" if repeat_done else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+        expected_status = "REPEAT_PHASE3F_4_OF_4_PASS_PHASE4_FORWARD_VALIDATION_AUTHORIZED_NOT_STARTED" if repeat_done else "PHASE3E_R2_COMPLETE_REPEAT_PHASE3F_REQUIRED_PHASE4_BLOCKED"
+        expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION" if repeat_done else "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+        if current.get("current_phase") != expected_current_phase:
             errors.append("R2E_ROBUSTNESS_CLOSEOUT_CURRENT_PHASE_DRIFT")
-        if current.get("status") != "PHASE3E_R2_COMPLETE_REPEAT_PHASE3F_REQUIRED_PHASE4_BLOCKED":
+        if current.get("status") != expected_status:
             errors.append("R2E_ROBUSTNESS_CLOSEOUT_STATUS_DRIFT")
-        if current.get("next_phase") != "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE":
+        if current.get("next_phase") != expected_next:
             errors.append("R2E_ROBUSTNESS_CLOSEOUT_NEXT_DRIFT")
 
     controls = result["controls"]

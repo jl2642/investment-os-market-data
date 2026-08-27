@@ -64,6 +64,7 @@ def validate():
         errors.extend("R2E_SUPPORT_INTEGRITY:" + item for item in result["integrity_errors"])
 
     if closeout:
+        repeat_done = state.get("repeat_phase3f_complete") is True
         expected = {
             "phase3e_r2_structural_support_gate_frozen": True,
             "phase3e_r2_structural_support_gate_complete": True,
@@ -84,9 +85,9 @@ def validate():
             "phase3e_r2_started": state.get("phase3e_r2_complete") is True,
             "phase3e_r2_robustness_started": state.get("phase3e_r2_complete") is True,
             "phase3e_r2_complete": state.get("phase3e_r2_complete") is True,
-            "repeat_phase3f_started": False,
-            "phase3_historical_validation_complete": False,
-            "phase4_entry_allowed": False,
+            "repeat_phase3f_started": repeat_done,
+            "phase3_historical_validation_complete": repeat_done,
+            "phase4_entry_allowed": repeat_done,
         }
         for key, value in expected.items():
             if state.get(key) != value:
@@ -103,6 +104,9 @@ def validate():
             if state.get("phase3e_r2_complete") is True
             else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
         )
+        if repeat_done:
+            expected_status = "REPEAT_PHASE3F_4_OF_4_PASS_PHASE4_FORWARD_VALIDATION_AUTHORIZED_NOT_STARTED"
+            expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
         if current.get("status") != expected_status:
             errors.append("R2E_SUPPORT_CLOSEOUT_STATUS_DRIFT")
         if current.get("next_phase") != expected_next:

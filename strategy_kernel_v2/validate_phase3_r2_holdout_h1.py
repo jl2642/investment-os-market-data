@@ -199,6 +199,7 @@ def validate() -> tuple[list[str], dict]:
         v2_downstream = state.get("holdout_v2_selection_complete") is True
         v2_pass = state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
         replay_downstream = state.get("independent_holdout_replay_complete") is True
+        repeat_done = state.get("repeat_phase3f_complete") is True
         global_h2_start_allowed = v2_pass if v2_downstream else first["h2_start_allowed"]
         expected_state = {
             "holdout_h1_started": True,
@@ -214,8 +215,8 @@ def validate() -> tuple[list[str], dict]:
             "holdout_h1_checkpoints_outside_seed_span": observed["checkpoints_strictly_outside_seed_time_span"],
             "holdout_h2_start_allowed": global_h2_start_allowed,
             "holdout_h2_started": True if replay_downstream else False,
-            "phase3_historical_validation_complete": False,
-            "phase4_entry_allowed": False,
+            "phase3_historical_validation_complete": repeat_done,
+            "phase4_entry_allowed": repeat_done,
         }
         for key, expected in expected_state.items():
             if state.get(key) != expected:
@@ -249,6 +250,8 @@ def validate() -> tuple[list[str], dict]:
                 else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
             )
         )
+        if repeat_done:
+            expected_current_phase = "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
         if current.get("current_phase") != expected_current_phase:
             errors.append("H1_CURRENT_PHASE_DRIFT")
         if phase3d_r2_downstream:
@@ -319,6 +322,9 @@ def validate() -> tuple[list[str], dict]:
                 if first["h2_start_allowed"]
                 else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
             )
+        if repeat_done:
+            expected_status = "REPEAT_PHASE3F_4_OF_4_PASS_PHASE4_FORWARD_VALIDATION_AUTHORIZED_NOT_STARTED"
+            expected_next = "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
         if current.get("status") != expected_status:
             errors.append("H1_CURRENT_STATUS_DRIFT")
         if current.get("next_phase") != expected_next:

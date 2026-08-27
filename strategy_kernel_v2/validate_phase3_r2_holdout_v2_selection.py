@@ -160,6 +160,7 @@ def validate() -> tuple[list[str], dict]:
     if state.get("holdout_v2_selection_complete") is True:
         observed = suff["observed"]
         replay_downstream = state.get("independent_holdout_replay_complete") is True
+        repeat_done = state.get("repeat_phase3f_complete") is True
         expected_state = {
             "holdout_v2_selection_started": True,
             "holdout_v2_selection_complete": True,
@@ -175,8 +176,8 @@ def validate() -> tuple[list[str], dict]:
             "holdout_v2_max_single_evidence_regime_fraction": observed["maximum_single_evidence_regime_fraction"],
             "holdout_h2_start_allowed": first["h2_start_allowed"],
             "holdout_h2_started": True if replay_downstream else False,
-            "phase3_historical_validation_complete": False,
-            "phase4_entry_allowed": False,
+            "phase3_historical_validation_complete": repeat_done,
+            "phase4_entry_allowed": repeat_done,
         }
         for key, expected in expected_state.items():
             if state.get(key) != expected:
