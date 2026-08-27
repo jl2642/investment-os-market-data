@@ -150,7 +150,7 @@ def validate() -> tuple[list[str], dict]:
             "independent_holdout_replay_comparable_profiles": first["comparable_profile_instances"],
             "phase3d_r2_start_allowed": first["phase3d_r2_start_allowed"],
             "phase3d_r2_started": phase3d_r2_downstream,
-            "phase3e_r2_started": False,
+            "phase3e_r2_started": state.get("phase3e_r2_complete") is True,
             "repeat_phase3f_started": False,
             "phase3_historical_validation_complete": False,
             "phase4_entry_allowed": False,
