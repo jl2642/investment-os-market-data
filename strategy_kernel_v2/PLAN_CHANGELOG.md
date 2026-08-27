@@ -373,3 +373,17 @@ Observed coverage: **14** canonical first-parent checkpoints, **10** UTC dates, 
 **Governed consequence:** H2 Frozen R2 Holdout Replay is now authorized but not started. This is not a Phase 4 authorization and does not complete Phase 3 historical validation. Phase 3D-R2, Phase 3E-R2 and repeat Phase 3F remain downstream; Phase 4 remains blocked.
 
 **Authority:** no effective policy, Candidate, Real/Simulation, target-portfolio, user-decision, investment-recommendation, order or trade-authority mutation. `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-27 — Independent PIT Holdout Frozen R2 Replay final acceptance
+
+**Result:** `PASS_INDEPENDENT_HOLDOUT_REPLAY_OPERATIONAL` under the replay contract frozen before first execution.
+
+The accepted V2 14-checkpoint selection was rebuilt deterministically. Replay used exactly **26/26** unique registered source identities and the unchanged `R2.0.1_RESEARCH` 20-rule transform catalog. V2 coverage-only families remained in the shared PIT packet but gained no new R2 feature semantics.
+
+**Replay evidence:** 14 checkpoints, 105 R2 profiles, 94 comparison-contract-evaluable profiles, 561 present dimensions, 1539 explicit missing dimensions, 0 transform failures, 8 distinct comparison signatures, 36 exact-signature groups, 27 comparable groups, 9 singleton groups, 85 comparable profiles, 220 directional Pareto pair checks, 54 dominance edges, 57 local frontier profiles, 28 dominated profiles and 0 audit errors. Unsupported selected evidence instances retained for audit = 61.
+
+**Outcome firewall:** realized outcomes = 0; Phase 3D result reads = 0; future returns/regret/calibration = 0; historical performance metrics = 0. No model transform, threshold, feature mapping, comparison signature, Holdout membership or security scope changed after the result.
+
+**Evidence:** replay SHA-256 `5b66a60eabe2c294d2a396b5fbae74ba19769376d01f5fec77a012461e1a4aaa`; workflow artifact ID `9633465873`; artifact digest `sha256:17fb6fa2c122fd1542757a9cf887eb14a9ff0a99d113bce05ddb6e5e6f53f9ff`.
+
+**Governed consequence:** Independent Holdout replay/final acceptance is complete. Phase 3D-R2 is authorized **if measurable** but has not started. Phase 3E-R2, repeat Phase 3F and Phase 4 remain blocked. `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
