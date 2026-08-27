@@ -69,7 +69,7 @@ def _validate_post3f_and_r2(errors: list[str], state: dict, current: dict, requi
                     if state.get("holdout_h2_started") is not True:
                         errors.append("LEGAL_HOLDOUT_REPLAY_DOWNSTREAM_STATE_INVALID")
                     if state.get("phase3d_r2_started") is True:
-                        if state.get("phase3d_r2_round1_complete") is not True or state.get("phase3d_r2_performance_started") is not False:
+                        if state.get("phase3d_r2_round1_complete") is not True or state.get("phase3d_r2_performance_started") is not bool(state.get("phase3d_r2_performance_measurement_complete")):
                             errors.append("LEGAL_PHASE3D_R2_ROUND1_DOWNSTREAM_STATE_INVALID")
                     elif state.get("phase3d_r2_started") is not False:
                         errors.append("LEGAL_PHASE3D_R2_STARTED_FLAG_INVALID")

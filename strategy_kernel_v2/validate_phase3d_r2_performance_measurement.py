@@ -27,14 +27,23 @@ def validate():
         errors.append("R2_PERF_OUTCOME_EVIDENCE_NOT_COMPLETE")
     if state.get("phase3d_r2_performance_start_allowed") is not True:
         errors.append("R2_PERF_START_NOT_ALLOWED")
-    if state.get("phase3d_r2_performance_started") is not False:
-        errors.append("R2_PERF_PRE_RESULT_STATE_ALREADY_STARTED")
-    if current.get("next_phase") != "PHASE_3D_R2_PERFORMANCE_MEASUREMENT":
-        errors.append("R2_PERF_CURRENT_NEXT_PHASE_DRIFT")
+    closeout = state.get("phase3d_r2_performance_measurement_complete") is True
+    if closeout:
+        if state.get("phase3d_r2_performance_started") is not True:
+            errors.append("R2_PERF_CLOSEOUT_NOT_STARTED")
+        if current.get("next_phase") != "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT":
+            errors.append("R2_PERF_CLOSEOUT_NEXT_PHASE_DRIFT")
+        if cv.get("phase3d_r2_performance_started") is not True:
+            errors.append("R2_PERF_CURRENT_CLOSEOUT_NOT_STARTED")
+    else:
+        if state.get("phase3d_r2_performance_started") is not False:
+            errors.append("R2_PERF_PRE_RESULT_STATE_ALREADY_STARTED")
+        if current.get("next_phase") != "PHASE_3D_R2_PERFORMANCE_MEASUREMENT":
+            errors.append("R2_PERF_CURRENT_NEXT_PHASE_DRIFT")
+        if cv.get("phase3d_r2_performance_started") is not False:
+            errors.append("R2_PERF_CURRENT_PRE_RESULT_STARTED")
     if cv.get("phase3d_r2_performance_start_allowed") is not True:
         errors.append("R2_PERF_CURRENT_START_NOT_ALLOWED")
-    if cv.get("phase3d_r2_performance_started") is not False:
-        errors.append("R2_PERF_CURRENT_PRE_RESULT_STARTED")
 
     result = build_performance_measurement()
     if result.get("status") != contract["classification"]["complete_status"]:
@@ -85,6 +94,46 @@ def validate():
 
     if result.get("integrity_errors"):
         errors.extend("R2_PERF_INTEGRITY:" + item for item in result["integrity_errors"])
+
+    if closeout:
+        expected = {
+            "phase3d_r2_performance_measurement_status": result["status"],
+            "phase3d_r2_performance_measurement_sha256": result["measurement_sha256"],
+            "phase3d_r2_endpoint_return_record_count": 165,
+            "phase3d_r2_edge_horizon_record_count": 162,
+            "phase3d_r2_edge_checkpoint_count": 13,
+            "phase3d_r2_edge_signature_count": 2,
+            "phase3d_r2_h1_concordant_edge_count": 34,
+            "phase3d_r2_h1_concordance_rate": "0.629629629630",
+            "phase3d_r2_h1_mean_edge_return_spread": "0.000276359547",
+            "phase3d_r2_h3_concordant_edge_count": 29,
+            "phase3d_r2_h3_concordance_rate": "0.537037037037",
+            "phase3d_r2_h3_mean_edge_return_spread": "0.001040897221",
+            "phase3d_r2_h5_concordant_edge_count": 27,
+            "phase3d_r2_h5_concordance_rate": "0.500000000000",
+            "phase3d_r2_h5_mean_edge_return_spread": "-0.000638182257",
+            "phase3d_r2_pooled_concordant_edge_horizon_count": 90,
+            "phase3d_r2_pooled_concordance_rate": "0.555555555556",
+            "phase3d_r2_pooled_mean_edge_return_spread": "0.000226358170",
+            "phase3d_r2_performance_descriptive_only": True,
+            "phase3d_r2_statistical_significance_claimed": False,
+            "phase3d_r2_phase3e_support_decision_made": False,
+            "phase3d_r2_complete": True,
+            "phase3e_r2_structural_support_gate_required": True,
+            "phase3e_r2_structural_support_gate_frozen": False,
+            "phase3e_r2_start_allowed": False,
+            "phase3e_r2_started": False,
+            "repeat_phase3f_started": False,
+            "phase3_historical_validation_complete": False,
+            "phase4_entry_allowed": False,
+        }
+        for key, value in expected.items():
+            if state.get(key) != value:
+                errors.append("R2_PERF_CLOSEOUT_STATE_DRIFT:" + key)
+            if cv.get(key) != value:
+                errors.append("R2_PERF_CLOSEOUT_CURRENT_DRIFT:" + key)
+        if current.get("status") != "PHASE3D_R2_PERFORMANCE_COMPLETE_3E_SUPPORT_GATE_REQUIRED_PHASE4_BLOCKED":
+            errors.append("R2_PERF_CLOSEOUT_STATUS_DRIFT")
 
     if not errors:
         write_default(result)

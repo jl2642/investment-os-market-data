@@ -57,6 +57,7 @@ def validate():
     current = json.loads((ROOT / "CURRENT_PHASE_STATUS.json").read_text(encoding="utf-8"))
     cv = current.get("validation", {})
     evidence_complete = state.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
+    performance_complete = state.get("phase3d_r2_performance_measurement_complete") is True
     if state.get("phase3d_r2_round1_complete") is True:
         expected_state = {
             "phase3d_r2_started": True,
@@ -76,8 +77,8 @@ def validate():
             "phase3d_r2_outcome_evidence_acquisition_required": not evidence_complete,
             "phase3d_r2_outcome_evidence_acquisition_start_allowed": True,
             "phase3d_r2_performance_start_allowed": evidence_complete,
-            "phase3d_r2_performance_started": False,
-            "phase3d_r2_complete": False,
+            "phase3d_r2_performance_started": performance_complete,
+            "phase3d_r2_complete": performance_complete,
             "phase3e_r2_started": False,
             "repeat_phase3f_started": False,
             "phase3_historical_validation_complete": False,
@@ -91,9 +92,13 @@ def validate():
         if current.get("current_phase") != "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED":
             errors.append("R2_3D_CURRENT_PHASE_DRIFT")
         expected_next = (
-            "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
-            if evidence_complete
-            else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+            "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+            if performance_complete
+            else (
+                "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                if evidence_complete
+                else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+            )
         )
         if current.get("next_phase") != expected_next:
             errors.append("R2_3D_NEXT_PHASE_DRIFT")

@@ -251,13 +251,18 @@ def validate() -> tuple[list[str], dict]:
                 errors.append("H1_PHASE3D_R2_ROUND1_NOT_COMPLETE")
             if state.get("phase3d_r2_round1_status") != "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED":
                 errors.append("H1_PHASE3D_R2_ROUND1_STATUS_DRIFT")
-            if state.get("phase3d_r2_performance_started") is not False:
+            if state.get("phase3d_r2_performance_started") is not bool(state.get("phase3d_r2_performance_measurement_complete")):
                 errors.append("H1_PHASE3D_R2_PREMATURE_PERFORMANCE")
             evidence_complete = state.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
+            performance_complete = state.get("phase3d_r2_performance_measurement_complete") is True
             expected_status = (
-                "PHASE3D_R2_OUTCOME_EVIDENCE_COMPLETE_PERFORMANCE_READY_PHASE4_BLOCKED"
-                if evidence_complete
-                else "PHASE3D_R2_ROUND1_PARTIAL_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED_PHASE4_BLOCKED"
+                "PHASE3D_R2_PERFORMANCE_COMPLETE_3E_SUPPORT_GATE_REQUIRED_PHASE4_BLOCKED"
+                if performance_complete
+                else (
+                    "PHASE3D_R2_OUTCOME_EVIDENCE_COMPLETE_PERFORMANCE_READY_PHASE4_BLOCKED"
+                    if evidence_complete
+                    else "PHASE3D_R2_ROUND1_PARTIAL_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED_PHASE4_BLOCKED"
+                )
             )
             expected_next = (
                 "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"

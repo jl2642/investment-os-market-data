@@ -422,3 +422,28 @@ The accepted V2 14-checkpoint selection was rebuilt deterministically. Replay us
 **Governed consequence:** `phase3d_r2_performance_start_allowed=true`, `phase3d_r2_performance_started=false`; next = `PHASE_3D_R2_PERFORMANCE_MEASUREMENT`. Phase 3E-R2 and repeat Phase 3F remain not started. Phase 3 historical validation remains incomplete; Phase 4 remains blocked.
 
 **Authority:** return calculations = 0; performance metrics = 0; no model/signature/edge/Holdout mutation; no Candidate/Real/Simulation/target-portfolio mutation; `orders=0`; `trade_authority=NONE`.
+
+
+## 2026-08-27 — Phase 3D-R2 deterministic performance measurement
+
+**Parent:** Outcome Evidence final acceptance PR #328 @ `59359979a5db17181b3fd93d6be8ef6fe5295877`.
+
+**Pre-result contract:** PR #329 first froze the measurement population, formulas, equal-edge descriptive aggregation, tie rule, dependence warning and forbidden inference/mutation rules before the first deterministic performance result. A first implementation attempt failed before any measurement because an acquisition-module import pulled in `akshare`; the implementation was corrected to an offline-only frozen-pack consumer before the first measurement result.
+
+**Result:** `COMPLETE_R2_DETERMINISTIC_PERFORMANCE_MEASUREMENT_DESCRIPTIVE_ONLY`.
+
+**Coverage:** 165/165 endpoint-return records; 162/162 edge-horizon records; 54 frozen dominance edges; 13 edge-bearing checkpoints; 2 exact comparison signatures; integrity errors = 0.
+
+**Horizon summaries:**
+- +1 session: 34/54 concordant = 62.96296%; mean edge spread +0.02764%; median +0.23793%.
+- +3 sessions: 29/54 concordant = 53.70370%; mean edge spread +0.10409%; median +0.42880%.
+- +5 sessions: 27/54 concordant = 50.00000%; mean edge spread -0.06382%; median +0.02734%.
+- pooled 1/3/5: 90/162 concordant = 55.55556%; mean spread +0.02264%. This pooled figure is descriptive only; repeated edges, securities, checkpoints, signatures and nested horizons are not independent observations.
+
+**Evidence:** measurement SHA-256 `a3e474745dc8074be363f3d9b8e7082923bd67adeff6c6e42431e1f6a406edad`; workflow run `33049802795`; artifact ID `9637187877`; artifact digest `sha256:83033d2c3a5fb55412717d15bea99fac063f35fa8175699d2392e455662e1a8f`.
+
+**Interpretation boundary:** this is real R2 historical performance evidence, but only in the frozen edge-association sense. It is not a trade/PnL result, statistical-significance result, scalar model score, global winner, or Phase 4 promotion result. The horizon pattern is mixed and horizon-sensitive; no numeric Phase 3E support threshold had been frozen before observation.
+
+**Governed consequence:** Phase 3D-R2 is COMPLETE. Phase 3E-R2 remains NOT STARTED / NOT YET AUTHORIZED. Next = `PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT`. That gate must be result-value-blind: it may use measurement completeness/integrity and robustness evaluability, but may not invent concordance/spread cutoffs after seeing these values. Repeat Phase 3F remains mandatory; Phase 4 remains blocked.
+
+**Authority:** no model/transform/signature/Holdout/edge mutation; no Candidate/Real/Simulation/target-portfolio mutation; no recommendations, orders or trade authority. `orders=0`, `trade_authority=NONE`.
