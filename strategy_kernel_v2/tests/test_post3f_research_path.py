@@ -156,16 +156,18 @@ class Post3FResearchPathTests(unittest.TestCase):
             )
             self.assertTrue(self.current["validation"]["phase3d_r2_structurally_measurable"])
             evidence_complete = self.current["validation"].get("phase3d_r2_outcome_evidence_acquisition_complete") is True
+            performance_complete = self.current["validation"].get("phase3d_r2_performance_measurement_complete") is True
             self.assertEqual(self.current["validation"]["phase3d_r2_performance_start_allowed"], evidence_complete)
-            self.assertEqual(
-                        self.current["validation"]["phase3d_r2_performance_started"],
-                        bool(self.current["validation"].get("phase3d_r2_performance_measurement_complete")),
-                    )
+            self.assertEqual(self.current["validation"]["phase3d_r2_performance_started"], performance_complete)
             self.assertEqual(
                 self.current["next_phase"],
-                "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
-                if evidence_complete
-                else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
+                "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                if performance_complete
+                else (
+                    "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                    if evidence_complete
+                    else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+                ),
             )
         else:
             self.fail("unexpected current phase for Post-3F monotonic regression: " + str(phase))
