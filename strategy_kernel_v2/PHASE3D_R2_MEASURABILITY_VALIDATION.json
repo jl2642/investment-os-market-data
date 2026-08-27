@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "PHASE_3D_R2",
+  "round": "R1_MEASURABILITY_CONTRACT_AND_EVIDENCE_AUDIT",
+  "status": "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED",
+  "as_of": "2026-08-27",
+  "parent": {
+    "pr": 325,
+    "final_head": "4ac3d7d25ed65fd77747addbcbbd21ea47679332",
+    "holdout_status": "PASS_INDEPENDENT_HOLDOUT_REPLAY_OPERATIONAL",
+    "holdout_replay_sha256": "5b66a60eabe2c294d2a396b5fbae74ba19769376d01f5fec77a012461e1a4aaa"
+  },
+  "contract": {
+    "frozen_before_r2_outcome_performance": true,
+    "fixed_horizons_trading_sessions": [
+      1,
+      3,
+      5
+    ],
+    "primary_unit": "CHECKPOINT_LOCAL_EXACT_SIGNATURE_DOMINANCE_EDGE",
+    "dominance_edge_is_trade": false,
+    "result_based_edge_dropping_allowed": false
+  },
+  "observed": {
+    "checkpoints": 14,
+    "r2_profiles": 105,
+    "comparable_groups": 27,
+    "comparable_profiles": 85,
+    "frozen_dominance_edges": 54,
+    "required_edge_endpoint_instances": 55,
+    "required_edge_endpoint_security_count": 7,
+    "required_edge_endpoint_security_ids": [
+      "000719.SZ",
+      "002039.SZ",
+      "301215.SZ",
+      "600036.SH",
+      "600941.SH",
+      "601088.SH",
+      "601985.SH"
+    ],
+    "preexisting_price_observation_security_count": 3,
+    "preexisting_price_observation_security_ids": [
+      "000719.SZ",
+      "002039.SZ",
+      "301215.SZ"
+    ],
+    "missing_any_price_observation_security_count": 4,
+    "missing_any_price_observation_security_ids": [
+      "600036.SH",
+      "600941.SH",
+      "601088.SH",
+      "601985.SH"
+    ],
+    "exchange_session_schedule_ready_security_count": 0,
+    "corporate_action_status_ready_security_count": 0,
+    "complete_evidence_edge_count": 0,
+    "incomplete_evidence_edge_count": 54,
+    "structurally_measurable": true,
+    "complete_outcome_evidence_ready": false,
+    "performance_calculation_authorized": false,
+    "audit_errors": 0
+  },
+  "evidence": {
+    "workflow_run_id": 33044583361,
+    "artifact_id": 9635188727,
+    "artifact_digest": "sha256:0ea0d78a43667099893fb0fb610b46a1c7a0797f604b8cf6ca6a7033bc115783",
+    "audit_sha256": "f1cc459b3d739afb12d55efa341783b69b8a8a647e209a020a6f8ee11662ad92"
+  },
+  "interpretation": {
+    "r2_is_structurally_measurable": true,
+    "current_governed_outcome_evidence_is_complete": false,
+    "partial_is_economic_underperformance": false,
+    "performance_claim_allowed": false,
+    "required_next_action": "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+  },
+  "phase_boundary": {
+    "phase3d_r2_started": true,
+    "phase3d_r2_performance_started": false,
+    "phase3d_r2_complete": false,
+    "phase3e_r2_started": false,
+    "repeat_phase3f_started": false,
+    "phase3_historical_validation_complete": false,
+    "phase4_entry_allowed": false
+  },
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

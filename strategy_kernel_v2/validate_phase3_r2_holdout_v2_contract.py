@@ -268,6 +268,7 @@ def validate() -> list[str]:
         if cv.get(key) != expected:
             errors.append("V2_CURRENT_VALIDATION_DRIFT:" + key)
 
+    phase3d_r2_downstream = state.get("phase3d_r2_started") is True
     if selection_downstream:
         if state.get("holdout_v2_selection_complete") is not True:
             errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_NOT_COMPLETE")
@@ -276,8 +277,13 @@ def validate() -> list[str]:
         if replay_downstream:
             if state.get("holdout_h2_started") is not True:
                 errors.append("V2_LEGAL_REPLAY_H2_NOT_STARTED")
-            if state.get("phase3d_r2_started") is not False:
-                errors.append("V2_LEGAL_REPLAY_PREMATURE_3D_R2")
+            if phase3d_r2_downstream:
+                if state.get("phase3d_r2_round1_complete") is not True:
+                    errors.append("V2_PHASE3D_R2_ROUND1_NOT_COMPLETE")
+                if state.get("phase3d_r2_round1_status") != "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED":
+                    errors.append("V2_PHASE3D_R2_ROUND1_STATUS_DRIFT")
+                if state.get("phase3d_r2_performance_started") is not False:
+                    errors.append("V2_PHASE3D_R2_PREMATURE_PERFORMANCE")
         elif state.get("holdout_h2_started") is not False:
             errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_PREMATURE_H2")
         selection_pass = state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
@@ -286,12 +292,16 @@ def validate() -> list[str]:
         if state.get("holdout_coverage_expansion_required") is not (not selection_pass):
             errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_COVERAGE_GATE_DRIFT")
         expected_next = (
-            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
-            if replay_downstream
+            "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+            if phase3d_r2_downstream
             else (
-                "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
-                if selection_pass
-                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+                "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+                if replay_downstream
+                else (
+                    "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                    if selection_pass
+                    else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+                )
             )
         )
         if current.get("next_phase") != expected_next:
@@ -308,7 +318,12 @@ def validate() -> list[str]:
         if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
             errors.append("V2_NEXT_PHASE_DRIFT")
 
-    if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+    expected_current_phase = (
+        "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+        if phase3d_r2_downstream
+        else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+    )
+    if current.get("current_phase") != expected_current_phase:
         errors.append("V2_CURRENT_PHASE_DRIFT")
 
     for surface_name, surface in (

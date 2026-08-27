@@ -292,10 +292,23 @@ Therefore **Phase 3D-R2 is AUTHORIZED / NOT STARTED**. The replay result does no
 
 Holdout is not a Phase 3G and is not a direct Phase 4 gate.
 
-#### R2-4 Phase 3D-R2 — REQUIRED IF MEASURABLE / NOT STARTED
-After holdout replay, determine whether R2 outputs support the already governed calibration/regret/performance questions. Reuse the existing 1/3/5 trading-session outcome convention unless a separately governed pre-outcome amendment is justified.
+#### R2-4 Phase 3D-R2 — IN PROGRESS / ROUND 1 COMPLETE / PERFORMANCE BLOCKED
+Round 1 froze the R2-specific measurability contract before any R2 outcome calculation and rebuilt the full accepted Holdout relation population.
 
-If candidate metrics remain nonmeasurable, record them explicitly as nonmeasurable; do not skip the requirement and do not synthesize outcomes.
+Observed Round 1 result:
+- status = `PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED`;
+- structurally measurable = **true**;
+- frozen dominance edges = **54**;
+- distinct endpoint securities = **7**;
+- checkpoint-security endpoint instances = **55**;
+- endpoint securities with any pre-existing governed price observation = **3/7**;
+- endpoint securities with a frozen exchange-session schedule = **0/7**;
+- endpoint securities with explicit corporate-action status = **0/7**;
+- complete evidence edges = **0/54**;
+- R2 return calculations = **0**;
+- R2 performance metrics = **0**.
+
+The next authorized substep is **Phase 3D-R2 Outcome Evidence Acquisition**. It must fill the frozen 1/3/5-session evidence requirements for the entire 54-edge population without dropping edges based on realized results, changing R2 transforms/signatures, or treating dominance as a trade. Performance calculation remains unauthorized until all evidence-readiness requirements pass. A PARTIAL evidence result is not economic underperformance.
 
 #### R2-5 Phase 3E-R2 — REQUIRED IF SUPPORTED / NOT STARTED
 Evaluate R2-specific robustness without using realized outcomes to tune fields, thresholds, mappings or comparison rules. The old 3E result for the original candidate forms is preserved as historical evidence but does not automatically satisfy R2 robustness.

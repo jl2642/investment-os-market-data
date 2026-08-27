@@ -33,6 +33,7 @@ def validate() -> tuple[list[str], dict]:
     state = load("PROGRAM_STATE.json")
     current = load("CURRENT_PHASE_STATUS.json")
     cv = current.get("validation", {})
+    phase3d_r2_downstream = state.get("phase3d_r2_started") is True
 
     first = build_holdout_replay(ROOT.parent)
     second = build_holdout_replay(ROOT.parent)
@@ -148,7 +149,7 @@ def validate() -> tuple[list[str], dict]:
             "independent_holdout_replay_comparable_groups": first["comparable_exact_signature_group_instances"],
             "independent_holdout_replay_comparable_profiles": first["comparable_profile_instances"],
             "phase3d_r2_start_allowed": first["phase3d_r2_start_allowed"],
-            "phase3d_r2_started": False,
+            "phase3d_r2_started": phase3d_r2_downstream,
             "phase3e_r2_started": False,
             "repeat_phase3f_started": False,
             "phase3_historical_validation_complete": False,
@@ -160,12 +161,28 @@ def validate() -> tuple[list[str], dict]:
             if key in cv and cv.get(key) != expected:
                 errors.append("HOLDOUT_REPLAY_CURRENT_VALIDATION_DRIFT:" + key)
 
-        if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+        if phase3d_r2_downstream:
+            if state.get("phase3d_r2_round1_complete") is not True:
+                errors.append("HOLDOUT_REPLAY_PHASE3D_R2_ROUND1_NOT_COMPLETE")
+            if state.get("phase3d_r2_round1_status") != "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED":
+                errors.append("HOLDOUT_REPLAY_PHASE3D_R2_ROUND1_STATUS_DRIFT")
+            if state.get("phase3d_r2_performance_started") is not False:
+                errors.append("HOLDOUT_REPLAY_PHASE3D_R2_PREMATURE_PERFORMANCE")
+        expected_current_phase = (
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+            if phase3d_r2_downstream
+            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+        )
+        if current.get("current_phase") != expected_current_phase:
             errors.append("HOLDOUT_REPLAY_CURRENT_PHASE_DRIFT")
         expected_next = (
-            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
-            if first["phase3d_r2_start_allowed"]
-            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_REVIEW"
+            "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+            if phase3d_r2_downstream
+            else (
+                "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+                if first["phase3d_r2_start_allowed"]
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_REVIEW"
+            )
         )
         if current.get("next_phase") != expected_next:
             errors.append("HOLDOUT_REPLAY_NEXT_PHASE_DRIFT")

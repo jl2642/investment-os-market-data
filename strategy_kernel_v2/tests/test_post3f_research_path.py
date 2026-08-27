@@ -111,11 +111,23 @@ class Post3FResearchPathTests(unittest.TestCase):
                     "PASS_INDEPENDENT_HOLDOUT_REPLAY_OPERATIONAL",
                 )
                 self.assertTrue(self.current["validation"]["phase3d_r2_start_allowed"])
-                self.assertFalse(self.current["validation"]["phase3d_r2_started"])
-                self.assertEqual(
-                    self.current["next_phase"],
-                    "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
-                )
+                if self.current["validation"].get("phase3d_r2_started"):
+                    self.assertTrue(self.current["validation"]["phase3d_r2_round1_complete"])
+                    self.assertEqual(
+                        self.current["validation"]["phase3d_r2_round1_status"],
+                        "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED",
+                    )
+                    self.assertFalse(self.current["validation"]["phase3d_r2_performance_started"])
+                    self.assertEqual(
+                        self.current["next_phase"],
+                        "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
+                    )
+                else:
+                    self.assertFalse(self.current["validation"]["phase3d_r2_started"])
+                    self.assertEqual(
+                        self.current["next_phase"],
+                        "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+                    )
             elif self.state.get("holdout_v2_selection_complete"):
                 self.assertFalse(self.current["validation"]["holdout_h2_started"])
                 self.assertEqual(self.state["holdout_v2_selection_outcome"], "PASS_SELECTION_SUFFICIENCY")
