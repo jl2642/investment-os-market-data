@@ -27,6 +27,10 @@ jobs:
         run: python -m unittest strategy_kernel_v2.tests.test_phase3_r2_holdout_h0
       - name: Validate Holdout H0 contract freeze
         run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_h0
+      - name: Run Holdout H1 selector and sufficiency tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3_r2_holdout_h1
+      - name: Validate Holdout H1 deterministic candidate ledger
+        run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_h1
       - name: Re-validate Phase 3C-R2B parent
         run: python -m strategy_kernel_v2.validate_phase3c_r2b
       - name: Re-validate Phase 3C-R2A parent
@@ -41,3 +45,10 @@ jobs:
         run: python strategy_kernel_v2/program_consistency.py
       - name: Run program governance regressions
         run: python -m unittest strategy_kernel_v2.tests.test_program_governance
+      - name: Upload H1 selection ledger from trusted H0 gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3-r2-holdout-h1-selection-ledger-from-h0-gate
+          path: strategy_kernel_v2/generated/PHASE3_R2_HOLDOUT_SELECTION_LEDGER.json
+          if-no-files-found: ignore
