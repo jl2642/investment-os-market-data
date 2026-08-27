@@ -227,7 +227,11 @@ def validate() -> tuple[list[str], dict]:
             )
         )
         expected_status = (
-            "PHASE3D_R2_ROUND1_PARTIAL_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED_PHASE4_BLOCKED"
+            (
+                "PHASE3D_R2_OUTCOME_EVIDENCE_COMPLETE_PERFORMANCE_READY_PHASE4_BLOCKED"
+                if state.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
+                else "PHASE3D_R2_ROUND1_PARTIAL_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED_PHASE4_BLOCKED"
+            )
             if phase3d_r2_downstream
             else (
                 "INDEPENDENT_HOLDOUT_REPLAY_PASS_PHASE3D_R2_READY_PHASE4_BLOCKED"
