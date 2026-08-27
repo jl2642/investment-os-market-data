@@ -106,7 +106,7 @@ def validate() -> list[str]:
         _validate_post3f(errors, state, current)
         if state.get("r2_phase3b_contract_definition_started"):
             errors.append("POST3F_VALIDATOR_SEES_R2_ALREADY_STARTED")
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}:
         _validate_post3f(errors, state, current)
         r2_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
         if not r2_path.exists():
@@ -121,21 +121,29 @@ def validate() -> list[str]:
                 errors.append("PHASE3F_R2_DOWNSTREAM_PREMATURE_PHASE4")
         if state.get("r2_phase3b_contract_definition_started") is not True or state.get("r2_phase3b_contract_definition_complete") is not True:
             errors.append("PHASE3F_R2_DOWNSTREAM_NOT_COMPLETE")
-        r2b_downstream = current_phase == "PHASE_3C_R2_POINT_IN_TIME_REPLAY"
+        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}
+        holdout_h1_downstream = current_phase == "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
         if r2b_downstream:
             if state.get("r2_phase3c_r2b_complete") is not True:
                 errors.append("PHASE3F_R2B_DOWNSTREAM_NOT_COMPLETE")
             if state.get("r2_real_historical_replay_executed") is not True or state.get("r2_phase3c_replay_started") is not True:
                 errors.append("PHASE3F_R2B_DOWNSTREAM_REPLAY_STATE_INVALID")
-            if state.get("r2_historical_performance_claimed") is not False or state.get("holdout_build_started") is not False:
-                errors.append("PHASE3F_R2B_DOWNSTREAM_PERFORMANCE_OR_HOLDOUT_DRIFT")
+            if state.get("r2_historical_performance_claimed") is not False:
+                errors.append("PHASE3F_R2B_DOWNSTREAM_PERFORMANCE_DRIFT")
+            if holdout_h1_downstream:
+                if state.get("holdout_h1_complete") is not True or state.get("holdout_build_started") is not True:
+                    errors.append("PHASE3F_HOLDOUT_H1_DOWNSTREAM_STATE_INVALID")
+                if state.get("holdout_h2_started") is not False:
+                    errors.append("PHASE3F_HOLDOUT_H1_PREMATURE_H2")
+            elif state.get("holdout_build_started") is not False:
+                errors.append("PHASE3F_R2B_DOWNSTREAM_PREMATURE_HOLDOUT")
         else:
             if state.get("r2_real_historical_replay_executed") is not False or state.get("r2_historical_performance_claimed") is not False:
                 errors.append("PHASE3F_R2_DOWNSTREAM_PREMATURE_REPLAY_OR_PERFORMANCE")
             if state.get("r2_phase3c_replay_started") is not False:
                 errors.append("PHASE3F_R2_DOWNSTREAM_3C_ALREADY_STARTED")
     else:
-        errors.append("CURRENT_PHASE_NOT_3F_OR_GOVERNED_POST3F_OR_R2")
+        errors.append("CURRENT_PHASE_NOT_3F_OR_GOVERNED_POST3F_R2_OR_HOLDOUT")
 
     if cv.get("phase3f_started") is not True or cv.get("phase3f_complete") is not True:
         errors.append("CURRENT_PHASE3F_NOT_COMPLETE")
