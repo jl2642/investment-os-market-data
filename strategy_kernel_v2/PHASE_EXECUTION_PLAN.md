@@ -292,7 +292,7 @@ Therefore **Phase 3D-R2 is AUTHORIZED / NOT STARTED**. The replay result does no
 
 Holdout is not a Phase 3G and is not a direct Phase 4 gate.
 
-#### R2-4 Phase 3D-R2 — IN PROGRESS / ROUND 1 COMPLETE / PERFORMANCE BLOCKED
+#### R2-4 Phase 3D-R2 — IN PROGRESS / OUTCOME EVIDENCE COMPLETE / PERFORMANCE READY
 Round 1 froze the R2-specific measurability contract before any R2 outcome calculation and rebuilt the full accepted Holdout relation population.
 
 Observed Round 1 result:
@@ -308,7 +308,7 @@ Observed Round 1 result:
 - R2 return calculations = **0**;
 - R2 performance metrics = **0**.
 
-The next authorized substep is **Phase 3D-R2 Outcome Evidence Acquisition**. It must fill the frozen 1/3/5-session evidence requirements for the entire 54-edge population without dropping edges based on realized results, changing R2 transforms/signatures, or treating dominance as a trade. Performance calculation remains unauthorized until all evidence-readiness requirements pass. A PARTIAL evidence result is not economic underperformance.
+Outcome Evidence Acquisition subsequently returned `PASS_R2_OUTCOME_EVIDENCE_READY_FOR_PERFORMANCE`: 55/55 endpoint instances and 54/54 frozen dominance edges are complete; all 55 corporate-action windows are resolved as `NO_ADJUSTMENT_FACTOR_CHANGE_OBSERVED`; support reconciliation disagreements = 0; ledger SHA-256 = `300db34b408e7ca2cfeb188b8c6177b62bdff70743a2cf6fb2c833bf3bda1d1b`. No return/performance calculation occurred during acquisition. The next authorized substep is **Phase 3D-R2 Performance Measurement**, which must consume the frozen compact evidence pack and may not re-fetch prices, drop edges, mutate transforms/signatures, infer trades, or alter Candidate/portfolio state.
 
 #### R2-5 Phase 3E-R2 — REQUIRED IF SUPPORTED / NOT STARTED
 Evaluate R2-specific robustness without using realized outcomes to tune fields, thresholds, mappings or comparison rules. The old 3E result for the original candidate forms is preserved as historical evidence but does not automatically satisfy R2 robustness.

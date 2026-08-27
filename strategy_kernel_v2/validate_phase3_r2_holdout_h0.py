@@ -248,6 +248,7 @@ def validate() -> list[str]:
             "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION",
             "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
             "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
+        "PHASE_3D_R2_PERFORMANCE_MEASUREMENT",
         }:
             errors.append("HOLDOUT_H0_LEGAL_H1_NEXT_PHASE_DRIFT")
         if state.get("holdout_h1_complete") is not True:

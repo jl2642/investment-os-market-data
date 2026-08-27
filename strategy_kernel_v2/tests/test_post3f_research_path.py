@@ -118,10 +118,12 @@ class Post3FResearchPathTests(unittest.TestCase):
                         "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED",
                     )
                     self.assertFalse(self.current["validation"]["phase3d_r2_performance_started"])
-                    self.assertEqual(
-                        self.current["next_phase"],
-                        "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
+                    expected_next = (
+                        "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                        if self.current["validation"].get("phase3d_r2_outcome_evidence_acquisition_complete")
+                        else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
                     )
+                    self.assertEqual(self.current["next_phase"], expected_next)
                 else:
                     self.assertFalse(self.current["validation"]["phase3d_r2_started"])
                     self.assertEqual(
@@ -146,11 +148,14 @@ class Post3FResearchPathTests(unittest.TestCase):
                 "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED",
             )
             self.assertTrue(self.current["validation"]["phase3d_r2_structurally_measurable"])
-            self.assertFalse(self.current["validation"]["phase3d_r2_performance_start_allowed"])
+            evidence_complete = self.current["validation"].get("phase3d_r2_outcome_evidence_acquisition_complete") is True
+            self.assertEqual(self.current["validation"]["phase3d_r2_performance_start_allowed"], evidence_complete)
             self.assertFalse(self.current["validation"]["phase3d_r2_performance_started"])
             self.assertEqual(
                 self.current["next_phase"],
-                "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
+                "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                if evidence_complete
+                else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
             )
         else:
             self.fail("unexpected current phase for Post-3F monotonic regression: " + str(phase))

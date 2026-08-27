@@ -405,3 +405,20 @@ The accepted V2 14-checkpoint selection was rebuilt deterministically. Replay us
 **Governed consequence:** Phase 3D-R2 has started only through its Round 1 measurability/evidence audit. Performance remains **NOT STARTED / NOT AUTHORIZED**. Next = `PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION`. The PARTIAL result is explicitly not economic underperformance. Phase 3E-R2 and repeat Phase 3F remain not started; Phase 3 historical validation remains incomplete; Phase 4 remains blocked.
 
 **Authority:** no model transform/signature mutation, Holdout membership mutation, Candidate/Real/Simulation mutation, target-portfolio writeback, recommendation, order or trading authority. `orders=0`, `trade_authority=NONE`.
+
+
+## 2026-08-27 — Phase 3D-R2 Outcome Evidence Acquisition final acceptance
+
+**Parent:** Phase 3D-R2 Round 1 PR #327 @ `bfa6afe2bc0c7a349d82a7a91afe54daea82724c`.
+
+**Result:** `PASS_R2_OUTCOME_EVIDENCE_READY_FOR_PERFORMANCE` under the acquisition contract frozen before any R2 return or performance calculation.
+
+**Coverage:** 55/55 checkpoint-security endpoint instances complete; 54/54 frozen dominance edges complete; 7/7 endpoint securities supported by the selected `sina_daily` unadjusted CNY close route; 55/55 corporate-action windows = `NO_ADJUSTMENT_FACTOR_CHANGE_OBSERVED`; support reconciliation disagreement endpoints = 0; integrity errors = 0.
+
+**Timing semantics:** 15:30 Asia/Shanghai conservative settled-close cutoff; fixed +1/+3/+5 exchange-session horizons. The 15:00:26 checkpoint remains bound to the prior settled close rather than same-day close.
+
+**Evidence:** ledger SHA-256 `300db34b408e7ca2cfeb188b8c6177b62bdff70743a2cf6fb2c833bf3bda1d1b`; workflow run `33047195178`; artifact ID `9636254690`; artifact digest `sha256:ffeee9e17bde1bca96b06d8c1dccd1932e82884846f27eabbed3fc1e69dcd952`. A compact frozen pack is committed for downstream deterministic consumption; downstream performance code may not re-fetch or replace these outcome inputs.
+
+**Governed consequence:** `phase3d_r2_performance_start_allowed=true`, `phase3d_r2_performance_started=false`; next = `PHASE_3D_R2_PERFORMANCE_MEASUREMENT`. Phase 3E-R2 and repeat Phase 3F remain not started. Phase 3 historical validation remains incomplete; Phase 4 remains blocked.
+
+**Authority:** return calculations = 0; performance metrics = 0; no model/signature/edge/Holdout mutation; no Candidate/Real/Simulation/target-portfolio mutation; `orders=0`; `trade_authority=NONE`.

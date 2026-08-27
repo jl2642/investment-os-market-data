@@ -56,6 +56,7 @@ def validate():
     state = json.loads((ROOT / "PROGRAM_STATE.json").read_text(encoding="utf-8"))
     current = json.loads((ROOT / "CURRENT_PHASE_STATUS.json").read_text(encoding="utf-8"))
     cv = current.get("validation", {})
+    evidence_complete = state.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
     if state.get("phase3d_r2_round1_complete") is True:
         expected_state = {
             "phase3d_r2_started": True,
@@ -72,9 +73,9 @@ def validate():
             "phase3d_r2_exchange_session_ready_security_count": first["exchange_session_schedule_ready_security_count"],
             "phase3d_r2_corporate_action_ready_security_count": first["corporate_action_status_ready_security_count"],
             "phase3d_r2_complete_evidence_edge_count": first["complete_evidence_edge_count"],
-            "phase3d_r2_outcome_evidence_acquisition_required": True,
+            "phase3d_r2_outcome_evidence_acquisition_required": not evidence_complete,
             "phase3d_r2_outcome_evidence_acquisition_start_allowed": True,
-            "phase3d_r2_performance_start_allowed": False,
+            "phase3d_r2_performance_start_allowed": evidence_complete,
             "phase3d_r2_performance_started": False,
             "phase3d_r2_complete": False,
             "phase3e_r2_started": False,
@@ -89,7 +90,12 @@ def validate():
                 errors.append("R2_3D_CURRENT_CLOSEOUT_DRIFT:" + key)
         if current.get("current_phase") != "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED":
             errors.append("R2_3D_CURRENT_PHASE_DRIFT")
-        if current.get("next_phase") != "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION":
+        expected_next = (
+            "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+            if evidence_complete
+            else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+        )
+        if current.get("next_phase") != expected_next:
             errors.append("R2_3D_NEXT_PHASE_DRIFT")
         if first["status"] != "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED":
             errors.append("R2_3D_CLOSEOUT_ONLY_SUPPORTS_OBSERVED_PARTIAL")

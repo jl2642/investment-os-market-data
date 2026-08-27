@@ -23,6 +23,7 @@ from strategy_kernel_v2.phase3d_r2_measurability import build_measurability_audi
 ROOT = Path(__file__).resolve().parent
 CONTRACT_FILE = ROOT / "PHASE3D_R2_OUTCOME_EVIDENCE_ACQUISITION_CONTRACT.json"
 OUTPUT_FILE = ROOT / "generated/PHASE3D_R2_OUTCOME_EVIDENCE_LEDGER.json"
+FROZEN_PACK_FILE = ROOT / "PHASE3D_R2_OUTCOME_EVIDENCE_FROZEN_COMPACT.json"
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
 
 CONTROLS = {
@@ -518,3 +519,111 @@ if __name__ == "__main__":
         "returns=0 performance=0 phase4_entry_allowed=false orders=0 trade_authority=NONE "
         f"sha256={result['ledger_sha256']} path={path}"
     )
+
+
+def load_frozen_pack(path: str | Path = FROZEN_PACK_FILE) -> dict[str, Any]:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def edge_population_sha256(audit: Mapping[str, Any]) -> str:
+    rows = [
+        {
+            "checkpoint_id": row["checkpoint_id"],
+            "checkpoint_at": row["checkpoint_at"],
+            "comparison_signature_sha256": row["comparison_signature_sha256"],
+            "dominator_security_id": row["dominator_security_id"],
+            "dominated_security_id": row["dominated_security_id"],
+        }
+        for row in audit["frozen_edge_population"]
+    ]
+    return _sha256(rows)
+
+
+def validate_frozen_pack(pack: Mapping[str, Any], audit: Mapping[str, Any]) -> list[str]:
+    errors: list[str] = []
+    if pack.get("pack_id") != "PHASE3D_R2_OUTCOME_EVIDENCE_FROZEN_COMPACT_V1":
+        errors.append("R2_OUTCOME_PACK_ID_DRIFT")
+    if pack.get("status") != "PASS_R2_OUTCOME_EVIDENCE_READY_FOR_PERFORMANCE":
+        errors.append("R2_OUTCOME_PACK_NOT_PASS")
+    if pack.get("source_ledger_sha256") != "300db34b408e7ca2cfeb188b8c6177b62bdff70743a2cf6fb2c833bf3bda1d1b":
+        errors.append("R2_OUTCOME_PACK_LEDGER_SHA_DRIFT")
+    if pack.get("parent_round1_audit_sha256") != audit.get("audit_sha256"):
+        errors.append("R2_OUTCOME_PACK_PARENT_AUDIT_DRIFT")
+    if pack.get("holdout_replay_sha256") != audit.get("parent_holdout_replay_sha256"):
+        errors.append("R2_OUTCOME_PACK_HOLDOUT_SHA_DRIFT")
+    if pack.get("edge_population_sha256") != edge_population_sha256(audit):
+        errors.append("R2_OUTCOME_PACK_EDGE_POPULATION_DRIFT")
+    if pack.get("frozen_dominance_edge_count") != 54:
+        errors.append("R2_OUTCOME_PACK_EDGE_COUNT_DRIFT")
+    if pack.get("required_edge_endpoint_instances") != 55 or pack.get("complete_endpoint_count") != 55:
+        errors.append("R2_OUTCOME_PACK_ENDPOINT_COUNT_DRIFT")
+    if pack.get("complete_evidence_edge_count") != 54:
+        errors.append("R2_OUTCOME_PACK_COMPLETE_EDGE_DRIFT")
+
+    calendar = pack.get("calendar", {})
+    if calendar.get("settled_publication_cutoff_local") != "15:30:00":
+        errors.append("R2_OUTCOME_PACK_CUTOFF_DRIFT")
+    if calendar.get("fixed_horizon_sessions") != [1, 3, 5]:
+        errors.append("R2_OUTCOME_PACK_HORIZON_DRIFT")
+
+    expected_ids = {
+        "000719.SZ", "002039.SZ", "301215.SZ",
+        "600036.SH", "600941.SH", "601088.SH", "601985.SH",
+    }
+    security = pack.get("security_evidence", {})
+    if set(security) != expected_ids:
+        errors.append("R2_OUTCOME_PACK_SECURITY_SCOPE_DRIFT")
+
+    endpoint_pairs = set()
+    for edge in audit["frozen_edge_population"]:
+        endpoint_pairs.add((edge["checkpoint_id"], edge["dominator_security_id"]))
+        endpoint_pairs.add((edge["checkpoint_id"], edge["dominated_security_id"]))
+    if len(endpoint_pairs) != 55:
+        errors.append("R2_OUTCOME_PACK_REBUILT_ENDPOINT_COUNT_DRIFT")
+
+    schedules = pack.get("checkpoint_observation_dates", {})
+    for checkpoint_id, sid in sorted(endpoint_pairs):
+        schedule = schedules.get(checkpoint_id)
+        sec = security.get(sid)
+        if not schedule:
+            errors.append("R2_OUTCOME_PACK_MISSING_CHECKPOINT_SCHEDULE:" + checkpoint_id)
+            continue
+        if not sec:
+            errors.append("R2_OUTCOME_PACK_MISSING_SECURITY:" + sid)
+            continue
+        closes = sec.get("required_closes", {})
+        for key in ("entry_date", "horizon_1_date", "horizon_3_date", "horizon_5_date"):
+            d = schedule.get(key)
+            if d not in closes:
+                errors.append("R2_OUTCOME_PACK_MISSING_CLOSE:" + checkpoint_id + ":" + sid + ":" + key)
+
+    if sum(int(row.get("endpoint_count", 0)) for row in security.values()) != 55:
+        errors.append("R2_OUTCOME_PACK_ENDPOINT_ACCOUNTING_DRIFT")
+    for sid, row in security.items():
+        if row.get("selected_provider_id") != "sina_daily":
+            errors.append("R2_OUTCOME_PACK_PROVIDER_DRIFT:" + sid)
+        if row.get("source_function") != "stock_zh_a_daily":
+            errors.append("R2_OUTCOME_PACK_SOURCE_FUNCTION_DRIFT:" + sid)
+        if row.get("corporate_action_status") != "NO_ADJUSTMENT_FACTOR_CHANGE_OBSERVED":
+            errors.append("R2_OUTCOME_PACK_CA_STATUS_DRIFT:" + sid)
+        if row.get("support_reconciliation_disagreement_count") != 0:
+            errors.append("R2_OUTCOME_PACK_RECONCILIATION_DISAGREEMENT:" + sid)
+
+    ca = pack.get("corporate_action_status_counts", {})
+    if ca != {
+        "NO_ADJUSTMENT_FACTOR_CHANGE_OBSERVED": 55,
+        "ADJUSTMENT_FACTOR_CHANGE_OBSERVED": 0,
+        "CORPORATE_ACTION_STATUS_UNRESOLVED": 0,
+    }:
+        errors.append("R2_OUTCOME_PACK_CA_ACCOUNTING_DRIFT")
+    if pack.get("support_reconciliation_disagreement_endpoint_count") != 0:
+        errors.append("R2_OUTCOME_PACK_SUPPORT_DISAGREEMENT_NONZERO")
+    if pack.get("performance_calculation_authorized") is not True:
+        errors.append("R2_OUTCOME_PACK_PERFORMANCE_GATE_NOT_OPEN")
+    if pack.get("return_calculation_count") != 0 or pack.get("performance_metric_count") != 0:
+        errors.append("R2_OUTCOME_PACK_PREMATURE_PERFORMANCE")
+    if pack.get("phase4_entry_allowed") is not False:
+        errors.append("R2_OUTCOME_PACK_PREMATURE_PHASE4")
+    if pack.get("orders") != 0 or pack.get("trade_authority") != "NONE":
+        errors.append("R2_OUTCOME_PACK_AUTHORITY_DRIFT")
+    return errors

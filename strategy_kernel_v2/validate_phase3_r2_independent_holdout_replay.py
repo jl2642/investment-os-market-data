@@ -176,7 +176,11 @@ def validate() -> tuple[list[str], dict]:
         if current.get("current_phase") != expected_current_phase:
             errors.append("HOLDOUT_REPLAY_CURRENT_PHASE_DRIFT")
         expected_next = (
-            "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+            (
+                "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                if state.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
+                else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+            )
             if phase3d_r2_downstream
             else (
                 "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
