@@ -72,7 +72,7 @@ def validate():
             errors.append("PROGRAM_STATE_R2_PREMATURE_START_IN_POST3F")
         if current.get("next_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
             errors.append("CURRENT_NEXT_PHASE_R2_MISMATCH")
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}:
         contract_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
         if not contract_path.exists():
             errors.append("R2_CURRENT_WITHOUT_FROZEN_CONTRACT")
@@ -88,16 +88,27 @@ def validate():
             errors.append("R2_CURRENT_STATUS_NOT_COMPLETE")
         if state.get("r2_phase3c_replay_start_allowed") is not True:
             errors.append("R2_CURRENT_PHASE3C_START_NOT_ALLOWED")
-        r2b_downstream = current_phase == "PHASE_3C_R2_POINT_IN_TIME_REPLAY"
+        r2b_downstream = current_phase in {"PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}
+        holdout_h1_downstream = current_phase == "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
         if r2b_downstream:
             if state.get("r2_phase3c_replay_started") is not True or state.get("r2_phase3c_r2b_complete") is not True:
                 errors.append("R2B_CURRENT_REPLAY_STATE_INVALID")
             if cv.get("r2_real_historical_replay_executed") is not True:
                 errors.append("R2B_CURRENT_REPLAY_NOT_EXECUTED")
-            if cv.get("r2_historical_performance_claimed") is not False or cv.get("holdout_build_started") is not False:
-                errors.append("R2B_CURRENT_PERFORMANCE_OR_HOLDOUT_DRIFT")
-            if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
-                errors.append("R2B_CURRENT_NEXT_PHASE_NOT_HOLDOUT")
+            if cv.get("r2_historical_performance_claimed") is not False:
+                errors.append("R2B_CURRENT_PERFORMANCE_DRIFT")
+            if holdout_h1_downstream:
+                if state.get("holdout_h1_complete") is not True or cv.get("holdout_build_started") is not True:
+                    errors.append("HOLDOUT_H1_CURRENT_STATE_INVALID")
+                if cv.get("holdout_h2_started") is not False:
+                    errors.append("HOLDOUT_H1_PREMATURE_H2")
+                if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
+                    errors.append("HOLDOUT_H1_CURRENT_NEXT_PHASE_NOT_EXPANSION")
+            else:
+                if cv.get("holdout_build_started") is not False:
+                    errors.append("R2B_CURRENT_PREMATURE_HOLDOUT")
+                if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+                    errors.append("R2B_CURRENT_NEXT_PHASE_NOT_HOLDOUT")
         else:
             if state.get("r2_phase3c_replay_started") is not False:
                 errors.append("R2_CURRENT_PHASE3C_BOUNDARY_DRIFT")
