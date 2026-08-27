@@ -72,7 +72,12 @@ def validate():
             errors.append("PROGRAM_STATE_R2_PREMATURE_START_IN_POST3F")
         if current.get("next_phase") != "PHASE_3B_R2_REVISED_MODEL_CONTRACT":
             errors.append("CURRENT_NEXT_PHASE_R2_MISMATCH")
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"}:
+    elif current_phase in {
+        "PHASE_3B_R2_REVISED_MODEL_CONTRACT",
+        "PHASE_3C_R2_POINT_IN_TIME_REPLAY",
+        "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE",
+        "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+    }:
         contract_path = ROOT / "PHASE3B_R2_MODEL_CONTRACT.json"
         if not contract_path.exists():
             errors.append("R2_CURRENT_WITHOUT_FROZEN_CONTRACT")
