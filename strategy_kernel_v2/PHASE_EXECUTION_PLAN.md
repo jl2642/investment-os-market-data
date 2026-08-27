@@ -251,12 +251,21 @@ Coverage Expansion V2 pre-result contract is now **FROZEN**:
 - added substantive model-neutral families = **4**: `RESEARCH_OBJECTS_CURRENT`, `R1_DECISION_COVERAGE_PACK_CURRENT` (context only), `RESEARCH_QUEUE_D1_CURRENT`, `RESEARCH_QUEUE_D2_CURRENT`;
 - pure D2 liveness, lineage-only metadata, prior Holdout results, Phase 3D outcomes, future returns, regret/calibration and R2 result artifacts are excluded;
 - research-security scope expands deterministically from **8 → 18**, without importing mixed fund/ETF security IDs from the R1 decision-coverage pack;
-- V2 selection started = false;
-- V2 ledger = 0;
-- R2 Holdout replay = 0;
-- realized outcomes read = 0.
+V2 deterministic selection is **COMPLETE / PASS_SELECTION_SUFFICIENCY**:
+- canonical first-parent Holdout checkpoints = **14**;
+- distinct UTC dates = **10**;
+- distinct ISO weeks = **5**;
+- distinct evidence regimes = **9**;
+- unique securities = **18**;
+- opportunity-profile instances = **252**;
+- outside-seed checkpoints = **4**;
+- maximum single-date concentration = **21.43%**;
+- maximum single-regime concentration = **28.57%**;
+- failed thresholds = **none**;
+- R2 Holdout replay = **0**;
+- realized outcomes read = **0**.
 
-Next: run V2 deterministic selection only. H2 remains blocked unless the unchanged sufficiency gate passes.
+All unchanged H0.1 thresholds pass. Therefore H2 Frozen R2 Holdout Replay is **AUTHORIZED / NOT STARTED**.
 
 Holdout is not a Phase 3G and is not a direct Phase 4 gate.
 
