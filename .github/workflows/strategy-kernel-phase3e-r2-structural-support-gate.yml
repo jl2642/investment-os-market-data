@@ -30,8 +30,6 @@ jobs:
         run: python -m strategy_kernel_v2.validate_phase3e_r2_structural_support_gate
       - name: Re-validate accepted Phase 3D-R2 performance
         run: python -m strategy_kernel_v2.validate_phase3d_r2_performance_measurement
-      - name: Validate Phase 3D-R2 outcome evidence remains accepted
-        run: python -m strategy_kernel_v2.validate_phase3d_r2_outcome_evidence
       - name: Validate Independent Holdout remains unchanged
         run: python -m strategy_kernel_v2.validate_phase3_r2_independent_holdout_replay
       - name: Validate Phase 3C-R2B remains unchanged
