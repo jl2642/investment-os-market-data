@@ -227,7 +227,7 @@ def validate() -> list[str]:
     ):
         if fw[key] is not False:
             errors.append("V2_PRE_RESULT_FIREWALL_OPEN:" + key)
-    if V2_LEDGER.exists():
+    if V2_LEDGER.exists() and state.get("holdout_v2_selection_complete") is not True:
         errors.append("V2_SELECTION_LEDGER_PREMATURELY_EXISTS")
 
     gate = contract["next_gate"]
@@ -245,6 +245,7 @@ def validate() -> list[str]:
             errors.append("V2_DOWNSTREAM_GATE_PREMATURE:" + key)
 
     selection_downstream = state.get("holdout_v2_selection_started") is True
+    replay_downstream = state.get("independent_holdout_replay_complete") is True
     expected_state = {
         "holdout_v2_contract_frozen": True,
         "holdout_v2_contract_status": "FROZEN_PRE_RESULT_COVERAGE_EXPANSION_NO_R2_NO_OUTCOMES",
@@ -272,7 +273,12 @@ def validate() -> list[str]:
             errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_NOT_COMPLETE")
         if state.get("holdout_v2_candidate_ledger_count", 0) <= 0:
             errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_LEDGER_EMPTY")
-        if state.get("holdout_h2_started") is not False:
+        if replay_downstream:
+            if state.get("holdout_h2_started") is not True:
+                errors.append("V2_LEGAL_REPLAY_H2_NOT_STARTED")
+            if state.get("phase3d_r2_started") is not False:
+                errors.append("V2_LEGAL_REPLAY_PREMATURE_3D_R2")
+        elif state.get("holdout_h2_started") is not False:
             errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_PREMATURE_H2")
         selection_pass = state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
         if state.get("holdout_h2_start_allowed") is not selection_pass:
@@ -280,9 +286,13 @@ def validate() -> list[str]:
         if state.get("holdout_coverage_expansion_required") is not (not selection_pass):
             errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_COVERAGE_GATE_DRIFT")
         expected_next = (
-            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
-            if selection_pass
-            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+            if replay_downstream
+            else (
+                "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                if selection_pass
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+            )
         )
         if current.get("next_phase") != expected_next:
             errors.append("V2_LEGAL_SELECTION_DOWNSTREAM_NEXT_PHASE_DRIFT")

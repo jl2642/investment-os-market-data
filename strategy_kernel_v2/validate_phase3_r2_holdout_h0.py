@@ -240,11 +240,18 @@ def validate() -> list[str]:
         if current.get("next_phase") not in {
             "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY",
             "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION",
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
         }:
             errors.append("HOLDOUT_H0_LEGAL_H1_NEXT_PHASE_DRIFT")
         if state.get("holdout_h1_complete") is not True:
             errors.append("HOLDOUT_H0_LEGAL_H1_NOT_COMPLETE")
-        if state.get("holdout_h2_started") is not False:
+        replay_downstream = state.get("independent_holdout_replay_complete") is True
+        if replay_downstream:
+            if state.get("holdout_h2_started") is not True:
+                errors.append("HOLDOUT_H0_LEGAL_REPLAY_H2_NOT_STARTED")
+            if state.get("phase3d_r2_started") is not False:
+                errors.append("HOLDOUT_H0_LEGAL_REPLAY_PREMATURE_3D_R2")
+        elif state.get("holdout_h2_started") is not False:
             errors.append("HOLDOUT_H0_LEGAL_H1_PREMATURE_H2")
     else:
         if current.get("current_phase") != "PHASE_3C_R2_POINT_IN_TIME_REPLAY":

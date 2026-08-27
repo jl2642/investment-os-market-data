@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE3_R2_INDEPENDENT_HOLDOUT_REPLAY_V1",
+  "phase": "PHASE_3_R2_INDEPENDENT_POINT_IN_TIME_HOLDOUT",
+  "subphase": "FROZEN_R2_REPLAY_AND_FINAL_ACCEPTANCE",
+  "status": "FROZEN_BEFORE_HOLDOUT_R2_REPLAY",
+  "frozen_at": "2026-08-27",
+  "parent_selection": {
+    "pr": 324,
+    "final_head": "ac828fc275162fad1376f538e3395b74633f4baa",
+    "status": "PASS_SELECTION_SUFFICIENCY",
+    "selection_ledger_sha256": "241bb441a960b2ccfb46a708ae81f7b38d5b2389215362406255cd4945b337be",
+    "checkpoint_count": 14,
+    "distinct_utc_dates": 10,
+    "distinct_iso_weeks": 5,
+    "distinct_evidence_regimes": 9,
+    "research_security_scope_count": 18,
+    "opportunity_profile_instances": 252,
+    "failed_thresholds": [],
+    "h2_start_allowed": true
+  },
+  "model_contract": {
+    "model_form": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
+    "model_version": "R2.0.1_RESEARCH",
+    "frozen_transform_rule_count": 20,
+    "new_transform_rules_allowed": false,
+    "transform_threshold_changes_allowed": false,
+    "transform_semantics_changes_allowed": false,
+    "comparison_signature_changes_allowed": false
+  },
+  "replay_input_contract": {
+    "rebuild_parent_v2_selection_deterministically": true,
+    "parent_selection_sha_must_match": true,
+    "exact_selected_checkpoint_set_only": true,
+    "exact_selected_checkpoint_source_identities_only": true,
+    "exact_source_commit_path_blob_identity_required": true,
+    "protected_main_first_parent_provenance_required": true,
+    "model_specific_evidence_fetch_forbidden": true,
+    "later_evidence_backfill_forbidden": true,
+    "present_day_state_substitution_forbidden": true,
+    "new_family_feature_mapping_during_replay_forbidden": true,
+    "new_security_scope_member_during_replay_forbidden": true,
+    "unsupported_packet_families_remain_uninterpreted": true,
+    "existing_historical_feature_extractor_only": true,
+    "existing_r2_transform_catalog_only": true
+  },
+  "feature_semantics_firewall": {
+    "existing_supported_family_semantics": [
+      "CANDIDATE_STATE",
+      "REAL_ACCOUNT_STATE",
+      "RESEARCH_CORE2",
+      "RESEARCH_601138_P0",
+      "DECISION_00669_BUY_REVIEW",
+      "RESEARCH_D2_*"
+    ],
+    "v2_coverage_only_families_that_may_not_gain_new_feature_semantics": [
+      "RESEARCH_OBJECTS_CURRENT",
+      "R1_DECISION_COVERAGE_PACK_CURRENT",
+      "RESEARCH_QUEUE_D1_CURRENT",
+      "RESEARCH_QUEUE_D2_CURRENT"
+    ],
+    "other_unsupported_packet_families_may_be_retained_for_audit": true,
+    "unsupported_family_data_may_create_new_r2_dimension": false,
+    "subjective_mapping_allowed": false,
+    "silent_proxy_allowed": false,
+    "retrospective_probability_creation_allowed": false,
+    "retrospective_confidence_creation_allowed": false,
+    "retrospective_cost_score_creation_allowed": false
+  },
+  "comparison_contract": {
+    "method": "PARETO_WITHIN_EXACT_COMPARISON_SIGNATURE",
+    "checkpoint_local_only": true,
+    "cross_checkpoint_comparison_forbidden": true,
+    "exact_signature_required": true,
+    "cross_signature_dominance_forbidden": true,
+    "missing_dimension_fill_forbidden": true,
+    "scalar_policy_score_allowed": false,
+    "dimension_weights_allowed": false,
+    "ranking_allowed": false,
+    "global_winner_selection_allowed": false,
+    "target_weight_generation_allowed": false,
+    "local_frontier_is_not_global_winner": true
+  },
+  "acceptance_contract": {
+    "pass_status": "PASS_INDEPENDENT_HOLDOUT_REPLAY_OPERATIONAL",
+    "partial_status": "PARTIAL_VALID_HOLDOUT_REPLAY_NO_COMPARABLE_EXACT_SIGNATURE_GROUP",
+    "fail_status": "FAIL_HOLDOUT_REPLAY_CONTRACT_OR_AUDIT",
+    "pass_requires_parent_selection_pass": true,
+    "pass_requires_all_selected_checkpoints_reconstructed": true,
+    "pass_requires_zero_transform_failures": true,
+    "pass_requires_zero_provenance_or_leakage_audit_errors": true,
+    "pass_requires_at_least_one_comparable_exact_signature_group": true,
+    "pass_requires_at_least_one_comparable_profile": true,
+    "partial_allowed_only_when_audit_clean_and_no_comparable_group": true,
+    "phase3d_r2_start_allowed_only_on_pass": true,
+    "phase4_entry_allowed": false
+  },
+  "outcome_firewall": {
+    "realized_outcomes_loaded": false,
+    "phase3d_results_loaded": false,
+    "future_returns_loaded": false,
+    "regret_loaded": false,
+    "calibration_loaded": false,
+    "historical_performance_generated": false,
+    "model_or_selection_tuning_from_outcomes": false
+  },
+  "downstream_sequence": [
+    "PHASE_3D_R2_IF_MEASURABLE",
+    "PHASE_3E_R2_IF_SUPPORTED",
+    "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+  ],
+  "authority_boundaries": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "investment_recommendations_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

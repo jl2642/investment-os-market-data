@@ -265,7 +265,30 @@ V2 deterministic selection is **COMPLETE / PASS_SELECTION_SUFFICIENCY**:
 - R2 Holdout replay = **0**;
 - realized outcomes read = **0**.
 
-All unchanged H0.1 thresholds pass. Therefore H2 Frozen R2 Holdout Replay is **AUTHORIZED / NOT STARTED**.
+All unchanged H0.1 thresholds pass.
+
+Independent Holdout Frozen R2 Replay is now **COMPLETE / PASS_INDEPENDENT_HOLDOUT_REPLAY_OPERATIONAL**:
+- checkpoints reconstructed = **14 / 14**;
+- exact source identities = **26 / 26**;
+- R2 profile instances = **105**;
+- comparison-contract-evaluable profiles = **94**;
+- present dimensions = **561**;
+- explicit missing dimensions = **1539**;
+- transform failures = **0**;
+- distinct comparison signatures = **8**;
+- exact-signature groups = **36**;
+- comparable groups = **27**;
+- singleton groups = **9**;
+- comparable profiles = **85**;
+- directional pair checks = **220**;
+- dominance edges = **54**;
+- local frontier profiles = **57**;
+- dominated profiles = **28**;
+- audit errors = **0**;
+- realized outcomes = **0**;
+- historical performance metrics = **0**.
+
+Therefore **Phase 3D-R2 is AUTHORIZED / NOT STARTED**. The replay result does not itself satisfy Phase 3D-R2, Phase 3E-R2, repeat Phase 3F, Phase 3 completion or Phase 4 entry.
 
 Holdout is not a Phase 3G and is not a direct Phase 4 gate.
 

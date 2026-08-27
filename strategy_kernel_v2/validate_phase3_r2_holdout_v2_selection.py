@@ -159,6 +159,7 @@ def validate() -> tuple[list[str], dict]:
     # state closeout. Once closeout is recorded, bind state exactly to this result.
     if state.get("holdout_v2_selection_complete") is True:
         observed = suff["observed"]
+        replay_downstream = state.get("independent_holdout_replay_complete") is True
         expected_state = {
             "holdout_v2_selection_started": True,
             "holdout_v2_selection_complete": True,
@@ -173,7 +174,7 @@ def validate() -> tuple[list[str], dict]:
             "holdout_v2_max_single_utc_date_fraction": observed["maximum_single_utc_date_fraction"],
             "holdout_v2_max_single_evidence_regime_fraction": observed["maximum_single_evidence_regime_fraction"],
             "holdout_h2_start_allowed": first["h2_start_allowed"],
-            "holdout_h2_started": False,
+            "holdout_h2_started": True if replay_downstream else False,
             "phase3_historical_validation_complete": False,
             "phase4_entry_allowed": False,
         }
