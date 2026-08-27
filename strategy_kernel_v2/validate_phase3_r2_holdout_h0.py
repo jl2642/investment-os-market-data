@@ -44,7 +44,7 @@ def validate() -> list[str]:
     decision_points = load("PHASE3A_DECISION_POINTS.json")["decision_points"]
     post3f = load("PHASE3_POST3F_RESEARCH_PATH_DECISION.json")
 
-    if contract.get("status") != "FROZEN_BEFORE_HOLDOUT_SELECTION_OR_R2_REPLAY":
+    if contract.get("status") != "FROZEN_BEFORE_HOLDOUT_SELECTION_OR_R2_REPLAY_WITH_PRESELECTION_FEASIBILITY_CORRECTION":
         errors.append("HOLDOUT_H0_CONTRACT_NOT_FROZEN")
     if contract.get("model_form") != "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2":
         errors.append("HOLDOUT_H0_MODEL_IDENTITY_DRIFT")
@@ -169,7 +169,7 @@ def validate() -> list[str]:
         "minimum_distinct_evidence_regime_signatures": 4,
         "minimum_unique_securities": 6,
         "minimum_opportunity_profile_instances": 48,
-        "minimum_checkpoints_strictly_outside_seed_time_span": 2,
+        "minimum_checkpoints_strictly_outside_seed_time_span": 1,
         "maximum_single_utc_date_fraction": 0.40,
         "maximum_single_evidence_regime_fraction": 0.50,
     }
@@ -180,6 +180,18 @@ def validate() -> list[str]:
         errors.append("HOLDOUT_H0_THRESHOLDS_NOT_CONJUNCTIVE")
     if q.get("threshold_change_after_holdout_selection_or_replay_result_forbidden") is not True:
         errors.append("HOLDOUT_H0_THRESHOLD_TUNING_NOT_FORBIDDEN")
+    amendments = contract.get("amendment_history", [])
+    if len(amendments) != 1:
+        errors.append("HOLDOUT_H0_AMENDMENT_HISTORY_DRIFT")
+    else:
+        amendment = amendments[0]
+        if amendment.get("amendment_id") != "H0_1_PRESELECTION_OUTSIDE_SEED_FEASIBILITY_CORRECTION":
+            errors.append("HOLDOUT_H0_AMENDMENT_ID_DRIFT")
+        for key in ("h1_selection_started", "holdout_ledger_observed", "r2_holdout_replay_observed", "realized_outcomes_observed", "outcome_or_model_tuning"):
+            if amendment.get(key) is not False:
+                errors.append("HOLDOUT_H0_AMENDMENT_NOT_PRESELECTION_CLEAN:" + key)
+        if amendment.get("prior_value") != 2 or amendment.get("new_value") != 1:
+            errors.append("HOLDOUT_H0_AMENDMENT_VALUE_DRIFT")
 
     h0 = contract.get("h0_acceptance", {})
     if h0.get("frozen_main_head_must_equal") != end_sha:
@@ -188,6 +200,8 @@ def validate() -> list[str]:
         errors.append("HOLDOUT_H0_ACCEPTANCE_SEED_COUNT_DRIFT")
     if h0.get("minimum_holdout_checkpoints_must_equal") != 12:
         errors.append("HOLDOUT_H0_ACCEPTANCE_MIN_CHECKPOINT_DRIFT")
+    if h0.get("minimum_checkpoints_strictly_outside_seed_time_span_must_equal") != 1:
+        errors.append("HOLDOUT_H0_ACCEPTANCE_OUTSIDE_SEED_DRIFT")
     if h0.get("selector_must_be_census") is not True:
         errors.append("HOLDOUT_H0_ACCEPTANCE_SELECTOR_NOT_CENSUS")
     if h0.get("discretionary_subsampling_allowed_must_be") is not False:
@@ -283,7 +297,7 @@ if __name__ == "__main__":
         f"min_weeks={q['minimum_distinct_iso_weeks']} "
         f"min_regimes={q['minimum_distinct_evidence_regime_signatures']} "
         f"min_securities={q['minimum_unique_securities']} "
-        f"min_profiles={q['minimum_opportunity_profile_instances']} "
+        f"min_profiles={q['minimum_opportunity_profile_instances']} min_outside_seed={q['minimum_checkpoints_strictly_outside_seed_time_span']} "
         "outcomes_read=0 r2_replays=0 holdout_ledger=0 "
         "h1_start_allowed=true phase4_entry_allowed=false "
         "orders=0 trade_authority=NONE"
