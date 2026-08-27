@@ -1,0 +1,48 @@
+name: Strategy Kernel R2 Holdout H1 Candidate Ledger
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-r2-holdout-h1-ledger.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: strategy-kernel-r2-holdout-h1-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  holdout-h1-ledger:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Re-validate H0.1 before producing any H1 artifact
+        run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_h0
+      - name: Run H1 selector and sufficiency tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3_r2_holdout_h1
+      - name: Build and validate H1 candidate ledger
+        run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_h1
+      - name: Re-validate Phase 3C-R2B parent
+        run: python -m strategy_kernel_v2.validate_phase3c_r2b
+      - name: Validate Post-3F research path
+        run: python -m strategy_kernel_v2.validate_post3f_research_path
+      - name: Validate historical Phase 3F gate remains unchanged
+        run: python -m strategy_kernel_v2.validate_phase3f
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Run program governance regressions
+        run: python -m unittest strategy_kernel_v2.tests.test_program_governance
+      - name: Upload H1 selection ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3-r2-holdout-h1-selection-ledger
+          path: strategy_kernel_v2/generated/PHASE3_R2_HOLDOUT_SELECTION_LEDGER.json
+          if-no-files-found: ignore
