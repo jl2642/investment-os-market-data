@@ -166,7 +166,7 @@ def validate() -> tuple[list[str], dict]:
                 errors.append("HOLDOUT_REPLAY_PHASE3D_R2_ROUND1_NOT_COMPLETE")
             if state.get("phase3d_r2_round1_status") != "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED":
                 errors.append("HOLDOUT_REPLAY_PHASE3D_R2_ROUND1_STATUS_DRIFT")
-            if state.get("phase3d_r2_performance_started") is not False:
+            if state.get("phase3d_r2_performance_started") is not bool(state.get("phase3d_r2_performance_measurement_complete")):
                 errors.append("HOLDOUT_REPLAY_PHASE3D_R2_PREMATURE_PERFORMANCE")
         expected_current_phase = (
             "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
@@ -177,7 +177,11 @@ def validate() -> tuple[list[str], dict]:
             errors.append("HOLDOUT_REPLAY_CURRENT_PHASE_DRIFT")
         expected_next = (
             (
-                "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                (
+                    "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                    if state.get("phase3d_r2_performance_measurement_complete") is True
+                    else "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                )
                 if state.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
                 else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
             )

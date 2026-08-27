@@ -249,6 +249,7 @@ def validate() -> list[str]:
             "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
             "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
         "PHASE_3D_R2_PERFORMANCE_MEASUREMENT",
+            "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT",
         }:
             errors.append("HOLDOUT_H0_LEGAL_H1_NEXT_PHASE_DRIFT")
         if state.get("holdout_h1_complete") is not True:
@@ -262,7 +263,7 @@ def validate() -> list[str]:
                     errors.append("HOLDOUT_H0_PHASE3D_R2_ROUND1_NOT_COMPLETE")
                 if state.get("phase3d_r2_round1_status") != "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED":
                     errors.append("HOLDOUT_H0_PHASE3D_R2_ROUND1_STATUS_DRIFT")
-                if state.get("phase3d_r2_performance_started") is not False:
+                if state.get("phase3d_r2_performance_started") is not bool(state.get("phase3d_r2_performance_measurement_complete")):
                     errors.append("HOLDOUT_H0_PHASE3D_R2_PREMATURE_PERFORMANCE")
             elif state.get("phase3d_r2_started") is not False:
                 errors.append("HOLDOUT_H0_PHASE3D_R2_STARTED_FLAG_INVALID")

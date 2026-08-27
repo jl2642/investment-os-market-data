@@ -109,7 +109,7 @@ def validate():
                             errors.append("PHASE3D_R2_ROUND1_NOT_COMPLETE")
                         if cv.get("phase3d_r2_round1_status") != "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED":
                             errors.append("PHASE3D_R2_ROUND1_STATUS_DRIFT")
-                        if cv.get("phase3d_r2_performance_started") is not False:
+                        if cv.get("phase3d_r2_performance_started") is not bool(cv.get("phase3d_r2_performance_measurement_complete")):
                             errors.append("PHASE3D_R2_PREMATURE_PERFORMANCE")
                     elif cv.get("phase3d_r2_started") is not False:
                         errors.append("PHASE3D_R2_STARTED_FLAG_INVALID")
@@ -121,7 +121,11 @@ def validate():
                 )
                 expected_next = (
                     (
-                        "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                        (
+                            "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
+                            if cv.get("phase3d_r2_performance_measurement_complete") is True
+                            else "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                        )
                         if cv.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
                         else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
                     )
