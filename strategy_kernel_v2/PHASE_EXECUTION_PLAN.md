@@ -222,7 +222,7 @@ H0 contract freeze is **COMPLETE**:
 - discretionary/random/manual subsampling forbidden;
 - realized outcomes, Phase 3D results and R2 replayability/results forbidden during selection;
 - minimum coverage = 12 checkpoints / 6 UTC dates / 4 ISO weeks / 4 evidence-regime signatures / 6 securities / 48 opportunity-profile instances;
-- at least 2 checkpoints must fall strictly outside the original seed time span;
+- at least 1 checkpoint must fall strictly outside the original seed time span; H0.1 corrected the prior impossible value of 2 before H1 selection began, because the frozen universe ends at the last seed and only one eligible pre-first-seed research fingerprint exists;
 - no single UTC date may exceed 40% and no single evidence regime may exceed 50% of accepted Holdout checkpoints.
 
 H1 next: build the deterministic candidate ledger and test the above sufficiency thresholds **without running R2**.
