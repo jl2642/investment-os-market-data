@@ -6,7 +6,7 @@
   "as_of": "2026-08-26",
   "parent_phase3b_r2_head": "a71b73b024ee80b8e851908d6591f5dac3826a19",
   "model_form": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
-  "model_version": "R2.0.0_RESEARCH",
+  "model_version": "R2.0.1_RESEARCH",
   "purpose": "Reconstruct provenance-complete R2 input profiles from the seven existing Phase 3A point-in-time development checkpoints using only the frozen model-neutral extraction path and the frozen 20-rule R2 transform catalog.",
   "execution_round_contract": {
     "phase3c_r2_total_execution_rounds": 2,
@@ -47,10 +47,18 @@
     "missingness_must_remain_explicit": true,
     "absence_is_not_zero": true,
     "absence_is_not_not_applicable": true,
-    "unknown_applicability_preserved_when_source_does_not_explicitly_establish_not_applicable": true
+    "unknown_applicability_preserved_when_source_does_not_explicitly_establish_not_applicable": true,
+    "r2_contract_patch": "R2_0_1_D2_REJECTION_GATE_CANONICAL_PREFIX_COMPATIBILITY",
+    "patch_discovered_from_development_corpus": true,
+    "realized_outcomes_used_for_patch": false,
+    "transform_rule_count_changed": false
   },
   "output_contract": {
-    "profile_state_values": ["PRESENT", "MISSING", "TRANSFORM_FAILURE"],
+    "profile_state_values": [
+      "PRESENT",
+      "MISSING",
+      "TRANSFORM_FAILURE"
+    ],
     "absent_dimension_applicability_state": "UNKNOWN_APPLICABILITY",
     "exact_signature_metadata_may_be_constructed": true,
     "pareto_dominance_execution_allowed": false,
