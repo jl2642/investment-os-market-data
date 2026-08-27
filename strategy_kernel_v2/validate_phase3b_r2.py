@@ -148,11 +148,11 @@ def validate() -> list[str]:
             errors.append("R2_LEGAL_R2B_DOWNSTREAM_PREMATURE_HOLDOUT")
     elif state.get("r2_phase3c_replay_started") is not False:
         errors.append("R2_PHASE3C_PREMATURELY_STARTED")
+    repeat_done = state.get("repeat_phase3f_complete") is True
     if state.get("phase4_entry_allowed") is not repeat_done:
         errors.append("R2_STATE_PHASE4_ENTRY_DRIFT")
 
     cv = current.get("validation", {})
-    repeat_done = state.get("repeat_phase3f_complete") is True
     if r2b_downstream:
         if holdout_h1_downstream:
             phase3e_r2_downstream = state.get("phase3e_r2_started") is True
