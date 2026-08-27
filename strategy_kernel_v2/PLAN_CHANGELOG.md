@@ -303,3 +303,19 @@ Persisted deterministic bundle, tests and validation record; synchronized implem
 **Control synchronization:** `DEVELOPMENT_ROADMAP.md` and `PHASE_EXECUTION_PLAN.md` are updated to the accepted R2B state and remaining Phase 3 path. `MASTER_PROGRAM_CHARTER.md` and `PROGRAM_CONTRACT.json` require no macro change because their Phase 0→5 lifecycle and Phase 3 loopback rules were already correct.
 
 **Not changed:** no effective policy, Candidate membership, Real/Simulation position, target portfolio, user decision, investment recommendation, order authority or trade authority changed. `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-27 — Independent PIT Holdout H0 selection/sufficiency contract freeze
+
+**Reason:** R2B established mechanical replayability on the seven development checkpoints, but those checkpoints cannot count as independent validation. Before building any Holdout checkpoint ledger or observing any Holdout R2 result, the selection universe, deterministic selector and quantitative sufficiency gate must be frozen.
+
+**Frozen universe:** protected `main` ancestry from `6323f4c0617b3df3907b4e76c36b441d666fc4b0` through `5c5df9082688f65332c79fef3b9cbfa893a06908`. Open PR heads and future commits are excluded from Holdout V1. All seven Phase 3A seed checkpoint commits are explicitly excluded.
+
+**Selector:** census of all eligible distinct decision-evidence fingerprints. Pure docs/CI/infrastructure changes without a decision-evidence fingerprint change do not become checkpoints. All eligible fingerprints must be selected; discretionary subsampling, random sampling and manual cherry-picking are forbidden.
+
+**Outcome/model firewall:** selection may not read realized outcomes or Phase 3D results, compute R2 profile values, run R2 Pareto replay, use future returns/regret/calibration or include/exclude checkpoints based on expected R2 behavior.
+
+**Quantitative sufficiency:** all must pass — minimum 12 checkpoints, 6 distinct UTC dates, 4 ISO weeks, 4 distinct evidence-regime signatures, 6 unique securities, 48 opportunity-profile instances, and at least 2 checkpoints outside the original seed time span; concentration caps are 40% per UTC date and 50% per evidence regime.
+
+**Next gate:** H1 may build the deterministic Holdout candidate ledger and evaluate selection sufficiency only. R2 replay remains forbidden until H1 acceptance.
+
+**Not changed:** Holdout is not Phase 3G, direct Holdout→Phase4 remains forbidden, Repeat Phase 3F remains mandatory, `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
