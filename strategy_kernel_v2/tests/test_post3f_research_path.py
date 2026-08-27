@@ -136,6 +136,22 @@ class Post3FResearchPathTests(unittest.TestCase):
             else:
                 self.assertFalse(self.current["validation"]["holdout_h2_start_allowed"])
                 self.assertEqual(self.current["next_phase"], "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION")
+        elif phase == "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED":
+            self.assertTrue(self.state["independent_holdout_replay_complete"])
+            self.assertTrue(self.current["validation"]["phase3d_r2_start_allowed"])
+            self.assertTrue(self.current["validation"]["phase3d_r2_started"])
+            self.assertTrue(self.current["validation"]["phase3d_r2_round1_complete"])
+            self.assertEqual(
+                self.current["validation"]["phase3d_r2_round1_status"],
+                "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED",
+            )
+            self.assertTrue(self.current["validation"]["phase3d_r2_structurally_measurable"])
+            self.assertFalse(self.current["validation"]["phase3d_r2_performance_start_allowed"])
+            self.assertFalse(self.current["validation"]["phase3d_r2_performance_started"])
+            self.assertEqual(
+                self.current["next_phase"],
+                "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
+            )
         else:
             self.fail("unexpected current phase for Post-3F monotonic regression: " + str(phase))
 
