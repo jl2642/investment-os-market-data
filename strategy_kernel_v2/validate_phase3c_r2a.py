@@ -111,10 +111,16 @@ def validate() -> tuple[list[str], dict]:
         if state.get("r2_phase3c_r2b_started") is not False or state.get("r2_real_historical_replay_executed") is not False:
             errors.append("R2A_PREMATURE_REPLAY")
     holdout_h1_downstream = state.get("holdout_h1_started") is True
+    holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
     if holdout_h1_downstream:
         if state.get("holdout_h1_complete") is not True or state.get("holdout_build_started") is not True:
             errors.append("R2A_LEGAL_HOLDOUT_H1_STATE_INVALID")
-        if state.get("holdout_h2_started") is not False:
+        if holdout_replay_downstream:
+            if state.get("holdout_h2_started") is not True:
+                errors.append("R2A_LEGAL_HOLDOUT_REPLAY_H2_NOT_STARTED")
+            if state.get("phase3d_r2_started") is not False:
+                errors.append("R2A_LEGAL_HOLDOUT_REPLAY_PREMATURE_3D_R2")
+        elif state.get("holdout_h2_started") is not False:
             errors.append("R2A_LEGAL_HOLDOUT_H1_PREMATURE_H2")
     elif state.get("holdout_build_started") is not False:
         errors.append("R2A_PREMATURE_HOLDOUT")
@@ -130,9 +136,13 @@ def validate() -> tuple[list[str], dict]:
                 and state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
             )
             expected_next = (
-                "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
-                if holdout_v2_pass
-                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+                "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+                if holdout_replay_downstream
+                else (
+                    "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                    if holdout_v2_pass
+                    else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+                )
             )
             if current.get("next_phase") != expected_next:
                 errors.append("R2A_LEGAL_HOLDOUT_NEXT_PHASE_DRIFT")
