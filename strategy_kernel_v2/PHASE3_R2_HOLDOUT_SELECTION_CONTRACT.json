@@ -1,9 +1,9 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.0.1",
   "program": "STRATEGY_KERNEL_V2",
   "phase": "PHASE_3_R2_INDEPENDENT_POINT_IN_TIME_HOLDOUT",
   "subphase": "H0_SELECTION_AND_SUFFICIENCY_CONTRACT_FREEZE",
-  "status": "FROZEN_BEFORE_HOLDOUT_SELECTION_OR_R2_REPLAY",
+  "status": "FROZEN_BEFORE_HOLDOUT_SELECTION_OR_R2_REPLAY_WITH_PRESELECTION_FEASIBILITY_CORRECTION",
   "as_of": "2026-08-27",
   "parent_program_plan_sync_pr": 319,
   "parent_program_plan_sync_head": "3e8c6057295e604f4feddc83761f3cd044cf952b",
@@ -124,7 +124,7 @@
     "minimum_distinct_evidence_regime_signatures": 4,
     "minimum_unique_securities": 6,
     "minimum_opportunity_profile_instances": 48,
-    "minimum_checkpoints_strictly_outside_seed_time_span": 2,
+    "minimum_checkpoints_strictly_outside_seed_time_span": 1,
     "maximum_single_utc_date_fraction": 0.4,
     "maximum_single_evidence_regime_fraction": 0.5,
     "all_thresholds_must_pass": true,
@@ -155,7 +155,8 @@
     "holdout_checkpoint_ledger_count_must_equal": 0,
     "holdout_build_started_must_be": false,
     "phase3_historical_validation_complete_must_be": false,
-    "phase4_entry_allowed_must_be": false
+    "phase4_entry_allowed_must_be": false,
+    "minimum_checkpoints_strictly_outside_seed_time_span_must_equal": 1
   },
   "downstream_sequence": [
     "H1_HOLDOUT_CANDIDATE_LEDGER_BUILD_AND_SELECTION_ACCEPTANCE",
@@ -175,5 +176,21 @@
     "investment_recommendations_generated": 0,
     "orders": 0,
     "trade_authority": "NONE"
-  }
+  },
+  "amendment_history": [
+    {
+      "amendment_id": "H0_1_PRESELECTION_OUTSIDE_SEED_FEASIBILITY_CORRECTION",
+      "amended_at": "2026-08-27",
+      "trigger": "PRESELECTION_AVAILABILITY_ONLY_FEASIBILITY_AUDIT",
+      "h1_selection_started": false,
+      "holdout_ledger_observed": false,
+      "r2_holdout_replay_observed": false,
+      "realized_outcomes_observed": false,
+      "changed_field": "quantitative_sufficiency_gate.minimum_checkpoints_strictly_outside_seed_time_span",
+      "prior_value": 2,
+      "new_value": 1,
+      "reason": "Frozen Holdout V1 universe ends at the last seed timestamp; before the first seed only one checkpoint can satisfy Candidate-state plus frozen research/decision-family eligibility. Keeping 2 would make H1 impossible by construction. All other multi-axis sufficiency thresholds remain unchanged.",
+      "outcome_or_model_tuning": false
+    }
+  ]
 }

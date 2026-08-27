@@ -22,7 +22,8 @@
     312,
     316,
     318,
-    319
+    319,
+    320
   ],
   "current_macro_phase": 3,
   "current_phase": "PHASE_3C_R2_POINT_IN_TIME_REPLAY",
@@ -144,7 +145,7 @@
     "direct_holdout_to_phase4_allowed": false,
     "repeat_phase3f_required_after_holdout_and_r2_downstream_evidence": true,
     "holdout_selection_contract_frozen": true,
-    "holdout_selection_contract_status": "FROZEN_BEFORE_HOLDOUT_SELECTION_OR_R2_REPLAY",
+    "holdout_selection_contract_status": "FROZEN_WITH_PRESELECTION_FEASIBILITY_CORRECTION",
     "holdout_selection_contract_freeze_commit": "adc1e9a1239c5556b48f57f1d3dbbb527d60a716",
     "holdout_h0_complete": true,
     "holdout_h1_start_allowed": true,
@@ -155,7 +156,10 @@
     "holdout_minimum_distinct_iso_weeks": 4,
     "holdout_minimum_distinct_evidence_regimes": 4,
     "holdout_minimum_unique_securities": 6,
-    "holdout_minimum_opportunity_profile_instances": 48
+    "holdout_minimum_opportunity_profile_instances": 48,
+    "holdout_h0_feasibility_correction_id": "H0_1_PRESELECTION_OUTSIDE_SEED_FEASIBILITY_CORRECTION",
+    "holdout_h0_feasibility_correction_before_h1": true,
+    "holdout_minimum_checkpoints_strictly_outside_seed_time_span": 1
   },
   "effective_core_static_changes": 0,
   "candidate_membership_mutations": 0,
