@@ -15,14 +15,9 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping
 
 from strategy_kernel_v2.phase3d_r2_measurability import build_measurability_audit
-from strategy_kernel_v2.phase3d_r2_outcome_evidence import (
-    edge_population_sha256,
-    load_frozen_pack,
-    validate_frozen_pack,
-)
-
 ROOT = Path(__file__).resolve().parent
 CONTRACT_FILE = ROOT / "PHASE3D_R2_PERFORMANCE_MEASUREMENT_CONTRACT.json"
+FROZEN_PACK_FILE = ROOT / "PHASE3D_R2_OUTCOME_EVIDENCE_FROZEN_COMPACT.json"
 OUTPUT_FILE = ROOT / "generated/PHASE3D_R2_PERFORMANCE_MEASUREMENT.json"
 
 getcontext().prec = 28
@@ -77,6 +72,63 @@ def _median(values: list[Decimal]) -> Decimal:
 
 def load_contract(path: str | Path = CONTRACT_FILE) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def load_frozen_pack(path: str | Path = FROZEN_PACK_FILE) -> dict[str, Any]:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def edge_population_sha256(audit: Mapping[str, Any]) -> str:
+    rows = [
+        {
+            "checkpoint_id": row["checkpoint_id"],
+            "checkpoint_at": row["checkpoint_at"],
+            "comparison_signature_sha256": row["comparison_signature_sha256"],
+            "dominator_security_id": row["dominator_security_id"],
+            "dominated_security_id": row["dominated_security_id"],
+        }
+        for row in audit["frozen_edge_population"]
+    ]
+    return _sha256(rows)
+
+
+def validate_frozen_pack(pack: Mapping[str, Any], audit: Mapping[str, Any]) -> list[str]:
+    errors: list[str] = []
+    if pack.get("pack_id") != "PHASE3D_R2_OUTCOME_EVIDENCE_FROZEN_COMPACT_V1":
+        errors.append("R2_PERF_PACK_ID_DRIFT")
+    if pack.get("status") != "PASS_R2_OUTCOME_EVIDENCE_READY_FOR_PERFORMANCE":
+        errors.append("R2_PERF_PACK_STATUS_DRIFT")
+    if pack.get("source_ledger_sha256") != "300db34b408e7ca2cfeb188b8c6177b62bdff70743a2cf6fb2c833bf3bda1d1b":
+        errors.append("R2_PERF_PACK_LEDGER_SHA_DRIFT")
+    if pack.get("parent_round1_audit_sha256") != audit.get("audit_sha256"):
+        errors.append("R2_PERF_PACK_ROUND1_SHA_DRIFT")
+    if pack.get("holdout_replay_sha256") != audit.get("parent_holdout_replay_sha256"):
+        errors.append("R2_PERF_PACK_HOLDOUT_SHA_DRIFT")
+    if pack.get("edge_population_sha256") != edge_population_sha256(audit):
+        errors.append("R2_PERF_PACK_EDGE_SHA_DRIFT")
+    if pack.get("frozen_dominance_edge_count") != 54:
+        errors.append("R2_PERF_PACK_EDGE_COUNT_DRIFT")
+    if pack.get("required_edge_endpoint_instances") != 55 or pack.get("complete_endpoint_count") != 55:
+        errors.append("R2_PERF_PACK_ENDPOINT_COUNT_DRIFT")
+    if pack.get("complete_evidence_edge_count") != 54:
+        errors.append("R2_PERF_PACK_COMPLETE_EDGE_DRIFT")
+    if pack.get("performance_calculation_authorized") is not True:
+        errors.append("R2_PERF_PACK_PERFORMANCE_NOT_AUTHORIZED")
+    if pack.get("return_calculation_count") != 0 or pack.get("performance_metric_count") != 0:
+        errors.append("R2_PERF_PACK_PREMEASURED")
+    if pack.get("corporate_action_status_counts") != {
+        "NO_ADJUSTMENT_FACTOR_CHANGE_OBSERVED": 55,
+        "ADJUSTMENT_FACTOR_CHANGE_OBSERVED": 0,
+        "CORPORATE_ACTION_STATUS_UNRESOLVED": 0,
+    }:
+        errors.append("R2_PERF_PACK_CA_STATUS_DRIFT")
+    if pack.get("support_reconciliation_disagreement_endpoint_count") != 0:
+        errors.append("R2_PERF_PACK_RECONCILIATION_DISAGREEMENT")
+    if pack.get("phase4_entry_allowed") is not False:
+        errors.append("R2_PERF_PACK_PREMATURE_PHASE4")
+    if pack.get("orders") != 0 or pack.get("trade_authority") != "NONE":
+        errors.append("R2_PERF_PACK_AUTHORITY_DRIFT")
+    return errors
 
 
 def validate_contract(contract: Mapping[str, Any]) -> list[str]:

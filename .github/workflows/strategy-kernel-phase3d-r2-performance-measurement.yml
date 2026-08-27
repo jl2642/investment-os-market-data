@@ -26,8 +26,8 @@ jobs:
           python-version: '3.11'
       - name: Freeze and test performance measurement contract
         run: python -m unittest strategy_kernel_v2.tests.test_phase3d_r2_performance_measurement
-      - name: Re-validate accepted Outcome Evidence closeout
-        run: python -m strategy_kernel_v2.validate_phase3d_r2_outcome_evidence
+      - name: Re-validate Phase 3D-R2 Round 1 parent
+        run: python -m strategy_kernel_v2.validate_phase3d_r2_measurability
       - name: Execute and validate deterministic R2 performance measurement
         run: python -m strategy_kernel_v2.validate_phase3d_r2_performance_measurement
       - name: Validate accepted Independent Holdout remains unchanged
