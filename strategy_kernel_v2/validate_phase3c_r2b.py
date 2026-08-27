@@ -142,6 +142,7 @@ def validate() -> tuple[list[str], dict]:
     cv = current["validation"]
 
     holdout_h1_downstream = state.get("holdout_h1_started") is True
+    holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
     expected_state = {
         "r2_phase3c_replay_start_allowed": True,
         "r2_phase3c_replay_started": True,
@@ -182,8 +183,13 @@ def validate() -> tuple[list[str], dict]:
             errors.append("R2B_STATE_COUNT_MISMATCH:" + state_key)
 
     if holdout_h1_downstream:
-        if state.get("holdout_h1_complete") is not True or state.get("holdout_h2_started") is not False:
+        if state.get("holdout_h1_complete") is not True:
             errors.append("R2B_LEGAL_HOLDOUT_H1_STATE_INVALID")
+        if holdout_replay_downstream:
+            if state.get("holdout_h2_started") is not True or state.get("phase3d_r2_started") is not False:
+                errors.append("R2B_LEGAL_HOLDOUT_REPLAY_STATE_INVALID")
+        elif state.get("holdout_h2_started") is not False:
+            errors.append("R2B_LEGAL_HOLDOUT_H1_PREMATURE_H2")
         if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
             errors.append("R2B_CURRENT_HOLDOUT_H1_PHASE_MISMATCH")
         holdout_v2_pass = (
@@ -191,14 +197,22 @@ def validate() -> tuple[list[str], dict]:
             and state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
         )
         expected_next = (
-            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
-            if holdout_v2_pass
-            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+            if holdout_replay_downstream
+            else (
+                "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                if holdout_v2_pass
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+            )
         )
         expected_status = (
-            "V2_SELECTION_SUFFICIENT_H2_READY_PHASE4_BLOCKED"
-            if holdout_v2_pass
-            else "H1_SELECTION_INSUFFICIENT_COVERAGE_EXPANSION_REQUIRED_H2_BLOCKED_PHASE4_BLOCKED"
+            "INDEPENDENT_HOLDOUT_REPLAY_PASS_PHASE3D_R2_READY_PHASE4_BLOCKED"
+            if holdout_replay_downstream
+            else (
+                "V2_SELECTION_SUFFICIENT_H2_READY_PHASE4_BLOCKED"
+                if holdout_v2_pass
+                else "H1_SELECTION_INSUFFICIENT_COVERAGE_EXPANSION_REQUIRED_H2_BLOCKED_PHASE4_BLOCKED"
+            )
         )
         if current.get("next_phase") != expected_next:
             errors.append("R2B_CURRENT_HOLDOUT_NEXT_PHASE_MISMATCH")
