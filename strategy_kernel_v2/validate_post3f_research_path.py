@@ -120,7 +120,11 @@ def validate():
                     and state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
                 )
                 expected_next = (
-                    "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+                    (
+                        "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                        if cv.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
+                        else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+                    )
                     if cv.get("phase3d_r2_started") is True
                     else (
                         "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"

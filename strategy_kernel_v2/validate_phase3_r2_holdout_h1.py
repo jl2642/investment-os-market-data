@@ -253,8 +253,17 @@ def validate() -> tuple[list[str], dict]:
                 errors.append("H1_PHASE3D_R2_ROUND1_STATUS_DRIFT")
             if state.get("phase3d_r2_performance_started") is not False:
                 errors.append("H1_PHASE3D_R2_PREMATURE_PERFORMANCE")
-            expected_status = "PHASE3D_R2_ROUND1_PARTIAL_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED_PHASE4_BLOCKED"
-            expected_next = "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+            evidence_complete = state.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
+            expected_status = (
+                "PHASE3D_R2_OUTCOME_EVIDENCE_COMPLETE_PERFORMANCE_READY_PHASE4_BLOCKED"
+                if evidence_complete
+                else "PHASE3D_R2_ROUND1_PARTIAL_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED_PHASE4_BLOCKED"
+            )
+            expected_next = (
+                "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                if evidence_complete
+                else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+            )
         elif replay_downstream:
             expected_status = "INDEPENDENT_HOLDOUT_REPLAY_PASS_PHASE3D_R2_READY_PHASE4_BLOCKED"
             expected_next = "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"

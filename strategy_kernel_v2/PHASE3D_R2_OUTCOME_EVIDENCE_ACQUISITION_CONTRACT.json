@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE3D_R2_OUTCOME_EVIDENCE_ACQUISITION_V1",
+  "phase": "PHASE_3D_R2",
+  "subphase": "OUTCOME_EVIDENCE_ACQUISITION",
+  "status": "FROZEN_BEFORE_R2_RETURN_OR_PERFORMANCE_CALCULATION",
+  "frozen_at": "2026-08-27",
+  "parent_round1": {
+    "pr": 327,
+    "final_head": "bfa6afe2bc0c7a349d82a7a91afe54daea82724c",
+    "round1_status": "PARTIAL_R2_MEASURABILITY_OUTCOME_EVIDENCE_ACQUISITION_REQUIRED",
+    "audit_sha256": "f1cc459b3d739afb12d55efa341783b69b8a8a647e209a020a6f8ee11662ad92",
+    "holdout_replay_sha256": "5b66a60eabe2c294d2a396b5fbae74ba19769376d01f5fec77a012461e1a4aaa",
+    "checkpoint_count": 14,
+    "frozen_dominance_edge_count": 54,
+    "required_edge_endpoint_instances": 55,
+    "required_edge_endpoint_security_ids": [
+      "000719.SZ",
+      "002039.SZ",
+      "301215.SZ",
+      "600036.SH",
+      "600941.SH",
+      "601088.SH",
+      "601985.SH"
+    ]
+  },
+  "scope": {
+    "all_frozen_edges_required": true,
+    "all_endpoint_instances_required": true,
+    "result_based_edge_or_endpoint_dropping_allowed": false,
+    "security_scope_expansion_allowed": false,
+    "holdout_checkpoint_mutation_allowed": false
+  },
+  "calendar_policy": {
+    "timezone": "Asia/Shanghai",
+    "calendar_source": "AKSHARE_TOOL_TRADE_DATE_HIST_SINA",
+    "source_function": "tool_trade_date_hist_sina",
+    "market_close_local": "15:00:00",
+    "settled_publication_cutoff_local": "15:30:00",
+    "cutoff_rationale": "INHERITED_CONSERVATIVELY_FROM_EXISTING_FMDL2B4_POST_CLOSE_PUBLICATION_GRACE",
+    "entry_rule": "LATEST_SETTLED_TRADING_SESSION_CLOSE_AVAILABLE_UNDER_1530_CONSERVATIVE_POLICY",
+    "same_day_entry_allowed_only_at_or_after_settled_publication_cutoff": true,
+    "horizon_rule": "FIRST_THIRD_FIFTH_EXCHANGE_TRADING_SESSIONS_WITH_SESSION_DATE_STRICTLY_AFTER_CHECKPOINT_LOCAL_DATE",
+    "fixed_horizon_sessions": [
+      1,
+      3,
+      5
+    ]
+  },
+  "price_source_policy": {
+    "price_semantics": "UNADJUSTED_LOCAL_CURRENCY_CLOSE",
+    "currency": "CNY",
+    "provider_series_mixing_allowed": false,
+    "provider_precedence": [
+      {
+        "provider_id": "sina_daily",
+        "source_function": "stock_zh_a_daily",
+        "adjustment_mode": "UNADJUSTED"
+      },
+      {
+        "provider_id": "eastmoney_hist",
+        "source_function": "stock_zh_a_hist",
+        "adjustment_mode": "UNADJUSTED"
+      }
+    ],
+    "support_reconciliation": {
+      "enabled_when_both_routes_complete": true,
+      "absolute_tolerance_cny": 0.02,
+      "relative_tolerance": 0.001,
+      "disagreement_action": "FAIL_CLOSED_PRICE_EVIDENCE_UNRESOLVED"
+    },
+    "qfq_companion_may_be_used_only_for_corporate_action_status": true,
+    "qfq_companion_may_be_used_as_outcome_close": false
+  },
+  "corporate_action_status_policy": {
+    "method": "SAME_PROVIDER_UNADJUSTED_VS_QFQ_ADJUSTMENT_FACTOR_CHANGE",
+    "required_for_every_endpoint_window": true,
+    "factor_relative_range_tolerance": 0.0005,
+    "statuses": [
+      "NO_ADJUSTMENT_FACTOR_CHANGE_OBSERVED",
+      "ADJUSTMENT_FACTOR_CHANGE_OBSERVED",
+      "CORPORATE_ACTION_STATUS_UNRESOLVED"
+    ],
+    "unresolved_blocks_performance": true,
+    "detected_action_blocks_evidence_completeness": false,
+    "detected_action_must_be_carried_into_later_interpretation": true,
+    "total_return_claim_allowed": false
+  },
+  "evidence_readiness_gate": {
+    "entry_close_required": true,
+    "all_1_3_5_horizon_closes_required": true,
+    "calendar_lineage_required": true,
+    "price_series_lineage_required": true,
+    "corporate_action_status_required": true,
+    "complete_edges_required": 54,
+    "performance_authorized_only_when_complete_edges_equal_required": true
+  },
+  "acquisition_only_controls": {
+    "return_calculation_allowed": false,
+    "edge_spread_calculation_allowed": false,
+    "concordance_calculation_allowed": false,
+    "performance_summary_allowed": false,
+    "model_mutation_allowed": false,
+    "dominance_relation_mutation_allowed": false,
+    "candidate_membership_mutation_allowed": false,
+    "portfolio_mutation_allowed": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "classification": {
+    "pass_status": "PASS_R2_OUTCOME_EVIDENCE_READY_FOR_PERFORMANCE",
+    "partial_status": "PARTIAL_R2_OUTCOME_EVIDENCE_STILL_INCOMPLETE",
+    "fail_status": "FAIL_R2_OUTCOME_EVIDENCE_ACQUISITION_INTEGRITY"
+  },
+  "phase_boundary": {
+    "phase3d_r2_started": true,
+    "phase3d_r2_performance_started": false,
+    "phase3d_r2_complete": false,
+    "phase3e_r2_started": false,
+    "repeat_phase3f_started": false,
+    "phase3_historical_validation_complete": false,
+    "phase4_entry_allowed": false
+  },
+  "acquisition_runtime_policy": {
+    "per_call_attempts": 2,
+    "per_attempt_timeout_seconds": 15,
+    "retry_backoff_seconds": 1,
+    "fail_closed_on_all_provider_attempts_exhausted": true,
+    "rationale": "REUSE_EXISTING_FMDL_HISTORICAL_SOURCE_TIMEOUT_PATTERN_AND_PREVENT_HALF_OPEN_FREE_SOURCE_STALL"
+  }
+}

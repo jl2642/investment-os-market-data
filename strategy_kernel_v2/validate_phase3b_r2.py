@@ -162,7 +162,11 @@ def validate() -> list[str]:
             if current.get("current_phase") != expected_current_phase:
                 errors.append("R2_CURRENT_HOLDOUT_H1_PHASE_MISMATCH")
             expected_next = (
-                "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+                (
+                    "PHASE_3D_R2_PERFORMANCE_MEASUREMENT"
+                    if state.get("phase3d_r2_outcome_evidence_acquisition_complete") is True
+                    else "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+                )
                 if phase3d_r2_downstream
                 else (
                     "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
