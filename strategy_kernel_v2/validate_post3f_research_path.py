@@ -102,8 +102,17 @@ def validate():
                     errors.append("HOLDOUT_H1_CURRENT_STATE_INVALID")
                 if cv.get("holdout_h2_started") is not False:
                     errors.append("HOLDOUT_H1_PREMATURE_H2")
-                if current.get("next_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION":
-                    errors.append("HOLDOUT_H1_CURRENT_NEXT_PHASE_NOT_EXPANSION")
+                holdout_v2_pass = (
+                    state.get("holdout_v2_selection_complete") is True
+                    and state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
+                )
+                expected_next = (
+                    "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                    if holdout_v2_pass
+                    else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+                )
+                if current.get("next_phase") != expected_next:
+                    errors.append("HOLDOUT_CURRENT_NEXT_PHASE_DRIFT")
             else:
                 if cv.get("holdout_build_started") is not False:
                     errors.append("R2B_CURRENT_PREMATURE_HOLDOUT")
