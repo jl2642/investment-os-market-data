@@ -97,7 +97,10 @@ class Post3FResearchPathTests(unittest.TestCase):
             self.assertFalse(self.current["validation"]["r2_historical_performance_claimed"])
             self.assertFalse(self.current["validation"]["holdout_build_started"])
             self.assertEqual(self.current["next_phase"], "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE")
-        elif phase == "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+        elif phase in {
+            "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE",
+            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+        }:
             self.assertTrue(self.state["r2_phase3c_r2b_complete"])
             self.assertTrue(self.state["holdout_h1_started"])
             self.assertTrue(self.state["holdout_h1_complete"])
@@ -111,11 +114,22 @@ class Post3FResearchPathTests(unittest.TestCase):
                     "PASS_INDEPENDENT_HOLDOUT_REPLAY_OPERATIONAL",
                 )
                 self.assertTrue(self.current["validation"]["phase3d_r2_start_allowed"])
-                self.assertFalse(self.current["validation"]["phase3d_r2_started"])
-                self.assertEqual(
-                    self.current["next_phase"],
-                    "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
-                )
+                if self.state.get("phase3d_r2_round1_evidence_audit_complete"):
+                    self.assertTrue(self.current["validation"]["phase3d_r2_started"])
+                    self.assertEqual(
+                        self.state["phase3d_r2_round1_outcome"],
+                        "PASS_R2_MEASURABILITY_CONTRACT_FROZEN_EVIDENCE_ACQUISITION_REQUIRED",
+                    )
+                    self.assertEqual(
+                        self.current["next_phase"],
+                        "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION",
+                    )
+                else:
+                    self.assertFalse(self.current["validation"]["phase3d_r2_started"])
+                    self.assertEqual(
+                        self.current["next_phase"],
+                        "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+                    )
             elif self.state.get("holdout_v2_selection_complete"):
                 self.assertFalse(self.current["validation"]["holdout_h2_started"])
                 self.assertEqual(self.state["holdout_v2_selection_outcome"], "PASS_SELECTION_SUFFICIENCY")
