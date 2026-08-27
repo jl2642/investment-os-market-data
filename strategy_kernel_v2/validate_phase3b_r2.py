@@ -121,6 +121,7 @@ def validate() -> list[str]:
     holdout_h1_downstream = state.get("holdout_h1_started") is True
     holdout_v2_downstream = state.get("holdout_v2_selection_complete") is True
     holdout_replay_downstream = state.get("independent_holdout_replay_complete") is True
+    phase3d_r2_round1_downstream = state.get("phase3d_r2_round1_evidence_audit_complete") is True
     if r2b_downstream:
         if state.get("r2_phase3c_replay_started") is not True or state.get("r2_real_historical_replay_executed") is not True:
             errors.append("R2_LEGAL_R2B_DOWNSTREAM_REPLAY_STATE_INVALID")
@@ -132,8 +133,9 @@ def validate() -> list[str]:
             if holdout_replay_downstream:
                 if state.get("holdout_h2_started") is not True:
                     errors.append("R2_LEGAL_HOLDOUT_REPLAY_H2_NOT_STARTED")
-                if state.get("phase3d_r2_started") is not False:
-                    errors.append("R2_LEGAL_HOLDOUT_REPLAY_PREMATURE_3D_R2")
+                expected_3d_started = True if phase3d_r2_round1_downstream else False
+                if state.get("phase3d_r2_started") is not expected_3d_started:
+                    errors.append("R2_LEGAL_HOLDOUT_REPLAY_3D_R2_STATE_DRIFT")
             elif state.get("holdout_h2_started") is not False:
                 errors.append("R2_LEGAL_HOLDOUT_H1_PREMATURE_H2")
         elif state.get("holdout_build_started") is not False:
@@ -146,15 +148,24 @@ def validate() -> list[str]:
     cv = current.get("validation", {})
     if r2b_downstream:
         if holdout_h1_downstream:
-            if current.get("current_phase") != "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE":
+            expected_current_phase = (
+                "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+                if phase3d_r2_round1_downstream
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+            )
+            if current.get("current_phase") != expected_current_phase:
                 errors.append("R2_CURRENT_HOLDOUT_H1_PHASE_MISMATCH")
             expected_next = (
-                "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
-                if holdout_replay_downstream
+                "PHASE_3D_R2_OUTCOME_EVIDENCE_ACQUISITION"
+                if phase3d_r2_round1_downstream
                 else (
-                    "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
-                    if holdout_v2_downstream and state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
-                    else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+                    "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+                    if holdout_replay_downstream
+                    else (
+                        "INDEPENDENT_POINT_IN_TIME_HOLDOUT_R2_REPLAY"
+                        if holdout_v2_downstream and state.get("holdout_v2_selection_outcome") == "PASS_SELECTION_SUFFICIENCY"
+                        else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE_EXPANSION"
+                    )
                 )
             )
             if current.get("next_phase") != expected_next:
