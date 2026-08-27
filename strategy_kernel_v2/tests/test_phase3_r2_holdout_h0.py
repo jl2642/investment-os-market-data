@@ -20,7 +20,7 @@ class Phase3R2HoldoutH0Tests(unittest.TestCase):
 
     def test_identity_and_parent_are_frozen(self):
         c = self.contract
-        self.assertEqual(c["status"], "FROZEN_BEFORE_HOLDOUT_SELECTION_OR_R2_REPLAY")
+        self.assertEqual(c["status"], "FROZEN_BEFORE_HOLDOUT_SELECTION_OR_R2_REPLAY_WITH_PRESELECTION_FEASIBILITY_CORRECTION")
         self.assertEqual(c["model_form"], "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2")
         self.assertEqual(c["model_version"], "R2.0.1_RESEARCH")
         self.assertEqual(c["parent_program_plan_sync_pr"], 319)
@@ -81,11 +81,19 @@ class Phase3R2HoldoutH0Tests(unittest.TestCase):
         self.assertEqual(q["minimum_distinct_evidence_regime_signatures"], 4)
         self.assertEqual(q["minimum_unique_securities"], 6)
         self.assertEqual(q["minimum_opportunity_profile_instances"], 48)
-        self.assertEqual(q["minimum_checkpoints_strictly_outside_seed_time_span"], 2)
+        self.assertEqual(q["minimum_checkpoints_strictly_outside_seed_time_span"], 1)
         self.assertLessEqual(q["maximum_single_utc_date_fraction"], 0.40)
         self.assertLessEqual(q["maximum_single_evidence_regime_fraction"], 0.50)
         self.assertTrue(q["all_thresholds_must_pass"])
         self.assertTrue(q["threshold_change_after_holdout_selection_or_replay_result_forbidden"])
+        amendments = self.contract.get("amendment_history", [])
+        self.assertEqual(len(amendments), 1)
+        self.assertEqual(amendments[0]["amendment_id"], "H0_1_PRESELECTION_OUTSIDE_SEED_FEASIBILITY_CORRECTION")
+        self.assertFalse(amendments[0]["h1_selection_started"])
+        self.assertFalse(amendments[0]["holdout_ledger_observed"])
+        self.assertFalse(amendments[0]["r2_holdout_replay_observed"])
+        self.assertFalse(amendments[0]["realized_outcomes_observed"])
+        self.assertFalse(amendments[0]["outcome_or_model_tuning"])
 
     def test_downstream_sequence_preserves_d_r2_e_r2_and_repeat_3f(self):
         self.assertEqual(
