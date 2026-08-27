@@ -359,3 +359,17 @@ The H0/H0.1 selector was executed on protected-main first-parent history only. I
 **Next gate:** after remote acceptance of this contract, run V2 deterministic selection only. H2 remains blocked unless the unchanged 12-checkpoint/multi-axis sufficiency gate passes. Phase 3D-R2, Phase 3E-R2, repeat Phase 3F and Phase 4 remain blocked.
 
 **Authority:** no effective-policy, Candidate, Real/Simulation, target-portfolio, user-decision, investment-recommendation, order or trade-authority mutation. `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
+
+## 2026-08-27 — Independent PIT Holdout V2 deterministic selection result
+
+**Result:** `PASS_SELECTION_SUFFICIENCY` under the already accepted V2 pre-result contract.
+
+Observed coverage: **14** canonical first-parent checkpoints, **10** UTC dates, **5** ISO weeks, **9** evidence-regime signatures, **18** research securities, **252** opportunity-profile instances, **4** checkpoints outside the original seed span, **21.43%** maximum single-date concentration and **28.57%** maximum single-regime concentration. Every unchanged H0.1 sufficiency requirement passed, including the preserved minimum checkpoint requirement of 12.
+
+**Selection integrity:** 7 seed commits excluded; 1 structurally ineligible commit; 122 first-parent commits with no frozen fingerprint change; 14 selected. No threshold, family, security scope, model transform or comparison signature changed after the result. R2 profile compute/replay, Phase 3D result reads, realized outcomes, future returns, regret/calibration and manual/random/discretionary subsampling all remained zero.
+
+**Evidence:** V2 selection ledger SHA-256 `241bb441a960b2ccfb46a708ae81f7b38d5b2389215362406255cd4945b337be`; workflow artifact ID `9632556105`; artifact digest `sha256:73b9bb0734848537ced9078a924020522607eff266e12bbee775d10c98b4f51d`.
+
+**Governed consequence:** H2 Frozen R2 Holdout Replay is now authorized but not started. This is not a Phase 4 authorization and does not complete Phase 3 historical validation. Phase 3D-R2, Phase 3E-R2 and repeat Phase 3F remain downstream; Phase 4 remains blocked.
+
+**Authority:** no effective policy, Candidate, Real/Simulation, target-portfolio, user-decision, investment-recommendation, order or trade-authority mutation. `orders=0`, `trade_authority=NONE`.
