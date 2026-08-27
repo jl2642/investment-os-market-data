@@ -27,6 +27,10 @@ jobs:
         run: python -m unittest strategy_kernel_v2.tests.test_phase3c_r2b
       - name: Validate Phase 3C-R2B mechanical replay and full audit
         run: python -m strategy_kernel_v2.validate_phase3c_r2b
+      - name: Run Holdout H0 contract tests
+        run: python -m unittest strategy_kernel_v2.tests.test_phase3_r2_holdout_h0
+      - name: Validate Holdout H0 contract freeze
+        run: python -m strategy_kernel_v2.validate_phase3_r2_holdout_h0
       - name: Re-validate Phase 3C-R2A parent
         run: python -m strategy_kernel_v2.validate_phase3c_r2a
       - name: Re-validate Phase 3B-R2 contract
