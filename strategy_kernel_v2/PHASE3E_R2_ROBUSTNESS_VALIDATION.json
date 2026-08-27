@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "PHASE_3E_R2",
+  "status": "ACCEPTED_COMPLETE_R2_PREDECLARED_ROBUSTNESS_EVALUATION_DESCRIPTIVE_ONLY",
+  "parent_pr": 331,
+  "parent_candidate_head": "97896ab757b40f30977f9b28db6a3e01a2e5010a",
+  "source_measurement_sha256": "a3e474745dc8074be363f3d9b8e7082923bd67adeff6c6e42431e1f6a406edad",
+  "source_support_gate_sha256": "c6288bb86700af9de8089fd14e1be379bb1beef4d4eeb537cf1f2e471c37d404",
+  "robustness_sha256": "6cbd096716dc577dc643577795556d765d452b50a09f2e05ee5f253bd1b7e32f",
+  "workflow_run": 33054269550,
+  "artifact_id": 9638968464,
+  "artifact_digest": "sha256:b066063b230e348e99b115efa1821e4305847caf91930852ed09ff7f3228b6ee",
+  "execution": {
+    "completed_test_count": 5,
+    "checkpoint_jackknife_count": 13,
+    "security_jackknife_count": 7,
+    "signature_strata_count": 2,
+    "signature_jackknife_count": 2,
+    "aggregation_scheme_horizon_record_count": 9,
+    "integrity_errors": 0
+  },
+  "baseline": {
+    "h1": {
+      "concordance_rate": "0.629629629630",
+      "mean_edge_return_spread": "0.000276359547"
+    },
+    "h3": {
+      "concordance_rate": "0.537037037037",
+      "mean_edge_return_spread": "0.001040897221"
+    },
+    "h5": {
+      "concordance_rate": "0.500000000000",
+      "mean_edge_return_spread": "-0.000638182257"
+    }
+  },
+  "checkpoint_jackknife_ranges": {
+    "h1": {
+      "concordance_rate": [
+        "0.600000000000",
+        "0.708333333333"
+      ],
+      "mean_edge_return_spread": [
+        "-0.000943103566",
+        "0.003058554620"
+      ]
+    },
+    "h3": {
+      "concordance_rate": [
+        "0.500000000000",
+        "0.583333333333"
+      ],
+      "mean_edge_return_spread": [
+        "-0.001258555186",
+        "0.004375186677"
+      ]
+    },
+    "h5": {
+      "concordance_rate": [
+        "0.460000000000",
+        "0.541666666667"
+      ],
+      "mean_edge_return_spread": [
+        "-0.005675511902",
+        "0.002404979672"
+      ]
+    }
+  },
+  "security_jackknife_ranges": {
+    "h1": {
+      "concordance_rate": [
+        "0.571428571429",
+        "0.653846153846"
+      ],
+      "mean_edge_return_spread": [
+        "-0.002350042899",
+        "0.002227099051"
+      ]
+    },
+    "h3": {
+      "concordance_rate": [
+        "0.392857142857",
+        "0.733333333333"
+      ],
+      "mean_edge_return_spread": [
+        "-0.005854878786",
+        "0.008696973847"
+      ]
+    },
+    "h5": {
+      "concordance_rate": [
+        "0.392857142857",
+        "0.733333333333"
+      ],
+      "mean_edge_return_spread": [
+        "-0.007000091216",
+        "0.011841276054"
+      ]
+    }
+  },
+  "signature_structure": {
+    "edge_counts": [
+      52,
+      2
+    ],
+    "major_signature_h1": {
+      "concordance_rate": "0.653846153846",
+      "mean_edge_return_spread": "0.000698550804"
+    },
+    "minor_signature_h1": {
+      "concordance_rate": "0.000000000000",
+      "mean_edge_return_spread": "-0.010700613137"
+    }
+  },
+  "aggregation_weighting_sensitivity": {
+    "h1": {
+      "equal_edge": {
+        "concordance_rate": "0.629629629630",
+        "mean_edge_return_spread": "0.000276359547"
+      },
+      "equal_checkpoint": {
+        "concordance_rate": "0.653846153846",
+        "mean_edge_return_spread": "0.001132419569"
+      },
+      "equal_signature": {
+        "concordance_rate": "0.326923076923",
+        "mean_edge_return_spread": "-0.005001031166"
+      }
+    },
+    "h3": {
+      "equal_edge": {
+        "concordance_rate": "0.537037037037",
+        "mean_edge_return_spread": "0.001040897221"
+      },
+      "equal_checkpoint": {
+        "concordance_rate": "0.551282051282",
+        "mean_edge_return_spread": "0.002066832438"
+      },
+      "equal_signature": {
+        "concordance_rate": "0.519230769231",
+        "mean_edge_return_spread": "-0.004450794030"
+      }
+    },
+    "h5": {
+      "equal_edge": {
+        "concordance_rate": "0.500000000000",
+        "mean_edge_return_spread": "-0.000638182257"
+      },
+      "equal_checkpoint": {
+        "concordance_rate": "0.512820512821",
+        "mean_edge_return_spread": "-0.000100400293"
+      },
+      "equal_signature": {
+        "concordance_rate": "0.500000000000",
+        "mean_edge_return_spread": "0.007460121256"
+      }
+    }
+  },
+  "interpretation": {
+    "positive_robustness_claimed": false,
+    "statistical_significance_claimed": false,
+    "robustness_pass_fail_threshold_defined": false,
+    "observed_predeclared_axis_sensitivity": true,
+    "note": "The accepted robustness program is complete, but direction and magnitude are sensitive to security/signature omission and aggregation weighting. The 52-versus-2 signature imbalance is especially material descriptively. These facts must be carried into the mandatory repeat Phase 3F gate; no post-result robustness threshold is invented."
+  },
+  "governed_consequence": {
+    "phase3e_r2_complete": true,
+    "repeat_phase3f_start_allowed": true,
+    "repeat_phase3f_started": false,
+    "phase3_historical_validation_complete": false,
+    "phase4_entry_allowed": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

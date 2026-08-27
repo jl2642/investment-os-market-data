@@ -310,7 +310,7 @@ Observed Round 1 result:
 
 Outcome Evidence Acquisition returned `PASS_R2_OUTCOME_EVIDENCE_READY_FOR_PERFORMANCE`: 55/55 endpoint instances and 54/54 frozen dominance edges complete. Deterministic Performance Measurement then consumed only the frozen compact pack and completed 165/165 endpoint returns plus 162/162 edge-horizon records. +1/+3/+5 concordance = 34/54, 29/54, 27/54; mean edge-return spreads = +0.000276359547, +0.001040897221, -0.000638182257. The all-horizon pooled descriptive rate is 90/162 with mean spread +0.000226358170, but repeated edges/securities/checkpoints and nested horizons make this non-independent and non-inferential. Measurement SHA-256 = `a3e474745dc8074be363f3d9b8e7082923bd67adeff6c6e42431e1f6a406edad`. Phase 3D-R2 is complete. Because no 3E-R2 support threshold existed before these values were observed, the next governed substep is **Phase 3E-R2 Structural Support Gate Contract**; it may not use the observed concordance/spread values to invent a cutoff.
 
-#### R2-5 Phase 3E-R2 — STRUCTURALLY SUPPORTED / ROBUSTNESS READY / NOT STARTED
+#### R2-5 Phase 3E-R2 — COMPLETE / PREDECLARED ROBUSTNESS EVIDENCE ACCEPTED / SENSITIVITY CARRIED FORWARD
 The result-value-blind structural support gate returned `PASS_R2_STRUCTURAL_SUPPORT_FOR_ROBUSTNESS` with 5/5 predefined robustness axes evaluable and zero reads of observed return/spread/concordance values for the gate decision. No post-result numeric threshold was created.
 
 The robustness plan is now frozen before execution:
@@ -320,9 +320,9 @@ The robustness plan is now frozen before execution:
 4. 2-signature stratification and leave-one-signature-out tests;
 5. equal-edge / equal-checkpoint / equal-signature aggregation-weighting sensitivity.
 
-Only one axis may change at a time. No simultaneous multi-axis search, result-driven subset selection, model/transform mutation, dominance recomputation, outcome refetch or outcome-value mutation is allowed. The old 3E result for original candidate forms remains historical-only evidence and does not satisfy R2 robustness.
+Only one axis changed at a time. No simultaneous multi-axis search, result-driven subset selection, model/transform mutation, dominance recomputation, outcome refetch or outcome-value mutation occurred. All five predefined tests completed with zero integrity errors. The result is accepted as completed robustness evidence, not as a positive robustness claim: security/signature/weighting sensitivity is material descriptively, including a 52-versus-2 exact-signature imbalance and an equal-signature +1-session result of 32.69% concordance / -0.5001% mean spread versus equal-edge 62.96% / +0.0276%. These limitations are mandatory inputs to R2-6 Repeat Phase 3F. The old 3E result for original candidate forms remains historical-only evidence.
 
-#### R2-6 Repeat Phase 3F — MANDATORY / NOT STARTED
+#### R2-6 Repeat Phase 3F — MANDATORY / AUTHORIZED / NOT STARTED
 Re-evaluate all four Phase 4 promotion requirements:
 1. valid R2 point-in-time historical replay;
 2. measurable R2 Phase 3D evidence;

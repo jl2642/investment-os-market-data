@@ -150,7 +150,7 @@ def validate() -> tuple[list[str], dict]:
             "independent_holdout_replay_comparable_profiles": first["comparable_profile_instances"],
             "phase3d_r2_start_allowed": first["phase3d_r2_start_allowed"],
             "phase3d_r2_started": phase3d_r2_downstream,
-            "phase3e_r2_started": False,
+            "phase3e_r2_started": state.get("phase3e_r2_complete") is True,
             "repeat_phase3f_started": False,
             "phase3_historical_validation_complete": False,
             "phase4_entry_allowed": False,
@@ -168,10 +168,15 @@ def validate() -> tuple[list[str], dict]:
                 errors.append("HOLDOUT_REPLAY_PHASE3D_R2_ROUND1_STATUS_DRIFT")
             if state.get("phase3d_r2_performance_started") is not bool(state.get("phase3d_r2_performance_measurement_complete")):
                 errors.append("HOLDOUT_REPLAY_PHASE3D_R2_PREMATURE_PERFORMANCE")
+        phase3e_r2_downstream = state.get("phase3e_r2_started") is True
         expected_current_phase = (
-            "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
-            if phase3d_r2_downstream
-            else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+            "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+            if phase3e_r2_downstream
+            else (
+                "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+                if phase3d_r2_downstream
+                else "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE"
+            )
         )
         if current.get("current_phase") != expected_current_phase:
             errors.append("HOLDOUT_REPLAY_CURRENT_PHASE_DRIFT")
@@ -179,7 +184,11 @@ def validate() -> tuple[list[str], dict]:
             (
                 (
                     (
-                        "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                        (
+                            "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+                            if state.get("phase3e_r2_complete") is True
+                            else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                        )
                         if state.get("phase3e_r2_structural_support_gate_complete") is True
                         else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
                     )

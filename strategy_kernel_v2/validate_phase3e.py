@@ -211,6 +211,7 @@ def validate() -> list[str]:
         "PHASE_3C_R2_POINT_IN_TIME_REPLAY",
         "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE",
         "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED",
+        "PHASE_3E_R2_ROBUSTNESS_EXECUTION",
     }
     if current_phase not in allowed_current_phases:
         errors.append("CURRENT_PHASE_NOT_3E_OR_LEGAL_DOWNSTREAM")
@@ -237,7 +238,7 @@ def validate() -> list[str]:
             errors.append("LEGAL_3F_DOWNSTREAM_LOOPBACK_DRIFT")
     elif current_phase == "POST_PHASE3F_RESEARCH_PATH_DECISION":
         _validate_post3f_and_r2(errors, state, current, False)
-    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"}:
+    elif current_phase in {"PHASE_3B_R2_REVISED_MODEL_CONTRACT", "PHASE_3C_R2_POINT_IN_TIME_REPLAY", "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE", "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED", "PHASE_3E_R2_ROBUSTNESS_EXECUTION"}:
         _validate_post3f_and_r2(errors, state, current, True)
 
     for surface_name, surface in [

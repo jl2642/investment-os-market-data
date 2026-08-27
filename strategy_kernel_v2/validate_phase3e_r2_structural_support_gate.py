@@ -81,9 +81,9 @@ def validate():
             "phase3e_r2_aggregation_weighting_scheme_count": 3,
             "phase3e_r2_start_allowed": True,
             "phase3e_r2_robustness_execution_start_allowed": True,
-            "phase3e_r2_started": False,
-            "phase3e_r2_robustness_started": False,
-            "phase3e_r2_complete": False,
+            "phase3e_r2_started": state.get("phase3e_r2_complete") is True,
+            "phase3e_r2_robustness_started": state.get("phase3e_r2_complete") is True,
+            "phase3e_r2_complete": state.get("phase3e_r2_complete") is True,
             "repeat_phase3f_started": False,
             "phase3_historical_validation_complete": False,
             "phase4_entry_allowed": False,
@@ -93,9 +93,19 @@ def validate():
                 errors.append("R2E_SUPPORT_CLOSEOUT_STATE_DRIFT:" + key)
             if cv.get(key) != value:
                 errors.append("R2E_SUPPORT_CLOSEOUT_CURRENT_DRIFT:" + key)
-        if current.get("status") != "PHASE3E_R2_STRUCTURAL_SUPPORT_PASS_ROBUSTNESS_READY_PHASE4_BLOCKED":
+        expected_status = (
+            "PHASE3E_R2_COMPLETE_REPEAT_PHASE3F_REQUIRED_PHASE4_BLOCKED"
+            if state.get("phase3e_r2_complete") is True
+            else "PHASE3E_R2_STRUCTURAL_SUPPORT_PASS_ROBUSTNESS_READY_PHASE4_BLOCKED"
+        )
+        expected_next = (
+            "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+            if state.get("phase3e_r2_complete") is True
+            else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+        )
+        if current.get("status") != expected_status:
             errors.append("R2E_SUPPORT_CLOSEOUT_STATUS_DRIFT")
-        if current.get("next_phase") != "PHASE_3E_R2_ROBUSTNESS_EXECUTION":
+        if current.get("next_phase") != expected_next:
             errors.append("R2E_SUPPORT_CLOSEOUT_NEXT_DRIFT")
 
     controls = result["controls"]

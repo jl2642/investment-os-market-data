@@ -65,7 +65,7 @@ def validate():
             "phase3d_r2_performance_start_allowed": True,
             "phase3d_r2_performance_started": performance_complete,
             "phase3d_r2_complete": performance_complete,
-            "phase3e_r2_started": False,
+            "phase3e_r2_started": state.get("phase3e_r2_complete") is True,
             "repeat_phase3f_started": False,
             "phase3_historical_validation_complete": False,
             "phase4_entry_allowed": False,
@@ -75,11 +75,20 @@ def validate():
                 errors.append("R2_OUTCOME_EVIDENCE_STATE_DRIFT:" + key)
             if cv.get(key) != value:
                 errors.append("R2_OUTCOME_EVIDENCE_CURRENT_DRIFT:" + key)
-        if current.get("current_phase") != "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED":
+        expected_current_phase = (
+            "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+            if state.get("phase3e_r2_started") is True
+            else "PHASE_3D_R2_MEASURABILITY_AND_PERFORMANCE_IF_SUPPORTED"
+        )
+        if current.get("current_phase") != expected_current_phase:
             errors.append("R2_OUTCOME_EVIDENCE_CURRENT_PHASE_DRIFT")
         expected_next = (
             (
-                "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                (
+                    "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+                    if state.get("phase3e_r2_complete") is True
+                    else "PHASE_3E_R2_ROBUSTNESS_EXECUTION"
+                )
                 if state.get("phase3e_r2_structural_support_gate_complete") is True
                 else "PHASE_3E_R2_STRUCTURAL_SUPPORT_GATE_CONTRACT"
             )
