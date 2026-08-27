@@ -86,6 +86,17 @@ class Post3FResearchPathTests(unittest.TestCase):
             self.assertFalse(self.current["validation"]["r2_real_historical_replay_executed"])
             self.assertFalse(self.current["validation"]["r2_historical_performance_claimed"])
             self.assertEqual(self.current["next_phase"], "PHASE_3C_R2_POINT_IN_TIME_REPLAY")
+        elif phase == "PHASE_3C_R2_POINT_IN_TIME_REPLAY":
+            contract = load("PHASE3B_R2_MODEL_CONTRACT.json")
+            self.assertEqual(contract["status"], "FROZEN_REVISED_MODEL_CONTRACT_NO_HISTORICAL_REPLAY")
+            self.assertEqual(contract["model"]["model_form"], "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2")
+            self.assertTrue(self.state["r2_phase3b_contract_definition_complete"])
+            self.assertTrue(self.state["r2_phase3c_replay_started"])
+            self.assertTrue(self.state["r2_phase3c_r2b_complete"])
+            self.assertTrue(self.current["validation"]["r2_real_historical_replay_executed"])
+            self.assertFalse(self.current["validation"]["r2_historical_performance_claimed"])
+            self.assertFalse(self.current["validation"]["holdout_build_started"])
+            self.assertEqual(self.current["next_phase"], "INDEPENDENT_POINT_IN_TIME_HOLDOUT_COVERAGE")
         else:
             self.fail("unexpected current phase for Post-3F monotonic regression: " + str(phase))
 
