@@ -94,6 +94,7 @@ def yahoo_symbol(market: str, raw_symbol: str) -> str:
 
 
 def parse_latest_yahoo(payload: bytes) -> dict[str, Any]:
+    """Return the latest positive row for backward-compatible diagnostics only."""
     data = json.loads(payload)
     result = ((data.get("chart") or {}).get("result") or [None])[0]
     if not result:
@@ -116,6 +117,38 @@ def parse_latest_yahoo(payload: bytes) -> dict[str, Any]:
     raise ValueError("no positive close in Yahoo payload")
 
 
+def parse_yahoo_for_date(payload: bytes, target: date) -> dict[str, Any]:
+    """Select the exact requested completed session even if the payload is newer."""
+    data = json.loads(payload)
+    result = ((data.get("chart") or {}).get("result") or [None])[0]
+    if not result:
+        raise ValueError("empty Yahoo chart result")
+    timestamps = result.get("timestamp") or []
+    quote = (((result.get("indicators") or {}).get("quote") or [{}])[0])
+    closes = quote.get("close") or []
+    volumes = quote.get("volume") or []
+    observed_dates=[]
+    for idx in range(min(len(timestamps), len(closes))):
+        ts=int(timestamps[idx])
+        observed=datetime.fromtimestamp(ts,tz=timezone.utc).date()
+        observed_dates.append(observed.isoformat())
+        if observed != target:
+            continue
+        close=closes[idx]
+        if close is None or float(close) <= 0:
+            raise ValueError(f"TARGET_SESSION_CLOSE_INVALID:{target.isoformat()}")
+        return {
+            "trade_date": target.isoformat(),
+            "close": round(float(close),8),
+            "volume": int(volumes[idx] or 0) if idx < len(volumes) else 0,
+            "currency": str((result.get("meta") or {}).get("currency") or ""),
+        }
+    latest=max(observed_dates) if observed_dates else "NONE"
+    raise ValueError(
+        f"SESSION_NOT_COMPLETED_FOR_AS_OF:expected={target.isoformat()},latest_observed={latest}"
+    )
+
+
 def fetch_dual_route_market(market: str, symbol: str, as_of: date, fetcher: Fetcher) -> dict[str, Any]:
     vendor_symbol = yahoo_symbol(market, symbol)
     period2 = int(datetime.combine(as_of + timedelta(days=2), datetime.min.time(), tzinfo=timezone.utc).timestamp())
@@ -126,15 +159,13 @@ def fetch_dual_route_market(market: str, symbol: str, as_of: date, fetcher: Fetc
     for route in (1, 2):
         raw = fetcher(template.format(route=route, symbol=vendor_symbol, p1=period1, p2=period2), {"User-Agent": "Mozilla/5.0"})
         payloads.append(raw)
-        parsed.append(parse_latest_yahoo(raw))
+        parsed.append(parse_yahoo_for_date(raw, as_of))
     left, right = parsed
     if left["trade_date"] != right["trade_date"] or abs(left["close"] - right["close"]) > max(1e-8, left["close"] * 1e-8):
         raise ValueError("dual Yahoo routes diverged")
     trade_date = date.fromisoformat(left["trade_date"])
-    if trade_date > as_of:
-        raise ValueError("future market observation")
     if trade_date != as_of:
-        raise ValueError(f"SESSION_NOT_COMPLETED_FOR_AS_OF:expected={as_of.isoformat()},observed={trade_date.isoformat()}")
+        raise ValueError(f"SESSION_SELECTION_DRIFT:expected={as_of.isoformat()},observed={trade_date.isoformat()}")
     return {
         "market": market,
         "symbol": symbol,
