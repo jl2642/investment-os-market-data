@@ -57,15 +57,26 @@ def validate():
     if ca.get("phase4_internal_sequence")!=stages: errors.append("A1_CONTRACT_SEQUENCE")
 
     if not s.get("program_amendment_a1_frozen"): errors.append("A1_STATE_NOT_FROZEN")
-    if not s.get("phase4_effective_execution_hold"): errors.append("A1_STATE_HOLD_MISSING")
-    if s.get("phase4_effective_forward_observation_start_allowed"): errors.append("A1_STATE_EFFECTIVE_START_OPEN")
-    if s.get("phase4_forward_observation_count")!=0 or s.get("phase4_realized_outcome_read_count")!=0: errors.append("A1_STATE_FORWARD_EVIDENCE_NONZERO")
+    baseline_accepted = s.get("phase4_p4_5_clean_baseline_accepted") is True
+    if not baseline_accepted:
+        if not s.get("phase4_effective_execution_hold"): errors.append("A1_STATE_HOLD_MISSING")
+        if s.get("phase4_effective_forward_observation_start_allowed"): errors.append("A1_STATE_EFFECTIVE_START_OPEN")
+        if s.get("phase4_forward_observation_count")!=0 or s.get("phase4_realized_outcome_read_count")!=0: errors.append("A1_STATE_FORWARD_EVIDENCE_NONZERO")
+    else:
+        if s.get("phase4_effective_execution_hold"): errors.append("A1_STATE_HOLD_NOT_RELEASED_AFTER_BASELINE")
+        if s.get("phase4_effective_forward_observation_start_allowed") is not True: errors.append("A1_STATE_START_NOT_OPEN_AFTER_BASELINE")
+        if not s.get("phase4_p4_5_effective_cutoff_utc"): errors.append("A1_STATE_CUTOFF_MISSING_AFTER_BASELINE")
     if s.get("orders")!=0 or s.get("trade_authority")!="NONE": errors.append("A1_STATE_AUTHORITY")
 
     cu=cur.get("program_amendment_a1",{})
-    if cu.get("status") not in {"FROZEN_PRE_IMPLEMENTATION","ACTIVE_PRODUCTION_CLOSURE"} or not cu.get("phase4_effective_execution_hold"):
-        errors.append("A1_CURRENT_NOT_HELD")
-    if cu.get("effective_forward_observation_start_allowed"): errors.append("A1_CURRENT_START_OPEN")
+    if cu.get("status") not in {"FROZEN_PRE_IMPLEMENTATION","ACTIVE_PRODUCTION_CLOSURE","ACTIVE_FORWARD_VALIDATION"}:
+        errors.append("A1_CURRENT_STATUS")
+    if not baseline_accepted:
+        if not cu.get("phase4_effective_execution_hold"): errors.append("A1_CURRENT_NOT_HELD")
+        if cu.get("effective_forward_observation_start_allowed"): errors.append("A1_CURRENT_START_OPEN")
+    else:
+        if cu.get("phase4_effective_execution_hold"): errors.append("A1_CURRENT_HOLD_NOT_RELEASED")
+        if cu.get("effective_forward_observation_start_allowed") is not True: errors.append("A1_CURRENT_START_NOT_OPEN")
     allowed_next = {
         "P4_1_PRODUCTION_BACKBONE_REPAIR",
         "P4_1_MAIN_BASED_OPERATIONAL_REPAIR_IMPLEMENTATION",
@@ -76,6 +87,8 @@ def validate():
         "P4_4_TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK",
         "P4_4_MAIN_BASED_TRIGGER_SHADOW_IMPLEMENTATION",
         "P4_5_CLEAN_BASELINE_FORWARD_PARALLEL_SHADOW_VALIDATION",
+        "P4_5_MAIN_BASED_CLEAN_BASELINE_AND_FORWARD_COLLECTOR_IMPLEMENTATION",
+        "P4_5_ACTIVE_FORWARD_ACCUMULATION",
     }
     if cur.get("next_governed_work") not in allowed_next:
         errors.append("A1_NEXT_WORK")
