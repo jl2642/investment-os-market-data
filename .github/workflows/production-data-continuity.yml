@@ -1,0 +1,149 @@
+name: Production Data Continuity Correction
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/operating_current/hydrate_a_share_runtime.py"
+      - "automation/operating_current/hydrate_domain_source.py"
+      - "automation/operating_current/tests/test_hydration.py"
+      - "automation/wp3_r/publish_current_safely.sh"
+      - "automation/wp3_r/tests/test_publish_current_safely.py"
+      - "automation/cross_market/build_round3_limited_production.py"
+      - "automation/cross_market/tests/**"
+      - "scripts/validate_fmdl2b4_freshness.py"
+      - "tests/test_fmdl2b4_recovery_window.py"
+      - ".github/workflows/fmdl-daily-production.yml"
+      - ".github/workflows/fmdl-2b4-full-rebase.yml"
+      - ".github/workflows/wp3_r_weekly_screen.yml"
+      - ".github/workflows/round3-cross-market-limited-production.yml"
+      - ".github/workflows/production-data-continuity.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/production-data-continuity.yml"
+      - "automation/operating_current/hydrate_a_share_runtime.py"
+      - "automation/operating_current/hydrate_domain_source.py"
+      - "automation/wp3_r/publish_current_safely.sh"
+      - "automation/cross_market/build_round3_limited_production.py"
+      - "scripts/validate_fmdl2b4_freshness.py"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  LEGACY_A_SHARE_RECOVERY_BRANCH: automation/fmdl2b4-rebase-32948953369-a1
+  LEGACY_A_SHARE_RECOVERY_HEAD: dad9ec7ceaf2b2b2363b95d83c0edcf65860a144
+  LEGACY_A_SHARE_RECOVERY_WATERMARK: "2026-08-26"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install runtime
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Compile continuity components
+        run: |
+          python -m py_compile             automation/operating_current/hydrate_a_share_runtime.py             automation/operating_current/hydrate_domain_source.py             automation/cross_market/build_round3_limited_production.py             scripts/validate_fmdl2b4_freshness.py
+          bash -n automation/wp3_r/publish_current_safely.sh
+
+      - name: Run deterministic continuity regressions
+        run: |
+          pytest -q             automation/operating_current/tests/test_hydration.py             automation/wp3_r/tests/test_publish_current_safely.py             tests/test_fmdl2b4_recovery_window.py             automation/cross_market/tests/test_round3_limited_production.py
+
+      - name: Enforce protected-state firewall
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main --no-tags
+          changed="$(git diff --name-only origin/main...HEAD)"
+          echo "$changed"
+          if echo "$changed" | grep -Eq '^investment_os_runtime/30_STATE_CURRENT/(10_REAL_ACCOUNT|20_SIMULATION|40_CANDIDATE|60_DECISIONS)/'; then
+            echo "PRODUCTION_CONTINUITY_PROTECTED_STATE_MUTATION"
+            exit 1
+          fi
+          if echo "$changed" | grep -Eq '^strategy_kernel_v2/'; then
+            echo "PRODUCTION_CONTINUITY_STRATEGY_KERNEL_SCOPE_LEAK"
+            exit 1
+          fi
+
+  reconcile-legacy-a-share-current:
+    if: github.event_name == 'push'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Resolve whether pre-P4-1 accepted recovery must be reconciled
+        id: gate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin             refs/heads/operating-current:refs/remotes/origin/operating-current             "refs/heads/$LEGACY_A_SHARE_RECOVERY_BRANCH:refs/remotes/origin/legacy-a-share-recovery"             --force --no-tags
+          [[ "$(git rev-parse refs/remotes/origin/legacy-a-share-recovery)" == "$LEGACY_A_SHARE_RECOVERY_HEAD" ]] || {
+            echo "LEGACY_A_SHARE_RECOVERY_HEAD_DRIFT"
+            exit 1
+          }
+          python - <<'PY'
+          import json, os, subprocess
+          def show(ref,path):
+              return json.loads(subprocess.check_output(["git","show",f"{ref}:{path}"],text=True))
+          market=show("refs/remotes/origin/legacy-a-share-recovery","outputs/current/CURRENT_RELEASE.json")
+          history=show("refs/remotes/origin/legacy-a-share-recovery","outputs/history/current/HISTORY_CURRENT_MANIFEST.json")
+          factors=show("refs/remotes/origin/legacy-a-share-recovery","outputs/factors/current/FACTOR_CURRENT_RELEASE.json")
+          dates={str(market["as_of_date"]),str(history["as_of_date"]),str(factors["as_of_date"])}
+          assert dates=={os.environ["LEGACY_A_SHARE_RECOVERY_WATERMARK"]}
+          assert market["status"] in {"PUBLISHED","PUBLISHED_WITH_WARNINGS"}
+          assert not market.get("hard_failures")
+          assert factors["status"] in {"PUBLISHED","PUBLISHED_WITH_WARNINGS"}
+          current=show("refs/remotes/origin/operating-current","operating_current/domains/A_SHARE_FULL_MARKET.json")
+          needs=str(current.get("watermark_sort_key") or "") < os.environ["LEGACY_A_SHARE_RECOVERY_WATERMARK"]
+          with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as h:
+              h.write(f"required={'true' if needs else 'false'}\n")
+          print({
+              "current":current.get("watermark_sort_key"),
+              "legacy_recovery":os.environ["LEGACY_A_SHARE_RECOVERY_WATERMARK"],
+              "reconcile_required":needs,
+          })
+          PY
+
+      - name: Reconcile accepted legacy recovery into Operating Current
+        if: steps.gate.outputs.required == 'true'
+        run: |
+          python automation/operating_current/publish_operating_current.py             --domain A_SHARE_FULL_MARKET             --status PASS             --source-workflow "Production Data Continuity Legacy Recovery Reconciliation"             --source-run-id "${{ github.run_id }}"             --source-run-attempt "${{ github.run_attempt }}"             --source-branch "$LEGACY_A_SHARE_RECOVERY_BRANCH"             --source-commit "$LEGACY_A_SHARE_RECOVERY_HEAD"             --watermark "$LEGACY_A_SHARE_RECOVERY_WATERMARK"             --watermark-sort-key "$LEGACY_A_SHARE_RECOVERY_WATERMARK"             --qc-status PASS_PRE_P4_1_VALIDATED_FULL_REBASE_RECONCILED             --advance-current             --note "Reconciles already validated 2026-08-26 full-rebase runtime that predated Operating Current publication; no data regenerated."
+
+      - name: Verify reconciliation readback
+        if: steps.gate.outputs.required == 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          python - <<'PY'
+          import json,subprocess,os
+          x=json.loads(subprocess.check_output(
+              ["git","show","origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json"],
+              text=True,
+          ))
+          assert x["watermark_sort_key"] >= os.environ["LEGACY_A_SHARE_RECOVERY_WATERMARK"]
+          assert x["orders"]==0 and x["trade_authority"]=="NONE"
+          print({"A_SHARE_FULL_MARKET":x["watermark_sort_key"],"status":"RECONCILED"})
+          PY
