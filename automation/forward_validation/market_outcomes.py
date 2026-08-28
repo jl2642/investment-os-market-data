@@ -5,7 +5,7 @@ import json
 import time
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -93,7 +93,7 @@ def fetch_calendar(begin: str,end: str) -> list[str]:
 def entry_date_for_checkpoint(checkpoint_at_utc: str,calendar: list[str]) -> str:
     checkpoint=datetime.fromisoformat(checkpoint_at_utc.replace("Z","+00:00")).astimezone(CN)
     local_date=checkpoint.date().isoformat()
-    cutoff=datetime.fromisoformat(SETTLED_CUTOFF).time()
+    cutoff=time.fromisoformat(SETTLED_CUTOFF)
     if checkpoint.time()>=cutoff and local_date in calendar:
         eligible=[d for d in calendar if d<=local_date]
     else:
