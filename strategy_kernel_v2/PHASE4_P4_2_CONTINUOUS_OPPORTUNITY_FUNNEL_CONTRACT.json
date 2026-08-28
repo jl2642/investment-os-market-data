@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE4_P4_2_CONTINUOUS_OPPORTUNITY_FUNNEL_CONTRACT",
+  "as_of": "2026-08-28",
+  "status": "FROZEN_PRE_IMPLEMENTATION",
+  "parent": {
+    "amendment_pr": 338,
+    "p4_1_contract_pr": 339,
+    "p4_1_operational_pr": 340,
+    "p4_1_hotfix_pr": 341,
+    "p4_1_main_merge": "0f52bbe3c4ae1d3566ec4d44034e411331d59dd4",
+    "operating_current_bootstrap": "d019b13455d3f65cb68cd9702a9d1b110e6d0e25",
+    "p4_1_status": "COMPLETE_ACCEPTED",
+    "phase4_effective_forward_execution_hold": true
+  },
+  "objective": "Unify the existing full-market screening, Candidate observation, Research Queue, D1 and D2 capabilities into one continuous, auditable opportunity funnel that explains movement, holds, rejections and near-misses without changing investment scoring semantics or protected economic state.",
+  "existing_capability_reuse": {
+    "research_funnel_contract": "investment_os_runtime/00_CONTROL/RESEARCH_FUNNEL_CONTRACT_CURRENT.json",
+    "full_market_screening": "outputs/screens/current/",
+    "candidate_dynamic_ledger": "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LEDGER_CURRENT.json",
+    "candidate_refresh": "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_REFRESH_CURRENT.json",
+    "d1_current": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json",
+    "d2_current": "operating-current:operating_current/domains/RESEARCH_D2.json",
+    "rebuild_existing_components_not_authorized": true
+  },
+  "pre_implementation_audit": {
+    "full_market_screening_watermark": "2026-08-07",
+    "candidate_weekly_watermark": "2026-08-05",
+    "d1_watermark": "2026-08-11T10:14:00+08:00",
+    "d2_operating_watermark": "2026-08-28T03:21:12+00:00",
+    "finding": "CAPABILITIES_EXIST_BUT_WATERMARKS_AND_STAGE_STATES_ARE_FRAGMENTED",
+    "current_contract_finding": "FULL_MARKET_AND_CANDIDATE_CAPABILITY_EXISTS_SINGLE_FUNNEL_MANIFEST_PENDING"
+  },
+  "funnel_stages": [
+    "UNIVERSE",
+    "ELIGIBILITY_AND_EXCLUSIONS",
+    "MULTI_DIMENSIONAL_SCREEN",
+    "RESEARCH_LONGLIST",
+    "RESEARCH_QUEUE",
+    "D1",
+    "D2",
+    "CANDIDATE_CORE_CONTEXT",
+    "READY_FOR_USER_DECISION_CONTEXT"
+  ],
+  "required_stage_fields": [
+    "stage_id",
+    "input_count",
+    "output_count",
+    "held_count",
+    "rejected_count",
+    "near_miss_count",
+    "reason_distribution",
+    "source_watermark",
+    "source_identity"
+  ],
+  "unified_operating_surface": {
+    "branch": "operating-current",
+    "current_path": "operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json",
+    "cycle_receipt_root": "operating_current/opportunity_funnel/cycles/",
+    "near_miss_path": "operating_current/opportunity_funnel/OPPORTUNITY_NEAR_MISS_CURRENT.json",
+    "inherited_non_operating_paths_authoritative": false,
+    "protected_economic_authority": false
+  },
+  "watermark_semantics": {
+    "preserve_source_specific_watermarks": true,
+    "synthetic_single_as_of_date_forbidden": true,
+    "stale_source_must_remain_visible": true,
+    "source_gap_must_remain_visible": true,
+    "allowed_overall_status": [
+      "CURRENT",
+      "PARTIAL_STALE_UPSTREAM",
+      "BLOCKED_SOURCE_GAP",
+      "NO_NEW_THROUGHPUT_EXPLICITLY_EXPLAINED"
+    ]
+  },
+  "throughput_semantics": {
+    "zero_throughput_allowed": true,
+    "zero_throughput_requires_explicit_reason_distribution": true,
+    "no_input_stage_may_use_explicit_no_input_reason": true,
+    "standards_may_not_be_relaxed_to_manufacture_flow": true,
+    "candidate_membership_need_not_increase": true,
+    "buy_or_recommendation_output_not_required": true
+  },
+  "bounded_rotation": {
+    "preserve_existing_d1_batch_capacity": 5,
+    "preserve_existing_d2_batch_capacity": 3,
+    "p4_2_may_expand_research_capacity": false,
+    "p4_2_may_change_research_priority_scoring": false
+  },
+  "near_miss_ledger": {
+    "required": true,
+    "required_fields": [
+      "security_id",
+      "last_reached_stage",
+      "disposition",
+      "reason_code",
+      "next_trigger",
+      "source_watermarks"
+    ],
+    "global_scalar_near_miss_score_forbidden": true,
+    "outcome_based_selection_forbidden": true
+  },
+  "acceptance_gate": {
+    "minimum_distinct_cycle_fingerprints": 2,
+    "cycle_fingerprint_must_bind_source_identities_and_watermarks": true,
+    "all_required_stages_present": true,
+    "every_zero_output_stage_explained": true,
+    "near_miss_ledger_present": true,
+    "stale_and_blocked_sources_visible": true,
+    "deterministic_rebuild_same_inputs_same_semantics": true,
+    "protected_economic_state_unchanged": true,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "non_goals": [
+    "NO_NEW_SCREENING_MODEL",
+    "NO_NEW_SCALAR_INVESTMENT_SCORE",
+    "NO_R2_MODEL_OR_THRESHOLD_CHANGE",
+    "NO_UNIFIED_RECOMMENDATION_ENGINE_YET",
+    "NO_FORMAL_CANDIDATE_MEMBERSHIP_AUTOMATION",
+    "NO_REAL_OR_PROTECTED_SIMULATION_MUTATION",
+    "NO_AUTONOMOUS_SHADOW_BOOK_YET",
+    "NO_PHASE4_FORWARD_OBSERVATION_OR_OUTCOME_READ"
+  ],
+  "protected_state": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "implementation_lane": {
+    "main_based_operational_pr_required": true,
+    "must_not_merge_strategy_kernel_stacked_chain_into_main": true,
+    "expected_transaction_count_after_contract": 1,
+    "next_after_acceptance": "P4_3_UNIFIED_DECISION_AND_RECOMMENDATION_ENGINE"
+  }
+}
