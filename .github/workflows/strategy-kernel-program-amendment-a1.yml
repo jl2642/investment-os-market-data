@@ -31,7 +31,7 @@ jobs:
       - name: Run Amendment A1 regression
         run: python -m unittest strategy_kernel_v2.tests.test_program_amendment_a1 -v
       - name: Revalidate frozen Phase 4 v1 contract
-        run: python strategy_kernel_v2/validate_phase4_forward_shadow_contract.py
+        run: python -m strategy_kernel_v2.validate_phase4_forward_shadow_contract
       - name: Record zero-mutation boundary
         run: |
           echo "Program Amendment A1 freezes the Phase 4 production-reconciliation plan only." >> "$GITHUB_STEP_SUMMARY"
