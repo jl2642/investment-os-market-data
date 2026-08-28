@@ -65,7 +65,12 @@ def validate():
     cu=cur.get("program_amendment_a1",{})
     if cu.get("status")!="FROZEN_PRE_IMPLEMENTATION" or not cu.get("phase4_effective_execution_hold"): errors.append("A1_CURRENT_NOT_HELD")
     if cu.get("effective_forward_observation_start_allowed"): errors.append("A1_CURRENT_START_OPEN")
-    if cur.get("next_governed_work")!="P4_1_PRODUCTION_BACKBONE_REPAIR": errors.append("A1_NEXT_WORK")
+    allowed_next = {
+        "P4_1_PRODUCTION_BACKBONE_REPAIR",
+        "P4_1_MAIN_BASED_OPERATIONAL_REPAIR_IMPLEMENTATION",
+    }
+    if cur.get("next_governed_work") not in allowed_next:
+        errors.append("A1_NEXT_WORK")
 
     for token in ["PROGRAM_AMENDMENT_A1","P4-1","P4-5"]:
         for name,body in texts.items():

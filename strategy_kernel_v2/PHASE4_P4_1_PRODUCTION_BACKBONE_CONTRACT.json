@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE4_P4_1_PRODUCTION_BACKBONE_CONTRACT",
+  "as_of": "2026-08-28",
+  "status": "FROZEN_PRE_IMPLEMENTATION",
+  "parent_amendment": {
+    "pr": 338,
+    "amendment_id": "STRATEGY_KERNEL_PROGRAM_AMENDMENT_A1",
+    "final_head": "4bd45cd8c39c623bdf9c4e97b6fa46fe6531c1b4",
+    "p4_0_status": "COMPLETE_ACCEPTED",
+    "phase4_effective_forward_execution_hold": true
+  },
+  "objective": "Repair the low-risk operating-data and research publication backbone so forward validation can consume fresh, observable, QC-passed future evidence without using protected main merges as the daily data transport.",
+  "authority_model": {
+    "governance_canonical": {
+      "branch": "main",
+      "owns": [
+        "CODE_AND_WORKFLOWS",
+        "MODEL_AND_STRATEGY_CONTRACTS",
+        "SCHEMAS_AND_GOVERNANCE",
+        "FORMAL_CANDIDATE_MEMBERSHIP",
+        "PROTECTED_REAL_ECONOMIC_STATE",
+        "PROTECTED_SIMULATION_ECONOMIC_STATE",
+        "USER_APPROVED_STATE_CHANGES"
+      ]
+    },
+    "operating_current": {
+      "branch": "operating-current",
+      "authoritative_path_prefix": "operating_current/",
+      "owns": [
+        "LATEST_QC_PASSED_PUBLIC_DATA_RUN_POINTERS",
+        "LATEST_QC_PASSED_RESEARCH_RUN_POINTERS",
+        "CROSS_DOMAIN_WATERMARK_INDEX",
+        "OPERATING_RUN_RECEIPTS_AND_FAILURE_VISIBILITY"
+      ],
+      "inherited_non_operating_paths_authoritative": false,
+      "may_mutate_protected_economic_state": false
+    }
+  },
+  "publication_semantics": {
+    "successful_validated_run_may_update_operating_current_pointer": true,
+    "successful_operating_pointer_update_requires_main_merge": false,
+    "source_result_commit_must_exist_before_pointer_update": true,
+    "pointer_must_bind_exact_source_commit": true,
+    "pointer_must_record_source_workflow_and_run": true,
+    "pointer_must_record_data_watermark": true,
+    "pointer_must_record_qc_status": true,
+    "pointer_must_record_protected_mutation_counts": true,
+    "failed_run_may_replace_current_pointer": false,
+    "blocked_or_stale_run_may_silently_advance_pointer": false,
+    "no_op_may_preserve_existing_pointer": true,
+    "source_result_branches_remain_evidence": true,
+    "low_risk_operating_result_pr_required": false,
+    "direct_push_to_protected_main": false
+  },
+  "initial_domains": [
+    {
+      "domain_id": "A_SHARE_FULL_MARKET",
+      "sources": [
+        "fmdl-daily-production.yml",
+        "fmdl-2b4-full-rebase.yml"
+      ],
+      "current_payload": "market/history/factors/screening result commit",
+      "protected_state": false
+    },
+    {
+      "domain_id": "PORTFOLIO_MARKS",
+      "sources": [
+        "wp2_r_market_marks_refresh.yml"
+      ],
+      "current_payload": "market marks and valuation run pointer only",
+      "protected_state": false,
+      "protected_real_or_sim_economic_identity_source": "main"
+    },
+    {
+      "domain_id": "CANDIDATE_WEEKLY_OBSERVATION",
+      "sources": [
+        "wp3_r_weekly_screen.yml"
+      ],
+      "current_payload": "observation-only weekly Candidate screen",
+      "formal_candidate_membership_mutation": false
+    },
+    {
+      "domain_id": "RESEARCH_D2",
+      "sources": [
+        "research-queue-d2-auto-consumer.yml"
+      ],
+      "current_payload": "D2 research and liveness operating state",
+      "formal_candidate_membership_mutation": false
+    },
+    {
+      "domain_id": "CROSS_MARKET_LIMITED",
+      "sources": [
+        "round3-cross-market-limited-production.yml"
+      ],
+      "current_payload": "bounded HK/US market and research operating state",
+      "formal_candidate_membership_mutation": false
+    }
+  ],
+  "required_pointer_fields": [
+    "domain_id",
+    "status",
+    "source_workflow",
+    "source_run_id",
+    "source_run_attempt",
+    "source_branch",
+    "source_commit_sha",
+    "published_at_utc",
+    "data_watermark",
+    "qc_status",
+    "fail_closed",
+    "protected_mutations",
+    "orders",
+    "trade_authority"
+  ],
+  "centralized_observability": {
+    "index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
+    "run_receipt_root": "operating_current/runs/",
+    "domain_pointer_root": "operating_current/domains/",
+    "must_expose_stale_or_missing_domains": true,
+    "user_facing_daily_control_should_read_this_surface": true
+  },
+  "backlog_policy": {
+    "existing_open_operating_prs_are_historical_evidence_not_current_authority": true,
+    "new_wp2r_low_risk_eod_runs_should_not_open_daily_main_promotion_prs": true,
+    "no_bulk_merge_of_stale_daily_pr_chain": true,
+    "latest_validated_run_may_become_operating_current_without_replaying_every_intermediate_pr": true
+  },
+  "p4_1_acceptance_gate": [
+    "OPERATING_CURRENT_CONTRACT_IMPLEMENTED_ON_MAIN",
+    "OPERATING_POINTER_PUBLISHER_TESTED",
+    "A_SHARE_FULL_MARKET_POINTER_INTEGRATED",
+    "PORTFOLIO_MARKS_POINTER_INTEGRATED",
+    "CANDIDATE_WEEKLY_OBSERVATION_POINTER_INTEGRATED",
+    "RESEARCH_D2_POINTER_INTEGRATED",
+    "CROSS_MARKET_LIMITED_POINTER_INTEGRATED",
+    "CENTRAL_INDEX_EXPOSES_WATERMARKS_AND_FAILURES",
+    "FAILED_RUN_CANNOT_REPLACE_CURRENT",
+    "PROTECTED_ECONOMIC_STATE_UNCHANGED",
+    "ORDERS_ZERO",
+    "TRADE_AUTHORITY_NONE"
+  ],
+  "non_goals": [
+    "NO_R2_MODEL_CHANGE",
+    "NO_RECOMMENDATION_ENGINE_IN_P4_1",
+    "NO_CANDIDATE_MEMBERSHIP_AUTOMATION",
+    "NO_AUTONOMOUS_SHADOW_TRADING_YET",
+    "NO_REAL_ORDER_PATH",
+    "NO_PHASE4_FORWARD_OBSERVATION"
+  ],
+  "protected_state": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "implementation_lane": {
+    "must_be_based_on_protected_main": true,
+    "must_not_merge_strategy_kernel_stacked_chain_into_main": true,
+    "operational_repair_pr_required": true,
+    "p4_1_closeout_requires_operational_pr_acceptance_and_main_presence": true
+  },
+  "next_after_acceptance": "P4_2_CONTINUOUS_OPPORTUNITY_FUNNEL"
+}
