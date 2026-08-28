@@ -9,6 +9,10 @@ from strategy_kernel_v2.program_consistency import validate_program_consistency
 ROOT = Path(__file__).resolve().parent
 CONTRACT_FILE = ROOT / "PHASE4_FORWARD_SHADOW_VALIDATION_CONTRACT.json"
 
+FREEZE_HEAD = "b856147e151292e7e19d59c4a0f05d07c90b4757"
+FREEZE_TIME = "2026-08-27T13:42:29Z"
+SEMANTIC_BLOB = "82ddfa6967a092d971093f5855ffc80b13acd706"
+
 
 def _load(name: str) -> dict[str, Any]:
     return json.loads((ROOT / name).read_text(encoding="utf-8"))
@@ -21,8 +25,23 @@ def load_contract() -> dict[str, Any]:
 def validate_contract(contract: Mapping[str, Any]) -> list[str]:
     errors: list[str] = []
 
-    if contract.get("status") != "CANDIDATE_FORWARD_SHADOW_CONTRACT_PRE_EXECUTION":
-        errors.append("P4_CONTRACT_STATUS_DRIFT")
+    if contract.get("status") != "FROZEN_FORWARD_SHADOW_VALIDATION_CONTRACT_PRE_EXECUTION":
+        errors.append("P4_CONTRACT_NOT_FROZEN")
+
+    freeze = contract.get("freeze_acceptance", {})
+    expected_freeze = {
+        "accepted_candidate_head": FREEZE_HEAD,
+        "accepted_candidate_head_commit_time_utc": FREEZE_TIME,
+        "semantic_contract_git_blob_sha": SEMANTIC_BLOB,
+        "candidate_exact_head_workflows_success": 26,
+        "candidate_exact_head_workflows_failure": 0,
+        "dedicated_contract_workflow_run": 33078290558,
+        "contract_semantics_changed_at_closeout": False,
+        "future_evidence_cutoff_materialized": True,
+    }
+    for key, value in expected_freeze.items():
+        if freeze.get(key) != value:
+            errors.append("P4_FREEZE_ACCEPTANCE_DRIFT:" + key)
 
     parent = contract.get("parent_repeat_phase3f", {})
     expected_parent = {
@@ -73,10 +92,7 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
     ):
         if packet.get(key) is not True:
             errors.append("P4_SHARED_PACKET_TRUE_DRIFT:" + key)
-    for key in (
-        "model_specific_evidence_fetch_forbidden",
-        "later_checkpoint_input_backfill_forbidden",
-    ):
+    for key in ("model_specific_evidence_fetch_forbidden", "later_checkpoint_input_backfill_forbidden"):
         if packet.get(key) is not True:
             errors.append("P4_SHARED_PACKET_FIREWALL_OPEN:" + key)
     for key in ("legacy_disposition_ordinal_mapping_created", "legacy_and_r2_global_winner_comparison_created"):
@@ -85,12 +101,14 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
 
     firewall = contract.get("future_evidence_firewall", {})
     if firewall.get("eligibility_cutoff_rule") != "SOURCE_AVAILABILITY_TIME_UTC_STRICTLY_AFTER_ACCEPTED_PHASE4_CONTRACT_FREEZE_HEAD_GIT_COMMIT_TIME":
-        errors.append("P4_FUTURE_CUTOFF_DRIFT")
-    for key in (
-        "accepted_freeze_head_materialized_only_at_closeout",
-        "selector",
-        "checkpoint_deduplication_key",
-    ):
+        errors.append("P4_FUTURE_CUTOFF_RULE_DRIFT")
+    if firewall.get("accepted_freeze_head") != FREEZE_HEAD:
+        errors.append("P4_FUTURE_FREEZE_HEAD_DRIFT")
+    if firewall.get("accepted_freeze_head_commit_time_utc") != FREEZE_TIME:
+        errors.append("P4_FUTURE_FREEZE_TIME_DRIFT")
+    if firewall.get("semantic_contract_git_blob_sha") != SEMANTIC_BLOB:
+        errors.append("P4_FUTURE_SEMANTIC_BLOB_DRIFT")
+    for key in ("selector", "checkpoint_deduplication_key"):
         if not firewall.get(key):
             errors.append("P4_FUTURE_FIREWALL_MISSING:" + key)
     for key in (
@@ -103,7 +121,11 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
     ):
         if firewall.get(key) is not False:
             errors.append("P4_FUTURE_FIREWALL_OPEN:" + key)
-    for key in ("source_lineage_must_resolve_at_checkpoint", "checkpoint_packet_immutable_after_freeze", "outcomes_may_be_loaded_only_after_fixed_horizon_maturity"):
+    for key in (
+        "source_lineage_must_resolve_at_checkpoint",
+        "checkpoint_packet_immutable_after_freeze",
+        "outcomes_may_be_loaded_only_after_fixed_horizon_maturity",
+    ):
         if firewall.get(key) is not True:
             errors.append("P4_FUTURE_FIREWALL_TRUE_DRIFT:" + key)
 
@@ -157,11 +179,16 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
         errors.append("P4_AGGREGATION_SCHEME_DRIFT")
     if summaries.get("per_horizon_metrics") != ["CONCORDANCE_RATE", "MEAN_EDGE_RETURN_SPREAD"]:
         errors.append("P4_FORWARD_METRIC_DRIFT")
-    for key in ("signature_stratum_summaries_required", "leave_one_security_out_required", "leave_one_signature_out_required", "legacy_disposition_return_context_required", "legacy_disposition_return_context_is_descriptive_only"):
+    for key in (
+        "signature_stratum_summaries_required",
+        "leave_one_security_out_required",
+        "leave_one_signature_out_required",
+        "legacy_disposition_return_context_required",
+        "legacy_disposition_return_context_is_descriptive_only",
+        "legacy_disposition_ordinalization_forbidden",
+    ):
         if summaries.get(key) is not True:
             errors.append("P4_SUMMARY_REQUIREMENT_DRIFT:" + key)
-    if summaries.get("legacy_disposition_ordinalization_forbidden") is not True:
-        errors.append("P4_LEGACY_ORDINALIZATION_GUARD_MISSING")
 
     gate = contract.get("phase4_to_phase5_gate", {})
     expected_outcomes = {
@@ -187,14 +214,22 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
     sec = gate.get("security_robustness_requirement", {})
     if sec.get("minimum_retained_edges_for_evaluable_jackknife") != 12:
         errors.append("P4_SECURITY_JACKKNIFE_MIN_DRIFT")
-    for key in ("leave_one_security_out_must_be_evaluated", "every_evaluable_security_jackknife_must_pass_equal_edge_directional_requirements", "insufficient_retained_edges_blocks_completion_instead_of_counting_as_pass"):
+    for key in (
+        "leave_one_security_out_must_be_evaluated",
+        "every_evaluable_security_jackknife_must_pass_equal_edge_directional_requirements",
+        "insufficient_retained_edges_blocks_completion_instead_of_counting_as_pass",
+    ):
         if sec.get(key) is not True:
             errors.append("P4_SECURITY_JACKKNIFE_GUARD_DRIFT:" + key)
 
     sig = gate.get("signature_robustness_requirement", {})
     if sig.get("minimum_retained_edges_for_evaluable_jackknife") != 6:
         errors.append("P4_SIGNATURE_JACKKNIFE_MIN_DRIFT")
-    for key in ("leave_one_signature_out_must_be_evaluated", "every_evaluable_signature_jackknife_must_pass_equal_edge_directional_requirements", "insufficient_retained_edges_blocks_completion_instead_of_counting_as_pass"):
+    for key in (
+        "leave_one_signature_out_must_be_evaluated",
+        "every_evaluable_signature_jackknife_must_pass_equal_edge_directional_requirements",
+        "insufficient_retained_edges_blocks_completion_instead_of_counting_as_pass",
+    ):
         if sig.get(key) is not True:
             errors.append("P4_SIGNATURE_JACKKNIFE_GUARD_DRIFT:" + key)
 
@@ -205,8 +240,8 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
 
     boundary = contract.get("candidate_state_boundary", {})
     expected_boundary = {
-        "contract_freeze_closeout_applied": False,
-        "phase4_contract_frozen": False,
+        "contract_freeze_closeout_applied": True,
+        "phase4_contract_frozen": True,
         "phase4_started": False,
         "phase4_forward_observation_count": 0,
         "phase4_realized_outcome_read_count": 0,
@@ -215,7 +250,7 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
     }
     for key, value in expected_boundary.items():
         if boundary.get(key) != value:
-            errors.append("P4_CANDIDATE_BOUNDARY_DRIFT:" + key)
+            errors.append("P4_FROZEN_BOUNDARY_DRIFT:" + key)
 
     auth = contract.get("authority_boundaries", {})
     for key, value in auth.items():
@@ -250,12 +285,28 @@ def validate() -> list[str]:
         errors.append("P4_PHASE3_NOT_COMPLETE")
     if state.get("phase4_entry_allowed") is not True or state.get("phase4_start_allowed") is not True:
         errors.append("P4_ENTRY_NOT_ALLOWED")
-    if state.get("phase4_started") is not False:
-        errors.append("P4_PREMATURE_START")
-    if state.get("phase4_forward_validation_complete") is not False:
-        errors.append("P4_PREMATURE_COMPLETE")
-    if state.get("phase5_migration_allowed") is not False:
-        errors.append("P4_PREMATURE_PHASE5")
+
+    expected_state = {
+        "phase4_contract_freeze_started": True,
+        "phase4_contract_freeze_complete": True,
+        "phase4_contract_frozen": True,
+        "phase4_contract_status": "FROZEN_FORWARD_SHADOW_VALIDATION_CONTRACT_PRE_EXECUTION",
+        "phase4_contract_semantic_head": FREEZE_HEAD,
+        "phase4_contract_semantic_head_commit_time_utc": FREEZE_TIME,
+        "phase4_contract_semantic_git_blob_sha": SEMANTIC_BLOB,
+        "phase4_forward_observation_start_allowed": True,
+        "phase4_forward_observation_count": 0,
+        "phase4_realized_outcome_read_count": 0,
+        "phase4_started": False,
+        "phase4_forward_validation_complete": False,
+        "phase5_migration_allowed": False,
+    }
+    for key, value in expected_state.items():
+        if state.get(key) != value:
+            errors.append("P4_STATE_CLOSEOUT_DRIFT:" + key)
+        if key in cv and cv.get(key) != value:
+            errors.append("P4_CURRENT_CLOSEOUT_DRIFT:" + key)
+
     if current.get("next_phase") != "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION":
         errors.append("P4_CURRENT_NEXT_PHASE_DRIFT")
     if cv.get("phase4_entry_allowed") is not True or cv.get("phase4_started") is not False:
@@ -292,10 +343,11 @@ if __name__ == "__main__":
         raise AssertionError(";".join(errors))
     print(
         "PHASE4_FORWARD_SHADOW_CONTRACT_ACCEPTANCE "
-        "status=CANDIDATE_FORWARD_SHADOW_CONTRACT_PRE_EXECUTION "
-        "future_cutoff=ACCEPTED_FREEZE_HEAD_COMMIT_TIME "
+        "status=FROZEN_FORWARD_SHADOW_VALIDATION_CONTRACT_PRE_EXECUTION "
+        f"freeze_head={FREEZE_HEAD} freeze_time={FREEZE_TIME} semantic_blob={SEMANTIC_BLOB} "
         "runners=LEGACY_POLICY_BASELINE+R2.0.1_RESEARCH "
         "min_cycles=12 min_weeks=4 min_edges=24 min_signatures=2 "
         "horizons=1,3,5 aggregation=equal_edge,equal_checkpoint,equal_signature "
+        "observation_start_allowed=true observations=0 outcome_reads=0 "
         "phase4_started=false phase5=false orders=0 trade_authority=NONE"
     )

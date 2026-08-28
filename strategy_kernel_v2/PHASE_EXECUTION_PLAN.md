@@ -337,8 +337,8 @@ Current boundaries remain:
 `orders=0`;
 `trade_authority=NONE`.
 
-## Phase 4 — FORWARD PARALLEL SHADOW VALIDATION — MANDATORY / NOT STARTED / BLOCKED
-Run Legacy and surviving candidate model(s) in parallel on genuinely future evidence across multiple complete cycles. Historical replay cannot substitute for Phase 4. Phase 4 cannot start until a later 3F gate passes all mandatory historical requirements.
+## Phase 4 — FORWARD PARALLEL SHADOW VALIDATION — CONTRACT FROZEN / EXECUTION NOT STARTED
+Repeat Phase 3F has passed 4/4. P4-0 now freezes the forward validation contract before any observation counts. The hard evidence cutoff is the accepted semantic contract head `b856147e151292e7e19d59c4a0f05d07c90b4757` commit time `2026-08-27T13:42:29Z`; pre-cutoff evidence is ineligible. Forward execution remains not started.
 
 ## Phase 5 — GOVERNED MIGRATION — NOT STARTED / NOT AUTHORIZED
 Requires accepted Phase 3 and Phase 4 evidence plus a separate governed migration proposal. Effective migration is never inferred automatically from shadow performance.
@@ -346,3 +346,11 @@ Requires accepted Phase 3 and Phase 4 evidence plus a separate governed migratio
 
 #### R2-6 Final acceptance
 Repeat Phase 3F reused the original frozen four-requirement promotion contract unchanged. Result = **4/4 PASS** and `PROMOTE_TO_PHASE_4_FORWARD_VALIDATION`. Phase 3 is complete. Phase 4 is now entry-authorized but remains not started. The observed Phase 3E-R2 signature/security/weighting sensitivity must be explicitly preserved in the Phase 4 forward-shadow contract and monitoring plan.
+
+
+### P4-0 Forward Parallel Shadow Contract Freeze — COMPLETE
+Frozen runners: contemporaneous `LEGACY_POLICY_BASELINE` plus `EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2 / R2.0.1_RESEARCH`. All eligible post-cutoff substantive checkpoints are census-audited on a shared immutable packet; model-specific fetch, later input backfill, result-based checkpoint selection and silent failed-cycle dropping are forbidden.
+
+Forward completion cannot occur before at least 12 economically mature cycles, 6 dates, 4 ISO weeks, 4 evidence regimes, 6 securities, 48 R2 profiles, 24 R2 dominance edges, 2 exact signatures and 6 edges per observed signature. The frozen +1/+3/+5 session measurement is evaluated under equal-edge, equal-checkpoint and equal-signature aggregation. Every horizon/scheme must satisfy concordance ≥50% and mean edge spread ≥0; supported signature strata and leave-one-security/signature-out checks must also pass. A Phase 4 PASS permits only a separate Phase 5 migration proposal.
+
+Current boundary: contract frozen=true; observation start allowed=true; `phase4_started=false`; observation_count=0; realized_outcome_reads=0; Phase 5=false; orders=0; trade_authority=NONE.

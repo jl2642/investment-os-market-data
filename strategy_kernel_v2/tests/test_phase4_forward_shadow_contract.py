@@ -1,6 +1,9 @@
 import unittest
 
 from strategy_kernel_v2.validate_phase4_forward_shadow_contract import (
+    FREEZE_HEAD,
+    FREEZE_TIME,
+    SEMANTIC_BLOB,
     load_contract,
     validate_contract,
 )
@@ -11,15 +14,32 @@ class Phase4ForwardShadowContractTests(unittest.TestCase):
     def setUpClass(cls):
         cls.contract = load_contract()
 
-    def test_contract_is_pre_execution_and_parent_is_repeat3f_pass(self):
+    def test_contract_is_frozen_pre_execution_and_parent_is_repeat3f_pass(self):
         c = self.contract
-        self.assertEqual(c["status"], "CANDIDATE_FORWARD_SHADOW_CONTRACT_PRE_EXECUTION")
+        self.assertEqual(c["status"], "FROZEN_FORWARD_SHADOW_VALIDATION_CONTRACT_PRE_EXECUTION")
         self.assertEqual(c["parent_repeat_phase3f"]["promotion_requirement_pass_count"], 4)
         self.assertEqual(c["parent_repeat_phase3f"]["promotion_requirement_total_count"], 4)
         self.assertEqual(c["parent_repeat_phase3f"]["gate_outcome"], "PROMOTE_TO_PHASE_4_FORWARD_VALIDATION")
+        self.assertTrue(c["candidate_state_boundary"]["contract_freeze_closeout_applied"])
+        self.assertTrue(c["candidate_state_boundary"]["phase4_contract_frozen"])
         self.assertFalse(c["candidate_state_boundary"]["phase4_started"])
         self.assertEqual(c["candidate_state_boundary"]["phase4_forward_observation_count"], 0)
         self.assertEqual(c["candidate_state_boundary"]["phase4_realized_outcome_read_count"], 0)
+
+    def test_freeze_anchor_materializes_hard_future_cutoff(self):
+        c = self.contract
+        f = c["freeze_acceptance"]
+        firewall = c["future_evidence_firewall"]
+        self.assertEqual(f["accepted_candidate_head"], FREEZE_HEAD)
+        self.assertEqual(f["accepted_candidate_head_commit_time_utc"], FREEZE_TIME)
+        self.assertEqual(f["semantic_contract_git_blob_sha"], SEMANTIC_BLOB)
+        self.assertEqual(f["candidate_exact_head_workflows_success"], 26)
+        self.assertEqual(f["candidate_exact_head_workflows_failure"], 0)
+        self.assertFalse(f["contract_semantics_changed_at_closeout"])
+        self.assertTrue(f["future_evidence_cutoff_materialized"])
+        self.assertEqual(firewall["accepted_freeze_head"], FREEZE_HEAD)
+        self.assertEqual(firewall["accepted_freeze_head_commit_time_utc"], FREEZE_TIME)
+        self.assertEqual(firewall["semantic_contract_git_blob_sha"], SEMANTIC_BLOB)
 
     def test_future_firewall_forbids_history_and_result_driven_selection(self):
         f = self.contract["future_evidence_firewall"]
