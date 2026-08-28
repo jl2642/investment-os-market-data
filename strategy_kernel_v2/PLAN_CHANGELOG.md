@@ -631,3 +631,21 @@ No forward observation or realized outcome has yet been loaded. Phase 4 executio
 
 **Current stage:** `P4_5_ACTIVE_FORWARD_ACCUMULATION`. P4-5 is not complete. Completion still requires the unchanged frozen sufficiency, 1/3/5-session directional, per-signature and jackknife gates.
 
+## 2026-08-28 — P4-5 active-collection NO_OP publisher hotfix accepted
+
+**Trigger:** after the clean baseline was accepted, production workflow run `33146805613` attempt 2 intentionally exercised the active-collection path with no substantive post-cutoff registered evidence. Census and outcome refresh correctly returned zero checkpoints and zero outcome reads, but the publisher rejected the composed cycle mode `COLLECT_AND_REFRESH` with `P45_UNKNOWN_MODE`.
+
+**Safety finding:** the failed attempt occurred before publication. The accepted clean baseline and effective Current remained unchanged: cutoff `2026-08-28T06:08:10Z`, forward observations 0, realized outcome reads 0, Phase-5 migration false.
+
+**Hotfix:** main-based PR #352 changed only the publisher's accepted collection-mode set to include `COLLECT_AND_REFRESH` and added deterministic regression coverage for `COLLECT_AND_REFRESH + NO_NEW_ELIGIBLE_CHECKPOINT`. No selector, evidence family, feature mapping, R2 transform, score, weight, threshold, measurement horizon, aggregation gate or protected economic state changed.
+
+**Acceptance:** #352 exact-head P4-5 validation and WP3-2A Lineage Gate both passed; PR #352 merged to protected main at `7211ba93faeb0678f08a898e9014a00ee94881e4`.
+
+**Live idempotence proof:** push production run `33149148899` completed validate and operate SUCCESS. Active collection, registered-evidence census, checkpoint assembly, 1/3/5-session outcome refresh, publisher and remote readback all passed. The resulting receipt is `NO_OP_NO_NEW_ELIGIBLE_FORWARD_CHECKPOINT`, `advance_current_requested=false`, published at `2026-08-28T06:48:55Z`.
+
+**Current preservation:** Operating Current runtime head advanced append-only to `83d1700f8785119406af7554a47195bf259344dc` to record the no-op attempt, but the formal `FORWARD_VALIDATION` Current pointer did not advance. It still points to clean-baseline run `33146805613` attempt 1 / main `ebb41b5a7972286807997bf6ec6adb154d9d8f24`, with watermark and cutoff `2026-08-28T06:08:10Z`.
+
+**Post-proof state:** accepted checkpoints 0; economically mature checkpoints 0; phase4 forward observations 0; realized outcome reads 0; Candidate / Real / protected Simulation mutations 0 / 0 / 0; orders 0; trade authority NONE; Phase 5 unauthorized.
+
+**Program consequence:** P4-5 remains `ACTIVE_FORWARD_ACCUMULATION`. Subsequent substantive registered post-cutoff evidence may create checkpoints; mere reruns remain auditable NO_OP attempts and cannot manufacture semantic freshness.
+
