@@ -18,6 +18,7 @@ from scripts.fmdl2b4_history import ROOT, read_json
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
 MARKET_CLOSE = time(15, 0)
 POST_CLOSE_PUBLICATION_GRACE_END = time(15, 30)
+PRE_OPEN_RECOVERY_CUTOFF = time(9, 15)
 MANUAL_RECOVERY_EARLIEST = time(15, 30)
 
 
@@ -42,23 +43,29 @@ def validate_manual_recovery_window(current: datetime | None = None) -> dict:
     """Fail closed when a full rebase is started before A-share data is settled.
 
     The full-rebase workflow fetches a live market-wide spot snapshot before it
-    rebuilds history. On a trading day before 15:30 Shanghai, that snapshot can
-    contain intraday values even though the logical as-of date is the previous
-    completed session. Recovery is therefore allowed only after the post-close
-    publication grace window on trading days. Non-trading days are safe because
-    the latest available spot snapshot corresponds to the prior completed close.
+    rebuilds history. On trading days the public spot route is safe before the
+    pre-open auction begins because it still represents the prior completed
+    close, and safe again after the post-close publication grace window.
+    During the auction/continuous-session/post-close-grace interval it may carry
+    current-day intraday values and recovery must fail closed. Non-trading days
+    are safe because the latest available spot snapshot corresponds to the prior
+    completed close.
     """
     local_now = _local_now(current)
     dates = _trade_dates()
     today = local_now.date()
     today_is_trade_day = today in dates
     errors: list[str] = []
-    if today_is_trade_day and local_now.time() < MANUAL_RECOVERY_EARLIEST:
-        errors.append("FULL_REBASE_REQUIRES_POST_CLOSE_1530_ON_TRADING_DAY")
+    if (
+        today_is_trade_day
+        and PRE_OPEN_RECOVERY_CUTOFF <= local_now.time() < MANUAL_RECOVERY_EARLIEST
+    ):
+        errors.append("FULL_REBASE_BLOCKED_DURING_TRADING_OR_SETTLEMENT_WINDOW")
     result = {
         "status": "PASS" if not errors else "FAIL",
         "business_time": local_now.isoformat(),
         "today_is_trade_day": today_is_trade_day,
+        "pre_open_recovery_cutoff": PRE_OPEN_RECOVERY_CUTOFF.isoformat(timespec="minutes"),
         "manual_recovery_earliest": MANUAL_RECOVERY_EARLIEST.isoformat(timespec="minutes"),
         "errors": errors,
     }
