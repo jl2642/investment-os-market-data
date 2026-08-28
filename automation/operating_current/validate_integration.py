@@ -34,6 +34,15 @@ def validate():
             body=(ROOT/path).read_text(encoding="utf-8")
             if "publish_operating_current.py" not in body: errors.append("WORKFLOW_NOT_INTEGRATED_"+path)
             if domain not in body: errors.append("WORKFLOW_DOMAIN_MISSING_"+path)
+    wp2=(ROOT/".github/workflows/wp2_r_market_marks_refresh.yml").read_text(encoding="utf-8")
+    if "gh pr create" in wp2 or "promotion_pr:" in wp2:
+        errors.append("WP2R_DAILY_MAIN_PR_STILL_PRESENT")
+    watcher=(ROOT/".github/workflows/operating-current-failure-receipts.yml").read_text(encoding="utf-8")
+    for domain in WORKFLOWS:
+        if domain not in watcher:
+            errors.append("FAILURE_WATCHER_DOMAIN_MISSING_"+domain)
+    if "--status FAIL" not in watcher:
+        errors.append("FAILURE_WATCHER_FAIL_RECEIPT_MISSING")
     return sorted(set(errors))
 
 if __name__=="__main__":
