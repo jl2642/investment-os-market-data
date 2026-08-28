@@ -541,3 +541,16 @@ PR #333 candidate head `b856147e151292e7e19d59c4a0f05d07c90b4757` passed 26/26 e
 The semantic contract Git blob `82ddfa6967a092d971093f5855ffc80b13acd706` and candidate-head commit time `2026-08-27T13:42:29Z` are frozen. Only source evidence strictly after that timestamp may count as Phase 4 forward validation. Frozen runner set = Legacy baseline + R2.0.1. Frozen sufficiency, 1/3/5-session measurement, three aggregation schemes, per-signature directionality and security/signature jackknife requirements may not be changed after forward results.
 
 No forward observation or realized outcome has yet been loaded. Phase 4 execution remains not started; Phase 5 remains unauthorized; orders=0; trade_authority=NONE.
+
+
+## 2026-08-28 — Phase 4 P4-1 production acceptance and P4-2 funnel contract freeze
+
+**P4-1 closeout:** main-based Operating Current implementation PR #340 and fail-closed Cross-market hotfix PR #341 were merged. The live `operating-current` branch was created and remotely read back; first real D2 producer run `33138552337` succeeded; atomic bootstrap `d019b13455d3f65cb68cd9702a9d1b110e6d0e25` exposed CURRENT / STALE / MISSING / BLOCKED honestly. Exact source-head checks passed. Simultaneous freshness of all five domains is not a P4-1 completion requirement.
+
+**P4-2 audit:** the repository already contains full-market screening, Candidate dynamic state, Research Queue D1 and D2 capabilities. The existing research-funnel contract explicitly records `FULL_MARKET_AND_CANDIDATE_CAPABILITY_EXISTS_SINGLE_FUNNEL_MANIFEST_PENDING`. Current watermarks are fragmented: full-market screening 2026-08-07, Candidate weekly 2026-08-05, D1 2026-08-11, D2 Operating Current 2026-08-28.
+
+**Frozen P4-2 scope:** unify existing Universe→Longlist→Research Queue→D1→D2 state into one Operating Current funnel plus near-miss ledger. Preserve source-specific watermarks; never synthesize one false as-of date. Zero throughput is allowed only with explicit rejection/hold/no-input reasons. Existing D1 batch capacity 5 and D2 batch capacity 3 are preserved. No new screening score, no R2 change, no Candidate membership automation, no recommendation engine yet, no Real/protected Simulation mutation.
+
+**Acceptance:** at least two distinct source-fingerprint funnel cycles, deterministic rebuild semantics, every zero-output stage explained, near-miss ledger present, stale/blocked source visibility preserved. `orders=0`, `trade_authority=NONE`.
+
+**Next:** one main-based P4-2 operational implementation PR. Phase 4 forward observation hold remains active.
