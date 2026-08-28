@@ -5,13 +5,11 @@ on:
     branches: [main]
     paths:
       - "automation/opportunity_funnel/**"
-      - "automation/operating_current/publish_operating_current.py"
       - ".github/workflows/p4-2-continuous-opportunity-funnel.yml"
   push:
     branches: [main]
     paths:
       - "automation/opportunity_funnel/**"
-      - "automation/operating_current/publish_operating_current.py"
       - ".github/workflows/p4-2-continuous-opportunity-funnel.yml"
   schedule:
     - cron: "5 1 * * 1-5"
@@ -142,6 +140,7 @@ jobs:
             .p4_2_output/
             .p4_2_runtime/
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
 
   operate:
