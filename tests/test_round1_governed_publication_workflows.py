@@ -49,3 +49,9 @@ def test_component_workflows_are_not_scheduled_publishers() -> None:
         assert "\n  schedule:" not in text
         assert "Scheduled production is owned by fmdl-daily-production.yml." in text
         assert "permissions:\n  contents: read" in text
+
+
+def test_daily_bootstrap_accepts_recovery_publication_repair_provenance() -> None:
+    text = _text("daily")
+    marker = '"FMDL 2B-4 Multi-Session Recovery / Publication Repair"'
+    assert text.count(marker) == 2
