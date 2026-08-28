@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from automation.cross_market.build_round3_limited_production import plan_batches, run, stable_bucket
+from automation.cross_market.build_round3_limited_production import parse_latest_yahoo, plan_batches, run, stable_bucket
 from automation.cross_market.validate_round3_outputs import validate
 
 
@@ -102,6 +102,27 @@ def fake_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
     if "companyfacts" in url:
         return json.dumps({"facts": {"us-gaap": {}}}).encode()
     raise AssertionError(url)
+
+
+def test_yahoo_parser_selects_target_session_when_delayed_run_sees_newer_hk_bar() -> None:
+    target = date(2026, 8, 26)
+    timestamps = [
+        int(datetime(2026, 8, 26, tzinfo=timezone.utc).timestamp()),
+        int(datetime(2026, 8, 27, tzinfo=timezone.utc).timestamp()),
+    ]
+    payload = json.dumps({
+        "chart": {
+            "result": [{
+                "meta": {"currency": "HKD"},
+                "timestamp": timestamps,
+                "indicators": {"quote": [{"close": [100.0, 101.0], "volume": [1000, 1100]}]},
+            }],
+            "error": None,
+        }
+    }).encode()
+    parsed = parse_latest_yahoo(payload, as_of=target)
+    assert parsed["trade_date"] == "2026-08-26"
+    assert parsed["close"] == 100.0
 
 
 def test_deterministic_partition_and_bounded_us_rotation(tmp_path: Path) -> None:
