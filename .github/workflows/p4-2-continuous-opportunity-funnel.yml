@@ -64,7 +64,7 @@ jobs:
 
       - name: Build unified funnel against latest governed D2 source
         run: |
-          python automation/opportunity_funnel/build_funnel.py             --d2-current "$D2_CURRENT_RUNTIME"             --d2-domain "$D2_DOMAIN_RUNTIME"             --output-dir "$P4_2_OUTPUT"
+          python automation/opportunity_funnel/build_funnel.py             --d2-current "$D2_CURRENT_RUNTIME"             --d2-domain "$D2_DOMAIN_RUNTIME"             --prior-current "$PRIOR_FUNNEL_RUNTIME"             --output-dir "$P4_2_OUTPUT"
 
       - name: Validate generated operating payload
         shell: bash
@@ -172,14 +172,14 @@ jobs:
 
       - name: Build live P4-2 funnel cycle
         run: |
-          python automation/opportunity_funnel/build_funnel.py             --d2-current "$D2_CURRENT_RUNTIME"             --d2-domain "$D2_DOMAIN_RUNTIME"             --output-dir "$P4_2_OUTPUT"
+          python automation/opportunity_funnel/build_funnel.py             --d2-current "$D2_CURRENT_RUNTIME"             --d2-domain "$D2_DOMAIN_RUNTIME"             --prior-current "$PRIOR_FUNNEL_RUNTIME"             --output-dir "$P4_2_OUTPUT"
 
       - name: Publish funnel and near-miss surfaces atomically
         shell: bash
         run: |
           set -Eeuo pipefail
           MAIN_HEAD="$(git rev-parse HEAD)"
-          python automation/opportunity_funnel/publish_funnel.py             --current "$P4_2_OUTPUT/OPPORTUNITY_FUNNEL_CURRENT.json"             --near-miss "$P4_2_OUTPUT/OPPORTUNITY_NEAR_MISS_CURRENT.json"             --work-queue "$P4_2_OUTPUT/D1_WORK_QUEUE_CURRENT.json"             --cycle-receipt "$P4_2_OUTPUT/cycle_receipt.json"             --source-workflow "P4-2 Continuous Opportunity Funnel"             --source-run-id "${{ github.run_id }}"             --source-run-attempt "${{ github.run_attempt }}"             --source-branch main             --source-commit "$MAIN_HEAD"
+          python -m automation.opportunity_funnel.publish_funnel             --current "$P4_2_OUTPUT/OPPORTUNITY_FUNNEL_CURRENT.json"             --near-miss "$P4_2_OUTPUT/OPPORTUNITY_NEAR_MISS_CURRENT.json"             --work-queue "$P4_2_OUTPUT/D1_WORK_QUEUE_CURRENT.json"             --cycle-receipt "$P4_2_OUTPUT/cycle_receipt.json"             --source-workflow "P4-2 Continuous Opportunity Funnel"             --source-run-id "${{ github.run_id }}"             --source-run-attempt "${{ github.run_attempt }}"             --source-branch main             --source-commit "$MAIN_HEAD"
 
       - name: Remote readback
         shell: bash
