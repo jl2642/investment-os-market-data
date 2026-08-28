@@ -1,3 +1,20 @@
+# CURRENT OVERRIDE — PROGRAM_AMENDMENT_A1 (2026-08-28)
+
+This section supersedes older *current-state wording* below while preserving all historical Phase 0–3 detail as audit evidence.
+
+- **Phase 0 — COMPLETE.**
+- **Phase 1 — COMPLETE SHADOW.**
+- **Phase 2 — COMPLETE SHADOW.**
+- **Phase 3 — COMPLETE / R2 repeat-3F 4-of-4 PASS / authorized for forward validation.**
+- **Phase 4 — ACTIVE PROGRAM RECONCILIATION, FORWARD OBSERVATION EXECUTION HELD.** PR #333 and #337 remain valid v1 audit records; 0 forward observations and 0 realized outcomes were consumed before Amendment A1.
+- **Phase 5 — NOT STARTED / NOT AUTHORIZED.**
+
+Effective Phase 4 sequence: `P4-0 Program Reconciliation → P4-1 Production Backbone Repair → P4-2 Continuous Opportunity Funnel → P4-3 Unified Decision & Recommendation Engine → P4-4 Trigger Monitor & Autonomous Shadow Book → P4-5 Clean-Baseline Forward Parallel Shadow Validation`.
+
+The next governed work after P4-0 acceptance is **P4-1 Production Backbone Repair**. No additional Strategy Kernel model tuning is authorized before real forward evidence exposes a model defect.
+
+---
+
 # Strategy Kernel v2 — Overall Development Roadmap
 
 ## Master-program authority
