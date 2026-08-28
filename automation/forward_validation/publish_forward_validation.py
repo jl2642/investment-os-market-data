@@ -135,6 +135,15 @@ def write_domain_receipt(args: SimpleNamespace, published_at: str) -> tuple[bool
     return advance,reason
 
 
+def checkpoint_immutable_projection(cp: dict[str,Any]) -> dict[str,Any]:
+    keys=[
+        "schema_version","checkpoint_id","checkpoint_available_at_utc","trigger_event",
+        "global_forward_evidence_state_fingerprint","evidence_regime_id","shared_packet",
+        "parallel_outputs","audit_context","evaluation_eligibility","controls",
+    ]
+    return {k:cp.get(k) for k in keys}
+
+
 def write_transaction(
     *,
     baseline_candidate_text: str | None,
@@ -229,7 +238,7 @@ def write_transaction(
             watermark=str(baseline["eligibility_cutoff_utc"]),
             status="NO_OP",
             advance=False,
-            note="P4-5 no new eligible substantive post-cutoff D2 checkpoint; Current preserved",
+            note="P4-5 no new registered-evidence checkpoint and no newly matured outcome; Current preserved",
         )
         advanced,reason=write_domain_receipt(receipt_args,published_at)
         return {
@@ -239,10 +248,8 @@ def write_transaction(
             "eligibility_cutoff_utc":baseline["eligibility_cutoff_utc"],
         }
 
-    if cycle_action!="ACCEPT_NEW_FORWARD_CHECKPOINTS":
+    if cycle_action!="ADVANCE_FORWARD_STATE":
         raise RuntimeError("P45_UNKNOWN_CYCLE_ACTION")
-    if not checkpoint_texts:
-        raise RuntimeError("P45_CHECKPOINTS_REQUIRED")
     checkpoint_ids=[]
     watermarks=[]
     for checkpoint_text in checkpoint_texts:
@@ -250,13 +257,24 @@ def write_transaction(
         checkpoint_id=str(checkpoint["checkpoint_id"])
         checkpoint_path=TARGET/"checkpoints"/f"{checkpoint_id}.json"
         if checkpoint_path.exists():
-            raise RuntimeError("P45_DUPLICATE_CHECKPOINT:"+checkpoint_id)
-        checkpoint_path.write_text(checkpoint_text,encoding="utf-8")
+            prior=json.loads(checkpoint_path.read_text(encoding="utf-8"))
+            if checkpoint_immutable_projection(prior)!=checkpoint_immutable_projection(checkpoint):
+                raise RuntimeError("P45_IMMUTABLE_CHECKPOINT_DRIFT:"+checkpoint_id)
+        checkpoint_path.write_text(
+            json.dumps(checkpoint,ensure_ascii=False,indent=2,sort_keys=True)+"\n",
+            encoding="utf-8",
+        )
         checkpoint_ids.append(checkpoint_id)
         watermarks.append(str(checkpoint["checkpoint_available_at_utc"]))
     current_path.write_text(current_text,encoding="utf-8")
     ledger_path.write_text(ledger_text,encoding="utf-8")
-    watermark=max(watermarks)
+    watermark=max(
+        [str(baseline["eligibility_cutoff_utc"])]
+        + watermarks
+        + [published_at]
+    )
+    new_count=int(cycle.get("new_checkpoint_count",0))
+    outcome_increment=int(cycle.get("outcome_read_increment",0))
     receipt_args=make_receipt_args(
         source_workflow=source_workflow,
         source_run_id=source_run_id,
@@ -266,16 +284,23 @@ def write_transaction(
         watermark=watermark,
         status="PASS",
         advance=True,
-        note=f"P4-5 accepted forward checkpoints={len(checkpoint_ids)}; no outcome read at creation; phase5=false",
+        note=(
+            f"P4-5 forward state advanced new_checkpoints={new_count} "
+            f"new_outcome_reads={outcome_increment}; phase5_execution=false"
+        ),
     )
     advanced,reason=write_domain_receipt(receipt_args,published_at)
     return {
-        "status":"CHECKPOINT_PUBLISHED",
+        "status":"FORWARD_STATE_PUBLISHED",
         "checkpoint_ids":checkpoint_ids,
+        "new_checkpoint_count":new_count,
+        "outcome_read_increment":outcome_increment,
         "advanced":advanced,
         "reason":reason,
         "observation_count":current_candidate["phase4_forward_observation_count"],
         "outcome_read_count":current_candidate["phase4_realized_outcome_read_count"],
+        "completion_outcome":current_candidate.get("completion_outcome"),
+        "phase5_migration_allowed":False,
     }
 
 
