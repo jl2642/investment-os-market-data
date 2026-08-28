@@ -59,6 +59,10 @@ def load_adapter() -> dict[str, Any]:
     return _load_json(ADAPTER_FILE)
 
 
+def _utc_iso(value: str) -> str:
+    return _parse_time(value).isoformat().replace("+00:00", "Z")
+
+
 def _first_parent_commits(repo: Path, end_sha: str) -> list[str]:
     raw = _git(repo, "rev-list", "--first-parent", "--reverse", end_sha)
     return [line for line in raw.splitlines() if line]
@@ -115,7 +119,7 @@ def build_forward_readiness_audit(repo_root: str | Path | None = None) -> dict[s
     cutoff = adapter["frozen_phase4_contract"]["future_cutoff_utc"]
     cutoff_dt = _parse_time(cutoff)
     end_sha = adapter["source_universe"]["as_of_protected_main_head"]
-    end_at = _commit_time(repo, end_sha)
+    end_at = _utc_iso(_commit_time(repo, end_sha))
     if _parse_time(end_at) != _parse_time(adapter["source_universe"]["as_of_protected_main_head_commit_time_utc"]):
         raise AssertionError("P4_R1_AS_OF_MAIN_HEAD_TIME_DRIFT")
 
@@ -141,7 +145,7 @@ def build_forward_readiness_audit(repo_root: str | Path | None = None) -> dict[s
     audit_rows: list[dict[str, Any]] = []
     selected: list[dict[str, Any]] = []
     for sha in post_cutoff:
-        at = _commit_time(repo, sha)
+        at = _utc_iso(_commit_time(repo, sha))
         snapshot = build_source_snapshot(
             repo,
             sha,
@@ -235,7 +239,7 @@ def build_forward_readiness_audit(repo_root: str | Path | None = None) -> dict[s
         "as_of_protected_main_head": end_sha,
         "as_of_protected_main_head_commit_time_utc": end_at,
         "baseline_main_commit_at_or_before_cutoff": baseline_sha,
-        "baseline_main_commit_time_utc": _commit_time(repo, baseline_sha),
+        "baseline_main_commit_time_utc": _utc_iso(_commit_time(repo, baseline_sha)),
         "post_cutoff_first_parent_commit_count": len(post_cutoff),
         "post_cutoff_commit_audit_count": len(audit_rows),
         "selected_forward_checkpoint_count": len(selected),

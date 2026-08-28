@@ -41,7 +41,7 @@ class Phase4ForwardReadinessR1Tests(unittest.TestCase):
     def test_frozen_as_of_main_head_is_pre_cutoff_in_round1_snapshot(self):
         result = build_forward_readiness_audit()
         self.assertEqual(result["as_of_protected_main_head"], "5c5df9082688f65332c79fef3b9cbfa893a06908")
-        self.assertEqual(result["as_of_protected_main_head_commit_time_utc"], "2026-08-18T01:46:25+00:00")
+        self.assertEqual(result["as_of_protected_main_head_commit_time_utc"], "2026-08-18T01:46:25Z")
         self.assertEqual(result["frozen_cutoff_utc"], "2026-08-27T13:42:29Z")
         self.assertEqual(result["post_cutoff_first_parent_commit_count"], 0)
         self.assertEqual(result["selected_forward_checkpoint_count"], 0)
