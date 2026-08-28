@@ -243,9 +243,16 @@ jobs:
           git push origin "HEAD:$RESULT_BRANCH"
           SOURCE_COMMIT="$(git rev-parse HEAD)"
           WATERMARK="${{ steps.market_date.outputs.as_of }}"
+          if [[ "${{ steps.operate.outputs.capture_status }}" == "CAPTURED_BOTH_MARKETS" ]]; then
+            OPERATING_STATUS="PASS"
+            ADVANCE_ARGS=(--advance-current)
+          else
+            OPERATING_STATUS="BLOCKED"
+            ADVANCE_ARGS=()
+          fi
           python automation/operating_current/publish_operating_current.py \
             --domain CROSS_MARKET_LIMITED \
-            --status PASS \
+            --status "$OPERATING_STATUS" \
             --source-workflow "Round 3 HK and US Limited Production" \
             --source-run-id "${{ github.run_id }}" \
             --source-run-attempt "${{ github.run_attempt }}" \
@@ -253,8 +260,8 @@ jobs:
             --source-commit "$SOURCE_COMMIT" \
             --watermark "$WATERMARK" \
             --watermark-sort-key "$WATERMARK" \
-            --qc-status "${{ steps.operate.outputs.status }}" \
-            --advance-current
+            --qc-status "${{ steps.operate.outputs.status }}:${{ steps.operate.outputs.capture_status }}" \
+            "${ADVANCE_ARGS[@]}"
           {
             echo "## Round 3 governed handoff"
             echo "- result_branch: \`$RESULT_BRANCH\`"
@@ -388,9 +395,23 @@ jobs:
           PY
           )"
           test -n "$WATERMARK"
+          CAPTURE_STATUS="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_RUN_CURRENT.json')
+          print(json.loads(p.read_text(encoding='utf-8')).get('capture_status', ''))
+          PY
+          )"
+          if [[ "$CAPTURE_STATUS" == "CAPTURED_BOTH_MARKETS" ]]; then
+            OPERATING_STATUS="PASS"
+            ADVANCE_ARGS=(--advance-current)
+          else
+            OPERATING_STATUS="BLOCKED"
+            ADVANCE_ARGS=()
+          fi
           python automation/operating_current/publish_operating_current.py \
             --domain CROSS_MARKET_LIMITED \
-            --status PASS \
+            --status "$OPERATING_STATUS" \
             --source-workflow "Round 3 SEC Observer Ingestion" \
             --source-run-id "${{ github.run_id }}" \
             --source-run-attempt "${{ github.run_attempt }}" \
@@ -398,8 +419,8 @@ jobs:
             --source-commit "$SOURCE_COMMIT" \
             --watermark "$WATERMARK" \
             --watermark-sort-key "$WATERMARK" \
-            --qc-status "${{ steps.apply.outputs.status }}" \
-            --advance-current
+            --qc-status "${{ steps.apply.outputs.status }}:$CAPTURE_STATUS" \
+            "${ADVANCE_ARGS[@]}"
           {
             echo "## Round 3 SEC observer ingestion"
             echo "- branch: \`${{ github.ref_name }}\`"
