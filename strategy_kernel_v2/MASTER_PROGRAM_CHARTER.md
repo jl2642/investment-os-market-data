@@ -54,3 +54,22 @@ A roadmap drift was detected: Phase 4 Forward Parallel Shadow Validation was uni
 
 ## 2026-08-26 post-3C governance record
 Phase 3C established a terminal bounded negative replayability finding for both fixed candidate models. The governed response is not to backfill missing inputs or skip a phase: Phase 3D is authorized only as a negative-result/measurability analysis, followed by Phase 3E ablation/robustness under the version-and-return rules above. The macro lifecycle and Phase 3 A–F sequence are unchanged.
+
+## 2026-08-28 PROGRAM_AMENDMENT_A1 — Phase 4 Production Closure and Forward Validation Realignment
+
+A system-wide audit after the Phase 4 v1 zero-observation census found that the forward-validation source pipeline is not production-closed: protected `main` has not advanced with the operating evidence cadence, full-market and Candidate/Decision watermarks are not continuously aligned, and legacy R6 operating activation remains incomplete. Because Phase 4 v1 has consumed **0 forward observations and 0 realized outcomes**, this defect can be corrected before forward evidence without outcome-driven redesign.
+
+This amendment **does not change the macro lifecycle** `Phase 0 → 1 → 2 → 3 → 4 → 5`, does not reopen completed Phase 0–3/R2 work, and does not change the R2.0.1 model, 20 transforms, exact-signature Pareto semantics, 1/3/5-session measurement horizons, aggregation schemes or directional thresholds.
+
+PR #333 remains the immutable Phase 4 v1 preregistration record and PR #337 remains the immutable zero-observation canonical-main census. Their historical facts are preserved. However, their forward-start permission is now subject to a higher-level **effective execution hold**: no Phase 4 observation may be consumed until the production backbone, continuous opportunity funnel, unified recommendation layer and separate autonomous shadow-observation layer are production-ready, a clean baseline is frozen, and a new strictly-future cutoff is registered.
+
+The controlled Phase 4 internal sequence is now:
+
+1. **P4-0 — Program Reconciliation & Production Architecture Amendment Freeze**;
+2. **P4-1 — Production Backbone Repair**;
+3. **P4-2 — Continuous Opportunity Funnel**;
+4. **P4-3 — Unified Decision & Recommendation Engine**;
+5. **P4-4 — Trigger Monitor & Autonomous Shadow Book**;
+6. **P4-5 — Clean-Baseline Forward Parallel Shadow Validation**.
+
+Protected Real account state, protected Simulation Current, formal Candidate membership, effective Core Static, target portfolio and orders remain non-automated through this amendment. The planned autonomous shadow book is a separate research-only hypothetical ledger and is not a mutation of protected Simulation Current. `orders=0`; `trade_authority=NONE`.

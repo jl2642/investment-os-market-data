@@ -4,12 +4,36 @@
   "program_version": "1.0",
   "contract_status": "CONTROLLED_MASTER",
   "macro_lifecycle": [
-    {"phase": 0, "name": "SYSTEM_AUDIT", "promotion_target": 1},
-    {"phase": 1, "name": "DECISION_AND_UNDERWRITING", "promotion_target": 2},
-    {"phase": 2, "name": "CAPITAL_COMPARISON_INFRASTRUCTURE", "promotion_target": 3},
-    {"phase": 3, "name": "HISTORICAL_REPLAY_AND_CALIBRATION", "promotion_target": 4},
-    {"phase": 4, "name": "FORWARD_PARALLEL_SHADOW_VALIDATION", "promotion_target": 5},
-    {"phase": 5, "name": "GOVERNED_MIGRATION", "promotion_target": null}
+    {
+      "phase": 0,
+      "name": "SYSTEM_AUDIT",
+      "promotion_target": 1
+    },
+    {
+      "phase": 1,
+      "name": "DECISION_AND_UNDERWRITING",
+      "promotion_target": 2
+    },
+    {
+      "phase": 2,
+      "name": "CAPITAL_COMPARISON_INFRASTRUCTURE",
+      "promotion_target": 3
+    },
+    {
+      "phase": 3,
+      "name": "HISTORICAL_REPLAY_AND_CALIBRATION",
+      "promotion_target": 4
+    },
+    {
+      "phase": 4,
+      "name": "FORWARD_PARALLEL_SHADOW_VALIDATION",
+      "promotion_target": 5
+    },
+    {
+      "phase": 5,
+      "name": "GOVERNED_MIGRATION",
+      "promotion_target": null
+    }
   ],
   "mandatory_gates": {
     "phase3_historical_validation_required_for_phase4": true,
@@ -19,7 +43,14 @@
     "program_amendment_required_for_macro_change": true
   },
   "phase3_internal_evaluation_policy": {
-    "phase3_subphase_sequence": ["3A", "3B", "3C", "3D", "3E", "3F"],
+    "phase3_subphase_sequence": [
+      "3A",
+      "3B",
+      "3C",
+      "3D",
+      "3E",
+      "3F"
+    ],
     "post3c_negative_replayability_may_complete_phase3c": true,
     "phase3d_missing_candidate_outputs_must_be_nonmeasurable": true,
     "phase3d_hypothetical_candidate_outputs_forbidden": true,
@@ -28,7 +59,10 @@
     "phase3e_revised_forms_must_return_to_phase3b_and_phase3c": true,
     "phase3f_promotion_requires_historically_replayable_candidate": true,
     "phase3f_promotion_requires_broader_historical_coverage": true,
-    "if_no_candidate_historically_evaluable_phase3f_outcomes": ["REJECT_V2_FORM", "CONTINUE_SHADOW_RESEARCH"]
+    "if_no_candidate_historically_evaluable_phase3f_outcomes": [
+      "REJECT_V2_FORM",
+      "CONTINUE_SHADOW_RESEARCH"
+    ]
   },
   "authority_boundaries_through_phase4": {
     "effective_core_static_change_authorized": false,
@@ -40,5 +74,23 @@
     "implementation_ready": false,
     "orders": 0,
     "trade_authority": "NONE"
+  },
+  "program_amendment_a1": {
+    "amendment_id": "STRATEGY_KERNEL_PROGRAM_AMENDMENT_A1",
+    "status": "FROZEN_PRE_IMPLEMENTATION",
+    "macro_lifecycle_unchanged": true,
+    "phase4_v1_audit_evidence_retained": true,
+    "phase4_forward_execution_hold": true,
+    "effective_forward_observation_start_allowed": false,
+    "phase4_rebaseline_required": true,
+    "phase4_internal_sequence": [
+      "P4-0",
+      "P4-1",
+      "P4-2",
+      "P4-3",
+      "P4-4",
+      "P4-5"
+    ],
+    "next_governed_work": "P4_1_PRODUCTION_BACKBONE_REPAIR"
   }
 }
