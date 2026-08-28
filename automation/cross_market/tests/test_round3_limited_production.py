@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from automation.cross_market.build_round3_limited_production import plan_batches, run, stable_bucket
+from automation.cross_market.build_round3_limited_production import parse_yahoo_for_date, plan_batches, run, stable_bucket
 from automation.cross_market.validate_round3_outputs import validate
 
 
@@ -103,6 +103,25 @@ def fake_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
         return json.dumps({"facts": {"us-gaap": {}}}).encode()
     raise AssertionError(url)
 
+
+
+def test_exact_as_of_selection_ignores_newer_payload_row() -> None:
+    target=date(2026,8,26)
+    timestamps=[
+        int(datetime(2026,8,26,tzinfo=timezone.utc).timestamp()),
+        int(datetime(2026,8,27,tzinfo=timezone.utc).timestamp()),
+    ]
+    payload=json.dumps({
+        "chart":{"result":[{
+            "meta":{"currency":"HKD"},
+            "timestamp":timestamps,
+            "indicators":{"quote":[{"close":[10.0,11.0],"volume":[100,200]}]},
+        }],"error":None}
+    }).encode()
+    row=parse_yahoo_for_date(payload,target)
+    assert row["trade_date"]=="2026-08-26"
+    assert row["close"]==10.0
+    assert row["volume"]==100
 
 def test_deterministic_partition_and_bounded_us_rotation(tmp_path: Path) -> None:
     install(tmp_path)
