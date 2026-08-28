@@ -1,12 +1,15 @@
 import json
+import subprocess
 import tempfile
 import unittest
 from argparse import Namespace
 from pathlib import Path
+from unittest.mock import patch
 
 from automation.operating_current.publish_operating_current import (
     build_index,
     can_advance,
+    checkout_operating_branch,
     pointer_payload,
     receipt_payload,
 )
@@ -43,6 +46,56 @@ class OperatingCurrentTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(reason,"PASS_NONREGRESSING")
 
+    def test_operating_branch_sync_is_append_only_merge_not_rebase(self):
+        calls=[]
+
+        def fake_run(*args, check=True):
+            calls.append((args, check))
+            stdout="local-head\n" if args[:3] == ("git","rev-parse","HEAD") else ""
+            return subprocess.CompletedProcess(args, 0, stdout=stdout, stderr="")
+
+        with patch(
+            "automation.operating_current.publish_operating_current.remote_branch_sha",
+            return_value="a"*40,
+        ), patch(
+            "automation.operating_current.publish_operating_current.run",
+            side_effect=fake_run,
+        ):
+            remote, head=checkout_operating_branch()
+
+        self.assertEqual(remote, "a"*40)
+        self.assertEqual(head, "local-head")
+        argv=[entry[0] for entry in calls]
+        self.assertIn(("git","merge","--no-edit","origin/main"), argv)
+        self.assertFalse(any(call_args[:2] == ("git","rebase") for call_args in argv))
+        self.assertTrue(any(
+            call_args[:3] == ("git","fetch","origin")
+            and "--force" in call_args
+            and "operating-current:refs/remotes/origin/operating-current" in call_args
+            for call_args in argv
+        ))
+
+    def test_operating_branch_merge_conflict_fails_closed(self):
+        calls=[]
+
+        def fake_run(*args, check=True):
+            calls.append((args, check))
+            if args[:3] == ("git","merge","--no-edit"):
+                return subprocess.CompletedProcess(args, 1, stdout="", stderr="conflict")
+            return subprocess.CompletedProcess(args, 0, stdout="", stderr="")
+
+        with patch(
+            "automation.operating_current.publish_operating_current.remote_branch_sha",
+            return_value="b"*40,
+        ), patch(
+            "automation.operating_current.publish_operating_current.run",
+            side_effect=fake_run,
+        ):
+            with self.assertRaisesRegex(RuntimeError, "OPERATING_CURRENT_MAIN_MERGE_FAILED"):
+                checkout_operating_branch()
+
+        argv=[entry[0] for entry in calls]
+        self.assertIn(("git","merge","--abort"), argv)
     def test_index_preserves_current_and_exposes_latest_failure(self):
         with tempfile.TemporaryDirectory() as td:
             root=Path(td)

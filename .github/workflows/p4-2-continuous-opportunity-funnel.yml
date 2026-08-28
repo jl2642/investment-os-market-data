@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "automation/opportunity_funnel/**"
+      - "automation/operating_current/publish_operating_current.py"
+      - "automation/operating_current/tests/test_publish_operating_current.py"
       - ".github/workflows/p4-2-continuous-opportunity-funnel.yml"
   push:
     branches: [main]
@@ -216,11 +218,12 @@ jobs:
           })
           PY
 
-      - name: Record boundary
-        if: always()
+      - name: Record successful publication boundary
+        if: success()
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## P4-2 Continuous Opportunity Funnel
+          - Publication and remote readback: PASS.
           - Unified source-specific-watermark funnel is published to operating-current.
           - D1 bounded work queue capacity remains 5; D2 capacity remains 3.
           - D1 work-queue admission is research routing only and never auto-promotes to D2.
@@ -228,4 +231,14 @@ jobs:
           - Candidate / Real / Simulation mutations: 0 / 0 / 0.
           - Orders: 0.
           - trade_authority: NONE.
+          EOF
+
+      - name: Record failed publication boundary
+        if: failure()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## P4-2 Continuous Opportunity Funnel
+          - Publication or remote readback: FAIL.
+          - This run is not an accepted live funnel cycle.
+          - No success claim is emitted for operating-current publication.
           EOF

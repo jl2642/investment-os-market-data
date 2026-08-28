@@ -202,12 +202,21 @@ def checkout_operating_branch() -> tuple[str | None, str]:
     run("git","fetch","origin","main","--no-tags")
     remote_op=remote_branch_sha(OPERATING_BRANCH)
     if remote_op:
-        run("git","fetch","origin",f"{OPERATING_BRANCH}:refs/remotes/origin/{OPERATING_BRANCH}","--no-tags")
+        # operating-current is an append-only runtime evidence branch.  Rebase
+        # would rewrite its published history whenever protected main advances,
+        # which is incompatible with the intentionally non-force push below.
+        # Merge main into the remote runtime tip instead so the next publication
+        # remains a fast-forward descendant of every already-published receipt.
+        run(
+            "git","fetch","origin",
+            f"{OPERATING_BRANCH}:refs/remotes/origin/{OPERATING_BRANCH}",
+            "--force","--no-tags",
+        )
         run("git","checkout","-B",OPERATING_BRANCH,f"refs/remotes/origin/{OPERATING_BRANCH}")
-        reb=run("git","rebase","origin/main",check=False)
-        if reb.returncode != 0:
-            run("git","rebase","--abort",check=False)
-            raise RuntimeError("OPERATING_CURRENT_REBASE_FAILED")
+        merge=run("git","merge","--no-edit","origin/main",check=False)
+        if merge.returncode != 0:
+            run("git","merge","--abort",check=False)
+            raise RuntimeError("OPERATING_CURRENT_MAIN_MERGE_FAILED")
     else:
         run("git","checkout","-B",OPERATING_BRANCH,"origin/main")
     return remote_op, run("git","rev-parse","HEAD").stdout.strip()
