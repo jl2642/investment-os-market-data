@@ -5,7 +5,7 @@ import json
 import time
 import urllib.parse
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -137,7 +137,7 @@ def update_checkpoint(
     cp=json.loads(json.dumps(checkpoint))
     at=str(cp["checkpoint_available_at_utc"])
     local_checkpoint=datetime.fromisoformat(at.replace("Z","+00:00")).astimezone(CN)
-    begin=(local_checkpoint.date().replace(day=1)).isoformat()
+    begin=(local_checkpoint.date()-timedelta(days=45)).isoformat()
     end=now.astimezone(CN).date().isoformat()
     calendar=fetch_calendar(begin,end)
     entry_date=entry_date_for_checkpoint(at,calendar)
