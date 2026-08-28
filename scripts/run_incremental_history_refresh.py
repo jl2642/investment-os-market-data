@@ -208,6 +208,195 @@ def compact_deltas(
     return [component_entry(path, as_of_date=target_date, row_count=len(compacted), kind="COMPACTED_DELTA")]
 
 
+def same_date_identity_delta(
+    prior_status: pd.DataFrame,
+    universe: pd.DataFrame,
+) -> dict[str, Any]:
+    prior_symbols = set(prior_status["symbol"].astype(str))
+    current_symbols = set(universe["symbol"].astype(str))
+    added = sorted(current_symbols.difference(prior_symbols))
+    removed = sorted(prior_symbols.difference(current_symbols))
+    return {
+        "changed": bool(added or removed),
+        "added_symbols": added,
+        "removed_symbols": removed,
+    }
+
+
+def _clean_status_value(value: Any) -> Any:
+    return None if pd.isna(value) else value
+
+
+def build_same_date_identity_candidate(
+    *,
+    root: Path,
+    prior_manifest: dict[str, Any],
+    prior_status: pd.DataFrame,
+    universe: pd.DataFrame,
+    snapshot: pd.DataFrame,
+    target_date: str,
+    previous_date: str,
+    generated_at: str,
+    run_id: str,
+    identity_delta: dict[str, Any],
+) -> dict[str, Any]:
+    prior_map = prior_status.set_index("symbol").to_dict(orient="index")
+    rows: list[dict[str, Any]] = []
+    for _, urow in universe.iterrows():
+        symbol = str(urow["symbol"])
+        prior = prior_map.get(symbol)
+        if prior is None:
+            rows.append({
+                "symbol": symbol,
+                "board": str(urow["board"]),
+                "list_date": _clean_status_value(urow.get("list_date")),
+                "is_st": _as_bool(urow.get("is_st")),
+                "is_suspended": _as_bool(urow.get("is_suspended")),
+                "as_of_date": target_date,
+                "previous_as_of_date": previous_date,
+                "refresh_state": "QUARANTINED",
+                "refresh_reason": "SAME_DATE_UNIVERSE_ADDITION_NO_ACCEPTED_HISTORY",
+                "provider_id": "NONE",
+                "latest_history_date": None,
+                "last_close": None,
+                "continuity_expected_prior": None,
+                "continuity_difference": None,
+            })
+            continue
+        rows.append({
+            "symbol": symbol,
+            "board": str(urow["board"]),
+            "list_date": _clean_status_value(urow.get("list_date")),
+            "is_st": _as_bool(urow.get("is_st")),
+            "is_suspended": _as_bool(urow.get("is_suspended")),
+            "as_of_date": target_date,
+            "previous_as_of_date": previous_date,
+            "refresh_state": str(prior.get("refresh_state") or prior.get("state") or "QUARANTINED"),
+            "refresh_reason": _clean_status_value(prior.get("refresh_reason")),
+            "provider_id": str(_clean_status_value(prior.get("provider_id")) or "NONE"),
+            "latest_history_date": _clean_status_value(prior.get("latest_history_date")),
+            "last_close": _number(prior.get("last_close")),
+            "continuity_expected_prior": _number(prior.get("continuity_expected_prior")),
+            "continuity_difference": _number(prior.get("continuity_difference")),
+        })
+
+    status_frame = pd.DataFrame(rows).sort_values(["board", "symbol"]).reset_index(drop=True)
+    status_path = CANDIDATE_ROOT / "HISTORY_CURRENT_STATUS.csv"
+    status_frame.to_csv(status_path, index=False, encoding="utf-8-sig")
+    continuity_path = CANDIDATE_ROOT / "HISTORY_CONTINUITY_DIAGNOSTICS.csv"
+    pd.DataFrame(
+        columns=["symbol", "prior_close", "expected_prior", "difference", "passes"]
+    ).to_csv(continuity_path, index=False, encoding="utf-8-sig")
+
+    delta_entries = list(prior_manifest.get("delta_files", []))
+    repair_entries = list(prior_manifest.get("repair_files", []))
+    candidate_manifest = {
+        "manifest_version": "1.0.0",
+        "release_id": run_id,
+        "generated_at": generated_at,
+        "as_of_date": target_date,
+        "previous_release_id": prior_manifest.get("release_id"),
+        "previous_as_of_date": previous_date,
+        "base_release_id": prior_manifest["base_release_id"],
+        "base_manifest_path": prior_manifest["base_manifest_path"],
+        "base_manifest_sha256": prior_manifest["base_manifest_sha256"],
+        "logical_shards": int(prior_manifest["logical_shards"]),
+        "delta_files": delta_entries,
+        "repair_files": repair_entries,
+        "status_path": relative_path(status_path, root),
+        "status_sha256": sha256_file(status_path),
+        "continuity_diagnostics_path": relative_path(continuity_path, root),
+        "continuity_diagnostics_sha256": sha256_file(continuity_path),
+        "component_aggregate_sha256": canonical_hash([*delta_entries, *repair_entries]),
+        "status": "CANDIDATE_BUILT",
+        "authority": "HISTORICAL_AND_FACTOR_EVIDENCE_ONLY_NO_TRADE_AUTHORITY",
+    }
+    manifest_path = CANDIDATE_ROOT / "HISTORY_CURRENT_MANIFEST.json"
+    manifest_path.write_text(
+        json.dumps(candidate_manifest, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    metrics = composite_metrics(candidate_manifest, root=root)
+    unresolved = int(
+        status_frame["refresh_state"].isin(["QUARANTINED", "REPAIR_REQUIRED"]).sum()
+    )
+    warnings = [
+        "SAME_DATE_UNIVERSE_IDENTITY_RECONCILE_"
+        f"ADDED_{len(identity_delta['added_symbols'])}_"
+        f"REMOVED_{len(identity_delta['removed_symbols'])}"
+    ]
+    if unresolved:
+        warnings.append(f"UNRESOLVED_HISTORY_SYMBOLS_{unresolved}")
+    quality = {
+        "quality_version": "1.0.0",
+        "run_id": run_id,
+        "generated_at": generated_at,
+        "as_of_date": target_date,
+        "previous_as_of_date": previous_date,
+        "status": "PASS_WITH_WARNINGS",
+        "hard_failures": [],
+        "controlled_warnings": warnings,
+        "metrics": {
+            **metrics,
+            "universe_symbols": int(len(universe)),
+            "traded_snapshot_symbols": int((snapshot["data_status"].astype(str) == "TRADED").sum()),
+            "incremental_rows": 0,
+            "repaired_symbols": 0,
+            "repair_rows": 0,
+            "suspended_no_append": int((status_frame["refresh_state"] == "READY_SUSPENDED_NO_APPEND").sum()),
+            "unresolved_history_symbols": unresolved,
+            "accepted_current_session_ratio": 1.0,
+            "delta_file_count": len(delta_entries),
+            "repair_file_count": len(repair_entries),
+            "same_date_identity_reconcile": True,
+            "identity_added_symbols": len(identity_delta["added_symbols"]),
+            "identity_removed_symbols": len(identity_delta["removed_symbols"]),
+        },
+        "current_preserved_on_failure": True,
+        "authority": "HISTORICAL_AND_FACTOR_EVIDENCE_ONLY_NO_TRADE_AUTHORITY",
+    }
+    quality_path = CANDIDATE_ROOT / "HISTORY_REFRESH_QUALITY.json"
+    quality_path.write_text(
+        json.dumps(quality, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    candidate_manifest["quality_path"] = relative_path(quality_path, root)
+    candidate_manifest["quality_sha256"] = sha256_file(quality_path)
+    candidate_manifest["status"] = "CANDIDATE_PASS"
+    manifest_path.write_text(
+        json.dumps(candidate_manifest, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    report = {
+        "report_version": "1.0.0",
+        "run_id": run_id,
+        "as_of_date": target_date,
+        "previous_as_of_date": previous_date,
+        "status": "PASS_WITH_WARNINGS",
+        "metrics": quality["metrics"],
+        "hard_failures": [],
+        "controlled_warnings": warnings,
+        "history_candidate_manifest": relative_path(manifest_path, root),
+        "identity_delta": identity_delta,
+        "non_claims": [
+            "NO_HISTORY_PRICE_REWRITE",
+            "NO_FACTOR_ALPHA_CLAIM",
+            "NO_CANDIDATE_POOL_CHANGE",
+            "NO_SIMULATION_OR_REAL_PORTFOLIO_CHANGE",
+            "NO_TRADE_AUTHORITY",
+        ],
+        "authority": "HISTORICAL_AND_FACTOR_EVIDENCE_ONLY_NO_TRADE_AUTHORITY",
+    }
+    (CANDIDATE_ROOT / "FMDL2B4_HISTORY_REFRESH_REPORT.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    print(json.dumps(report, ensure_ascii=False))
+    return report
+
+
+
 def build_candidate(root: Path = ROOT) -> dict[str, Any]:
     config = read_json(root / CONFIG_PATH.relative_to(ROOT))
     history_config = read_json(root / HISTORY_CONFIG_PATH.relative_to(ROOT))
@@ -249,19 +438,33 @@ def build_candidate(root: Path = ROOT) -> dict[str, Any]:
     CANDIDATE_ROOT.mkdir(parents=True, exist_ok=True)
 
     if target_date == previous_date:
-        report = {
-            "run_id": run_id,
-            "as_of_date": target_date,
-            "previous_as_of_date": previous_date,
-            "status": "NO_OP_ALREADY_CURRENT",
-            "hard_failures": [],
-            "controlled_warnings": [],
-            "authority": "HISTORY_AND_FACTOR_EVIDENCE_ONLY_NO_TRADE_AUTHORITY",
-        }
-        (CANDIDATE_ROOT / "FMDL2B4_HISTORY_REFRESH_REPORT.json").write_text(
-            json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        identity_delta = same_date_identity_delta(prior_status, universe)
+        if not identity_delta["changed"]:
+            report = {
+                "run_id": run_id,
+                "as_of_date": target_date,
+                "previous_as_of_date": previous_date,
+                "status": "NO_OP_ALREADY_CURRENT",
+                "hard_failures": [],
+                "controlled_warnings": [],
+                "authority": "HISTORY_AND_FACTOR_EVIDENCE_ONLY_NO_TRADE_AUTHORITY",
+            }
+            (CANDIDATE_ROOT / "FMDL2B4_HISTORY_REFRESH_REPORT.json").write_text(
+                json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+            )
+            return report
+        return build_same_date_identity_candidate(
+            root=root,
+            prior_manifest=prior_manifest,
+            prior_status=prior_status,
+            universe=universe,
+            snapshot=snapshot,
+            target_date=target_date,
+            previous_date=previous_date,
+            generated_at=generated_at,
+            run_id=run_id,
+            identity_delta=identity_delta,
         )
-        return report
 
     if hard_failures:
         quality = {
