@@ -68,5 +68,16 @@
     "stale_status": "STALE_BY_CALENDAR_HEURISTIC",
     "missing_status": "MISSING_CURRENT",
     "stale_does_not_delete_last_known_good": true
-  }
+  },
+  "implementation_corrections": [
+    {
+      "id": "P4_1_CROSS_MARKET_PARTIAL_CAPTURE_FAIL_CLOSED_R1",
+      "as_of": "2026-08-28",
+      "trigger": "POST_MERGE_SOURCE_BRANCH_AUDIT_FOUND_PARTIAL_CROSS_MARKET_RUN_COULD_HAVE_ADVANCED_POINTER",
+      "rule": "CROSS_MARKET_LIMITED_MAY_ADVANCE_ONLY_WHEN_CAPTURE_STATUS_EQUALS_CAPTURED_BOTH_MARKETS",
+      "partial_treatment": "BLOCKED_RECEIPT_CURRENT_PRESERVED",
+      "observed_bad_pointer_before_fix": false,
+      "model_or_economic_state_change": false
+    }
+  ]
 }
