@@ -121,6 +121,7 @@ jobs:
               if pointer.get("status")=="PASS" and pointer.get("source_workflow") in {
                   "FMDL Daily A-share Governed Production",
                   "FMDL 2B-4 Multi-Session Recovery",
+                  "FMDL 2B-4 Multi-Session Recovery / Publication Repair",
               }:
                   candidates.append(pointer)
           except Exception:
@@ -140,6 +141,7 @@ jobs:
               if row.get("source_workflow") not in {
                   "FMDL Daily A-share Governed Production",
                   "FMDL 2B-4 Multi-Session Recovery",
+                  "FMDL 2B-4 Multi-Session Recovery / Publication Repair",
               }:
                   continue
               candidates.append(row)
