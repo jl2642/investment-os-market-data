@@ -72,6 +72,7 @@ jobs:
 
       - name: Validate contracts and Round 1 publication controls
         run: |
+          python -m py_compile automation/operating_current/hydrate_a_share_runtime.py
           python scripts/validate_contracts.py
           python scripts/validate_investment_os_interface.py
           pytest -q \
@@ -100,6 +101,9 @@ jobs:
 
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Hydrate latest accepted A-share runtime state
+        run: python -m automation.operating_current.hydrate_a_share_runtime
 
       - name: Run latest completed-session market Current
         id: market

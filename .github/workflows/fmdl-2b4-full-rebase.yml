@@ -2,6 +2,13 @@ name: FMDL 2B-4 Multi-Session Full Rebase Recovery
 run-name: "FMDL 2B-4 governed multi-session recovery"
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/fmdl-2b4-full-rebase.yml"
+      - "automation/operating_current/hydrate_a_share_runtime.py"
+      - "scripts/validate_fmdl2b4_freshness.py"
+      - "tests/test_fmdl2b4_recovery_window.py"
   pull_request:
     branches: [main]
     paths:
@@ -52,7 +59,7 @@ jobs:
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
       - name: Validate recovery contract and existing FMDL regression suite
         run: |
-          python -m py_compile scripts/build_fmdl2b4_full_rebase_candidate.py scripts/validate_fmdl2b4_freshness.py
+          python -m py_compile scripts/build_fmdl2b4_full_rebase_candidate.py scripts/validate_fmdl2b4_freshness.py automation/operating_current/hydrate_a_share_runtime.py
           pytest -q \
             tests/test_fmdl2b4_full_rebase.py \
             tests/test_fmdl2b4_recovery_window.py \
@@ -61,7 +68,7 @@ jobs:
             tests/test_round1_governed_publication_workflows.py
 
   prepare-recovery:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push'
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -81,7 +88,10 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-      - name: Require settled post-close market window
+      - name: Hydrate latest accepted or validated recovery runtime
+        run: python -m automation.operating_current.hydrate_a_share_runtime
+
+      - name: Require safe recovery market window
         run: |
           python - <<'PY'
           from scripts.validate_fmdl2b4_freshness import validate_manual_recovery_window

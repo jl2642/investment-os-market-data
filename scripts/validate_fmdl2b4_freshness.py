@@ -16,6 +16,7 @@ import pandas as pd
 from scripts.fmdl2b4_history import ROOT, read_json
 
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
+MARKET_OPEN = time(9, 30)
 MARKET_CLOSE = time(15, 0)
 POST_CLOSE_PUBLICATION_GRACE_END = time(15, 30)
 MANUAL_RECOVERY_EARLIEST = time(15, 30)
@@ -53,13 +54,19 @@ def validate_manual_recovery_window(current: datetime | None = None) -> dict:
     today = local_now.date()
     today_is_trade_day = today in dates
     errors: list[str] = []
-    if today_is_trade_day and local_now.time() < MANUAL_RECOVERY_EARLIEST:
-        errors.append("FULL_REBASE_REQUIRES_POST_CLOSE_1530_ON_TRADING_DAY")
+    if (
+        today_is_trade_day
+        and MARKET_OPEN <= local_now.time() < MANUAL_RECOVERY_EARLIEST
+    ):
+        errors.append("FULL_REBASE_REQUIRES_PREOPEN_OR_POST_CLOSE_WINDOW_ON_TRADING_DAY")
     result = {
         "status": "PASS" if not errors else "FAIL",
         "business_time": local_now.isoformat(),
         "today_is_trade_day": today_is_trade_day,
-        "manual_recovery_earliest": MANUAL_RECOVERY_EARLIEST.isoformat(timespec="minutes"),
+        "safe_windows": [
+            f"BEFORE_{MARKET_OPEN.isoformat(timespec='minutes')}",
+            f"AT_OR_AFTER_{MANUAL_RECOVERY_EARLIEST.isoformat(timespec='minutes')}",
+        ],
         "errors": errors,
     }
     print(json.dumps(result, ensure_ascii=False))

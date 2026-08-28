@@ -17,16 +17,24 @@ def _calendar(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_manual_full_rebase_rejects_trading_day_intraday(monkeypatch: pytest.MonkeyPatch) -> None:
     _calendar(monkeypatch)
     now = datetime(2026, 8, 17, 10, 0, tzinfo=SHANGHAI)
-    with pytest.raises(RuntimeError, match="FULL_REBASE_REQUIRES_POST_CLOSE_1530_ON_TRADING_DAY"):
+    with pytest.raises(RuntimeError, match="FULL_REBASE_REQUIRES_PREOPEN_OR_POST_CLOSE_WINDOW_ON_TRADING_DAY"):
         freshness.validate_manual_recovery_window(now)
 
 
 def test_manual_full_rebase_rejects_post_close_grace_window(monkeypatch: pytest.MonkeyPatch) -> None:
     _calendar(monkeypatch)
     now = datetime(2026, 8, 17, 15, 29, tzinfo=SHANGHAI)
-    with pytest.raises(RuntimeError, match="FULL_REBASE_REQUIRES_POST_CLOSE_1530_ON_TRADING_DAY"):
+    with pytest.raises(RuntimeError, match="FULL_REBASE_REQUIRES_PREOPEN_OR_POST_CLOSE_WINDOW_ON_TRADING_DAY"):
         freshness.validate_manual_recovery_window(now)
 
+
+
+def test_manual_full_rebase_accepts_trade_day_preopen(monkeypatch: pytest.MonkeyPatch) -> None:
+    _calendar(monkeypatch)
+    now = datetime(2026, 8, 17, 2, 54, tzinfo=SHANGHAI)
+    result = freshness.validate_manual_recovery_window(now)
+    assert result["status"] == "PASS"
+    assert result["today_is_trade_day"] is True
 
 def test_manual_full_rebase_accepts_after_1530(monkeypatch: pytest.MonkeyPatch) -> None:
     _calendar(monkeypatch)

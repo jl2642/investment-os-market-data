@@ -2,6 +2,11 @@ name: WP3-R Weekly Candidate Price Screen
 run-name: "WP3-R weekly 73-name price and valuation screen"
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/wp3_r_weekly_screen.yml"
+      - "automation/wp3_r/publish_current_safely.sh"
   schedule:
     - cron: "5 15 * * 5"
   workflow_dispatch:
@@ -61,7 +66,7 @@ jobs:
           PY
 
       - name: Publish observation-only weekly Current
-        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push') && github.ref == 'refs/heads/main'
         shell: bash
         env:
           SOURCE_BRANCH: automation/wp3-r-candidate-current
