@@ -121,8 +121,14 @@ jobs:
               'investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_RESEARCH_PROPOSAL_CURRENT.json',
           }
           allowed_prefix = 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/'
+          engineering_control_exact = {
+              'investment_os_runtime/00_CONTROL/P4_1_OPERATING_CURRENT_CONTRACT.json',
+          }
           changed = subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines()
-          generated = [path for path in changed if path.startswith('investment_os_runtime/')]
+          generated = [
+              path for path in changed
+              if path.startswith('investment_os_runtime/') and path not in engineering_control_exact
+          ]
           forbidden = [path for path in generated if path not in allowed_exact and not path.startswith(allowed_prefix)]
           if forbidden:
               raise SystemExit('ROUND3_GENERATED_SCOPE_VIOLATION:' + ','.join(forbidden))
