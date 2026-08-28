@@ -28,18 +28,22 @@ def load_domain_row(domain: str) -> dict[str,Any]:
     return row
 
 
-def source_for(row: dict[str,Any], allow_latest_attempt: bool) -> dict[str,Any]:
+def source_for(row: dict[str,Any], allow_latest_attempt: bool) -> tuple[dict[str,Any],bool]:
     current=row.get("current")
+    latest=row.get("latest_attempt")
+    if allow_latest_attempt and latest:
+        if current is None or str(latest.get("published_at_utc") or "") > str(current.get("published_at_utc") or ""):
+            return latest,True
     if current:
-        return current
-    if allow_latest_attempt and row.get("latest_attempt"):
-        return row["latest_attempt"]
+        return current,False
+    if allow_latest_attempt and latest:
+        return latest,True
     raise RuntimeError(f"NO_HYDRATABLE_DOMAIN_SOURCE:{row.get('domain_id')}")
 
 
 def hydrate(domain: str, paths: list[str], allow_latest_attempt: bool=False) -> dict[str,Any]:
     row=load_domain_row(domain)
-    source=source_for(row,allow_latest_attempt)
+    source,used_latest_attempt=source_for(row,allow_latest_attempt)
     branch=str(source.get("source_branch") or "")
     commit=str(source.get("source_commit_sha") or "")
     if not branch or not commit:
@@ -66,7 +70,7 @@ def hydrate(domain: str, paths: list[str], allow_latest_attempt: bool=False) -> 
         "source_branch":branch,
         "source_commit":commit,
         "source_watermark":source.get("data_watermark"),
-        "used_latest_attempt":current_is_missing(row),
+        "used_latest_attempt":used_latest_attempt,
         "restored_paths":restored,
         "protected_state_mutations":0,
         "orders":0,
@@ -74,10 +78,6 @@ def hydrate(domain: str, paths: list[str], allow_latest_attempt: bool=False) -> 
     }
     print(json.dumps(result,ensure_ascii=False,sort_keys=True))
     return result
-
-
-def current_is_missing(row: dict[str,Any]) -> bool:
-    return row.get("current") is None
 
 
 def main():
