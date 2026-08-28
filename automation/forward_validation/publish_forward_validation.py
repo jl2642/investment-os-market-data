@@ -220,7 +220,7 @@ def write_transaction(
             "outcome_read_count":0,
         }
 
-    if mode!="COLLECT":
+    if mode not in {"COLLECT","COLLECT_AND_REFRESH"}:
         raise RuntimeError("P45_UNKNOWN_MODE")
     if not baseline_path.exists():
         raise RuntimeError("P45_COLLECT_WITHOUT_BASELINE")
