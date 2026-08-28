@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 import unittest
 from datetime import datetime
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
@@ -15,6 +18,7 @@ from automation.forward_validation.market_outcomes import (
 from automation.forward_validation.publish_forward_validation import (
     checkpoint_immutable_projection,
     materialize_baseline,
+    write_transaction,
 )
 
 
@@ -108,6 +112,54 @@ class P45ForwardValidationTests(unittest.TestCase):
             ["2026-08-28","2026-08-31"],
         )
         self.assertEqual(ca["status"],"NO_ADJUSTMENT_FACTOR_CHANGE_OBSERVED")
+
+    def test_collect_and_refresh_noop_preserves_current_pointer_semantics(self):
+        cutoff="2026-08-28T06:08:10Z"
+        current={
+            "eligibility_cutoff_utc":cutoff,
+            "phase4_forward_observation_count":0,
+            "phase4_realized_outcome_read_count":0,
+            "phase5_migration_allowed":False,
+        }
+        cycle={
+            "mode":"COLLECT_AND_REFRESH",
+            "cycle_action":"NO_NEW_ELIGIBLE_CHECKPOINT",
+            "new_checkpoint_count":0,
+            "observation_increment":0,
+            "outcome_read_increment":0,
+            "orders":0,
+            "trade_authority":"NONE",
+        }
+        with TemporaryDirectory() as td:
+            target=Path(td)/"forward_validation"
+            target.mkdir(parents=True)
+            (target/"FORWARD_BASELINE_CURRENT.json").write_text(
+                json.dumps({"eligibility_cutoff_utc":cutoff}),
+                encoding="utf-8",
+            )
+            with (
+                patch("automation.forward_validation.publish_forward_validation.TARGET",target),
+                patch(
+                    "automation.forward_validation.publish_forward_validation.write_domain_receipt",
+                    return_value=(False,"NON_PASS_DOES_NOT_ADVANCE"),
+                ),
+            ):
+                result=write_transaction(
+                    baseline_candidate_text=None,
+                    current_text=json.dumps(current),
+                    ledger_text="",
+                    checkpoint_texts=[],
+                    cycle_text=json.dumps(cycle),
+                    source_workflow="P4-5 test",
+                    source_run_id="1",
+                    source_run_attempt=2,
+                    source_branch="main",
+                    source_commit="a"*40,
+                )
+            self.assertEqual(result["status"],"NO_OP")
+            self.assertFalse(result["advanced"])
+            self.assertEqual(result["eligibility_cutoff_utc"],cutoff)
+            self.assertFalse((target/"FORWARD_VALIDATION_CURRENT.json").exists())
 
     @patch("automation.forward_validation.market_outcomes.fetch_daily")
     @patch("automation.forward_validation.market_outcomes.fetch_calendar")
