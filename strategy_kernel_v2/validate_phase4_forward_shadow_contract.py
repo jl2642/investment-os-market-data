@@ -286,20 +286,6 @@ def validate() -> list[str]:
     if state.get("phase4_entry_allowed") is not True or state.get("phase4_start_allowed") is not True:
         errors.append("P4_ENTRY_NOT_ALLOWED")
 
-    # The immutable v1 contract remains frozen at its pre-execution boundary.
-    # PROGRAM_AMENDMENT_A1, however, may supersede only the *current execution
-    # state* before any forward observation is consumed.  Preserve every v1
-    # semantic anchor and firewall while allowing monotonic P4-0..P4-5 child
-    # stage progression under the higher-level effective execution hold.
-    a1_supersedes_v1_execution = (
-        state.get("program_amendment_a1_frozen") is True
-        and state.get("phase4_v1_forward_execution_superseded_before_first_observation") is True
-        and state.get("phase4_effective_execution_hold") is True
-        and state.get("phase4_effective_forward_observation_start_allowed") is False
-        and state.get("phase4_forward_observation_count") == 0
-        and state.get("phase4_realized_outcome_read_count") == 0
-    )
-
     expected_state = {
         "phase4_contract_freeze_started": True,
         "phase4_contract_freeze_complete": True,
@@ -308,11 +294,10 @@ def validate() -> list[str]:
         "phase4_contract_semantic_head": FREEZE_HEAD,
         "phase4_contract_semantic_head_commit_time_utc": FREEZE_TIME,
         "phase4_contract_semantic_git_blob_sha": SEMANTIC_BLOB,
-        # Historical v1 permission is retained as an audit fact; A1's
-        # effective permission remains false until the clean P4-5 rebaseline.
         "phase4_forward_observation_start_allowed": True,
         "phase4_forward_observation_count": 0,
         "phase4_realized_outcome_read_count": 0,
+        "phase4_started": False,
         "phase4_forward_validation_complete": False,
         "phase5_migration_allowed": False,
     }
@@ -322,27 +307,8 @@ def validate() -> list[str]:
         if key in cv and cv.get(key) != value:
             errors.append("P4_CURRENT_CLOSEOUT_DRIFT:" + key)
 
-    if a1_supersedes_v1_execution:
-        allowed_child_next = {
-            "PHASE4_P4_1_MAIN_BASED_OPERATIONAL_REPAIR_IMPLEMENTATION",
-            "PHASE4_P4_2_MAIN_BASED_CONTINUOUS_OPPORTUNITY_FUNNEL_IMPLEMENTATION",
-            "PHASE4_P4_3_UNIFIED_DECISION_AND_RECOMMENDATION_ENGINE",
-            "PHASE4_P4_4_TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK",
-            "PHASE4_P4_5_CLEAN_BASELINE_FORWARD_PARALLEL_SHADOW_VALIDATION",
-        }
-        if current.get("next_phase") not in allowed_child_next:
-            errors.append("P4_CURRENT_NEXT_PHASE_DRIFT")
-        if state.get("phase4_started") is not True:
-            errors.append("P4_A1_CHILD_STAGE_NOT_ACTIVE")
-    else:
-        if state.get("phase4_started") is not False:
-            errors.append("P4_STATE_CLOSEOUT_DRIFT:phase4_started")
-        if current.get("next_phase") != "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION":
-            errors.append("P4_CURRENT_NEXT_PHASE_DRIFT")
-
-    # CURRENT_PHASE_STATUS.validation preserves the original v1 acceptance
-    # snapshot and therefore remains pre-execution even when A1 current state
-    # has progressed into production-closure child stages.
+    if current.get("next_phase") != "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION":
+        errors.append("P4_CURRENT_NEXT_PHASE_DRIFT")
     if cv.get("phase4_entry_allowed") is not True or cv.get("phase4_started") is not False:
         errors.append("P4_CURRENT_BOUNDARY_DRIFT")
 
@@ -382,7 +348,6 @@ if __name__ == "__main__":
         "runners=LEGACY_POLICY_BASELINE+R2.0.1_RESEARCH "
         "min_cycles=12 min_weeks=4 min_edges=24 min_signatures=2 "
         "horizons=1,3,5 aggregation=equal_edge,equal_checkpoint,equal_signature "
-        "v1_observation_permission=true effective_a1_observation_permission=false "
-        "observations=0 outcome_reads=0 v1_boundary_phase4_started=false "
-        "phase5=false orders=0 trade_authority=NONE"
+        "observation_start_allowed=true observations=0 outcome_reads=0 "
+        "phase4_started=false phase5=false orders=0 trade_authority=NONE"
     )
