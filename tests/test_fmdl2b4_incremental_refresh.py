@@ -8,7 +8,7 @@ from scripts.fmdl2b4_history import canonical_hash, load_composite_shard, sha256
 from scripts.finalize_b4_history_candidate import rehash_frame
 from scripts.publish_fmdl2b4 import publish
 from scripts.run_b4_factor_refresh import _normalize_composite_lineage
-from scripts.run_incremental_history_refresh import canonical_incremental_row, continuity_passes
+from scripts.run_incremental_history_refresh import canonical_incremental_row, continuity_passes, same_date_identity_delta
 
 
 def engine_config() -> dict:
@@ -216,3 +216,41 @@ def test_failed_candidate_validation_preserves_existing_lkg(tmp_path: Path) -> N
         publish(tmp_path)
     assert (tmp_path / "outputs/history/current/marker.txt").read_text(encoding="utf-8") == "history-lkg"
     assert (tmp_path / "outputs/factors/current/marker.txt").read_text(encoding="utf-8") == "factor-lkg"
+
+
+def test_same_date_identity_delta_allows_true_noop_only_when_symbol_set_is_unchanged() -> None:
+    prior = pd.DataFrame([
+        {"symbol": "600000.SH"},
+        {"symbol": "689009.SH"},
+    ])
+    unchanged = pd.DataFrame([
+        {"symbol": "689009.SH"},
+        {"symbol": "600000.SH"},
+    ])
+    changed = pd.DataFrame([
+        {"symbol": "600000.SH"},
+    ])
+
+    assert same_date_identity_delta(prior, unchanged) == {
+        "changed": False,
+        "added_symbols": [],
+        "removed_symbols": [],
+    }
+    assert same_date_identity_delta(prior, changed) == {
+        "changed": True,
+        "added_symbols": [],
+        "removed_symbols": ["689009.SH"],
+    }
+
+
+def test_same_date_identity_delta_detects_new_security_for_quarantine_reconcile() -> None:
+    prior = pd.DataFrame([{"symbol": "600000.SH"}])
+    universe = pd.DataFrame([
+        {"symbol": "600000.SH"},
+        {"symbol": "001234.SZ"},
+    ])
+    assert same_date_identity_delta(prior, universe) == {
+        "changed": True,
+        "added_symbols": ["001234.SZ"],
+        "removed_symbols": [],
+    }
