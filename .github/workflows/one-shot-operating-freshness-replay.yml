@@ -1,4 +1,4 @@
-name: One-shot A-share History Factor Recovery
+name: One-shot A-share Recovery Publication Repair
 
 on:
   push:
@@ -7,21 +7,32 @@ on:
       - ".github/workflows/one-shot-operating-freshness-replay.yml"
 
 permissions:
-  actions: write
-  contents: read
+  contents: write
 
 jobs:
-  dispatch:
+  publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch governed FMDL 2B-4 multi-session recovery on protected main
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
+      - name: Checkout protected main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Publish already-validated recovery result to Operating Current
         shell: bash
         run: |
           set -Eeuo pipefail
-          gh api --method POST \
-            "repos/$REPO/actions/workflows/fmdl-2b4-full-rebase.yml/dispatches" \
-            -f ref=main
-          echo "DISPATCHED_FMDL2B4_MULTI_SESSION_RECOVERY"
+          python automation/operating_current/publish_operating_current.py \
+            --domain A_SHARE_FULL_MARKET \
+            --status PASS \
+            --source-workflow "FMDL 2B-4 Multi-Session Recovery / Publication Repair" \
+            --source-run-id "33160096565" \
+            --source-run-attempt "1" \
+            --source-branch "automation/fmdl2b4-rebase-33160096565-a1" \
+            --source-commit "9153b9005cc6657d051ba3c9d4d5b61c7071d44f" \
+            --watermark "2026-08-28" \
+            --watermark-sort-key "2026-08-28" \
+            --qc-status PASS_RECOVERY_VALIDATED_PUBLICATION_REPAIR \
+            --advance-current \
+            --note "Publication-only repair after run 33160096565 completed 24/24 shards, history/factor validation, Current materialization and immutable artifact upload; original final handoff failed only on shell quoting."

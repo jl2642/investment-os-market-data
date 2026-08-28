@@ -93,6 +93,7 @@ def test_no_period_end_as_availability_date():
     assert "zero use of report-period end as availability date" in pit
 
 
-def test_readme_will_reference_next_phase_after_branch_update():
+def test_readme_exposes_current_operating_state_and_authority_boundary():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "FMDL-3" in readme
+    assert "Development Complete · Operating Observation" in readme
+    assert "trade_authority = NONE" in readme
