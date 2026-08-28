@@ -28,6 +28,7 @@ env:
   TRADE_AUTHORITY: NONE
   D2_CURRENT_RUNTIME: .p4_2_runtime/RESEARCH_QUEUE_D2_CURRENT.json
   D2_DOMAIN_RUNTIME: .p4_2_runtime/RESEARCH_D2.json
+  PRIOR_FUNNEL_RUNTIME: .p4_2_runtime/OPPORTUNITY_FUNNEL_PRIOR.json
   P4_2_OUTPUT: .p4_2_output
 
 jobs:
@@ -52,6 +53,9 @@ jobs:
           mkdir -p .p4_2_runtime
           git show origin/operating-current:operating_current/domains/RESEARCH_D2.json > "$D2_DOMAIN_RUNTIME"
           git show origin/automation/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$D2_CURRENT_RUNTIME"
+          if git cat-file -e origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json 2>/dev/null; then
+            git show origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json > "$PRIOR_FUNNEL_RUNTIME"
+          fi
 
       - name: Compile operating implementation
         run: |
@@ -163,6 +167,9 @@ jobs:
           mkdir -p .p4_2_runtime
           git show origin/operating-current:operating_current/domains/RESEARCH_D2.json > "$D2_DOMAIN_RUNTIME"
           git show origin/automation/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$D2_CURRENT_RUNTIME"
+          if git cat-file -e origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json 2>/dev/null; then
+            git show origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json > "$PRIOR_FUNNEL_RUNTIME"
+          fi
 
       - name: Build live P4-2 funnel cycle
         run: |
