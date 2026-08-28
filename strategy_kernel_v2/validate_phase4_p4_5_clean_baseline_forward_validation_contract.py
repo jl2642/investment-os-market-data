@@ -47,12 +47,20 @@ def validate():
         e.append("P45_BASELINE_OUTCOME_LEAK")
 
     selector=c.get("forward_checkpoint_selector",{})
-    if selector.get("selector")!="CENSUS_OF_ALL_ELIGIBLE_DISTINCT_POST_CUTOFF_GOVERNED_D2_SOURCE_COMMITS":
+    if selector.get("selector")!="CENSUS_OF_ALL_ELIGIBLE_DISTINCT_POST_CUTOFF_REGISTERED_EVIDENCE_EVENTS":
         e.append("P45_SELECTOR")
-    if selector.get("primary_trigger_domain")!="RESEARCH_D2": e.append("P45_TRIGGER_DOMAIN")
+    families=selector.get("registered_evidence_families",{})
+    required_families={
+        "RESEARCH_D2","CANDIDATE_STATE","REAL_ACCOUNT_STATE","RESEARCH_CORE2",
+        "RESEARCH_601138_P0","DECISION_00669_BUY_REVIEW",
+    }
+    if set(families)!=required_families:
+        e.append("P45_REGISTERED_FAMILY_SET")
     if selector.get("mere_schedule_rerun_may_create_checkpoint") is not False:
         e.append("P45_RERUN_FALSE_FRESHNESS")
-    if selector.get("same_semantic_d2_state_with_new_runtime_timestamp_may_create_checkpoint") is not False:
+    if selector.get("unchanged_registered_blob_with_new_commit_may_create_checkpoint") is not False:
+        e.append("P45_UNCHANGED_BLOB_FALSE_FRESHNESS")
+    if selector.get("same_semantic_state_with_new_runtime_timestamp_may_create_checkpoint") is not False:
         e.append("P45_TIMESTAMP_FALSE_FRESHNESS")
     if selector.get("manual_result_driven_checkpoint_selection_allowed") is not False:
         e.append("P45_RESULT_DRIVEN_SELECTION")
@@ -68,10 +76,25 @@ def validate():
         "same_packet_for_legacy_and_r2",
         "missingness_preserved",
         "source_commit_path_blob_identity_required",
+        "existing_historical_feature_extractor_only",
         "new_feature_mapping_during_phase4_forbidden",
         "unsupported_evidence_remains_uninterpreted",
     ]:
         if packet.get(k) is not True: e.append("P45_PACKET_"+k)
+    if packet.get("pre_cutoff_baseline_sources_may_supply_model_features") is not False:
+        e.append("P45_PRE_CUTOFF_FEATURE_LEAK")
+    regime=c.get("evidence_regime_definition",{})
+    if regime.get("realized_outcomes_may_influence_regime") is not False:
+        e.append("P45_REGIME_OUTCOME_LEAK")
+    if regime.get("recommendation_result_may_influence_regime") is not False:
+        e.append("P45_REGIME_RECOMMENDATION_LEAK")
+    if regime.get("regime_assignment_frozen_before_first_forward_observation") is not True:
+        e.append("P45_REGIME_NOT_FROZEN")
+    feasibility=c.get("structural_feasibility_audit",{})
+    if feasibility.get("realized_outcomes_read")!=0 or feasibility.get("forward_observations_read")!=0:
+        e.append("P45_FEASIBILITY_RESULT_LEAK")
+    if feasibility.get("new_transform_rules_created")!=0 or feasibility.get("threshold_changes")!=0 or feasibility.get("model_identity_changes")!=0:
+        e.append("P45_FEASIBILITY_MODEL_DRIFT")
 
     runners=c.get("runner_set",{})
     legacy=runners.get("legacy",{})
