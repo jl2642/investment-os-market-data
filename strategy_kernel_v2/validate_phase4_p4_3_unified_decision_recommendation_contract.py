@@ -132,12 +132,28 @@ def validate():
         e.append("P43_STATE_P42")
     if s.get("phase4_p4_2_distinct_cycle_fingerprint_count",0)<2:
         e.append("P43_STATE_P42_CYCLES")
-    if s.get("phase4_reconciliation_current_stage")!="P4_3_UNIFIED_DECISION_AND_RECOMMENDATION_ENGINE":
+    stage=s.get("phase4_reconciliation_current_stage")
+    allowed_stages={
+        "P4_3_UNIFIED_DECISION_AND_RECOMMENDATION_ENGINE",
+        "P4_4_TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK",
+        "P4_5_CLEAN_BASELINE_FORWARD_PARALLEL_SHADOW_VALIDATION",
+    }
+    if stage not in allowed_stages:
         e.append("P43_STATE_STAGE")
     if s.get("phase4_p4_3_contract_frozen") is not True:
         e.append("P43_STATE_CONTRACT")
-    if s.get("phase4_p4_3_implementation_started") is not False or s.get("phase4_p4_3_complete") is not False:
-        e.append("P43_STATE_IMPLEMENTATION")
+    if stage!="P4_3_UNIFIED_DECISION_AND_RECOMMENDATION_ENGINE":
+        if s.get("phase4_p4_3_contract_status")!="COMPLETE_ACCEPTED":
+            e.append("P43_STATE_ACCEPTANCE")
+        if s.get("phase4_p4_3_implementation_started") is not True:
+            e.append("P43_STATE_IMPLEMENTATION_NOT_STARTED")
+        if s.get("phase4_p4_3_complete") is not True:
+            e.append("P43_NOT_COMPLETE_BEFORE_ADVANCE")
+        if not s.get("phase4_p4_3_recommendation_fingerprint"):
+            e.append("P43_RECOMMENDATION_FINGERPRINT_MISSING")
+    else:
+        if s.get("phase4_p4_3_implementation_started") is not False or s.get("phase4_p4_3_complete") is not False:
+            e.append("P43_STATE_IMPLEMENTATION")
     if s.get("phase4_forward_observation_count")!=0 or s.get("phase4_realized_outcome_read_count")!=0:
         e.append("P43_FORWARD_EVIDENCE")
 

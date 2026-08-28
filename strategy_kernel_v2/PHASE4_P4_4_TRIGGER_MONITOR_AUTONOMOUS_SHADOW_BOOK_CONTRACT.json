@@ -1,0 +1,244 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE4_P4_4_TRIGGER_MONITOR_AUTONOMOUS_SHADOW_BOOK_CONTRACT",
+  "as_of": "2026-08-28",
+  "status": "FROZEN_PRE_IMPLEMENTATION",
+  "parent": {
+    "p4_3_contract_pr": 345,
+    "p4_3_contract_head": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd",
+    "p4_3_operational_pr": 346,
+    "p4_3_operational_merge_sha": "668cdf03296440d74d9458eb4c9f88e55c4ce94c",
+    "p4_3_recommendation_fingerprint": "d74b6d9d799ac2741b82d8764c374a298d57623925b37756d92b23b35e0c0ed7",
+    "p4_3_operating_current_head": "9311cf793edaa8f2efade91144ed808459dadaec",
+    "p4_3_status": "COMPLETE_ACCEPTED",
+    "phase4_effective_forward_execution_hold": true
+  },
+  "objective": "Continuously monitor recommendation triggers and maintain an append-only, research-only normalized shadow action book that records what the system would have done under explicit recommendation-state transitions, while remaining completely isolated from protected Simulation, Real Account, Candidate and order authority.",
+  "pre_implementation_audit": {
+    "finding": "MONITORING_AND_SHADOW_SIMULATION_PRIMITIVES_EXIST_BUT_NO_CURRENT_RECOMMENDATION_BOUND_TRIGGER_REGISTRY_OR_ISOLATED_AUTONOMOUS_SHADOW_BOOK_EXISTS",
+    "reusable_controls": {
+      "fmdl7d_monitoring_registry": {
+        "path": "outputs/fmdl7/current/scheduled_operations/FMDL7D_MONITORING_REGISTRY.json",
+        "reuse": [
+          "FAIL_CLOSED",
+          "SOURCE_STALE",
+          "DUPLICATE_EVENT_IDEMPOTENCY",
+          "UNAUTHORIZED_MUTATION_REJECTION",
+          "PRESERVE_LKG_ON_FAILURE"
+        ],
+        "treatment": "TECHNICAL_CONTROL_PRIMITIVES_ONLY_NOT_INVESTMENT_TRIGGER_AUTHORITY"
+      },
+      "fmdl6x4d_shadow_pilot": {
+        "path": "config/fmdl6x4d_simulation_pilot_contract.json",
+        "reuse": [
+          "SHADOW_SEPARATE_FROM_PROTECTED_SIMULATION",
+          "APPEND_ONLY_EVENT_SEMANTICS",
+          "DUPLICATE_REPLAY_IDEMPOTENCY",
+          "OUT_OF_ORDER_REJECTION",
+          "NO_INVESTMENT_RECOMMENDATION_AUTHORITY"
+        ],
+        "treatment": "ARCHITECTURAL_PRECEDENT_ONLY_NOT_CURRENT_SHADOW_BOOK"
+      },
+      "r5_attribution": {
+        "root": "investment_os_runtime/70_ATTRIBUTION_AND_CALIBRATION/",
+        "status": "HISTORICAL_ATTRIBUTION_AND_CALIBRATION_CONTEXT_WINDOWS_NOT_CURRENTLY_MATURE",
+        "treatment": "NOT_P4_4_FORWARD_PERFORMANCE_AUTHORITY"
+      }
+    },
+    "current_recommendation_snapshot": {
+      "record_count": 3,
+      "buy_now_count": 0,
+      "add_count": 0,
+      "watch_normal_count": 2,
+      "watch_high_priority_count": 1,
+      "ready_for_user_decision_count": 0,
+      "explicit_trigger_clause_count": 7,
+      "explicit_invalidation_clause_count": 6,
+      "expected_live_shadow_open_position_count": 0
+    }
+  },
+  "trigger_monitor": {
+    "source_authority": "operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json",
+    "registry_path": "operating_current/trigger_monitor/TRIGGER_REGISTRY_CURRENT.json",
+    "event_ledger_path": "operating_current/trigger_monitor/TRIGGER_EVENT_LEDGER.jsonl",
+    "current_path": "operating_current/trigger_monitor/TRIGGER_MONITOR_CURRENT.json",
+    "clause_types": [
+      "RECOMMENDATION_TRIGGER",
+      "INVALIDATION_CONDITION",
+      "RECOMMENDATION_STATE_TRANSITION"
+    ],
+    "monitorability_states": [
+      "STRUCTURED_MACHINE_EVALUABLE",
+      "SEMANTIC_EVIDENCE_REQUIRED",
+      "STATE_TRANSITION_MACHINE_EVALUABLE"
+    ],
+    "trigger_states": [
+      "ARMED",
+      "ARMED_EVIDENCE_REQUIRED",
+      "FIRED",
+      "NOT_FIRED",
+      "SUPERSEDED",
+      "BLOCKED_SOURCE_STALE"
+    ],
+    "natural_language_clause_keyword_inference_authorized": false,
+    "semantic_clause_may_fire_without_governed_evidence": false,
+    "recommendation_state_transition_is_machine_evaluable": true,
+    "all_current_recommendation_triggers_and_invalidations_must_be_registered": true,
+    "duplicate_event_policy": "NO_OP_ALREADY_PROCESSED",
+    "out_of_order_event_policy": "REJECT_AND_PRESERVE_CURRENT",
+    "stale_source_policy": "BLOCK_NEW_SHADOW_ACTION_PRESERVE_LKG"
+  },
+  "shadow_book": {
+    "current_path": "operating_current/shadow_book/SHADOW_BOOK_CURRENT.json",
+    "action_ledger_path": "operating_current/shadow_book/SHADOW_ACTION_LEDGER.jsonl",
+    "cycle_receipt_root": "operating_current/shadow_book/cycles/",
+    "operating_domain": "SHADOW_BOOK",
+    "exposure_unit_policy": {
+      "normalized_research_units_per_open_signal": 1,
+      "units_are_capital_weights": false,
+      "cash_budget_exists": false,
+      "portfolio_sizing_claim_allowed": false,
+      "cross_security_portfolio_return_claim_allowed": false
+    },
+    "position_states": [
+      "FLAT",
+      "ENTRY_PENDING_MARK",
+      "OPEN",
+      "EXIT_PENDING_MARK",
+      "CLOSED"
+    ],
+    "entry_policy": {
+      "action_states": [
+        "BUY_NOW",
+        "ADD"
+      ],
+      "non_action_states": [
+        "BUY_ON_PRICE",
+        "BUY_ON_EVIDENCE",
+        "WATCH_HIGH_PRIORITY",
+        "WATCH_NORMAL",
+        "HOLD",
+        "AVOID",
+        "TRIM_REVIEW",
+        "EXIT_REVIEW"
+      ],
+      "buy_on_price_requires_recommendation_revalidation_to_buy_now": true,
+      "buy_on_evidence_requires_recommendation_revalidation_to_buy_now": true,
+      "no_direct_natural_language_trigger_to_entry": true,
+      "entry_effective_mark_policy": "FIRST_COMPLETED_SESSION_MARK_STRICTLY_AVAILABLE_AFTER_SIGNAL_AVAILABLE_AT"
+    },
+    "exit_policy": {
+      "action_states": [
+        "AVOID",
+        "EXIT_REVIEW"
+      ],
+      "trim_review_is_not_automatic_exit": true,
+      "watch_or_hold_is_not_automatic_exit": true,
+      "exit_effective_mark_policy": "FIRST_COMPLETED_SESSION_MARK_STRICTLY_AVAILABLE_AFTER_EXIT_SIGNAL_AVAILABLE_AT"
+    },
+    "mark_binding": {
+      "same_session_hindsight_fill_forbidden": true,
+      "future_mark_required_for_pending_action": true,
+      "missing_mark_keeps_action_pending": true,
+      "mark_source_identity_required": true,
+      "market_session_identity_required": true
+    },
+    "benchmark_binding": {
+      "inherited_governed_benchmark_preferred": true,
+      "benchmark_may_not_be_fabricated": true,
+      "unresolved_benchmark_status": "BENCHMARK_BINDING_REQUIRED_BEFORE_ATTRIBUTION",
+      "benchmark_absence_does_not_block_action_lineage": true,
+      "benchmark_absence_blocks_relative_performance_claim": true
+    },
+    "action_lineage_required": [
+      "recommendation_fingerprint",
+      "recommendation_record_identity",
+      "signal_available_at",
+      "action_id",
+      "entry_or_exit_mark_identity",
+      "market_session",
+      "benchmark_binding_status"
+    ]
+  },
+  "pre_baseline_firewall": {
+    "p4_4_live_runs_are_infrastructure_validation_only": true,
+    "p4_4_live_actions_before_p4_5_cutoff_label": "PRE_BASELINE_INFRASTRUCTURE_ONLY",
+    "pre_p4_5_actions_may_count_as_phase4_forward_observations": false,
+    "pre_p4_5_market_outcomes_may_tune_model": false,
+    "p4_5_must_freeze_new_clean_cutoff": true,
+    "p4_5_may_not_backdate_clean_cutoff": true,
+    "phase4_forward_observation_count_must_remain": 0,
+    "phase4_realized_outcome_read_count_must_remain": 0
+  },
+  "current_live_expected_result": {
+    "recommendation_fingerprint": "d74b6d9d799ac2741b82d8764c374a298d57623925b37756d92b23b35e0c0ed7",
+    "registered_subject_count": 3,
+    "registered_trigger_clause_count": 7,
+    "registered_invalidation_clause_count": 6,
+    "shadow_action_count": 0,
+    "shadow_open_position_count": 0,
+    "reason": "NO_BUY_NOW_OR_ADD_RECOMMENDATION_CURRENTLY_EXISTS"
+  },
+  "operating_surface": {
+    "branch": "operating-current",
+    "trigger_domain": "TRIGGER_MONITOR",
+    "shadow_domain": "SHADOW_BOOK",
+    "atomic_publication_required": true,
+    "fail_closed": true,
+    "protected_economic_authority": false
+  },
+  "acceptance_gate": {
+    "all_current_recommendation_clauses_registered": true,
+    "semantic_clauses_not_auto_fired_without_evidence": true,
+    "current_live_zero_action_result_matches_recommendation_state": true,
+    "deterministic_same_input_same_semantics": true,
+    "duplicate_signal_idempotent": true,
+    "out_of_order_signal_rejected": true,
+    "synthetic_watch_to_buy_now_creates_one_entry_pending_action": true,
+    "synthetic_repeated_buy_now_creates_no_duplicate_action": true,
+    "synthetic_next_completed_session_mark_opens_shadow_position": true,
+    "synthetic_buy_now_to_avoid_creates_exit_pending_action": true,
+    "synthetic_next_completed_session_mark_closes_shadow_position": true,
+    "same_session_hindsight_fill_rejected": true,
+    "protected_simulation_unchanged": true,
+    "protected_real_unchanged": true,
+    "candidate_unchanged": true,
+    "target_portfolio_unchanged": true,
+    "pre_baseline_forward_observation_count_zero": true,
+    "minimum_live_operating_cycles": 1,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "non_goals": [
+    "NO_PROTECTED_SIMULATION_BOOK_MUTATION",
+    "NO_REAL_ACCOUNT_MUTATION",
+    "NO_CANDIDATE_MEMBERSHIP_MUTATION",
+    "NO_TARGET_PORTFOLIO_WRITEBACK",
+    "NO_REAL_OR_SIMULATED_ORDER",
+    "NO_CAPITAL_SIZING_POLICY",
+    "NO_CROSS_SECURITY_PORTFOLIO_PERFORMANCE_CLAIM",
+    "NO_AUTOMATIC_NLP_INTERPRETATION_OF_SEMANTIC_TRIGGERS",
+    "NO_MODEL_OR_R2_CHANGE",
+    "NO_RULE_CALIBRATION",
+    "NO_PHASE4_FORWARD_OUTCOME_COUNTING_BEFORE_P4_5_CLEAN_CUTOFF",
+    "NO_PHASE5_MIGRATION"
+  ],
+  "protected_state": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "phase4_forward_observation_count": 0,
+    "phase4_realized_outcome_read_count": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "implementation_lane": {
+    "main_based_operational_pr_required": true,
+    "must_not_merge_strategy_kernel_stacked_chain_into_main": true,
+    "expected_transaction_count_after_contract": 1,
+    "next_after_acceptance": "P4_5_CLEAN_BASELINE_FORWARD_PARALLEL_SHADOW_VALIDATION"
+  }
+}
