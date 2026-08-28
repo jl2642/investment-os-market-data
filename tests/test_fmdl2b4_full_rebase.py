@@ -189,5 +189,7 @@ def test_recovery_workflow_has_conditional_auto_watch_and_never_direct_pushes_ma
     assert "automation/fmdl2b4-rebase-" in workflow
     assert "git push origin main" not in workflow
     assert 'git push origin "HEAD:$RESULT_BRANCH"' in workflow
+    assert "WATERMARK=\"$(python - <<'PY'" in workflow
+    assert "python - <<\\'PY\\'" not in workflow
     assert "Protected main is never pushed directly." in workflow
     assert "Candidate, simulation, real holdings and orders are outside this workflow." in workflow
