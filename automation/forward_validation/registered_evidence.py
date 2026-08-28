@@ -149,7 +149,8 @@ def main_family_events(
     events=[]
     for family,cfg in MAIN_FAMILIES.items():
         cp=git(
-            repo_root,"log","--reverse","--format=%H%x09%cI",
+            repo_root,"log","--first-parent","--full-history","--reverse",
+            "--format=%H%x09%cI",
             f"{baseline_commit}..{current_commit}","--",cfg["path"]
         )
         prior_blob=blob_at(repo_root,baseline_commit,cfg["path"])
