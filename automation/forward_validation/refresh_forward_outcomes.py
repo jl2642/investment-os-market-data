@@ -232,6 +232,7 @@ def main():
     p.add_argument("--current",required=True)
     p.add_argument("--observation-ledger",required=True)
     p.add_argument("--output-dir",required=True)
+    p.add_argument("--collector-receipt")
     p.add_argument("--now")
     args=p.parse_args()
     now=datetime.fromisoformat(args.now.replace("Z","+00:00")) if args.now else datetime.now(tz=ZoneInfo("UTC"))
@@ -266,11 +267,22 @@ def main():
     (out/"FORWARD_OBSERVATION_LEDGER.jsonl").write_text(
         "".join(json.dumps(x,ensure_ascii=False,sort_keys=True)+"\n" for x in ledger),encoding="utf-8"
     )
-    (out/"outcome_cycle_receipt.json").write_text(json.dumps({
-        "mode":"OUTCOME_REFRESH","outcome_read_increment":increment,
+    collector=load_json(Path(args.collector_receipt)) if args.collector_receipt else {
+        "new_checkpoint_count":0,"observation_increment":0
+    }
+    new_count=int(collector.get("new_checkpoint_count",0))
+    final_receipt={
+        "mode":"COLLECT_AND_REFRESH",
+        "cycle_action":"ADVANCE_FORWARD_STATE" if new_count or increment else "NO_NEW_ELIGIBLE_CHECKPOINT",
+        "new_checkpoint_count":new_count,
+        "observation_increment":int(collector.get("observation_increment",new_count)),
+        "outcome_read_increment":increment,
         "completion_outcome":evaluation["completion_outcome"],
         "phase5_migration_allowed":False,"orders":0,"trade_authority":"NONE",
-    },ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+    }
+    (out/"cycle_receipt.json").write_text(json.dumps(
+        final_receipt,ensure_ascii=False,indent=2,sort_keys=True
+    )+"\n",encoding="utf-8")
     print(json.dumps({
         "checkpoints":len(checkpoints),"outcome_read_increment":increment,
         "mature":current["economically_mature_checkpoint_count"],
