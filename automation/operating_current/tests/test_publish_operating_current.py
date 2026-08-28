@@ -51,7 +51,7 @@ class OperatingCurrentTests(unittest.TestCase):
 
         def fake_run(*args, check=True):
             calls.append((args, check))
-            stdout="local-head\\n" if args[:3] == ("git","rev-parse","HEAD") else ""
+            stdout="local-head\n" if args[:3] == ("git","rev-parse","HEAD") else ""
             return subprocess.CompletedProcess(args, 0, stdout=stdout, stderr="")
 
         with patch(
