@@ -1,0 +1,36 @@
+name: Strategy Kernel Phase 5 Readiness Preauthorization
+
+on:
+  pull_request:
+    paths:
+      - "strategy_kernel_v2/PHASE5_READINESS_PREAUTHORIZATION_PLAN.json"
+      - "strategy_kernel_v2/PHASE5_T1_MIGRATION_RULE_TREATMENT_READINESS.json"
+      - "strategy_kernel_v2/PHASE5_T2_LIMITED_ACTIVATION_ROLLBACK_READINESS.json"
+      - "strategy_kernel_v2/PHASE5_T3_FINAL_GOVERNED_ACCEPTANCE_READINESS.json"
+      - "strategy_kernel_v2/PROGRAM_STATE.json"
+      - "strategy_kernel_v2/PLAN_CHANGELOG.md"
+      - "strategy_kernel_v2/validate_phase5_readiness_preauthorization.py"
+      - "strategy_kernel_v2/tests/test_phase5_readiness_preauthorization.py"
+      - ".github/workflows/strategy-kernel-phase5-readiness-preauthorization.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Compile
+        run: python -m py_compile strategy_kernel_v2/validate_phase5_readiness_preauthorization.py
+      - name: Readiness test
+        run: python -m unittest strategy_kernel_v2.tests.test_phase5_readiness_preauthorization -v
+      - name: Readiness validator
+        run: python strategy_kernel_v2/validate_phase5_readiness_preauthorization.py

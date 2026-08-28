@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "plan_id": "STRATEGY_KERNEL_V2_PHASE5_READINESS_PREAUTHORIZATION",
+  "as_of": "2026-08-28",
+  "status": "PREAUTHORIZATION_READINESS_ONLY",
+  "issue_authority": 354,
+  "macro_phase": "PHASE_5_GOVERNED_MIGRATION",
+  "phase5_execution_authorized": false,
+  "p4_5_completion_required_before_execution": true,
+  "p4_5_required_completion_outcome": "PASS_P4_5_FORWARD_VALIDATION_ELIGIBLE_FOR_PHASE5_MIGRATION_PROPOSAL",
+  "purpose": "Complete all migration design, rollback design and final-acceptance design now so Phase 5 can execute without redesign after P4-5 passes.",
+  "transactions": [
+    {
+      "transaction_id": "T1",
+      "name": "MIGRATION_PROPOSAL_AND_RULE_TREATMENT",
+      "can_prepare_now": true,
+      "can_execute_now": false,
+      "execution_precondition": "P4_5_PASS",
+      "objective": "Freeze which legacy production responsibilities remain authoritative, which Strategy Kernel surfaces become primary, which duplicate decision surfaces become fallback/audit only, and how conflicts are resolved."
+    },
+    {
+      "transaction_id": "T2",
+      "name": "LIMITED_ACTIVATION_AND_ROLLBACK_OBSERVATION",
+      "can_prepare_now": true,
+      "can_execute_now": false,
+      "execution_precondition": "T1_ACCEPTED_AFTER_P4_5_PASS",
+      "objective": "Activate Strategy Kernel decision authority only in a bounded production lane while retaining deterministic rollback and dual-read comparison."
+    },
+    {
+      "transaction_id": "T3",
+      "name": "FINAL_GOVERNED_ACCEPTANCE",
+      "can_prepare_now": true,
+      "can_execute_now": false,
+      "execution_precondition": "T2_LIMITED_ACTIVATION_ACCEPTED",
+      "objective": "Make Strategy Kernel v2 the primary production decision kernel, retire only superseded duplicate decision authority, retain protected economic/account ledgers and rollback evidence, and close the Phase 0-5 program."
+    }
+  ],
+  "permanent_authority_boundaries": {
+    "real_account_authority": "PROTECTED_MAIN_REAL_ACCOUNT_STATE",
+    "candidate_membership_authority": "USER_GOVERNED_MAIN",
+    "protected_simulation_authority": "PROTECTED_MAIN_SIMULATION",
+    "autonomous_shadow_book_authority": "OPERATING_CURRENT_SHADOW_BOOK_SEPARATE_FROM_PROTECTED_SIMULATION",
+    "target_portfolio_writeback_authorized": false,
+    "automatic_live_trading_authorized": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "migration_principle": "MIGRATE_DECISION_AUTHORITY_NOT_ECONOMIC_LEDGER_OWNERSHIP",
+  "readiness_completion_definition": [
+    "T1_RULE_TREATMENT_MATRIX_FROZEN",
+    "T1_CONFLICT_AND_ROLLBACK_RULES_FROZEN",
+    "T2_LIMITED_ACTIVATION_SCOPE_AND_ROLLBACK_TRIGGERS_FROZEN",
+    "T2_DUAL_READ_ACCEPTANCE_MATRIX_FROZEN",
+    "T3_FINAL_ACCEPTANCE_AND_LEGACY_RETIREMENT_MATRIX_FROZEN",
+    "USER_VISIBLE_PRODUCTION_CAPABILITY_CONTRACT_FROZEN",
+    "P4_5_PASS_REMAINS_HARD_EXECUTION_PRECONDITION"
+  ],
+  "current_state": {
+    "p4_5_status": "ACTIVE_FORWARD_ACCUMULATION",
+    "clean_cutoff_utc": "2026-08-28T06:08:10Z",
+    "accepted_checkpoint_count": 0,
+    "economically_mature_checkpoint_count": 0,
+    "phase4_forward_observation_count": 0,
+    "phase4_realized_outcome_read_count": 0,
+    "phase5_migration_allowed": false
+  }
+}

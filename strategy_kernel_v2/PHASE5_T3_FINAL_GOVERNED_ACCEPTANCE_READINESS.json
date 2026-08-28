@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE5_T3_FINAL_GOVERNED_ACCEPTANCE_READINESS",
+  "status": "FROZEN_PREAUTHORIZATION",
+  "execution_authorized": false,
+  "execution_precondition": "P4_5_PASS_AND_T1_ACCEPTED_AND_T2_ACCEPTED",
+  "objective": "Close the Phase 0-5 Strategy Kernel v2 program by making the validated Strategy Kernel surfaces the primary production decision kernel while preserving non-superseded data/economic authorities and rollback evidence.",
+  "final_authority_map": {
+    "opportunity_research_routing": "P4_2_OPPORTUNITY_FUNNEL_PRIMARY",
+    "research_evidence": "GOVERNED_D1_D2_AND_PRIMARY_RESEARCH_KEEP",
+    "recommendation_state": "P4_3_RECOMMENDATION_PRIMARY",
+    "trigger_invalidation_monitor": "P4_4_TRIGGER_MONITOR_PRIMARY",
+    "counterfactual_shadow_actions": "P4_4_AUTONOMOUS_SHADOW_BOOK_PRIMARY",
+    "formal_candidate_membership": "USER_GOVERNED_MAIN_KEEP",
+    "real_account_state": "PROTECTED_MAIN_REAL_ACCOUNT_KEEP",
+    "protected_simulation_state": "PROTECTED_MAIN_SIMULATION_KEEP",
+    "portfolio_sizing_support": "LEGACY_POSITION_SIZING_CONTEXT_SUPPORT_ONLY_UNTIL_SEPARATELY_VALIDATED",
+    "explicit_user_decisions": "USER_DECISION_AUTHORITY_KEEP"
+  },
+  "legacy_retirement_matrix": [
+    {
+      "category": "duplicate opportunity/position recommendation summaries",
+      "final_state": "RETIRE_AS_PRIMARY_AUTHORITY",
+      "retention": "READ_ONLY_AUDIT_ARCHIVE"
+    },
+    {
+      "category": "free-text trigger monitoring duplicated by structured P4-4 registry",
+      "final_state": "RETIRE_AS_PRIMARY_MONITOR",
+      "retention": "READ_ONLY_CONTEXT"
+    },
+    {
+      "category": "old candidate/research data producers",
+      "final_state": "DO_NOT_RETIRE_IF_STILL_SOURCE_AUTHORITY",
+      "retention": "ACTIVE_WHERE_NOT_SUPERSEDED"
+    },
+    {
+      "category": "portfolio sizing and portfolio-fit support",
+      "final_state": "SUPPORT_ONLY_NOT_RETIRED",
+      "retention": "ACTIVE_SUPPORT_UNTIL_SEPARATE_VALIDATED_REPLACEMENT"
+    },
+    {
+      "category": "real account / Candidate membership / protected Simulation / user confirmations",
+      "final_state": "KEEP_AUTHORITY",
+      "retention": "ACTIVE_PROTECTED"
+    }
+  ],
+  "daily_control_end_state": {
+    "user_primary_question_set": [
+      "后台最新真实跑到哪一步",
+      "当前最值得关注的机会是什么",
+      "哪些是 BUY_NOW / BUY_ON_PRICE / BUY_ON_EVIDENCE / WATCH / AVOID",
+      "已有持仓是 ADD / HOLD / TRIM_REVIEW / EXIT_REVIEW 中哪一种",
+      "为什么，证据是什么，最大反方观点是什么",
+      "什么条件变化会触发重新判断",
+      "和其他机会/现有持仓相比资金机会成本如何",
+      "今天用户是否真的需要做决定"
+    ],
+    "strategy_kernel_outputs_primary": true,
+    "legacy_conflict_noise_hidden_from_normal_user_view": true,
+    "evidence_and_lineage_traceable_on_request": true,
+    "no_automatic_live_ordering": true
+  },
+  "final_acceptance_gate": [
+    "P4_5_COMPLETION_PASS",
+    "T1_RULE_TREATMENT_ACCEPTED",
+    "T2_LIMITED_ACTIVATION_AND_ROLLBACK_ACCEPTED",
+    "ZERO_BLOCKING_AUTHORITY_CONFLICTS",
+    "PRIMARY_DAILY_CONTROL_READS_STRATEGY_KERNEL_RECOMMENDATION_AND_TRIGGER_STATE",
+    "FORMAL_CANDIDATE_MEMBERSHIP_AUTHORITY_PRESERVED",
+    "REAL_ACCOUNT_AUTHORITY_PRESERVED",
+    "PROTECTED_SIMULATION_AUTHORITY_PRESERVED",
+    "EXPLICIT_USER_DECISION_AUTHORITY_PRESERVED",
+    "ROLLBACK_EVIDENCE_RETAINED",
+    "LEGACY_DUPLICATE_DECISION_AUTHORITY_RETIRED_OR_MARKED_AUDIT_ONLY",
+    "ORDERS_ZERO",
+    "TRADE_AUTHORITY_NONE"
+  ],
+  "program_closeout": {
+    "issue_354_close_condition": "T3_ACCEPTED_AND_FINAL_PROGRAM_STATE_WRITTEN",
+    "phase5_complete_after_acceptance": true,
+    "phase0_5_program_complete_after_acceptance": true,
+    "post_close_mode": "NORMAL_OPERATION_PLUS_MONTHLY_DISCIPLINE_REVIEW",
+    "future_strategy_kernel_change_requires_new_governed_change_proposal": true
+  },
+  "user_visible_capability_contract": {
+    "system_should_do": [
+      "持续发现值得研究的股票机会",
+      "自动推进研究和证据缺口",
+      "给出统一且可解释的推荐状态",
+      "把新机会与现有持仓和其他机会进行资本机会成本比较",
+      "持续监控触发条件和失效条件",
+      "用独立 Shadow Book 记录如果按建议行动会怎样",
+      "在真正需要用户决定时明确提出，而不是把后台运行问题甩给用户"
+    ],
+    "system_should_not_do": [
+      "未经另行授权自动买卖",
+      "自动改真实账户事实",
+      "自动改正式 Candidate membership",
+      "把 Shadow Book 当成真实或受保护 Simulation",
+      "因为一次收益好坏自动改模型或阈值"
+    ]
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "protected_simulation_mutations": 0,
+    "automatic_orders": 0,
+    "trade_authority": "NONE"
+  }
+}

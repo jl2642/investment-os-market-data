@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE5_T1_MIGRATION_PROPOSAL_AND_RULE_TREATMENT_READINESS",
+  "status": "FROZEN_PREAUTHORIZATION",
+  "execution_authorized": false,
+  "execution_precondition": "P4_5_PASS",
+  "objective": "Remove duplicate/conflicting decision authority while preserving evidence producers, protected economic ledgers, human-governed membership and portfolio-sizing support that Strategy Kernel v2 does not replace.",
+  "treatment_states": [
+    "KEEP_AUTHORITY",
+    "MIGRATE_PRIMARY_AUTHORITY",
+    "SUPPORT_ONLY",
+    "FALLBACK_ONLY",
+    "GRANDFATHER_UNTIL_EXPLICIT_SUPERSESSION",
+    "RETIRE_AFTER_T2_ACCEPTANCE"
+  ],
+  "rule_treatment_matrix": [
+    {
+      "responsibility": "FULL_MARKET_AND_CANDIDATE_DISCOVERY_ROUTING",
+      "legacy_surfaces": [
+        "investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/*",
+        "legacy full-market/factor/screening producer outputs"
+      ],
+      "strategy_kernel_surface": "operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json",
+      "treatment": "MIGRATE_PRIMARY_AUTHORITY",
+      "effective_after": "T2_ACCEPTED",
+      "retained_boundary": "Candidate membership itself remains USER_GOVERNED_MAIN and is not automatically mutated.",
+      "conflict_rule": "P4_2_FUNNEL_PRIMARY_FOR_RESEARCH_ROUTING; CANDIDATE_CURRENT_PRIMARY_FOR_FORMAL_MEMBERSHIP"
+    },
+    {
+      "responsibility": "RESEARCH_EVIDENCE_PRODUCTION",
+      "legacy_surfaces": [
+        "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json",
+        "governed D1/D2 evidence artifacts"
+      ],
+      "strategy_kernel_surface": "CONSUMER_OF_EXISTING_GOVERNED_RESEARCH",
+      "treatment": "KEEP_AUTHORITY",
+      "effective_after": "UNCHANGED",
+      "retained_boundary": "Strategy Kernel does not replace primary research evidence producers.",
+      "conflict_rule": "EXACT_GOVERNED_RESEARCH_SOURCE_BEATS_DERIVED_RECOMMENDATION_TEXT"
+    },
+    {
+      "responsibility": "OPPORTUNITY_AND_POSITION_RECOMMENDATION_STATE",
+      "legacy_surfaces": [
+        "investment_os_runtime/30_STATE_CURRENT/50_DECISION_INTERFACE/WP4_DECISION_INTERFACE_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_POSITION_ACTION_MATRIX_CURRENT.json",
+        "other non-user-final legacy decision recommendation summaries"
+      ],
+      "strategy_kernel_surface": "operating_current/recommendations/RECOMMENDATION_CURRENT.json",
+      "treatment": "MIGRATE_PRIMARY_AUTHORITY",
+      "effective_after": "T2_ACCEPTED",
+      "retained_boundary": "Legacy outputs remain readable for audit and conflict comparison until T3.",
+      "conflict_rule": "AFTER_T2_ACCEPTED_P4_3_RECOMMENDATION_IS_PRIMARY_CURRENT_RECOMMENDATION; LEGACY_CONFLICT_IS_RECORDED_NOT_SILENTLY_MERGED"
+    },
+    {
+      "responsibility": "PORTFOLIO_SIZING_AND_POSITION_LEVEL_CONTEXT",
+      "legacy_surfaces": [
+        "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SUMMARY_CURRENT.md",
+        "position-level portfolio-fit artifacts"
+      ],
+      "strategy_kernel_surface": "P4_3_RECOMMENDATION_CONTEXT_BINDING_ONLY",
+      "treatment": "SUPPORT_ONLY",
+      "effective_after": "UNCHANGED",
+      "retained_boundary": "Strategy Kernel v2 does not claim a validated automatic target-weight or position-sizing engine.",
+      "conflict_rule": "SIZING_SUPPORT_CANNOT_OVERRIDE_P4_3_RECOMMENDATION_STATE; P4_3_CANNOT_FABRICATE_SIZE_IF_SUPPORT_IS_MISSING"
+    },
+    {
+      "responsibility": "TRIGGER_AND_INVALIDATION_MONITORING",
+      "legacy_surfaces": [
+        "free-text next_action/trigger fields across legacy decision and research outputs"
+      ],
+      "strategy_kernel_surface": "operating_current/trigger_monitor/TRIGGER_MONITOR_CURRENT.json",
+      "treatment": "MIGRATE_PRIMARY_AUTHORITY",
+      "effective_after": "T2_ACCEPTED",
+      "retained_boundary": "Semantic clauses still require governed evidence; keyword inference remains forbidden.",
+      "conflict_rule": "STRUCTURED_P4_4_TRIGGER_REGISTRY_PRIMARY; LEGACY_FREE_TEXT_IS_CONTEXT_ONLY"
+    },
+    {
+      "responsibility": "COUNTERFACTUAL_SHADOW_ACTION_RECORD",
+      "legacy_surfaces": [
+        "ad hoc historical simulation/counterfactual review outputs"
+      ],
+      "strategy_kernel_surface": "operating_current/shadow_book/SHADOW_BOOK_CURRENT.json",
+      "treatment": "MIGRATE_PRIMARY_AUTHORITY",
+      "effective_after": "T2_ACCEPTED",
+      "retained_boundary": "Autonomous Shadow Book never becomes protected Simulation or real account state.",
+      "conflict_rule": "P4_4_SHADOW_BOOK_PRIMARY_FOR_STRATEGY_KERNEL_COUNTERFACTUAL_ACTIONS"
+    },
+    {
+      "responsibility": "PROTECTED_SIMULATION_ECONOMIC_STATE",
+      "legacy_surfaces": [
+        "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+      ],
+      "strategy_kernel_surface": "NONE",
+      "treatment": "KEEP_AUTHORITY",
+      "effective_after": "UNCHANGED",
+      "retained_boundary": "No Strategy Kernel automatic mutation.",
+      "conflict_rule": "PROTECTED_SIMULATION_ALWAYS_WINS_FOR_SIMULATION_ECONOMIC_STATE"
+    },
+    {
+      "responsibility": "REAL_ACCOUNT_ECONOMIC_STATE",
+      "legacy_surfaces": [
+        "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+      ],
+      "strategy_kernel_surface": "NONE",
+      "treatment": "KEEP_AUTHORITY",
+      "effective_after": "UNCHANGED",
+      "retained_boundary": "Recommendations may read but never rewrite real-account facts.",
+      "conflict_rule": "REAL_ACCOUNT_LEDGER_ALWAYS_WINS_FOR_REAL_ECONOMIC_STATE"
+    },
+    {
+      "responsibility": "FORMAL_CANDIDATE_MEMBERSHIP",
+      "legacy_surfaces": [
+        "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json"
+      ],
+      "strategy_kernel_surface": "NONE",
+      "treatment": "KEEP_AUTHORITY",
+      "effective_after": "UNCHANGED",
+      "retained_boundary": "Membership changes remain governed/user-authorized; funnel/recommendation does not auto-promote membership.",
+      "conflict_rule": "CANDIDATE_CURRENT_ALWAYS_WINS_FOR_FORMAL_MEMBERSHIP"
+    },
+    {
+      "responsibility": "EXISTING_USER_APPROVED_OR_USER_SPECIFIC_DECISIONS",
+      "legacy_surfaces": [
+        "investment_os_runtime/30_STATE_CURRENT/61_DECISIONS/USER_CONFIRMATIONS_CURRENT.json",
+        "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/HKCU_TTI_00669_BUY_REVIEW_CURRENT.json",
+        "other explicit user-decision artifacts"
+      ],
+      "strategy_kernel_surface": "RECOMMENDATION_CONTEXT_ONLY_UNTIL_EXPLICIT_SUPERSESSION",
+      "treatment": "GRANDFATHER_UNTIL_EXPLICIT_SUPERSESSION",
+      "effective_after": "UNCHANGED",
+      "retained_boundary": "Migration cannot silently revoke or reinterpret an explicit user decision.",
+      "conflict_rule": "EXPLICIT_USER_DECISION_BEATS_MODEL_RECOMMENDATION_UNTIL_NEW_EXPLICIT_USER_DECISION"
+    }
+  ],
+  "migration_proposal_gate": {
+    "p4_5_pass_required": true,
+    "exact_current_reconciliation_required": true,
+    "unresolved_conflict_count_required": 0,
+    "automatic_rule_rewrite_allowed": false,
+    "user_decision_required_for_live_economic_authority_change": true,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "rollback_authority": {
+    "rollback_target": "PRE_T2_PRODUCTION_DECISION_AUTHORITY_MAP",
+    "rollback_must_not_rewrite_economic_ledgers": true,
+    "rollback_must_preserve_all_forward_and_dual_read_evidence": true,
+    "rollback_trigger_owner": "GOVERNED_PHASE5_T2_GATE",
+    "automatic_trade_rollback_not_applicable": true
+  }
+}
