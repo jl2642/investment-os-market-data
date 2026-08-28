@@ -19,8 +19,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: p4-2-continuous-opportunity-funnel
-  cancel-in-progress: false
+  group: p4-2-continuous-opportunity-funnel-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   TRADE_AUTHORITY: NONE
