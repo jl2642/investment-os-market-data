@@ -597,3 +597,19 @@ No forward observation or realized outcome has yet been loaded. Phase 4 executio
 
 **Execution discipline:** exactly one main-based operational implementation may freeze the baseline and install the forward collector. Baseline acceptance can happen now; P4-5 completion cannot. The minimum four distinct ISO weeks plus genuinely future 1/3/5-session endpoints must occur naturally after cutoff. Phase 5 remains unauthorized.
 
+## 2026-08-28 — P4-5 pre-cutoff structural-feasibility correction: D2-only selector rejected
+
+**Trigger:** implementation-readiness audit performed after the first P4-5 contract candidate passed static validation but before any clean cutoff, forward observation or realized outcome existed.
+
+**Finding:** a D2-only shared packet reuses the frozen R2 mappings correctly but structurally supplies primarily the same `EVIDENCE_SOURCE_COUNT + DOWNSIDE_REJECTION_GATE_CLEAR` exact signature. Keeping the unchanged PR #333 requirements of at least two comparison signatures and four evidence regimes while restricting forward evidence to D2-only would therefore make the validation design structurally underpowered or impossible for reasons unrelated to model quality.
+
+**Correction:** no threshold is relaxed and no future result is read. The selector is restored to the original Phase-4 scientific intent: census every substantive post-cutoff event across a frozen registered set of evidence families already supported by the existing historical feature extractor. Registered families are `RESEARCH_D2`, `CANDIDATE_STATE`, `REAL_ACCOUNT_STATE`, `RESEARCH_CORE2`, `RESEARCH_601138_P0` and `DECISION_00669_BUY_REVIEW`. Each event uses exact commit/path/blob provenance and constructs one shared packet from only registered source versions genuinely available after the new cutoff by that event time.
+
+**R2 boundary:** only existing frozen mappings may be used. No new transform, proxy, mapping, dimension, weight, score, threshold or model identity is created. Recommendation / Trigger / Shadow remain audit context only and cannot select/drop checkpoints or become R2 features.
+
+**Evidence-regime freeze:** regime identity is deterministically bound to contributing registered-family IDs, the exact R2 signature set and the model-neutral missingness pattern. Realized outcomes and recommendation results cannot influence regime assignment.
+
+**Why correction is valid:** effective P4-5 cutoff remains unset; forward observations=0; realized outcome reads=0. This is a pre-result feasibility correction, not post-result tuning.
+
+**Implementation consequence:** the partially started unmerged main operational branch is not authoritative and must be revised to implement the registered multi-family event census before any P4-5 baseline is published.
+
