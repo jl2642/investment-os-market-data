@@ -334,8 +334,15 @@ def build_record(
 
 def semantic_projection(payload: dict[str, Any]) -> dict[str, Any]:
     out = json.loads(json.dumps(payload))
-    out.pop("generated_at_utc", None)
-    out.pop("prior_recommendation_fingerprint", None)
+    # Operational publication metadata must not change the investment judgment
+    # identity when the governed source fingerprint is unchanged.
+    for key in (
+        "generated_at_utc",
+        "prior_recommendation_fingerprint",
+        "cycle_action",
+        "overall_status",
+    ):
+        out.pop(key, None)
     return out
 
 
