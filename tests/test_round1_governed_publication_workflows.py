@@ -6,6 +6,7 @@ WORKFLOWS = {
     "daily": ROOT / ".github/workflows/fmdl-daily-production.yml",
     "history_factor": ROOT / ".github/workflows/fmdl-2b4-incremental-refresh.yml",
     "screening": ROOT / ".github/workflows/fmdl-2c-screening-funnel.yml",
+    "recovery": ROOT / ".github/workflows/fmdl-2b4-full-rebase.yml",
 }
 
 
@@ -49,3 +50,22 @@ def test_component_workflows_are_not_scheduled_publishers() -> None:
         assert "\n  schedule:" not in text
         assert "Scheduled production is owned by fmdl-daily-production.yml." in text
         assert "permissions:\n  contents: read" in text
+
+
+def test_daily_and_recovery_inherit_operating_current_runtime() -> None:
+    daily = _text("daily")
+    recovery = _text("recovery")
+    marker = "python -m scripts.hydrate_fmdl_runtime_from_operating_current"
+    assert marker in daily
+    assert marker in recovery
+    assert daily.index(marker) < daily.index("python pipeline/run_daily.py")
+    assert recovery.index(marker) < recovery.index("Assess multi-session recovery need")
+
+
+def test_candidate_publishers_use_distinct_rolling_branches() -> None:
+    weekly = (ROOT / ".github/workflows/wp3_r_weekly_screen.yml").read_text(encoding="utf-8")
+    ledger = (ROOT / ".github/workflows/wp3_r_candidate_price_ledger.yml").read_text(encoding="utf-8")
+    assert "automation/wp3-r-candidate-weekly-current" in weekly
+    assert "automation/wp3-r-candidate-ledger-current" in ledger
+    assert "WP3R_PUBLISH_BRANCH: automation/wp3-r-candidate-weekly-current" in weekly
+    assert "WP3R_PUBLISH_BRANCH: automation/wp3-r-candidate-ledger-current" in ledger
