@@ -613,3 +613,21 @@ No forward observation or realized outcome has yet been loaded. Phase 4 executio
 
 **Implementation consequence:** the partially started unmerged main operational branch is not authoritative and must be revised to implement the registered multi-family event census before any P4-5 baseline is published.
 
+## 2026-08-28 — P4-5 clean baseline accepted / effective forward accumulation opened
+
+**Operational implementation:** main-based PR #350 passed exact-head P4-5 validation and WP3-2A Lineage Gate, then merged to protected main at `ebb41b5a7972286807997bf6ec6adb154d9d8f24`.
+
+**First production cycle:** workflow run `33146805613` completed validate and operate successfully. The run detected no pre-existing P4-5 baseline, built the clean baseline candidate, published it atomically, and passed remote readback. Active collection and outcome-refresh steps were intentionally skipped in the first cycle.
+
+**Accepted clean cutoff:** `2026-08-28T06:08:10Z`. This value is exactly the `FORWARD_VALIDATION` Operating Current receipt `published_at_utc`, not a guessed, contract-time or backdated timestamp. The superseded PR #333 cutoff `2026-08-27T13:42:29Z` remains audit-only and cannot contribute effective P4-5 evidence.
+
+**Operating Current evidence:** head `9548f60456b71328c31ff6f98d5b3e31151bbff3`, commit message `operating-current: P4-5 baseline_published`. Domain `FORWARD_VALIDATION` is PASS / `PASS_P4_5_CLEAN_BASELINE_ACCEPTED`, source main commit `ebb41b5a7972286807997bf6ec6adb154d9d8f24`, source run `33146805613`.
+
+**Registered baseline identities:** six frozen family baselines were recorded: `CANDIDATE_STATE`, `DECISION_00669_BUY_REVIEW`, `REAL_ACCOUNT_STATE`, `RESEARCH_601138_P0`, `RESEARCH_CORE2`, and `RESEARCH_D2`. These baseline versions are ineligible as model evidence for effective P4-5 checkpoints; only substantive registered source versions becoming available strictly after the accepted cutoff may enter the forward census.
+
+**Zero-evidence baseline invariant:** immediately after acceptance, `phase4_forward_observation_count=0`, `phase4_realized_outcome_read_count=0`, accepted checkpoint count=0, economically mature checkpoint count=0. Candidate / Real / protected Simulation mutations remain 0 / 0 / 0; orders=0; trade_authority=NONE.
+
+**Execution-control transition:** the Amendment A1 *frozen contract* remains immutable and records why a clean rebaseline was required. The effective program state now releases the temporary pre-baseline execution hold and opens only post-cutoff P4-5 forward accumulation. This does not authorize Phase 5. `phase5_migration_allowed=false`; even a future P4-5 PASS may only make a separate governed Phase-5 migration proposal eligible.
+
+**Current stage:** `P4_5_ACTIVE_FORWARD_ACCUMULATION`. P4-5 is not complete. Completion still requires the unchanged frozen sufficiency, 1/3/5-session directional, per-signature and jackknife gates.
+
