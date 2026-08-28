@@ -240,6 +240,7 @@ def main():
     ledger=load_jsonl(Path(args.observation_ledger))
     lmap={str(x["checkpoint_id"]):x for x in ledger}
     out=Path(args.output_dir); out.mkdir(parents=True,exist_ok=True)
+    checkpoint_out=out/"checkpoints"; checkpoint_out.mkdir(parents=True,exist_ok=True)
     checkpoints=[]
     increment=0
     for path in sorted(Path(args.checkpoints_dir).glob("*.json")):
@@ -250,7 +251,7 @@ def main():
         updated,new_reads=update_checkpoint(cp,now=now,allow_outcome_reads=True)
         increment+=new_reads
         checkpoints.append(updated)
-        (out/path.name).write_text(json.dumps(updated,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+        (checkpoint_out/path.name).write_text(json.dumps(updated,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
         if updated["checkpoint_id"] in lmap:
             lmap[updated["checkpoint_id"]]["economically_mature"]=bool(updated.get("economically_mature"))
             lmap[updated["checkpoint_id"]]["outcome_read_count"]=int(updated.get("outcome_read_count",0))
