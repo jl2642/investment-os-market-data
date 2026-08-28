@@ -1,0 +1,41 @@
+name: Strategy Kernel Phase 4 P4-3 Unified Recommendation Contract
+
+on:
+  pull_request:
+    paths:
+      - "strategy_kernel_v2/PHASE4_P4_3_UNIFIED_DECISION_RECOMMENDATION_CONTRACT.json"
+      - "strategy_kernel_v2/PROGRAM_STATE.json"
+      - "strategy_kernel_v2/CURRENT_PHASE_STATUS.json"
+      - "strategy_kernel_v2/PLAN_CHANGELOG.md"
+      - "strategy_kernel_v2/validate_phase4_p4_2_continuous_opportunity_funnel_contract.py"
+      - "strategy_kernel_v2/validate_phase4_p4_3_unified_decision_recommendation_contract.py"
+      - "strategy_kernel_v2/validate_program_amendment_a1.py"
+      - "strategy_kernel_v2/tests/test_phase4_p4_3_unified_decision_recommendation_contract.py"
+      - ".github/workflows/strategy-kernel-phase4-p4-3-unified-recommendation-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Compile
+        run: |
+          python -m py_compile             strategy_kernel_v2/validate_phase4_p4_2_continuous_opportunity_funnel_contract.py             strategy_kernel_v2/validate_phase4_p4_3_unified_decision_recommendation_contract.py             strategy_kernel_v2/validate_program_amendment_a1.py
+      - name: P4-2 accepted dependency
+        run: python strategy_kernel_v2/validate_phase4_p4_2_continuous_opportunity_funnel_contract.py
+      - name: P4-3 contract test
+        run: python -m unittest strategy_kernel_v2.tests.test_phase4_p4_3_unified_decision_recommendation_contract -v
+      - name: P4-3 contract validator
+        run: python strategy_kernel_v2/validate_phase4_p4_3_unified_decision_recommendation_contract.py
+      - name: Program Amendment A1 remains fail-closed
+        run: python strategy_kernel_v2/validate_program_amendment_a1.py
