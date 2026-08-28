@@ -1,0 +1,142 @@
+{
+  "schema_version": "1.0.0",
+  "amendment_id": "STRATEGY_KERNEL_PROGRAM_AMENDMENT_A1",
+  "title": "Phase 4 Production Closure and Forward Validation Realignment",
+  "as_of": "2026-08-28",
+  "status": "FROZEN_PRE_IMPLEMENTATION",
+  "trigger": {
+    "audit_finding": "FORWARD_VALIDATION_SOURCE_PIPELINE_NOT_PRODUCTION_CLOSED",
+    "canonical_main_sha_at_audit": "5c5df9082688f65332c79fef3b9cbfa893a06908",
+    "canonical_main_commit_time_context": "2026-08-18",
+    "phase4_v1_future_cutoff": "2026-08-27T13:42:29Z",
+    "phase4_v1_forward_observation_count": 0,
+    "phase4_v1_realized_outcome_read_count": 0,
+    "reason_codes": [
+      "CANONICAL_PRODUCTION_PROMOTION_BACKLOG",
+      "A_SHARE_FULL_MARKET_PRODUCTION_WATERMARK_STALE_RELATIVE_TO_OPERATING_MARKS",
+      "CANDIDATE_CURRENT_AND_DECISION_SURFACES_NOT_CONTINUOUSLY_ADVANCING",
+      "R6_OPERATING_ACTIVATION_NOT_COMPLETE",
+      "PHASE4_SOURCE_SELECTOR_DEPENDS_ON_CANONICAL_PRODUCTION_THAT_IS_NOT_YET_CLOSED"
+    ]
+  },
+  "macro_lifecycle": {
+    "unchanged": true,
+    "phases": [
+      "0_SYSTEM_AUDIT",
+      "1_DECISION_AND_UNDERWRITING",
+      "2_CAPITAL_COMPARISON_INFRASTRUCTURE",
+      "3_HISTORICAL_REPLAY_AND_CALIBRATION",
+      "4_FORWARD_PARALLEL_SHADOW_VALIDATION",
+      "5_GOVERNED_MIGRATION"
+    ],
+    "phase0_through_phase3_reopened": false,
+    "phase3_r2_model_reopened": false,
+    "phase5_authorized": false
+  },
+  "preserved_evidence": {
+    "phase4_v1_contract_pr": 333,
+    "phase4_v1_contract_head": "efb044b541902633494f4ee2037f4b962375158c",
+    "phase4_v1_contract_status": "FROZEN_FORWARD_SHADOW_VALIDATION_CONTRACT_PRE_EXECUTION",
+    "phase4_p4_1_census_pr": 337,
+    "phase4_p4_1_census_head": "244868e41dac70c74e1986538a7ba4cee19bd31f",
+    "phase4_p4_1_census_status": "NO_POST_CUTOFF_CANONICAL_MAIN_COMMITS",
+    "phase4_v1_records_remain_immutable_audit_evidence": true,
+    "historical_data_may_substitute_for_forward_validation": false
+  },
+  "effective_execution_control": {
+    "phase4_v1_contract_permission_retained_as_historical_fact": true,
+    "forward_observation_execution_hold": true,
+    "effective_forward_observation_start_allowed": false,
+    "first_forward_observation_may_be_consumed_before_rebaseline": false,
+    "new_clean_baseline_and_future_cutoff_required": true,
+    "observed_phase4_results_used_to_design_amendment": false
+  },
+  "phase4_internal_sequence": [
+    {
+      "stage": "P4-0",
+      "name": "PROGRAM_RECONCILIATION_AND_PRODUCTION_ARCHITECTURE_AMENDMENT_FREEZE",
+      "status": "COMPLETE_WHEN_THIS_AMENDMENT_PASSES",
+      "purpose": "Unify authority, preserve v1 evidence, freeze the repaired Phase 4 plan and prohibit forward execution until production prerequisites are met."
+    },
+    {
+      "stage": "P4-1",
+      "name": "PRODUCTION_BACKBONE_REPAIR",
+      "status": "NEXT_AFTER_P4_0",
+      "purpose": "Repair operating canonical promotion, full-market data continuity, watermarks, recovery and observability without changing R2."
+    },
+    {
+      "stage": "P4-2",
+      "name": "CONTINUOUS_OPPORTUNITY_FUNNEL",
+      "status": "NOT_STARTED",
+      "purpose": "Make screening, Longlist, Research Queue, D1 and D2 advance continuously with bounded research-state automation."
+    },
+    {
+      "stage": "P4-3",
+      "name": "UNIFIED_DECISION_AND_RECOMMENDATION_ENGINE",
+      "status": "NOT_STARTED",
+      "purpose": "Convert completed research into explicit cross-market investment judgments and trigger conditions without live trading."
+    },
+    {
+      "stage": "P4-4",
+      "name": "TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK",
+      "status": "NOT_STARTED",
+      "purpose": "Monitor recommendation triggers and record hypothetical shadow actions in a separate research-only book; protected Simulation and Real Current remain unchanged."
+    },
+    {
+      "stage": "P4-5",
+      "name": "CLEAN_BASELINE_FORWARD_PARALLEL_SHADOW_VALIDATION",
+      "status": "NOT_STARTED",
+      "purpose": "Freeze a new clean future cutoff after production closure, then run Legacy and R2.0.1 prospectively under the preserved preregistered measurement semantics."
+    }
+  ],
+  "preserved_strategy_kernel_semantics": {
+    "legacy_runner": "LEGACY_POLICY_BASELINE",
+    "candidate_model": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
+    "candidate_version": "R2.0.1_RESEARCH",
+    "transform_rule_count": 20,
+    "comparison_method": "PARETO_WITHIN_EXACT_COMPARISON_SIGNATURE",
+    "fixed_horizons_exchange_sessions": [
+      1,
+      3,
+      5
+    ],
+    "aggregation_schemes": [
+      "EQUAL_EDGE",
+      "EQUAL_CHECKPOINT",
+      "EQUAL_SIGNATURE"
+    ],
+    "minimum_concordance_rate": 0.5,
+    "minimum_mean_edge_return_spread": 0,
+    "model_or_threshold_change_authorized": false
+  },
+  "production_authority_design_target": {
+    "governance_canonical": "PROTECTED_MAIN_FOR_CODE_RULES_SCHEMAS_MODEL_CONTRACTS_AND_USER_APPROVED_PROTECTED_STATE",
+    "operating_canonical": "GOVERNED_QC_PASSED_OPERATING_CURRENT_FOR_PUBLIC_DATA_RESEARCH_AND_OBSERVABILITY",
+    "operating_canonical_activation_authorized_by_this_amendment": false,
+    "research_queue_bounded_automation_target": true,
+    "formal_candidate_membership_automatic_mutation_target": false,
+    "protected_simulation_current_automatic_mutation_target": false,
+    "autonomous_shadow_book_is_separate_research_artifact": true,
+    "real_account_automatic_mutation": false,
+    "automatic_order_creation": false,
+    "user_final_real_investment_decision": true
+  },
+  "p4_1_entry_gate": [
+    "PROGRAM_AMENDMENT_A1_VALIDATION_PASS",
+    "CONTROLLED_ARTIFACTS_SYNCHRONIZED",
+    "PHASE4_FORWARD_EXECUTION_HOLD_ACTIVE",
+    "PHASE3_R2_IDENTITY_AND_MEASUREMENT_SEMANTICS_UNCHANGED",
+    "ZERO_PROTECTED_ECONOMIC_MUTATIONS"
+  ],
+  "protected_state": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "next_governed_work": "P4-1_PRODUCTION_BACKBONE_REPAIR"
+}
