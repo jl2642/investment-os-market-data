@@ -43,6 +43,13 @@ def validate():
             errors.append("FAILURE_WATCHER_DOMAIN_MISSING_"+domain)
     if "--status FAIL" not in watcher:
         errors.append("FAILURE_WATCHER_FAIL_RECEIPT_MISSING")
+    cross=(ROOT/".github/workflows/round3-cross-market-limited-production.yml").read_text(encoding="utf-8")
+    if "CAPTURED_BOTH_MARKETS" not in cross:
+        errors.append("CROSS_MARKET_COMPLETE_CAPTURE_GUARD_MISSING")
+    if 'OPERATING_STATUS="BLOCKED"' not in cross:
+        errors.append("CROSS_MARKET_PARTIAL_BLOCKED_RECEIPT_MISSING")
+    if 'ADVANCE_ARGS=(--advance-current)' not in cross:
+        errors.append("CROSS_MARKET_ADVANCE_GATE_MISSING")
     return sorted(set(errors))
 
 if __name__=="__main__":
