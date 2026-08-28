@@ -84,20 +84,20 @@ def evaluate_repeat_phase3f() -> dict[str, Any]:
         errors.append("REPEAT3F_PHASE3_COMPLETE_STATE_DRIFT")
     if state.get("phase4_entry_allowed") is not expected_phase4_entry:
         errors.append("REPEAT3F_PHASE4_ENTRY_STATE_DRIFT")
-    a1_supersedes_repeat3f_current = (
-        closeout
-        and state.get("program_amendment_a1_frozen") is True
-        and state.get("phase4_v1_forward_execution_superseded_before_first_observation") is True
-        and state.get("phase4_effective_execution_hold") is True
-        and state.get("phase4_effective_forward_observation_start_allowed") is False
-        and state.get("phase4_forward_observation_count") == 0
-        and state.get("phase4_realized_outcome_read_count") == 0
+    expected_current_phase = (
+        "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+        if closeout
+        else current.get("current_phase")
     )
-    if closeout and not a1_supersedes_repeat3f_current:
-        if current.get("current_phase") != "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE":
-            errors.append("REPEAT3F_CURRENT_PHASE_DRIFT")
-        if current.get("next_phase") != "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION":
-            errors.append("REPEAT3F_CURRENT_NEXT_DRIFT")
+    if closeout and current.get("current_phase") != expected_current_phase:
+        errors.append("REPEAT3F_CURRENT_PHASE_DRIFT")
+    expected_next = (
+        "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION"
+        if closeout
+        else "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE"
+    )
+    if current.get("next_phase") != expected_next:
+        errors.append("REPEAT3F_CURRENT_NEXT_DRIFT")
 
     bindings = adapter["r2_evidence_bindings"]
 
