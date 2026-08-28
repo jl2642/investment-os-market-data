@@ -94,48 +94,98 @@
     "baseline_freeze_may_not_read_realized_outcomes": true
   },
   "forward_checkpoint_selector": {
-    "selector": "CENSUS_OF_ALL_ELIGIBLE_DISTINCT_POST_CUTOFF_GOVERNED_D2_SOURCE_COMMITS",
-    "primary_trigger_domain": "RESEARCH_D2",
-    "eligible_requires": [
+    "selector": "CENSUS_OF_ALL_ELIGIBLE_DISTINCT_POST_CUTOFF_REGISTERED_EVIDENCE_EVENTS",
+    "registered_evidence_families": {
+      "RESEARCH_D2": {
+        "authority": "GOVERNED_OPERATING_D2_SOURCE_BRANCH",
+        "current_pointer": "operating-current:operating_current/domains/RESEARCH_D2.json",
+        "state_path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json",
+        "semantic_artifacts": "EACH_QUEUE_ROW_SEMANTIC_ARTIFACT_AT_EXACT_D2_SOURCE_COMMIT",
+        "extractor_key_prefix": "RESEARCH_D2_",
+        "trigger": "SUBSTANTIVE_D2_SEMANTIC_STATE_OR_REFERENCED_ARTIFACT_BLOB_CHANGE"
+      },
+      "CANDIDATE_STATE": {
+        "authority": "PROTECTED_MAIN",
+        "path": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+        "extractor_key": "CANDIDATE_STATE",
+        "trigger": "SUBSTANTIVE_FILE_BLOB_CHANGE"
+      },
+      "REAL_ACCOUNT_STATE": {
+        "authority": "PROTECTED_MAIN_USER_GOVERNED",
+        "path": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
+        "extractor_key": "REAL_ACCOUNT_STATE",
+        "trigger": "USER_GOVERNED_SUBSTANTIVE_FILE_BLOB_CHANGE"
+      },
+      "RESEARCH_CORE2": {
+        "authority": "PROTECTED_MAIN",
+        "path": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/WP4_CORE2_RESEARCH_CURRENT.json",
+        "extractor_key": "RESEARCH_CORE2",
+        "trigger": "SUBSTANTIVE_FILE_BLOB_CHANGE"
+      },
+      "RESEARCH_601138_P0": {
+        "authority": "PROTECTED_MAIN",
+        "path": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP5/P0_REUNDERWRITE/601138.SH/WP5_P0_REUNDERWRITE_CURRENT.json",
+        "extractor_key": "RESEARCH_601138_P0",
+        "trigger": "SUBSTANTIVE_FILE_BLOB_CHANGE"
+      },
+      "DECISION_00669_BUY_REVIEW": {
+        "authority": "PROTECTED_MAIN",
+        "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/HKCU_TTI_00669_BUY_REVIEW_CURRENT.json",
+        "extractor_key": "DECISION_00669_BUY_REVIEW",
+        "trigger": "SUBSTANTIVE_FILE_BLOB_CHANGE"
+      }
+    },
+    "event_eligibility_requires": [
+      "SOURCE_VERSION_AVAILABLE_AT_UTC_STRICTLY_AFTER_ACCEPTED_CUTOFF",
+      "REGISTERED_FAMILY_SOURCE_IDENTITY_DIFFERS_FROM_BASELINE_OR_PREVIOUS_COUNTED_VERSION",
+      "SOURCE_CHANGE_IS_SUBSTANTIVE_NOT_ONLY_RUNTIME_OR_TIMESTAMP_METADATA",
+      "EXACT_SOURCE_COMMIT_PATH_BLOB_IDENTITY_RESOLVES",
+      "NO_RESULT_OR_REALIZED_OUTCOME_INFORMATION_USED_FOR_EVENT_SELECTION"
+    ],
+    "d2_additional_requirements": [
       "RESEARCH_D2_DOMAIN_STATUS_PASS",
-      "RESEARCH_D2_DOMAIN_PUBLISHED_AT_UTC_STRICTLY_AFTER_ACCEPTED_CUTOFF",
-      "D2_SOURCE_COMMIT_DIFFERS_FROM_BASELINE_D2_SOURCE_COMMIT",
-      "D2_SOURCE_COMMIT_NOT_PREVIOUSLY_COUNTED",
-      "D2_CURRENT_AND_EACH_REFERENCED_SEMANTIC_ARTIFACT_RESOLVE_AT_EXACT_D2_SOURCE_COMMIT",
-      "D2_SOURCE_CHANGE_IS_SUBSTANTIVE_NOT_ONLY_RERUN_METADATA",
-      "NO_RESULT_OR_OUTCOME_INFORMATION_USED_FOR_SELECTION"
+      "D2_CURRENT_AND_EACH_REFERENCED_SEMANTIC_ARTIFACT_RESOLVE_AT_EXACT_D2_SOURCE_COMMIT"
+    ],
+    "main_family_additional_requirements": [
+      "SOURCE_COMMIT_IS_ON_PROTECTED_MAIN_ANCESTRY",
+      "PATH_BLOB_CHANGED_AT_OR_BEFORE_EVENT_COMMIT_AND_AFTER_CUTOFF",
+      "UNRELATED_MAIN_COMMIT_WITH_UNCHANGED_REGISTERED_BLOB_DOES_NOT_CREATE_EVENT"
     ],
     "mere_schedule_rerun_may_create_checkpoint": false,
-    "same_semantic_d2_state_with_new_runtime_timestamp_may_create_checkpoint": false,
+    "unchanged_registered_blob_with_new_commit_may_create_checkpoint": false,
+    "same_semantic_state_with_new_runtime_timestamp_may_create_checkpoint": false,
     "manual_result_driven_checkpoint_selection_allowed": false,
     "incomplete_eligible_checkpoint_may_be_silently_dropped": false,
     "model_output_failure_is_evidence_not_exclusion": true,
-    "checkpoint_deduplication_key": "D2_SEMANTIC_STATE_FINGERPRINT",
+    "source_event_deduplication_key": "REGISTERED_FAMILY_ID_PLUS_SEMANTIC_SOURCE_IDENTITY",
+    "checkpoint_deduplication_key": "GLOBAL_FORWARD_EVIDENCE_STATE_FINGERPRINT_AT_SOURCE_EVENT",
+    "checkpoint_construction": "AT_EACH_ELIGIBLE_SOURCE_EVENT_BUILD_ONE_IMMUTABLE_SHARED_PACKET_FROM_ALL_POST_CUTOFF_REGISTERED_SOURCE_VERSIONS_AVAILABLE_BY_EVENT_TIME",
     "recommendation_context_binding": {
       "path": "operating_current/recommendations/RECOMMENDATION_CURRENT.json",
-      "exact_fingerprint_required": true,
+      "exact_fingerprint_required_when_available": true,
       "may_select_or_drop_checkpoint": false,
       "may_be_used_as_r2_feature_input": false
     },
     "trigger_shadow_context_binding": {
       "trigger_path": "operating_current/trigger_monitor/TRIGGER_MONITOR_CURRENT.json",
       "shadow_path": "operating_current/shadow_book/SHADOW_BOOK_CURRENT.json",
-      "exact_source_fingerprint_required": true,
+      "exact_source_fingerprint_required_when_available": true,
       "may_select_or_drop_checkpoint": false,
       "pre_baseline_events_remain_ineligible": true
     }
   },
   "shared_parallel_packet": {
-    "mode": "SHARED_FORWARD_D2_EVIDENCE_PACKET",
-    "opportunity_set": "ALL_SECURITY_IDS_IN_ELIGIBLE_D2_CURRENT_QUEUE_AT_EXACT_SOURCE_COMMIT",
-    "selected_evidence": "EXACT_SEMANTIC_ARTIFACTS_REFERENCED_BY_THAT_D2_CURRENT_AT_THE_SAME_SOURCE_COMMIT",
+    "mode": "SHARED_FORWARD_REGISTERED_EVIDENCE_PACKET",
+    "opportunity_set": "UNION_OF_SECURITIES_REFERENCED_BY_POST_CUTOFF_REGISTERED_SOURCE_VERSIONS_AVAILABLE_BY_CHECKPOINT_EVENT_TIME",
+    "selected_evidence": "EXACT_POST_CUTOFF_REGISTERED_SOURCE_VERSIONS_AVAILABLE_BY_CHECKPOINT_EVENT_TIME_WITH_COMMIT_PATH_BLOB_PROVENANCE",
+    "pre_cutoff_baseline_sources_may_supply_model_features": false,
+    "stale_baseline_state_may_be_carried_for_audit_context_only": true,
     "model_specific_evidence_fetch_forbidden": true,
     "later_evidence_backfill_forbidden": true,
     "same_packet_for_legacy_and_r2": true,
     "missingness_preserved": true,
     "source_commit_path_blob_identity_required": true,
-    "legacy_extraction": "EXISTING_HISTORICAL_FEATURE_EXTRACTOR_RESEARCH_DISPOSITION_PRIORITY_RULE",
-    "r2_extraction": "EXISTING_HISTORICAL_FEATURE_EXTRACTOR_D2_SOURCE_COUNT_AND_FIRST_REJECTION_TEST_PLUS_ANY_OTHER_ALREADY_SUPPORTED_CONTEMPORANEOUS_FEATURES_PRESENT_IN_THE_SAME_PACKET",
+    "existing_historical_feature_extractor_only": true,
     "new_feature_mapping_during_phase4_forbidden": true,
     "unsupported_evidence_remains_uninterpreted": true
   },
@@ -257,7 +307,7 @@
   },
   "implementation_lane": {
     "contract_transaction": "STACKED_GOVERNANCE_ONLY_NO_MAIN_MERGE",
-    "operational_transaction": "ONE_MAIN_BASED_P4_5_BASELINE_PLUS_FORWARD_COLLECTOR_IMPLEMENTATION",
+    "operational_transaction": "ONE_MAIN_BASED_P4_5_BASELINE_PLUS_MULTI_FAMILY_FORWARD_EVENT_COLLECTOR_IMPLEMENTATION",
     "baseline_can_complete_now": true,
     "forward_evidence_sufficiency_can_complete_now": false,
     "reason_forward_completion_cannot_be_accelerated": "MINIMUM_4_DISTINCT_ISO_WEEKS_AND_FIXED_FUTURE_1_3_5_EXCHANGE_SESSION_OUTCOMES_REQUIRE_GENUINELY_FUTURE_DATA",
@@ -273,5 +323,56 @@
     "user_decisions_generated": 0,
     "orders": 0,
     "trade_authority": "NONE"
+  },
+  "evidence_regime_definition": {
+    "regime_id": "SHA256_OF_SORTED_CONTRIBUTING_REGISTERED_FAMILY_IDS_PLUS_SORTED_R2_COMPARISON_SIGNATURE_SET_PLUS_MODEL_NEUTRAL_MISSINGNESS_PATTERN",
+    "realized_outcomes_may_influence_regime": false,
+    "recommendation_result_may_influence_regime": false,
+    "regime_assignment_frozen_before_first_forward_observation": true,
+    "purpose": "Require forward evidence diversity in source-family structure and R2 applicability/missingness rather than treating every timestamp as a new regime."
+  },
+  "structural_feasibility_audit": {
+    "performed_before_new_clean_cutoff": true,
+    "realized_outcomes_read": 0,
+    "forward_observations_read": 0,
+    "finding": "D2_ONLY_PACKET_WOULD_STRUCTURALLY_COLLAPSE_TO_ONE_PRIMARY_R2_SIGNATURE_AND_COULD_NOT_DEFENSIBLY_SATISFY_PRESERVED_PR333_SIGNATURE_AND_REGIME_GATES",
+    "correction": "RESTORE_MULTI_FAMILY_REGISTERED_EVIDENCE_CENSUS_USING_ONLY_ALREADY_SUPPORTED_FROZEN_EXTRACTOR_MAPPINGS",
+    "frozen_existing_family_to_r2_structure": {
+      "RESEARCH_D2": [
+        "EVIDENCE_SOURCE_COUNT",
+        "DOWNSIDE_REJECTION_GATE_CLEAR"
+      ],
+      "CANDIDATE_STATE": [
+        "EVIDENCE_SCORE",
+        "EVIDENCE_QUALITY_SCORE",
+        "DOWNSIDE_RISK_PENALTY",
+        "REWARD_VALUATION_ATTRACTIVENESS",
+        "PORTFOLIO_FIT_SCORE",
+        "EVIDENCE_RESEARCH_GAP_COUNT"
+      ],
+      "RESEARCH_CORE2": [
+        "EVIDENCE_LIMITATION_COUNT",
+        "EVIDENCE_DECISION_READINESS"
+      ],
+      "RESEARCH_601138_P0": [
+        "REWARD_EXPECTED_RETURN",
+        "DOWNSIDE_WORST_SCENARIO_RETURN",
+        "EVIDENCE_SOURCE_COUNT",
+        "EVIDENCE_ALL_PRIMARY_DOCUMENTS",
+        "PORTFOLIO_WP5_CURRENT_WEIGHT",
+        "EXECUTION_WP5_IMPLEMENTATION_READY",
+        "EXECUTION_WP5_BROKER_VERIFIED"
+      ],
+      "REAL_ACCOUNT_STATE": [
+        "PORTFOLIO_CURRENT_WEIGHT"
+      ],
+      "DECISION_00669_BUY_REVIEW": [
+        "EXECUTION_00669_IMPLEMENTATION_READY",
+        "EXECUTION_00669_BOARD_LOT_MISMATCH"
+      ]
+    },
+    "new_transform_rules_created": 0,
+    "threshold_changes": 0,
+    "model_identity_changes": 0
   }
 }
