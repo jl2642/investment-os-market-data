@@ -62,7 +62,12 @@ jobs:
 
       - name: Publish observation-only weekly Current
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          SOURCE_BRANCH: automation/wp3-r-candidate-current
         run: |
+          set -Eeuo pipefail
+          BEFORE="$(git ls-remote --heads origin "refs/heads/$SOURCE_BRANCH" | awk '{print $1}')"
           bash automation/wp3_r/publish_current_safely.sh \
             "WP3-R automated weekly Candidate price screen" \
             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json \
@@ -70,6 +75,40 @@ jobs:
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/CANDIDATE_MARKET_SCREEN_RUN_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json \
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
+          AFTER="$(git ls-remote --heads origin "refs/heads/$SOURCE_BRANCH" | awk '{print $1}')"
+          test -n "$AFTER"
+          WATERMARK="$(python - <<'PY'
+          import json
+          print(json.load(open('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json', encoding='utf-8'))['as_of_date'])
+          PY
+          )"
+          if [[ "$AFTER" == "$BEFORE" ]]; then
+            python automation/operating_current/publish_operating_current.py \
+              --domain CANDIDATE_WEEKLY_OBSERVATION \
+              --status NO_OP \
+              --source-workflow "WP3-R Weekly Candidate Price Screen" \
+              --source-run-id "${{ github.run_id }}" \
+              --source-run-attempt "${{ github.run_attempt }}" \
+              --source-branch "$SOURCE_BRANCH" \
+              --source-commit "$AFTER" \
+              --watermark "$WATERMARK" \
+              --watermark-sort-key "$WATERMARK" \
+              --qc-status PASS_REVALIDATED \
+              --note "No new governed operating commit; Current preserved"
+          else
+            python automation/operating_current/publish_operating_current.py \
+              --domain CANDIDATE_WEEKLY_OBSERVATION \
+              --status PASS \
+              --source-workflow "WP3-R Weekly Candidate Price Screen" \
+              --source-run-id "${{ github.run_id }}" \
+              --source-run-attempt "${{ github.run_attempt }}" \
+              --source-branch "$SOURCE_BRANCH" \
+              --source-commit "$AFTER" \
+              --watermark "$WATERMARK" \
+              --watermark-sort-key "$WATERMARK" \
+              --qc-status PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION \
+              --advance-current
+          fi
 
       - name: Record summary
         run: |
@@ -78,5 +117,6 @@ jobs:
           - 73 Candidate Core, Shadow and Research Queue names
           - Price, daily change, liquidity and current valuation snapshot
           - Observation-only; no Candidate membership or Research Object mutation
+          - QC-passed observation state publishes to Operating Current without a protected-main daily promotion
           - No portfolio mutation, order or trade authority
           EOF
