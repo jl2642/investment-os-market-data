@@ -267,6 +267,7 @@ def build(
     *,
     d2_path: Path | None = None,
     d2_domain_path: Path | None = None,
+    prior_current_path: Path | None = None,
     now: datetime | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     now = now or datetime.now(timezone.utc)
@@ -296,6 +297,18 @@ def build(
         d2_domain=d2_domain,
     )
     cycle_fingerprint = canonical_hash(sources)
+    prior_current = (
+        load_json(prior_current_path)
+        if prior_current_path and prior_current_path.exists()
+        else {}
+    )
+    prior_cycle_fingerprint = prior_current.get("cycle_fingerprint")
+    source_cycle_changed = prior_cycle_fingerprint != cycle_fingerprint
+    cycle_action = (
+        "ADVANCE_NEW_SOURCE_FINGERPRINT"
+        if source_cycle_changed
+        else "NO_OP_SAME_SOURCE_FINGERPRINT"
+    )
 
     d1_work_queue = select_d1_work_queue(candidate, d1)
     near_miss_rows = build_near_miss(
@@ -479,7 +492,9 @@ def build(
     ]
 
     d2_operating_status = str(sources["D2"].get("operating_status") or "")
-    if d2_operating_status == "BLOCKED":
+    if not source_cycle_changed:
+        overall_status = "NO_NEW_THROUGHPUT_EXPLICITLY_EXPLAINED"
+    elif d2_operating_status == "BLOCKED":
         overall_status = "BLOCKED_SOURCE_GAP"
     else:
         watermarks = [str(v.get("source_watermark") or "") for v in sources.values()]
@@ -492,6 +507,8 @@ def build(
         "generated_at_utc": generated_at,
         "overall_status": overall_status,
         "cycle_fingerprint": cycle_fingerprint,
+        "prior_cycle_fingerprint": prior_cycle_fingerprint,
+        "cycle_action": cycle_action,
         "source_snapshot": sources,
         "watermark_policy": {
             "synthetic_single_as_of_forbidden": True,
@@ -556,6 +573,8 @@ def build(
     receipt = {
         "schema_version": "1.0.0",
         "cycle_fingerprint": cycle_fingerprint,
+        "prior_cycle_fingerprint": prior_cycle_fingerprint,
+        "cycle_action": cycle_action,
         "generated_at_utc": generated_at,
         "source_snapshot": sources,
         "semantic_hash": current["semantic_hash"],
@@ -630,6 +649,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--d2-current")
     parser.add_argument("--d2-domain")
+    parser.add_argument("--prior-current")
     parser.add_argument("--output-dir", default=".p4_2_output")
     parser.add_argument("--now")
     args = parser.parse_args()
@@ -638,6 +658,7 @@ def main() -> int:
     current, near_miss, work_queue, receipt = build(
         d2_path=Path(args.d2_current) if args.d2_current else None,
         d2_domain_path=Path(args.d2_domain) if args.d2_domain else None,
+        prior_current_path=Path(args.prior_current) if args.prior_current else None,
         now=now,
     )
     errors = validate_payloads(current, near_miss, work_queue, receipt)
@@ -654,6 +675,7 @@ def main() -> int:
         "status": current["overall_status"],
         "cycle_fingerprint": current["cycle_fingerprint"],
         "semantic_hash": current["semantic_hash"],
+        "cycle_action": current["cycle_action"],
         "d1_work_queue": [row["security_id"] for row in work_queue["queue"]],
         "near_miss_count": len(near_miss["rows"]),
         "protected_mutations": 0,
