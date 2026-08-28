@@ -2,11 +2,6 @@ name: FMDL Daily A-share Governed Production
 run-name: "FMDL daily market, factor and screening transaction"
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/fmdl-daily-production.yml"
-      - "automation/operating_current/hydrate_a_share_runtime.py"
   schedule:
     - cron: "30 9 * * 1-5"
   workflow_dispatch:
@@ -87,7 +82,7 @@ jobs:
             tests/test_round1_governed_publication_workflows.py
 
   operate:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 75
