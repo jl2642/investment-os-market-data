@@ -492,3 +492,12 @@ The accepted V2 14-checkpoint selection was rebuilt deterministically. Replay us
 **Interpretation:** no post-result promotion threshold was created. Phase 3E-R2 sensitivity remains material and must be carried into Phase 4 design and monitoring.
 
 **Governed consequence:** Phase 3 historical validation complete; Phase 4 entry/start allowed; Phase 4 not started; orders=0; trade_authority=NONE.
+
+
+## 2026-08-27 — Phase 4 forward-shadow validation contract frozen before execution
+
+PR #333 candidate head `b856147e151292e7e19d59c4a0f05d07c90b4757` passed 26/26 exact-head workflows with zero failures. Dedicated Phase 4 contract workflow `33078290558` passed contract tests, contract validation, Repeat Phase 3F revalidation, historical Phase 3F revalidation and program consistency.
+
+The semantic contract Git blob `82ddfa6967a092d971093f5855ffc80b13acd706` and candidate-head commit time `2026-08-27T13:42:29Z` are frozen. Only source evidence strictly after that timestamp may count as Phase 4 forward validation. Frozen runner set = Legacy baseline + R2.0.1. Frozen sufficiency, 1/3/5-session measurement, three aggregation schemes, per-signature directionality and security/signature jackknife requirements may not be changed after forward results.
+
+No forward observation or realized outcome has yet been loaded. Phase 4 execution remains not started; Phase 5 remains unauthorized; orders=0; trade_authority=NONE.

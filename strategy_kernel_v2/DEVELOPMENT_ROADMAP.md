@@ -106,8 +106,8 @@ Important boundaries:
 - Repeat Phase 3F is mandatory before Phase 4. Phase 4 may start only if all promotion requirements then pass.
 - `phase3_historical_validation_complete=false`, `phase4_entry_allowed=false`, `orders=0`, `trade_authority=NONE`.
 
-### Phase 4 — Forward Parallel Shadow Validation — MANDATORY / NOT STARTED / BLOCKED BY PHASE 3F
-Run Legacy and surviving candidate model(s) in parallel on genuinely future unseen evidence across multiple complete cycles. Historical replay cannot substitute for Phase 4. Entry remains forbidden until a later Phase 3F gate passes all mandatory historical requirements.
+### Phase 4 — Forward Parallel Shadow Validation — CONTRACT FROZEN / EXECUTION NOT STARTED
+Repeat Phase 3F has passed 4/4 and Phase 4 entry is authorized. The forward-only validation contract is now frozen before any Phase 4 observation may count. The immutable semantic contract anchor is `b856147e151292e7e19d59c4a0f05d07c90b4757` at `2026-08-27T13:42:29Z`; only evidence with source availability strictly after that timestamp may enter Phase 4. Legacy and R2.0.1 will run on the same forward packet under census selection, 1/3/5-session outcome horizons, equal-edge/equal-checkpoint/equal-signature summaries, per-signature gates, and mandatory security/signature jackknifes. Execution has not started; observations=0 and realized-outcome reads=0.
 
 ### Phase 5 — Governed Migration — NOT STARTED / NOT AUTHORIZED
 Requires separately accepted Phase 3 historical evidence, Phase 4 forward evidence and a governed migration proposal. Direct Phase 3→5 remains forbidden.
@@ -122,3 +122,7 @@ The mandatory Repeat Phase 3F re-evaluation inherited the original frozen Phase 
 Passed requirements: valid independent R2 point-in-time historical replay; measurable Phase 3D-R2 evidence; accepted Phase 3E-R2 robustness evaluation; broader independent Holdout coverage. The Phase 3E-R2 evidence remains descriptively sensitive to security/signature/weighting choices, especially the 52-vs-2 signature imbalance; this is carried forward as a mandatory Phase 4 design/monitoring constraint, not retrofitted as a fifth Phase 3F gate.
 
 Phase 3 historical validation is now complete. Phase 4 entry is authorized, but **Phase 4 has not started**. No trade authority, portfolio writeback or order authority is created.
+
+
+### Phase 4 P4-0 Contract Freeze — COMPLETE / PRE-EXECUTION
+PR #333 freezes the prospective Legacy-versus-R2.0.1 forward-shadow protocol. Candidate exact-head validation at `b856147e151292e7e19d59c4a0f05d07c90b4757` completed 26/26 workflows with zero failures, including the dedicated Phase 4 contract workflow `33078290558`. The semantic contract blob is `82ddfa6967a092d971093f5855ffc80b13acd706`, and its commit time `2026-08-27T13:42:29Z` is the hard future-evidence cutoff. Phase 4 forward observation is authorized but not started. Phase 5 remains unauthorized.

@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "program": "STRATEGY_KERNEL_V2",
+  "phase": "PHASE_4",
+  "subphase": "P4_0_FORWARD_PARALLEL_SHADOW_CONTRACT_FREEZE",
+  "status": "PASS_PHASE4_FORWARD_SHADOW_CONTRACT_FROZEN_PRE_EXECUTION",
+  "pr": 333,
+  "accepted_candidate_head": "b856147e151292e7e19d59c4a0f05d07c90b4757",
+  "accepted_candidate_head_commit_time_utc": "2026-08-27T13:42:29Z",
+  "semantic_contract_git_blob_sha": "82ddfa6967a092d971093f5855ffc80b13acd706",
+  "candidate_exact_head_workflows": {
+    "success": 26,
+    "failure": 0,
+    "other": 0
+  },
+  "dedicated_contract_workflow_run": 33078290558,
+  "parent_repeat_phase3f": {
+    "pr": 332,
+    "final_head": "b42c32446d5be923241a83e2bbe21d7e857317ac",
+    "pass_count": 4,
+    "total_count": 4,
+    "outcome": "PROMOTE_TO_PHASE_4_FORWARD_VALIDATION",
+    "gate_sha256": "af174d3adb0bb70afa306f26fa0c2a66eb925e04421962dcfae5573b404d22ec"
+  },
+  "frozen_protocol": {
+    "runners": [
+      "LEGACY_POLICY_BASELINE",
+      "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2/R2.0.1_RESEARCH"
+    ],
+    "future_evidence_cutoff": "SOURCE_AVAILABILITY_TIME_UTC_STRICTLY_AFTER_2026-08-27T13:42:29Z",
+    "minimum_mature_cycles": 12,
+    "minimum_distinct_utc_dates": 6,
+    "minimum_distinct_iso_weeks": 4,
+    "minimum_evidence_regimes": 4,
+    "minimum_unique_securities": 6,
+    "minimum_r2_profiles": 48,
+    "minimum_r2_dominance_edges": 24,
+    "minimum_comparison_signatures": 2,
+    "minimum_edges_per_signature": 6,
+    "horizons_exchange_sessions": [
+      1,
+      3,
+      5
+    ],
+    "aggregation_schemes": [
+      "EQUAL_EDGE",
+      "EQUAL_CHECKPOINT",
+      "EQUAL_SIGNATURE"
+    ],
+    "minimum_concordance_rate": 0.5,
+    "minimum_mean_edge_return_spread": 0,
+    "security_jackknife_required": true,
+    "signature_jackknife_required": true
+  },
+  "governed_boundary": {
+    "phase4_contract_frozen": true,
+    "phase4_forward_observation_start_allowed": true,
+    "phase4_started": false,
+    "phase4_forward_observation_count": 0,
+    "phase4_realized_outcome_read_count": 0,
+    "phase4_forward_validation_complete": false,
+    "phase5_migration_allowed": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
