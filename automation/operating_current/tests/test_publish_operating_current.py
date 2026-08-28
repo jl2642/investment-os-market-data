@@ -58,6 +58,9 @@ class OperatingCurrentTests(unittest.TestCase):
             self.assertEqual(row["current"]["data_watermark"],"2026-08-28")
             self.assertEqual(row["latest_attempt"]["status"],"FAIL")
             self.assertEqual(row["health"],"LATEST_ATTEMPT_FAILED_CURRENT_PRESERVED")
+            self.assertEqual(len(index["domains"]), 5)
+            missing=[x for x in index["domains"] if x["domain_id"]!="A_SHARE_FULL_MARKET"]
+            self.assertTrue(all(x["health"]=="MISSING_CURRENT" for x in missing))
 
 
 if __name__=="__main__":
