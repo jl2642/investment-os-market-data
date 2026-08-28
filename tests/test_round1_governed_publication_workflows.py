@@ -55,3 +55,10 @@ def test_daily_bootstrap_accepts_recovery_publication_repair_provenance() -> Non
     text = _text("daily")
     marker = '"FMDL 2B-4 Multi-Session Recovery / Publication Repair"'
     assert text.count(marker) == 2
+
+
+def test_daily_publication_shell_uses_valid_heredoc() -> None:
+    text = _text("daily")
+    assert "WATERMARK=\"$(python - <<'PY'" in text
+    assert "python - <<\\'PY\\'" not in text
+    assert "python automation/operating_current/publish_operating_current.py \\\n" in text
