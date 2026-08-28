@@ -649,3 +649,19 @@ No forward observation or realized outcome has yet been loaded. Phase 4 executio
 
 **Program consequence:** P4-5 remains `ACTIVE_FORWARD_ACCUMULATION`. Subsequent substantive registered post-cutoff evidence may create checkpoints; mere reruns remain auditable NO_OP attempts and cannot manufacture semantic freshness.
 
+## 2026-08-28 — Phase 5 readiness prepared during P4-5 operating observation
+
+**Program-management correction:** P4-5 forward evidence accumulation is a real future-data gate, but it must not create an idle month followed by a new Phase-5 design exercise. GitHub Issue #354 is the durable re-entry control. The existing Monthly Investment Discipline Review scheduled for 2026-09-02 has also been extended to read Issue #354 and P4-5 Forward Current.
+
+**Readiness-only work completed now:** a three-transaction Phase-5 preauthorization package is frozen while P4-5 remains ACTIVE_FORWARD_ACCUMULATION.
+
+- **T1 Migration Proposal + Rule Treatment:** freezes KEEP / MIGRATE_PRIMARY_AUTHORITY / SUPPORT_ONLY / GRANDFATHER treatment. P4-2 becomes the future primary research-routing surface, P4-3 the future primary recommendation surface, and P4-4 the future primary structured trigger/shadow surfaces. D1/D2 research evidence remains source authority. Formal Candidate membership, Real Account, protected Simulation and explicit user decisions remain protected authorities. Legacy portfolio-sizing context remains support-only because Strategy Kernel v2 does not claim a validated automatic target-weight engine.
+- **T2 Limited Activation + Rollback:** predefines decision-read-precedence-only activation, dual-read conflict classification, deterministic rollback and protected-state firewalls. It intentionally requires no new month-long post-P4-5 waiting period; after P4-5 PASS and T1 acceptance, one successful governed atomic activation cycle plus the already accumulated P4-5 replay evidence is sufficient if all gates pass.
+- **T3 Final Governed Acceptance:** freezes the final authority map, legacy retirement matrix, user-visible capability contract and program-closeout checklist.
+
+**Hard boundary unchanged:** this package is PREAUTHORIZATION only. P4-5 must first produce `PASS_P4_5_FORWARD_VALIDATION_ELIGIBLE_FOR_PHASE5_MIGRATION_PROPOSAL`. No Phase-5 execution, economic mutation, Candidate membership mutation, protected Simulation mutation, target-portfolio writeback, order creation or live trading is authorized.
+
+**Operational observation remains active:** cutoff `2026-08-28T06:08:10Z`; currently 0 accepted checkpoints / 0 mature checkpoints / 0 realized outcome reads. Timestamp-only D2 changes remain NO_OP.
+
+**Project consequence:** development no longer waits idly for P4-5. Phase-5 design/readiness is completed ahead of authorization. When P4-5 reaches PASS, the program re-enters at execution of frozen T1 → T2 → T3, not at redesign.
+
