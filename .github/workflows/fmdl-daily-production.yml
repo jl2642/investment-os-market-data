@@ -73,6 +73,7 @@ jobs:
 
       - name: Validate contracts and Round 1 publication controls
         run: |
+          python -m py_compile scripts/hydrate_fmdl_runtime_from_operating_current.py
           python scripts/validate_contracts.py
           python scripts/validate_investment_os_interface.py
           pytest -q \
