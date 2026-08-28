@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE5_T2_LIMITED_ACTIVATION_AND_ROLLBACK_READINESS",
+  "status": "FROZEN_PREAUTHORIZATION",
+  "execution_authorized": false,
+  "execution_precondition": "P4_5_PASS_AND_T1_ACCEPTED",
+  "objective": "Switch only decision-reading precedence to Strategy Kernel v2 in a bounded lane, prove deterministic rollback and dual-read reconciliation, and avoid creating another month-long observation phase.",
+  "activation_scope": {
+    "included": [
+      "primary opportunity recommendation read path",
+      "primary existing-position recommendation read path",
+      "structured trigger/invalidation monitoring read path",
+      "Strategy Kernel autonomous shadow-book audit path"
+    ],
+    "excluded": [
+      "real-account economic-state mutation",
+      "Candidate membership mutation",
+      "protected Simulation mutation",
+      "target portfolio weight writeback",
+      "broker/order integration",
+      "automatic user-decision creation",
+      "automatic live trading"
+    ],
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "preactivation_proof": {
+    "use_existing_p4_5_forward_checkpoint_set": true,
+    "require_same_evidence_packet_replay": true,
+    "require_zero_model_or_threshold_change": true,
+    "compare_strategy_kernel_to_legacy_decision_surfaces": true,
+    "conflict_classification": [
+      "EXPECTED_SEMANTIC_DIFFERENCE",
+      "LEGACY_STALE_OR_NONAUTHORITY",
+      "STRATEGY_KERNEL_MISSING_REQUIRED_CONTEXT",
+      "BLOCKING_AUTHORITY_CONFLICT"
+    ],
+    "blocking_conflict_count_required": 0
+  },
+  "live_limited_activation": {
+    "migration_mode": "DECISION_READ_PRECEDENCE_ONLY",
+    "first_cycle_can_be_no_op": true,
+    "minimum_successful_atomic_activation_cycles": 1,
+    "additional_calendar_wait_required": false,
+    "required_proofs": [
+      "Strategy Kernel Current resolves",
+      "legacy surfaces remain readable for dual-read audit",
+      "rollback snapshot exists before precedence switch",
+      "source lineage passes",
+      "protected economic mutations remain zero",
+      "orders remain zero",
+      "remote readback confirms new precedence state"
+    ]
+  },
+  "dual_read_policy": {
+    "strategy_kernel_primary_after_activation": true,
+    "legacy_decision_outputs_written_or_read_for_audit_only": true,
+    "legacy_position_sizing_support_remains_support_only": true,
+    "explicit_user_decisions_remain_authoritative": true,
+    "no_silent_merge_of_conflicting_labels": true,
+    "every_conflict_gets_typed_reason_code": true
+  },
+  "rollback_triggers": [
+    "STRATEGY_KERNEL_CURRENT_MISSING_OR_CORRUPT",
+    "SOURCE_LINEAGE_ERROR",
+    "UNEXPECTED_RECOMMENDATION_STATE_SCHEMA_DRIFT",
+    "BLOCKING_AUTHORITY_CONFLICT",
+    "CANDIDATE_OR_REAL_OR_PROTECTED_SIMULATION_MUTATION_NONZERO",
+    "ORDER_COUNT_NONZERO",
+    "TRADE_AUTHORITY_NOT_NONE",
+    "ROLLBACK_SNAPSHOT_OR_REMOTE_READBACK_FAILURE"
+  ],
+  "rollback_behavior": {
+    "target": "PRE_T2_DECISION_READ_PRECEDENCE",
+    "preserve_economic_ledgers": true,
+    "preserve_p4_5_evidence": true,
+    "preserve_t2_dual_read_evidence": true,
+    "preserve_user_decisions": true,
+    "automatic_model_retraining": false,
+    "automatic_threshold_change": false
+  },
+  "acceptance_gate": {
+    "preactivation_replay_pass": true,
+    "blocking_conflict_count": 0,
+    "successful_live_activation_cycles_minimum": 1,
+    "protected_mutations_required": 0,
+    "orders_required": 0,
+    "trade_authority_required": "NONE",
+    "rollback_dry_run_required": true,
+    "remote_readback_required": true,
+    "separate_waiting_period_after_success_required": false
+  }
+}
