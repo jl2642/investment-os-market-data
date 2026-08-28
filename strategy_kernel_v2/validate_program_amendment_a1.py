@@ -88,4 +88,4 @@ if __name__=="__main__":
     errors=validate()
     if errors:
         raise AssertionError(";".join(errors))
-    print(f"PROGRAM_AMENDMENT_A1_PASS next={load('CURRENT_PHASE_STATUS.json').get('next_governed_work')} observations=0 outcomes=0 orders=0 trade_authority=NONE")
+    print(f"PROGRAM_AMENDMENT_A1_PASS next={load_json('CURRENT_PHASE_STATUS.json').get('next_governed_work')} observations=0 outcomes=0 orders=0 trade_authority=NONE")
