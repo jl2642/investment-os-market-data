@@ -76,7 +76,10 @@ jobs:
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/FINANCIAL_REPORT_FRESHNESS_CURRENT.json \
             investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json
           AFTER="$(git ls-remote --heads origin "refs/heads/$SOURCE_BRANCH" | awk '{print $1}')"
-          test -n "$AFTER"
+          if [[ -z "$AFTER" ]]; then
+            AFTER="${{ github.sha }}"
+            SOURCE_BRANCH="main"
+          fi
           WATERMARK="$(python - <<'PY'
           import json
           print(json.load(open('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/WEEKLY_PRICE_SCREEN_CURRENT.json', encoding='utf-8'))['as_of_date'])
