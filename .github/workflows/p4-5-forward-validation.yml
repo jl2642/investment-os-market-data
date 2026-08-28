@@ -130,7 +130,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           D2_COMMIT="$(cat "$RUNTIME_DIR/D2_COMMIT")"
-          python automation/forward_validation/build_forward_validation.py             --mode baseline             --repo-root .             --main-source-commit "$(git rev-parse HEAD)"             --d2-source-commit "$D2_COMMIT"             --recommendation-current "$RUNTIME_DIR/RECOMMENDATION_CURRENT.json"             --recommendation-domain "$RUNTIME_DIR/RECOMMENDATION_DOMAIN.json"             --trigger-current "$RUNTIME_DIR/TRIGGER_MONITOR_CURRENT.json"             --shadow-current "$RUNTIME_DIR/SHADOW_BOOK_CURRENT.json"             --operating-index "$RUNTIME_DIR/OPERATING_CURRENT_INDEX.json"             --output-dir "$OUTPUT_DIR"
+          python -m automation.forward_validation.build_forward_validation             --mode baseline             --repo-root .             --main-source-commit "$(git rev-parse HEAD)"             --d2-source-commit "$D2_COMMIT"             --recommendation-current "$RUNTIME_DIR/RECOMMENDATION_CURRENT.json"             --recommendation-domain "$RUNTIME_DIR/RECOMMENDATION_DOMAIN.json"             --trigger-current "$RUNTIME_DIR/TRIGGER_MONITOR_CURRENT.json"             --shadow-current "$RUNTIME_DIR/SHADOW_BOOK_CURRENT.json"             --operating-index "$RUNTIME_DIR/OPERATING_CURRENT_INDEX.json"             --output-dir "$OUTPUT_DIR"
 
       - name: Validate baseline candidate remains pre-cutoff and zero-evidence
         run: |
@@ -265,7 +265,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          python automation/forward_validation/build_forward_validation.py             --mode baseline             --repo-root .             --main-source-commit "$(git rev-parse HEAD)"             --d2-source-commit "$(cat "$RUNTIME_DIR/D2_COMMIT")"             --recommendation-current "$RUNTIME_DIR/RECOMMENDATION_CURRENT.json"             --recommendation-domain "$RUNTIME_DIR/RECOMMENDATION_DOMAIN.json"             --trigger-current "$RUNTIME_DIR/TRIGGER_MONITOR_CURRENT.json"             --shadow-current "$RUNTIME_DIR/SHADOW_BOOK_CURRENT.json"             --operating-index "$RUNTIME_DIR/OPERATING_CURRENT_INDEX.json"             --output-dir "$OUTPUT_DIR"
+          python -m automation.forward_validation.build_forward_validation             --mode baseline             --repo-root .             --main-source-commit "$(git rev-parse HEAD)"             --d2-source-commit "$(cat "$RUNTIME_DIR/D2_COMMIT")"             --recommendation-current "$RUNTIME_DIR/RECOMMENDATION_CURRENT.json"             --recommendation-domain "$RUNTIME_DIR/RECOMMENDATION_DOMAIN.json"             --trigger-current "$RUNTIME_DIR/TRIGGER_MONITOR_CURRENT.json"             --shadow-current "$RUNTIME_DIR/SHADOW_BOOK_CURRENT.json"             --operating-index "$RUNTIME_DIR/OPERATING_CURRENT_INDEX.json"             --output-dir "$OUTPUT_DIR"
 
       - name: Publish clean baseline atomically
         if: steps.mode.outputs.mode == 'baseline'
@@ -329,7 +329,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          python automation/forward_validation/build_forward_validation.py             --mode collect             --repo-root .             --main-source-commit "$(git rev-parse HEAD)"             --d2-source-commit "$(cat "$RUNTIME_DIR/D2_COMMIT")"             --recommendation-current "$RUNTIME_DIR/RECOMMENDATION_CURRENT.json"             --recommendation-domain "$RUNTIME_DIR/RECOMMENDATION_DOMAIN.json"             --trigger-current "$RUNTIME_DIR/TRIGGER_MONITOR_CURRENT.json"             --shadow-current "$RUNTIME_DIR/SHADOW_BOOK_CURRENT.json"             --operating-index "$RUNTIME_DIR/OPERATING_CURRENT_INDEX.json"             --d2-receipts-dir "$RUNTIME_DIR/d2_receipts"             --baseline "$RUNTIME_DIR/FORWARD_BASELINE_CURRENT.json"             --forward-current "$RUNTIME_DIR/FORWARD_VALIDATION_CURRENT.json"             --observation-ledger "$RUNTIME_DIR/FORWARD_OBSERVATION_LEDGER.jsonl"             --r2-runtime-root "$FROZEN_RUNTIME"             --output-dir .p4_5_plan
+          python -m automation.forward_validation.build_forward_validation             --mode collect             --repo-root .             --main-source-commit "$(git rev-parse HEAD)"             --d2-source-commit "$(cat "$RUNTIME_DIR/D2_COMMIT")"             --recommendation-current "$RUNTIME_DIR/RECOMMENDATION_CURRENT.json"             --recommendation-domain "$RUNTIME_DIR/RECOMMENDATION_DOMAIN.json"             --trigger-current "$RUNTIME_DIR/TRIGGER_MONITOR_CURRENT.json"             --shadow-current "$RUNTIME_DIR/SHADOW_BOOK_CURRENT.json"             --operating-index "$RUNTIME_DIR/OPERATING_CURRENT_INDEX.json"             --d2-receipts-dir "$RUNTIME_DIR/d2_receipts"             --baseline "$RUNTIME_DIR/FORWARD_BASELINE_CURRENT.json"             --forward-current "$RUNTIME_DIR/FORWARD_VALIDATION_CURRENT.json"             --observation-ledger "$RUNTIME_DIR/FORWARD_OBSERVATION_LEDGER.jsonl"             --r2-runtime-root "$FROZEN_RUNTIME"             --output-dir .p4_5_plan
 
       - name: Assemble immutable checkpoint set
         if: steps.mode.outputs.mode == 'collect'
@@ -345,7 +345,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          python automation/forward_validation/refresh_forward_outcomes.py             --checkpoints-dir .p4_5_work/checkpoints             --current .p4_5_plan/FORWARD_VALIDATION_CURRENT.json             --observation-ledger .p4_5_plan/FORWARD_OBSERVATION_LEDGER.jsonl             --collector-receipt .p4_5_plan/cycle_receipt.json             --output-dir .p4_5_final
+          python -m automation.forward_validation.refresh_forward_outcomes             --checkpoints-dir .p4_5_work/checkpoints             --current .p4_5_plan/FORWARD_VALIDATION_CURRENT.json             --observation-ledger .p4_5_plan/FORWARD_OBSERVATION_LEDGER.jsonl             --collector-receipt .p4_5_plan/cycle_receipt.json             --output-dir .p4_5_final
 
       - name: Publish active forward state atomically
         if: steps.mode.outputs.mode == 'collect'
