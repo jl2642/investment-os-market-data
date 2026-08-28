@@ -1,4 +1,4 @@
-name: One-shot Operating Freshness Replay
+name: One-shot A-share History Factor Recovery
 
 on:
   push:
@@ -14,14 +14,14 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch repaired production workflows on protected main
+      - name: Dispatch governed FMDL 2B-4 multi-session recovery on protected main
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         shell: bash
         run: |
           set -Eeuo pipefail
-          gh api --method POST             "repos/$REPO/actions/workflows/fmdl-daily-production.yml/dispatches"             -f ref=main             -f 'inputs[force_run]=true'             -f 'inputs[allow_same_date_refresh]=true'
-          gh api --method POST             "repos/$REPO/actions/workflows/wp3_r_weekly_screen.yml/dispatches"             -f ref=main
-          gh api --method POST             "repos/$REPO/actions/workflows/round3-cross-market-limited-production.yml/dispatches"             -f ref=main             -f 'inputs[as_of]=2026-08-27'
-          echo "DISPATCHED_A_SHARE_CANDIDATE_CROSS_MARKET"
+          gh api --method POST \
+            "repos/$REPO/actions/workflows/fmdl-2b4-full-rebase.yml/dispatches" \
+            -f ref=main
+          echo "DISPATCHED_FMDL2B4_MULTI_SESSION_RECOVERY"
