@@ -1,0 +1,123 @@
+{
+  "manifest_version": "1.0.0",
+  "dataset_id": "a_share_universe",
+  "dataset_version": "a_share_universe-2026-08-28-FMDL1BC_20260828T204026+0800",
+  "schema_id": "a_share_universe.schema.json",
+  "schema_version": "1.0.0",
+  "run_id": "FMDL1BC_20260828T204026+0800",
+  "as_of_date": "2026-08-28",
+  "generated_at": "2026-08-28T20:40:26+08:00",
+  "business_timezone": "Asia/Shanghai",
+  "publication_status": "DEGRADED",
+  "qa_status": "PASS_WITH_WARNINGS",
+  "sources": [
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.18.94",
+      "adapter_function": "stock_zh_a_spot",
+      "provider_id": "sina_public",
+      "retrieved_at": "2026-08-28T20:40:26+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": "5657aabc051dab5d8177a00a5fa895b382af4c05d5ea233b8e2945d579a831f0",
+      "retries": 0,
+      "warnings": [
+        "primary_provider_unavailable: stock_zh_a_spot_em",
+        "attempt_1: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+        "optional_source_unavailable",
+        "volume_unit=SHARES"
+      ]
+    },
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.18.94",
+      "adapter_function": "stock_info_sh_name_code:主板A股",
+      "provider_id": "sse_public",
+      "retrieved_at": "2026-08-28T20:40:26+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": null,
+      "retries": 2,
+      "warnings": [
+        "attempt_1: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+        "attempt_2: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+        "attempt_3: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+        "optional_source_unavailable"
+      ]
+    },
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.18.94",
+      "adapter_function": "stock_info_sh_name_code:科创板",
+      "provider_id": "sse_public",
+      "retrieved_at": "2026-08-28T20:40:26+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": null,
+      "retries": 2,
+      "warnings": [
+        "attempt_1: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+        "attempt_2: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+        "attempt_3: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+        "optional_source_unavailable"
+      ]
+    },
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.18.94",
+      "adapter_function": "stock_info_sz_name_code:A股列表",
+      "provider_id": "szse_public",
+      "retrieved_at": "2026-08-28T20:40:26+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": null,
+      "retries": 1,
+      "warnings": [
+        "attempt_1: ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+      ]
+    },
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.18.94",
+      "adapter_function": "stock_info_bj_name_code",
+      "provider_id": "bse_public",
+      "retrieved_at": "2026-08-28T20:40:26+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": null,
+      "retries": 0,
+      "warnings": []
+    },
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.18.94",
+      "adapter_function": "tool_trade_date_hist_sina",
+      "provider_id": "sina_public",
+      "retrieved_at": "2026-08-28T20:40:26+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": null,
+      "retries": 0,
+      "warnings": []
+    }
+  ],
+  "row_count": 5550,
+  "column_count": 22,
+  "file": {
+    "path": "outputs/candidate/A_SHARE_UNIVERSE.csv",
+    "size_bytes": 1459264,
+    "sha256": "f5a45d88e87a71b59a4e8949f98fe7f95c3791bd8c1cc8da785eff51a70c8c43"
+  },
+  "quality": {
+    "hard_failures": [],
+    "soft_warnings": [
+      "industry_fill_ratio",
+      "listing_date_fill_ratio"
+    ],
+    "gate_results_path": "outputs/candidate/A_SHARE_UNIVERSE_QUALITY.json"
+  },
+  "lineage": {
+    "parent_dataset_version": null,
+    "last_known_good_dataset_version": null
+  },
+  "known_limitations": [
+    "Industry and listing-date enrichment depends on optional free exchange endpoints.",
+    "Suspension status is inferred from the selected market-wide spot response.",
+    "FMDL-2, not this data layer, owns investability exclusions."
+  ],
+  "notes": "FMDL-1B/C candidate output. Not yet promoted to outputs/current."
+}

@@ -1,0 +1,104 @@
+{
+  "dataset_id": "daily_market_snapshot",
+  "qa_status": "PASS_WITH_WARNINGS",
+  "publication_status": "DEGRADED",
+  "hard_failures": [],
+  "soft_warnings": [
+    "market_cap_fill_ratio",
+    "valuation_fill_ratio",
+    "maximum_unexplained_absolute_return_pct"
+  ],
+  "metrics": {
+    "row_count": 5550,
+    "universe_coverage_ratio": 1.0,
+    "traded_row_count": 5546,
+    "positive_close_ratio_for_traded_rows": 1.0,
+    "negative_volume_rows": 0,
+    "negative_turnover_rows": 0,
+    "maximum_return_reconciliation_difference_pp": 0.0004999999999999449,
+    "market_cap_fill_ratio": 0.0,
+    "valuation_fill_ratio": 0.0,
+    "zero_turnover_ratio": 0.0007207207207207207,
+    "maximum_absolute_return_pct": 126.81,
+    "schema_error_examples": []
+  },
+  "gate_results": [
+    {
+      "gate_id": "schema_valid",
+      "severity": "HARD",
+      "actual": 0,
+      "expected": "0",
+      "passed": true
+    },
+    {
+      "gate_id": "minimum_active_universe_coverage",
+      "severity": "HARD",
+      "actual": 1.0,
+      "expected": ">=0.95",
+      "passed": true
+    },
+    {
+      "gate_id": "duplicate_natural_key",
+      "severity": "HARD",
+      "actual": 0,
+      "expected": "0",
+      "passed": true
+    },
+    {
+      "gate_id": "minimum_positive_close_ratio_for_traded_rows",
+      "severity": "HARD",
+      "actual": 1.0,
+      "expected": ">=1.0",
+      "passed": true
+    },
+    {
+      "gate_id": "maximum_negative_volume_rows",
+      "severity": "HARD",
+      "actual": 0,
+      "expected": "0",
+      "passed": true
+    },
+    {
+      "gate_id": "maximum_negative_turnover_rows",
+      "severity": "HARD",
+      "actual": 0,
+      "expected": "0",
+      "passed": true
+    },
+    {
+      "gate_id": "return_reconciliation",
+      "severity": "HARD",
+      "actual": 0.0004999999999999449,
+      "expected": "<=0.05",
+      "passed": true
+    },
+    {
+      "gate_id": "market_cap_fill_ratio",
+      "severity": "SOFT",
+      "actual": 0.0,
+      "expected": ">=0.9",
+      "passed": false
+    },
+    {
+      "gate_id": "valuation_fill_ratio",
+      "severity": "SOFT",
+      "actual": 0.0,
+      "expected": ">=0.7",
+      "passed": false
+    },
+    {
+      "gate_id": "maximum_unexplained_absolute_return_pct",
+      "severity": "SOFT",
+      "actual": 126.81,
+      "expected": "<=35.0",
+      "passed": false
+    },
+    {
+      "gate_id": "maximum_zero_turnover_ratio",
+      "severity": "SOFT",
+      "actual": 0.0007207207207207207,
+      "expected": "<=0.15",
+      "passed": true
+    }
+  ]
+}

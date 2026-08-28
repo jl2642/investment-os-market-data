@@ -1,0 +1,57 @@
+{
+  "manifest_version": "1.0.0",
+  "dataset_id": "daily_market_snapshot",
+  "dataset_version": "daily_market_snapshot-2026-08-28-FMDL1BC_20260828T204026+0800",
+  "schema_id": "daily_market_snapshot.schema.json",
+  "schema_version": "1.0.0",
+  "run_id": "FMDL1BC_20260828T204026+0800",
+  "as_of_date": "2026-08-28",
+  "generated_at": "2026-08-28T20:40:26+08:00",
+  "business_timezone": "Asia/Shanghai",
+  "publication_status": "DEGRADED",
+  "qa_status": "PASS_WITH_WARNINGS",
+  "sources": [
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.18.94",
+      "adapter_function": "stock_zh_a_spot",
+      "provider_id": "sina_public",
+      "retrieved_at": "2026-08-28T20:40:26+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": "5657aabc051dab5d8177a00a5fa895b382af4c05d5ea233b8e2945d579a831f0",
+      "retries": 0,
+      "warnings": [
+        "primary_provider_unavailable: stock_zh_a_spot_em",
+        "attempt_1: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+        "optional_source_unavailable",
+        "volume_unit=SHARES"
+      ]
+    }
+  ],
+  "row_count": 5550,
+  "column_count": 21,
+  "file": {
+    "path": "outputs/candidate/DAILY_MARKET_SNAPSHOT.csv",
+    "size_bytes": 1170838,
+    "sha256": "05abe2946468dcc3f7fd3cd1c5691af7e93d454082e9909eb3ccf6b81182a0b9"
+  },
+  "quality": {
+    "hard_failures": [],
+    "soft_warnings": [
+      "market_cap_fill_ratio",
+      "valuation_fill_ratio",
+      "maximum_unexplained_absolute_return_pct"
+    ],
+    "gate_results_path": "outputs/candidate/DAILY_MARKET_SNAPSHOT_QUALITY.json"
+  },
+  "lineage": {
+    "parent_dataset_version": null,
+    "last_known_good_dataset_version": null
+  },
+  "known_limitations": [
+    "AKShare/Sina 成交量 is supplied in shares and is preserved without a lot multiplier.",
+    "Sina fallback does not provide market-cap or valuation fields in this interface; those fields remain null and are hardened in FMDL-3.",
+    "Candidate data is not a stable Investment OS current output until FMDL-1F promotion."
+  ],
+  "notes": "FMDL-1B/C candidate output. Not yet promoted to outputs/current."
+}
