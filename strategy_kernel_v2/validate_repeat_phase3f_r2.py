@@ -88,6 +88,7 @@ def validate():
             "phase3_historical_validation_complete": True,
             "phase4_entry_allowed": True,
             "phase4_start_allowed": True,
+            "phase4_started": False,
             "phase4_forward_validation_complete": False,
         }
         for key, value in expected.items():
@@ -95,30 +96,12 @@ def validate():
                 errors.append("REPEAT3F_CLOSEOUT_STATE_DRIFT:" + key)
             if cv.get(key) != value:
                 errors.append("REPEAT3F_CLOSEOUT_CURRENT_DRIFT:" + key)
-
-        a1_supersedes_repeat3f_current = (
-            state.get("program_amendment_a1_frozen") is True
-            and state.get("phase4_v1_forward_execution_superseded_before_first_observation") is True
-            and state.get("phase4_effective_execution_hold") is True
-            and state.get("phase4_effective_forward_observation_start_allowed") is False
-            and state.get("phase4_forward_observation_count") == 0
-            and state.get("phase4_realized_outcome_read_count") == 0
-        )
-        if a1_supersedes_repeat3f_current:
-            if state.get("phase4_started") is not True:
-                errors.append("REPEAT3F_A1_PHASE4_NOT_ACTIVE")
-            # The validation snapshot remains the immutable closeout record.
-            if cv.get("phase4_started") is not False:
-                errors.append("REPEAT3F_CLOSEOUT_CURRENT_DRIFT:phase4_started")
-        else:
-            if state.get("phase4_started") is not False:
-                errors.append("REPEAT3F_CLOSEOUT_STATE_DRIFT:phase4_started")
-            if current.get("current_phase") != "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE":
-                errors.append("REPEAT3F_CLOSEOUT_CURRENT_PHASE_DRIFT")
-            if current.get("status") != "REPEAT_PHASE3F_4_OF_4_PASS_PHASE4_FORWARD_VALIDATION_AUTHORIZED_NOT_STARTED":
-                errors.append("REPEAT3F_CLOSEOUT_STATUS_DRIFT")
-            if current.get("next_phase") != "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION":
-                errors.append("REPEAT3F_CLOSEOUT_NEXT_DRIFT")
+        if current.get("current_phase") != "REPEAT_PHASE_3F_HISTORICAL_PROMOTION_GATE":
+            errors.append("REPEAT3F_CLOSEOUT_CURRENT_PHASE_DRIFT")
+        if current.get("status") != "REPEAT_PHASE3F_4_OF_4_PASS_PHASE4_FORWARD_VALIDATION_AUTHORIZED_NOT_STARTED":
+            errors.append("REPEAT3F_CLOSEOUT_STATUS_DRIFT")
+        if current.get("next_phase") != "PHASE_4_FORWARD_PARALLEL_SHADOW_VALIDATION":
+            errors.append("REPEAT3F_CLOSEOUT_NEXT_DRIFT")
 
     if not errors:
         write_default(result)
