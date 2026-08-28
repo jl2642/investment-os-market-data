@@ -93,7 +93,7 @@ def yahoo_symbol(market: str, raw_symbol: str) -> str:
     return symbol.replace(".", "-")
 
 
-def parse_latest_yahoo(payload: bytes) -> dict[str, Any]:
+def parse_latest_yahoo(payload: bytes, *, as_of: date | None = None) -> dict[str, Any]:
     data = json.loads(payload)
     result = ((data.get("chart") or {}).get("result") or [None])[0]
     if not result:
@@ -107,12 +107,17 @@ def parse_latest_yahoo(payload: bytes) -> dict[str, Any]:
         if close is None or float(close) <= 0:
             continue
         ts = int(timestamps[idx])
+        trade_date = datetime.fromtimestamp(ts, tz=timezone.utc).date()
+        if as_of is not None and trade_date > as_of:
+            continue
         return {
-            "trade_date": datetime.fromtimestamp(ts, tz=timezone.utc).date().isoformat(),
+            "trade_date": trade_date.isoformat(),
             "close": round(float(close), 8),
             "volume": int(volumes[idx] or 0) if idx < len(volumes) else 0,
             "currency": str((result.get("meta") or {}).get("currency") or ""),
         }
+    if as_of is not None:
+        raise ValueError(f"no positive close on or before target {as_of.isoformat()}")
     raise ValueError("no positive close in Yahoo payload")
 
 
@@ -126,7 +131,7 @@ def fetch_dual_route_market(market: str, symbol: str, as_of: date, fetcher: Fetc
     for route in (1, 2):
         raw = fetcher(template.format(route=route, symbol=vendor_symbol, p1=period1, p2=period2), {"User-Agent": "Mozilla/5.0"})
         payloads.append(raw)
-        parsed.append(parse_latest_yahoo(raw))
+        parsed.append(parse_latest_yahoo(raw, as_of=as_of))
     left, right = parsed
     if left["trade_date"] != right["trade_date"] or abs(left["close"] - right["close"]) > max(1e-8, left["close"] * 1e-8):
         raise ValueError("dual Yahoo routes diverged")

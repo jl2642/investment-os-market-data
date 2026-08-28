@@ -64,7 +64,8 @@ jobs:
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         shell: bash
         env:
-          SOURCE_BRANCH: automation/wp3-r-candidate-current
+          SOURCE_BRANCH: automation/wp3-r-weekly-current
+          WP3R_PUBLISH_BRANCH: automation/wp3-r-weekly-current
         run: |
           set -Eeuo pipefail
           BEFORE="$(git ls-remote --heads origin "refs/heads/$SOURCE_BRANCH" | awk '{print $1}')"

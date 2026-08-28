@@ -101,6 +101,107 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
 
+      - name: Bootstrap accepted history and factor baseline from Operating Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          python - <<'PY' > /tmp/FMDL_ACCEPTED_BASELINE.json
+          import json
+          import subprocess
+
+          def show(path):
+              return json.loads(subprocess.check_output(
+                  ["git","show",f"origin/operating-current:{path}"], text=True
+              ))
+
+          candidates=[]
+          try:
+              pointer=show("operating_current/domains/A_SHARE_FULL_MARKET.json")
+              if pointer.get("status")=="PASS" and pointer.get("source_workflow") in {
+                  "FMDL Daily A-share Governed Production",
+                  "FMDL 2B-4 Multi-Session Recovery",
+              }:
+                  candidates.append(pointer)
+          except Exception:
+              pass
+
+          paths=subprocess.check_output([
+              "git","ls-tree","-r","--name-only","origin/operating-current","--",
+              "operating_current/runs/A_SHARE_FULL_MARKET"
+          ], text=True).splitlines()
+          for path in paths:
+              try:
+                  row=show(path)
+              except Exception:
+                  continue
+              if row.get("status")!="PASS":
+                  continue
+              if row.get("source_workflow") not in {
+                  "FMDL Daily A-share Governed Production",
+                  "FMDL 2B-4 Multi-Session Recovery",
+              }:
+                  continue
+              candidates.append(row)
+
+          if not candidates:
+              print(json.dumps({"status":"NO_ACCEPTED_HISTORY_FACTOR_BASELINE"}))
+          else:
+              row=max(candidates,key=lambda x:(
+                  str(x.get("watermark_sort_key") or ""),
+                  str(x.get("published_at_utc") or "")
+              ))
+              print(json.dumps({
+                  "status":"ACCEPTED_HISTORY_FACTOR_BASELINE",
+                  "source_branch":row.get("source_branch"),
+                  "source_commit_sha":row.get("source_commit_sha"),
+                  "watermark":row.get("watermark_sort_key") or row.get("data_watermark"),
+                  "source_workflow":row.get("source_workflow"),
+              }))
+          PY
+          cat /tmp/FMDL_ACCEPTED_BASELINE.json
+          SOURCE_BRANCH="$(python - <<'PY'
+          import json
+          x=json.load(open('/tmp/FMDL_ACCEPTED_BASELINE.json',encoding='utf-8'))
+          print(x.get('source_branch') or '')
+          PY
+          )"
+          SOURCE_COMMIT="$(python - <<'PY'
+          import json
+          x=json.load(open('/tmp/FMDL_ACCEPTED_BASELINE.json',encoding='utf-8'))
+          print(x.get('source_commit_sha') or '')
+          PY
+          )"
+          if [[ -z "$SOURCE_BRANCH" || -z "$SOURCE_COMMIT" ]]; then
+            echo "NO_ACCEPTED_HISTORY_FACTOR_BASELINE_USING_CANONICAL_MAIN"
+            exit 0
+          fi
+          git fetch origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/fmdl-operating-baseline" --force --no-tags
+          git cat-file -e "$SOURCE_COMMIT^{commit}"
+          git merge-base --is-ancestor "$SOURCE_COMMIT" refs/remotes/origin/fmdl-operating-baseline
+          for path in \
+            outputs/history/current \
+            outputs/factors/current \
+            datasets/history/incremental \
+            datasets/history/repair
+          do
+            if git cat-file -e "$SOURCE_COMMIT:$path" 2>/dev/null; then
+              git checkout "$SOURCE_COMMIT" -- "$path"
+            fi
+          done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          baseline=json.load(open('/tmp/FMDL_ACCEPTED_BASELINE.json',encoding='utf-8'))
+          p=Path('outputs/history/current/HISTORY_CURRENT_MANIFEST.json')
+          print({
+              'baseline_source_workflow':baseline.get('source_workflow'),
+              'baseline_watermark':baseline.get('watermark'),
+              'bootstrap_history_as_of':json.loads(p.read_text(encoding='utf-8')).get('as_of_date') if p.exists() else None,
+              'trade_authority':'NONE',
+          })
+          PY
+
       - name: Run latest completed-session market Current
         id: market
         shell: bash
@@ -145,6 +246,55 @@ jobs:
       - name: Enforce latest completed-session Current
         if: steps.mode.outputs.proceed == 'true'
         run: python -m scripts.validate_fmdl2b4_freshness
+
+      - name: Publish validated market Current independently of downstream history
+        if: steps.mode.outputs.proceed == 'true' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          MARKET_RESULT_BRANCH: automation/fmdl-market-current-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$MARKET_RESULT_BRANCH"
+          git add -A -- outputs/current outputs/investment_os outputs/status/LAST_RUN.json
+          if git diff --cached --quiet; then
+            echo "MARKET_CURRENT_NO_NEW_GIT_DIFF"
+            exit 0
+          fi
+          git commit -m "data: stage governed A-share market Current"
+          git push origin "HEAD:refs/heads/$MARKET_RESULT_BRANCH"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          WATERMARK="$(python - <<'PY'
+          import json
+          print(json.load(open('outputs/current/CURRENT_RELEASE.json',encoding='utf-8'))['as_of_date'])
+          PY
+          )"
+          PUBLISH_DIR="$(mktemp -d /tmp/fmdl-operating-publisher.XXXXXX)"
+          cleanup() {
+            git worktree remove --force "$PUBLISH_DIR" >/dev/null 2>&1 || true
+            rm -rf "$PUBLISH_DIR" || true
+          }
+          trap cleanup EXIT
+          git worktree add --detach "$PUBLISH_DIR" origin/main
+          (
+            cd "$PUBLISH_DIR"
+            python automation/operating_current/publish_operating_current.py \
+              --domain A_SHARE_FULL_MARKET \
+              --status PASS \
+              --source-workflow "FMDL Daily A-share Governed Production / Market Current" \
+              --source-run-id "${{ github.run_id }}" \
+              --source-run-attempt "${{ github.run_attempt }}" \
+              --source-branch "$MARKET_RESULT_BRANCH" \
+              --source-commit "$SOURCE_COMMIT" \
+              --watermark "$WATERMARK" \
+              --watermark-sort-key "$WATERMARK" \
+              --qc-status PASS_LATEST_COMPLETED_SESSION_MARKET_CURRENT \
+              --advance-current
+          )
+          cleanup
+          trap - EXIT
+          echo "A_SHARE_MARKET_CURRENT_PUBLISHED=$WATERMARK"
 
       - name: Run incremental history and factor chain
         if: steps.mode.outputs.proceed == 'true'
