@@ -565,3 +565,17 @@ No forward observation or realized outcome has yet been loaded. Phase 4 executio
 
 **Next governed work:** one main-based P4-3 operational implementation only. Forward observation execution remains held until P4-4 completion and P4-5 clean rebaseline.
 
+## 2026-08-28 — P4-3 acceptance / P4-4 trigger monitor and autonomous shadow-book contract freeze
+
+**P4-3 acceptance evidence:** contract PR #345 completed exact-head 33/33 SUCCESS. Main-based operational PR #346 merged to protected main at `668cdf03296440d74d9458eb4c9f88e55c4ce94c`. Live workflow run `33142891180` completed validate / operate / publish / remote-readback with SUCCESS. Recommendation Current fingerprint is `d74b6d9d799ac2741b82d8764c374a298d57623925b37756d92b23b35e0c0ed7`; the current recommendation set is two WATCH_NORMAL and one WATCH_HIGH_PRIORITY, with BUY_NOW=0 and ready_for_user_decision=0. Candidate / Real / protected Simulation mutations remain 0 / 0 / 0; target portfolio writebacks=0; user decisions generated=0; orders=0; trade_authority=NONE. P4-3 is `COMPLETE_ACCEPTED`.
+
+**P4-4 audit finding:** technical monitoring, append-only/idempotent event controls, historical shadow-simulation prototypes and attribution products already exist, but there is no current Recommendation-bound trigger registry and no autonomous shadow action book that is isolated from protected Simulation. FMDL7D may be reused only for technical fail-closed/idempotency primitives; FMDL6X4D is architectural precedent only; R5 historical attribution is not P4-4 forward-performance authority.
+
+**P4-4 frozen design:** every trigger and invalidation clause from Recommendation Current must be registered. Natural-language clauses remain `SEMANTIC_EVIDENCE_REQUIRED` and cannot be auto-fired by keyword inference. Machine action is driven by Recommendation Current state transitions only. BUY_NOW/ADD may create one normalized research-unit ENTRY_PENDING_MARK action; AVOID/EXIT_REVIEW may create EXIT_PENDING_MARK. BUY_ON_PRICE, BUY_ON_EVIDENCE, WATCH, HOLD and TRIM_REVIEW do not directly open/close shadow exposure. A pending action may bind only to the first completed-session mark strictly available after signal availability; same-session hindsight fills are forbidden. Shadow units are not capital weights, consume no cash and do not mutate protected Simulation.
+
+**Pre-baseline firewall:** all P4-4 live runs/actions before P4-5 are `PRE_BASELINE_INFRASTRUCTURE_ONLY`. They may not increment Phase-4 forward-observation or realized-outcome counters, may not tune R2 or recommendation rules, and may not be backdated into P4-5. P4-5 must establish a new clean future cutoff.
+
+**Current live expectation:** Recommendation Current contains no BUY_NOW/ADD, therefore accepted P4-4 live infrastructure should register 3 subjects / 7 trigger clauses / 6 invalidation clauses while producing 0 shadow actions and 0 open shadow positions.
+
+**Next governed work:** exactly one main-based P4-4 operational implementation. Phase 5 remains unauthorized.
+
