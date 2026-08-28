@@ -2,6 +2,11 @@ name: FMDL Daily A-share Governed Production
 run-name: "FMDL daily market, factor and screening transaction"
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/fmdl-daily-production.yml"
+      - "automation/operating_current/hydrate_a_share_runtime.py"
   schedule:
     - cron: "30 9 * * 1-5"
   workflow_dispatch:
@@ -72,6 +77,7 @@ jobs:
 
       - name: Validate contracts and Round 1 publication controls
         run: |
+          python -m py_compile automation/operating_current/hydrate_a_share_runtime.py
           python scripts/validate_contracts.py
           python scripts/validate_investment_os_interface.py
           pytest -q \
@@ -81,7 +87,7 @@ jobs:
             tests/test_round1_governed_publication_workflows.py
 
   operate:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 75
@@ -100,6 +106,9 @@ jobs:
 
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Hydrate latest accepted A-share runtime state
+        run: python -m automation.operating_current.hydrate_a_share_runtime
 
       - name: Run latest completed-session market Current
         id: market
