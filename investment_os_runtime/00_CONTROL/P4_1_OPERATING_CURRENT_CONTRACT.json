@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "P4_1_OPERATING_CURRENT_CONTRACT",
+  "as_of": "2026-08-28",
+  "status": "IMPLEMENTATION_CANDIDATE",
+  "purpose": "Provide a low-risk operating authority surface for QC-passed public-data and research run pointers without using protected main merges as the daily data transport.",
+  "authority": {
+    "governance_canonical": {
+      "branch": "main",
+      "owns": [
+        "code",
+        "workflows",
+        "model_and_strategy_contracts",
+        "schemas_and_governance",
+        "formal_candidate_membership",
+        "protected_real_economic_state",
+        "protected_simulation_economic_state",
+        "user_approved_state_changes"
+      ]
+    },
+    "operating_current": {
+      "branch": "operating-current",
+      "authoritative_prefix": "operating_current/",
+      "inherited_repository_paths_authoritative": false,
+      "may_mutate_protected_economic_state": false,
+      "direct_main_push": false
+    }
+  },
+  "pointer_rules": {
+    "status_values": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "NO_OP"
+    ],
+    "only_pass_may_advance_current": true,
+    "failed_blocked_or_stale_run_may_replace_current": false,
+    "source_commit_must_be_remote_reachable_before_advance": true,
+    "watermark_sort_key_must_not_regress": true,
+    "equal_watermark_refresh_allowed": true,
+    "every_attempt_writes_receipt": true,
+    "central_index_must_expose_current_pointer_and_latest_attempt": true
+  },
+  "initial_domains": [
+    "A_SHARE_FULL_MARKET",
+    "PORTFOLIO_MARKS",
+    "CANDIDATE_WEEKLY_OBSERVATION",
+    "RESEARCH_D2",
+    "CROSS_MARKET_LIMITED"
+  ],
+  "permanent_boundaries": {
+    "automatic_formal_candidate_membership_mutation": false,
+    "automatic_real_account_mutation": false,
+    "automatic_protected_simulation_mutation": false,
+    "automatic_order_creation": false,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
