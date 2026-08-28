@@ -76,8 +76,12 @@ jobs:
           PY
           )"
           git fetch origin "refs/heads/$D2_BRANCH:refs/remotes/origin/p4-5-d2" --force --no-tags
-          [[ "$(git rev-parse refs/remotes/origin/p4-5-d2)" == "$D2_COMMIT" ]] || {
-            echo "P45_D2_SOURCE_HEAD_DRIFT"
+          git cat-file -e "$D2_COMMIT^{commit}" || {
+            echo "P45_D2_SOURCE_COMMIT_UNRESOLVED"
+            exit 1
+          }
+          git merge-base --is-ancestor "$D2_COMMIT" refs/remotes/origin/p4-5-d2 || {
+            echo "P45_D2_SOURCE_COMMIT_NOT_ON_GOVERNED_BRANCH"
             exit 1
           }
           echo "$D2_COMMIT" > "$RUNTIME_DIR/D2_COMMIT"
@@ -229,8 +233,12 @@ jobs:
           PY
           )"
           git fetch origin "refs/heads/$D2_BRANCH:refs/remotes/origin/p4-5-d2" --force --no-tags
-          [[ "$(git rev-parse refs/remotes/origin/p4-5-d2)" == "$D2_COMMIT" ]] || {
-            echo "P45_D2_SOURCE_HEAD_DRIFT"
+          git cat-file -e "$D2_COMMIT^{commit}" || {
+            echo "P45_D2_SOURCE_COMMIT_UNRESOLVED"
+            exit 1
+          }
+          git merge-base --is-ancestor "$D2_COMMIT" refs/remotes/origin/p4-5-d2 || {
+            echo "P45_D2_SOURCE_COMMIT_NOT_ON_GOVERNED_BRANCH"
             exit 1
           }
           echo "$D2_COMMIT" > "$RUNTIME_DIR/D2_COMMIT"
