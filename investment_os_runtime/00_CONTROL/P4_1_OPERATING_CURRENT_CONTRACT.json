@@ -55,5 +55,18 @@
     "automatic_order_creation": false,
     "orders": 0,
     "trade_authority": "NONE"
+  },
+  "staleness_policy": {
+    "basis": "CALENDAR_DAY_HEURISTIC_FOR_OPERATING_VISIBILITY_NOT_EXCHANGE_SESSION_TRUTH",
+    "thresholds_calendar_days": {
+      "A_SHARE_FULL_MARKET": 5,
+      "PORTFOLIO_MARKS": 5,
+      "CANDIDATE_WEEKLY_OBSERVATION": 10,
+      "RESEARCH_D2": 10,
+      "CROSS_MARKET_LIMITED": 5
+    },
+    "stale_status": "STALE_BY_CALENDAR_HEURISTIC",
+    "missing_status": "MISSING_CURRENT",
+    "stale_does_not_delete_last_known_good": true
   }
 }
