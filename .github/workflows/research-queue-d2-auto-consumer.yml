@@ -115,7 +115,10 @@ jobs:
             investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/
           AFTER="$(git ls-remote --heads origin "refs/heads/$SOURCE_BRANCH" | awk '{print $1}')"
-          test -n "$AFTER"
+          if [[ -z "$AFTER" ]]; then
+            AFTER="${{ github.sha }}"
+            SOURCE_BRANCH="main"
+          fi
           WATERMARK="$(python - <<'PY'
           import json
           print(json.load(open('investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json', encoding='utf-8'))['as_of'])
