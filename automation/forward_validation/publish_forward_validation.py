@@ -46,6 +46,7 @@ def materialize_baseline(
     current_candidate: dict[str,Any],
     *,
     published_at: str,
+    source_commit: str,
 ) -> tuple[dict[str,Any],dict[str,Any]]:
     if baseline_candidate.get("eligibility_cutoff_utc") is not None:
         raise RuntimeError("P45_BASELINE_CANDIDATE_ALREADY_HAS_CUTOFF")
@@ -59,6 +60,7 @@ def materialize_baseline(
     baseline["eligibility_cutoff_utc"]=published_at
     baseline["accepted_at_utc"]=published_at
     baseline["cutoff_authority"]="FORWARD_VALIDATION_OPERATING_CURRENT_BASELINE_RECEIPT_PUBLISHED_AT_UTC"
+    baseline["protected_main_sha_at_acceptance"]=source_commit
     baseline["phase4_effective_forward_observation_start_allowed"]=True
     current["status"]="ACTIVE_FORWARD_ACCUMULATION"
     current["eligibility_cutoff_utc"]=published_at
@@ -138,7 +140,7 @@ def write_transaction(
     baseline_candidate_text: str | None,
     current_text: str,
     ledger_text: str,
-    checkpoint_text: str | None,
+    checkpoint_texts: list[str],
     cycle_text: str,
     source_workflow: str,
     source_run_id: str,
@@ -164,7 +166,7 @@ def write_transaction(
             raise RuntimeError("P45_BASELINE_CANDIDATE_REQUIRED")
         baseline_candidate=json.loads(baseline_candidate_text)
         baseline,current=materialize_baseline(
-            baseline_candidate,current_candidate,published_at=published_at
+            baseline_candidate,current_candidate,published_at=published_at,source_commit=source_commit
         )
         if published_at <= "2026-08-27T13:42:29Z":
             raise RuntimeError("P45_CUTOFF_NOT_AFTER_SUPERSEDED_V1")
@@ -237,19 +239,24 @@ def write_transaction(
             "eligibility_cutoff_utc":baseline["eligibility_cutoff_utc"],
         }
 
-    if cycle_action!="ACCEPT_NEW_FORWARD_CHECKPOINT":
+    if cycle_action!="ACCEPT_NEW_FORWARD_CHECKPOINTS":
         raise RuntimeError("P45_UNKNOWN_CYCLE_ACTION")
-    if checkpoint_text is None:
-        raise RuntimeError("P45_CHECKPOINT_REQUIRED")
-    checkpoint=json.loads(checkpoint_text)
-    checkpoint_id=str(checkpoint["checkpoint_id"])
-    checkpoint_path=TARGET/"checkpoints"/f"{checkpoint_id}.json"
-    if checkpoint_path.exists():
-        raise RuntimeError("P45_DUPLICATE_CHECKPOINT")
-    checkpoint_path.write_text(checkpoint_text,encoding="utf-8")
+    if not checkpoint_texts:
+        raise RuntimeError("P45_CHECKPOINTS_REQUIRED")
+    checkpoint_ids=[]
+    watermarks=[]
+    for checkpoint_text in checkpoint_texts:
+        checkpoint=json.loads(checkpoint_text)
+        checkpoint_id=str(checkpoint["checkpoint_id"])
+        checkpoint_path=TARGET/"checkpoints"/f"{checkpoint_id}.json"
+        if checkpoint_path.exists():
+            raise RuntimeError("P45_DUPLICATE_CHECKPOINT:"+checkpoint_id)
+        checkpoint_path.write_text(checkpoint_text,encoding="utf-8")
+        checkpoint_ids.append(checkpoint_id)
+        watermarks.append(str(checkpoint["checkpoint_available_at_utc"]))
     current_path.write_text(current_text,encoding="utf-8")
     ledger_path.write_text(ledger_text,encoding="utf-8")
-    watermark=str(checkpoint["checkpoint_available_at_utc"])
+    watermark=max(watermarks)
     receipt_args=make_receipt_args(
         source_workflow=source_workflow,
         source_run_id=source_run_id,
@@ -259,12 +266,12 @@ def write_transaction(
         watermark=watermark,
         status="PASS",
         advance=True,
-        note=f"P4-5 accepted forward checkpoint={checkpoint_id}; no outcome read at creation; phase5=false",
+        note=f"P4-5 accepted forward checkpoints={len(checkpoint_ids)}; no outcome read at creation; phase5=false",
     )
     advanced,reason=write_domain_receipt(receipt_args,published_at)
     return {
         "status":"CHECKPOINT_PUBLISHED",
-        "checkpoint_id":checkpoint_id,
+        "checkpoint_ids":checkpoint_ids,
         "advanced":advanced,
         "reason":reason,
         "observation_count":current_candidate["phase4_forward_observation_count"],
@@ -291,7 +298,12 @@ def publish(args: argparse.Namespace) -> dict[str,Any]:
     baseline_text=load_text(Path(args.baseline_candidate)) if args.baseline_candidate else None
     current_text=load_text(Path(args.current))
     ledger_text=load_text(Path(args.observation_ledger))
-    checkpoint_text=load_text(Path(args.checkpoint)) if args.checkpoint else None
+    checkpoint_texts=[]
+    if args.checkpoints_dir:
+        checkpoint_texts=[
+            load_text(path)
+            for path in sorted(Path(args.checkpoints_dir).glob("*.json"))
+        ]
     cycle_text=load_text(Path(args.cycle_receipt))
 
     run("git","reset","--hard","HEAD",check=False)
@@ -307,7 +319,7 @@ def publish(args: argparse.Namespace) -> dict[str,Any]:
                 baseline_candidate_text=baseline_text,
                 current_text=current_text,
                 ledger_text=ledger_text,
-                checkpoint_text=checkpoint_text,
+                checkpoint_texts=checkpoint_texts,
                 cycle_text=cycle_text,
                 source_workflow=args.source_workflow,
                 source_run_id=args.source_run_id,
@@ -346,7 +358,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--baseline-candidate")
     p.add_argument("--current",required=True)
     p.add_argument("--observation-ledger",required=True)
-    p.add_argument("--checkpoint")
+    p.add_argument("--checkpoints-dir")
     p.add_argument("--cycle-receipt",required=True)
     p.add_argument("--source-workflow",required=True)
     p.add_argument("--source-run-id",required=True)
