@@ -63,11 +63,17 @@ def validate():
     if s.get("orders")!=0 or s.get("trade_authority")!="NONE": errors.append("A1_STATE_AUTHORITY")
 
     cu=cur.get("program_amendment_a1",{})
-    if cu.get("status")!="FROZEN_PRE_IMPLEMENTATION" or not cu.get("phase4_effective_execution_hold"): errors.append("A1_CURRENT_NOT_HELD")
+    if cu.get("status") not in {"FROZEN_PRE_IMPLEMENTATION","ACTIVE_PRODUCTION_CLOSURE"} or not cu.get("phase4_effective_execution_hold"):
+        errors.append("A1_CURRENT_NOT_HELD")
     if cu.get("effective_forward_observation_start_allowed"): errors.append("A1_CURRENT_START_OPEN")
     allowed_next = {
         "P4_1_PRODUCTION_BACKBONE_REPAIR",
         "P4_1_MAIN_BASED_OPERATIONAL_REPAIR_IMPLEMENTATION",
+        "P4_2_CONTINUOUS_OPPORTUNITY_FUNNEL",
+        "P4_2_MAIN_BASED_CONTINUOUS_OPPORTUNITY_FUNNEL_IMPLEMENTATION",
+        "P4_3_UNIFIED_DECISION_AND_RECOMMENDATION_ENGINE",
+        "P4_4_TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK",
+        "P4_5_CLEAN_BASELINE_FORWARD_PARALLEL_SHADOW_VALIDATION",
     }
     if cur.get("next_governed_work") not in allowed_next:
         errors.append("A1_NEXT_WORK")
@@ -82,4 +88,4 @@ if __name__=="__main__":
     errors=validate()
     if errors:
         raise AssertionError(";".join(errors))
-    print("PROGRAM_AMENDMENT_A1_PASS next=P4_1_PRODUCTION_BACKBONE_REPAIR observations=0 outcomes=0 orders=0 trade_authority=NONE")
+    print(f"PROGRAM_AMENDMENT_A1_PASS next={load('CURRENT_PHASE_STATUS.json').get('next_governed_work')} observations=0 outcomes=0 orders=0 trade_authority=NONE")
