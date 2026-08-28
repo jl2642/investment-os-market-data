@@ -17,6 +17,13 @@ OPERATING_BRANCH = "operating-current"
 ROOT_DIR = "operating_current"
 VALID_STATUS = {"PASS", "FAIL", "BLOCKED", "NO_OP"}
 DOMAIN_RE = re.compile(r"^[A-Z0-9_]+$")
+DOMAIN_STALE_DAYS = {
+    "A_SHARE_FULL_MARKET": 5,
+    "PORTFOLIO_MARKS": 5,
+    "CANDIDATE_WEEKLY_OBSERVATION": 10,
+    "RESEARCH_D2": 10,
+    "CROSS_MARKET_LIMITED": 5,
+}
 
 
 def run(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -113,35 +120,61 @@ def latest_receipt_for_domain(receipt_paths: list[Path]) -> dict[str, Any] | Non
     return max(rows, key=lambda row: (str(row.get("published_at_utc","")), str(row.get("source_run_id","")), int(row.get("source_run_attempt",0))))
 
 
+def _watermark_age_days(value: str, now: datetime) -> int | None:
+    if not value:
+        return None
+    try:
+        normalized=value.replace("Z","+00:00")
+        if len(normalized) == 10:
+            dt=datetime.fromisoformat(normalized).replace(tzinfo=timezone.utc)
+        else:
+            dt=datetime.fromisoformat(normalized)
+            if dt.tzinfo is None:
+                dt=dt.replace(tzinfo=timezone.utc)
+            dt=dt.astimezone(timezone.utc)
+        return max(0, (now.date()-dt.date()).days)
+    except Exception:
+        return None
+
+
 def build_index(root: Path) -> dict[str, Any]:
     domains_dir = root / "domains"
     runs_dir = root / "runs"
     entries=[]
-    domain_ids=set()
+    domain_ids=set(DOMAIN_STALE_DAYS)
     if domains_dir.exists():
         domain_ids.update(path.stem for path in domains_dir.glob("*.json"))
     if runs_dir.exists():
         domain_ids.update(path.name for path in runs_dir.iterdir() if path.is_dir())
+    now=datetime.now(timezone.utc)
     for domain in sorted(domain_ids):
         pointer_path=domains_dir / f"{domain}.json"
         current=json.loads(pointer_path.read_text(encoding="utf-8")) if pointer_path.exists() else None
         receipt_paths=list((runs_dir/domain).glob("*.json")) if (runs_dir/domain).exists() else []
         latest=latest_receipt_for_domain(receipt_paths)
+        age=_watermark_age_days(str(current.get("watermark_sort_key","")),now) if current else None
+        threshold=DOMAIN_STALE_DAYS.get(domain)
+        if current is None:
+            health="MISSING_CURRENT"
+        elif latest and latest.get("status") in {"FAIL","BLOCKED"}:
+            health="LATEST_ATTEMPT_FAILED_CURRENT_PRESERVED"
+        elif age is not None and threshold is not None and age > threshold:
+            health="STALE_BY_CALENDAR_HEURISTIC"
+        else:
+            health="CURRENT"
         entries.append({
             "domain_id": domain,
             "current": current,
             "latest_attempt": latest,
-            "health": (
-                "MISSING_CURRENT" if current is None
-                else "LATEST_ATTEMPT_FAILED_CURRENT_PRESERVED"
-                if latest and latest.get("status") in {"FAIL","BLOCKED"}
-                else "CURRENT"
-            ),
+            "watermark_age_calendar_days": age,
+            "stale_threshold_calendar_days": threshold,
+            "health": health,
         })
     return {
         "schema_version":"1.0.0",
         "generated_at_utc":utc_now(),
         "authority":"OPERATING_CURRENT_BRANCH_POINTER_SURFACE",
+        "staleness_basis":"CALENDAR_DAY_HEURISTIC_NOT_EXCHANGE_SESSION_TRUTH",
         "domains":entries,
         "orders":0,
         "trade_authority":"NONE",
