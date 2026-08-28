@@ -157,7 +157,13 @@ def acquire(request_path: Path, now: datetime | None=None) -> dict[str,Any]:
             "security_id":x.get("security_id"),
             "signal_available_at":x.get("signal_available_at"),
         } for x in requests
-    ],"marks":marks,"errors":errors}
+    ],"marks":marks,"errors":[
+        {
+            "action_id":x.get("action_id"),
+            "security_id":x.get("security_id"),
+            "code":x.get("code"),
+        } for x in errors
+    ]}
     packet_id=canonical_hash(semantic)
     status=(
         "PASS_COMPLETE" if len(marks)==len(requests)
