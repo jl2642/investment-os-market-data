@@ -1,3 +1,21 @@
+# 2026-08-28 — P4-1 PRODUCTION BACKBONE CONTRACT FREEZE
+
+**Parent:** Program Amendment A1 / PR #338.
+
+**Decision:** freeze a main-based operational repair lane before implementation. The Strategy Kernel stacked chain must not be merged into main merely to repair production.
+
+**Authority design:** `main` remains Governance Canonical. A rebuildable `operating-current` surface may carry only QC-passed run pointers, watermarks and receipts under `operating_current/**`; inherited repository paths on that branch have no operating authority.
+
+**Initial domains:** A-share full market; portfolio marks; Candidate weekly observation; D2 research; bounded HK/US production.
+
+**Failure rule:** failed/stale/blocked runs never replace the current pointer. Low-risk pointer advancement does not require a daily main PR. Formal Candidate membership, Real economic state and protected Simulation economic state remain main-governed.
+
+**Forward-validation consequence:** Phase 4 effective execution hold remains active; observations=0 and outcomes=0.
+
+**Next:** a separate operational implementation PR based directly on protected main.
+
+---
+
 # 2026-08-28 — PROGRAM_AMENDMENT_A1 / PHASE4_PRODUCTION_CLOSURE_REALIGNMENT
 
 **Trigger:** system-wide production audit after Phase 4 v1 contract freeze and zero-observation census.
