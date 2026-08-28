@@ -10,6 +10,7 @@ on:
       - "tests/test_fmdl2b4_recovery_window.py"
       - "scripts/run_full_backfill_shard.py"
       - "scripts/run_incremental_history_refresh.py"
+      - "scripts/hydrate_fmdl_runtime_from_operating_current.py"
       - "scripts/finalize_b4_history_candidate.py"
       - "scripts/run_b4_factor_refresh.py"
       - "scripts/validate_fmdl2b4_candidate.py"
@@ -81,6 +82,12 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Hydrate prior history and factors from Operating Current LKG
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m scripts.hydrate_fmdl_runtime_from_operating_current
+
       - name: Require settled post-close market window
         run: |
           python - <<'PY'
