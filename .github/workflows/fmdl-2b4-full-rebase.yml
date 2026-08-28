@@ -277,13 +277,32 @@ jobs:
           fi
           git commit -m "FMDL-2B-4 stage governed multi-session recovery"
           git push origin "HEAD:$RESULT_BRANCH"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          WATERMARK="$(python - <<\'PY\'
+          import json
+          print(json.load(open(\'outputs/current/CURRENT_RELEASE.json\', encoding=\'utf-8\'))[\'as_of_date\'])
+          PY
+          )"
+          python automation/operating_current/publish_operating_current.py \\
+            --domain A_SHARE_FULL_MARKET \\
+            --status PASS \\
+            --source-workflow "FMDL 2B-4 Multi-Session Recovery" \\
+            --source-run-id "${{ github.run_id }}" \\
+            --source-run-attempt "${{ github.run_attempt }}" \\
+            --source-branch "$RESULT_BRANCH" \\
+            --source-commit "$SOURCE_COMMIT" \\
+            --watermark "$WATERMARK" \\
+            --watermark-sort-key "$WATERMARK" \\
+            --qc-status PASS \\
+            --advance-current
           {
             echo "### Governed recovery handoff"
             echo "- result_branch: \`$RESULT_BRANCH\`"
+            echo "- operating_current_domain: \`A_SHARE_FULL_MARKET\`"
+            echo "- operating_current_watermark: \`$WATERMARK\`"
             echo "- trigger: \`${{ github.event_name }}\`"
             echo "- direct_main_push: disabled"
             echo "- daily_incremental_gate_relaxed: false"
-            echo "- next_gate: independent review + PR promotion"
             echo "- trade_authority: NONE"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Record recovery boundary

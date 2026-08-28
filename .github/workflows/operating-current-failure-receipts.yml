@@ -1,0 +1,77 @@
+name: Operating Current Failure Receipts
+
+on:
+  workflow_run:
+    workflows:
+      - "FMDL Daily A-share Governed Production"
+      - "FMDL 2B-4 Multi-Session Recovery"
+      - "R2 WP2-R Market Marks Refresh"
+      - "WP3-R Weekly Candidate Price Screen"
+      - "Research Queue D2 Auto Consumer"
+      - "Round 3 HK and US Limited Production"
+    types: [completed]
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  record-failure:
+    if: github.event.workflow_run.conclusion != 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Map workflow to operating domain and write failure receipt
+        shell: bash
+        env:
+          SOURCE_WORKFLOW: ${{ github.event.workflow_run.name }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          SOURCE_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SOURCE_COMMIT: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          set -Eeuo pipefail
+          case "$SOURCE_WORKFLOW" in
+            "FMDL Daily A-share Governed Production"|"FMDL 2B-4 Multi-Session Recovery")
+              DOMAIN="A_SHARE_FULL_MARKET"
+              ;;
+            "R2 WP2-R Market Marks Refresh")
+              DOMAIN="PORTFOLIO_MARKS"
+              ;;
+            "WP3-R Weekly Candidate Price Screen")
+              DOMAIN="CANDIDATE_WEEKLY_OBSERVATION"
+              ;;
+            "Research Queue D2 Auto Consumer")
+              DOMAIN="RESEARCH_D2"
+              ;;
+            "Round 3 HK and US Limited Production")
+              DOMAIN="CROSS_MARKET_LIMITED"
+              ;;
+            *)
+              echo "UNMAPPED_WORKFLOW=$SOURCE_WORKFLOW" >&2
+              exit 2
+              ;;
+          esac
+          python automation/operating_current/publish_operating_current.py \
+            --domain "$DOMAIN" \
+            --status FAIL \
+            --source-workflow "$SOURCE_WORKFLOW" \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --source-run-attempt "$SOURCE_RUN_ATTEMPT" \
+            --source-branch "$SOURCE_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --qc-status "$SOURCE_CONCLUSION" \
+            --note "Workflow failed before a QC-passed Current pointer could advance"
+      - name: Summary
+        run: |
+          echo "Failure recorded on operating-current; existing Current pointer preserved." >> "$GITHUB_STEP_SUMMARY"
+          echo "orders=0; trade_authority=NONE" >> "$GITHUB_STEP_SUMMARY"

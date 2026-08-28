@@ -104,12 +104,53 @@ jobs:
         env:
           WP3R_PUBLISH_BRANCH: automation/research-queue-d2-current
           WP3R_BASE_BRANCH: main
+          SOURCE_BRANCH: automation/research-queue-d2-current
+        shell: bash
         run: |
+          set -Eeuo pipefail
+          BEFORE="$(git ls-remote --heads origin "refs/heads/$SOURCE_BRANCH" | awk '{print $1}')"
           bash automation/wp3_r/publish_current_safely.sh \
             "research: refresh D2 auto-consumer operating state" \
             investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json \
             investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json \
             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/
+          AFTER="$(git ls-remote --heads origin "refs/heads/$SOURCE_BRANCH" | awk '{print $1}')"
+          if [[ -z "$AFTER" ]]; then
+            AFTER="${{ github.sha }}"
+            SOURCE_BRANCH="main"
+          fi
+          WATERMARK="$(python - <<'PY'
+          import json
+          print(json.load(open('investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json', encoding='utf-8'))['as_of'])
+          PY
+          )"
+          if [[ "$AFTER" == "$BEFORE" ]]; then
+            python automation/operating_current/publish_operating_current.py \
+              --domain RESEARCH_D2 \
+              --status NO_OP \
+              --source-workflow "Research Queue D2 Auto Consumer" \
+              --source-run-id "${{ github.run_id }}" \
+              --source-run-attempt "${{ github.run_attempt }}" \
+              --source-branch "$SOURCE_BRANCH" \
+              --source-commit "$AFTER" \
+              --watermark "$WATERMARK" \
+              --watermark-sort-key "$WATERMARK" \
+              --qc-status PASS_REVALIDATED \
+              --note "No new D2 operating commit; Current preserved"
+          else
+            python automation/operating_current/publish_operating_current.py \
+              --domain RESEARCH_D2 \
+              --status PASS \
+              --source-workflow "Research Queue D2 Auto Consumer" \
+              --source-run-id "${{ github.run_id }}" \
+              --source-run-attempt "${{ github.run_attempt }}" \
+              --source-branch "$SOURCE_BRANCH" \
+              --source-commit "$AFTER" \
+              --watermark "$WATERMARK" \
+              --watermark-sort-key "$WATERMARK" \
+              --qc-status PASS \
+              --advance-current
+          fi
       - name: Record operating summary
         if: always()
         run: |
@@ -119,7 +160,8 @@ jobs:
           - Recovery cadence: weekdays 08:35 Asia/Shanghai.
           - Primary disclosure discovery: CNINFO via AkShare.
           - Semantic deep research remains fail-closed and is owned by the ChatGPT-native D2 research consumer.
-          - Publication is to a governed automation branch; Canonical promotion remains PR-gated.
+          - Publication remains on a governed automation branch and advances the low-risk Operating Current pointer after QC.
+          - Formal Candidate / Decision / economic-state promotion remains protected-main governed.
           - Candidate / Real / Simulation / Decision economic mutations: 0.
           - Orders: 0.
           - trade_authority: NONE.

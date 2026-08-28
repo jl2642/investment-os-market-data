@@ -1,0 +1,80 @@
+name: P4-1 Operating Current Backbone
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/operating_current/**"
+      - "investment_os_runtime/00_CONTROL/P4_1_OPERATING_CURRENT_CONTRACT.json"
+      - ".github/workflows/fmdl-daily-production.yml"
+      - ".github/workflows/fmdl-2b4-full-rebase.yml"
+      - ".github/workflows/wp2_r_market_marks_refresh.yml"
+      - ".github/workflows/wp3_r_weekly_screen.yml"
+      - ".github/workflows/research-queue-d2-auto-consumer.yml"
+      - ".github/workflows/round3-cross-market-limited-production.yml"
+      - ".github/workflows/operating-current-failure-receipts.yml"
+      - ".github/workflows/p4-1-operating-current-backbone.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install validation dependencies
+        run: python -m pip install --disable-pip-version-check pyyaml
+      - name: Compile publisher
+        run: python -m py_compile automation/operating_current/publish_operating_current.py automation/operating_current/validate_integration.py
+      - name: Run deterministic publisher tests
+        run: python -m unittest automation.operating_current.tests.test_publish_operating_current -v
+      - name: Validate integration contract
+        run: python automation/operating_current/validate_integration.py
+      - name: Parse modified workflow YAML
+        run: |
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          paths = [
+            '.github/workflows/fmdl-daily-production.yml',
+            '.github/workflows/fmdl-2b4-full-rebase.yml',
+            '.github/workflows/wp2_r_market_marks_refresh.yml',
+            '.github/workflows/wp3_r_weekly_screen.yml',
+            '.github/workflows/research-queue-d2-auto-consumer.yml',
+            '.github/workflows/round3-cross-market-limited-production.yml',
+            '.github/workflows/operating-current-failure-receipts.yml',
+            '.github/workflows/p4-1-operating-current-backbone.yml',
+          ]
+          for path in paths:
+              yaml.safe_load(Path(path).read_text(encoding='utf-8'))
+          print({'yaml_files': len(paths), 'status': 'PASS'})
+          PY
+      - name: Prove protected-main and economic boundaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          wp2 = Path('.github/workflows/wp2_r_market_marks_refresh.yml').read_text(encoding='utf-8')
+          assert 'gh pr create' not in wp2
+          assert 'promotion_pr:' not in wp2
+          all_text = '\n'.join(Path(p).read_text(encoding='utf-8') for p in [
+              '.github/workflows/fmdl-daily-production.yml',
+              '.github/workflows/fmdl-2b4-full-rebase.yml',
+              '.github/workflows/wp2_r_market_marks_refresh.yml',
+              '.github/workflows/wp3_r_weekly_screen.yml',
+              '.github/workflows/research-queue-d2-auto-consumer.yml',
+              '.github/workflows/round3-cross-market-limited-production.yml',
+          ])
+          assert 'trade_authority: NONE' in all_text
+          assert 'publish_operating_current.py' in all_text
+          print({'orders': 0, 'trade_authority': 'NONE', 'daily_main_promotion_pr': False})
+          PY

@@ -121,8 +121,14 @@ jobs:
               'investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_RESEARCH_PROPOSAL_CURRENT.json',
           }
           allowed_prefix = 'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/'
+          engineering_control_exact = {
+              'investment_os_runtime/00_CONTROL/P4_1_OPERATING_CURRENT_CONTRACT.json',
+          }
           changed = subprocess.check_output(['git', 'diff', '--name-only', 'origin/main...HEAD'], text=True).splitlines()
-          generated = [path for path in changed if path.startswith('investment_os_runtime/')]
+          generated = [
+              path for path in changed
+              if path.startswith('investment_os_runtime/') and path not in engineering_control_exact
+          ]
           forbidden = [path for path in generated if path not in allowed_exact and not path.startswith(allowed_prefix)]
           if forbidden:
               raise SystemExit('ROUND3_GENERATED_SCOPE_VIOLATION:' + ','.join(forbidden))
@@ -235,6 +241,20 @@ jobs:
           fi
           git commit -m "cross-market: stage bounded HK and US operating evidence"
           git push origin "HEAD:$RESULT_BRANCH"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          WATERMARK="${{ steps.market_date.outputs.as_of }}"
+          python automation/operating_current/publish_operating_current.py \
+            --domain CROSS_MARKET_LIMITED \
+            --status PASS \
+            --source-workflow "Round 3 HK and US Limited Production" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "${{ steps.operate.outputs.status }}" \
+            --advance-current
           {
             echo "## Round 3 governed handoff"
             echo "- result_branch: \`$RESULT_BRANCH\`"
@@ -247,7 +267,8 @@ jobs:
             echo "- US scope: seven-name daily benchmark plus bounded 64-name rotation and eight-issuer official SEC retrieval queue"
             echo "- Candidate / simulation / real account / decisions / orders: 0 / 0 / 0 / 0 / 0"
             echo "- trade_authority: NONE"
-            echo "- next gate: official SEC observer inbox, Draft PR, complete diff and lineage review"
+            echo "- operating_current_domain: CROSS_MARKET_LIMITED"
+            echo "- next gate: official SEC observer inbox; formal investment-state promotion remains separate"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Record no-op or observation state
         if: always()
@@ -357,6 +378,28 @@ jobs:
           fi
           git commit -m "cross-market: apply official SEC observer evidence"
           git push origin "HEAD:${{ github.ref_name }}"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          WATERMARK="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_RUN_CURRENT.json')
+          data=json.loads(p.read_text(encoding='utf-8'))
+          print(data.get('as_of') or data.get('as_of_date') or data.get('market_date') or data.get('data_watermark') or '')
+          PY
+          )"
+          test -n "$WATERMARK"
+          python automation/operating_current/publish_operating_current.py \
+            --domain CROSS_MARKET_LIMITED \
+            --status PASS \
+            --source-workflow "Round 3 SEC Observer Ingestion" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "${{ github.ref_name }}" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "${{ steps.apply.outputs.status }}" \
+            --advance-current
           {
             echo "## Round 3 SEC observer ingestion"
             echo "- branch: \`${{ github.ref_name }}\`"
@@ -368,5 +411,6 @@ jobs:
             echo "- operating_state: \`${{ steps.apply.outputs.operating_state }}\`"
             echo "- Candidate / simulation / real account / decisions / orders: 0 / 0 / 0 / 0 / 0"
             echo "- trade_authority: NONE"
-            echo "- next gate: governed Draft PR, full diff and lineage review"
+            echo "- operating_current_domain: CROSS_MARKET_LIMITED"
+            echo "- next gate: formal investment-state promotion remains separate"
           } >> "$GITHUB_STEP_SUMMARY"

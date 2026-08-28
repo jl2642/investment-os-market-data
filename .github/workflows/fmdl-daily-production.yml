@@ -236,12 +236,32 @@ jobs:
           fi
           git commit -m "data: stage governed A-share daily transaction"
           git push origin "HEAD:$RESULT_BRANCH"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          WATERMARK="$(python - <<\'PY\'
+          import json
+          print(json.load(open(\'outputs/current/CURRENT_RELEASE.json\', encoding=\'utf-8\'))[\'as_of_date\'])
+          PY
+          )"
+          python automation/operating_current/publish_operating_current.py \\
+            --domain A_SHARE_FULL_MARKET \\
+            --status PASS \\
+            --source-workflow "FMDL Daily A-share Governed Production" \\
+            --source-run-id "${{ github.run_id }}" \\
+            --source-run-attempt "${{ github.run_attempt }}" \\
+            --source-branch "$RESULT_BRANCH" \\
+            --source-commit "$SOURCE_COMMIT" \\
+            --watermark "$WATERMARK" \\
+            --watermark-sort-key "$WATERMARK" \\
+            --qc-status PASS \\
+            --advance-current
           {
             echo "### Governed publication handoff"
             echo "- result_branch: \`$RESULT_BRANCH\`"
+            echo "- operating_current_domain: \`A_SHARE_FULL_MARKET\`"
+            echo "- operating_current_watermark: \`$WATERMARK\`"
             echo "- transaction_scope: market Current + history + factors + screening"
             echo "- direct_main_push: disabled"
-            echo "- next_gate: Draft PR, CI, lineage review and Canonical promotion"
+            echo "- daily protected-main promotion PR: not required for low-risk operating data"
             echo "- orders: 0"
             echo "- trade_authority: NONE"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -254,7 +274,8 @@ jobs:
           ## FMDL Daily A-share Governed Production
           - One transaction builds market Current, incremental history, factors and screening.
           - Downstream screening consumes the same run's refreshed market and factor state.
-          - Scheduled publication is a unique governed run branch plus immutable artifact.
+          - Scheduled publication is a unique governed result branch plus immutable artifact and an Operating Current pointer.
+          - Low-risk operating data no longer require a daily protected-main promotion PR.
           - Protected main is never pushed directly.
           - Candidate membership, portfolio quantities, costs and orders are not mutated here.
           - trade_authority: NONE

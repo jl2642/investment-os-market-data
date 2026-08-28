@@ -27,7 +27,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 env:
   TRADE_AUTHORITY: NONE
@@ -227,11 +226,10 @@ jobs:
             investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json
             investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
 
-      - name: Publish scheduled result to governed run branch and PR
+      - name: Publish scheduled result to governed run branch and Operating Current
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
           RESULT_BRANCH: automation/wp2r-eod-${{ github.run_id }}-a${{ github.run_attempt }}
         run: |
           set -Eeuo pipefail
@@ -246,30 +244,37 @@ jobs:
             investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json \
             investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
           if ! git diff --cached --quiet; then
-            git commit -m "WP2-R stage validated EOD marks for governed promotion"
+            git commit -m "WP2-R stage validated EOD marks for operating publication"
           fi
           git push origin "HEAD:$RESULT_BRANCH"
-
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
           MARK_DATE="$(python - <<'PY'
           import json
           print(json.load(open('investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json', encoding='utf-8'))['data_watermark']['latest_mark_date'])
           PY
           )"
-          PR_URL="$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head "$RESULT_BRANCH" --state open --json url --jq '.[0].url // empty')"
-          if [[ -z "$PR_URL" ]]; then
-            PR_URL="$(gh pr create \
-              --repo "$GITHUB_REPOSITORY" \
-              --base main \
-              --head "$RESULT_BRANCH" \
-              --title "WP2-R: promote validated EOD marks ${MARK_DATE}" \
-              --body $'## Governed market-mark promotion\n\nValidated WP2-R Real/Simulation market marks and account summaries from the latest completed close.\n\n- user-confirmed economic deltas are preserved\n- market refresh adds zero economic mutations\n- no Candidate mutation\n- no order execution\n- trade_authority = NONE\n- protected main is updated only through this PR gate')"
-          fi
+          python automation/operating_current/publish_operating_current.py \
+            --domain PORTFOLIO_MARKS \
+            --status PASS \
+            --source-workflow "R2 WP2-R Market Marks Refresh" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$MARK_DATE" \
+            --watermark-sort-key "$MARK_DATE" \
+            --qc-status PASS_COMPLETE \
+            --advance-current
           {
             echo "### Governed publication handoff"
-            echo "- result_branch: \`$RESULT_BRANCH\`"
-            echo "- promotion_pr: $PR_URL"
+            echo "- result_branch: $RESULT_BRANCH"
+            echo "- operating_current_domain: PORTFOLIO_MARKS"
+            echo "- operating_current_watermark: $MARK_DATE"
+            echo "- protected-main daily promotion PR: disabled for market-only valuation refresh"
+            echo "- market-driven economic mutations: 0"
             echo "- direct_main_push: disabled"
-            echo "- next_gate: protected-main PR checks / authorized merge"
+            echo "- orders: 0"
+            echo "- trade_authority: NONE"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Record summary
@@ -283,7 +288,7 @@ jobs:
           - Market-only refresh preserves the post-user-delta economic identity
           - User-confirmed transaction deltas remain explicit and auditable
           - Scheduled results are stored as immutable artifacts and governed run branches
-          - Every scheduled governed result opens or reuses a protected-main promotion PR
+          - Scheduled market-only results publish to Operating Current without opening a daily protected-main promotion PR
           - Protected main is never pushed directly
           - Pending settlement receivables remain separate from execution cash
           - Broker verification remains separate and false
