@@ -147,12 +147,33 @@ def update_checkpoint(
     securities=cp["shared_packet"]["opportunity_security_ids"]
     endpoints=cp.setdefault("outcomes",{}).setdefault("endpoints",{})
     for sid in securities:
+        if not sid.upper().endswith((".SH",".SZ",".BJ")):
+            endpoints.setdefault(sid,{
+                "security_id":sid,
+                "status":"OUTCOME_PROVIDER_PENDING_UNSUPPORTED_MARKET",
+                "entry_date":None,
+                "entry_close":None,
+                "entry_provider":None,
+                "entry_bound_for_checkpoint_at":at,
+                "horizons":{},
+            })
+            continue
         raw=fetch_daily(sid,begin,end,0)
         qfq=fetch_daily(sid,begin,end,1)
         if entry_date not in raw:
-            raise RuntimeError(f"P45_ENTRY_CLOSE_MISSING:{sid}:{entry_date}")
+            endpoints.setdefault(sid,{
+                "security_id":sid,
+                "status":"ENTRY_CLOSE_UNRESOLVED",
+                "entry_date":entry_date,
+                "entry_close":None,
+                "entry_provider":PROVIDER,
+                "entry_bound_for_checkpoint_at":at,
+                "horizons":{},
+            })
+            continue
         row=endpoints.setdefault(sid,{
             "security_id":sid,
+            "status":"ENTRY_BOUND",
             "entry_date":entry_date,
             "entry_close":raw[entry_date],
             "entry_provider":PROVIDER,
@@ -214,7 +235,13 @@ def update_checkpoint(
     h5_all=bool(securities) and all("H5" in endpoints.get(sid,{}).get("horizons",{}) for sid in securities)
     cp["outcome_schedule_status"]="H5_MATURE_ALL_ENDPOINTS" if h5_all else "PARTIALLY_MATURE_OR_WAITING"
     cp["economically_mature"]=h5_all
-    cp["entry_binding_complete"]=all(sid in endpoints for sid in securities)
+    cp["entry_binding_complete"]=all(
+        endpoints.get(sid,{}).get("entry_close") is not None for sid in securities
+    )
+    cp["outcome_provider_pending_security_ids"]=sorted(
+        sid for sid in securities
+        if endpoints.get(sid,{}).get("status")=="OUTCOME_PROVIDER_PENDING_UNSUPPORTED_MARKET"
+    )
     cp["last_outcome_refresh_at_utc"]=now.astimezone(UTC).replace(microsecond=0).isoformat()
     cp["outcome_read_count"]=sum(
         len(row.get("horizons",{})) for row in endpoints.values()
