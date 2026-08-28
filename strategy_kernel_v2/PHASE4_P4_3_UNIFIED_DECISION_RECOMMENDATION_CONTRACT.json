@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "PHASE4_P4_3_UNIFIED_DECISION_RECOMMENDATION_CONTRACT",
+  "as_of": "2026-08-28",
+  "status": "FROZEN_PRE_IMPLEMENTATION",
+  "parent": {
+    "amendment_pr": 338,
+    "p4_2_contract_pr": 342,
+    "p4_2_operational_pr": 343,
+    "p4_2_operational_merge": "ac14ffe817c439a4d3475b69053fb0d2f8ea655a",
+    "p4_integration_hotfix_pr": 344,
+    "p4_integration_hotfix_merge": "42947bc61978ad0e0ab8e6acca1ac4df7ab8e7f6",
+    "p4_2_operating_current_head": "3098d8666556c00d87af5fee206455c5aa12cd9a",
+    "p4_2_cycle_fingerprints": [
+      "0dd21abad64c735fc5a07a74529edbe9abe3be70ce19784f763df3ad978456f6",
+      "888ed5006df10a31f448fc4b0736ec76f6b4087728aae6f0576ba9bc8d44727f"
+    ],
+    "p4_2_status": "COMPLETE_ACCEPTED",
+    "phase4_effective_forward_execution_hold": true
+  },
+  "objective": "Convert governed completed research and portfolio-context evidence into one explicit, cross-market, auditable Recommendation Current without creating a new ranking model, relaxing research standards, treating historical decision files as live authority, or mutating protected economic state.",
+  "pre_implementation_audit": {
+    "finding": "DECISION_CAPABILITY_EXISTS_BUT_IS_FRAGMENTED_STALE_AND_NOT_UNIFIED_UNDER_ONE_CURRENT_AUTHORITY",
+    "existing_surfaces": {
+      "wp4_decision_interface": {
+        "path": "investment_os_runtime/30_STATE_CURRENT/50_DECISION_INTERFACE/WP4_DECISION_INTERFACE_CURRENT.json",
+        "as_of": "2026-07-26",
+        "ready_for_user_decision_count": 0,
+        "treatment": "HISTORICAL_CONTEXT_NOT_CURRENT_RECOMMENDATION_AUTHORITY"
+      },
+      "decision_proposals": {
+        "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/DECISION_PROPOSALS_CURRENT.json",
+        "as_of": "2026-07-20_CLOSE",
+        "status": "HISTORICAL_LKG_NOT_ACTIONABLE",
+        "open_proposals": 0,
+        "treatment": "HISTORICAL_LKG_ONLY"
+      },
+      "r2_portfolio_construction": {
+        "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+        "as_of": "2026-07-27",
+        "treatment": "PORTFOLIO_CONTEXT_EVIDENCE_NOT_RECOMMENDATION_AUTHORITY"
+      },
+      "r3_position_action_matrix": {
+        "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R3_POSITION_ACTION_MATRIX_CURRENT.json",
+        "as_of": "2026-07-27",
+        "status": "R3_DEVELOPMENT_PRODUCT_COMPLETE_NO_OPERATING_ACTIVATION",
+        "ready_for_user_decision_count": 0,
+        "treatment": "DEVELOPMENT_SCENARIO_LIBRARY_ONLY"
+      },
+      "wp5_portfolio_decision": {
+        "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json",
+        "status": "CONDITIONAL_PORTFOLIO_REVIEW_NOT_IMPLEMENTATION_READY",
+        "treatment": "CONTEXT_ONLY_UNLESS_SOURCE_REQUIREMENTS_ARE_CURRENTLY_REVALIDATED"
+      }
+    },
+    "current_d2_snapshot": {
+      "source_commit": "a564a63dfbe7c68862bed6a7e13ec4b9047c2748",
+      "watermark": "2026-08-28T04:29:05+00:00",
+      "research_complete_count": 2,
+      "research_hold_evidence_gap_count": 1,
+      "examples": [
+        {
+          "security_id": "000719.SZ",
+          "research_disposition": "HOLD_RESEARCH_COMPLETE_NO_DECISION"
+        },
+        {
+          "security_id": "002039.SZ",
+          "research_disposition": "HOLD_RESEARCH_COMPLETE_NO_DECISION"
+        },
+        {
+          "security_id": "301215.SZ",
+          "research_disposition": "HOLD_NOT_DECISION_GRADE"
+        }
+      ]
+    }
+  },
+  "existing_capability_reuse": {
+    "opportunity_funnel": "operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json",
+    "near_miss_ledger": "operating-current:operating_current/opportunity_funnel/OPPORTUNITY_NEAR_MISS_CURRENT.json",
+    "d2_current": "automation/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json",
+    "underwriting_sources": "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/",
+    "candidate_context": "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json",
+    "portfolio_context_roots": [
+      "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/",
+      "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/"
+    ],
+    "legacy_decision_context_roots": [
+      "investment_os_runtime/30_STATE_CURRENT/50_DECISION_INTERFACE/",
+      "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/"
+    ],
+    "strategy_kernel_model_identity": "EVIDENCE_NATIVE_APPLICABILITY_AWARE_PARETO_R2",
+    "strategy_kernel_model_version": "R2.0.1_RESEARCH",
+    "new_ranking_model_authorized": false,
+    "legacy_recommendation_reactivation_without_revalidation_authorized": false
+  },
+  "recommendation_state_taxonomy": {
+    "opportunity_states": [
+      "BUY_NOW",
+      "BUY_ON_PRICE",
+      "BUY_ON_EVIDENCE",
+      "WATCH_HIGH_PRIORITY",
+      "WATCH_NORMAL",
+      "AVOID"
+    ],
+    "existing_position_states": [
+      "ADD",
+      "HOLD",
+      "TRIM_REVIEW",
+      "EXIT_REVIEW"
+    ],
+    "states_are_research_judgments_not_orders": true,
+    "state_must_be_traceable_to_explicit_gates": true
+  },
+  "required_record_fields": [
+    "security_id",
+    "security_name",
+    "market",
+    "subject_type",
+    "recommendation_state",
+    "judgment_basis",
+    "research_status",
+    "evidence_status",
+    "valuation_status",
+    "portfolio_fit_status",
+    "capital_comparison_status",
+    "triggers",
+    "invalidation_conditions",
+    "portfolio_role",
+    "source_bindings",
+    "source_watermarks",
+    "ready_for_user_decision",
+    "orders",
+    "trade_authority"
+  ],
+  "routing_semantics": {
+    "buy_now_requires_all": [
+      "D2_OR_EQUIVALENT_RESEARCH_COMPLETE",
+      "NO_MATERIAL_EVIDENCE_GAP",
+      "NO_REJECTION_OR_INVALIDATION_TRIGGER_ACTIVE",
+      "EXPLICIT_CURRENT_VALUATION_OR_ENTRY_BASIS",
+      "ENTRY_TRIGGER_SATISFIED",
+      "CURRENT_PORTFOLIO_FIT_ACCEPTABLE",
+      "CAPITAL_COMPARISON_AVAILABLE_OR_EXPLICITLY_NOT_REQUIRED_WITH_REASON"
+    ],
+    "buy_on_price_requires": [
+      "RESEARCH_COMPLETE",
+      "POSITIVE_CASE_NOT_INVALIDATED",
+      "ONLY_MATERIAL_ENTRY_BLOCKER_IS_EXPLICIT_PRICE_OR_VALUATION_TRIGGER"
+    ],
+    "buy_on_evidence_requires": [
+      "POSITIVE_CASE_NOT_INVALIDATED",
+      "BOUNDED_EXPLICIT_EVIDENCE_TRIGGER_IS_THE_ONLY_MATERIAL_DECISION_BLOCKER",
+      "NO_HIDDEN_SCORE_OR_SUBJECTIVE_FILL"
+    ],
+    "watch_high_priority_when_any": [
+      "D2_EVIDENCE_GAP_WITH_EXPLICIT_NEXT_TRIGGER",
+      "MATERIAL_RESEARCH_BLOCKER_EXPECTED_TO_RESOLVE_ON_IDENTIFIABLE_EVENT",
+      "RESEARCH_COMPLETE_BUT_REQUIRES_NEAR_TERM_REVALIDATION"
+    ],
+    "watch_normal_when_any": [
+      "RESEARCH_COMPLETE_NO_DECISION_PROMOTION",
+      "NO_CURRENT_BUY_CASE_DESPITE_COMPLETED_RESEARCH",
+      "MONITOR_ONLY_WITH_EXPLICIT_TRIGGER"
+    ],
+    "avoid_when_any": [
+      "FIRST_REJECTION_TEST_TRIGGERED",
+      "THESIS_INVALIDATION_TRIGGERED",
+      "EXPLICIT_ECONOMIC_OR_GOVERNANCE_REJECTION"
+    ],
+    "add_requires": [
+      "CURRENT_VERIFIED_EXISTING_POSITION",
+      "BUY_NOW_EQUIVALENT_EVIDENCE_AND_ENTRY_GATES",
+      "POSITION_LEVEL_PORTFOLIO_FIT_SUPPORTS_INCREMENTAL_CAPITAL"
+    ],
+    "hold_requires": [
+      "CURRENT_VERIFIED_EXISTING_POSITION",
+      "NO_ADD_GATE_SATISFIED",
+      "NO_TRIM_OR_EXIT_REVIEW_TRIGGER_ACTIVE"
+    ],
+    "trim_review_requires": [
+      "CURRENT_VERIFIED_EXISTING_POSITION",
+      "EXPLICIT_VALUATION_CONCENTRATION_RISK_OR_PORTFOLIO_ROLE_REVIEW_TRIGGER"
+    ],
+    "exit_review_requires": [
+      "CURRENT_VERIFIED_EXISTING_POSITION",
+      "EXPLICIT_THESIS_INVALIDATION_OR_REJECTION_TRIGGER"
+    ],
+    "d2_research_complete_alone_may_trigger_buy": false,
+    "stale_historical_decision_label_may_trigger_current_recommendation": false,
+    "missing_required_input_may_be_silently_filled": false
+  },
+  "cross_market_semantics": {
+    "supported_market_labels": [
+      "A_SHARE",
+      "H_SHARE",
+      "US_SHARE"
+    ],
+    "recommendation_schema_identical_across_markets": true,
+    "market_specific_source_watermarks_preserved": true,
+    "unsupported_or_missing_market_research_must_be_explicit": true,
+    "cross_market_scalar_ranking_required": false,
+    "cross_market_scalar_ranking_allowed": false
+  },
+  "recommendation_score_policy": {
+    "global_scalar_recommendation_score_forbidden": true,
+    "dimension_weights_forbidden": true,
+    "outcome_tuned_thresholds_forbidden": true,
+    "historical_realized_outcomes_may_influence_current_recommendation": false,
+    "r2_exact_signature_pareto_semantics_may_not_be_rewritten": true
+  },
+  "operating_surface": {
+    "branch": "operating-current",
+    "current_path": "operating_current/recommendations/RECOMMENDATION_CURRENT.json",
+    "explanation_path": "operating_current/recommendations/RECOMMENDATION_EXPLAIN_CURRENT.json",
+    "cycle_receipt_root": "operating_current/recommendations/cycles/",
+    "operating_domain": "RECOMMENDATION",
+    "protected_economic_authority": false
+  },
+  "freshness_semantics": {
+    "source_specific_watermarks_required": true,
+    "recommendation_fingerprint_must_bind_source_identities_and_watermarks": true,
+    "synthetic_single_as_of_forbidden": true,
+    "same_source_fingerprint_must_not_advance_current": true,
+    "stale_portfolio_context_must_block_position_action_escalation": true,
+    "stale_legacy_decision_artifact_must_not_become_current_by_age_reset": true
+  },
+  "acceptance_gate": {
+    "all_current_research_complete_d2_assets_have_explicit_recommendation_state": true,
+    "evidence_gap_d2_assets_have_explicit_non_buy_state_and_trigger": true,
+    "every_buy_now_or_add_record_satisfies_all_mandatory_gates": true,
+    "every_state_has_trigger_or_invalidation_context": true,
+    "deterministic_rebuild_same_inputs_same_semantics": true,
+    "same_source_fingerprint_no_current_advance": true,
+    "no_stale_legacy_action_reactivated_without_revalidation": true,
+    "a_h_us_schema_support_present": true,
+    "protected_economic_state_unchanged": true,
+    "minimum_live_operating_cycles": 1,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "non_goals": [
+    "NO_NEW_SCREENING_OR_RESEARCH_SCORE",
+    "NO_NEW_SCALAR_INVESTMENT_RANK",
+    "NO_R2_MODEL_OR_THRESHOLD_CHANGE",
+    "NO_AUTOMATIC_FORMAL_CANDIDATE_MEMBERSHIP_MUTATION",
+    "NO_TARGET_PORTFOLIO_WRITEBACK",
+    "NO_REAL_ACCOUNT_MUTATION",
+    "NO_PROTECTED_SIMULATION_MUTATION",
+    "NO_ORDER_GENERATION",
+    "NO_AUTONOMOUS_SHADOW_BOOK_YET",
+    "NO_PHASE4_FORWARD_OBSERVATION_OR_REALIZED_OUTCOME_READ",
+    "NO_REACTIVATION_OF_STALE_WP4_R3_WP5_ACTIONS_AS_CURRENT_AUTHORITY"
+  ],
+  "protected_state": {
+    "effective_core_static_changes": 0,
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "user_decisions_generated": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "implementation_lane": {
+    "main_based_operational_pr_required": true,
+    "must_not_merge_strategy_kernel_stacked_chain_into_main": true,
+    "expected_transaction_count_after_contract": 1,
+    "next_after_acceptance": "P4_4_TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK"
+  }
+}

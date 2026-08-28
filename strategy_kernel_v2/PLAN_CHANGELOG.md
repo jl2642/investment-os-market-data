@@ -554,3 +554,14 @@ No forward observation or realized outcome has yet been loaded. Phase 4 executio
 **Acceptance:** at least two distinct source-fingerprint funnel cycles, deterministic rebuild semantics, every zero-output stage explained, near-miss ledger present, stale/blocked source visibility preserved. `orders=0`, `trade_authority=NONE`.
 
 **Next:** one main-based P4-2 operational implementation PR. Phase 4 forward observation hold remains active.
+
+## 2026-08-28 — P4-2 acceptance / P4-3 unified recommendation contract freeze
+
+**P4-2 acceptance evidence:** the main-based Continuous Opportunity Funnel implementation (PR #343) and append-only Operating Current integration hotfix (PR #344) are on protected main. Two distinct live funnel cycles were published and remotely read back from `operating-current`: `0dd21abad64c735fc5a07a74529edbe9abe3be70ce19784f763df3ad978456f6` and `888ed5006df10a31f448fc4b0736ec76f6b4087728aae6f0576ba9bc8d44727f`. The second cycle bound the genuinely advanced D2 source commit `a564a63dfbe7c68862bed6a7e13ec4b9047c2748`. Candidate / Real / protected Simulation mutations remained 0 / 0 / 0; orders=0; trade_authority=NONE. P4-2 is therefore `COMPLETE_ACCEPTED`.
+
+**P4-3 audit finding:** decision capability already exists across WP4, legacy Decision Proposals, R2 portfolio construction, R3 position/action products and WP5 review products, but these surfaces are stale, fragmented and do not constitute one Current recommendation authority. D2 currently contains two research-complete/no-decision-promotion assets and one evidence-gap asset, proving that research completion cannot itself imply BUY.
+
+**P4-3 frozen design:** create one cross-market Recommendation Current as a deterministic decision router, not a fourth ranking model. The router may emit BUY_NOW / BUY_ON_PRICE / BUY_ON_EVIDENCE / WATCH_HIGH_PRIORITY / WATCH_NORMAL / AVOID, plus ADD / HOLD / TRIM_REVIEW / EXIT_REVIEW for currently verified positions. BUY_NOW and ADD require explicit completion of research, evidence, valuation/entry, portfolio-fit and capital-comparison gates. Historical WP4/R3/WP5 labels may be used only as context unless revalidated from current sources. No new scalar score, R2 change, Candidate automation, protected portfolio mutation, order generation, autonomous shadow book or forward-outcome read is authorized.
+
+**Next governed work:** one main-based P4-3 operational implementation only. Forward observation execution remains held until P4-4 completion and P4-5 clean rebaseline.
+
