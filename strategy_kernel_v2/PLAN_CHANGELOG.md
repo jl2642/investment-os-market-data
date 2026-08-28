@@ -1,3 +1,25 @@
+# 2026-08-28 — PROGRAM_AMENDMENT_A1 / PHASE4_PRODUCTION_CLOSURE_REALIGNMENT
+
+**Trigger:** system-wide production audit after Phase 4 v1 contract freeze and zero-observation census.
+
+**Observed defect:** protected `main` and several Canonical operating surfaces are not advancing with the actual public-data/research cadence; full-market/Candidate/Decision continuity and R6 operating activation are incomplete. A protected-main-only forward selector can therefore starve even while non-canonical operating PRs/evidence exist.
+
+**Why amendment is allowed now:** Phase 4 v1 counted 0 observations and read 0 realized outcomes. No observed forward performance is used to revise the model, thresholds or selection logic.
+
+**Decision:** retain #333 and #337 as immutable audit records, activate a higher-level effective forward-execution hold, and require production closure plus a clean rebaseline before any Phase 4 forward observation may count.
+
+**Macro impact:** none. Phase 0→5 lifecycle unchanged; Phase 0–3 remain complete; Phase 5 remains unauthorized.
+
+**Phase 4 internal plan:** P4-0 Reconciliation → P4-1 Production Backbone Repair → P4-2 Continuous Opportunity Funnel → P4-3 Unified Decision & Recommendation Engine → P4-4 Trigger Monitor & Autonomous Shadow Book → P4-5 Clean-Baseline Forward Validation.
+
+**Model impact:** none. R2.0.1, 20 transforms, exact-signature Pareto, 1/3/5 horizons, aggregation schemes and frozen directional gate remain unchanged.
+
+**Economic/authority impact:** none in P4-0. Formal Candidate, protected Simulation, Real account, target portfolio and orders are unchanged; `orders=0`; `trade_authority=NONE`.
+
+**Next governed work:** `P4-1_PRODUCTION_BACKBONE_REPAIR` only after P4-0 remote acceptance.
+
+---
+
 # Strategy Kernel v2 — Plan Changelog
 
 ## 2026-08-26 — Phase 1C plan synchronization
