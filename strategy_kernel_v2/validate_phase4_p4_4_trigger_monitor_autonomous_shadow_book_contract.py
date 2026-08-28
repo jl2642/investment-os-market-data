@@ -89,9 +89,25 @@ def validate():
 
     if a["effective_execution_control"].get("effective_forward_observation_start_allowed"): e.append("P44_A1_OPEN")
     if s.get("phase4_p4_3_complete") is not True: e.append("P44_STATE_P43")
-    if s.get("phase4_reconciliation_current_stage")!="P4_4_TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK": e.append("P44_STAGE")
+    stage=s.get("phase4_reconciliation_current_stage")
+    if stage not in {
+        "P4_4_TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK",
+        "P4_5_CLEAN_BASELINE_FORWARD_PARALLEL_SHADOW_VALIDATION",
+    }:
+        e.append("P44_STAGE")
     if s.get("phase4_p4_4_contract_frozen") is not True: e.append("P44_CONTRACT")
-    if s.get("phase4_p4_4_implementation_started") is not False or s.get("phase4_p4_4_complete") is not False: e.append("P44_IMPL")
+    if stage=="P4_4_TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK":
+        if s.get("phase4_p4_4_implementation_started") is not False or s.get("phase4_p4_4_complete") is not False:
+            e.append("P44_IMPL")
+    else:
+        if s.get("phase4_p4_4_contract_status")!="COMPLETE_ACCEPTED":
+            e.append("P44_ACCEPTANCE")
+        if s.get("phase4_p4_4_implementation_started") is not True:
+            e.append("P44_IMPL_NOT_STARTED")
+        if s.get("phase4_p4_4_complete") is not True:
+            e.append("P44_NOT_COMPLETE_BEFORE_P45")
+        if not s.get("phase4_p4_4_source_fingerprint"):
+            e.append("P44_SOURCE_FINGERPRINT_MISSING")
     if s.get("phase4_forward_observation_count")!=0 or s.get("phase4_realized_outcome_read_count")!=0: e.append("P44_FORWARD_EVIDENCE")
 
     for k,v in c.get("protected_state",{}).items():

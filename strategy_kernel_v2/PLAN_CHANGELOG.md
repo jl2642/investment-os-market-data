@@ -579,3 +579,37 @@ No forward observation or realized outcome has yet been loaded. Phase 4 executio
 
 **Next governed work:** exactly one main-based P4-4 operational implementation. Phase 5 remains unauthorized.
 
+## 2026-08-28 — P4-4 acceptance / P4-5 clean-baseline forward-validation contract freeze
+
+**P4-4 acceptance evidence:** contract PR #347 completed exact-head 34/34 SUCCESS. Main-based operational PR #348 merged to protected main at `cd9b354410a60dc6d54267c1a58b06a1e6ba8e28`. Production run `33143894675` completed validate / operate / bounded mark acquisition / atomic publish / remote readback with SUCCESS. Operating Current head became `e3ba558d4d02c6ea9f61a1977e37c3b403cb9157`. Trigger Monitor and Shadow Book source fingerprint is `b2b0e235cf47552407b2c938d8cf0d4e0105addc6b7e9e49a85b4f2961563b48`. Current live state is 3 subjects / 7 recommendation triggers / 6 invalidation clauses / 0 shadow action events / 0 open shadow positions; protected Candidate / Real / Simulation mutations remain 0 / 0 / 0; orders=0; trade_authority=NONE. P4-4 is `COMPLETE_ACCEPTED`.
+
+**P4-5 purpose:** preserve the immutable PR #333 forward protocol, but replace its now-superseded 2026-08-27 cutoff with one new clean cutoff created only after P4-0 through P4-4 production closure. PR #333 remains immutable audit evidence; it contributed 0 effective forward observations and read 0 realized outcomes before Program Amendment A1.
+
+**Baseline rule:** the new cutoff is not guessed or backdated in the contract. It is materialized only by the first accepted main-based P4-5 baseline publication, using that Operating Current baseline receipt's exact `published_at_utc`. Everything available at or before the accepted cutoff remains permanently ineligible for P4-5 forward evidence.
+
+**Forward selector:** census every distinct post-cutoff governed `RESEARCH_D2` source commit that is substantively different from the baseline/previous counted D2 semantic state. Mere reruns or timestamp-only changes do not create observations. Every referenced D2 semantic artifact must resolve at the exact D2 source commit. Recommendation / Trigger / Shadow Current are bound as same-time operating context but may not select/drop checkpoints and are not new R2 feature inputs.
+
+**Parallel runner binding:** the same exact D2 evidence packet feeds both runners. Existing historical feature extraction semantics are reused: contemporaneous `research_disposition` supplies Legacy Policy Baseline context, while existing R2-supported D2 fields (`source_count`, `first_rejection_test`, plus any already-supported contemporaneous fields in the same packet) feed frozen R2.0.1. No new feature mapping, model-specific evidence fetch, scalar score, dimension weights, cross-signature dominance or outcome-driven tuning is authorized.
+
+**Measurement/gates preserved from #333:** fixed 1/3/5 exchange-session horizons; EQUAL_EDGE / EQUAL_CHECKPOINT / EQUAL_SIGNATURE summaries; minimum 12 mature cycles, 6 UTC dates, 4 ISO weeks, 4 evidence regimes, 6 securities, 48 R2 profiles, 24 distinct dominance edges, 2 comparison signatures and 6 edges per observed signature; directional floor concordance >= 0.5 and mean edge spread >= 0 for every horizon and aggregation; security/signature jackknife requirements remain unchanged.
+
+**Current source-health boundary:** the clean baseline may record stale/missing domains but they cannot contribute forward evidence unless the counted checkpoint itself satisfies the required source-integrity/freshness conditions. This preserves P4-1 fail-closed semantics and does not manufacture global freshness.
+
+**Execution discipline:** exactly one main-based operational implementation may freeze the baseline and install the forward collector. Baseline acceptance can happen now; P4-5 completion cannot. The minimum four distinct ISO weeks plus genuinely future 1/3/5-session endpoints must occur naturally after cutoff. Phase 5 remains unauthorized.
+
+## 2026-08-28 — P4-5 pre-cutoff structural-feasibility correction: D2-only selector rejected
+
+**Trigger:** implementation-readiness audit performed after the first P4-5 contract candidate passed static validation but before any clean cutoff, forward observation or realized outcome existed.
+
+**Finding:** a D2-only shared packet reuses the frozen R2 mappings correctly but structurally supplies primarily the same `EVIDENCE_SOURCE_COUNT + DOWNSIDE_REJECTION_GATE_CLEAR` exact signature. Keeping the unchanged PR #333 requirements of at least two comparison signatures and four evidence regimes while restricting forward evidence to D2-only would therefore make the validation design structurally underpowered or impossible for reasons unrelated to model quality.
+
+**Correction:** no threshold is relaxed and no future result is read. The selector is restored to the original Phase-4 scientific intent: census every substantive post-cutoff event across a frozen registered set of evidence families already supported by the existing historical feature extractor. Registered families are `RESEARCH_D2`, `CANDIDATE_STATE`, `REAL_ACCOUNT_STATE`, `RESEARCH_CORE2`, `RESEARCH_601138_P0` and `DECISION_00669_BUY_REVIEW`. Each event uses exact commit/path/blob provenance and constructs one shared packet from only registered source versions genuinely available after the new cutoff by that event time.
+
+**R2 boundary:** only existing frozen mappings may be used. No new transform, proxy, mapping, dimension, weight, score, threshold or model identity is created. Recommendation / Trigger / Shadow remain audit context only and cannot select/drop checkpoints or become R2 features.
+
+**Evidence-regime freeze:** regime identity is deterministically bound to contributing registered-family IDs, the exact R2 signature set and the model-neutral missingness pattern. Realized outcomes and recommendation results cannot influence regime assignment.
+
+**Why correction is valid:** effective P4-5 cutoff remains unset; forward observations=0; realized outcome reads=0. This is a pre-result feasibility correction, not post-result tuning.
+
+**Implementation consequence:** the partially started unmerged main operational branch is not authoritative and must be revised to implement the registered multi-family event census before any P4-5 baseline is published.
+
