@@ -1,3 +1,43 @@
+# CURRENT EXECUTION OVERRIDE — PROGRAM_AMENDMENT_A1 / P4-0
+
+## Current gate
+
+P4-v1 (#333 contract; #337 zero census) is retained as immutable pre-amendment evidence. Effective forward observation execution is **HELD** because the operating production chain is not yet a reliable source of future decision evidence. Observations consumed before this hold: **0**. Realized outcomes read: **0**.
+
+## Frozen Phase 4 work sequence
+
+### P4-0 — Program Reconciliation & Production Architecture Amendment Freeze
+Deliverables: Amendment A1, synchronized controlled artifacts, production-authority design target, explicit v1 supersession-before-observation record, and zero-mutation proof.
+
+Exit Gate: Amendment validator PASS; controlled artifacts synchronized; R2 identity/measurement semantics unchanged; effective forward-execution hold active; protected mutations=0. Next = **P4-1**.
+
+### P4-1 — Production Backbone Repair
+Repair operating-state promotion, full-market continuity, cross-market/current watermarks, recovery and one centralized run ledger. This phase may change operating infrastructure but may not change R2 model semantics or protected economic state.
+
+Exit Gate: operating data Current is fresh/recoverable; no uncontrolled READY-PR accumulation for low-risk operating evidence; A/H/US watermarks and failures are observable; clean recovery test PASS.
+
+### P4-2 — Continuous Opportunity Funnel
+Run Market → Screening → Longlist → Research Queue → D1 → D2 continuously. Bounded Research Queue rotation may be automated as research state; formal Candidate membership remains governed.
+
+Exit Gate: multiple consecutive cycles show measurable funnel throughput and near-miss reasons; RESEARCH_COMPLETE no longer dead-ends without an explicit decision-review route.
+
+### P4-3 — Unified Decision & Recommendation Engine
+Create cross-market judgments such as BUY_NOW, BUY_ON_PRICE, BUY_ON_EVIDENCE, WATCH_HIGH_PRIORITY, WATCH_NORMAL, HOLD, ADD, TRIM_REVIEW, EXIT_REVIEW and AVOID, with evidence/valuation/trigger/invalidation context. Recommendations are research outputs, not orders or implicit user approvals.
+
+Exit Gate: A/H/US supported candidates can flow from completed research to a unified Recommendation Current; zero live orders and zero protected portfolio mutation.
+
+### P4-4 — Trigger Monitor & Autonomous Shadow Book
+Monitor price/fundamental/event triggers and record hypothetical recommendation-driven shadow actions in a **separate research-only book**. It may not mutate protected Simulation Current or Real Current.
+
+Exit Gate: recommendation timestamps, hypothetical entries/exits, benchmark context and attribution lineage are reproducible; protected state unchanged.
+
+### P4-5 — Clean-Baseline Forward Parallel Shadow Validation
+After P4-1 through P4-4 acceptance, freeze a new clean baseline and strictly-future cutoff, then execute Legacy vs R2.0.1 on the same forward packets. Preserve #333 measurement semantics: 1/3/5 sessions; EQUAL_EDGE/EQUAL_CHECKPOINT/EQUAL_SIGNATURE; concordance ≥50%; mean edge spread ≥0; signature/security robustness gates.
+
+Exit Gate: only the preregistered Phase 4 outcomes may be returned. A PASS authorizes a separate Phase 5 proposal only. `PROMOTE_TO_PHASE_5` is forbidden from Phase 3 and is never automatic from Phase 4.
+
+---
+
 # Strategy Kernel v2 — Phase Execution Plan
 
 ## Program hierarchy
