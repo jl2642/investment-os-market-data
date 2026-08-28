@@ -1,0 +1,41 @@
+name: Strategy Kernel Phase 4 P4-5 Clean Baseline Forward Contract
+
+on:
+  pull_request:
+    paths:
+      - "strategy_kernel_v2/PHASE4_P4_5_CLEAN_BASELINE_FORWARD_VALIDATION_CONTRACT.json"
+      - "strategy_kernel_v2/PROGRAM_STATE.json"
+      - "strategy_kernel_v2/CURRENT_PHASE_STATUS.json"
+      - "strategy_kernel_v2/PLAN_CHANGELOG.md"
+      - "strategy_kernel_v2/validate_phase4_p4_4_trigger_monitor_autonomous_shadow_book_contract.py"
+      - "strategy_kernel_v2/validate_phase4_p4_5_clean_baseline_forward_validation_contract.py"
+      - "strategy_kernel_v2/validate_program_amendment_a1.py"
+      - "strategy_kernel_v2/tests/test_phase4_p4_5_clean_baseline_forward_validation_contract.py"
+      - ".github/workflows/strategy-kernel-phase4-p4-5-clean-baseline-forward-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Compile
+        run: |
+          python -m py_compile             strategy_kernel_v2/validate_phase4_p4_4_trigger_monitor_autonomous_shadow_book_contract.py             strategy_kernel_v2/validate_phase4_p4_5_clean_baseline_forward_validation_contract.py             strategy_kernel_v2/validate_program_amendment_a1.py
+      - name: P4-4 accepted dependency
+        run: python strategy_kernel_v2/validate_phase4_p4_4_trigger_monitor_autonomous_shadow_book_contract.py
+      - name: P4-5 contract test
+        run: python -m unittest strategy_kernel_v2.tests.test_phase4_p4_5_clean_baseline_forward_validation_contract -v
+      - name: P4-5 contract validator
+        run: python strategy_kernel_v2/validate_phase4_p4_5_clean_baseline_forward_validation_contract.py
+      - name: Program Amendment A1 remains fail-closed before baseline
+        run: python strategy_kernel_v2/validate_program_amendment_a1.py
