@@ -53,7 +53,7 @@ jobs:
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
       - name: Validate recovery contract and existing FMDL regression suite
         run: |
-          python -m py_compile scripts/build_fmdl2b4_full_rebase_candidate.py scripts/validate_fmdl2b4_freshness.py
+          python -m py_compile scripts/build_fmdl2b4_full_rebase_candidate.py scripts/validate_fmdl2b4_freshness.py scripts/hydrate_fmdl_runtime_from_operating_current.py
           pytest -q \
             tests/test_fmdl2b4_full_rebase.py \
             tests/test_fmdl2b4_recovery_window.py \
