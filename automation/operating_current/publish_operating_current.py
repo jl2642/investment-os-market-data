@@ -239,6 +239,10 @@ def write_attempt(args: argparse.Namespace) -> tuple[dict[str, Any], bool, str]:
 def publish(args: argparse.Namespace) -> dict[str, Any]:
     validate_args(args)
     verify_source_remote(args)
+    # Metadata has already been captured in args. Discard unrelated generated
+    # worktree changes before switching to the rebuildable operating branch.
+    run("git","reset","--hard","HEAD",check=False)
+    run("git","clean","-fd",check=False)
     run("git","config","user.name","github-actions[bot]")
     run("git","config","user.email","41898282+github-actions[bot]@users.noreply.github.com")
 
