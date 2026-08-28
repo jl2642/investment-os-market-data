@@ -20,8 +20,11 @@ on:
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/**"
   push:
     branches:
+      - main
       - "automation/cross-market-limited-*"
     paths:
+      - ".github/workflows/round3-cross-market-limited-production.yml"
+      - "automation/cross_market/**"
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/**/ROUND3_SEC_OBSERVER_INBOX.json"
 
 permissions:
@@ -159,7 +162,7 @@ jobs:
             --ledger "$root/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json"
 
   operate:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 55
@@ -293,7 +296,7 @@ jobs:
           EOF
 
   ingest-sec-observer:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && startsWith(github.ref_name, 'automation/cross-market-limited-')
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 20

@@ -11,7 +11,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from automation.cross_market.build_round3_limited_production import plan_batches, run, stable_bucket
+from automation.cross_market.build_round3_limited_production import (
+    fetch_dual_route_market,
+    plan_batches,
+    run,
+    stable_bucket,
+)
 from automation.cross_market.validate_round3_outputs import validate
 
 
@@ -102,6 +107,34 @@ def fake_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
     if "companyfacts" in url:
         return json.dumps({"facts": {"us-gaap": {}}}).encode()
     raise AssertionError(url)
+
+
+def test_delayed_runner_selects_requested_session_not_future_latest() -> None:
+    requested = date(2026, 8, 26)
+
+    def delayed_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
+        timestamps = [
+            int(datetime(2026, 8, 26, 1, 30, tzinfo=timezone.utc).timestamp()),
+            int(datetime(2026, 8, 27, 1, 30, tzinfo=timezone.utc).timestamp()),
+        ]
+        return json.dumps({
+            "chart": {
+                "result": [{
+                    "meta": {"currency": "HKD"},
+                    "timestamp": timestamps,
+                    "indicators": {"quote": [{
+                        "close": [10.0, 11.0],
+                        "volume": [1000, 1100],
+                    }]},
+                }],
+                "error": None,
+            }
+        }).encode()
+
+    row = fetch_dual_route_market("HK", "00700", requested, delayed_fetcher)
+    assert row["trade_date"] == "2026-08-26"
+    assert row["close"] == 10.0
+    assert row["vendor_symbol"] == "0700.HK"
 
 
 def test_deterministic_partition_and_bounded_us_rotation(tmp_path: Path) -> None:
