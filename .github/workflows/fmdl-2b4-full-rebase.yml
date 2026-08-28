@@ -25,6 +25,12 @@ on:
     # and the gap detector decide whether any recovery work is actually needed.
     - cron: "0 8 * * 1-5"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/fmdl-2b4-full-rebase.yml"
+      - "scripts/hydrate_fmdl_runtime_from_operating_current.py"
+      - "scripts/validate_fmdl2b4_freshness.py"
 
 permissions:
   contents: write
@@ -62,7 +68,7 @@ jobs:
             tests/test_round1_governed_publication_workflows.py
 
   prepare-recovery:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 25
