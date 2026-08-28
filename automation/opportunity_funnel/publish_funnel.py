@@ -22,6 +22,8 @@ from automation.operating_current.publish_operating_current import (
 TRADE_AUTHORITY = "NONE"
 DOMAIN = "OPPORTUNITY_FUNNEL"
 TARGET_ROOT = Path(ROOT_DIR) / "opportunity_funnel"
+ADVANCE_ACTION = "ADVANCE_NEW_SOURCE_FINGERPRINT"
+NO_OP_ACTION = "NO_OP_SAME_SOURCE_FINGERPRINT"
 
 
 def load_text(path: Path) -> str:
@@ -49,10 +51,19 @@ def make_receipt_args(
     source_commit: str,
     watermark: str,
     cycle_fingerprint: str,
+    cycle_action: str,
 ) -> SimpleNamespace:
+    if cycle_action == ADVANCE_ACTION:
+        status = "PASS"
+        advance_current = True
+    elif cycle_action == NO_OP_ACTION:
+        status = "NO_OP"
+        advance_current = False
+    else:
+        raise RuntimeError(f"P42_UNKNOWN_CYCLE_ACTION:{cycle_action}")
     return SimpleNamespace(
         domain=DOMAIN,
-        status="PASS",
+        status=status,
         source_workflow=source_workflow,
         source_run_id=str(source_run_id),
         source_run_attempt=int(source_run_attempt),
@@ -60,18 +71,18 @@ def make_receipt_args(
         source_commit=source_commit,
         watermark=watermark,
         watermark_sort_key=watermark,
-        qc_status="PASS_P4_2_FUNNEL_VALIDATED",
-        advance_current=True,
+        qc_status="PASS_P4_2_FUNNEL_VALIDATED" if status == "PASS" else "NO_OP_SAME_SOURCE_FINGERPRINT",
+        advance_current=advance_current,
         real_account_mutations=0,
         simulation_mutations=0,
         candidate_membership_mutations=0,
         orders=0,
         trade_authority=TRADE_AUTHORITY,
-        note=f"P4-2 cycle_fingerprint={cycle_fingerprint}",
+        note=f"P4-2 cycle_fingerprint={cycle_fingerprint}; cycle_action={cycle_action}",
     )
 
 
-def write_payloads(
+def write_operating_transaction(
     *,
     current_text: str,
     near_miss_text: str,
@@ -82,21 +93,37 @@ def write_payloads(
     current = json.loads(current_text)
     cycle = json.loads(cycle_text)
     fingerprint = str(current["cycle_fingerprint"])
+    cycle_action = str(current["cycle_action"])
     if cycle.get("cycle_fingerprint") != fingerprint:
         raise RuntimeError("P42_CYCLE_FINGERPRINT_MISMATCH")
+    if cycle.get("cycle_action") != cycle_action:
+        raise RuntimeError("P42_CYCLE_ACTION_MISMATCH")
 
-    TARGET_ROOT.mkdir(parents=True, exist_ok=True)
-    (TARGET_ROOT / "cycles").mkdir(parents=True, exist_ok=True)
-    (TARGET_ROOT / "OPPORTUNITY_FUNNEL_CURRENT.json").write_text(current_text, encoding="utf-8")
-    (TARGET_ROOT / "OPPORTUNITY_NEAR_MISS_CURRENT.json").write_text(near_miss_text, encoding="utf-8")
-    (TARGET_ROOT / "D1_WORK_QUEUE_CURRENT.json").write_text(work_queue_text, encoding="utf-8")
-    (TARGET_ROOT / "cycles" / f"{fingerprint}.json").write_text(cycle_text, encoding="utf-8")
+    if cycle_action == ADVANCE_ACTION:
+        TARGET_ROOT.mkdir(parents=True, exist_ok=True)
+        (TARGET_ROOT / "cycles").mkdir(parents=True, exist_ok=True)
+        (TARGET_ROOT / "OPPORTUNITY_FUNNEL_CURRENT.json").write_text(current_text, encoding="utf-8")
+        (TARGET_ROOT / "OPPORTUNITY_NEAR_MISS_CURRENT.json").write_text(near_miss_text, encoding="utf-8")
+        (TARGET_ROOT / "D1_WORK_QUEUE_CURRENT.json").write_text(work_queue_text, encoding="utf-8")
+        (TARGET_ROOT / "cycles" / f"{fingerprint}.json").write_text(cycle_text, encoding="utf-8")
+    elif cycle_action == NO_OP_ACTION:
+        existing = TARGET_ROOT / "OPPORTUNITY_FUNNEL_CURRENT.json"
+        if not existing.exists():
+            raise RuntimeError("P42_NO_OP_WITHOUT_EXISTING_CURRENT")
+        existing_payload = json.loads(existing.read_text(encoding="utf-8"))
+        if existing_payload.get("cycle_fingerprint") != fingerprint:
+            raise RuntimeError("P42_NO_OP_FINGERPRINT_NOT_CURRENT")
+    else:
+        raise RuntimeError(f"P42_UNKNOWN_CYCLE_ACTION:{cycle_action}")
 
     published_at = utc_now()
     operating_receipt = receipt_payload(receipt_args, published_at)
     domain_dir = Path(ROOT_DIR) / "runs" / DOMAIN
     domain_dir.mkdir(parents=True, exist_ok=True)
-    receipt_name = f"{receipt_args.source_run_id}-a{receipt_args.source_run_attempt}-pass.json"
+    receipt_name = (
+        f"{receipt_args.source_run_id}-a{receipt_args.source_run_attempt}-"
+        f"{receipt_args.status.lower()}.json"
+    )
     (domain_dir / receipt_name).write_text(
         json.dumps(operating_receipt, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
@@ -106,12 +133,17 @@ def write_payloads(
     pointer_path.parent.mkdir(parents=True, exist_ok=True)
     prior = json.loads(pointer_path.read_text(encoding="utf-8")) if pointer_path.exists() else None
     advance, reason = can_advance(prior, operating_receipt)
-    if not advance:
+
+    if cycle_action == ADVANCE_ACTION and not advance:
         raise RuntimeError(f"P42_OPERATING_POINTER_NOT_ADVANCED:{reason}")
-    pointer_path.write_text(
-        json.dumps(pointer_payload(operating_receipt), ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    if cycle_action == NO_OP_ACTION and advance:
+        raise RuntimeError("P42_NO_OP_UNEXPECTEDLY_ADVANCED")
+
+    if advance:
+        pointer_path.write_text(
+            json.dumps(pointer_payload(operating_receipt), ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
 
     index = build_index(Path(ROOT_DIR))
     (Path(ROOT_DIR) / "OPERATING_CURRENT_INDEX.json").write_text(
@@ -128,8 +160,11 @@ def publish(args: argparse.Namespace) -> dict[str, Any]:
     cycle_path = Path(args.cycle_receipt)
     current = load_json(current_path)
     cycle_fingerprint = str(current.get("cycle_fingerprint") or "")
+    cycle_action = str(current.get("cycle_action") or "")
     if not cycle_fingerprint:
         raise RuntimeError("P42_MISSING_CYCLE_FINGERPRINT")
+    if cycle_action not in {ADVANCE_ACTION, NO_OP_ACTION}:
+        raise RuntimeError("P42_INVALID_CYCLE_ACTION")
     if current.get("controls", {}).get("trade_authority") != TRADE_AUTHORITY:
         raise RuntimeError("P42_TRADE_AUTHORITY_NOT_NONE")
     if any(int(current.get("controls", {}).get(key, 0)) != 0 for key in (
@@ -159,8 +194,10 @@ def publish(args: argparse.Namespace) -> dict[str, Any]:
         source_commit=source_commit,
         watermark=watermark,
         cycle_fingerprint=cycle_fingerprint,
+        cycle_action=cycle_action,
     )
 
+    # Generated payloads are held in memory before switching branches.
     run("git", "reset", "--hard", "HEAD", check=False)
     run("git", "clean", "-fd", check=False)
     run("git", "config", "user.name", "github-actions[bot]")
@@ -170,7 +207,7 @@ def publish(args: argparse.Namespace) -> dict[str, Any]:
     for attempt in range(1, 5):
         try:
             checkout_operating_branch()
-            advance, reason = write_payloads(
+            advance, reason = write_operating_transaction(
                 current_text=current_text,
                 near_miss_text=near_miss_text,
                 work_queue_text=work_queue_text,
@@ -183,15 +220,22 @@ def publish(args: argparse.Namespace) -> dict[str, Any]:
                     "status": "NO_CHANGE",
                     "advanced": advance,
                     "reason": reason,
+                    "cycle_action": cycle_action,
                     "cycle_fingerprint": cycle_fingerprint,
                 }
-            run("git", "commit", "-m", f"operating-current: P4-2 funnel cycle {cycle_fingerprint[:12]}")
+            run(
+                "git",
+                "commit",
+                "-m",
+                f"operating-current: P4-2 {receipt_args.status.lower()} {cycle_fingerprint[:12]}",
+            )
             pushed = run("git", "push", "origin", "HEAD:refs/heads/operating-current", check=False)
             if pushed.returncode == 0:
                 return {
                     "status": "PUBLISHED",
                     "advanced": advance,
                     "reason": reason,
+                    "cycle_action": cycle_action,
                     "cycle_fingerprint": cycle_fingerprint,
                     "operating_commit": run("git", "rev-parse", "HEAD").stdout.strip(),
                     "source_commit": source_commit,
