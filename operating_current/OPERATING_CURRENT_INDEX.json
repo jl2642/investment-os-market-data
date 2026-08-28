@@ -2,36 +2,191 @@
   "authority": "OPERATING_CURRENT_BRANCH_POINTER_SURFACE",
   "domains": [
     {
-      "current": null,
+      "current": {
+        "schema_version": "1.0.0",
+        "domain_id": "A_SHARE_FULL_MARKET",
+        "status": "PASS",
+        "source_workflow": "FMDL Daily A-share Governed Production",
+        "source_run_id": "31380431440",
+        "source_run_attempt": 1,
+        "source_branch": "automation/fmdl-daily-31380431440-a1",
+        "source_commit_sha": "507610be97219964a688871fd57ad6e997eb1f10",
+        "published_at_utc": "2026-08-28T03:26:11Z",
+        "data_watermark": "2026-08-10",
+        "watermark_sort_key": "2026-08-10",
+        "qc_status": "PASS_WITH_WARNINGS",
+        "fail_closed": true,
+        "protected_mutations": {
+          "candidate_membership": 0,
+          "real_account": 0,
+          "simulation": 0
+        },
+        "orders": 0,
+        "trade_authority": "NONE"
+      },
       "domain_id": "A_SHARE_FULL_MARKET",
-      "health": "MISSING_CURRENT",
-      "latest_attempt": null,
+      "health": "STALE_BY_CALENDAR_HEURISTIC",
+      "latest_attempt": {
+        "schema_version": "1.0.0",
+        "domain_id": "A_SHARE_FULL_MARKET",
+        "status": "PASS",
+        "source_workflow": "FMDL Daily A-share Governed Production",
+        "source_run_id": "31380431440",
+        "source_run_attempt": 1,
+        "source_branch": "automation/fmdl-daily-31380431440-a1",
+        "source_commit_sha": "507610be97219964a688871fd57ad6e997eb1f10",
+        "published_at_utc": "2026-08-28T03:26:11Z",
+        "data_watermark": "2026-08-10",
+        "watermark_sort_key": "2026-08-10",
+        "qc_status": "PASS_WITH_WARNINGS",
+        "fail_closed": true,
+        "advance_current_requested": true,
+        "protected_mutations": {
+          "candidate_membership": 0,
+          "real_account": 0,
+          "simulation": 0
+        },
+        "orders": 0,
+        "trade_authority": "NONE",
+        "note": "P4-1 controlled bootstrap from pre-existing governed result branch; stale source watermark preserved; source data not modified."
+      },
       "stale_threshold_calendar_days": 5,
-      "watermark_age_calendar_days": null
+      "watermark_age_calendar_days": 18
     },
     {
-      "current": null,
+      "current": {
+        "schema_version": "1.0.0",
+        "domain_id": "CANDIDATE_WEEKLY_OBSERVATION",
+        "status": "PASS",
+        "source_workflow": "WP3-R Weekly Candidate Price Screen (controlled bootstrap from rolling branch)",
+        "source_run_id": "LEGACY_ROLLING_BRANCH_BOOTSTRAP_20260828",
+        "source_run_attempt": 1,
+        "source_branch": "automation/wp3-r-candidate-current",
+        "source_commit_sha": "fd4e2685adf1aa97fba5a1d77dfd3a87f416078f",
+        "published_at_utc": "2026-08-28T03:26:11Z",
+        "data_watermark": "2026-08-05",
+        "watermark_sort_key": "2026-08-05",
+        "qc_status": "PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION",
+        "fail_closed": true,
+        "protected_mutations": {
+          "candidate_membership": 0,
+          "real_account": 0,
+          "simulation": 0
+        },
+        "orders": 0,
+        "trade_authority": "NONE"
+      },
       "domain_id": "CANDIDATE_WEEKLY_OBSERVATION",
-      "health": "MISSING_CURRENT",
-      "latest_attempt": null,
+      "health": "STALE_BY_CALENDAR_HEURISTIC",
+      "latest_attempt": {
+        "schema_version": "1.0.0",
+        "domain_id": "CANDIDATE_WEEKLY_OBSERVATION",
+        "status": "PASS",
+        "source_workflow": "WP3-R Weekly Candidate Price Screen (controlled bootstrap from rolling branch)",
+        "source_run_id": "LEGACY_ROLLING_BRANCH_BOOTSTRAP_20260828",
+        "source_run_attempt": 1,
+        "source_branch": "automation/wp3-r-candidate-current",
+        "source_commit_sha": "fd4e2685adf1aa97fba5a1d77dfd3a87f416078f",
+        "published_at_utc": "2026-08-28T03:26:11Z",
+        "data_watermark": "2026-08-05",
+        "watermark_sort_key": "2026-08-05",
+        "qc_status": "PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION",
+        "fail_closed": true,
+        "advance_current_requested": true,
+        "protected_mutations": {
+          "candidate_membership": 0,
+          "real_account": 0,
+          "simulation": 0
+        },
+        "orders": 0,
+        "trade_authority": "NONE",
+        "note": "P4-1 controlled bootstrap. Rolling branch head is newer, but weekly screen watermark remains 2026-08-05 and is intentionally preserved as stale."
+      },
       "stale_threshold_calendar_days": 10,
-      "watermark_age_calendar_days": null
+      "watermark_age_calendar_days": 23
     },
     {
       "current": null,
       "domain_id": "CROSS_MARKET_LIMITED",
       "health": "MISSING_CURRENT",
-      "latest_attempt": null,
+      "latest_attempt": {
+        "schema_version": "1.0.0",
+        "domain_id": "CROSS_MARKET_LIMITED",
+        "status": "BLOCKED",
+        "source_workflow": "Round 3 HK and US Limited Production",
+        "source_run_id": "33063440994",
+        "source_run_attempt": 1,
+        "source_branch": "automation/cross-market-limited-33063440994-a1",
+        "source_commit_sha": "c54258bdf9d2dedb3974c959f24c0a9866023c4f",
+        "published_at_utc": "2026-08-28T03:26:11Z",
+        "data_watermark": "2026-08-26",
+        "watermark_sort_key": "2026-08-26",
+        "qc_status": "PARTIAL_RETRYABLE_MISSING_COMPLETED_SESSION",
+        "fail_closed": true,
+        "advance_current_requested": false,
+        "protected_mutations": {
+          "candidate_membership": 0,
+          "real_account": 0,
+          "simulation": 0
+        },
+        "orders": 0,
+        "trade_authority": "NONE",
+        "note": "P4-1 controlled bootstrap audit. HK completed-session capture failed; partial run recorded as BLOCKED and no Current pointer created."
+      },
       "stale_threshold_calendar_days": 5,
       "watermark_age_calendar_days": null
     },
     {
-      "current": null,
+      "current": {
+        "schema_version": "1.0.0",
+        "domain_id": "PORTFOLIO_MARKS",
+        "status": "PASS",
+        "source_workflow": "R2 WP2-R Market Marks Refresh",
+        "source_run_id": "33128116297",
+        "source_run_attempt": 1,
+        "source_branch": "automation/wp2r-eod-33128116297-a1",
+        "source_commit_sha": "20cec35941ba3a01391204719bd69069290ad837",
+        "published_at_utc": "2026-08-28T03:26:11Z",
+        "data_watermark": "2026-08-27",
+        "watermark_sort_key": "2026-08-27",
+        "qc_status": "PASS_COMPLETE",
+        "fail_closed": true,
+        "protected_mutations": {
+          "candidate_membership": 0,
+          "real_account": 0,
+          "simulation": 0
+        },
+        "orders": 0,
+        "trade_authority": "NONE"
+      },
       "domain_id": "PORTFOLIO_MARKS",
-      "health": "MISSING_CURRENT",
-      "latest_attempt": null,
+      "health": "CURRENT",
+      "latest_attempt": {
+        "schema_version": "1.0.0",
+        "domain_id": "PORTFOLIO_MARKS",
+        "status": "PASS",
+        "source_workflow": "R2 WP2-R Market Marks Refresh",
+        "source_run_id": "33128116297",
+        "source_run_attempt": 1,
+        "source_branch": "automation/wp2r-eod-33128116297-a1",
+        "source_commit_sha": "20cec35941ba3a01391204719bd69069290ad837",
+        "published_at_utc": "2026-08-28T03:26:11Z",
+        "data_watermark": "2026-08-27",
+        "watermark_sort_key": "2026-08-27",
+        "qc_status": "PASS_COMPLETE",
+        "fail_closed": true,
+        "advance_current_requested": true,
+        "protected_mutations": {
+          "candidate_membership": 0,
+          "real_account": 0,
+          "simulation": 0
+        },
+        "orders": 0,
+        "trade_authority": "NONE",
+        "note": "P4-1 controlled bootstrap from pre-existing validated market-mark result branch; protected position identity not modified."
+      },
       "stale_threshold_calendar_days": 5,
-      "watermark_age_calendar_days": null
+      "watermark_age_calendar_days": 1
     },
     {
       "current": {
@@ -59,11 +214,9 @@
       "domain_id": "RESEARCH_D2",
       "health": "CURRENT",
       "latest_attempt": {
-        "advance_current_requested": true,
         "data_watermark": "2026-08-28T03:21:12+00:00",
         "domain_id": "RESEARCH_D2",
         "fail_closed": true,
-        "note": null,
         "orders": 0,
         "protected_mutations": {
           "candidate_membership": 0,
@@ -80,13 +233,15 @@
         "source_workflow": "Research Queue D2 Auto Consumer",
         "status": "PASS",
         "trade_authority": "NONE",
-        "watermark_sort_key": "2026-08-28T03:21:12+00:00"
+        "watermark_sort_key": "2026-08-28T03:21:12+00:00",
+        "advance_current_requested": true,
+        "note": null
       },
       "stale_threshold_calendar_days": 10,
       "watermark_age_calendar_days": 0
     }
   ],
-  "generated_at_utc": "2026-08-28T03:21:50Z",
+  "generated_at_utc": "2026-08-28T03:26:11Z",
   "orders": 0,
   "schema_version": "1.0.0",
   "staleness_basis": "CALENDAR_DAY_HEURISTIC_NOT_EXCHANGE_SESSION_TRUTH",

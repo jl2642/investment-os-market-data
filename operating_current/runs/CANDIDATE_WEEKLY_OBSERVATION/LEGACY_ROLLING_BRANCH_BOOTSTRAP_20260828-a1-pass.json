@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "domain_id": "CANDIDATE_WEEKLY_OBSERVATION",
+  "status": "PASS",
+  "source_workflow": "WP3-R Weekly Candidate Price Screen (controlled bootstrap from rolling branch)",
+  "source_run_id": "LEGACY_ROLLING_BRANCH_BOOTSTRAP_20260828",
+  "source_run_attempt": 1,
+  "source_branch": "automation/wp3-r-candidate-current",
+  "source_commit_sha": "fd4e2685adf1aa97fba5a1d77dfd3a87f416078f",
+  "published_at_utc": "2026-08-28T03:26:11Z",
+  "data_watermark": "2026-08-05",
+  "watermark_sort_key": "2026-08-05",
+  "qc_status": "PASS_WEEKLY_PRICE_SCREEN_NO_MEMBERSHIP_MUTATION",
+  "fail_closed": true,
+  "advance_current_requested": true,
+  "protected_mutations": {
+    "candidate_membership": 0,
+    "real_account": 0,
+    "simulation": 0
+  },
+  "orders": 0,
+  "trade_authority": "NONE",
+  "note": "P4-1 controlled bootstrap. Rolling branch head is newer, but weekly screen watermark remains 2026-08-05 and is intentionally preserved as stale."
+}
