@@ -27,7 +27,18 @@ def validate():
     if c["near_miss_ledger"].get("global_scalar_near_miss_score_forbidden") is not True: e.append("P42_NEARMISS_SCORE")
     if a["effective_execution_control"].get("effective_forward_observation_start_allowed"): e.append("P42_A1_HOLD_OPEN")
     if s.get("phase4_p4_1_complete") is not True: e.append("P42_STATE_P41")
-    if s.get("phase4_reconciliation_current_stage")!="P4_2_CONTINUOUS_OPPORTUNITY_FUNNEL": e.append("P42_STATE_STAGE")
+    stage=s.get("phase4_reconciliation_current_stage")
+    allowed_stages={
+        "P4_2_CONTINUOUS_OPPORTUNITY_FUNNEL",
+        "P4_3_UNIFIED_DECISION_AND_RECOMMENDATION_ENGINE",
+        "P4_4_TRIGGER_MONITOR_AND_AUTONOMOUS_SHADOW_BOOK",
+        "P4_5_CLEAN_BASELINE_FORWARD_PARALLEL_SHADOW_VALIDATION",
+    }
+    if stage not in allowed_stages: e.append("P42_STATE_STAGE")
+    if stage!="P4_2_CONTINUOUS_OPPORTUNITY_FUNNEL":
+        if s.get("phase4_p4_2_complete") is not True: e.append("P42_NOT_COMPLETE_BEFORE_ADVANCE")
+        if s.get("phase4_p4_2_distinct_cycle_fingerprint_count",0)<2: e.append("P42_REPEAT_GATE_NOT_MET")
+        if s.get("phase4_p4_2_contract_status")!="COMPLETE_ACCEPTED": e.append("P42_STATE_ACCEPTANCE")
     if s.get("phase4_forward_observation_count")!=0 or s.get("phase4_realized_outcome_read_count")!=0: e.append("P42_FORWARD_EVIDENCE")
     for k,v in c["protected_state"].items():
         if k=="trade_authority":
