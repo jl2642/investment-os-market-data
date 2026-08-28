@@ -389,9 +389,9 @@ jobs:
           git commit -m "data: stage governed A-share daily transaction"
           git push origin "HEAD:$RESULT_BRANCH"
           SOURCE_COMMIT="$(git rev-parse HEAD)"
-          WATERMARK="$(python - <<\'PY\'
+          WATERMARK="$(python - <<'PY'
           import json
-          print(json.load(open(\'outputs/current/CURRENT_RELEASE.json\', encoding=\'utf-8\'))[\'as_of_date\'])
+          print(json.load(open('outputs/current/CURRENT_RELEASE.json', encoding='utf-8'))[\'as_of_date\'])
           PY
           )"
           python automation/operating_current/publish_operating_current.py \\
