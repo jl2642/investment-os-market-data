@@ -1,0 +1,39 @@
+name: Strategy Kernel Phase 4 P4-1 Forward Census
+
+on:
+  pull_request:
+    paths:
+      - 'strategy_kernel_v2/**'
+      - '.github/workflows/strategy-kernel-phase4-p4-1-forward-census.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: strategy-kernel-phase4-p4-1-forward-census-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase4-p4-1-forward-census:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test fail-closed census behavior
+        run: python -m unittest strategy_kernel_v2.tests.test_phase4_p4_1_forward_census
+      - name: Execute first protected-main post-cutoff census
+        run: python -m strategy_kernel_v2.phase4_p4_1_forward_census
+      - name: Re-validate frozen Phase 4 contract
+        run: python -m strategy_kernel_v2.validate_phase4_forward_shadow_contract
+      - name: Validate program consistency
+        run: python strategy_kernel_v2/program_consistency.py
+      - name: Upload P4-1 census
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-p4-1-forward-census
+          path: strategy_kernel_v2/generated/PHASE4_P4_1_FORWARD_CENSUS.json
