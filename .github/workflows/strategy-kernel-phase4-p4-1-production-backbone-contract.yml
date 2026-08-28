@@ -1,0 +1,30 @@
+name: Strategy Kernel Phase 4 P4-1 Production Backbone Contract
+
+on:
+  pull_request:
+    paths:
+      - "strategy_kernel_v2/**"
+      - ".github/workflows/strategy-kernel-phase4-p4-1-production-backbone-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: python strategy_kernel_v2/program_consistency.py
+      - run: python strategy_kernel_v2/validate_program_amendment_a1.py
+      - run: python strategy_kernel_v2/validate_phase4_p4_1_production_backbone_contract.py
+      - run: python -m unittest strategy_kernel_v2.tests.test_phase4_p4_1_production_backbone_contract -v
+      - run: python -m strategy_kernel_v2.validate_phase4_forward_shadow_contract
