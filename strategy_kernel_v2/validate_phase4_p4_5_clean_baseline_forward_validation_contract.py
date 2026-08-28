@@ -152,21 +152,44 @@ def validate():
         e.append("P45_PHASE5_PROPOSAL_BOUNDARY")
 
     if a["effective_execution_control"].get("effective_forward_observation_start_allowed"):
-        e.append("P45_A1_PREBASELINE_START_OPEN")
+        e.append("P45_A1_FROZEN_CONTRACT_START_OPEN")
     if s.get("phase4_p4_4_complete") is not True: e.append("P45_STATE_P44")
     if s.get("phase4_reconciliation_current_stage")!="P4_5_CLEAN_BASELINE_FORWARD_PARALLEL_SHADOW_VALIDATION":
         e.append("P45_STATE_STAGE")
     if s.get("phase4_p4_5_contract_frozen") is not True: e.append("P45_STATE_CONTRACT")
-    if s.get("phase4_p4_5_baseline_implementation_started") is not False:
-        e.append("P45_STATE_IMPL")
-    if s.get("phase4_p4_5_clean_baseline_accepted") is not False:
-        e.append("P45_STATE_BASELINE_PREMATURE")
-    if s.get("phase4_p4_5_effective_cutoff_utc") is not None:
-        e.append("P45_STATE_CUTOFF_PREMATURE")
-    if s.get("phase4_effective_forward_observation_start_allowed") is not False:
-        e.append("P45_STATE_START_PREMATURE")
-    if s.get("phase4_forward_observation_count")!=0 or s.get("phase4_realized_outcome_read_count")!=0:
-        e.append("P45_STATE_EVIDENCE_NONZERO")
+    baseline_accepted=s.get("phase4_p4_5_clean_baseline_accepted") is True
+    if not baseline_accepted:
+        if s.get("phase4_p4_5_baseline_implementation_started") is not False:
+            e.append("P45_STATE_IMPL")
+        if s.get("phase4_p4_5_effective_cutoff_utc") is not None:
+            e.append("P45_STATE_CUTOFF_PREMATURE")
+        if s.get("phase4_effective_forward_observation_start_allowed") is not False:
+            e.append("P45_STATE_START_PREMATURE")
+        if s.get("phase4_forward_observation_count")!=0 or s.get("phase4_realized_outcome_read_count")!=0:
+            e.append("P45_STATE_EVIDENCE_NONZERO")
+    else:
+        if s.get("phase4_p4_5_baseline_implementation_started") is not True:
+            e.append("P45_STATE_IMPL_NOT_STARTED")
+        if s.get("phase4_p4_5_effective_cutoff_utc")!="2026-08-28T06:08:10Z":
+            e.append("P45_STATE_CUTOFF_DRIFT")
+        if s.get("phase4_p4_5_forward_accumulation_started") is not True:
+            e.append("P45_STATE_FORWARD_ACCUMULATION_NOT_STARTED")
+        if s.get("phase4_p4_5_status")!="ACTIVE_FORWARD_ACCUMULATION":
+            e.append("P45_STATE_FORWARD_STATUS")
+        if s.get("phase4_effective_execution_hold") is not False:
+            e.append("P45_STATE_HOLD_NOT_RELEASED")
+        if s.get("phase4_effective_forward_observation_start_allowed") is not True:
+            e.append("P45_STATE_START_NOT_OPEN")
+        if s.get("phase4_p4_5_operational_pr")!=350:
+            e.append("P45_STATE_OPERATIONAL_PR")
+        if s.get("phase4_p4_5_operational_merge_sha")!="ebb41b5a7972286807997bf6ec6adb154d9d8f24":
+            e.append("P45_STATE_OPERATIONAL_MERGE")
+        if str(s.get("phase4_p4_5_production_run_id"))!="33146805613":
+            e.append("P45_STATE_PRODUCTION_RUN")
+        if s.get("phase4_p4_5_operating_current_head")!="9548f60456b71328c31ff6f98d5b3e31151bbff3":
+            e.append("P45_STATE_OPERATING_HEAD")
+        if s.get("phase4_forward_observation_count")!=0 or s.get("phase4_realized_outcome_read_count")!=0:
+            e.append("P45_STATE_BASELINE_ACCEPTANCE_MUST_STILL_BE_ZERO_EVIDENCE")
     if s.get("phase5_migration_allowed") is not False:
         e.append("P45_STATE_PHASE5_PREMATURE")
 
@@ -180,4 +203,12 @@ def validate():
 if __name__=="__main__":
     err=validate()
     if err: raise AssertionError(";".join(err))
-    print("PHASE4_P4_5_CLEAN_BASELINE_FORWARD_VALIDATION_CONTRACT_PASS baseline=pending observations=0 outcomes=0 phase5=false orders=0 trade_authority=NONE")
+    s=load("PROGRAM_STATE.json")
+    print(
+        "PHASE4_P4_5_CLEAN_BASELINE_FORWARD_VALIDATION_CONTRACT_PASS "
+        f"baseline_accepted={str(bool(s.get('phase4_p4_5_clean_baseline_accepted'))).lower()} "
+        f"cutoff={s.get('phase4_p4_5_effective_cutoff_utc')} "
+        f"observations={s.get('phase4_forward_observation_count')} "
+        f"outcomes={s.get('phase4_realized_outcome_read_count')} "
+        "phase5=false orders=0 trade_authority=NONE"
+    )
