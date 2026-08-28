@@ -1,0 +1,289 @@
+{
+  "bounded_rotation": {
+    "automatic_d2_promotion_from_work_queue": false,
+    "d1_batch_capacity": 5,
+    "d1_selection_policy": "EXISTING_WORKPLAN_LANE_ORDER_B_THEN_C_PRESERVE_CANDIDATE_ORDER_EXCLUDE_ALREADY_SERVED_D1",
+    "d1_work_queue": [
+      {
+        "next_trigger": "SEMANTIC_D1_TRIAGE_COMPLETION_OR_GOVERNED_D1_CURRENT_CHANGE",
+        "reason_code": "BOUNDED_ROTATION_NEXT_UNPROCESSED_RESEARCH_QUEUE_MEMBER",
+        "research_gap_count": 5,
+        "security_id": "000099.SZ",
+        "security_name": "中信海直",
+        "strategy_sleeve": "DEFENSIVE_INFRA_YIELD",
+        "work_status": "PENDING_SEMANTIC_D1_TRIAGE",
+        "workplan_lane": "B_STRUCTURED_RESEARCH"
+      },
+      {
+        "next_trigger": "SEMANTIC_D1_TRIAGE_COMPLETION_OR_GOVERNED_D1_CURRENT_CHANGE",
+        "reason_code": "BOUNDED_ROTATION_NEXT_UNPROCESSED_RESEARCH_QUEUE_MEMBER",
+        "research_gap_count": 5,
+        "security_id": "000426.SZ",
+        "security_name": "兴业银锡",
+        "strategy_sleeve": "RESOURCE_CYCLE",
+        "work_status": "PENDING_SEMANTIC_D1_TRIAGE",
+        "workplan_lane": "B_STRUCTURED_RESEARCH"
+      },
+      {
+        "next_trigger": "SEMANTIC_D1_TRIAGE_COMPLETION_OR_GOVERNED_D1_CURRENT_CHANGE",
+        "reason_code": "BOUNDED_ROTATION_NEXT_UNPROCESSED_RESEARCH_QUEUE_MEMBER",
+        "research_gap_count": 5,
+        "security_id": "000600.SZ",
+        "security_name": "建投能源",
+        "strategy_sleeve": "DEFENSIVE_INFRA_YIELD",
+        "work_status": "PENDING_SEMANTIC_D1_TRIAGE",
+        "workplan_lane": "B_STRUCTURED_RESEARCH"
+      },
+      {
+        "next_trigger": "SEMANTIC_D1_TRIAGE_COMPLETION_OR_GOVERNED_D1_CURRENT_CHANGE",
+        "reason_code": "BOUNDED_ROTATION_NEXT_UNPROCESSED_RESEARCH_QUEUE_MEMBER",
+        "research_gap_count": 5,
+        "security_id": "000828.SZ",
+        "security_name": "东莞控股",
+        "strategy_sleeve": "DEFENSIVE_INFRA_YIELD",
+        "work_status": "PENDING_SEMANTIC_D1_TRIAGE",
+        "workplan_lane": "B_STRUCTURED_RESEARCH"
+      },
+      {
+        "next_trigger": "SEMANTIC_D1_TRIAGE_COMPLETION_OR_GOVERNED_D1_CURRENT_CHANGE",
+        "reason_code": "BOUNDED_ROTATION_NEXT_UNPROCESSED_RESEARCH_QUEUE_MEMBER",
+        "research_gap_count": 5,
+        "security_id": "000975.SZ",
+        "security_name": "山金国际",
+        "strategy_sleeve": "RESOURCE_CYCLE",
+        "work_status": "PENDING_SEMANTIC_D1_TRIAGE",
+        "workplan_lane": "B_STRUCTURED_RESEARCH"
+      }
+    ],
+    "d2_batch_capacity": 3,
+    "rotation_trigger": "GOVERNED_D1_CURRENT_CHANGE_OR_RESEARCH_QUEUE_MEMBERSHIP_CHANGE"
+  },
+  "contract_binding": {
+    "forward_outcome_read_authorized": false,
+    "p4_2_contract_pr": 342,
+    "recommendation_engine_authorized": false,
+    "research_funnel_contract_id": "RESEARCH_FUNNEL_CONTRACT_V1_INTEGRATED"
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "trade_authority": "NONE",
+    "user_decisions_generated": 0
+  },
+  "cycle_action": "ADVANCE_NEW_SOURCE_FINGERPRINT",
+  "cycle_fingerprint": "0dd21abad64c735fc5a07a74529edbe9abe3be70ce19784f763df3ad978456f6",
+  "generated_at_utc": "2026-08-28T04:26:44+00:00",
+  "near_miss_summary": {
+    "count": 123,
+    "reason_distribution": {
+      "D1_BATCH_CAPACITY_5_NOT_YET_SERVED": 23,
+      "D2_EVIDENCE_GAP": 1,
+      "D2_RESEARCH_COMPLETE_NO_DECISION_PROMOTION": 2,
+      "HOLD_IN_D1_EARNINGS_QUALITY_AND_EXPECTATIONS_GATED": 1,
+      "HOLD_IN_D1_PORTFOLIO_OVERLAP_GATED": 1,
+      "LONGLIST_NOT_IN_73_NAME_CANDIDATE_OPERATING_SET": 95
+    }
+  },
+  "overall_status": "PARTIAL_STALE_UPSTREAM",
+  "prior_cycle_fingerprint": null,
+  "schema_version": "1.0.0",
+  "semantic_hash": "c90bed10c01a19d2650a274b58d825fb8626a07cc9bff75b58e0a9d0e9b3776e",
+  "source_snapshot": {
+    "CANDIDATE_CURRENT": {
+      "source_identity": "f0ac661d912311fea997254c17a503b8da58236f8550cbc1f09d8380c77030ff",
+      "source_watermark": "2026-07-24_CLOSE"
+    },
+    "CANDIDATE_DYNAMIC_LEDGER": {
+      "source_identity": "580fa21a39217ddad1c8a3f34260a1c19dea64deb8027ce5836cba7372f9d512",
+      "source_watermark": "2026-08-07"
+    },
+    "CANDIDATE_REFRESH": {
+      "source_identity": "WP3R_CANDIDATE_REFRESH_CURRENT",
+      "source_watermark": "2026-08-05"
+    },
+    "CANDIDATE_WEEKLY_SCREEN": {
+      "source_identity": "510df3eb1c2f6734363eccbacf21b9705231ea39812c9e27b97bd258078a30b3",
+      "source_watermark": "2026-08-05"
+    },
+    "D1": {
+      "source_identity": "RESEARCH_QUEUE_D1_CURRENT_20260811",
+      "source_watermark": "2026-08-11T10:14:00+08:00"
+    },
+    "D2": {
+      "operating_qc_status": "PASS",
+      "operating_status": "PASS",
+      "source_identity": "0983b0aab8a89a5cc09aeec5c4a948294cee61c2",
+      "source_watermark": "2026-08-28T03:21:12+00:00"
+    },
+    "FULL_MARKET_SCREEN": {
+      "source_identity": "bb8530f7bb3ad667c5ab4f3f49ffa9a9b9e770ee82531f933b60e176273ae100",
+      "source_watermark": "2026-08-07"
+    }
+  },
+  "stages": [
+    {
+      "held_count": 0,
+      "input_count": 5539,
+      "near_miss_count": 0,
+      "output_count": 5539,
+      "reason_distribution": {
+        "FULL_MARKET_ROWS": 5539
+      },
+      "rejected_count": 0,
+      "source_identity": "bb8530f7bb3ad667c5ab4f3f49ffa9a9b9e770ee82531f933b60e176273ae100",
+      "source_watermark": "2026-08-07",
+      "stage_id": "UNIVERSE"
+    },
+    {
+      "held_count": 129,
+      "input_count": 5539,
+      "near_miss_count": 129,
+      "output_count": 4926,
+      "reason_distribution": {
+        "ELIGIBLE_CORE": 4926,
+        "EXCLUDED": 484,
+        "REVIEW_ONLY": 115,
+        "WATCH_ELIGIBLE": 14
+      },
+      "rejected_count": 484,
+      "source_identity": "bb8530f7bb3ad667c5ab4f3f49ffa9a9b9e770ee82531f933b60e176273ae100",
+      "source_watermark": "2026-08-07",
+      "stage_id": "ELIGIBILITY_AND_EXCLUSIONS"
+    },
+    {
+      "held_count": 4793,
+      "input_count": 4926,
+      "near_miss_count": 4793,
+      "output_count": 133,
+      "reason_distribution": {
+        "DISTINCT_SLEEVE_CANDIDATES": 133,
+        "NO_SLEEVE_SELECTION": 4793,
+        "RAW_SLEEVE_HITS": 150
+      },
+      "rejected_count": 0,
+      "source_identity": "bb8530f7bb3ad667c5ab4f3f49ffa9a9b9e770ee82531f933b60e176273ae100",
+      "source_watermark": "2026-08-07",
+      "stage_id": "MULTI_DIMENSIONAL_SCREEN"
+    },
+    {
+      "held_count": 33,
+      "input_count": 133,
+      "near_miss_count": 33,
+      "output_count": 100,
+      "reason_distribution": {
+        "LONGLIST_SELECTED": 100,
+        "OUTSIDE_TOP_100_RESEARCH_CAPACITY": 33
+      },
+      "rejected_count": 0,
+      "source_identity": "bb8530f7bb3ad667c5ab4f3f49ffa9a9b9e770ee82531f933b60e176273ae100",
+      "source_watermark": "2026-08-07",
+      "stage_id": "RESEARCH_LONGLIST"
+    },
+    {
+      "held_count": 67,
+      "input_count": 100,
+      "near_miss_count": 67,
+      "note": "Counts bridge source-specific watermarks; no common as-of is synthesized.",
+      "output_count": 33,
+      "reason_distribution": {
+        "CANDIDATE_CORE_CONTEXT": 2,
+        "LONGLIST_NOT_IN_CURRENT_73_NAME_OPERATING_SET": 95,
+        "RESEARCH_QUEUE_MEMBERS": 33,
+        "SHADOW_TRACK_CONTEXT": 38
+      },
+      "rejected_count": 0,
+      "source_identity": {
+        "candidate": "f0ac661d912311fea997254c17a503b8da58236f8550cbc1f09d8380c77030ff",
+        "weekly": "510df3eb1c2f6734363eccbacf21b9705231ea39812c9e27b97bd258078a30b3"
+      },
+      "source_watermark": {
+        "candidate": "2026-07-24_CLOSE",
+        "longlist": "2026-08-07",
+        "weekly": "2026-08-05"
+      },
+      "stage_id": "RESEARCH_QUEUE"
+    },
+    {
+      "held_count": 28,
+      "input_count": 33,
+      "near_miss_count": 28,
+      "note": "Work queue is deterministic routing only. New names remain pending semantic D1 triage and are not auto-promoted to D2.",
+      "output_count": 5,
+      "reason_distribution": {
+        "ACTIVE_BOUNDED_WORK_QUEUE": 5,
+        "PRIOR_D1_ADVANCED_TO_D2": 3,
+        "PRIOR_D1_HELD": 2,
+        "WAITING_BOUNDED_CAPACITY": 23
+      },
+      "rejected_count": 0,
+      "source_identity": {
+        "candidate": "f0ac661d912311fea997254c17a503b8da58236f8550cbc1f09d8380c77030ff",
+        "d1": "RESEARCH_QUEUE_D1_CURRENT_20260811"
+      },
+      "source_watermark": {
+        "candidate": "2026-07-24_CLOSE",
+        "d1": "2026-08-11T10:14:00+08:00"
+      },
+      "stage_id": "D1"
+    },
+    {
+      "held_count": 1,
+      "input_count": 3,
+      "near_miss_count": 1,
+      "output_count": 2,
+      "reason_distribution": {
+        "D2_HOLD_EVIDENCE_GAP": 1,
+        "D2_PENDING": 0,
+        "D2_RESEARCH_COMPLETE": 2
+      },
+      "rejected_count": 0,
+      "source_identity": {
+        "d1": "RESEARCH_QUEUE_D1_CURRENT_20260811",
+        "d2": "0983b0aab8a89a5cc09aeec5c4a948294cee61c2"
+      },
+      "source_watermark": {
+        "d1": "2026-08-11T10:14:00+08:00",
+        "d2": "2026-08-28T03:21:12+00:00"
+      },
+      "stage_id": "D2"
+    },
+    {
+      "held_count": 0,
+      "input_count": 2,
+      "near_miss_count": 0,
+      "note": "Context only; P4-2 performs no Candidate membership mutation.",
+      "output_count": 2,
+      "reason_distribution": {
+        "CONTEXT_ONLY_EXISTING_CANDIDATE_CORE": 2
+      },
+      "rejected_count": 0,
+      "source_identity": "f0ac661d912311fea997254c17a503b8da58236f8550cbc1f09d8380c77030ff",
+      "source_watermark": "2026-07-24_CLOSE",
+      "stage_id": "CANDIDATE_CORE_CONTEXT"
+    },
+    {
+      "held_count": 2,
+      "input_count": 2,
+      "near_miss_count": 2,
+      "note": "Context only; Recommendation Engine is explicitly out of P4-2 scope.",
+      "output_count": 0,
+      "reason_distribution": {
+        "NO_CURRENT_READY_MEMBER": 2,
+        "READY_FOR_USER_DECISION": 0
+      },
+      "rejected_count": 0,
+      "source_identity": "f0ac661d912311fea997254c17a503b8da58236f8550cbc1f09d8380c77030ff",
+      "source_watermark": "2026-07-24_CLOSE",
+      "stage_id": "READY_FOR_USER_DECISION_CONTEXT"
+    }
+  ],
+  "surface_id": "P4_2_CONTINUOUS_OPPORTUNITY_FUNNEL",
+  "watermark_policy": {
+    "relative_staleness_is_not_exchange_session_truth": true,
+    "source_specific_watermarks_preserved": true,
+    "synthetic_single_as_of_forbidden": true
+  }
+}
