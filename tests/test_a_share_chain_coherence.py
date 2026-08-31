@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from pipeline.run_daily import _same_date_noop_eligibility
 from scripts.a_share_chain_coherence import assess_chain_coherence
 
 
@@ -69,3 +70,20 @@ def test_missing_screening_blocks_coherent_noop(tmp_path: Path) -> None:
     result = assess_chain_coherence(tmp_path, target_date="2026-08-28")
     assert result["status"] == "DEGRADED_CHAIN_MISMATCH"
     assert "SCREENING_CURRENT_MISSING" in result["reasons"]
+
+
+def test_same_date_daily_noop_requires_coherent_downstream_chain(tmp_path: Path) -> None:
+    _coherent_fixture(tmp_path)
+    allowed, result = _same_date_noop_eligibility(tmp_path, "2026-08-28")
+    assert allowed is True
+    assert result["status"] == "PASS_COHERENT"
+
+    _write(
+        tmp_path,
+        "outputs/screens/current/SCREENING_CURRENT_RELEASE.json",
+        {"as_of_date": "2026-08-07", "release_id": "S0", "factor_release_id": "F0"},
+    )
+    allowed, result = _same_date_noop_eligibility(tmp_path, "2026-08-28")
+    assert allowed is False
+    assert result["status"] == "DEGRADED_CHAIN_MISMATCH"
+    assert result["screening_refresh_required"] is True
