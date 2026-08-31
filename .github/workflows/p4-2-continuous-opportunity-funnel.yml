@@ -13,8 +13,9 @@ on:
     paths:
       - "automation/opportunity_funnel/**"
       - ".github/workflows/p4-2-continuous-opportunity-funnel.yml"
-  schedule:
-    - cron: "5 1 * * 1-5"
+  workflow_run:
+    workflows: ["Research Queue D2 Auto Consumer"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -166,7 +167,9 @@ jobs:
           retention-days: 14
 
   operate:
-    if: github.event_name != 'pull_request'
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 15
