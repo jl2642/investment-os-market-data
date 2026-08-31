@@ -57,13 +57,13 @@ def git(repo_root: Path,*args: str,check: bool=True) -> subprocess.CompletedProc
 
 
 def ensure_commit_available(repo_root: Path, commit: str) -> None:
-    local=git(repo_root,"cat-file","-e",f"{commit}^{commit}",check=False)
+    local=git(repo_root,"cat-file","-e",f"{commit}^{{commit}}",check=False)
     if local.returncode==0:
         return
     fetched=git(repo_root,"fetch","origin",commit,"--no-tags",check=False)
     if fetched.returncode!=0:
         raise RuntimeError(f"P45_D2_SOURCE_COMMIT_UNRESOLVED:{commit}")
-    local=git(repo_root,"cat-file","-e",f"{commit}^{commit}",check=False)
+    local=git(repo_root,"cat-file","-e",f"{commit}^{{commit}}",check=False)
     if local.returncode!=0:
         raise RuntimeError(f"P45_D2_SOURCE_COMMIT_UNRESOLVED:{commit}")
 
