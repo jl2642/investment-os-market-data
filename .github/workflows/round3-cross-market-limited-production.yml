@@ -204,6 +204,9 @@ jobs:
           print(f"status={data.get('status', '')}")
           print(f"capture_status={data.get('capture_status', '')}")
           print(f"operating_state={data.get('operating_state', '')}")
+          print(f"us_bounded_capture_quality={data.get('us_bounded_capture_quality', '')}")
+          print(f"us_rotation_success_ratio={data.get('us_rotation_success_ratio', 0)}")
+          print(f"us_benchmark_success={data.get('us_benchmark_success', 0)}")
           PY
       - name: Consume official SEC retrieval queue
         id: sec_consumer
@@ -297,6 +300,30 @@ jobs:
             --watermark-sort-key "$WATERMARK" \
             --qc-status "${{ steps.operate.outputs.status }}:${{ steps.operate.outputs.capture_status }}" \
             "${ADVANCE_ARGS[@]}"
+          python automation/operating_current/publish_operating_current.py \
+            --domain US_BOUNDED_COVERAGE \
+            --status PASS \
+            --source-workflow "Round 3 HK and US Limited Production" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "${{ steps.operate.outputs.us_bounded_capture_quality }}:rotation_ratio=${{ steps.operate.outputs.us_rotation_success_ratio }}:benchmark_success=${{ steps.operate.outputs.us_benchmark_success }}" \
+            --advance-current
+          python automation/operating_current/publish_operating_current.py \
+            --domain SEC_QUEUE_CONSUMER \
+            --status PASS \
+            --source-workflow "Round 3 HK and US Limited Production" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "${{ steps.sec_consumer.outputs.consumer_status }}:success=${{ steps.sec_consumer.outputs.official_success_count }}:failure=${{ steps.sec_consumer.outputs.official_failure_count }}" \
+            --advance-current
           SEC_STATUS="PASS"
           SEC_ADVANCE=(--advance-current)
           if [[ "${{ steps.sec_consumer.outputs.official_success_count }}" == "0" ]]; then
@@ -328,6 +355,8 @@ jobs:
             echo "- Candidate / simulation / real account / decisions / orders: 0 / 0 / 0 / 0 / 0"
             echo "- trade_authority: NONE"
             echo "- operating_current_domain: CROSS_MARKET_LIMITED"
+            echo "- us_coverage_authority: US_BOUNDED_COVERAGE / ${{ steps.operate.outputs.us_bounded_capture_quality }}"
+            echo "- sec_queue_consumer_authority: SEC_QUEUE_CONSUMER / ${{ steps.sec_consumer.outputs.consumer_status }}"
             echo "- sec_operating_current_domain: SEC_OFFICIAL_RETRIEVAL"
             echo "- SEC queue consumer: ${{ steps.sec_consumer.outputs.consumer_status }}"
             echo "- SEC official successes/failures this run: ${{ steps.sec_consumer.outputs.official_success_count }}/${{ steps.sec_consumer.outputs.official_failure_count }}"
