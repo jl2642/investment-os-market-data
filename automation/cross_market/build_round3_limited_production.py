@@ -700,7 +700,7 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
     write_json(root / RUN_PATH, run_record)
     write_json(root / PROPOSAL_PATH, proposal)
     evidence_dir = root / EVIDENCE_ROOT / run_id
-    write_json(evidence_dir / "ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json", {"run_id": run_id, "as_of_date": as_of.isoformat(), "execution_environment_required": "CHATGPT_WEB_CONTROLLED_OFFICIAL_RETRIEVAL", "queue": sec_rows, "orders": 0, "trade_authority": "NONE"})
+    write_json(evidence_dir / "ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json", {"run_id": run_id, "as_of_date": as_of.isoformat(), "execution_environment_required": "CONTROLLED_LOCAL_OR_SELF_HOSTED_OFFICIAL_RETRIEVAL", "queue": sec_rows, "orders": 0, "trade_authority": "NONE"})
     write_json(evidence_dir / "ROUND3_RUN_EVIDENCE.json", {"run": run_record, "hk_market_successes": hk_ok, "hk_market_failures": hk_fail, "us_market_successes": us_ok, "us_market_failures": us_fail, "us_sec_retrieval_queue": sec_rows})
     manifest = {
         "run_id": run_id,
