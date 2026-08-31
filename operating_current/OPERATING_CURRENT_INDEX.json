@@ -368,6 +368,58 @@
     {
       "current": {
         "data_watermark": "2026-08-28",
+        "domain_id": "PORTFOLIO_DECISION_FRESHNESS",
+        "fail_closed": true,
+        "orders": 0,
+        "protected_mutations": {
+          "candidate_membership": 0,
+          "real_account": 0,
+          "simulation": 0
+        },
+        "published_at_utc": "2026-08-31T13:54:16Z",
+        "qc_status": "PASS_FRESH_INPUTS_BOUND_STALE_LEGACY_DECISION_BLOCKED",
+        "schema_version": "1.0.0",
+        "source_branch": "automation/occ-r4-portfolio-33399403880-a1",
+        "source_commit_sha": "19d2e33f0e68b0f32aef5d2c1e6b0a4c99cd8db6",
+        "source_run_attempt": 1,
+        "source_run_id": "33399403880",
+        "source_workflow": "OCC-R4 Portfolio Decision Freshness",
+        "status": "PASS",
+        "trade_authority": "NONE",
+        "watermark_sort_key": "2026-08-28"
+      },
+      "domain_id": "PORTFOLIO_DECISION_FRESHNESS",
+      "health": "CURRENT",
+      "latest_attempt": {
+        "advance_current_requested": true,
+        "data_watermark": "2026-08-28",
+        "domain_id": "PORTFOLIO_DECISION_FRESHNESS",
+        "fail_closed": true,
+        "note": null,
+        "orders": 0,
+        "protected_mutations": {
+          "candidate_membership": 0,
+          "real_account": 0,
+          "simulation": 0
+        },
+        "published_at_utc": "2026-08-31T13:54:16Z",
+        "qc_status": "PASS_FRESH_INPUTS_BOUND_STALE_LEGACY_DECISION_BLOCKED",
+        "schema_version": "1.0.0",
+        "source_branch": "automation/occ-r4-portfolio-33399403880-a1",
+        "source_commit_sha": "19d2e33f0e68b0f32aef5d2c1e6b0a4c99cd8db6",
+        "source_run_attempt": 1,
+        "source_run_id": "33399403880",
+        "source_workflow": "OCC-R4 Portfolio Decision Freshness",
+        "status": "PASS",
+        "trade_authority": "NONE",
+        "watermark_sort_key": "2026-08-28"
+      },
+      "stale_threshold_calendar_days": 5,
+      "watermark_age_calendar_days": 3
+    },
+    {
+      "current": {
+        "data_watermark": "2026-08-28",
         "domain_id": "PORTFOLIO_MARKS",
         "fail_closed": true,
         "orders": 0,
@@ -522,6 +574,22 @@
       "watermark_age_calendar_days": 0
     },
     {
+      "current": null,
+      "domain_id": "SEC_OFFICIAL_RETRIEVAL",
+      "health": "MISSING_CURRENT",
+      "latest_attempt": null,
+      "stale_threshold_calendar_days": 10,
+      "watermark_age_calendar_days": null
+    },
+    {
+      "current": null,
+      "domain_id": "SEC_QUEUE_CONSUMER",
+      "health": "MISSING_CURRENT",
+      "latest_attempt": null,
+      "stale_threshold_calendar_days": 10,
+      "watermark_age_calendar_days": null
+    },
+    {
       "current": {
         "data_watermark": "2026-08-28T05:10:13+00:00",
         "domain_id": "SHADOW_BOOK",
@@ -624,9 +692,17 @@
       },
       "stale_threshold_calendar_days": null,
       "watermark_age_calendar_days": 3
+    },
+    {
+      "current": null,
+      "domain_id": "US_BOUNDED_COVERAGE",
+      "health": "MISSING_CURRENT",
+      "latest_attempt": null,
+      "stale_threshold_calendar_days": 5,
+      "watermark_age_calendar_days": null
     }
   ],
-  "generated_at_utc": "2026-08-31T13:10:25Z",
+  "generated_at_utc": "2026-08-31T13:54:16Z",
   "orders": 0,
   "schema_version": "1.0.0",
   "staleness_basis": "CALENDAR_DAY_HEURISTIC_NOT_EXCHANGE_SESSION_TRUTH",
