@@ -292,9 +292,34 @@ R3A must:
 
 The accepted live Funnel truthfully remains PARTIAL_STALE_UPSTREAM because Candidate Current and Candidate operating surfaces are older than the fresh Screening source; that residual is OCC-R3B scope, not an R3A failure.
 
-### OCC-R3B — Governed Candidate Proposal Bridge **IN PROGRESS**
+### OCC-R3B — Governed Candidate Proposal Bridge **COMPLETE (2026-08-31)**
 
 Close OCC-004 by producing explicit admission/removal proposals from fresh Longlist/Candidate deltas without automatically mutating Candidate membership.
+
+
+#### OCC-R3B closure evidence
+
+- long-lived wiring PR #382 merged to main; merge commit: 25e12725aec1fb8ac87dc303dfb49ea8c6e9f5e6.
+- accepted one-shot recovery PR #385 merged to main; merge commit: 81b75d25de8a4805304d3126f28a1750b0b5f090.
+- accepted production run: 33393069738.
+- exact accepted Screening watermark consumed: 2026-08-28.
+- accepted Screening source branch: automation/occ-r1-screening-recovery-33353608967-a1.
+- accepted Screening source commit: 7515e7d21006f144b69ae44d88a0c82a7a10f5db.
+- Longlist rows consumed: 100.
+- proposal id: ROUND2_CANDIDATE_DELTA_20260828.
+- completed weekly Candidate observation cycles: 2.
+- governed admission proposals: 3 — 002827.SZ, 603268.SH, 600664.SH.
+- governed dynamic exit proposals: 0.
+- legacy exit reviews: 0.
+- Canonical Candidate Research Queue remained 33; proposed Candidate Research Queue is 36.
+- Canonical Candidate automatic mutations: 0.
+- Candidate Core / Shadow / Ready automatic mutations: 0 / 0 / 0.
+- portfolio mutations: 0.
+- orders: 0.
+- TRADE_AUTHORITY = NONE.
+- OCC-004 is closed.
+
+R3B acceptance requires only reliable governed proposal production; it does not authorize automatic application of the proposed Candidate delta. Application remains a separate human/governed merge boundary.
 
 ### OCC-R3C — Recommendation and Forward Closure
 
