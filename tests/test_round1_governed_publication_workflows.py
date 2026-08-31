@@ -76,3 +76,9 @@ def test_recovery_declares_screening_refresh_required() -> None:
     assert "A_SHARE_CHAIN_COHERENCE.json" in text
     assert "PASS_HISTORY_FACTOR_SCREENING_REFRESH_REQUIRED" in text
     assert "screening_refresh_required: true" in text
+
+
+def test_daily_bootstrap_accepts_occ_r1_screening_recovery_provenance() -> None:
+    text = _text("daily")
+    marker = '"OCC-R1 A-share Screening Recovery"'
+    assert text.count(marker) == 2
