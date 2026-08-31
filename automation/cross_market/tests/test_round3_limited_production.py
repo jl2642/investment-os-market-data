@@ -31,7 +31,7 @@ def policy() -> dict:
     return {
         "policy_id": "ROUND3_HK_US_LIMITED_PRODUCTION_V1",
         "hong_kong": {"expected_universe_count": 10, "minimum_weekly_attempted_count": 8, "minimum_weekly_success_ratio": 0.8},
-        "united_states": {"expected_security_master_count": 100, "expected_issuer_count": 30, "daily_rotation_batch_size": 4, "daily_sec_batch_size": 2, "minimum_weekly_rotation_attempted_count": 15, "minimum_weekly_rotation_success_ratio": 0.8, "minimum_weekly_benchmark_success_count": 2, "minimum_weekly_sec_queued_count": 8, "minimum_weekly_official_sec_completed_count": 8, "sec_execution_mode": "QUEUE_FOR_CHATGPT_WEB_OFFICIAL_RETRIEVAL"},
+        "united_states": {"expected_security_master_count": 100, "expected_issuer_count": 30, "daily_rotation_batch_size": 4, "daily_sec_batch_size": 2, "minimum_daily_rotation_success_ratio": 0.8, "minimum_daily_benchmark_success_count": 2, "minimum_weekly_rotation_attempted_count": 15, "minimum_weekly_rotation_success_ratio": 0.8, "minimum_weekly_benchmark_success_count": 2, "minimum_weekly_sec_queued_count": 8, "minimum_weekly_official_sec_completed_count": 8, "sec_execution_mode": "QUEUE_FOR_CONTROLLED_OFFICIAL_RETRIEVAL"},
         "research": {"allowed_labels": ["RESEARCH_PRIORITY", "WATCH_FOR_ENTRY", "OFFICIAL_FILING_REFRESH_PRIORITY", "MARKET_RISK_SANDBOX_OBSERVATION", "DUPLICATION_REVIEW", "DATA_GAP", "REMOVE_FROM_RESEARCH_REVIEW"], "forbidden_labels": ["BUY_CANDIDATE", "SIMULATION_ENTRY_PROPOSED"], "maximum_hk_weekly_research_proposals": 10, "maximum_us_weekly_research_proposals": 10},
         "acceptance": {"completed_weekly_cycles_for_limited_production_acceptance": 3},
         "authority": {"candidate_pool_mutations": 0, "simulation_mutations": 0, "real_account_mutations": 0, "decision_mutations": 0, "orders": 0, "trade_authority": "NONE"},
@@ -209,6 +209,57 @@ def test_stale_observation_does_not_close_market_bucket_or_block_retry(tmp_path:
     assert cycle["hk_buckets"] == []
     assert cycle["us_buckets"] == []
     assert ledger["daily_runs"] == []
+
+
+
+def test_inadequate_us_rotation_success_ratio_does_not_publish_capture_pass(tmp_path: Path) -> None:
+    install(tmp_path)
+
+    def one_rotation_success_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
+        if "finance/chart" not in url:
+            raise AssertionError(url)
+        period2 = int(parse_qs(urlparse(url).query)["period2"][0])
+        as_of = datetime.fromtimestamp(period2, tz=timezone.utc).date() - timedelta(days=2)
+        symbol_path = urlparse(url).path
+        hk = ".HK" in symbol_path
+        benchmark = "AAPL" in symbol_path or "QQQ" in symbol_path
+        first_rotation = "T000" in symbol_path or "T001" in symbol_path or "T002" in symbol_path or "T003" in symbol_path
+        observed = as_of if (hk or benchmark or first_rotation) else as_of - timedelta(days=1)
+        ts = int(datetime.combine(observed, datetime.min.time(), tzinfo=timezone.utc).timestamp())
+        return json.dumps({"chart": {"result": [{"meta": {"currency": "USD"}, "timestamp": [ts], "indicators": {"quote": [{"close": [100.0], "volume": [1000]}]}}], "error": None}}).encode()
+
+    # Force a selected bucket where only one of the four rotation names is fresh.
+    day = date(2026, 8, 3)
+    plan = plan_batches(tmp_path, policy(), day)
+    selected = [row["symbol"] for row in plan["us_selected"]]
+    fresh_rotation = selected[0]
+
+    def bounded_fetcher(url: str, headers: dict[str, str] | None = None) -> bytes:
+        if "finance/chart" not in url:
+            raise AssertionError(url)
+        period2 = int(parse_qs(urlparse(url).query)["period2"][0])
+        as_of = datetime.fromtimestamp(period2, tz=timezone.utc).date() - timedelta(days=2)
+        symbol_path = urlparse(url).path
+        observed = as_of if (
+            ".HK" in symbol_path
+            or "AAPL" in symbol_path
+            or "QQQ" in symbol_path
+            or fresh_rotation in symbol_path
+        ) else as_of - timedelta(days=1)
+        ts = int(datetime.combine(observed, datetime.min.time(), tzinfo=timezone.utc).timestamp())
+        return json.dumps({"chart": {"result": [{"meta": {"currency": "USD"}, "timestamp": [ts], "indicators": {"quote": [{"close": [100.0], "volume": [1000]}]}}], "error": None}}).encode()
+
+    result = run(tmp_path, Path("automation/cross_market/round3_policy.json"), day, bounded_fetcher, sleep_seconds=0)
+    run_current = json.loads((tmp_path / "investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_RUN_CURRENT.json").read_text())
+    ledger = json.loads((tmp_path / "investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json").read_text())
+    cycle = ledger["weekly_cycles"]["2026-W32"]
+    assert result["capture_status"] == "PARTIAL_RETRYABLE_MISSING_COMPLETED_SESSION"
+    assert run_current["united_states_completed_session_captured"] is False
+    assert run_current["united_states"]["bounded_capture_quality"] == "BLOCKED_INADEQUATE_BOUNDED_CAPTURE"
+    assert run_current["united_states"]["rotation_success_ratio"] < 0.8
+    assert cycle["us_buckets"] == []
+    assert ledger["daily_runs"] == []
+
 
 
 def test_benchmark_only_success_does_not_close_us_rotation_bucket(tmp_path: Path) -> None:

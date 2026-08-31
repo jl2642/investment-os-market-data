@@ -59,6 +59,34 @@ def validate(run: dict[str, Any], proposal: dict[str, Any], ledger: dict[str, An
     if run.get("united_states", {}).get("full_universe_market_history_claimed") is not False:
         raise SystemExit("ROUND3_RUN_US_OVERCLAIM")
     us_run = run.get("united_states", {})
+    bounded_quality = us_run.get("bounded_capture_quality")
+    if bounded_quality is not None:
+        if bounded_quality not in {
+            "PASS_ADEQUATE_BOUNDED_CAPTURE",
+            "BLOCKED_INADEQUATE_BOUNDED_CAPTURE",
+        }:
+            raise SystemExit("ROUND3_US_BOUNDED_CAPTURE_QUALITY_INVALID")
+        captured = bool(run.get("united_states_completed_session_captured"))
+        if captured != (bounded_quality == "PASS_ADEQUATE_BOUNDED_CAPTURE"):
+            raise SystemExit("ROUND3_US_BOUNDED_CAPTURE_STATE_MISMATCH")
+        ratio = float(us_run.get("rotation_success_ratio", 0.0))
+        benchmark_success = int(us_run.get("benchmark_success", 0))
+        minimum_ratio = float(us_run.get(
+            "daily_capture_minimum_rotation_success_ratio",
+            policy["united_states"].get(
+                "minimum_daily_rotation_success_ratio",
+                policy["united_states"]["minimum_weekly_rotation_success_ratio"],
+            ),
+        ))
+        minimum_benchmark = int(us_run.get(
+            "daily_capture_minimum_benchmark_success_count",
+            policy["united_states"].get(
+                "minimum_daily_benchmark_success_count",
+                policy["united_states"]["minimum_weekly_benchmark_success_count"],
+            ),
+        ))
+        if captured and (ratio < minimum_ratio or benchmark_success < minimum_benchmark):
+            raise SystemExit("ROUND3_FALSE_US_BOUNDED_CAPTURE_CLAIM")
     if us_run.get("sec_execution_mode") not in {
         "QUEUE_FOR_CHATGPT_WEB_OFFICIAL_RETRIEVAL",
         "QUEUE_FOR_CONTROLLED_OFFICIAL_RETRIEVAL",
