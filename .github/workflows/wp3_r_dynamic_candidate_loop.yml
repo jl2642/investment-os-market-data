@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       force_weekly:
-        description: "Run the weekly dynamic Candidate loop against current main screening inputs"
+        description: "Run the weekly dynamic Candidate loop against accepted Screening Current"
         required: false
         default: false
         type: boolean
@@ -33,6 +33,7 @@ permissions:
 
 env:
   TRADE_AUTHORITY: NONE
+  SCREENING_DOMAIN_RUNTIME: .candidate_dynamic_runtime/A_SHARE_FULL_MARKET.json
 
 concurrency:
   group: wp3-r-dynamic-candidate-${{ github.event.workflow_run.id || github.ref }}
@@ -179,6 +180,36 @@ jobs:
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
 
+      - name: Restore exact accepted Screening Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          mkdir -p .candidate_dynamic_runtime
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json > "$SCREENING_DOMAIN_RUNTIME"
+          SCREENING_BRANCH="$(python -c "import json; print(json.load(open('$SCREENING_DOMAIN_RUNTIME',encoding='utf-8'))['source_branch'])")"
+          SCREENING_COMMIT="$(python -c "import json; print(json.load(open('$SCREENING_DOMAIN_RUNTIME',encoding='utf-8'))['source_commit_sha'])")"
+          git fetch origin "refs/heads/$SCREENING_BRANCH:refs/remotes/origin/candidate-dynamic-screening" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/candidate-dynamic-screening)" = "$SCREENING_COMMIT"
+          git checkout "$SCREENING_COMMIT" -- \
+            outputs/screens/current/SCREENING_MANIFEST.json \
+            outputs/screens/current/SCREENING_LONGLIST.csv
+          python - <<'PY'
+          import json, os
+          domain=json.load(open(os.environ["SCREENING_DOMAIN_RUNTIME"],encoding="utf-8"))
+          manifest=json.load(open("outputs/screens/current/SCREENING_MANIFEST.json",encoding="utf-8"))
+          assert domain.get("status")=="PASS", domain
+          assert domain.get("qc_status")=="PASS_CHAIN_COHERENT", domain
+          assert domain.get("trade_authority")=="NONE", domain
+          assert manifest.get("as_of_date")==domain.get("data_watermark"), (manifest,domain)
+          print({
+              "screening_watermark": domain["data_watermark"],
+              "source_branch": domain["source_branch"],
+              "source_commit": domain["source_commit_sha"],
+              "trade_authority": "NONE",
+          })
+          PY
+
       - name: Freeze Canonical Candidate before proposal build
         run: |
           cp investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json /tmp/CANDIDATE_BASE.json
@@ -296,6 +327,7 @@ jobs:
           ## WP3-R Dynamic Candidate Loop
           - status: ${{ steps.loop.outputs.status }}
           - Runs only on a completed weekly screening watermark unless manually forced.
+          - Screening inputs are restored from the exact accepted A_SHARE_FULL_MARKET Operating Current source commit.
           - Two consecutive Longlist appearances are required before Research Queue admission.
           - Only dynamically admitted Research Queue names can be proposed for automatic removal after the absence threshold.
           - Legacy Research Queue exits and all Core, Shadow and Ready changes remain review-only.
