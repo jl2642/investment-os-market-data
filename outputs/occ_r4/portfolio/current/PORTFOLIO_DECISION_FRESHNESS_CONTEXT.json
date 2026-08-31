@@ -1,0 +1,67 @@
+{
+  "as_of_date": "2026-08-28",
+  "context_id": "OCC_R4_PORTFOLIO_DECISION_FRESHNESS_bdcd642f3ff624b1",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "target_portfolio_writebacks": 0,
+    "trade_authority": "NONE"
+  },
+  "decision_freshness": {
+    "automatic_position_change_allowed": false,
+    "automatic_rebalance_allowed": false,
+    "fresh_input_surface": true,
+    "implementation_ready": false,
+    "legacy_action_matrix_current": false,
+    "legacy_action_matrix_stale_reason": "LEGACY_DECISION_GENERATED_2026-07-27_BEFORE_MARKS_2026-08-28",
+    "portfolio_action_state": "BLOCKED_NO_CURRENT_RECOMMENDATION_OVERLAP_AND_LEGACY_ACTION_MATRIX_STALE",
+    "ready_for_user_decision": false
+  },
+  "portfolio_current": {
+    "all_required_marks_fresh_or_acceptable": true,
+    "broker_verification_separate": true,
+    "portfolio_fit_input_fresh": true,
+    "real_holding_count": 7,
+    "required_mark_count": 22,
+    "simulation_holding_count": 16
+  },
+  "qc_status": "PASS_FRESH_INPUTS_BOUND_STALE_LEGACY_DECISION_BLOCKED",
+  "recommendation_current": {
+    "buy_state_count": 0,
+    "overall_status": "CURRENT_EXPLICIT_NON_ACTIONABLE_JUDGMENTS",
+    "portfolio_overlap_count": 0,
+    "portfolio_overlap_security_ids": [],
+    "ready_for_user_decision_count": 0,
+    "record_count": 3
+  },
+  "schema_version": "1.0.0",
+  "source_bindings": {
+    "legacy_portfolio_decision": {
+      "generated_at": "2026-07-27T01:52:38.486172+00:00",
+      "stale_against_current_marks": true,
+      "state_id": "WP5_PORTFOLIO_DECISION_CURRENT",
+      "status": "CONDITIONAL_PORTFOLIO_REVIEW_NOT_IMPLEMENTATION_READY"
+    },
+    "portfolio_marks": {
+      "domain_id": "PORTFOLIO_MARKS",
+      "source_branch": "automation/wp2r-eod-33221171056-a1",
+      "source_commit": "0dca7d1b7f1b9b1866bd666d6968858768580c6d",
+      "source_run_id": "33221171056",
+      "source_workflow": "R2 WP2-R Market Marks Refresh",
+      "watermark": "2026-08-28"
+    },
+    "recommendation": {
+      "domain_id": "RECOMMENDATION",
+      "recommendation_fingerprint": "0bc396b2ed92e8fa41df9866ad086252b62dacbcfed56795576216b2c8b025e7",
+      "source_branch": "main",
+      "source_commit": "a6407e501ca6ac7ffb4e33c0364c805c05291498",
+      "source_run_id": "33395324343",
+      "source_workflow": "P4-3 Unified Decision Recommendation",
+      "watermark": "2026-08-31T13:10:23+00:00"
+    }
+  },
+  "status": "PASS_PORTFOLIO_DECISION_FRESHNESS_ALIGNED",
+  "trade_authority": "NONE"
+}
