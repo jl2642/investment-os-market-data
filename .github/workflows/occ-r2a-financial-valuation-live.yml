@@ -82,16 +82,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
-          python - <<'PY' > /tmp/OCC_R2A_SOURCE.env
-import json, subprocess
-row=json.loads(subprocess.check_output(['git','show','origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json'], text=True))
-assert row.get('status')=='PASS'
-assert row.get('trade_authority')=='NONE'
-for key,name in [('source_branch','SOURCE_BRANCH'),('source_commit_sha','SOURCE_COMMIT'),('data_watermark','SOURCE_WATERMARK')]:
-    value=str(row.get(key) or '')
-    assert value, key
-    print(f'{name}={value}')
-PY
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json | python -c "import json,sys; row=json.load(sys.stdin); assert row.get('status')=='PASS'; assert row.get('trade_authority')=='NONE'; pairs=[('source_branch','SOURCE_BRANCH'),('source_commit_sha','SOURCE_COMMIT'),('data_watermark','SOURCE_WATERMARK')]; vals=[(name,str(row.get(key) or '')) for key,name in pairs]; assert all(v for _,v in vals); print('\\n'.join(name+'='+value for name,value in vals))" > /tmp/OCC_R2A_SOURCE.env
           cat /tmp/OCC_R2A_SOURCE.env >> "$GITHUB_ENV"
           cat /tmp/OCC_R2A_SOURCE.env
       - name: Restore accepted latest completed-session market input
@@ -101,13 +92,7 @@ PY
           git fetch origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/occ-r2a-source" --force --no-tags
           test "$(git rev-parse refs/remotes/origin/occ-r2a-source)" = "$SOURCE_COMMIT"
           git checkout "$SOURCE_COMMIT" -- outputs/current/CURRENT_RELEASE.json outputs/current/DAILY_MARKET_SNAPSHOT.csv
-          python - <<'PY'
-import json, os
-row=json.load(open('outputs/current/CURRENT_RELEASE.json',encoding='utf-8'))
-assert row['as_of_date']==os.environ['SOURCE_WATERMARK']
-assert row['status'] in {'PUBLISHED','PUBLISHED_WITH_WARNINGS'}
-print({'market_as_of':row['as_of_date'],'trade_authority':'NONE'})
-PY
+          python -c "import json,os; row=json.load(open('outputs/current/CURRENT_RELEASE.json',encoding='utf-8')); assert row['as_of_date']==os.environ['SOURCE_WATERMARK']; assert row['status'] in {'PUBLISHED','PUBLISHED_WITH_WARNINGS'}; print({'market_as_of':row['as_of_date'],'trade_authority':'NONE'})"
       - name: Build independent market-driven valuation candidate
         run: python -m scripts.run_occ_r2a_valuation_refresh
       - name: Independently validate valuation candidate
