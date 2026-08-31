@@ -494,3 +494,66 @@ OCC-011 legacy WP3-2A provider-session noise remains eligible for R5 cleanup onl
 OCC-R4 is COMPLETE. The final frozen repair round is OCC-R5: nightly orchestration and 08:00 controller acceptance.
 
 TRADE_AUTHORITY = NONE.
+
+
+## OCC-R5 implementation contract
+
+OCC-R5 is the final frozen repair round. It closes OCC-010 and retires OCC-011 scheduled noise without adding a new investment engine.
+
+### Nightly production topology
+
+The 08:00 Asia/Shanghai controller must read the previous completed production chain rather than racing morning upstream jobs.
+
+Target Asia/Shanghai sequence:
+
+- 17:30 — FMDL Daily A-share Governed Production.
+- after FMDL Daily success — OCC-R2A market-driven valuation and WP3-R Dynamic Candidate Loop remain event-driven.
+- 22:45 — WP2-R Portfolio Marks Refresh.
+- 23:30 — Research Queue D2 Auto Consumer.
+- 00:30 — P4-2 Continuous Opportunity Funnel.
+- 01:15 — P4-3 Unified Decision Recommendation.
+- after successful P4-3 — PORTFOLIO_DECISION_FRESHNESS refreshes by one-level workflow_run.
+- 02:00 — P4-4 Trigger Monitor / Shadow Book.
+- 02:45 — P4-5 Forward Validation.
+- 05:30 — Round 3 HK/US Limited Production + SEC queue consumer, using the previous Asia/Shanghai date and accepted cross-market state.
+- 08:00 — ChatGPT 股票投资助手每日总控 reads the completed prior chain.
+
+The staggered schedule intentionally uses wide buffers instead of a workflow_run chain deeper than GitHub Actions permits. Any upstream failure remains fail-closed and must be reported by the controller through Current/latest-attempt semantics.
+
+The ChatGPT-native semantic D2 deep-research consumer remains asynchronous and fail-closed. It is not allowed to fabricate completion merely to satisfy the nightly clock; pending semantic research is reported as pending.
+
+### 08:00 controller authority contract
+
+The controller must continue to read the existing core domains and additionally read:
+
+- FINANCIAL_STATEMENT_CONTEXT;
+- FINANCIAL_VALUATION_CONTEXT;
+- US_BOUNDED_COVERAGE;
+- SEC_QUEUE_CONSUMER;
+- SEC_OFFICIAL_RETRIEVAL Current if present and latest attempt even when no Current exists;
+- PORTFOLIO_DECISION_FRESHNESS.
+
+Controller semantics:
+- distinguish a healthy SEC queue consumer from unavailable official SEC data;
+- distinguish fresh portfolio marks / decision-freshness context from the stale legacy WP5 action matrix;
+- distinguish Current from LATEST_ATTEMPT_FAILED_CURRENT_PRESERVED;
+- do not classify an external provider outage as a systemic investment-engine failure when the consumer and fail-closed controls operate correctly;
+- do not claim full-market US coverage from the bounded US authority;
+- no workflow green status alone is sufficient to declare the system healthy.
+
+### OCC-011 cleanup
+
+WP3-2A Universe Refresh is retained as a manual diagnostic / proposal workflow, but its five legacy provider-session schedules are retired. The current authoritative A-share production chain is FMDL Daily + Operating Current. Removing the legacy schedules reduces operational noise without deleting the historical capability.
+
+### R5 acceptance
+
+R5 requires:
+1. exact-head contract checks;
+2. merged schedule/orchestration changes;
+3. an immediate controller-equivalent acceptance read using current Operating Current authorities, without waiting for the next natural 08:00;
+4. confirmation that the formal 08:00 automation remains enabled and its prompt follows the controller authority contract;
+5. orders=0 and TRADE_AUTHORITY=NONE.
+
+No broker integration, automatic Candidate application, portfolio rebalance, order creation or Phase-5 migration is authorized.
+
+TRADE_AUTHORITY = NONE.
