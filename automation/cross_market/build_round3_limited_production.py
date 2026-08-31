@@ -385,6 +385,47 @@ def load_ledger(path: Path) -> dict[str, Any]:
     }
 
 
+def us_daily_capture_metrics(
+    us_ok: list[dict[str, Any]],
+    us_fail: list[dict[str, Any]],
+    benchmark_symbols: list[str],
+    policy: dict[str, Any],
+) -> dict[str, Any]:
+    benchmark_set = set(benchmark_symbols)
+    rotation_ok = [row for row in us_ok if row["symbol"] not in benchmark_set]
+    rotation_fail = [row for row in us_fail if row["symbol"] not in benchmark_set]
+    benchmark_ok = [row for row in us_ok if row["symbol"] in benchmark_set]
+    rotation_attempted = len(rotation_ok) + len(rotation_fail)
+    rotation_ratio = len(rotation_ok) / rotation_attempted if rotation_attempted else 0.0
+    minimum_rotation_ratio = float(
+        policy["united_states"].get(
+            "minimum_daily_rotation_success_ratio",
+            policy["united_states"]["minimum_weekly_rotation_success_ratio"],
+        )
+    )
+    minimum_benchmark_success = int(
+        policy["united_states"].get(
+            "minimum_daily_benchmark_success_count",
+            policy["united_states"]["minimum_weekly_benchmark_success_count"],
+        )
+    )
+    adequate = (
+        rotation_attempted > 0
+        and rotation_ratio >= minimum_rotation_ratio
+        and len(benchmark_ok) >= minimum_benchmark_success
+    )
+    return {
+        "rotation_attempted": rotation_attempted,
+        "rotation_success": len(rotation_ok),
+        "rotation_failures": len(rotation_fail),
+        "rotation_success_ratio": round(rotation_ratio, 6),
+        "benchmark_success_count": len(benchmark_ok),
+        "minimum_rotation_success_ratio": minimum_rotation_ratio,
+        "minimum_benchmark_success_count": minimum_benchmark_success,
+        "adequate_bounded_capture": adequate,
+    }
+
+
 def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[dict[str, Any]], hk_fail: list[dict[str, Any]], us_ok: list[dict[str, Any]], us_fail: list[dict[str, Any]], sec_rows: list[dict[str, Any]], benchmark_symbols: list[str], policy: dict[str, Any]) -> dict[str, Any]:
     iso_year, iso_week, _ = as_of.isocalendar()
     cycle_id = f"{iso_year}-W{iso_week:02d}"
@@ -405,7 +446,8 @@ def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[d
         "completed": False,
     })
     hk_session_observed = bool(hk_ok)
-    us_session_observed = any(row["symbol"] not in benchmark_symbols for row in us_ok)
+    us_daily = us_daily_capture_metrics(us_ok, us_fail, benchmark_symbols, policy)
+    us_session_observed = bool(us_daily["adequate_bounded_capture"])
     if bucket not in cycle["hk_buckets"] and hk_session_observed:
         cycle["hk_buckets"].append(bucket)
         cycle["hk_attempted"] += len(hk_ok) + len(hk_fail)
@@ -413,10 +455,8 @@ def update_cycle(ledger: dict[str, Any], as_of: date, bucket: int, hk_ok: list[d
     new_us_bucket = bucket not in cycle["us_buckets"]
     if new_us_bucket and us_session_observed:
         cycle["us_buckets"].append(bucket)
-        rotation = [row for row in us_ok if row["symbol"] not in benchmark_symbols]
-        rotation_fail = [row for row in us_fail if row["symbol"] not in benchmark_symbols]
-        cycle["us_rotation_attempted"] += len(rotation) + len(rotation_fail)
-        cycle["us_rotation_success"] += len(rotation)
+        cycle["us_rotation_attempted"] += int(us_daily["rotation_attempted"])
+        cycle["us_rotation_success"] += int(us_daily["rotation_success"])
         cycle["sec_queued"] += len(sec_rows)
     for row in hk_ok:
         cycle["observations"]["HK"][row["symbol"]] = row
@@ -600,6 +640,7 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
     us_ok, us_fail = execute_market_rows("US", us_symbols, as_of, fetcher, max_workers=10)
     sec_rows = build_sec_retrieval_queue(plan["us_sec_selected"], as_of)
 
+    us_daily = us_daily_capture_metrics(us_ok, us_fail, benchmark_symbols, policy)
     cycle = update_cycle(ledger, as_of, plan["bucket"], hk_ok, hk_fail, us_ok, us_fail, sec_rows, benchmark_symbols, policy)
     run_id = f"ROUND3_{as_of.isoformat()}_B{plan['bucket']}_{hashlib.sha256((as_of.isoformat()+str(plan['bucket'])).encode()).hexdigest()[:10]}"
     proposal = build_proposal(root, cycle, plan["us_benchmark"], policy)
@@ -625,9 +666,20 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
             "security_master_reference_count": policy["united_states"]["expected_security_master_count"],
             "rotation_pool_count": plan["us_rotation_pool_count"],
             "rotation_attempted": len(rotation_symbols),
+            "rotation_success": us_daily["rotation_success"],
+            "rotation_failures": us_daily["rotation_failures"],
+            "rotation_success_ratio": us_daily["rotation_success_ratio"],
             "market_success": len(us_ok),
             "market_failures": len(us_fail),
             "benchmark_attempted": len(benchmark_symbols),
+            "benchmark_success": us_daily["benchmark_success_count"],
+            "daily_capture_minimum_rotation_success_ratio": us_daily["minimum_rotation_success_ratio"],
+            "daily_capture_minimum_benchmark_success_count": us_daily["minimum_benchmark_success_count"],
+            "bounded_capture_quality": (
+                "PASS_ADEQUATE_BOUNDED_CAPTURE"
+                if us_daily["adequate_bounded_capture"]
+                else "BLOCKED_INADEQUATE_BOUNDED_CAPTURE"
+            ),
             "issuer_reference_count": policy["united_states"]["expected_issuer_count"],
             "sec_pool_count": plan["us_sec_pool_count"],
             "sec_queued": len(sec_rows),
