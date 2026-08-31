@@ -76,7 +76,6 @@ jobs:
         run: |
           python scripts/validate_contracts.py
           python scripts/validate_investment_os_interface.py
-          python -m scripts.a_share_chain_coherence --fail-on-incoherent --write outputs/status/A_SHARE_CHAIN_COHERENCE.json
           pytest -q \
             tests/test_fmdl2b4_incremental_refresh.py \
             tests/test_fmdl2b4_snapshot_identity.py \
@@ -332,6 +331,7 @@ jobs:
           test -f outputs/screens/current/SCREENING_MANIFEST.json
           test -f outputs/status/FMDL2C_LAST_SUCCESS.json
           python scripts/validate_investment_os_interface.py
+          python -m scripts.a_share_chain_coherence --fail-on-incoherent --write outputs/status/A_SHARE_CHAIN_COHERENCE.json
 
       - name: Upload immutable daily transaction evidence
         if: always()
