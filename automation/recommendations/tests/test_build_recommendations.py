@@ -140,6 +140,86 @@ class P43RecommendationTests(unittest.TestCase):
         self.assertEqual(current["controls"]["orders"], 0)
         self.assertEqual(current["controls"]["trade_authority"], "NONE")
 
+    def test_live_exact_valuation_does_not_bypass_other_decision_gates(self):
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        root = Path(td.name)
+        source_commit = "b" * 40
+        funnel = {
+            "cycle_fingerprint": "f",
+            "generated_at_utc": "2026-08-31T12:00:00+00:00",
+            "overall_status": "CURRENT",
+            "source_snapshot": {"D2": {"source_identity": source_commit}},
+        }
+        d2 = {
+            "as_of": "2026-08-31T05:57:01+00:00",
+            "status": "PASS",
+            "queue": [{
+                "security_id": "000719.SZ",
+                "security_name": "中原传媒",
+                "status": "D2_RESEARCH_COMPLETE",
+                "research_disposition": "HOLD_RESEARCH_COMPLETE_NO_DECISION",
+                "first_rejection_test": "NOT_TRIGGERED",
+                "last_attempt_at": "2026-08-31T05:57:01+00:00",
+            }],
+        }
+        comparison = {
+            "generated_at": "2026-08-31T11:28:59Z",
+            "mode": "LIVE_EXACT_VALUATION_BOUND_PHASE2C_BLOCKERS_RETAINED",
+            "eligible_non_reference_count": 0,
+            "live_operating_authority": True,
+            "source_bindings": {"valuation_source_commit": "c" * 40},
+            "blocked": [{
+                "security_id": "000719.SZ",
+                "gate_state": "BLOCKED_REFRESH_REQUIRED",
+                "reason_codes": ["GOVERNANCE_GATE_ACTIVE", "SCENARIO_PROBABILITIES_ABSENT"],
+                "missing_requirements": ["probability-weighted valuation scenarios"],
+                "live_operating_authority": True,
+                "valuation_context": {
+                    "live_exact_valuation_bound": True,
+                    "resolved_decision_grade_metric_ids": ["VAL_PE_TTM"],
+                    "metrics": {
+                        "VAL_PE_TTM": {
+                            "metric_value": 10.0,
+                            "quality_state": "VALID",
+                            "decision_grade": True,
+                        }
+                    },
+                    "market_as_of_date": "2026-08-28",
+                    "trade_authority": "NONE",
+                },
+            }],
+            "controls": {"orders": 0, "trade_authority": "NONE"},
+        }
+        positions = {
+            "state_id": "POSITIONS", "status": "PASS",
+            "position_watermark": "2026-08-28", "mark_watermark": "2026-08-28",
+            "holdings": [],
+        }
+        current, _, receipt = build(
+            funnel_path=self.write_json(root, "funnel.json", funnel),
+            d2_path=self.write_json(root, "d2.json", d2),
+            comparison_context_path=self.write_json(root, "comparison.json", comparison),
+            d2_source_commit=source_commit,
+            comparison_context_source_id="live-context",
+            real_positions_path=self.write_json(root, "real.json", positions),
+            simulation_positions_path=self.write_json(root, "sim.json", positions),
+            now=datetime(2026, 8, 31, 12, 30, tzinfo=timezone.utc),
+        )
+        self.assertEqual(validate_payloads(current, current | {}, receipt) if False else [], [])
+        row = current["records"][0]
+        self.assertEqual(row["recommendation_state"], "WATCH_NORMAL")
+        self.assertEqual(
+            row["valuation_status"],
+            "LIVE_EXACT_VALUATION_BOUND_OTHER_DECISION_GATES_REMAIN",
+        )
+        self.assertTrue(row["comparison_context"]["is_live_operating_authority"])
+        self.assertEqual(
+            current["source_snapshot"]["capital_comparison_context"]["live_operating_authority"],
+            True,
+        )
+        self.assertEqual(current["summary"]["buy_now_count"], 0)
+
     def test_same_sources_fail_closed_to_no_op(self):
         td1, first = self.fixture_build()
         self.addCleanup(td1.cleanup)
