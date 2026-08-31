@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 from automation.cross_market.apply_round3_sec_observer_results import validate_inbox
@@ -125,4 +127,45 @@ def test_collector_fails_closed_per_issuer_without_fabricating_hashes(tmp_path: 
     assert blocked_url not in manifest["responses"]
     assert manifest["official_success_count"] == 1
     assert manifest["official_failure_count"] == 1
+    validate_inbox(inbox, queue)
+
+
+def test_collector_direct_script_help_from_repo_root() -> None:
+    root = Path(__file__).resolve().parents[3]
+    cp = subprocess.run(
+        [sys.executable, "automation/cross_market/collect_round3_sec_official.py", "--help"],
+        cwd=root,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert cp.returncode == 0, cp.stderr
+    assert "--queue" in cp.stdout
+
+
+def test_ticker_map_outage_is_recorded_per_issuer_and_direct_cik_can_continue(tmp_path: Path) -> None:
+    queue = _queue()
+    payloads = _payloads()
+
+    def fetcher(url: str, headers: dict[str, str]) -> bytes:
+        if url == TICKER_URL:
+            raise OSError("controlled ticker-map outage")
+        return payloads[url]
+
+    inbox, manifest = collect(
+        queue,
+        raw_dir=tmp_path / "raw",
+        user_agent="investment-os-test contact:test@example.com",
+        fetcher=fetcher,
+        retrieved_at="2026-08-08T03:00:00+00:00",
+    )
+
+    assert manifest["ticker_map_status"] == "SEC_DATA_GAP"
+    assert "controlled ticker-map outage" in manifest["ticker_map_failure_reason"]
+    assert len(inbox["issuers"]) == 1
+    assert inbox["issuers"][0]["symbol"] == "XYZ"
+    assert len(inbox["failures"]) == 1
+    assert inbox["failures"][0]["symbol"] == "ABC"
+    assert "SEC_TICKER_MAP_UNAVAILABLE" in inbox["failures"][0]["reason"]
     validate_inbox(inbox, queue)
