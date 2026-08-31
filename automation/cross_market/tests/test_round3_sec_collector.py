@@ -142,3 +142,30 @@ def test_collector_direct_script_help_from_repo_root() -> None:
     )
     assert cp.returncode == 0, cp.stderr
     assert "--queue" in cp.stdout
+
+
+def test_ticker_map_outage_is_recorded_per_issuer_and_direct_cik_can_continue(tmp_path: Path) -> None:
+    queue = _queue()
+    payloads = _payloads()
+
+    def fetcher(url: str, headers: dict[str, str]) -> bytes:
+        if url == TICKER_URL:
+            raise OSError("controlled ticker-map outage")
+        return payloads[url]
+
+    inbox, manifest = collect(
+        queue,
+        raw_dir=tmp_path / "raw",
+        user_agent="investment-os-test contact:test@example.com",
+        fetcher=fetcher,
+        retrieved_at="2026-08-08T03:00:00+00:00",
+    )
+
+    assert manifest["ticker_map_status"] == "SEC_DATA_GAP"
+    assert "controlled ticker-map outage" in manifest["ticker_map_failure_reason"]
+    assert len(inbox["issuers"]) == 1
+    assert inbox["issuers"][0]["symbol"] == "XYZ"
+    assert len(inbox["failures"]) == 1
+    assert inbox["failures"][0]["symbol"] == "ABC"
+    assert "SEC_TICKER_MAP_UNAVAILABLE" in inbox["failures"][0]["reason"]
+    validate_inbox(inbox, queue)
