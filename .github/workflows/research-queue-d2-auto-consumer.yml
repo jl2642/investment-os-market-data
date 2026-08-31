@@ -17,7 +17,7 @@ on:
       - "automation/research_queue_d2/**"
       - ".github/workflows/research-queue-d2-auto-consumer.yml"
   schedule:
-    - cron: "35 0 * * 1-5"
+    - cron: "30 15 * * 1-5"
   workflow_dispatch:
 
 permissions:
@@ -157,7 +157,7 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## Research Queue D2 Auto Consumer
           - D1→D2 routes are consumed automatically; manual dispatch is break-glass only.
-          - Recovery cadence: weekdays 08:35 Asia/Shanghai.
+          - Recovery cadence: weekdays 23:30 Asia/Shanghai, after the completed A-share daily and Portfolio Marks refresh and before the chained P4 controller stack.
           - Primary disclosure discovery: CNINFO via AkShare.
           - Semantic deep research remains fail-closed and is owned by the ChatGPT-native D2 research consumer.
           - Publication remains on a governed automation branch and advances the low-risk Operating Current pointer after QC.

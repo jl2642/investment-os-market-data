@@ -3,11 +3,11 @@ run-name: "Round 3 bounded cross-market batch and research proposal"
 
 on:
   schedule:
-    - cron: "45 0 * * 2-6"
+    - cron: "30 21 * * 1-5"
   workflow_dispatch:
     inputs:
       as_of:
-        description: "Market date in YYYY-MM-DD; defaults to previous UTC date"
+        description: "Market date in YYYY-MM-DD; defaults to previous Asia/Shanghai date"
         required: false
         type: string
   pull_request:
@@ -179,7 +179,7 @@ jobs:
           if [[ -n "$requested" ]]; then
             as_of="$requested"
           else
-            as_of="$(date -u -d 'yesterday' +%F)"
+            as_of="$(TZ=Asia/Shanghai date -d 'yesterday' +%F)"
           fi
           python - "$as_of" <<'PY'
           from datetime import date
