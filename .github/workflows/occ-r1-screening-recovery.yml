@@ -1,0 +1,124 @@
+name: OCC-R1 A-share Screening Recovery
+run-name: "OCC-R1 screening-only recovery from accepted 2026-08-28 factor state"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/occ-r1-screening-recovery.yml"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  SOURCE_BRANCH: automation/fmdl2b4-rebase-33205823259-a1
+  SOURCE_COMMIT: bad4ca8cd5cc5545cae0824d8212dd7b121649b5
+
+jobs:
+  recover-screening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout Canonical main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Restore accepted 2026-08-28 Market History Factor baseline
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/occ-r1-source" --force --no-tags
+          git cat-file -e "$SOURCE_COMMIT^{commit}"
+          git merge-base --is-ancestor "$SOURCE_COMMIT" refs/remotes/origin/occ-r1-source
+          for path in \
+            outputs/current \
+            outputs/history/current \
+            outputs/factors/current
+          do
+            git checkout "$SOURCE_COMMIT" -- "$path"
+          done
+          python - <<'PY'
+          import json
+          paths = {
+              "market":"outputs/current/CURRENT_RELEASE.json",
+              "history":"outputs/history/current/HISTORY_CURRENT_RELEASE.json",
+              "factor":"outputs/factors/current/FACTOR_CURRENT_RELEASE.json",
+          }
+          out={k:json.load(open(v,encoding="utf-8")) for k,v in paths.items()}
+          assert out["market"]["as_of_date"]=="2026-08-28"
+          assert out["history"]["as_of_date"]=="2026-08-28"
+          assert out["factor"]["as_of_date"]=="2026-08-28"
+          assert out["factor"]["history_release_id"]==out["history"]["release_id"]
+          print({"market":out["market"]["as_of_date"],"history":out["history"]["release_id"],"factor":out["factor"]["release_id"],"trade_authority":"NONE"})
+          PY
+
+      - name: Build validate and materialize 2026-08-28 Screening
+        run: |
+          python -m scripts.run_screening_funnel_v2
+          python -m scripts.validate_fmdl2c_candidate
+          python -m scripts.publish_fmdl2c
+
+      - name: Enforce four-layer chain coherence
+        run: |
+          python -m scripts.a_share_chain_coherence \
+            --expect-date 2026-08-28 \
+            --fail-on-incoherent \
+            --write outputs/status/A_SHARE_CHAIN_COHERENCE.json
+
+      - name: Publish coherent recovery result branch and Operating Current
+        shell: bash
+        env:
+          RESULT_BRANCH: automation/occ-r1-screening-recovery-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add -A -- \
+            outputs/current \
+            outputs/history/current \
+            outputs/factors/current \
+            outputs/screens/current \
+            outputs/screens/candidate \
+            outputs/status/FMDL2C_LAST_SUCCESS.json \
+            outputs/status/A_SHARE_CHAIN_COHERENCE.json
+          git commit -m "data: publish OCC-R1 coherent A-share screening recovery"
+          git push origin "HEAD:refs/heads/$RESULT_BRANCH"
+          SOURCE_RESULT_COMMIT="$(git rev-parse HEAD)"
+          python automation/operating_current/publish_operating_current.py \
+            --domain A_SHARE_FULL_MARKET \
+            --status PASS \
+            --source-workflow "OCC-R1 A-share Screening Recovery" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_RESULT_COMMIT" \
+            --watermark 2026-08-28 \
+            --watermark-sort-key 2026-08-28 \
+            --qc-status PASS_CHAIN_COHERENT \
+            --advance-current
+
+      - name: Record recovery boundary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## OCC-R1 A-share Screening Recovery
+          - Frozen source: accepted 2026-08-28 Market/History/Factor recovery state.
+          - No live market fetch was performed.
+          - Screening only was recomputed, validated and materialized.
+          - Four-layer Market/History/Factor/Screening coherence is required before publication.
+          - Candidate membership, portfolio quantities, costs and orders are not mutated.
+          - trade_authority: NONE
+          EOF

@@ -62,3 +62,29 @@ def test_daily_publication_shell_uses_valid_heredoc() -> None:
     assert "WATERMARK=\"$(python - <<'PY'" in text
     assert "python - <<\\'PY\\'" not in text
     assert "python automation/operating_current/publish_operating_current.py \\\n" in text
+
+
+def test_daily_bootstraps_screening_and_enforces_chain_coherence() -> None:
+    text = _text("daily")
+    assert "outputs/screens/current" in text
+    assert "scripts.a_share_chain_coherence --fail-on-incoherent" in text
+    assert "--qc-status PASS_CHAIN_COHERENT" in text
+
+
+def test_recovery_declares_screening_refresh_required() -> None:
+    text = (ROOT / ".github/workflows/fmdl-2b4-full-rebase.yml").read_text(encoding="utf-8")
+    assert "A_SHARE_CHAIN_COHERENCE.json" in text
+    assert "PASS_HISTORY_FACTOR_SCREENING_REFRESH_REQUIRED" in text
+    assert "screening_refresh_required: true" in text
+
+
+def test_daily_bootstrap_accepts_occ_r1_screening_recovery_provenance() -> None:
+    text = _text("daily")
+    marker = '"OCC-R1 A-share Screening Recovery"'
+    assert text.count(marker) == 2
+
+
+def test_occ_r1_recovery_uses_valid_github_expression_branch_name() -> None:
+    text = (ROOT / ".github/workflows/occ-r1-screening-recovery.yml").read_text(encoding="utf-8")
+    assert "\\${{" not in text
+    assert 'RESULT_BRANCH: automation/occ-r1-screening-recovery-${{ github.run_id }}-a${{ github.run_attempt }}' in text
