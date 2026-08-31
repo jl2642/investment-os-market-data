@@ -1,0 +1,198 @@
+name: OCC-R4 Portfolio Decision Freshness
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/portfolio_freshness/**"
+      - ".github/workflows/occ-r4-portfolio-decision-freshness.yml"
+      - "docs/OPERATIONAL_CHAIN_CLOSURE_PLAN.md"
+  push:
+    branches: [main]
+    paths:
+      - "automation/portfolio_freshness/**"
+      - ".github/workflows/occ-r4-portfolio-decision-freshness.yml"
+      - "docs/OPERATIONAL_CHAIN_CLOSURE_PLAN.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install deterministic test runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest
+      - name: Compile and test portfolio freshness context
+        run: |
+          python -m py_compile automation/portfolio_freshness/build_portfolio_decision_freshness.py
+          python -m pytest -q automation/portfolio_freshness/tests
+      - name: Enforce OCC-R4 portfolio freshness scope
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed=set(subprocess.check_output(
+              ['git','diff','--name-only','origin/main...HEAD'], text=True
+          ).splitlines())
+          forbidden_prefixes=(
+              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/',
+              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/',
+              'investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/',
+              'investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/',
+          )
+          leaked=sorted(path for path in changed if path.startswith(forbidden_prefixes))
+          if leaked:
+              raise SystemExit('OCC_R4_PORTFOLIO_FRESHNESS_SCOPE_LEAK:' + ','.join(leaked))
+          print({'protected_state_mutations':0,'orders':0,'trade_authority':'NONE'})
+          PY
+
+  production:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Canonical main
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Resolve accepted Portfolio Marks and Recommendation authorities
+        id: authority
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin operating-current:refs/remotes/origin/operating-current
+          git show origin/operating-current:operating_current/domains/PORTFOLIO_MARKS.json > /tmp/portfolio-marks-domain.json
+          git show origin/operating-current:operating_current/domains/RECOMMENDATION.json > /tmp/recommendation-domain.json
+          git show origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json > /tmp/recommendation-current.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          marks=json.load(open('/tmp/portfolio-marks-domain.json',encoding='utf-8'))
+          rec=json.load(open('/tmp/recommendation-domain.json',encoding='utf-8'))
+          for label,payload in [('marks',marks),('recommendation',rec)]:
+              if payload.get('status') != 'PASS':
+                  raise SystemExit(f'OCC_R4_{label.upper()}_OPERATING_CURRENT_NOT_PASS')
+              if payload.get('trade_authority') != 'NONE' or payload.get('orders') != 0:
+                  raise SystemExit(f'OCC_R4_{label.upper()}_AUTHORITY_VIOLATION')
+          print(f"mark_branch={marks['source_branch']}")
+          print(f"mark_commit={marks['source_commit_sha']}")
+          print(f"mark_watermark={marks['data_watermark']}")
+          print(f"recommendation_commit={rec['source_commit_sha']}")
+          print(f"recommendation_watermark={rec['data_watermark']}")
+          PY
+      - name: Restore exact accepted Portfolio Current
+        shell: bash
+        env:
+          MARK_BRANCH: ${{ steps.authority.outputs.mark_branch }}
+          MARK_COMMIT: ${{ steps.authority.outputs.mark_commit }}
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "$MARK_BRANCH"
+          git cat-file -e "$MARK_COMMIT^{commit}"
+          git show "$MARK_COMMIT:investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json" > /tmp/portfolio-marks.json
+          git show "$MARK_COMMIT:investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json" > /tmp/real-positions.json
+          git show "$MARK_COMMIT:investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json" > /tmp/simulation-positions.json
+      - name: Build current portfolio decision freshness context
+        run: |
+          python automation/portfolio_freshness/build_portfolio_decision_freshness.py \
+            --marks-domain /tmp/portfolio-marks-domain.json \
+            --recommendation-domain /tmp/recommendation-domain.json \
+            --marks /tmp/portfolio-marks.json \
+            --real-positions /tmp/real-positions.json \
+            --simulation-positions /tmp/simulation-positions.json \
+            --recommendation /tmp/recommendation-current.json \
+            --legacy-decision investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_PORTFOLIO_DECISION_CURRENT.json \
+            --output outputs/occ_r4/portfolio/current/PORTFOLIO_DECISION_FRESHNESS_CONTEXT.json
+      - name: Validate fail-closed portfolio decision freshness result
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import json
+          p=json.load(open(
+              'outputs/occ_r4/portfolio/current/PORTFOLIO_DECISION_FRESHNESS_CONTEXT.json',
+              encoding='utf-8'
+          ))
+          assert p['status'] == 'PASS_PORTFOLIO_DECISION_FRESHNESS_ALIGNED'
+          assert p['qc_status'] == 'PASS_FRESH_INPUTS_BOUND_STALE_LEGACY_DECISION_BLOCKED'
+          assert p['decision_freshness']['fresh_input_surface'] is True
+          assert p['decision_freshness']['legacy_action_matrix_current'] is False
+          assert p['decision_freshness']['implementation_ready'] is False
+          assert p['decision_freshness']['ready_for_user_decision'] is False
+          assert p['controls']['candidate_membership_mutations'] == 0
+          assert p['controls']['real_account_mutations'] == 0
+          assert p['controls']['simulation_mutations'] == 0
+          assert p['controls']['target_portfolio_writebacks'] == 0
+          assert p['controls']['orders'] == 0
+          assert p['trade_authority'] == 'NONE'
+          print({
+              'as_of_date':p['as_of_date'],
+              'portfolio_overlap_count':p['recommendation_current']['portfolio_overlap_count'],
+              'legacy_action_matrix_current':False,
+              'orders':0,
+              'trade_authority':'NONE',
+          })
+          PY
+      - name: Publish governed freshness result and Operating Current
+        shell: bash
+        env:
+          RESULT_BRANCH: automation/occ-r4-portfolio-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add outputs/occ_r4/portfolio/current
+          git commit -m "OCC R4: stage portfolio decision freshness context"
+          git push origin "HEAD:$RESULT_BRANCH"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          MARK_DATE="$(python - <<'PY'
+          import json
+          p=json.load(open(
+              'outputs/occ_r4/portfolio/current/PORTFOLIO_DECISION_FRESHNESS_CONTEXT.json',
+              encoding='utf-8'
+          ))
+          print(p['as_of_date'])
+          PY
+          )"
+          python automation/operating_current/publish_operating_current.py \
+            --domain PORTFOLIO_DECISION_FRESHNESS \
+            --status PASS \
+            --source-workflow "OCC-R4 Portfolio Decision Freshness" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$MARK_DATE" \
+            --watermark-sort-key "$MARK_DATE" \
+            --qc-status PASS_FRESH_INPUTS_BOUND_STALE_LEGACY_DECISION_BLOCKED \
+            --advance-current
+          {
+            echo "## OCC-R4 Portfolio Decision Freshness"
+            echo "- result_branch: $RESULT_BRANCH"
+            echo "- portfolio mark watermark: $MARK_DATE"
+            echo "- accepted Recommendation watermark: ${{ steps.authority.outputs.recommendation_watermark }}"
+            echo "- legacy WP5 action matrix: STALE_BLOCKED"
+            echo "- automatic Candidate / real / simulation / portfolio writebacks / orders: 0 / 0 / 0 / 0 / 0"
+            echo "- trade_authority: NONE"
+          } >> "$GITHUB_STEP_SUMMARY"

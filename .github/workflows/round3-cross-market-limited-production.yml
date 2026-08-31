@@ -34,6 +34,7 @@ concurrency:
 
 env:
   TRADE_AUTHORITY: NONE
+  SEC_USER_AGENT: "investment-os-market-data/1.0 contact:https://github.com/jl2642/investment-os-market-data"
 
 jobs:
   deterministic-validation:
@@ -203,6 +204,43 @@ jobs:
           print(f"status={data.get('status', '')}")
           print(f"capture_status={data.get('capture_status', '')}")
           print(f"operating_state={data.get('operating_state', '')}")
+          print(f"us_bounded_capture_quality={data.get('us_bounded_capture_quality', '')}")
+          print(f"us_rotation_success_ratio={data.get('us_rotation_success_ratio', 0)}")
+          print(f"us_benchmark_success={data.get('us_benchmark_success', 0)}")
+          PY
+      - name: Consume official SEC retrieval queue
+        id: sec_consumer
+        if: steps.operate.outputs.due == 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          evidence_dir="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/${{ steps.operate.outputs.run_id }}"
+          queue="$evidence_dir/ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json"
+          inbox="$evidence_dir/ROUND3_SEC_CONTROLLED_RETRIEVAL_INBOX.json"
+          raw_dir="$evidence_dir/SEC_RAW"
+          raw_manifest="$evidence_dir/ROUND3_SEC_RAW_RESPONSE_MANIFEST.json"
+          python automation/cross_market/collect_round3_sec_official.py \
+            --queue "$queue" \
+            --output "$inbox" \
+            --raw-dir "$raw_dir" \
+            --raw-manifest "$raw_manifest" \
+            --user-agent "$SEC_USER_AGENT"
+          apply_result="$(python automation/cross_market/apply_round3_sec_observer_results.py \
+            --repo-root . \
+            --inbox "$inbox")"
+          echo "$apply_result"
+          python - "$inbox" "$apply_result" <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          inbox=json.load(open(sys.argv[1],encoding="utf-8"))
+          applied=json.loads(sys.argv[2])
+          processed=len(inbox.get("issuers",[]))+len(inbox.get("failures",[]))
+          if processed == 0:
+              raise SystemExit("OCC_R4_SEC_CONSUMER_EMPTY_RESULT")
+          print("consumer_status=PASS_QUEUE_CONSUMED")
+          print(f"official_success_count={len(inbox.get('issuers',[]))}")
+          print(f"official_failure_count={len(inbox.get('failures',[]))}")
+          print(f"sec_completed={applied.get('sec_official_completed_issuer_count',0)}")
+          print(f"sec_status={applied.get('sec_official_retrieval_status','')}")
           PY
       - name: Validate generated operating products
         if: steps.operate.outputs.due == 'true'
@@ -262,6 +300,48 @@ jobs:
             --watermark-sort-key "$WATERMARK" \
             --qc-status "${{ steps.operate.outputs.status }}:${{ steps.operate.outputs.capture_status }}" \
             "${ADVANCE_ARGS[@]}"
+          python automation/operating_current/publish_operating_current.py \
+            --domain US_BOUNDED_COVERAGE \
+            --status PASS \
+            --source-workflow "Round 3 HK and US Limited Production" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "${{ steps.operate.outputs.us_bounded_capture_quality }}:rotation_ratio=${{ steps.operate.outputs.us_rotation_success_ratio }}:benchmark_success=${{ steps.operate.outputs.us_benchmark_success }}" \
+            --advance-current
+          python automation/operating_current/publish_operating_current.py \
+            --domain SEC_QUEUE_CONSUMER \
+            --status PASS \
+            --source-workflow "Round 3 HK and US Limited Production" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "${{ steps.sec_consumer.outputs.consumer_status }}:success=${{ steps.sec_consumer.outputs.official_success_count }}:failure=${{ steps.sec_consumer.outputs.official_failure_count }}" \
+            --advance-current
+          SEC_STATUS="PASS"
+          SEC_ADVANCE=(--advance-current)
+          if [[ "${{ steps.sec_consumer.outputs.official_success_count }}" == "0" ]]; then
+            SEC_STATUS="BLOCKED"
+            SEC_ADVANCE=()
+          fi
+          python automation/operating_current/publish_operating_current.py \
+            --domain SEC_OFFICIAL_RETRIEVAL \
+            --status "$SEC_STATUS" \
+            --source-workflow "Round 3 HK and US Limited Production" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "PASS_QUEUE_CONSUMED:${{ steps.sec_consumer.outputs.sec_status }}:success=${{ steps.sec_consumer.outputs.official_success_count }}:failure=${{ steps.sec_consumer.outputs.official_failure_count }}" \
+            "${SEC_ADVANCE[@]}"
           {
             echo "## Round 3 governed handoff"
             echo "- result_branch: \`$RESULT_BRANCH\`"
@@ -275,7 +355,12 @@ jobs:
             echo "- Candidate / simulation / real account / decisions / orders: 0 / 0 / 0 / 0 / 0"
             echo "- trade_authority: NONE"
             echo "- operating_current_domain: CROSS_MARKET_LIMITED"
-            echo "- next gate: official SEC observer inbox; formal investment-state promotion remains separate"
+            echo "- us_coverage_authority: US_BOUNDED_COVERAGE / ${{ steps.operate.outputs.us_bounded_capture_quality }}"
+            echo "- sec_queue_consumer_authority: SEC_QUEUE_CONSUMER / ${{ steps.sec_consumer.outputs.consumer_status }}"
+            echo "- sec_operating_current_domain: SEC_OFFICIAL_RETRIEVAL"
+            echo "- SEC queue consumer: ${{ steps.sec_consumer.outputs.consumer_status }}"
+            echo "- SEC official successes/failures this run: ${{ steps.sec_consumer.outputs.official_success_count }}/${{ steps.sec_consumer.outputs.official_failure_count }}"
+            echo "- formal investment-state promotion remains separate"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Record no-op or observation state
         if: always()
