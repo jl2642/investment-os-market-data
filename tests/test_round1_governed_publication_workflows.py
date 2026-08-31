@@ -82,3 +82,9 @@ def test_daily_bootstrap_accepts_occ_r1_screening_recovery_provenance() -> None:
     text = _text("daily")
     marker = '"OCC-R1 A-share Screening Recovery"'
     assert text.count(marker) == 2
+
+
+def test_occ_r1_recovery_uses_valid_github_expression_branch_name() -> None:
+    text = (ROOT / ".github/workflows/occ-r1-screening-recovery.yml").read_text(encoding="utf-8")
+    assert "\\${{" not in text
+    assert 'RESULT_BRANCH: automation/occ-r1-screening-recovery-${{ github.run_id }}-a${{ github.run_attempt }}' in text
