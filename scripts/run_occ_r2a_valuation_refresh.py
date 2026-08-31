@@ -59,8 +59,33 @@ def build_market_delta(baseline: pd.DataFrame, snapshot: pd.DataFrame) -> tuple[
 
 
 
-def sanitize_market_only_metrics(frame: pd.DataFrame) -> pd.DataFrame:
+def sanitize_market_only_metrics(frame: pd.DataFrame, baseline: pd.DataFrame) -> pd.DataFrame:
     out = frame.copy()
+    base = baseline.set_index("symbol")
+    # Completed buyback and issuance dilution yields are effective share-change
+    # ratios, not price yields. They must remain unchanged when market price moves.
+    for field in ("completed_buyback_yield_ttm", "completed_issuance_dilution_yield_ttm"):
+        if field in out.columns and field in baseline.columns:
+            out[field] = out["symbol"].map(base[field])
+
+    # Cash dividend yield is price-sensitive, while the completed share-change
+    # components are not. Recompute the composite with the canonical sign rule.
+    required_shareholder = {
+        "dividend_yield_ttm",
+        "completed_buyback_yield_ttm",
+        "completed_issuance_dilution_yield_ttm",
+        "shareholder_yield_ttm",
+    }
+    if required_shareholder.issubset(out.columns):
+        complete = out[
+            ["dividend_yield_ttm", "completed_buyback_yield_ttm", "completed_issuance_dilution_yield_ttm"]
+        ].notna().all(axis=1)
+        out.loc[complete, "shareholder_yield_ttm"] = (
+            pd.to_numeric(out.loc[complete, "dividend_yield_ttm"], errors="coerce")
+            + pd.to_numeric(out.loc[complete, "completed_buyback_yield_ttm"], errors="coerce")
+            - pd.to_numeric(out.loc[complete, "completed_issuance_dilution_yield_ttm"], errors="coerce")
+        )
+
     # EV multiples cannot be exactly refreshed from the unified consumer table
     # because net-debt components are intentionally not carried in that table.
     # Fail closed rather than scale EV multiples by the equity-price ratio.
@@ -140,8 +165,8 @@ def main() -> int:
         incremental_release_id="OCC_R2A_MARKET_ONLY",
         target_date=target_date,
     )
-    propagated = sanitize_market_only_metrics(propagated)
-    rebuilt = sanitize_market_only_metrics(rebuilt)
+    propagated = sanitize_market_only_metrics(propagated, baseline)
+    rebuilt = sanitize_market_only_metrics(rebuilt, baseline)
     audit = core.comparison_audit(propagated, rebuilt)
     mismatch_count = int(audit["mismatch_count"].sum())
     trade_values = set(propagated["trade_authority"].dropna().astype(str))
@@ -191,7 +216,9 @@ def main() -> int:
         "valuation_fields_updated_by_market": {
             "exact_price_multiple_fields": ["pe_ttm", "pb", "ps_ttm"],
             "exact_inverse_price_fields": [
-                "earnings_yield_ttm", "fcf_yield_ttm", "dividend_yield_ttm",
+                "earnings_yield_ttm", "fcf_yield_ttm", "dividend_yield_ttm"
+            ],
+            "price_invariant_share_change_fields": [
                 "completed_buyback_yield_ttm", "completed_issuance_dilution_yield_ttm"
             ],
             "blocked_until_r2b": ["ev_sales_ttm", "ev_operating_income_ttm"],
@@ -203,6 +230,7 @@ def main() -> int:
             "FINANCIAL_FACT_DENOMINATORS_REMAIN_LAST_KNOWN_GOOD_PENDING_OCC_R2B",
             "FINANCIAL_BASELINE_UNIVERSE_IS_5528_AND_DOES_NOT_AUTO_ADMIT_NEWER_MARKET_SYMBOLS",
             "EV_MULTIPLES_ARE_BLOCKED_IN_R2A_BECAUSE_EXACT_NET_DEBT_COMPONENTS_ARE_NOT_IN_THE_UNIFIED_CONSUMER_TABLE",
+            "BUYBACK_AND_ISSUANCE_DILUTION_YIELDS_ARE_SHARE_CHANGE_RATIOS_AND_REMAIN_PRICE_INVARIANT",
             "SPECIALIZED_FINANCIAL_SECTOR_METRICS_REMAIN_CONTROLLED_BY_EXISTING_PROFILE_GATES",
             "NO_RECOMMENDATION_PORTFOLIO_ACTION_OR_TRADE_AUTHORITY",
         ],
