@@ -46,6 +46,17 @@ def _current_as_of(root: Path) -> str | None:
     return json.loads(path.read_text(encoding="utf-8")).get("as_of_date")
 
 
+def _same_date_noop_eligibility(root: Path, target_date: str) -> tuple[bool, dict]:
+    if _current_as_of(root) != target_date:
+        return False, {
+            "status": "MARKET_NOT_SAME_DATE",
+            "target_as_of_date": target_date,
+            "trade_authority": "NONE",
+        }
+    coherence = assess_chain_coherence(root, target_date=target_date)
+    return coherence["status"] == "PASS_COHERENT", coherence
+
+
 def _write_noop(root: Path, *, generated_at: str, as_of_date: str, reason: str) -> None:
     payload = {
         "run_id": f"NOOP_{as_of_date.replace('-', '')}",
@@ -79,8 +90,8 @@ def main() -> int:
                 print(json.dumps({"status": "NO_OP_NON_TRADING_DAY", "as_of_date": today}, ensure_ascii=False))
                 return 0
             if _current_as_of(ROOT) == today and not args.allow_same_date_refresh:
-                coherence = assess_chain_coherence(ROOT, target_date=today)
-                if coherence["status"] == "PASS_COHERENT":
+                noop_allowed, coherence = _same_date_noop_eligibility(ROOT, today)
+                if noop_allowed:
                     _write_noop(ROOT, generated_at=generated_at, as_of_date=today, reason="NO_OP_ALREADY_CURRENT")
                     print(json.dumps(
                         {
