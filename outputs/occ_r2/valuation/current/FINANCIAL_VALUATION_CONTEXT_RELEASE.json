@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-31T19:28:41+08:00",
+  "status": "PASS",
+  "qc_status": "PASS_EXACT_VALUATION_REBUILT",
+  "market_as_of_date": "2026-08-28",
+  "financial_report_period_watermark": "2026-06-30",
+  "financial_event_propagation": "COMPLETE",
+  "source_lineage": {
+    "market_source_branch": "automation/occ-r1-screening-recovery-33353608967-a1",
+    "market_source_commit": "7515e7d21006f144b69ae44d88a0c82a7a10f5db",
+    "financial_source_branch": "automation/occ-r2b1-financial-33366663873-a1",
+    "financial_source_commit": "cacc1ed3027a14dba8eb242a331d4163f5f6b91d"
+  },
+  "releases": {
+    "capitalization_release_id": "FMDL3DB_20260831T192601+0800",
+    "valuation_release_id": "FMDL3DC_20260831T192625+0800",
+    "financial_factor_release_id": "FMDL3CB_20260831T170042+0800"
+  },
+  "valuation_metrics": {
+    "valuation_contract_release_id": "FMDL3DA_20260719T190213+0800",
+    "capitalization_release_id": "FMDL3DB_20260831T192601+0800",
+    "factor_engine_release_id": "FMDL3CB_20260831T170042+0800",
+    "market_source_release_id": "FMDL1BC_20260829T035459+0800",
+    "market_as_of_date": "2026-08-28",
+    "universe_symbol_count": 5551,
+    "valuation_current_row_count": 5551,
+    "valuation_metric_count": 7,
+    "valuation_metric_detail_row_count": 38857,
+    "derived_input_row_count": 49471,
+    "valid_or_warning_metric_count": 24424,
+    "decision_grade_metric_count": 24424,
+    "controlled_capitalization_quarantine_count": 5,
+    "capitalization_coverage_ratio": 0.9990992613943434,
+    "core_resolved_ratio": 0.9333934367111432,
+    "future_denominator_blocked_count": 0,
+    "future_selected_denominator_count": 0,
+    "automatic_action_authorized_count": 0,
+    "state_counts": {
+      "VALID": 21014,
+      "MISSING_REQUIRED_INPUT": 8153,
+      "VALID_WITH_WARNING": 3410,
+      "NON_POSITIVE_EARNINGS": 3058,
+      "SECTOR_PROFILE_UNRESOLVED": 2450,
+      "NOT_APPLICABLE_SECTOR": 388,
+      "NON_POSITIVE_OPERATING_INCOME": 283,
+      "NON_POSITIVE_BOOK_EQUITY": 39,
+      "CONTROLLED_CAPITALIZATION_QUARANTINE": 35,
+      "QUARANTINED_INPUT": 22,
+      "NON_POSITIVE_REVENUE": 3,
+      "INVALID_ENTERPRISE_VALUE": 2
+    },
+    "metric_valid_counts": {
+      "VAL_EARNINGS_YIELD_TTM": 3643,
+      "VAL_EV_OPERATING_INCOME_TTM": 776,
+      "VAL_EV_SALES_TTM": 1059,
+      "VAL_FCF_YIELD_TTM": 5075,
+      "VAL_PB": 5157,
+      "VAL_PE_TTM": 3643,
+      "VAL_PS_TTM": 5071
+    }
+  },
+  "checks": {
+    "MARKET_CURRENT_ACCEPTED": true,
+    "FINANCIAL_CURRENT_ACCEPTED": true,
+    "MARKET_FINANCIAL_WATERMARK_MATCH": true,
+    "CAPITALIZATION_ACCEPTED": true,
+    "CAPITALIZATION_MARKET_WATERMARK_MATCH": true,
+    "VALUATION_ACCEPTED": true,
+    "VALUATION_MARKET_WATERMARK_MATCH": true,
+    "VALUATION_USES_REFRESHED_FINANCIAL_FACTOR_RELEASE": true,
+    "ZERO_FUTURE_SELECTED_DENOMINATOR": true,
+    "EV_SALES_RESTORED": true,
+    "EV_OPERATING_INCOME_RESTORED": true,
+    "ZERO_TRADE_AUTHORITY": true
+  },
+  "hard_failures": [],
+  "controlled_limitations": [
+    "R2B2_REBUILDS_CAPITALIZATION_AND_EXACT_VALUATION_ONLY",
+    "FINANCIAL_FACTOR_AND_SCORE_METHODOLOGY_REMAINS_FROZEN",
+    "NO_CANDIDATE_PORTFOLIO_OR_ORDER_MUTATION"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
