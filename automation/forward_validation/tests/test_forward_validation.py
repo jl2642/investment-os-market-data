@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import unittest
 from datetime import datetime
 from pathlib import Path
@@ -9,6 +10,10 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from automation.forward_validation.build_forward_validation import regime_id
+from automation.forward_validation.registered_evidence import (
+    d2_semantic_identity,
+    is_ancestor,
+)
 from automation.forward_validation.market_outcomes import (
     entry_date_for_checkpoint,
     factor_status,
@@ -23,6 +28,62 @@ from automation.forward_validation.publish_forward_validation import (
 
 
 class P45ForwardValidationTests(unittest.TestCase):
+
+    def test_historical_d2_commit_need_not_be_current_branch_ancestor(self):
+        with TemporaryDirectory() as td:
+            root=Path(td)
+            subprocess.run(["git","init","-b","main"],cwd=root,check=True,capture_output=True)
+            subprocess.run(["git","config","user.email","test@example.com"],cwd=root,check=True)
+            subprocess.run(["git","config","user.name","test"],cwd=root,check=True)
+            state=root/"investment_os_runtime/30_STATE_CURRENT/30_RESEARCH"
+            state.mkdir(parents=True)
+            artifact=root/"evidence/000719.json"
+            artifact.parent.mkdir(parents=True)
+            artifact.write_text(
+                json.dumps({"security_id":"000719.SZ","fact":"governed"}),
+                encoding="utf-8",
+            )
+            (state/"RESEARCH_QUEUE_D2_CURRENT.json").write_text(
+                json.dumps({
+                    "queue":[{
+                        "security_id":"000719.SZ",
+                        "semantic_artifact":"evidence/000719.json",
+                    }]
+                }),
+                encoding="utf-8",
+            )
+            subprocess.run(["git","add","."],cwd=root,check=True)
+            subprocess.run(["git","commit","-m","historical d2"],cwd=root,check=True,capture_output=True)
+            historical=subprocess.check_output(
+                ["git","rev-parse","HEAD"],cwd=root,text=True
+            ).strip()
+
+            subprocess.run(["git","checkout","--orphan","rewritten"],cwd=root,check=True,capture_output=True)
+            subprocess.run(["git","rm","-rf","."],cwd=root,check=True,capture_output=True)
+            (root/"README.md").write_text("rewritten branch\n",encoding="utf-8")
+            subprocess.run(["git","add","README.md"],cwd=root,check=True)
+            subprocess.run(["git","commit","-m","rewritten head"],cwd=root,check=True,capture_output=True)
+            current=subprocess.check_output(
+                ["git","rev-parse","HEAD"],cwd=root,text=True
+            ).strip()
+
+            self.assertFalse(is_ancestor(root,historical,current))
+            identity=d2_semantic_identity(root,historical)
+            self.assertEqual(identity["source_commit"],historical)
+            self.assertEqual(
+                identity["artifacts"][0]["security_id"],
+                "000719.SZ",
+            )
+
+    def test_p45_workflow_does_not_require_d2_branch_ancestry(self):
+        root=Path(__file__).resolve().parents[3]
+        text=(root/".github/workflows/p4-5-forward-validation.yml").read_text(encoding="utf-8")
+        self.assertNotIn(
+            'git merge-base --is-ancestor "$D2_COMMIT" refs/remotes/origin/p4-5-d2',
+            text,
+        )
+        self.assertIn("d2_semantic_identity", text)
+
     def test_materialize_baseline_uses_exact_publication_cutoff(self):
         candidate={
             "eligibility_cutoff_utc":None,
