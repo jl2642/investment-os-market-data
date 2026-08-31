@@ -272,25 +272,21 @@ R3A must:
 - require screening manifest as_of_date == Operating Current data_watermark;
 - preserve existing Funnel logic and zero protected-state mutation.
 
-
 #### OCC-R3A closure evidence
 
-- PR #381 merged; merge commit: b3c3750e401584be00bd567efaad86657256c238.
+- PR #381 merged to main; merge commit: b3c3750e401584be00bd567efaad86657256c238.
 - accepted live P4-2 run: 33391415127.
 - validate: SUCCESS.
-- operate: SUCCESS.
-- live Funnel publication: SUCCESS.
-- remote readback: SUCCESS.
-- OPPORTUNITY_FUNNEL Operating Current: PASS / PASS_P4_2_FUNNEL_VALIDATED.
-- accepted FULL_MARKET_SCREEN watermark consumed by Funnel: 2026-08-28.
-- Funnel universe: 5,551.
-- Research Longlist: 100.
-- D1 bounded queue: 5; automatic D2 promotion: false.
-- Candidate / real / simulation / orders mutations: 0 / 0 / 0 / 0.
+- operate / publication / remote readback: SUCCESS.
+- OPPORTUNITY_FUNNEL Operating Current: PASS_P4_2_FUNNEL_VALIDATED.
+- accepted FULL_MARKET_SCREEN watermark: 2026-08-28.
+- Screening universe: 5,551.
+- Screening Longlist: 100.
+- source fingerprint advanced from the prior stale-source cycle.
+- Candidate / Real / Simulation mutations: 0 / 0 / 0.
+- orders: 0.
 - TRADE_AUTHORITY = NONE.
 - OCC-003 is closed.
-
-The accepted live Funnel truthfully remains PARTIAL_STALE_UPSTREAM because Candidate Current and Candidate operating surfaces are older than the fresh Screening source; that residual is OCC-R3B scope, not an R3A failure.
 
 ### OCC-R3B — Governed Candidate Proposal Bridge **IN PROGRESS**
 
