@@ -10,7 +10,7 @@
     "user_decisions_generated": 0
   },
   "cycle_action": "ADVANCE_NEW_SOURCE_FINGERPRINT",
-  "generated_at_utc": "2026-08-31T07:02:03+00:00",
+  "generated_at_utc": "2026-08-31T13:10:23+00:00",
   "market_coverage": [
     {
       "current_subject_count": 3,
@@ -32,25 +32,100 @@
     }
   ],
   "overall_status": "CURRENT_EXPLICIT_NON_ACTIONABLE_JUDGMENTS",
-  "prior_recommendation_fingerprint": "d74b6d9d799ac2741b82d8764c374a298d57623925b37756d92b23b35e0c0ed7",
-  "recommendation_fingerprint": "28d35782116000fd5907b22c5a69b9bbd326bd07cbb73eb143324e54a54c7e80",
+  "prior_recommendation_fingerprint": "28d35782116000fd5907b22c5a69b9bbd326bd07cbb73eb143324e54a54c7e80",
+  "recommendation_fingerprint": "0bc396b2ed92e8fa41df9866ad086252b62dacbcfed56795576216b2c8b025e7",
   "records": [
     {
-      "capital_comparison_status": "BLOCKED_REFRESH_REQUIRED_GOVERNED_PHASE2C_CONTEXT_NOT_LIVE_AUTHORITY",
+      "capital_comparison_status": "BLOCKED_REFRESH_REQUIRED_LIVE_OPERATING_CONTEXT",
       "comparison_context": {
         "gate_state": "BLOCKED_REFRESH_REQUIRED",
-        "is_live_operating_authority": false,
+        "is_live_operating_authority": true,
         "missing_requirements": [
-          "fresh completed-close price/multiple bound to research object",
           "no-material-governance-change confirmation cannot be fully cleared while investigation is unresolved",
           "probability-weighted valuation scenarios",
           "explicit comparison vector inputs"
         ],
         "reason_codes": [
-          "FRESH_VALUATION_BINDING_ABSENT",
           "GOVERNANCE_GATE_ACTIVE",
           "SCENARIO_PROBABILITIES_ABSENT"
-        ]
+        ],
+        "valuation_context": {
+          "automatic_action_authorized": false,
+          "evidence_codes": [
+            "LIVE_EXACT_VALUATION_BOUND"
+          ],
+          "live_exact_valuation_bound": true,
+          "market_as_of_date": "2026-08-28",
+          "metrics": {
+            "VAL_EARNINGS_YIELD_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-25T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_EARNINGS_YIELD_TTM",
+              "metric_value": 0.1136962494896019,
+              "quality_state": "VALID"
+            },
+            "VAL_EV_OPERATING_INCOME_TTM": {
+              "decision_grade": false,
+              "denominator_available_from": null,
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_EV_OPERATING_INCOME_TTM",
+              "metric_value": null,
+              "quality_state": "MISSING_REQUIRED_INPUT"
+            },
+            "VAL_EV_SALES_TTM": {
+              "decision_grade": false,
+              "denominator_available_from": null,
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_EV_SALES_TTM",
+              "metric_value": null,
+              "quality_state": "MISSING_REQUIRED_INPUT"
+            },
+            "VAL_FCF_YIELD_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-25T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_FCF_YIELD_TTM",
+              "metric_value": 0.11322070591102401,
+              "quality_state": "VALID"
+            },
+            "VAL_PB": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-25T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_PB",
+              "metric_value": 0.9828695323984962,
+              "quality_state": "VALID"
+            },
+            "VAL_PE_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-25T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_PE_TTM",
+              "metric_value": 8.795364882211484,
+              "quality_state": "VALID"
+            },
+            "VAL_PS_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-25T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_PS_TTM",
+              "metric_value": 1.319737261892121,
+              "quality_state": "VALID"
+            }
+          },
+          "normalized_valuation_proven": false,
+          "resolved_decision_grade_metric_ids": [
+            "VAL_EARNINGS_YIELD_TTM",
+            "VAL_FCF_YIELD_TTM",
+            "VAL_PB",
+            "VAL_PE_TTM",
+            "VAL_PS_TTM"
+          ],
+          "trade_authority": "NONE",
+          "valuation_release_id": "FMDL3DC_20260831T192625+0800",
+          "valuation_source_commit": "7270d64d36a99a86173aa43d6f81fa9a290593d5"
+        }
       },
       "evidence_status": "RESEARCH_COMPLETE_ACTIVE_GATES_REMAIN",
       "invalidation_conditions": [
@@ -61,7 +136,6 @@
         "D2_RESEARCH_COMPLETE",
         "HOLD_RESEARCH_COMPLETE_NO_DECISION",
         "RESEARCH_COMPLETE_WITHOUT_DECISION_PROMOTION",
-        "FRESH_VALUATION_BINDING_ABSENT",
         "GOVERNANCE_GATE_ACTIVE",
         "SCENARIO_PROBABILITIES_ABSENT"
       ],
@@ -84,11 +158,19 @@
       "security_name": "中原传媒",
       "source_bindings": {
         "capital_comparison_context": {
-          "identity": "f0cecbadb39ea25938cf5eecdcb17e3c3259209564ae4d5544827e4ccc65165a",
-          "live_operating_authority": false,
-          "mode": "NO_COMPARISON",
-          "source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd",
-          "watermark": "2026-08-26T12:44:00+08:00"
+          "identity": "dab371e4d1d8980272425f298b61a5e0b3553bd456d61e1b4be3380730c0c366",
+          "live_operating_authority": true,
+          "mode": "LIVE_EXACT_VALUATION_BOUND_PHASE2C_BLOCKERS_RETAINED",
+          "source_bindings": {
+            "market_as_of_date": "2026-08-28",
+            "phase2c_source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd",
+            "valuation_domain_id": "FINANCIAL_VALUATION_CONTEXT",
+            "valuation_release_id": "FMDL3DC_20260831T192625+0800",
+            "valuation_source_branch": "automation/occ-r2b2-valuation-33386156007-a1",
+            "valuation_source_commit": "7270d64d36a99a86173aa43d6f81fa9a290593d5"
+          },
+          "source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd@7270d64d36a99a86173aa43d6f81fa9a290593d5",
+          "watermark": "2026-08-31T11:28:59Z"
         },
         "d2": {
           "identity": "02ca77b998c2f04425bb9f61a0e5a4b522662e7c",
@@ -96,9 +178,9 @@
           "watermark": "2026-08-31T05:57:01+00:00"
         },
         "opportunity_funnel": {
-          "identity": "986fc48b4c5aa4ed4ef4ca3c5154274c47674c259e6cd8e282836689c8c2a931",
+          "identity": "548170d701d957abd1ce4aaede97c6dfaca3b3ecf6abf38dc044cdb8b11d4a13",
           "overall_status": "PARTIAL_STALE_UPSTREAM",
-          "watermark": "2026-08-31T06:52:39+00:00"
+          "watermark": "2026-08-31T12:23:39+00:00"
         },
         "real_positions": {
           "identity": "fd22877bf9dd792b2c5615055061907d592cc69f5a6bad25e80361b09c0ee8d6",
@@ -126,9 +208,9 @@
         }
       },
       "source_watermarks": {
-        "capital_comparison_context": "2026-08-26T12:44:00+08:00",
+        "capital_comparison_context": "2026-08-31T11:28:59Z",
         "d2": "2026-08-31T05:57:01+00:00",
-        "funnel": "2026-08-31T06:52:39+00:00",
+        "funnel": "2026-08-31T12:23:39+00:00",
         "real_positions": {
           "applied_delta_count": 1,
           "applied_delta_ids": [
@@ -154,13 +236,13 @@
         "INVESTIGATION_OUTCOME_AND_ANY_CONTROL_OR_OPERATING_IMPACT",
         "NO_DECISION_PROMOTION"
       ],
-      "valuation_status": "RESEARCH_VALUATION_CONTEXT_PRESENT_FRESH_BINDING_ABSENT"
+      "valuation_status": "LIVE_EXACT_VALUATION_BOUND_OTHER_DECISION_GATES_REMAIN"
     },
     {
-      "capital_comparison_status": "BLOCKED_REFRESH_REQUIRED_GOVERNED_PHASE2C_CONTEXT_NOT_LIVE_AUTHORITY",
+      "capital_comparison_status": "BLOCKED_REFRESH_REQUIRED_LIVE_OPERATING_CONTEXT",
       "comparison_context": {
         "gate_state": "BLOCKED_REFRESH_REQUIRED",
-        "is_live_operating_authority": false,
+        "is_live_operating_authority": true,
         "missing_requirements": [
           "fresh normalized P/E",
           "fresh hydrology/leverage review if newer disclosure",
@@ -170,7 +252,84 @@
         "reason_codes": [
           "FRESH_NORMALIZED_VALUATION_ABSENT",
           "SCENARIO_PROBABILITIES_ABSENT"
-        ]
+        ],
+        "valuation_context": {
+          "automatic_action_authorized": false,
+          "evidence_codes": [
+            "LIVE_EXACT_PE_TTM_BOUND_NORMALIZED_PE_NOT_PROVEN"
+          ],
+          "live_exact_valuation_bound": true,
+          "market_as_of_date": "2026-08-28",
+          "metrics": {
+            "VAL_EARNINGS_YIELD_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_EARNINGS_YIELD_TTM",
+              "metric_value": 0.08549350599935449,
+              "quality_state": "VALID"
+            },
+            "VAL_EV_OPERATING_INCOME_TTM": {
+              "decision_grade": false,
+              "denominator_available_from": null,
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_EV_OPERATING_INCOME_TTM",
+              "metric_value": null,
+              "quality_state": "MISSING_REQUIRED_INPUT"
+            },
+            "VAL_EV_SALES_TTM": {
+              "decision_grade": false,
+              "denominator_available_from": null,
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_EV_SALES_TTM",
+              "metric_value": null,
+              "quality_state": "MISSING_REQUIRED_INPUT"
+            },
+            "VAL_FCF_YIELD_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_FCF_YIELD_TTM",
+              "metric_value": 0.26227917386802396,
+              "quality_state": "VALID"
+            },
+            "VAL_PB": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_PB",
+              "metric_value": 1.82797058169623,
+              "quality_state": "VALID"
+            },
+            "VAL_PE_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_PE_TTM",
+              "metric_value": 11.69679484202637,
+              "quality_state": "VALID"
+            },
+            "VAL_PS_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_PS_TTM",
+              "metric_value": 2.3492537142315615,
+              "quality_state": "VALID"
+            }
+          },
+          "normalized_valuation_proven": false,
+          "resolved_decision_grade_metric_ids": [
+            "VAL_EARNINGS_YIELD_TTM",
+            "VAL_FCF_YIELD_TTM",
+            "VAL_PB",
+            "VAL_PE_TTM",
+            "VAL_PS_TTM"
+          ],
+          "trade_authority": "NONE",
+          "valuation_release_id": "FMDL3DC_20260831T192625+0800",
+          "valuation_source_commit": "7270d64d36a99a86173aa43d6f81fa9a290593d5"
+        }
       },
       "evidence_status": "RESEARCH_COMPLETE_ACTIVE_GATES_REMAIN",
       "invalidation_conditions": [
@@ -203,11 +362,19 @@
       "security_name": "黔源电力",
       "source_bindings": {
         "capital_comparison_context": {
-          "identity": "f0cecbadb39ea25938cf5eecdcb17e3c3259209564ae4d5544827e4ccc65165a",
-          "live_operating_authority": false,
-          "mode": "NO_COMPARISON",
-          "source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd",
-          "watermark": "2026-08-26T12:44:00+08:00"
+          "identity": "dab371e4d1d8980272425f298b61a5e0b3553bd456d61e1b4be3380730c0c366",
+          "live_operating_authority": true,
+          "mode": "LIVE_EXACT_VALUATION_BOUND_PHASE2C_BLOCKERS_RETAINED",
+          "source_bindings": {
+            "market_as_of_date": "2026-08-28",
+            "phase2c_source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd",
+            "valuation_domain_id": "FINANCIAL_VALUATION_CONTEXT",
+            "valuation_release_id": "FMDL3DC_20260831T192625+0800",
+            "valuation_source_branch": "automation/occ-r2b2-valuation-33386156007-a1",
+            "valuation_source_commit": "7270d64d36a99a86173aa43d6f81fa9a290593d5"
+          },
+          "source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd@7270d64d36a99a86173aa43d6f81fa9a290593d5",
+          "watermark": "2026-08-31T11:28:59Z"
         },
         "d2": {
           "identity": "02ca77b998c2f04425bb9f61a0e5a4b522662e7c",
@@ -215,9 +382,9 @@
           "watermark": "2026-08-31T05:57:01+00:00"
         },
         "opportunity_funnel": {
-          "identity": "986fc48b4c5aa4ed4ef4ca3c5154274c47674c259e6cd8e282836689c8c2a931",
+          "identity": "548170d701d957abd1ce4aaede97c6dfaca3b3ecf6abf38dc044cdb8b11d4a13",
           "overall_status": "PARTIAL_STALE_UPSTREAM",
-          "watermark": "2026-08-31T06:52:39+00:00"
+          "watermark": "2026-08-31T12:23:39+00:00"
         },
         "real_positions": {
           "identity": "fd22877bf9dd792b2c5615055061907d592cc69f5a6bad25e80361b09c0ee8d6",
@@ -245,9 +412,9 @@
         }
       },
       "source_watermarks": {
-        "capital_comparison_context": "2026-08-26T12:44:00+08:00",
+        "capital_comparison_context": "2026-08-31T11:28:59Z",
         "d2": "2026-08-31T05:57:01+00:00",
-        "funnel": "2026-08-31T06:52:39+00:00",
+        "funnel": "2026-08-31T12:23:39+00:00",
         "real_positions": {
           "applied_delta_count": 1,
           "applied_delta_ids": [
@@ -271,13 +438,13 @@
         "MONITOR_HYDROLOGY_AND_LEVERAGE",
         "NO_DECISION_PROMOTION"
       ],
-      "valuation_status": "RESEARCH_VALUATION_CONTEXT_PRESENT_FRESH_NORMALIZED_BINDING_ABSENT"
+      "valuation_status": "LIVE_EXACT_VALUATION_BOUND_NORMALIZED_VALUATION_STILL_REQUIRED"
     },
     {
-      "capital_comparison_status": "BLOCKED_MATERIAL_EVIDENCE_GOVERNED_PHASE2C_CONTEXT_NOT_LIVE_AUTHORITY",
+      "capital_comparison_status": "BLOCKED_MATERIAL_EVIDENCE_LIVE_OPERATING_CONTEXT",
       "comparison_context": {
         "gate_state": "BLOCKED_MATERIAL_EVIDENCE",
-        "is_live_operating_authority": false,
+        "is_live_operating_authority": true,
         "missing_requirements": [
           "project-level realized utilization",
           "realized pricing/mix",
@@ -290,7 +457,82 @@
         "reason_codes": [
           "PHASE1C_NOT_READY",
           "MATERIAL_EVIDENCE_GAP_EXPLICITLY_RECONFIRMED"
-        ]
+        ],
+        "valuation_context": {
+          "automatic_action_authorized": false,
+          "evidence_codes": [],
+          "live_exact_valuation_bound": true,
+          "market_as_of_date": "2026-08-28",
+          "metrics": {
+            "VAL_EARNINGS_YIELD_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_EARNINGS_YIELD_TTM",
+              "metric_value": 0.03446754692313181,
+              "quality_state": "VALID"
+            },
+            "VAL_EV_OPERATING_INCOME_TTM": {
+              "decision_grade": false,
+              "denominator_available_from": null,
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_EV_OPERATING_INCOME_TTM",
+              "metric_value": null,
+              "quality_state": "MISSING_REQUIRED_INPUT"
+            },
+            "VAL_EV_SALES_TTM": {
+              "decision_grade": false,
+              "denominator_available_from": null,
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_EV_SALES_TTM",
+              "metric_value": null,
+              "quality_state": "MISSING_REQUIRED_INPUT"
+            },
+            "VAL_FCF_YIELD_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_FCF_YIELD_TTM",
+              "metric_value": -0.003199226538852961,
+              "quality_state": "VALID_WITH_WARNING"
+            },
+            "VAL_PB": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_PB",
+              "metric_value": 2.375401139376996,
+              "quality_state": "VALID"
+            },
+            "VAL_PE_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_PE_TTM",
+              "metric_value": 29.01279868364759,
+              "quality_state": "VALID"
+            },
+            "VAL_PS_TTM": {
+              "decision_grade": true,
+              "denominator_available_from": "2026-08-24T09:30:00+08:00",
+              "market_as_of_date": "2026-08-28",
+              "metric_id": "VAL_PS_TTM",
+              "metric_value": 11.526923072729256,
+              "quality_state": "VALID"
+            }
+          },
+          "normalized_valuation_proven": false,
+          "resolved_decision_grade_metric_ids": [
+            "VAL_EARNINGS_YIELD_TTM",
+            "VAL_FCF_YIELD_TTM",
+            "VAL_PB",
+            "VAL_PE_TTM",
+            "VAL_PS_TTM"
+          ],
+          "trade_authority": "NONE",
+          "valuation_release_id": "FMDL3DC_20260831T192625+0800",
+          "valuation_source_commit": "7270d64d36a99a86173aa43d6f81fa9a290593d5"
+        }
       },
       "evidence_status": "MATERIAL_EVIDENCE_GAP_ACTIVE",
       "invalidation_conditions": [
@@ -321,11 +563,19 @@
       "security_name": "中汽股份",
       "source_bindings": {
         "capital_comparison_context": {
-          "identity": "f0cecbadb39ea25938cf5eecdcb17e3c3259209564ae4d5544827e4ccc65165a",
-          "live_operating_authority": false,
-          "mode": "NO_COMPARISON",
-          "source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd",
-          "watermark": "2026-08-26T12:44:00+08:00"
+          "identity": "dab371e4d1d8980272425f298b61a5e0b3553bd456d61e1b4be3380730c0c366",
+          "live_operating_authority": true,
+          "mode": "LIVE_EXACT_VALUATION_BOUND_PHASE2C_BLOCKERS_RETAINED",
+          "source_bindings": {
+            "market_as_of_date": "2026-08-28",
+            "phase2c_source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd",
+            "valuation_domain_id": "FINANCIAL_VALUATION_CONTEXT",
+            "valuation_release_id": "FMDL3DC_20260831T192625+0800",
+            "valuation_source_branch": "automation/occ-r2b2-valuation-33386156007-a1",
+            "valuation_source_commit": "7270d64d36a99a86173aa43d6f81fa9a290593d5"
+          },
+          "source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd@7270d64d36a99a86173aa43d6f81fa9a290593d5",
+          "watermark": "2026-08-31T11:28:59Z"
         },
         "d2": {
           "identity": "02ca77b998c2f04425bb9f61a0e5a4b522662e7c",
@@ -333,9 +583,9 @@
           "watermark": "2026-08-31T05:57:01+00:00"
         },
         "opportunity_funnel": {
-          "identity": "986fc48b4c5aa4ed4ef4ca3c5154274c47674c259e6cd8e282836689c8c2a931",
+          "identity": "548170d701d957abd1ce4aaede97c6dfaca3b3ecf6abf38dc044cdb8b11d4a13",
           "overall_status": "PARTIAL_STALE_UPSTREAM",
-          "watermark": "2026-08-31T06:52:39+00:00"
+          "watermark": "2026-08-31T12:23:39+00:00"
         },
         "real_positions": {
           "identity": "fd22877bf9dd792b2c5615055061907d592cc69f5a6bad25e80361b09c0ee8d6",
@@ -363,9 +613,9 @@
         }
       },
       "source_watermarks": {
-        "capital_comparison_context": "2026-08-26T12:44:00+08:00",
+        "capital_comparison_context": "2026-08-31T11:28:59Z",
         "d2": "2026-08-31T05:57:01+00:00",
-        "funnel": "2026-08-31T06:52:39+00:00",
+        "funnel": "2026-08-31T12:23:39+00:00",
         "real_positions": {
           "applied_delta_count": 1,
           "applied_delta_ids": [
@@ -392,14 +642,22 @@
     }
   ],
   "schema_version": "1.0.0",
-  "semantic_hash": "c10b0b5084d63a4c1dafc4de35d4b0f57777b181f2baedab285b21e14e56b22c",
+  "semantic_hash": "5db6aa8f651df2fcfa5e7b402c2c1cf100e3fc8b45526fb1d4f18d3f2d8a859a",
   "source_snapshot": {
     "capital_comparison_context": {
-      "identity": "f0cecbadb39ea25938cf5eecdcb17e3c3259209564ae4d5544827e4ccc65165a",
-      "live_operating_authority": false,
-      "mode": "NO_COMPARISON",
-      "source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd",
-      "watermark": "2026-08-26T12:44:00+08:00"
+      "identity": "dab371e4d1d8980272425f298b61a5e0b3553bd456d61e1b4be3380730c0c366",
+      "live_operating_authority": true,
+      "mode": "LIVE_EXACT_VALUATION_BOUND_PHASE2C_BLOCKERS_RETAINED",
+      "source_bindings": {
+        "market_as_of_date": "2026-08-28",
+        "phase2c_source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd",
+        "valuation_domain_id": "FINANCIAL_VALUATION_CONTEXT",
+        "valuation_release_id": "FMDL3DC_20260831T192625+0800",
+        "valuation_source_branch": "automation/occ-r2b2-valuation-33386156007-a1",
+        "valuation_source_commit": "7270d64d36a99a86173aa43d6f81fa9a290593d5"
+      },
+      "source_id": "20a8605439258c7f7b6e8b2b12edd53ef240fcfd@7270d64d36a99a86173aa43d6f81fa9a290593d5",
+      "watermark": "2026-08-31T11:28:59Z"
     },
     "d2": {
       "identity": "02ca77b998c2f04425bb9f61a0e5a4b522662e7c",
@@ -407,9 +665,9 @@
       "watermark": "2026-08-31T05:57:01+00:00"
     },
     "opportunity_funnel": {
-      "identity": "986fc48b4c5aa4ed4ef4ca3c5154274c47674c259e6cd8e282836689c8c2a931",
+      "identity": "548170d701d957abd1ce4aaede97c6dfaca3b3ecf6abf38dc044cdb8b11d4a13",
       "overall_status": "PARTIAL_STALE_UPSTREAM",
-      "watermark": "2026-08-31T06:52:39+00:00"
+      "watermark": "2026-08-31T12:23:39+00:00"
     },
     "real_positions": {
       "identity": "fd22877bf9dd792b2c5615055061907d592cc69f5a6bad25e80361b09c0ee8d6",
