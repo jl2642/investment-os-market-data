@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       force_weekly:
-        description: "Run the weekly dynamic Candidate loop against current main screening inputs"
+        description: "Run the weekly dynamic Candidate loop against latest accepted Screening Current"
         required: false
         default: false
         type: boolean
@@ -63,7 +63,7 @@ jobs:
           python -m py_compile \
             automation/wp3_r/build_candidate_dynamic_loop.py \
             automation/wp3_r/validate_candidate_dynamic_pr.py
-          pytest -q automation/wp3_r/tests/test_candidate_dynamic_loop.py
+          pytest -q automation/wp3_r/tests/test_candidate_dynamic_loop.py tests/test_occ_r3b_candidate_proposal_wiring.py
 
   validate-generated-pr:
     if: github.event_name == 'pull_request'
@@ -169,15 +169,31 @@ jobs:
           fetch-depth: 0
           ref: main
 
-      - name: Download the exact FMDL transaction artifact
-        if: github.event_name == 'workflow_run'
-        uses: actions/download-artifact@v4
-        with:
-          name: fmdl-daily-${{ github.event.workflow_run.id }}-a${{ github.event.workflow_run.run_attempt }}
-          path: .
-          github-token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+      - name: Restore exact accepted Screening Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json > /tmp/WP3R_SCREENING_CURRENT.json
+          SCREENING_BRANCH="$(python -c "import json; print(json.load(open('/tmp/WP3R_SCREENING_CURRENT.json',encoding='utf-8'))['source_branch'])")"
+          SCREENING_COMMIT="$(python -c "import json; print(json.load(open('/tmp/WP3R_SCREENING_CURRENT.json',encoding='utf-8'))['source_commit_sha'])")"
+          git fetch origin "refs/heads/$SCREENING_BRANCH:refs/remotes/origin/wp3r-screening" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/wp3r-screening)" = "$SCREENING_COMMIT"
+          git checkout "$SCREENING_COMMIT" -- \
+            outputs/screens/current/SCREENING_MANIFEST.json \
+            outputs/screens/current/SCREENING_LONGLIST.csv
+          python - <<'PY'
+          import csv, json
+          domain=json.load(open('/tmp/WP3R_SCREENING_CURRENT.json',encoding='utf-8'))
+          manifest=json.load(open('outputs/screens/current/SCREENING_MANIFEST.json',encoding='utf-8'))
+          with open('outputs/screens/current/SCREENING_LONGLIST.csv',encoding='utf-8-sig',newline='') as f:
+              rows=list(csv.DictReader(f))
+          assert domain.get('status')=='PASS', domain
+          assert domain.get('qc_status')=='PASS_CHAIN_COHERENT', domain
+          assert domain.get('trade_authority')=='NONE', domain
+          assert manifest.get('as_of_date')==domain.get('data_watermark'), (manifest,domain)
+          assert rows and {row['as_of_date'] for row in rows}=={domain['data_watermark']}, domain
+          PY
 
       - name: Freeze Canonical Candidate before proposal build
         run: |
