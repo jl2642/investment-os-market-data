@@ -54,7 +54,7 @@ def test_market_propagation_updates_valuation_but_not_financial_denominator() ->
         "fcf_yield_ttm": 0.10,
         "dividend_yield_ttm": 0.03,
         "completed_buyback_yield_ttm": 0.01,
-        "completed_issuance_dilution_yield_ttm": -0.005,
+        "completed_issuance_dilution_yield_ttm": 0.005,
         "shareholder_yield_ttm": 0.035,
         "market_as_of_date": "2026-07-17",
         "component_release_ids_json": "{}",
@@ -77,12 +77,16 @@ def test_market_propagation_updates_valuation_but_not_financial_denominator() ->
         incremental_release_id="R2A_MARKET_ONLY",
         target_date="2026-08-28",
     )
-    refreshed = sanitize_market_only_metrics(refreshed).iloc[0]
+    refreshed = sanitize_market_only_metrics(refreshed, baseline).iloc[0]
     assert refreshed["close"] == 20.0
     assert refreshed["total_market_cap_cny"] == 2000.0
     assert refreshed["pe_ttm"] == 40.0
     assert refreshed["pb"] == 4.0
     assert refreshed["fcf_yield_ttm"] == 0.05
+    assert refreshed["dividend_yield_ttm"] == 0.015
+    assert refreshed["completed_buyback_yield_ttm"] == 0.01
+    assert refreshed["completed_issuance_dilution_yield_ttm"] == 0.005
+    assert refreshed["shareholder_yield_ttm"] == 0.02
     assert pd.isna(refreshed["ev_sales_ttm"])
     assert pd.isna(refreshed["ev_operating_income_ttm"])
     assert refreshed["ev_sales_ttm_state"] == "BLOCKED_STALE_EV_COMPONENTS_PENDING_OCC_R2B"
