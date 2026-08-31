@@ -1,0 +1,214 @@
+name: OCC-R2B1 Financial Baseline Rebuild
+run-name: "OCC-R2B1 full financial baseline recovery"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/occ-r2b1-financial-baseline-rebuild.yml"
+      - "scripts/summarize_occ_r2b_financial_context.py"
+      - "tests/test_occ_r2b1_workflow_contract.py"
+      - "automation/operating_current/publish_operating_current.py"
+      - "docs/OPERATIONAL_CHAIN_CLOSURE_PLAN.md"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/occ-r2b1-financial-baseline-rebuild.yml"
+      - "scripts/summarize_occ_r2b_financial_context.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  TRADE_AUTHORITY: NONE
+  PYTHONPATH: .
+
+concurrency:
+  group: occ-r2b1-financial-baseline
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      source_branch: ${{ steps.source.outputs.source_branch }}
+      source_commit: ${{ steps.source.outputs.source_commit }}
+      source_watermark: ${{ steps.source.outputs.source_watermark }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Deterministic OCC-R2B1 contract checks
+        run: |
+          python -m py_compile scripts/summarize_occ_r2b_financial_context.py
+          pytest -q tests/test_occ_r2b1_workflow_contract.py
+          python -m scripts.validate_fmdl3b2_matrix_v2 --help >/dev/null || true
+          python -m scripts.validate_fmdl3b3_contract
+          python -m scripts.validate_fmdl3b4_contract
+          python -m scripts.validate_fmdl3cb_engine_contract
+          python -m scripts.validate_fmdl3cc_contract
+          python -m scripts.validate_fmdl3cd_contract
+      - name: Resolve latest accepted A-share Operating Current
+        id: source
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json > /tmp/a_share_current.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          row=json.load(open('/tmp/a_share_current.json',encoding='utf-8'))
+          assert row.get('status')=='PASS', row
+          assert row.get('trade_authority')=='NONE', row
+          print('source_branch='+str(row['source_branch']))
+          print('source_commit='+str(row['source_commit_sha']))
+          print('source_watermark='+str(row['data_watermark']))
+          PY
+
+  statement-shards:
+    needs: preflight
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        shard_id: ["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Restore accepted A-share market universe
+        shell: bash
+        env:
+          SOURCE_BRANCH: ${{ needs.preflight.outputs.source_branch }}
+          SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
+          SOURCE_WATERMARK: ${{ needs.preflight.outputs.source_watermark }}
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/occ-r2b1-source" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2b1-source)" = "$SOURCE_COMMIT"
+          git checkout "$SOURCE_COMMIT" --             outputs/current/CURRENT_RELEASE.json             outputs/current/DAILY_MARKET_SNAPSHOT.csv             outputs/current/DAILY_MARKET_SNAPSHOT_MANIFEST.json             outputs/current/A_SHARE_UNIVERSE.csv             outputs/current/A_SHARE_UNIVERSE_MANIFEST.json
+          python -c "import json,os; r=json.load(open('outputs/current/CURRENT_RELEASE.json',encoding='utf-8')); assert r['as_of_date']==os.environ['SOURCE_WATERMARK']; assert r['status'] in {'PUBLISHED','PUBLISHED_WITH_WARNINGS'}"
+      - name: Build PIT-scoped matrix config
+        shell: bash
+        env:
+          SOURCE_WATERMARK: ${{ needs.preflight.outputs.source_watermark }}
+        run: |
+          python -c "import json,os; from pathlib import Path; src=Path('config/fmdl3b2_matrix.json'); cfg=json.loads(src.read_text(encoding='utf-8')); cfg.setdefault('data_scope',{})['pit_cutoff_as_of_date']=os.environ['SOURCE_WATERMARK']; Path('/tmp/occ-r2b1-fmdl3b2-matrix.json').write_text(json.dumps(cfg,ensure_ascii=False,indent=2)+'\\n',encoding='utf-8')"
+          python -c "import json,os; cfg=json.load(open('/tmp/occ-r2b1-fmdl3b2-matrix.json',encoding='utf-8')); assert cfg['data_scope']['pit_cutoff_as_of_date']==os.environ['SOURCE_WATERMARK']"
+      - name: Build real financial statement shard
+        run: python -m scripts.run_fmdl3b2_shard_v2 --config /tmp/occ-r2b1-fmdl3b2-matrix.json --shard-id ${{ matrix.shard_id }}
+      - name: Independently validate financial statement shard
+        run: python -m scripts.validate_fmdl3b2_shard_v2 --shard-id ${{ matrix.shard_id }}
+      - name: Upload validated shard package
+        uses: actions/upload-artifact@v4
+        with:
+          name: occ-r2b1-statement-shard-${{ matrix.shard_id }}
+          path: |
+            outputs/financials/full_build/matrix/shards/shard-${{ matrix.shard_id }}/
+            !outputs/financials/full_build/matrix/shards/shard-${{ matrix.shard_id }}/SHARD_RAW_FACTS.parquet
+          if-no-files-found: error
+          retention-days: 30
+
+  financial-chain:
+    needs: [preflight, statement-shards]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Restore accepted A-share market and interface
+        shell: bash
+        env:
+          SOURCE_BRANCH: ${{ needs.preflight.outputs.source_branch }}
+          SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
+          SOURCE_WATERMARK: ${{ needs.preflight.outputs.source_watermark }}
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/occ-r2b1-source" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2b1-source)" = "$SOURCE_COMMIT"
+          git checkout "$SOURCE_COMMIT" --             outputs/current/CURRENT_RELEASE.json             outputs/current/DAILY_MARKET_SNAPSHOT.csv             outputs/current/DAILY_MARKET_SNAPSHOT_MANIFEST.json             outputs/current/A_SHARE_UNIVERSE.csv             outputs/current/A_SHARE_UNIVERSE_MANIFEST.json             outputs/investment_os/INVESTMENT_OS_MARKET_DATA_INTERFACE.json
+      - name: Download validated statement shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: occ-r2b1-statement-shard-*
+          path: downloaded-shards
+          merge-multiple: false
+      - name: Aggregate validate and publish refreshed Statement Base
+        run: |
+          python -m scripts.aggregate_fmdl3b2_matrix_v2 --input-root downloaded-shards
+          python -m scripts.validate_fmdl3b2_matrix_v2
+          python -m scripts.publish_fmdl3b2_matrix
+      - name: Rebuild comparability and Statement Current
+        run: |
+          python -m scripts.run_fmdl3b3_comparability
+          python -m scripts.validate_fmdl3b3_comparability
+          python -m scripts.publish_fmdl3b3_comparability
+          python -m scripts.run_fmdl3b4_statement_current
+          python -m scripts.validate_fmdl3b4_statement_current
+          python -m scripts.publish_fmdl3b4_statement_current
+      - name: Rebuild financial factors hardening and score
+        run: |
+          python -m scripts.run_fmdl3cb_factor_engine
+          python -m scripts.validate_fmdl3cb_factor_engine
+          python -m scripts.validate_fmdl3cb_sector_profiles
+          python -m scripts.publish_fmdl3cb_factor_engine
+          python -m scripts.run_fmdl3cc_hardening
+          python -m scripts.validate_fmdl3cc_hardening
+          python -m scripts.publish_fmdl3cc_hardening
+          python -m scripts.run_fmdl3cd_financial_score
+          python -m scripts.validate_fmdl3cd_financial_score
+          python -m scripts.publish_fmdl3cd_financial_score
+      - name: Summarize R2B1 financial context
+        run: python -m scripts.summarize_occ_r2b_financial_context
+      - name: Publish governed R2B1 result branch and Operating Current
+        shell: bash
+        env:
+          SOURCE_WATERMARK: ${{ needs.preflight.outputs.source_watermark }}
+          RESULT_BRANCH: automation/occ-r2b1-financial-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add -A --             datasets/financials             datasets/financial_factors             outputs/financials/full_build/current             outputs/financials/full_build/archive             outputs/financials/comparability/current             outputs/financials/comparability/archive             outputs/financials/statements/current             outputs/financials/statements/archive             outputs/financial_factors/engine/current             outputs/financial_factors/engine/archive             outputs/financial_factors/hardening/current             outputs/financial_factors/hardening/archive             outputs/financial_factors/score/current             outputs/financial_factors/score/archive             outputs/status/FMDL3B2_LAST_SUCCESS.json             outputs/status/FMDL3B3_LAST_SUCCESS.json             outputs/status/FMDL3B4_LAST_SUCCESS.json             outputs/status/FMDL3CB_LAST_SUCCESS.json             outputs/status/FMDL3CC_LAST_SUCCESS.json             outputs/status/FMDL3CD_LAST_SUCCESS.json             outputs/occ_r2/financial/current
+          git commit -m "data: publish OCC-R2B1 refreshed financial baseline"
+          git push origin "HEAD:refs/heads/$RESULT_BRANCH"
+          RESULT_COMMIT="$(git rev-parse HEAD)"
+          REPORT_WATERMARK="$(python -c "import json; print(json.load(open('outputs/occ_r2/financial/current/FINANCIAL_CONTEXT_RELEASE.json',encoding='utf-8'))['financial_report_period_watermark'])")"
+          PUBLISH_DIR="$(mktemp -d /tmp/occ-r2b1-publisher.XXXXXX)"
+          cleanup() { git worktree remove --force "$PUBLISH_DIR" >/dev/null 2>&1 || true; rm -rf "$PUBLISH_DIR" || true; }
+          trap cleanup EXIT
+          git worktree add --detach "$PUBLISH_DIR" origin/main
+          (
+            cd "$PUBLISH_DIR"
+            python automation/operating_current/publish_operating_current.py               --domain FINANCIAL_STATEMENT_CONTEXT               --status PASS               --source-workflow "OCC-R2B1 Financial Baseline Rebuild"               --source-run-id "${{ github.run_id }}"               --source-run-attempt "${{ github.run_attempt }}"               --source-branch "$RESULT_BRANCH"               --source-commit "$RESULT_COMMIT"               --watermark "$SOURCE_WATERMARK"               --watermark-sort-key "$SOURCE_WATERMARK"               --qc-status PASS_FINANCIAL_BASELINE_REBUILT               --note "financial_report_period_watermark=$REPORT_WATERMARK;valuation_rebuild=PENDING_OCC_R2B2;trade_authority=NONE"               --advance-current
+          )
+          cleanup
+          trap - EXIT
