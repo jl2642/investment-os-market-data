@@ -724,7 +724,7 @@ def run(root: Path, policy_path: Path, as_of: date, fetcher: Fetcher = default_f
         "trade_authority": "NONE",
     }
     write_json(evidence_dir / "ROUND3_MANIFEST.json", manifest)
-    return {"due": True, "run_id": run_id, "status": proposal["status"], "capture_status": capture_status, "operating_state": operating_state, "cycle_id": cycle["cycle_id"], "cycle_completed": cycle["completed"], "market_rotation_completed": cycle["market_rotation_completed"], "hk_success": len(hk_ok), "us_success": len(us_ok), "sec_queued": len(sec_rows), "orders": 0, "trade_authority": "NONE"}
+    return {"due": True, "run_id": run_id, "status": proposal["status"], "capture_status": capture_status, "operating_state": operating_state, "cycle_id": cycle["cycle_id"], "cycle_completed": cycle["completed"], "market_rotation_completed": cycle["market_rotation_completed"], "hk_success": len(hk_ok), "us_success": len(us_ok), "us_bounded_capture_quality": run_record["united_states"]["bounded_capture_quality"], "us_rotation_success_ratio": run_record["united_states"]["rotation_success_ratio"], "us_benchmark_success": run_record["united_states"]["benchmark_success"], "sec_queued": len(sec_rows), "orders": 0, "trade_authority": "NONE"}
 
 def main() -> None:
     parser = argparse.ArgumentParser()
