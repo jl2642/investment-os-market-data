@@ -1,6 +1,6 @@
 # Operational Chain Closure (OCC)
 
-Status: ACTIVE_REPAIR_PROGRAM  
+Status: COMPLETE_ACCEPTED_2026_08_31  
 Scope: defect-scoped production wiring only  
 Trade authority: NONE
 
@@ -35,7 +35,7 @@ Market -> History -> Factor -> Screening -> Financial/Valuation -> Candidate/Opp
 - OCC-R2: financial and valuation live wiring. **COMPLETE (2026-08-31)**
 - OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure. **COMPLETE (2026-08-31)**
 - OCC-R4: HK/US, SEC and portfolio freshness repair. **COMPLETE (2026-08-31)**
-- OCC-R5: nightly orchestration and 08:00 controller acceptance. **IN PROGRESS**
+- OCC-R5: nightly orchestration and 08:00 controller acceptance. **COMPLETE (2026-08-31)**
 
 ## R1 acceptance contract
 
@@ -555,5 +555,91 @@ R5 requires:
 5. orders=0 and TRADE_AUTHORITY=NONE.
 
 No broker integration, automatic Candidate application, portfolio rebalance, order creation or Phase-5 migration is authorized.
+
+TRADE_AUTHORITY = NONE.
+
+
+## OCC-R5 closure evidence
+
+OCC-R5 closes OCC-010 and OCC-011 under exact-head validation, merged orchestration changes and immediate controller-equivalent acceptance.
+
+### Nightly orchestration — OCC-010 CLOSED
+
+- PR #395 merged to main.
+- merge commit: cb78b08d0f53dd44997492514daba9dfccb61854.
+- exact-head required checks: all SUCCESS or intentionally SKIPPED.
+- final required build-real-candidate run: 33405171025 / SUCCESS.
+- merged main schedule readback:
+  - FMDL Daily A-share: 17:30 Asia/Shanghai.
+  - WP2-R Portfolio Marks: 22:45.
+  - Research Queue D2 Auto Consumer: 23:30.
+  - P4-2 Opportunity Funnel: 00:30.
+  - P4-3 Recommendation: 01:15.
+  - PORTFOLIO_DECISION_FRESHNESS: success-only workflow_run after P4-3 main success.
+  - P4-4 Trigger / Shadow: 02:00.
+  - P4-5 Forward Validation: 02:45.
+  - Round 3 HK/US + SEC: 05:30, using previous Asia/Shanghai date semantics.
+  - formal ChatGPT controller: 08:00 Asia/Shanghai.
+- the formal 08:00 controller automation remains enabled on Monday-Saturday and its schedule was not moved.
+- the controller prompt now explicitly reads:
+  - FINANCIAL_STATEMENT_CONTEXT;
+  - FINANCIAL_VALUATION_CONTEXT;
+  - US_BOUNDED_COVERAGE;
+  - SEC_QUEUE_CONSUMER;
+  - SEC_OFFICIAL_RETRIEVAL Current if present plus latest attempt when Current is absent;
+  - PORTFOLIO_DECISION_FRESHNESS;
+  in addition to the retained core and Strategy Kernel domains.
+- controller semantics explicitly distinguish Current from latest-attempt failure/no-op, healthy SEC consumer from unavailable SEC official data, bounded US coverage from full-market coverage, and fresh portfolio inputs from the stale legacy WP5 action matrix.
+
+### Legacy provider-session noise — OCC-011 CLOSED
+
+- WP3-2A Universe Refresh retains manual workflow_dispatch diagnostic/proposal capability.
+- its legacy scheduled provider-session retries are removed.
+- authoritative A-share production remains FMDL Daily + Operating Current.
+- no historical capability was deleted.
+
+### Immediate controller-equivalent acceptance
+
+The post-R4 Operating Current authority surface was read directly before closure and is internally consistent:
+
+- A_SHARE_FULL_MARKET: PASS / 2026-08-28 / PASS_CHAIN_COHERENT.
+- PORTFOLIO_MARKS: PASS / 2026-08-28.
+- CANDIDATE_WEEKLY_OBSERVATION: PASS / 2026-08-28.
+- RESEARCH_D2: PASS / 2026-08-31T05:57:01Z.
+- CROSS_MARKET_LIMITED: PASS / 2026-08-28 / adequate bounded coverage.
+- FINANCIAL_STATEMENT_CONTEXT: PASS / market watermark 2026-08-28 / financial baseline rebuilt.
+- FINANCIAL_VALUATION_CONTEXT: PASS / 2026-08-28 / exact valuation rebuilt.
+- OPPORTUNITY_FUNNEL: PASS / 2026-08-31T12:23:39Z.
+- RECOMMENDATION: PASS / 2026-08-31T13:10:23Z.
+- TRIGGER_MONITOR: accepted Current retained; latest attempt is truthful semantic NO_OP.
+- SHADOW_BOOK: accepted Current retained; latest attempt is truthful semantic NO_OP.
+- FORWARD_VALIDATION: accepted clean baseline retained; latest attempt is NO_OP_NO_NEW_ELIGIBLE_FORWARD_CHECKPOINT.
+- US_BOUNDED_COVERAGE: PASS / rotation ratio 0.875 / benchmark success 7.
+- SEC_QUEUE_CONSUMER: PASS / queue consumed / success=0 / failure=8.
+- SEC_OFFICIAL_RETRIEVAL: no manufactured Current; latest attempt BLOCKED because official SEC retrieval was unavailable from the GitHub runner.
+- PORTFOLIO_DECISION_FRESHNESS: PASS / fresh marks + current Recommendation bound; stale July WP5 action matrix explicitly blocked.
+
+The immediate controller-equivalent read therefore proves that the controller can distinguish healthy production, semantic no-op, preserved LKG, stale legacy decision state and external data-source unavailability without fabricating system health or investment readiness.
+
+### Final OCC authority boundary
+
+- Candidate membership automatic mutations: 0.
+- Real-account automatic mutations: 0.
+- Simulation automatic mutations: 0.
+- automatic portfolio action writebacks: 0.
+- broker integration: none.
+- orders: 0.
+- TRADE_AUTHORITY = NONE.
+- Phase-5 migration remains separately governed and is not authorized by OCC closure.
+
+## OCC final closure
+
+OCC-001 through OCC-011 are closed within the frozen scope.
+
+The Operational Chain Closure repair program is COMPLETE.
+
+The retained production system now provides a governed investment-research and decision-support chain with explicit freshness, lineage, blocker, no-op and external-data-gap semantics. OCC completion does not imply that every investment candidate is actionable, every external provider is always available, or autonomous trading is permitted.
+
+Future defects are normal operations / AUTO_RECOVERY or POST_OCC_BACKLOG unless they demonstrate a new systemic break in the accepted chain.
 
 TRADE_AUTHORITY = NONE.
