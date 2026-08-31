@@ -158,3 +158,20 @@ The backlog audit:
 After backlog size is measured, implement only the minimum catch-up mode required by observed backlog size.
 
 TRADE_AUTHORITY = NONE.
+
+
+### OCC-R2B implementation decision
+
+R2B financial-event propagation uses a two-mode refresh policy:
+
+- LOW_DENSITY_REVISION_MODE: bounded 3E-BC incremental notice/fact processing for isolated post-baseline revisions.
+- REPORTING_SEASON_FULL_REFRESH_MODE: reuse the existing 32-shard FMDL3B2 full-universe statement matrix, then deterministically rebuild B3 comparability, B4 statement current, 3CB financial factors, 3CD financial score and 3DC valuation.
+
+The full-refresh path must:
+- consume the latest accepted A-share Operating Current watermark as its PIT cutoff;
+- exclude facts not available by the completed-session cutoff;
+- block a report period when the provider's current structured values may have been contaminated by a revision whose available_from is later than the cutoff;
+- publish only through governed result branches / Operating Current, never direct-push protected main;
+- preserve TRADE_AUTHORITY=NONE.
+
+Ordinary pull-request validation must not trigger the expensive 32-shard live rebuild. Production rebuild and code validation are separate gates.

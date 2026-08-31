@@ -119,7 +119,7 @@ jobs:
 
   shards:
     needs: preflight
-    if: github.event_name != 'pull_request' || github.head_ref != 'fmdl-3b2-full-universe-matrix'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     strategy:
@@ -176,7 +176,7 @@ jobs:
 
   aggregate:
     needs: shards
-    if: always() && (github.event_name != 'pull_request' || github.head_ref != 'fmdl-3b2-full-universe-matrix')
+    if: always() && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:

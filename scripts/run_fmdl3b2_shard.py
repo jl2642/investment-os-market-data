@@ -89,6 +89,7 @@ def main() -> int:
     registry_index, registry_payload = semantic.apply_overrides(base_index, base_registry)
     trading_days = pilot.fetch_calendar()
     runtime_cfg = shard_runtime_config(cfg)
+    pit_cutoff_as_of_date = cfg.get("data_scope", {}).get("pit_cutoff_as_of_date")
     pilot_cfg = matrix.load_json(PILOT_CONFIG)
 
     started = time.monotonic()
@@ -106,6 +107,7 @@ def main() -> int:
                 runtime_cfg,
                 registry_index,
                 trading_days,
+                pit_cutoff_as_of_date,
             ): symbol
             for symbol in symbols
         }

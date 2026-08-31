@@ -77,24 +77,68 @@ def choose_canary(universe: list[str], size: int) -> list[dict[str, Any]]:
     return [by_symbol[symbol] for symbol in selected[:size]]
 
 
+def _pit_cutoff_utc(value: str | None) -> pd.Timestamp | None:
+    if not value:
+        return None
+    ts = pd.Timestamp(str(value))
+    if ts.tzinfo is None:
+        # A date-only financial cutoff is aligned to the A-share completed
+        # session close. available_from is defined at a trading open (09:30),
+        # so 15:00 includes evidence available for that completed session.
+        if len(str(value)) == 10:
+            ts = ts.tz_localize("Asia/Shanghai") + pd.Timedelta(hours=15)
+        else:
+            ts = ts.tz_localize("Asia/Shanghai")
+    return ts.tz_convert("UTC")
+
+
+def filter_revision_rows_for_cutoff(
+    revision_rows: list[dict[str, Any]],
+    as_of_cutoff: str | None,
+) -> tuple[list[dict[str, Any]], set[tuple[str, str]]]:
+    cutoff = _pit_cutoff_utc(as_of_cutoff)
+    if cutoff is None:
+        return revision_rows, set()
+    eligible: list[dict[str, Any]] = []
+    contaminated: set[tuple[str, str]] = set()
+    for row in revision_rows:
+        available = pd.to_datetime(row.get("available_from"), errors="coerce", utc=True)
+        key = (str(row.get("symbol") or ""), str(row.get("report_period_end") or ""))
+        if pd.isna(available):
+            continue
+        if available <= cutoff:
+            eligible.append(dict(row))
+        else:
+            contaminated.add(key)
+    # If a later revision exists after the cutoff, the provider's current
+    # structured value may already reflect it. Historical numeric replay is
+    # therefore blocked for that period rather than back-filled from the
+    # current provider export.
+    return eligible, contaminated
+
+
 def extract_selected_facts(
     sample: dict[str, Any],
     cfg: dict[str, Any],
     registry_index,
     trading_days: list[date],
+    as_of_cutoff: str | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     end_date = datetime.now(TZ).strftime("%Y%m%d")
     start_date = cfg["canary"]["minimum_report_period_end"].replace("-", "")[:4] + "0101"
     filings, cninfo_source = pilot.fetch_filings(sample, start_date, end_date)
-    revision_rows = core.build_revision_intervals(filings, trading_days, "09:30:00")
+    all_revision_rows = core.build_revision_intervals(filings, trading_days, "09:30:00")
+    revision_rows, cutoff_contaminated_periods = filter_revision_rows_for_cutoff(
+        all_revision_rows, as_of_cutoff
+    )
     latest = core.latest_revision_map(revision_rows)
     support = {
         "symbol": sample["symbol"],
         "entity": sample["name"],
         "profile": sample["profile"],
         "board": sample["board"],
-        "official_filing_count": len(filings),
-        "official_document_index_available": bool(filings),
+        "official_filing_count": len(revision_rows) if as_of_cutoff else len(filings),
+        "official_document_index_available": bool(revision_rows) if as_of_cutoff else bool(filings),
         "primary_statement_components": 0,
         "fallback_statement_components_invoked": 0,
         "fallback_statement_components_used": 0,
@@ -146,6 +190,15 @@ def extract_selected_facts(
             cfg["canary"]["maximum_periods_per_statement"],
             registry_index,
         )
+        if as_of_cutoff:
+            cutoff = _pit_cutoff_utc(as_of_cutoff)
+            rows = [
+                row for row in rows
+                if row.get("available_from")
+                and pd.to_datetime(row.get("available_from"), errors="coerce", utc=True) <= cutoff
+                and (str(row.get("symbol")), str(row.get("report_period_end")))
+                not in cutoff_contaminated_periods
+            ]
         raw_rows.extend(rows)
         selected_periods[statement] = {row["report_period_end"] for row in rows}
 
