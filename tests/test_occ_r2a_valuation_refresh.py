@@ -3,7 +3,7 @@ import json
 import pandas as pd
 
 from scripts import fmdl3ede_core as core
-from scripts.run_occ_r2a_valuation_refresh import build_market_delta
+from scripts.run_occ_r2a_valuation_refresh import build_market_delta, sanitize_market_only_metrics
 
 
 def test_build_market_delta_preserves_financial_baseline_scope() -> None:
@@ -40,7 +40,16 @@ def test_market_propagation_updates_valuation_but_not_financial_denominator() ->
         "pb": 2.0,
         "ps_ttm": 4.0,
         "ev_sales_ttm": 5.0,
+        "ev_sales_ttm_state": "VALID",
         "ev_operating_income_ttm": 10.0,
+        "ev_operating_income_ttm_state": "VALID",
+        "pe_ttm_state": "VALID",
+        "earnings_yield_ttm_state": "VALID",
+        "pb_state": "VALID",
+        "ps_ttm_state": "VALID",
+        "fcf_yield_ttm_state": "VALID",
+        "valuation_valid_metric_count": 7,
+        "valuation_decision_grade_metric_count": 7,
         "earnings_yield_ttm": 0.05,
         "fcf_yield_ttm": 0.10,
         "dividend_yield_ttm": 0.03,
@@ -67,11 +76,17 @@ def test_market_propagation_updates_valuation_but_not_financial_denominator() ->
         release_id="R2A_TEST",
         incremental_release_id="R2A_MARKET_ONLY",
         target_date="2026-08-28",
-    ).iloc[0]
+    )
+    refreshed = sanitize_market_only_metrics(refreshed).iloc[0]
     assert refreshed["close"] == 20.0
     assert refreshed["total_market_cap_cny"] == 2000.0
     assert refreshed["pe_ttm"] == 40.0
     assert refreshed["pb"] == 4.0
     assert refreshed["fcf_yield_ttm"] == 0.05
+    assert pd.isna(refreshed["ev_sales_ttm"])
+    assert pd.isna(refreshed["ev_operating_income_ttm"])
+    assert refreshed["ev_sales_ttm_state"] == "BLOCKED_STALE_EV_COMPONENTS_PENDING_OCC_R2B"
+    assert refreshed["valuation_valid_metric_count"] == 5
+    assert refreshed["valuation_decision_grade_metric_count"] == 5
     assert refreshed["market_as_of_date"] == "2026-08-28"
     assert refreshed["trade_authority"] == "NONE"
