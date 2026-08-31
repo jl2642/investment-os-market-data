@@ -20,6 +20,7 @@ if str(ROOT) not in sys.path:
 
 from pipeline.common import iso_shanghai, now_shanghai, write_json  # noqa: E402
 from pipeline.publish import publish_candidate, validate_control_payload, write_failure_status  # noqa: E402
+from scripts.a_share_chain_coherence import assess_chain_coherence  # noqa: E402
 
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
 
@@ -78,9 +79,26 @@ def main() -> int:
                 print(json.dumps({"status": "NO_OP_NON_TRADING_DAY", "as_of_date": today}, ensure_ascii=False))
                 return 0
             if _current_as_of(ROOT) == today and not args.allow_same_date_refresh:
-                _write_noop(ROOT, generated_at=generated_at, as_of_date=today, reason="NO_OP_ALREADY_CURRENT")
-                print(json.dumps({"status": "NO_OP_ALREADY_CURRENT", "as_of_date": today}, ensure_ascii=False))
-                return 0
+                coherence = assess_chain_coherence(ROOT, target_date=today)
+                if coherence["status"] == "PASS_COHERENT":
+                    _write_noop(ROOT, generated_at=generated_at, as_of_date=today, reason="NO_OP_ALREADY_CURRENT")
+                    print(json.dumps(
+                        {
+                            "status": "NO_OP_ALREADY_CURRENT",
+                            "as_of_date": today,
+                            "chain_coherence": coherence,
+                        },
+                        ensure_ascii=False,
+                    ))
+                    return 0
+                print(json.dumps(
+                    {
+                        "status": "SAME_DATE_CHAIN_INCOHERENT_CONTINUE",
+                        "as_of_date": today,
+                        "chain_coherence": coherence,
+                    },
+                    ensure_ascii=False,
+                ))
 
         completed = subprocess.run(
             [sys.executable, str(ROOT / "pipeline/build_candidate.py")],
