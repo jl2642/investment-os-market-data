@@ -1,0 +1,173 @@
+name: OCC-R3B Candidate Proposal Recovery
+run-name: "OCC-R3B one-shot governed Candidate proposal recovery"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/occ-r3b-candidate-proposal-recovery.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  recover-proposal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Canonical main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Restore exact accepted Screening Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json > /tmp/OCC_R3B_SCREENING_CURRENT.json
+          SCREENING_BRANCH="$(python -c "import json; print(json.load(open('/tmp/OCC_R3B_SCREENING_CURRENT.json',encoding='utf-8'))['source_branch'])")"
+          SCREENING_COMMIT="$(python -c "import json; print(json.load(open('/tmp/OCC_R3B_SCREENING_CURRENT.json',encoding='utf-8'))['source_commit_sha'])")"
+          git fetch origin "refs/heads/$SCREENING_BRANCH:refs/remotes/origin/occ-r3b-screening" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r3b-screening)" = "$SCREENING_COMMIT"
+          git checkout "$SCREENING_COMMIT" --             outputs/screens/current/SCREENING_MANIFEST.json             outputs/screens/current/SCREENING_LONGLIST.csv
+          python - <<'PY'
+          import csv, json
+          domain=json.load(open('/tmp/OCC_R3B_SCREENING_CURRENT.json',encoding='utf-8'))
+          manifest=json.load(open('outputs/screens/current/SCREENING_MANIFEST.json',encoding='utf-8'))
+          with open('outputs/screens/current/SCREENING_LONGLIST.csv',encoding='utf-8-sig',newline='') as f:
+              rows=list(csv.DictReader(f))
+          assert domain.get('status')=='PASS', domain
+          assert domain.get('qc_status')=='PASS_CHAIN_COHERENT', domain
+          assert domain.get('trade_authority')=='NONE', domain
+          assert manifest.get('as_of_date')==domain.get('data_watermark'), (manifest,domain)
+          assert rows and {row['as_of_date'] for row in rows}=={domain['data_watermark']}, domain
+          assert domain['data_watermark']=='2026-08-28', domain
+          print({
+              'screening_watermark':domain['data_watermark'],
+              'longlist_rows':len(rows),
+              'source_branch':domain['source_branch'],
+              'source_commit':domain['source_commit_sha'],
+              'trade_authority':'NONE',
+          })
+          PY
+
+      - name: Freeze Canonical Candidate before recovery
+        run: cp investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json /tmp/CANDIDATE_BASE.json
+
+      - name: Run forced weekly Candidate proposal recovery
+        id: loop
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          result="$(python automation/wp3_r/build_candidate_dynamic_loop.py --force-weekly)"
+          echo "$result"
+          python - "$result" <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          data=json.loads(sys.argv[1])
+          assert data.get('due') is True, data
+          assert data.get('proposal_id'), data
+          print("proposal_id="+str(data['proposal_id']))
+          print("status="+str(data['status']))
+          PY
+
+      - name: Materialize proposed Candidate snapshot and restore Canonical
+        shell: bash
+        env:
+          PROPOSAL_ID: ${{ steps.loop.outputs.proposal_id }}
+        run: |
+          set -Eeuo pipefail
+          candidate=investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/CANDIDATE_CURRENT.json
+          proposal_dir="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS/$PROPOSAL_ID"
+          proposed="$proposal_dir/CANDIDATE_CURRENT_PROPOSED.json"
+          cp "$candidate" "$proposed"
+          cp /tmp/CANDIDATE_BASE.json "$candidate"
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root=Path('investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS')/os.environ['PROPOSAL_ID']
+          proposed=root/'CANDIDATE_CURRENT_PROPOSED.json'
+          manifest_path=root/'CANDIDATE_DYNAMIC_MANIFEST.json'
+          manifest=json.loads(manifest_path.read_text(encoding='utf-8'))
+          manifest['candidate_current_proposed_path']=str(proposed)
+          manifest['candidate_current_proposed_sha256']=hashlib.sha256(proposed.read_bytes()).hexdigest()
+          manifest['canonical_candidate_restored_before_publication']=True
+          manifest['proposal_then_application_pr_required']=True
+          manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          PY
+          git diff --exit-code HEAD -- "$candidate"
+
+      - name: Validate proposed Candidate delta
+        shell: bash
+        env:
+          PROPOSAL_ID: ${{ steps.loop.outputs.proposal_id }}
+        run: |
+          set -Eeuo pipefail
+          proposed="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS/$PROPOSAL_ID/CANDIDATE_CURRENT_PROPOSED.json"
+          python automation/wp3_r/validate_candidate_dynamic_pr.py             --base /tmp/CANDIDATE_BASE.json             --head "$proposed"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          proposal=json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_CHANGE_PROPOSAL_CURRENT.json').read_text(encoding='utf-8'))
+          ledger=json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LEDGER_CURRENT.json').read_text(encoding='utf-8'))
+          loop=json.loads(Path('investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json').read_text(encoding='utf-8'))
+          assert ledger['last_processed_as_of_date']=='2026-08-28', ledger
+          assert ledger['completed_weekly_cycle_count']>=2, ledger
+          assert proposal['as_of']=='2026-08-28_CLOSE', proposal
+          assert proposal['controls']['candidate_core_mutations']==0
+          assert proposal['controls']['shadow_track_mutations']==0
+          assert proposal['controls']['ready_for_user_decision_mutations']==0
+          assert proposal['controls']['orders']==0
+          assert proposal['controls']['trade_authority']=='NONE'
+          assert loop['canonical_authority']=='MERGE_OF_GOVERNED_PR_ONLY'
+          assert loop['orders']==0
+          assert loop['trade_authority']=='NONE'
+          print({
+              'proposal_id':proposal['proposal_id'],
+              'admissions':[x['security_id'] for x in proposal.get('admission_proposals',[])],
+              'dynamic_exits':[x['security_id'] for x in proposal.get('dynamic_exit_proposals',[])],
+              'legacy_exit_reviews':[x['security_id'] for x in proposal.get('legacy_exit_reviews',[])],
+              'completed_weekly_cycle_count':ledger['completed_weekly_cycle_count'],
+              'canonical_candidate_mutated':False,
+              'orders':0,
+              'trade_authority':'NONE',
+          })
+          PY
+
+      - name: Publish governed one-shot Candidate proposal branch
+        shell: bash
+        env:
+          RESULT_BRANCH: automation/occ-r3b-candidate-proposal-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LEDGER_CURRENT.json             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_CHANGE_PROPOSAL_CURRENT.json             investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/CANDIDATE_DYNAMIC_LOOP_CURRENT.json             investment_os_runtime/40_EVIDENCE_AND_LINEAGE/WP3_R/DYNAMIC_PROPOSALS
+          git commit -m "candidate: publish OCC-R3B governed proposal recovery"
+          git push origin "HEAD:refs/heads/$RESULT_BRANCH"
+          echo "RESULT_BRANCH=$RESULT_BRANCH" >> "$GITHUB_ENV"
+
+      - name: Record recovery boundary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## OCC-R3B Candidate Proposal Recovery
+          - accepted Screening watermark: 2026-08-28
+          - result branch: ${{ env.RESULT_BRANCH }}
+          - proposal-only recovery: true
+          - Canonical Candidate mutation: 0
+          - Core / Shadow / Ready automatic mutation: 0 / 0 / 0
+          - Real / Simulation / orders: 0 / 0 / 0
+          - trade_authority: NONE
+          EOF
