@@ -1,6 +1,6 @@
 {
   "validation_version": "1.1.0",
-  "release_id": "FMDL3B2M_20260719T005955+0800",
+  "release_id": "FMDL3B2M_20260831T170016+0800",
   "program_id": "FMDL-3B-2-MATRIX",
   "status": "PASS",
   "checks": [
@@ -40,8 +40,8 @@
       "check_id": "EXACT_UNIVERSE_MEMBERSHIP_ONCE",
       "status": "PASS",
       "detail": {
-        "universe": 5528,
-        "rows": 5528,
+        "universe": 5551,
+        "rows": 5551,
         "missing": 0,
         "extra": 0,
         "duplicate_rows": 0
@@ -56,24 +56,24 @@
       "check_id": "ALL_SUPPORT_STATUSES_CONTROLLED",
       "status": "PASS",
       "detail": {
-        "SUPPORTED": 5187,
-        "QUARANTINED": 341
+        "SUPPORTED": 5202,
+        "QUARANTINED": 349
       }
     },
     {
       "check_id": "NON_BSE_SUPPORTED_GATE",
       "status": "PASS",
-      "detail": 0.9975
+      "detail": 0.9980813507290868
     },
     {
       "check_id": "NON_BSE_QUARANTINE_CAP",
       "status": "PASS",
-      "detail": 0.0025
+      "detail": 0.001918649270913277
     },
     {
       "check_id": "PIT_GATE",
       "status": "PASS",
-      "detail": 0.9895636265589055
+      "detail": 1.0
     },
     {
       "check_id": "ZERO_AMBIGUOUS_MAPPING_GROUPS",
@@ -130,8 +130,8 @@
       "check_id": "NORMALIZED_ROW_COUNT_REPLAY",
       "status": "PASS",
       "detail": {
-        "observed": 1885485,
-        "decision": 1885485
+        "observed": 2008463,
+        "decision": 2008463
       }
     },
     {
@@ -144,19 +144,19 @@
       "status": "PASS",
       "detail": {
         "errors": [],
-        "revision_rows": 71126,
-        "source_ids": 21128
+        "revision_rows": 75535,
+        "source_ids": 21187
       }
     },
     {
       "check_id": "NORMALIZED_FILE_SIZE",
       "status": "PASS",
-      "detail": 3.224945068359375
+      "detail": 3.4208154678344727
     },
     {
       "check_id": "NORMALIZED_TOTAL_SIZE",
       "status": "PASS",
-      "detail": 98.55722332000732
+      "detail": 104.79629421234131
     },
     {
       "check_id": "RAW_ARTIFACT_INDEX_COMPLETE",
@@ -186,11 +186,11 @@
       "check_id": "BSE_OFFICIAL_QUERY_RESOLUTION",
       "status": "PASS",
       "detail": {
-        "bse_rows": 328,
+        "bse_rows": 339,
         "query_unresolved": 0,
         "document_status": {
-          "INDEXED_CLASSIFIED_PERIODIC_REPORTS": 311,
-          "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY": 17
+          "INDEXED_CLASSIFIED_PERIODIC_REPORTS": 332,
+          "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY": 7
         }
       }
     },
@@ -216,49 +216,49 @@
   "hard_failures": [],
   "decision_status": "FMDL3B2_FULL_UNIVERSE_INITIAL_BUILD_ACCEPTED_WITH_CONTROLLED_QUARANTINE",
   "metrics": {
-    "universe_symbol_count": 5528,
-    "observed_symbol_count": 5528,
+    "universe_symbol_count": 5551,
+    "observed_symbol_count": 5551,
     "shard_count": 32,
     "accepted_shard_count": 32,
     "validated_shard_count": 32,
-    "supported_symbol_count": 5187,
-    "quarantined_symbol_count": 341,
-    "non_bse_supported_ratio": 0.9975,
-    "non_bse_quarantine_ratio": 0.0025,
-    "official_pit_match_ratio": 0.9895636265589055,
-    "raw_fact_count": 12613577,
-    "normalized_fact_count": 1885485,
-    "decision_grade_fact_count": 1859654,
+    "supported_symbol_count": 5202,
+    "quarantined_symbol_count": 349,
+    "non_bse_supported_ratio": 0.9980813507290868,
+    "non_bse_quarantine_ratio": 0.001918649270913277,
+    "official_pit_match_ratio": 1.0,
+    "raw_fact_count": 13543861,
+    "normalized_fact_count": 2008463,
+    "decision_grade_fact_count": 2008449,
     "fallback_components_invoked": 0,
     "fallback_components_used": 0,
-    "retry_symbol_count": 13,
+    "retry_symbol_count": 10,
     "ambiguous_mapping_group_count": 0,
     "future_fact_count": 0,
     "source_less_decision_grade_fact_count": 0,
     "duplicate_effective_interval_count": 0,
     "classified_conflict_count": 0,
     "unclassified_conflict_count": 0,
-    "performed_validation_check_count": 139011,
+    "performed_validation_check_count": 147782,
     "performed_validation_failure_count": 0,
-    "qa_flag_count": 348,
+    "qa_flag_count": 356,
     "duplicate_symbol_count": 0,
     "missing_symbol_count": 0,
     "extra_symbol_count": 0,
-    "normalized_release_mib": 98.55722332000732,
-    "maximum_normalized_shard_mib": 3.224945068359375,
+    "normalized_release_mib": 104.79629421234131,
+    "maximum_normalized_shard_mib": 3.4208154678344727,
     "raw_artifact_count": 32,
     "controlled_validation_exclusion_count": 6,
     "controlled_validation_classification_error_count": 0,
-    "bse_indexed_periodic_report_count": 311,
-    "bse_no_classified_periodic_report_count": 17,
+    "bse_indexed_periodic_report_count": 332,
+    "bse_no_classified_periodic_report_count": 7,
     "bse_query_unresolved_count": 0
   },
   "replay": {
-    "normalized_rows": 1885485,
-    "revision_rows": 71126,
-    "source_id_count": 21128,
-    "maximum_normalized_shard_mib": 3.224945068359375,
-    "total_normalized_mib": 98.55722332000732
+    "normalized_rows": 2008463,
+    "revision_rows": 75535,
+    "source_id_count": 21187,
+    "maximum_normalized_shard_mib": 3.4208154678344727,
+    "total_normalized_mib": 104.79629421234131
   },
   "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
   "trade_authority": "NONE",

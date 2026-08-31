@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-31T17:22:56+08:00",
+  "status": "PASS",
+  "qc_status": "PASS_FINANCIAL_BASELINE_REBUILT",
+  "market_as_of_date": "2026-08-28",
+  "financial_report_period_watermark": "2026-06-30",
+  "decision_grade_fact_count": 2008449,
+  "decision_grade_symbol_count": 5202,
+  "releases": {
+    "statement_release_id": "FMDL3B4_20260831T170041+0800",
+    "financial_factor_release_id": "FMDL3CB_20260831T170042+0800",
+    "financial_hardening_release_id": "FMDL3CC_20260831T172210+0800",
+    "financial_score_release_id": "FMDL3CD_20260831T172214+0800"
+  },
+  "score_metrics": {
+    "source_hardening_release_id": "FMDL3CC_20260831T172210+0800",
+    "universe_symbol_count": 5551,
+    "financial_score_row_count": 5551,
+    "family_score_row_count": 22204,
+    "factor_contribution_row_count": 99918,
+    "interface_evidence_row_count": 5551,
+    "weighted_factor_count": 18,
+    "score_available_symbol_count": 4995,
+    "ranking_eligible_symbol_count": 4501,
+    "high_confidence_symbol_count": 2829,
+    "medium_confidence_symbol_count": 1672,
+    "low_confidence_symbol_count": 494,
+    "score_unavailable_symbol_count": 556,
+    "strict_real_account_financial_floor_met_count": 2,
+    "positive_candidate_evidence_count": 39,
+    "supportive_candidate_evidence_count": 748,
+    "score_contribution_replay_error_count": 0,
+    "automatic_action_authorized_count": 0
+  },
+  "checks": {
+    "MARKET_CURRENT_ACCEPTED": true,
+    "STATEMENT_CURRENT_ACCEPTED": true,
+    "FACTOR_CURRENT_ACCEPTED": true,
+    "HARDENING_CURRENT_ACCEPTED": true,
+    "SCORE_CURRENT_ACCEPTED": true,
+    "REPORT_PERIOD_WATERMARK_PRESENT": true,
+    "DECISION_GRADE_FACTS_PRESENT": true,
+    "DECISION_GRADE_SYMBOLS_PRESENT": true,
+    "ZERO_TRADE_AUTHORITY": true
+  },
+  "hard_failures": [],
+  "controlled_limitations": [
+    "R2B1_REFRESHES_STATEMENT_FACTS_FACTORS_HARDENING_AND_SCORE_ONLY",
+    "CAPITALIZATION_AND_EXACT_VALUATION_REBUILD_REMAIN_OCC_R2B2",
+    "NO_CANDIDATE_PORTFOLIO_OR_ORDER_MUTATION"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
