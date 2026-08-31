@@ -11,9 +11,8 @@ on:
     paths:
       - "automation/recommendations/**"
       - ".github/workflows/p4-3-unified-recommendation.yml"
-  workflow_run:
-    workflows: ["P4-2 Continuous Opportunity Funnel"]
-    types: [completed]
+  schedule:
+    - cron: "15 17 * * 1-5"
   workflow_dispatch:
 
 permissions:
@@ -207,9 +206,7 @@ jobs:
           retention-days: 14
 
   operate:
-    if: >-
-      github.event_name != 'pull_request' &&
-      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 15
