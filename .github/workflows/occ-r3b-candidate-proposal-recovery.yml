@@ -42,7 +42,7 @@ jobs:
           assert 'MERGE_OF_GOVERNED_PR_ONLY' in text or 'canonical_candidate_mutated' in text
           assert 'Canonical Candidate mutation: 0' in text
           assert 'trade_authority: NONE' in text
-          assert 'git push origin HEAD:main' not in text
+          assert ('git push origin ' + 'HEAD:main') not in text
           PY
 
   recover-proposal:
