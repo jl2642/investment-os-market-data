@@ -1,0 +1,69 @@
+# Operational Chain Closure (OCC)
+
+Status: ACTIVE_REPAIR_PROGRAM  
+Scope: defect-scoped production wiring only  
+Trade authority: NONE
+
+## Program objective
+
+Close the already-developed investment research operating chain without reopening product architecture or adding new investment capabilities.
+
+Target production chain:
+
+Market -> History -> Factor -> Screening -> Financial/Valuation -> Candidate/Opportunity -> D1/D2 -> Recommendation -> Trigger/Shadow -> Forward Validation -> Portfolio -> Daily Controller.
+
+## Confirmed defect registry
+
+| ID | Defect | Severity | OCC round |
+|---|---|---:|---|
+| OCC-001 | A-share Market/History/Factor can advance while Screening remains stale; same-date Daily no-op only checks Market date | P0 | R1 |
+| OCC-002 | FMDL3 financial/valuation products are developed but not live-wired to current operating refresh | P0 | R2 |
+| OCC-003 | Opportunity Funnel can consume stale full-market Screening | P1 | R3 |
+| OCC-004 | New Longlist members do not reliably produce governed Candidate admission/removal proposals | P1 | R3 |
+| OCC-005 | Recommendation is blocked by stale/non-live valuation and capital-comparison context | P0/P1 | R2-R3 |
+| OCC-006 | P4-5 forward collector is not backward-compatible with older D2 source commits | P0 | R3 |
+| OCC-007 | US bounded market capture can report PASS with materially inadequate coverage | P1 | R4 |
+| OCC-008 | SEC official retrieval queue is not closed by a reliable operating consumer | P1 | R4 |
+| OCC-009 | Portfolio marks can be fresh while portfolio decision products remain stale | P1 | R4 |
+| OCC-010 | 08:00 controller runs before several morning upstream jobs | P1 | R5 |
+| OCC-011 | Legacy WP3-2A provider-session failures create recurring operational noise | P2 | R4/R5 cleanup |
+
+## Execution rounds
+
+- OCC-R0: freeze this repair contract and defect registry.
+- OCC-R1: A-share Market -> History -> Factor -> Screening coherence.
+- OCC-R2: financial and valuation live wiring.
+- OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure.
+- OCC-R4: HK/US, SEC and portfolio freshness repair.
+- OCC-R5: nightly orchestration and 08:00 controller acceptance.
+
+## R1 acceptance contract
+
+A Daily transaction may use NO_OP_ALREADY_CURRENT only when all four accepted layers are coherent for the target session:
+
+1. Market Current as_of_date == target session.
+2. History Current as_of_date == target session.
+3. Factor Current as_of_date == target session and factor.history_release_id == history.release_id.
+4. Screening Current as_of_date == target session and screening.factor_release_id == factor.release_id.
+
+If Market is already current but any downstream layer is missing, stale or lineage-mismatched, Daily must continue and repair the downstream chain.
+
+Full Rebase is allowed to publish recovered Market/History/Factor before Screening, but must explicitly report SCREENING_REFRESH_REQUIRED rather than implying full-chain coherence.
+
+A completed Daily transaction must fail closed if the four-layer coherence check does not pass.
+
+## Non-goals / anti-expansion boundary
+
+OCC does not add:
+- new markets or asset classes;
+- new factor families or investment strategies;
+- redesigned D1/D2 research;
+- redesigned Candidate architecture;
+- broker integration or order execution;
+- automatic Candidate membership mutation;
+- automatic portfolio mutation;
+- automatic trade permission.
+
+Any newly discovered non-blocking improvement is recorded for POST_OCC_BACKLOG and is not implemented inside the active OCC round.
+
+TRADE_AUTHORITY = NONE.
