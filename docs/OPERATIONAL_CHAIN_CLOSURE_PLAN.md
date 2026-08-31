@@ -33,7 +33,7 @@ Market -> History -> Factor -> Screening -> Financial/Valuation -> Candidate/Opp
 - OCC-R0: freeze this repair contract and defect registry.
 - OCC-R1: A-share Market -> History -> Factor -> Screening coherence. **COMPLETE (2026-08-31)**
 - OCC-R2: financial and valuation live wiring. **COMPLETE (2026-08-31)**
-- OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure.
+- OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure. **IN PROGRESS**
 - OCC-R4: HK/US, SEC and portfolio freshness repair.
 - OCC-R5: nightly orchestration and 08:00 controller acceptance.
 
@@ -252,5 +252,34 @@ R2B2 does not reopen financial-factor or scoring methodology.
 OCC-002 is closed. OCC-005's financial/valuation blocker is closed for R2 scope; its Recommendation-chain portion remains governed by OCC-R3.
 
 OCC-R2 acceptance is complete only because both R2B1 financial baseline recovery and R2B2 exact capitalization/valuation replay passed production acceptance under the same accepted 2026-08-28 market watermark.
+
+TRADE_AUTHORITY = NONE.
+
+
+## OCC-R3 execution split
+
+R3 remains one frozen repair round and is implemented in three defect-scoped gates:
+
+### OCC-R3A — Opportunity Funnel Screening Freshness
+
+Close OCC-003 by forcing P4-2 to restore the exact accepted Screening inputs referenced by A_SHARE_FULL_MARKET Operating Current before every validate/operate build.
+
+R3A must:
+- resolve A_SHARE_FULL_MARKET from operating-current;
+- verify PASS / PASS_CHAIN_COHERENT / TRADE_AUTHORITY=NONE;
+- fetch the exact source branch and require its head to equal source_commit_sha;
+- restore SCREENING_MANIFEST, FMDL2C_RUN_REPORT and SCREENING_LONGLIST from that accepted commit;
+- require screening manifest as_of_date == Operating Current data_watermark;
+- preserve existing Funnel logic and zero protected-state mutation.
+
+### OCC-R3B — Governed Candidate Proposal Bridge
+
+Close OCC-004 by producing explicit admission/removal proposals from fresh Longlist/Candidate deltas without automatically mutating Candidate membership.
+
+### OCC-R3C — Recommendation and Forward Closure
+
+Close the remaining Recommendation portion of OCC-005 and OCC-006 by binding fresh accepted valuation/comparison context into Recommendation and making P4-5 backward-compatible with governed historical D2 source commits.
+
+R3 does not redesign D1/D2, Candidate methodology, recommendation scoring, forward model methodology, portfolio policy or trade authority.
 
 TRADE_AUTHORITY = NONE.
