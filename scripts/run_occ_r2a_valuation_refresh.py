@@ -58,6 +58,51 @@ def build_market_delta(baseline: pd.DataFrame, snapshot: pd.DataFrame) -> tuple[
     return merged, metrics
 
 
+
+def sanitize_market_only_metrics(frame: pd.DataFrame) -> pd.DataFrame:
+    out = frame.copy()
+    # EV multiples cannot be exactly refreshed from the unified consumer table
+    # because net-debt components are intentionally not carried in that table.
+    # Fail closed rather than scale EV multiples by the equity-price ratio.
+    for value_col, state_col in (
+        ("ev_sales_ttm", "ev_sales_ttm_state"),
+        ("ev_operating_income_ttm", "ev_operating_income_ttm_state"),
+    ):
+        if value_col in out:
+            out[value_col] = pd.NA
+        if state_col in out:
+            out[state_col] = "BLOCKED_STALE_EV_COMPONENTS_PENDING_OCC_R2B"
+
+    valid_states = {"VALID", "VALID_WITH_WARNING"}
+    state_columns = [
+        "pe_ttm_state", "earnings_yield_ttm_state", "pb_state", "ps_ttm_state",
+        "fcf_yield_ttm_state", "ev_sales_ttm_state", "ev_operating_income_ttm_state",
+    ]
+    available_states = [column for column in state_columns if column in out]
+    if available_states:
+        counts = out[available_states].apply(
+            lambda row: sum(str(value) in valid_states for value in row), axis=1
+        )
+        if "valuation_valid_metric_count" in out:
+            out["valuation_valid_metric_count"] = counts
+        if "valuation_decision_grade_metric_count" in out:
+            out["valuation_decision_grade_metric_count"] = counts
+
+    if "valuation_row_hash" in out:
+        out["valuation_row_hash"] = out.apply(
+            lambda row: core.stable_hash({
+                "symbol": row.get("symbol"), "pe_ttm": row.get("pe_ttm"),
+                "pb": row.get("pb"), "ps_ttm": row.get("ps_ttm"),
+                "fcf_yield_ttm": row.get("fcf_yield_ttm"),
+                "ev_sales_ttm": row.get("ev_sales_ttm"),
+                "ev_operating_income_ttm": row.get("ev_operating_income_ttm"),
+                "market_as_of_date": row.get("market_as_of_date"),
+            }), axis=1
+        )
+    if "row_hash" in out:
+        out["row_hash"] = out.apply(core.row_hash, axis=1)
+    return out
+
 def main() -> int:
     cfg = read_json(PROPAGATION_CONFIG)
     baseline_manifest = read_json(BASELINE_MANIFEST)
@@ -95,6 +140,8 @@ def main() -> int:
         incremental_release_id="OCC_R2A_MARKET_ONLY",
         target_date=target_date,
     )
+    propagated = sanitize_market_only_metrics(propagated)
+    rebuilt = sanitize_market_only_metrics(rebuilt)
     audit = core.comparison_audit(propagated, rebuilt)
     mismatch_count = int(audit["mismatch_count"].sum())
     trade_values = set(propagated["trade_authority"].dropna().astype(str))
@@ -142,8 +189,12 @@ def main() -> int:
             "coverage_scope": "FROZEN_FMDL3_FINANCIAL_BASELINE_ONLY",
         },
         "valuation_fields_updated_by_market": {
-            "price_multiple_fields": cfg["propagation"]["price_multiple_fields"],
-            "inverse_price_fields": cfg["propagation"]["inverse_price_fields"],
+            "exact_price_multiple_fields": ["pe_ttm", "pb", "ps_ttm"],
+            "exact_inverse_price_fields": [
+                "earnings_yield_ttm", "fcf_yield_ttm", "dividend_yield_ttm",
+                "completed_buyback_yield_ttm", "completed_issuance_dilution_yield_ttm"
+            ],
+            "blocked_until_r2b": ["ev_sales_ttm", "ev_operating_income_ttm"],
             "market_cap_fields": ["total_market_cap_cny", "float_market_cap_cny"],
         },
         "checks": checks,
@@ -151,6 +202,7 @@ def main() -> int:
         "controlled_limitations": [
             "FINANCIAL_FACT_DENOMINATORS_REMAIN_LAST_KNOWN_GOOD_PENDING_OCC_R2B",
             "FINANCIAL_BASELINE_UNIVERSE_IS_5528_AND_DOES_NOT_AUTO_ADMIT_NEWER_MARKET_SYMBOLS",
+            "EV_MULTIPLES_ARE_BLOCKED_IN_R2A_BECAUSE_EXACT_NET_DEBT_COMPONENTS_ARE_NOT_IN_THE_UNIFIED_CONSUMER_TABLE",
             "SPECIALIZED_FINANCIAL_SECTOR_METRICS_REMAIN_CONTROLLED_BY_EXISTING_PROFILE_GATES",
             "NO_RECOMMENDATION_PORTFOLIO_ACTION_OR_TRADE_AUTHORITY",
         ],
