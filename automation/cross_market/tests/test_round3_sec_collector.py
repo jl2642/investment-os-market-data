@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 from automation.cross_market.apply_round3_sec_observer_results import validate_inbox
@@ -126,3 +128,17 @@ def test_collector_fails_closed_per_issuer_without_fabricating_hashes(tmp_path: 
     assert manifest["official_success_count"] == 1
     assert manifest["official_failure_count"] == 1
     validate_inbox(inbox, queue)
+
+
+def test_collector_direct_script_help_from_repo_root() -> None:
+    root = Path(__file__).resolve().parents[3]
+    cp = subprocess.run(
+        [sys.executable, "automation/cross_market/collect_round3_sec_official.py", "--help"],
+        cwd=root,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert cp.returncode == 0, cp.stderr
+    assert "--queue" in cp.stdout
