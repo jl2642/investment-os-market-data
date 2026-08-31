@@ -175,3 +175,28 @@ The full-refresh path must:
 - preserve TRADE_AUTHORITY=NONE.
 
 Ordinary pull-request validation must not trigger the expensive 32-shard live rebuild. Production rebuild and code validation are separate gates.
+
+
+### OCC-R2B1 — Financial Baseline Rebuild
+
+Scope:
+- restore latest accepted A-share market universe/interface as the PIT cutoff;
+- inject that accepted market watermark into the FMDL3B2 shard runtime as pit_cutoff_as_of_date;
+- reuse the existing 32-shard FMDL3B2 full-Universe statement build;
+- rebuild and locally publish FMDL3B3 comparability, FMDL3B4 Statement Current, FMDL3CB financial factors, FMDL3CC hardening and FMDL3CD financial score;
+- publish a governed FINANCIAL_STATEMENT_CONTEXT Operating Current;
+- expose both market scan watermark and financial report-period watermark.
+
+R2B1 is a recovery/full-baseline transaction for reporting-season catch-up. It is not a nightly workflow.
+
+### OCC-R2B2 — Capitalization + Exact Valuation Rebuild
+
+After R2B1 acceptance:
+- inject latest accepted A-share market Current into the existing 16-shard FMDL3DB capitalization engine;
+- rebuild exact FMDL3DC valuation using refreshed financial denominators plus refreshed capitalization;
+- replace R2A's LKG financial-denominator state and EV-multiple blockers;
+- publish FINANCIAL_VALUATION_CONTEXT with financial_event_propagation=COMPLETE only after exact replay passes.
+
+R2B2 does not reopen financial-factor or scoring methodology.
+
+TRADE_AUTHORITY = NONE.
