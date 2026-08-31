@@ -38,7 +38,7 @@ def build_summary(
     financial_source_commit: str,
 ) -> dict:
     market_watermark = str(market_context["data_watermark"])
-    financial_market_watermark = str(financial_context["data_watermark"])
+    financial_market_watermark = str(financial_context["market_as_of_date"])
     report_watermark = str(financial_context["financial_report_period_watermark"])
     cap_market_date = str(capitalization_release["source_release"]["as_of_date"])
     metrics = dict(valuation_decision.get("metrics") or {})
@@ -78,7 +78,9 @@ def build_summary(
         "schema_version": "1.0.0",
         "generated_at": datetime.now(TZ).isoformat(timespec="seconds"),
         "status": "PASS" if not failures else "FAIL",
-        "qc_status": "PASS_EXACT_VALUATION_REBUILT" if not failures else "FAIL_EXACT_VALUATION_REBUILD",
+        "qc_status": "PASS_EXACT_VALUATION_REBUILT"
+        if not failures
+        else "FAIL_EXACT_VALUATION_REBUILD",
         "market_as_of_date": market_watermark,
         "financial_report_period_watermark": report_watermark,
         "financial_event_propagation": "COMPLETE" if not failures else "INCOMPLETE",
@@ -115,7 +117,9 @@ def main() -> int:
     capitalization_decision = load_json(
         ROOT / "outputs/capitalization/current/FMDL3DB_DECISION.json"
     )
-    valuation_release = load_json(ROOT / "outputs/valuation/engine/current/FMDL3DC_RELEASE.json")
+    valuation_release = load_json(
+        ROOT / "outputs/valuation/engine/current/FMDL3DC_RELEASE.json"
+    )
     valuation_decision = load_json(
         ROOT / "outputs/valuation/engine/current/FMDL3DC_DECISION.json"
     )
@@ -132,7 +136,10 @@ def main() -> int:
         financial_source_branch=os.environ["FINANCIAL_SOURCE_BRANCH"],
         financial_source_commit=os.environ["FINANCIAL_SOURCE_COMMIT"],
     )
-    output = ROOT / "outputs/occ_r2/valuation/current/FINANCIAL_VALUATION_CONTEXT_RELEASE.json"
+    output = (
+        ROOT
+        / "outputs/occ_r2/valuation/current/FINANCIAL_VALUATION_CONTEXT_RELEASE.json"
+    )
     write_json(output, summary)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0 if summary["status"] == "PASS" else 2
