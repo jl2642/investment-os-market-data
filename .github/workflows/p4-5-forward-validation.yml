@@ -11,9 +11,8 @@ on:
     paths:
       - "automation/forward_validation/**"
       - ".github/workflows/p4-5-forward-validation.yml"
-  workflow_run:
-    workflows: ["P4-4 Trigger Monitor and Autonomous Shadow Book"]
-    types: [completed]
+  schedule:
+    - cron: "45 18 * * 1-5"
   workflow_dispatch:
 
 permissions:
@@ -227,9 +226,7 @@ jobs:
           retention-days: 14
 
   operate:
-    if: >-
-      github.event_name != 'pull_request' &&
-      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
