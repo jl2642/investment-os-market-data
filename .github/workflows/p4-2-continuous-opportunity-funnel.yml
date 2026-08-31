@@ -80,7 +80,9 @@ jobs:
           python -m py_compile             automation/opportunity_funnel/build_funnel.py             automation/opportunity_funnel/publish_funnel.py
 
       - name: Deterministic contract tests
-        run: python -m unittest automation.opportunity_funnel.tests.test_build_funnel -v
+        run: |
+          python -m unittest automation.opportunity_funnel.tests.test_build_funnel -v
+          python -m pytest -q tests/test_occ_r3a_funnel_screening_freshness.py
 
       - name: Build unified funnel against latest governed D2 source
         run: |
