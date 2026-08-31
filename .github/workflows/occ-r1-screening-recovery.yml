@@ -80,7 +80,7 @@ jobs:
       - name: Publish coherent recovery result branch and Operating Current
         shell: bash
         env:
-          RESULT_BRANCH: automation/occ-r1-screening-recovery-\${{ github.run_id }}-a\${{ github.run_attempt }}
+          RESULT_BRANCH: automation/occ-r1-screening-recovery-${{ github.run_id }}-a${{ github.run_attempt }}
         run: |
           set -Eeuo pipefail
           git config user.name "github-actions[bot]"
@@ -101,8 +101,8 @@ jobs:
             --domain A_SHARE_FULL_MARKET \
             --status PASS \
             --source-workflow "OCC-R1 A-share Screening Recovery" \
-            --source-run-id "\${{ github.run_id }}" \
-            --source-run-attempt "\${{ github.run_attempt }}" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
             --source-branch "$RESULT_BRANCH" \
             --source-commit "$SOURCE_RESULT_COMMIT" \
             --watermark 2026-08-28 \
