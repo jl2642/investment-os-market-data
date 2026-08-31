@@ -7,6 +7,10 @@ on:
     paths:
       - ".github/workflows/occ-r3b-candidate-proposal-recovery.yml"
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/occ-r3b-candidate-proposal-recovery.yml"
 
 permissions:
   contents: write
@@ -15,7 +19,35 @@ env:
   TRADE_AUTHORITY: NONE
 
 jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Validate existing Dynamic Candidate implementation and one-shot boundary
+        run: |
+          python -m py_compile             automation/wp3_r/build_candidate_dynamic_loop.py             automation/wp3_r/validate_candidate_dynamic_pr.py
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('.github/workflows/occ-r3b-candidate-proposal-recovery.yml').read_text(encoding='utf-8')
+          assert 'operating_current/domains/A_SHARE_FULL_MARKET.json' in text
+          assert 'PASS_CHAIN_COHERENT' in text
+          assert 'build_candidate_dynamic_loop.py --force-weekly' in text
+          assert 'MERGE_OF_GOVERNED_PR_ONLY' in text or 'canonical_candidate_mutated' in text
+          assert 'Canonical Candidate mutation: 0' in text
+          assert 'trade_authority: NONE' in text
+          assert 'git push origin HEAD:main' not in text
+          PY
+
   recover-proposal:
+    if: github.event_name != 'pull_request'
+    needs: contract
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
