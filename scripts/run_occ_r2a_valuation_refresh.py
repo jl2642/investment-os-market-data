@@ -94,7 +94,7 @@ def sanitize_market_only_metrics(frame: pd.DataFrame, baseline: pd.DataFrame) ->
         ("ev_operating_income_ttm", "ev_operating_income_ttm_state"),
     ):
         if value_col in out:
-            out[value_col] = pd.NA
+            out[value_col] = float("nan")
         if state_col in out:
             out[state_col] = "BLOCKED_STALE_EV_COMPONENTS_PENDING_OCC_R2B"
 
