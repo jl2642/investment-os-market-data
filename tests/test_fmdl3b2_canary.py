@@ -42,3 +42,56 @@ def test_real_eastmoney_fx_field_maps_to_cash_flow_fx_effect():
     assert field is not None
     assert field["line_item_id"] == "fx_cash_effect"
     assert field["sign_rule"] == "AS_REPORTED"
+
+
+def test_pit_cutoff_excludes_first_disclosure_after_target_session():
+    rows = [
+        {
+            "symbol": "000001.SZ",
+            "report_period_end": "2026-06-30",
+            "available_from": "2026-08-31T09:30:00+08:00",
+        }
+    ]
+    eligible, contaminated = canary.filter_revision_rows_for_cutoff(rows, "2026-08-28")
+    assert eligible == []
+    assert contaminated == {("000001.SZ", "2026-06-30")}
+
+
+def test_pit_cutoff_blocks_period_when_later_revision_exists():
+    rows = [
+        {
+            "symbol": "000001.SZ",
+            "report_period_end": "2026-06-30",
+            "available_from": "2026-08-20T09:30:00+08:00",
+            "revision_sequence": 1,
+        },
+        {
+            "symbol": "000001.SZ",
+            "report_period_end": "2026-06-30",
+            "available_from": "2026-08-31T09:30:00+08:00",
+            "revision_sequence": 2,
+        },
+    ]
+    eligible, contaminated = canary.filter_revision_rows_for_cutoff(rows, "2026-08-28")
+    assert len(eligible) == 1
+    assert eligible[0]["revision_sequence"] == 1
+    assert contaminated == {("000001.SZ", "2026-06-30")}
+
+
+def test_pit_cutoff_date_is_a_share_close_not_end_of_day():
+    cutoff = canary._pit_cutoff_utc("2026-08-28")
+    assert str(cutoff) == "2026-08-28 07:00:00+00:00"
+
+
+def test_pit_cutoff_none_preserves_legacy_revision_rows():
+    rows = [
+        {
+            "symbol": "000001.SZ",
+            "report_period_end": "2026-06-30",
+            "available_from": "2026-08-31T09:30:00+08:00",
+            "revision_sequence": 1,
+        }
+    ]
+    eligible, contaminated = canary.filter_revision_rows_for_cutoff(rows, None)
+    assert eligible == rows
+    assert contaminated == set()
