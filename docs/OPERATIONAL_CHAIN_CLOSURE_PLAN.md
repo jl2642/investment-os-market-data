@@ -34,7 +34,7 @@ Market -> History -> Factor -> Screening -> Financial/Valuation -> Candidate/Opp
 - OCC-R1: A-share Market -> History -> Factor -> Screening coherence. **COMPLETE (2026-08-31)**
 - OCC-R2: financial and valuation live wiring. **COMPLETE (2026-08-31)**
 - OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure. **COMPLETE (2026-08-31)**
-- OCC-R4: HK/US, SEC and portfolio freshness repair.
+- OCC-R4: HK/US, SEC and portfolio freshness repair. **IN PROGRESS**
 - OCC-R5: nightly orchestration and 08:00 controller acceptance.
 
 ## R1 acceptance contract
@@ -381,5 +381,38 @@ R3 does not redesign D1/D2, Candidate methodology, recommendation scoring, forwa
 OCC-003, OCC-004, the Recommendation portion of OCC-005, and OCC-006 are closed under accepted production evidence.
 
 OCC-R3 is COMPLETE. The next frozen round is OCC-R4: HK/US honesty, SEC consumer and portfolio decision freshness repair.
+
+TRADE_AUTHORITY = NONE.
+
+
+## OCC-R4 implementation contract
+
+OCC-R4 closes OCC-007, OCC-008 and OCC-009 without reopening cross-market research, SEC evidence semantics or portfolio methodology.
+
+### OCC-R4A/B/C are not separate user-facing rounds
+
+R4 remains one frozen repair round with three coordinated repair surfaces:
+
+1. US bounded coverage honesty
+   - a US bucket may close only when the daily bounded rotation success ratio meets the retained weekly-quality floor and the benchmark success count meets the retained benchmark floor;
+   - materially inadequate coverage must remain retryable / blocked;
+   - US_BOUNDED_COVERAGE is a status authority whose PASS means the coverage assessment itself executed successfully; its qc_status carries PASS_ADEQUATE_BOUNDED_CAPTURE or BLOCKED_INADEQUATE_BOUNDED_CAPTURE;
+   - CROSS_MARKET_LIMITED retains fail-closed publication semantics.
+
+2. SEC queue operating consumer
+   - reuse the existing collect_round3_sec_official.py and apply_round3_sec_observer_results.py implementation;
+   - consume each generated eight-issuer queue inside the governed production job;
+   - SEC_QUEUE_CONSUMER reports whether the queue was actually consumed;
+   - SEC_OFFICIAL_RETRIEVAL separately reports official retrieval success / failure truth;
+   - no Candidate, account, decision or order mutation.
+
+3. Portfolio decision freshness
+   - bind accepted PORTFOLIO_MARKS and accepted RECOMMENDATION Operating Current authorities;
+   - restore the exact accepted Portfolio Current from the marks source commit;
+   - explicitly classify the retained July WP5 action matrix as stale when it predates the current marks;
+   - publish PORTFOLIO_DECISION_FRESHNESS rather than silently treating the stale legacy action matrix as current;
+   - do not rebuild WP5 portfolio methodology, infer broker verification, authorize rebalancing, or create orders.
+
+R4 acceptance requires exact-head validation plus production evidence for all three repair surfaces.
 
 TRADE_AUTHORITY = NONE.
