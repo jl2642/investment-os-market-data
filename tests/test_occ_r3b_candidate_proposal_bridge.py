@@ -18,10 +18,11 @@ def test_occ_r3b_dynamic_candidate_restores_exact_accepted_screening():
 
 def test_occ_r3b_preserves_governed_proposal_only_boundary():
     text=(ROOT/".github/workflows/wp3_r_dynamic_candidate_loop.yml").read_text(encoding="utf-8")
+    assert "canonical_authority" in text
     assert "MERGE_OF_GOVERNED_PR_ONLY" in text
-    assert "candidate_membership_mutations: 0" not in text or True
     assert "proposal_branch_candidate_membership_mutations: 0" in text
+    assert "Core / Shadow / Ready proposed mutations: 0 / 0 / 0" in text
     assert "direct_main_push: disabled" in text
     assert "trade_authority: NONE" in text
-    assert "git push origin "HEAD:$RESULT_BRANCH"" in text
+    assert 'git push origin "HEAD:$RESULT_BRANCH"' in text
     assert "git push origin HEAD:main" not in text
