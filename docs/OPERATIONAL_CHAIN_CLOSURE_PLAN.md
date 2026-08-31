@@ -31,8 +31,8 @@ Market -> History -> Factor -> Screening -> Financial/Valuation -> Candidate/Opp
 ## Execution rounds
 
 - OCC-R0: freeze this repair contract and defect registry.
-- OCC-R1: A-share Market -> History -> Factor -> Screening coherence.
-- OCC-R2: financial and valuation live wiring.
+- OCC-R1: A-share Market -> History -> Factor -> Screening coherence. **COMPLETE (2026-08-31)**
+- OCC-R2: financial and valuation live wiring. **IN PROGRESS**
 - OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure.
 - OCC-R4: HK/US, SEC and portfolio freshness repair.
 - OCC-R5: nightly orchestration and 08:00 controller acceptance.
@@ -65,5 +65,66 @@ OCC does not add:
 - automatic trade permission.
 
 Any newly discovered non-blocking improvement is recorded for POST_OCC_BACKLOG and is not implemented inside the active OCC round.
+
+TRADE_AUTHORITY = NONE.
+
+
+## OCC-R1 closure evidence
+
+OCC-001 is closed.
+
+Accepted production evidence:
+- merge #370: chain-coherence no-op and fail-closed wiring;
+- screening recovery run: 33353608967;
+- Operating Current source branch: automation/occ-r1-screening-recovery-33353608967-a1;
+- Operating Current source commit: 7515e7d21006f144b69ae44d88a0c82a7a10f5db;
+- qc_status: PASS_CHAIN_COHERENT;
+- Market / History / Factor / Screening as_of_date: 2026-08-28 / 2026-08-28 / 2026-08-28 / 2026-08-28;
+- Screening universe: 5,551;
+- Screening sleeve-detail rows: 150;
+- Screening longlist: 100;
+- Screening factor lineage exactly matches the accepted factor release;
+- Factor history lineage exactly matches the accepted history release;
+- screening_refresh_required: false;
+- candidate membership mutations: 0;
+- portfolio mutations: 0;
+- orders: 0;
+- TRADE_AUTHORITY: NONE.
+
+The temporary recovery workflow is retired after closure. Future same-date Daily NO_OP is permitted only when the four-layer chain remains coherent.
+
+
+## OCC-R2 execution split
+
+OCC-R2 is defect-scoped into two acceptance gates after code-level audit of the retained FMDL3E implementation.
+
+### OCC-R2A — Market-driven Valuation Live Wiring
+
+Purpose:
+- consume the latest accepted A-share Operating Current after a successful Daily run;
+- reuse the accepted FMDL3E market-to-valuation propagation formulas;
+- refresh market capitalization, price multiples and inverse-price valuation yields for the frozen FMDL3 financial baseline;
+- publish an explicit FINANCIAL_VALUATION_CONTEXT Operating Current.
+
+Required status semantics:
+- valuation market watermark may be current;
+- financial denominators remain explicitly LAST_KNOWN_GOOD;
+- financial event propagation must remain PENDING_OCC_R2B;
+- the frozen FMDL3 financial baseline has 5,528 symbols and must not be represented as complete coverage of the larger current market universe;
+- no Recommendation, Candidate, portfolio or order mutation.
+
+### OCC-R2B — Financial-event Propagation Repair
+
+Confirmed defect:
+FMDL3E-BC detects and can fetch live financial notices/fact deltas, but the retained FMDL3E-DE propagation implementation consumes market_delta only. Financial fact deltas are validated and preserved as evidence but are not currently applied to downstream financial factor/valuation denominator fields.
+
+R2B therefore must:
+- bind accepted filing/fact deltas into the downstream financial factor denominator state;
+- recompute affected financial factors/scores and dependent valuation metrics under PIT rules;
+- preserve unaffected issuers and LKG state;
+- prove no future-information leakage;
+- expose a truthful fresh financial watermark only after propagation succeeds.
+
+R2A must not be used as evidence that R2B is complete.
 
 TRADE_AUTHORITY = NONE.
