@@ -321,9 +321,23 @@ Close OCC-004 by producing explicit admission/removal proposals from fresh Longl
 
 R3B acceptance requires only reliable governed proposal production; it does not authorize automatic application of the proposed Candidate delta. Application remains a separate human/governed merge boundary.
 
-### OCC-R3C — Recommendation and Forward Closure
+### OCC-R3C — Recommendation and Forward Closure **IN PROGRESS**
 
 Close the remaining Recommendation portion of OCC-005 and OCC-006 by binding fresh accepted valuation/comparison context into Recommendation and making P4-5 backward-compatible with governed historical D2 source commits.
+
+
+R3C implementation contract:
+- Recommendation resolves FINANCIAL_VALUATION_CONTEXT from Operating Current and restores the exact accepted FMDL3DC valuation release/detail from its source commit.
+- A thin adapter merges live exact valuation evidence with the frozen Phase2C research blocker context.
+- Fresh-valuation blockers may be removed only when the exact accepted valuation metrics actually prove them resolved.
+- A TTM P/E must not be represented as a normalized P/E; normalization-specific blockers remain explicit unless independently proven.
+- Scenario probability, comparison-vector, governance, material-evidence and portfolio-fit gates remain fail-closed.
+- Recommendation route_state / BUY logic is unchanged.
+- P4-5 treats the exact governed D2 source commit and its resolvable D2 state/artifacts as authority; current branch ancestry is not required.
+- Unresolvable D2 commits or semantic-artifact mismatches still fail closed.
+- Forward checkpoint selection, R2 model, regime definition, 1/3/5-session outcome measurement and Phase-5 gate are unchanged.
+- Candidate / Real / Simulation / portfolio / order mutation authority remains zero.
+- TRADE_AUTHORITY = NONE.
 
 R3 does not redesign D1/D2, Candidate methodology, recommendation scoring, forward model methodology, portfolio policy or trade authority.
 

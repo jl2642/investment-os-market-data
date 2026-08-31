@@ -138,6 +138,11 @@ def valuation_status(comparison: dict[str, Any] | None, material_gap: bool) -> s
     if not comparison:
         return "CURRENT_ENTRY_BASIS_NOT_ESTABLISHED"
     reasons = set(comparison.get("reason_codes", []))
+    valuation = comparison.get("valuation_context") or {}
+    if valuation.get("live_exact_valuation_bound") is True:
+        if "FRESH_NORMALIZED_VALUATION_ABSENT" in reasons:
+            return "LIVE_EXACT_VALUATION_BOUND_NORMALIZED_VALUATION_STILL_REQUIRED"
+        return "LIVE_EXACT_VALUATION_BOUND_OTHER_DECISION_GATES_REMAIN"
     if "FRESH_VALUATION_BINDING_ABSENT" in reasons:
         return "RESEARCH_VALUATION_CONTEXT_PRESENT_FRESH_BINDING_ABSENT"
     if "FRESH_NORMALIZED_VALUATION_ABSENT" in reasons:
@@ -151,6 +156,8 @@ def capital_comparison_status(comparison: dict[str, Any] | None) -> str:
     if not comparison:
         return "UNAVAILABLE_NO_MATCHING_GOVERNED_COMPARISON_CONTEXT"
     gate = str(comparison.get("gate_state") or "UNKNOWN")
+    if comparison.get("live_operating_authority") is True:
+        return f"{gate}_LIVE_OPERATING_CONTEXT"
     return f"{gate}_GOVERNED_PHASE2C_CONTEXT_NOT_LIVE_AUTHORITY"
 
 
@@ -316,7 +323,10 @@ def build_record(
             "gate_state": comparison.get("gate_state") if comparison else None,
             "reason_codes": comparison_reasons,
             "missing_requirements": comparison_missing,
-            "is_live_operating_authority": False,
+            "is_live_operating_authority": bool(
+                comparison and comparison.get("live_operating_authority") is True
+            ),
+            "valuation_context": comparison.get("valuation_context") if comparison else None,
         },
         "source_bindings": source_snapshot,
         "source_watermarks": {
@@ -442,7 +452,10 @@ def build(
             "source_id": comparison_context_source_id,
             "watermark": comparison_pack.get("generated_at"),
             "mode": comparison_pack.get("mode"),
-            "live_operating_authority": False,
+            "live_operating_authority": bool(
+                comparison_pack.get("live_operating_authority") is True
+            ),
+            "source_bindings": comparison_pack.get("source_bindings"),
         },
     }
 
