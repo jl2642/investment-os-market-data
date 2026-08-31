@@ -98,7 +98,7 @@ The temporary recovery workflow is retired after closure. Future same-date Daily
 
 OCC-R2 is defect-scoped into two acceptance gates after code-level audit of the retained FMDL3E implementation.
 
-### OCC-R2A — Market-driven Valuation Live Wiring
+### OCC-R2A — Market-driven Valuation Live Wiring **COMPLETE (2026-08-31)**
 
 Purpose:
 - consume the latest accepted A-share Operating Current after a successful Daily run;
@@ -126,5 +126,35 @@ R2B therefore must:
 - expose a truthful fresh financial watermark only after propagation succeeds.
 
 R2A must not be used as evidence that R2B is complete.
+
+#### OCC-R2A closure evidence
+
+- PR #374 merged; NaN compatibility hotfix PR #375 merged.
+- accepted production run: 33357411867.
+- FINANCIAL_VALUATION_CONTEXT Operating Current watermark: 2026-08-28.
+- source branch: automation/occ-r2a-valuation-33357411867-a1.
+- row_count: 5,528.
+- source market symbols: 5,551.
+- matched positive-close financial-baseline symbols: 5,522.
+- market coverage ratio: 0.9989146164978292.
+- full-rebuild mismatch count: 0.
+- financial denominator state: LKG_NOT_REFRESHED_BY_R2A.
+- financial event propagation: PENDING_OCC_R2B.
+- EV/Sales and EV/Operating Income are fail-closed pending exact R2B denominator refresh.
+- candidate / real / simulation / order mutations: 0.
+- TRADE_AUTHORITY = NONE.
+
+#### OCC-R2B catch-up boundary
+
+Before propagation implementation, perform a one-time index-only backlog audit from the accepted statement baseline publication date through the latest accepted completed-session market watermark.
+
+The backlog audit:
+- queries financial-report / information-change notice indexes only;
+- performs no per-symbol statement fetch;
+- performs no Current mutation;
+- does not cap the audit to the legacy maximum_live_symbols=8;
+- determines whether catch-up can be direct incremental or requires a batched cursor.
+
+After backlog size is measured, implement only the minimum catch-up mode required by observed backlog size.
 
 TRADE_AUTHORITY = NONE.
