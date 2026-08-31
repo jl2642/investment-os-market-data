@@ -20,6 +20,7 @@ if str(ROOT) not in sys.path:
 
 from pipeline.common import iso_shanghai, now_shanghai, write_json  # noqa: E402
 from pipeline.publish import publish_candidate, validate_control_payload, write_failure_status  # noqa: E402
+from scripts.a_share_chain_coherence import assess_chain_coherence  # noqa: E402
 
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
 
@@ -43,6 +44,17 @@ def _current_as_of(root: Path) -> str | None:
     if not path.exists():
         return None
     return json.loads(path.read_text(encoding="utf-8")).get("as_of_date")
+
+
+def _same_date_noop_eligibility(root: Path, target_date: str) -> tuple[bool, dict]:
+    if _current_as_of(root) != target_date:
+        return False, {
+            "status": "MARKET_NOT_SAME_DATE",
+            "target_as_of_date": target_date,
+            "trade_authority": "NONE",
+        }
+    coherence = assess_chain_coherence(root, target_date=target_date)
+    return coherence["status"] == "PASS_COHERENT", coherence
 
 
 def _write_noop(root: Path, *, generated_at: str, as_of_date: str, reason: str) -> None:
@@ -78,9 +90,26 @@ def main() -> int:
                 print(json.dumps({"status": "NO_OP_NON_TRADING_DAY", "as_of_date": today}, ensure_ascii=False))
                 return 0
             if _current_as_of(ROOT) == today and not args.allow_same_date_refresh:
-                _write_noop(ROOT, generated_at=generated_at, as_of_date=today, reason="NO_OP_ALREADY_CURRENT")
-                print(json.dumps({"status": "NO_OP_ALREADY_CURRENT", "as_of_date": today}, ensure_ascii=False))
-                return 0
+                noop_allowed, coherence = _same_date_noop_eligibility(ROOT, today)
+                if noop_allowed:
+                    _write_noop(ROOT, generated_at=generated_at, as_of_date=today, reason="NO_OP_ALREADY_CURRENT")
+                    print(json.dumps(
+                        {
+                            "status": "NO_OP_ALREADY_CURRENT",
+                            "as_of_date": today,
+                            "chain_coherence": coherence,
+                        },
+                        ensure_ascii=False,
+                    ))
+                    return 0
+                print(json.dumps(
+                    {
+                        "status": "SAME_DATE_CHAIN_INCOHERENT_CONTINUE",
+                        "as_of_date": today,
+                        "chain_coherence": coherence,
+                    },
+                    ensure_ascii=False,
+                ))
 
         completed = subprocess.run(
             [sys.executable, str(ROOT / "pipeline/build_candidate.py")],

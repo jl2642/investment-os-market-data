@@ -33,11 +33,13 @@ on:
       - "scripts/run_fmdl2b4_operating.py"
       - "scripts/validate_fmdl2b4_candidate.py"
       - "scripts/validate_fmdl2b4_freshness.py"
+      - "scripts/a_share_chain_coherence.py"
       - "scripts/run_screening_funnel.py"
       - "scripts/run_screening_funnel_v2.py"
       - "scripts/validate_fmdl2c_candidate.py"
       - "scripts/publish_fmdl2c.py"
       - "scripts/refresh_investment_os_interface.py"
+      - "tests/test_a_share_chain_coherence.py"
       - "tests/test_round1_governed_publication_workflows.py"
 
 permissions:
@@ -78,6 +80,7 @@ jobs:
             tests/test_fmdl2b4_incremental_refresh.py \
             tests/test_fmdl2b4_snapshot_identity.py \
             tests/test_fmdl2c_screening_funnel.py \
+            tests/test_a_share_chain_coherence.py \
             tests/test_round1_governed_publication_workflows.py
 
   operate:
@@ -101,7 +104,7 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
 
-      - name: Bootstrap accepted history and factor baseline from Operating Current
+      - name: Bootstrap accepted A-share chain baseline from Operating Current
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -184,6 +187,7 @@ jobs:
           for path in \
             outputs/history/current \
             outputs/factors/current \
+            outputs/screens/current \
             datasets/history/incremental \
             datasets/history/repair
           do
@@ -200,6 +204,10 @@ jobs:
               'baseline_source_workflow':baseline.get('source_workflow'),
               'baseline_watermark':baseline.get('watermark'),
               'bootstrap_history_as_of':json.loads(p.read_text(encoding='utf-8')).get('as_of_date') if p.exists() else None,
+              'bootstrap_screening_as_of':(
+                  json.loads(Path('outputs/screens/current/SCREENING_CURRENT_RELEASE.json').read_text(encoding='utf-8')).get('as_of_date')
+                  if Path('outputs/screens/current/SCREENING_CURRENT_RELEASE.json').exists() else None
+              ),
               'trade_authority':'NONE',
           })
           PY
@@ -323,6 +331,7 @@ jobs:
           test -f outputs/screens/current/SCREENING_MANIFEST.json
           test -f outputs/status/FMDL2C_LAST_SUCCESS.json
           python scripts/validate_investment_os_interface.py
+          python -m scripts.a_share_chain_coherence --fail-on-incoherent --write outputs/status/A_SHARE_CHAIN_COHERENCE.json
 
       - name: Upload immutable daily transaction evidence
         if: always()
@@ -404,7 +413,7 @@ jobs:
             --source-commit "$SOURCE_COMMIT" \
             --watermark "$WATERMARK" \
             --watermark-sort-key "$WATERMARK" \
-            --qc-status PASS \
+            --qc-status PASS_CHAIN_COHERENT \
             --advance-current
           {
             echo "### Governed publication handoff"
