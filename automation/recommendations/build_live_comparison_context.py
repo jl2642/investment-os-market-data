@@ -24,6 +24,11 @@ def _clean_value(value: Any) -> Any:
             value = value.item()
         except Exception:
             pass
+    if hasattr(value, "isoformat"):
+        try:
+            return value.isoformat()
+        except Exception:
+            pass
     return value
 
 
