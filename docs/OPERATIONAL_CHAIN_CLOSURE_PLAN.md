@@ -260,7 +260,7 @@ TRADE_AUTHORITY = NONE.
 
 R3 remains one frozen repair round and is implemented in three defect-scoped gates:
 
-### OCC-R3A — Opportunity Funnel Screening Freshness
+### OCC-R3A — Opportunity Funnel Screening Freshness **COMPLETE (2026-08-31)**
 
 Close OCC-003 by forcing P4-2 to restore the exact accepted Screening inputs referenced by A_SHARE_FULL_MARKET Operating Current before every validate/operate build.
 
@@ -272,7 +272,23 @@ R3A must:
 - require screening manifest as_of_date == Operating Current data_watermark;
 - preserve existing Funnel logic and zero protected-state mutation.
 
-### OCC-R3B — Governed Candidate Proposal Bridge
+#### OCC-R3A closure evidence
+
+- PR #381 merged to main; merge commit: b3c3750e401584be00bd567efaad86657256c238.
+- accepted live P4-2 run: 33391415127.
+- validate: SUCCESS.
+- operate / publication / remote readback: SUCCESS.
+- OPPORTUNITY_FUNNEL Operating Current: PASS_P4_2_FUNNEL_VALIDATED.
+- accepted FULL_MARKET_SCREEN watermark: 2026-08-28.
+- Screening universe: 5,551.
+- Screening Longlist: 100.
+- source fingerprint advanced from the prior stale-source cycle.
+- Candidate / Real / Simulation mutations: 0 / 0 / 0.
+- orders: 0.
+- TRADE_AUTHORITY = NONE.
+- OCC-003 is closed.
+
+### OCC-R3B — Governed Candidate Proposal Bridge **IN PROGRESS**
 
 Close OCC-004 by producing explicit admission/removal proposals from fresh Longlist/Candidate deltas without automatically mutating Candidate membership.
 
