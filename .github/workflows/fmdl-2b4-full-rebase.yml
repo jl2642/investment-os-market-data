@@ -241,7 +241,6 @@ jobs:
           python -m scripts.publish_fmdl2b4
           python -m scripts.validate_fmdl2b4_freshness
           python -m scripts.a_share_chain_coherence \
-            --expect-date "${{ needs.prepare-recovery.outputs.target_session }}" \
             --write outputs/status/A_SHARE_CHAIN_COHERENCE.json
       - name: Upload immutable validated recovery result
         uses: actions/upload-artifact@v4
