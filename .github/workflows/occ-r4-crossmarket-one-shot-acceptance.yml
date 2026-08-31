@@ -1,0 +1,269 @@
+name: OCC-R4 Cross-Market One-Shot Acceptance
+
+on:
+  push:
+    branches:
+      - agent/occ-r4-crossmarket-one-shot-r3-20260831
+    paths:
+      - ".github/workflows/occ-r4-crossmarket-one-shot-acceptance.yml"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+  SEC_USER_AGENT: "investment-os-market-data/1.0 contact:https://github.com/jl2642/investment-os-market-data"
+
+jobs:
+  replay-accept-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout R4 accepted code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install deterministic test runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest
+
+      - name: Revalidate merged cross-market contracts
+        run: |
+          python -m py_compile automation/cross_market/*.py
+          python -m pytest -q automation/cross_market/tests
+
+      - name: Build isolated clean replay worktree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -rf /tmp/occ-r4-replay
+          git worktree add --detach /tmp/occ-r4-replay HEAD
+          rm -f \
+            /tmp/occ-r4-replay/investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json \
+            /tmp/occ-r4-replay/investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_RUN_CURRENT.json \
+            /tmp/occ-r4-replay/investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_RESEARCH_PROPOSAL_CURRENT.json
+          rm -rf /tmp/occ-r4-replay/investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED
+
+      - name: Replay 2026-08-28 bounded market batch with live providers
+        id: replay
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          result="$(python automation/cross_market/build_round3_limited_production.py \
+            --repo-root /tmp/occ-r4-replay \
+            --as-of 2026-08-28)"
+          echo "$result"
+          python - "$result" <<'PY' >> "$GITHUB_OUTPUT"
+          import json,sys
+          d=json.loads(sys.argv[1])
+          if d.get("due") is not True:
+              raise SystemExit("OCC_R4_ONE_SHOT_REPLAY_NOT_DUE")
+          for key in (
+              "run_id",
+              "capture_status",
+              "operating_state",
+              "us_bounded_capture_quality",
+              "us_rotation_success_ratio",
+              "us_benchmark_success",
+          ):
+              print(f"{key}={d.get(key,'')}")
+          PY
+
+      - name: Consume replay SEC queue with existing official collector
+        id: sec
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          run_id="${{ steps.replay.outputs.run_id }}"
+          rel="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/$run_id"
+          base="/tmp/occ-r4-replay/$rel"
+          python automation/cross_market/collect_round3_sec_official.py \
+            --queue "$base/ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json" \
+            --output "$base/ROUND3_SEC_CONTROLLED_RETRIEVAL_INBOX.json" \
+            --raw-dir "$base/SEC_RAW" \
+            --raw-manifest "$base/ROUND3_SEC_RAW_RESPONSE_MANIFEST.json" \
+            --user-agent "$SEC_USER_AGENT"
+          apply_result="$(python automation/cross_market/apply_round3_sec_observer_results.py \
+            --repo-root /tmp/occ-r4-replay \
+            --inbox "$rel/ROUND3_SEC_CONTROLLED_RETRIEVAL_INBOX.json")"
+          echo "$apply_result"
+          printf '%s\n' "$apply_result" > /tmp/occ-r4-sec-apply.json
+          python - "$base/ROUND3_SEC_CONTROLLED_RETRIEVAL_INBOX.json" "$apply_result" <<'PY' >> "$GITHUB_OUTPUT"
+          import json,sys
+          inbox=json.load(open(sys.argv[1],encoding="utf-8"))
+          applied=json.loads(sys.argv[2])
+          processed=len(inbox.get("issuers",[]))+len(inbox.get("failures",[]))
+          if processed == 0:
+              raise SystemExit("OCC_R4_SEC_CONSUMER_EMPTY_RESULT")
+          print("consumer_status=PASS_QUEUE_CONSUMED")
+          print(f"official_success_count={len(inbox.get('issuers',[]))}")
+          print(f"official_failure_count={len(inbox.get('failures',[]))}")
+          print(f"sec_completed={applied.get('sec_official_completed_issuer_count',0)}")
+          print(f"sec_status={applied.get('sec_official_retrieval_status','')}")
+          PY
+
+      - name: Validate replay operating products
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          root=/tmp/occ-r4-replay/investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS
+          python automation/cross_market/validate_round3_outputs.py \
+            --run "$root/CROSS_MARKET_LIMITED_RUN_CURRENT.json" \
+            --proposal "$root/CROSS_MARKET_RESEARCH_PROPOSAL_CURRENT.json" \
+            --ledger "$root/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json" \
+            --policy /tmp/occ-r4-replay/automation/cross_market/round3_policy.json
+
+      - name: Freeze acceptance evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          run_id="${{ steps.replay.outputs.run_id }}"
+          rel="investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/$run_id"
+          out=outputs/occ_r4/acceptance/cross_market
+          mkdir -p "$out"
+          cp "/tmp/occ-r4-replay/$rel/ROUND3_SEC_OFFICIAL_RETRIEVAL_QUEUE.json" "$out/"
+          cp "/tmp/occ-r4-replay/$rel/ROUND3_SEC_CONTROLLED_RETRIEVAL_INBOX.json" "$out/"
+          cp "/tmp/occ-r4-replay/$rel/ROUND3_SEC_RAW_RESPONSE_MANIFEST.json" "$out/"
+          cp "/tmp/occ-r4-replay/investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_RUN_CURRENT.json" "$out/"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          out=Path("outputs/occ_r4/acceptance/cross_market")
+          run=json.load(open(out/"CROSS_MARKET_LIMITED_RUN_CURRENT.json",encoding="utf-8"))
+          inbox=json.load(open(out/"ROUND3_SEC_CONTROLLED_RETRIEVAL_INBOX.json",encoding="utf-8"))
+          raw=json.load(open(out/"ROUND3_SEC_RAW_RESPONSE_MANIFEST.json",encoding="utf-8"))
+          applied=json.load(open("/tmp/occ-r4-sec-apply.json",encoding="utf-8"))
+          payload={
+              "schema_version":"1.0.0",
+              "status":"PASS_OCC_R4_CROSS_MARKET_LIVE_REPLAY_COMPLETED",
+              "as_of_date":"2026-08-28",
+              "isolated_replay":True,
+              "formal_ledger_mutated":False,
+              "cross_market":{
+                  "capture_status":run["capture_status"],
+                  "hong_kong":run["hong_kong"],
+                  "united_states":run["united_states"],
+              },
+              "sec_consumer":{
+                  "status":"PASS_QUEUE_CONSUMED",
+                  "official_success_count":len(inbox.get("issuers",[])),
+                  "official_failure_count":len(inbox.get("failures",[])),
+                  "raw_response_count":raw.get("raw_response_count",0),
+                  "cycle_sec_completed":applied.get("sec_official_completed_issuer_count",0),
+                  "sec_retrieval_status":applied.get("sec_official_retrieval_status"),
+              },
+              "controls":{
+                  "candidate_membership_mutations":0,
+                  "real_account_mutations":0,
+                  "simulation_mutations":0,
+                  "decision_mutations":0,
+                  "orders":0,
+                  "trade_authority":"NONE",
+              },
+              "trade_authority":"NONE",
+          }
+          (out/"OCC_R4_CROSS_MARKET_ACCEPTANCE.json").write_text(
+              json.dumps(payload,ensure_ascii=False,indent=2,sort_keys=True,allow_nan=False)+"\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(payload,ensure_ascii=False,sort_keys=True))
+          PY
+
+      - name: Publish acceptance branch and Operating Current authorities
+        shell: bash
+        env:
+          RESULT_BRANCH: automation/occ-r4-crossmarket-acceptance-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add outputs/occ_r4/acceptance/cross_market
+          git commit -m "OCC R4: stage live cross-market and SEC acceptance evidence"
+          git push origin "HEAD:$RESULT_BRANCH"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          WATERMARK=2026-08-28
+
+          python automation/operating_current/publish_operating_current.py \
+            --domain US_BOUNDED_COVERAGE \
+            --status PASS \
+            --source-workflow "OCC-R4 Cross-Market One-Shot Acceptance" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "${{ steps.replay.outputs.us_bounded_capture_quality }}:rotation_ratio=${{ steps.replay.outputs.us_rotation_success_ratio }}:benchmark_success=${{ steps.replay.outputs.us_benchmark_success }}" \
+            --advance-current
+
+          python automation/operating_current/publish_operating_current.py \
+            --domain SEC_QUEUE_CONSUMER \
+            --status PASS \
+            --source-workflow "OCC-R4 Cross-Market One-Shot Acceptance" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "${{ steps.sec.outputs.consumer_status }}:success=${{ steps.sec.outputs.official_success_count }}:failure=${{ steps.sec.outputs.official_failure_count }}" \
+            --advance-current
+
+          SEC_STATUS=PASS
+          SEC_ADVANCE=(--advance-current)
+          if [[ "${{ steps.sec.outputs.official_success_count }}" == "0" ]]; then
+            SEC_STATUS=BLOCKED
+            SEC_ADVANCE=()
+          fi
+          python automation/operating_current/publish_operating_current.py \
+            --domain SEC_OFFICIAL_RETRIEVAL \
+            --status "$SEC_STATUS" \
+            --source-workflow "OCC-R4 Cross-Market One-Shot Acceptance" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "${{ steps.sec.outputs.sec_status }}:success=${{ steps.sec.outputs.official_success_count }}:failure=${{ steps.sec.outputs.official_failure_count }}" \
+            "${SEC_ADVANCE[@]}"
+
+          CROSS_STATUS=BLOCKED
+          CROSS_ADVANCE=()
+          if [[ "${{ steps.replay.outputs.capture_status }}" == "CAPTURED_BOTH_MARKETS" ]]; then
+            CROSS_STATUS=PASS
+            CROSS_ADVANCE=(--advance-current)
+          fi
+          python automation/operating_current/publish_operating_current.py \
+            --domain CROSS_MARKET_LIMITED \
+            --status "$CROSS_STATUS" \
+            --source-workflow "OCC-R4 Cross-Market One-Shot Acceptance" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status "OCC_R4_REPLAY:${{ steps.replay.outputs.capture_status }}:${{ steps.replay.outputs.us_bounded_capture_quality }}" \
+            "${CROSS_ADVANCE[@]}"
+
+          {
+            echo "## OCC-R4 live one-shot acceptance"
+            echo "- result_branch: $RESULT_BRANCH"
+            echo "- as_of: $WATERMARK"
+            echo "- capture_status: ${{ steps.replay.outputs.capture_status }}"
+            echo "- US coverage: ${{ steps.replay.outputs.us_bounded_capture_quality }}"
+            echo "- US rotation success ratio: ${{ steps.replay.outputs.us_rotation_success_ratio }}"
+            echo "- US benchmark success: ${{ steps.replay.outputs.us_benchmark_success }}"
+            echo "- SEC queue consumer: ${{ steps.sec.outputs.consumer_status }}"
+            echo "- SEC official success/failure: ${{ steps.sec.outputs.official_success_count }}/${{ steps.sec.outputs.official_failure_count }}"
+            echo "- formal ledger mutated: false"
+            echo "- Candidate / real / simulation / decisions / orders: 0 / 0 / 0 / 0 / 0"
+            echo "- trade_authority: NONE"
+          } >> "$GITHUB_STEP_SUMMARY"
