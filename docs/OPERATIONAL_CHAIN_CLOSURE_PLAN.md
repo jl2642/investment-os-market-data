@@ -34,8 +34,8 @@ Market -> History -> Factor -> Screening -> Financial/Valuation -> Candidate/Opp
 - OCC-R1: A-share Market -> History -> Factor -> Screening coherence. **COMPLETE (2026-08-31)**
 - OCC-R2: financial and valuation live wiring. **COMPLETE (2026-08-31)**
 - OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure. **COMPLETE (2026-08-31)**
-- OCC-R4: HK/US, SEC and portfolio freshness repair. **IN PROGRESS**
-- OCC-R5: nightly orchestration and 08:00 controller acceptance.
+- OCC-R4: HK/US, SEC and portfolio freshness repair. **COMPLETE (2026-08-31)**
+- OCC-R5: nightly orchestration and 08:00 controller acceptance. **IN PROGRESS**
 
 ## R1 acceptance contract
 
@@ -414,5 +414,83 @@ R4 remains one frozen repair round with three coordinated repair surfaces:
    - do not rebuild WP5 portfolio methodology, infer broker verification, authorize rebalancing, or create orders.
 
 R4 acceptance requires exact-head validation plus production evidence for all three repair surfaces.
+
+TRADE_AUTHORITY = NONE.
+
+
+## OCC-R4 closure evidence
+
+OCC-R4 closes OCC-007, OCC-008 and OCC-009 under accepted production evidence.
+
+### US bounded coverage honesty — OCC-007 CLOSED
+
+- core R4 PR #389 merged to main.
+- SEC collector direct-execution hotfix PR #390 merged to main.
+- SEC fail-closed outage hotfix PR #391 merged to main.
+- cross-market state-persistence hotfix PR #392 merged to main; merge commit: 5297c7a50a1567306d0113044e75bd57bed7c18e.
+- accepted final live replay run: 33401557870.
+- accepted result branch: automation/occ-r4-crossmarket-acceptance-33401557870-a1.
+- accepted result commit: 5023e1408ba6d4d611818b2054a3c8d2d64634e1.
+- as_of_date: 2026-08-28.
+- Hong Kong bounded batch: 134 / 135 success.
+- United States bounded rotation: 56 / 64 success; success ratio: 0.875.
+- United States benchmark: 7 / 7 success.
+- bounded coverage quality: PASS_ADEQUATE_BOUNDED_CAPTURE.
+- US_BOUNDED_COVERAGE Operating Current: PASS.
+- CROSS_MARKET_LIMITED Operating Current: PASS / OCC_R4_REPLAY:CAPTURED_BOTH_MARKETS:PASS_ADEQUATE_BOUNDED_CAPTURE.
+- the prior 1 / 71 false-positive capture condition is no longer permitted by the daily coverage gate.
+- no full-US-market coverage claim is made.
+
+### SEC queue operating consumer — OCC-008 CLOSED
+
+- the existing collect_round3_sec_official.py and apply_round3_sec_observer_results.py chain is now live-wired into governed production.
+- accepted run 33401557870 generated and consumed an eight-issuer SEC queue.
+- SEC_QUEUE_CONSUMER Operating Current: PASS / PASS_QUEUE_CONSUMED:success=0:failure=8.
+- all 8 / 8 queue rows were processed; the consumer did not stall or require manual ChatGPT observer completion.
+- the SEC global ticker-map endpoint returned HTTP 403 from the GitHub runner environment.
+- ticker-map-dependent issuers therefore remain explicit SEC_DATA_GAP rather than fabricating official evidence.
+- SEC_OFFICIAL_RETRIEVAL latest attempt: BLOCKED / PENDING_CONTROLLED_OFFICIAL_RETRIEVAL:success=0:failure=8.
+- no SEC_OFFICIAL_RETRIEVAL Current pointer is manufactured while official retrieval has zero success.
+- external SEC endpoint availability is a truthful data-availability boundary, not an unresolved queue-consumer wiring defect.
+
+### Portfolio decision freshness — OCC-009 CLOSED
+
+- accepted production run: 33399403880.
+- PORTFOLIO_DECISION_FRESHNESS Operating Current: PASS.
+- qc_status: PASS_FRESH_INPUTS_BOUND_STALE_LEGACY_DECISION_BLOCKED.
+- portfolio marks watermark: 2026-08-28.
+- accepted Recommendation source run: 33395324343.
+- accepted Recommendation source commit: a6407e501ca6ac7ffb4e33c0364c805c05291498.
+- Real holdings: 7.
+- Simulation holdings: 16.
+- required fresh marks: 22 / 22.
+- legacy WP5 portfolio decision generated 2026-07-27 is explicitly classified stale against current marks.
+- legacy action matrix current: false.
+- implementation_ready: false.
+- ready_for_user_decision: false.
+- automatic rebalance / position change authority: false / false.
+
+### Cross-market state continuity hardening
+
+- the accepted CROSS_MARKET_LIMITED source branch now carries:
+  - CROSS_MARKET_LIMITED_LEDGER_CURRENT.json;
+  - CROSS_MARKET_LIMITED_RUN_CURRENT.json;
+  - CROSS_MARKET_RESEARCH_PROPOSAL_CURRENT.json.
+- normal Round 3 schedule / dispatch production now restores the exact accepted Operating Current source branch + commit before processing the next session.
+- missing state files fail closed instead of silently restarting from empty protected main.
+- accepted state source commit: 5023e1408ba6d4d611818b2054a3c8d2d64634e1.
+
+### R4 authority boundary
+
+- Candidate membership mutations: 0.
+- Real-account mutations: 0.
+- Simulation mutations: 0.
+- portfolio action writebacks: 0.
+- orders: 0.
+- TRADE_AUTHORITY = NONE.
+
+OCC-011 legacy WP3-2A provider-session noise remains eligible for R5 cleanup only if it materially affects final nightly/controller acceptance; it is not allowed to expand the R5 scope.
+
+OCC-R4 is COMPLETE. The final frozen repair round is OCC-R5: nightly orchestration and 08:00 controller acceptance.
 
 TRADE_AUTHORITY = NONE.
