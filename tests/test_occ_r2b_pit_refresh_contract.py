@@ -17,3 +17,10 @@ def test_r2b_pit_cutoff_is_optional_and_not_global_default() -> None:
     assert 'cfg.get("data_scope", {}).get("pit_cutoff_as_of_date")' in shard
     assert "as_of_cutoff: str | None = None" in canary
     assert '"pit_cutoff_as_of_date"' not in config
+
+
+def test_financial_canary_pr_is_deterministic_only() -> None:
+    text = (ROOT / ".github/workflows/fmdl-3b2-full-build-canary.yml").read_text(encoding="utf-8")
+    assert "Run real build canary" in text
+    assert text.count("if: github.event_name != 'pull_request'") >= 3
+    assert "github.event_name != 'pull_request' && always()" in text
