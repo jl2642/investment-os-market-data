@@ -118,9 +118,17 @@ def collect(
     )
     ticker_raw: bytes | None = None
     symbol_to_cik: dict[str, str] = {}
+    ticker_map_error: str | None = None
     if needs_ticker_map:
-        ticker_raw = fetch_and_record(TICKER_URL, headers, fetcher, raw_dir, raw_manifest)
-        symbol_to_cik = ticker_map(ticker_raw)
+        try:
+            ticker_raw = fetch_and_record(TICKER_URL, headers, fetcher, raw_dir, raw_manifest)
+            symbol_to_cik = ticker_map(ticker_raw)
+        except Exception as exc:  # noqa: BLE001
+            ticker_map_error = f"{type(exc).__name__}:{exc}"[:500]
+            raw_manifest["ticker_map_status"] = "SEC_DATA_GAP"
+            raw_manifest["ticker_map_failure_reason"] = ticker_map_error
+    else:
+        raw_manifest["ticker_map_status"] = "NOT_REQUIRED"
 
     issuers: list[dict[str, Any]] = []
     failures: list[dict[str, Any]] = []
@@ -134,6 +142,8 @@ def collect(
             sources: list[str] = []
             hashes: dict[str, str] = {}
             if route == "SYMBOL_TO_SEC_OFFICIAL_TICKER_MAP_TO_CIK":
+                if ticker_map_error is not None:
+                    raise ValueError(f"SEC_TICKER_MAP_UNAVAILABLE:{ticker_map_error}")
                 cik = symbol_to_cik.get(symbol, "")
                 resolution_source = "SEC_COMPANY_TICKERS"
                 if not cik:
