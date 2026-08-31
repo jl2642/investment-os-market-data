@@ -177,7 +177,7 @@ The full-refresh path must:
 Ordinary pull-request validation must not trigger the expensive 32-shard live rebuild. Production rebuild and code validation are separate gates.
 
 
-### OCC-R2B1 — Financial Baseline Rebuild
+### OCC-R2B1 — Financial Baseline Rebuild **COMPLETE (2026-08-31)**
 
 Scope:
 - restore latest accepted A-share market universe/interface as the PIT cutoff;
@@ -189,7 +189,28 @@ Scope:
 
 R2B1 is a recovery/full-baseline transaction for reporting-season catch-up. It is not a nightly workflow.
 
-### OCC-R2B2 — Capitalization + Exact Valuation Rebuild
+
+#### OCC-R2B1 closure evidence
+
+- PR #378 merged to main.
+- accepted production run: 33366663873.
+- 32 / 32 financial statement shards: SUCCESS; failures: 0.
+- aggregate / Statement Base: SUCCESS.
+- FMDL3B3 comparability and FMDL3B4 Statement Current: SUCCESS.
+- FMDL3CB financial factors, FMDL3CC hardening and FMDL3CD financial score: SUCCESS.
+- FINANCIAL_STATEMENT_CONTEXT Operating Current: PASS_FINANCIAL_BASELINE_REBUILT.
+- market watermark: 2026-08-28.
+- financial report-period watermark: 2026-06-30.
+- source branch: automation/occ-r2b1-financial-33366663873-a1.
+- source commit: cacc1ed3027a14dba8eb242a331d4163f5f6b91d.
+- decision-grade fact count: 2,008,449.
+- decision-grade symbol count: 5,202.
+- score universe: 5,551; score available: 4,995; ranking eligible: 4,501.
+- score contribution replay errors: 0.
+- candidate / portfolio / order mutations: 0.
+- TRADE_AUTHORITY = NONE.
+
+### OCC-R2B2 — Capitalization + Exact Valuation Rebuild **IN PROGRESS**
 
 After R2B1 acceptance:
 - inject latest accepted A-share market Current into the existing 16-shard FMDL3DB capitalization engine;
