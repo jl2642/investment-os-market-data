@@ -1,0 +1,270 @@
+name: OCC-R2B2 Capitalization and Exact Valuation Rebuild
+run-name: "OCC-R2B2 capitalization + exact valuation recovery"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/occ-r2b2-capitalization-valuation-rebuild.yml"
+      - "scripts/summarize_occ_r2b2_valuation_context.py"
+      - "tests/test_occ_r2b2_workflow_contract.py"
+      - "docs/OPERATIONAL_CHAIN_CLOSURE_PLAN.md"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/occ-r2b2-capitalization-valuation-rebuild.yml"
+      - "scripts/summarize_occ_r2b2_valuation_context.py"
+      - "tests/test_occ_r2b2_workflow_contract.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  TRADE_AUTHORITY: NONE
+  PYTHONPATH: .
+
+concurrency:
+  group: occ-r2b2-capitalization-valuation
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      market_branch: ${{ steps.sources.outputs.market_branch }}
+      market_commit: ${{ steps.sources.outputs.market_commit }}
+      market_watermark: ${{ steps.sources.outputs.market_watermark }}
+      financial_branch: ${{ steps.sources.outputs.financial_branch }}
+      financial_commit: ${{ steps.sources.outputs.financial_commit }}
+      financial_watermark: ${{ steps.sources.outputs.financial_watermark }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Deterministic OCC-R2B2 contract checks
+        run: |
+          python -m py_compile scripts/summarize_occ_r2b2_valuation_context.py
+          pytest -q tests/test_occ_r2b2_workflow_contract.py tests/test_fmdl3db_engine.py tests/test_fmdl3dc_engine.py
+          python -m scripts.validate_fmdl3db_contract
+          python -m scripts.validate_fmdl3dc_contract
+      - name: Resolve accepted market and financial Operating Current
+        id: sources
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json > /tmp/occ-r2b2-market-current.json
+          git show origin/operating-current:operating_current/domains/FINANCIAL_STATEMENT_CONTEXT.json > /tmp/occ-r2b2-financial-current.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          market=json.load(open('/tmp/occ-r2b2-market-current.json',encoding='utf-8'))
+          financial=json.load(open('/tmp/occ-r2b2-financial-current.json',encoding='utf-8'))
+          for row in (market,financial):
+              assert row.get('status')=='PASS', row
+              assert row.get('trade_authority')=='NONE', row
+          assert market['data_watermark']==financial['data_watermark'], (market,financial)
+          print('market_branch='+str(market['source_branch']))
+          print('market_commit='+str(market['source_commit_sha']))
+          print('market_watermark='+str(market['data_watermark']))
+          print('financial_branch='+str(financial['source_branch']))
+          print('financial_commit='+str(financial['source_commit_sha']))
+          print('financial_watermark='+str(financial['data_watermark']))
+          PY
+      - name: Verify immutable R2B1 financial source
+        if: github.event_name != 'pull_request'
+        shell: bash
+        env:
+          FINANCIAL_BRANCH: ${{ steps.sources.outputs.financial_branch }}
+          FINANCIAL_COMMIT: ${{ steps.sources.outputs.financial_commit }}
+          FINANCIAL_WATERMARK: ${{ steps.sources.outputs.financial_watermark }}
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "refs/heads/$FINANCIAL_BRANCH:refs/remotes/origin/occ-r2b2-financial" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2b2-financial)" = "$FINANCIAL_COMMIT"
+          git show "$FINANCIAL_COMMIT:outputs/occ_r2/financial/current/FINANCIAL_CONTEXT_RELEASE.json" > /tmp/occ-r2b2-financial-context.json
+          python - <<'PY'
+          import json,os
+          row=json.load(open('/tmp/occ-r2b2-financial-context.json',encoding='utf-8'))
+          assert row.get('status')=='PASS', row
+          assert row.get('market_as_of_date')==os.environ['FINANCIAL_WATERMARK'], row
+          assert row.get('financial_report_period_watermark'), row
+          assert row.get('hard_failures')==[], row
+          assert row.get('trade_authority')=='NONE', row
+          PY
+
+  capitalization-shards:
+    needs: preflight
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        shard_id: ["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Restore exact accepted A-share market Current
+        shell: bash
+        env:
+          MARKET_BRANCH: ${{ needs.preflight.outputs.market_branch }}
+          MARKET_COMMIT: ${{ needs.preflight.outputs.market_commit }}
+          MARKET_WATERMARK: ${{ needs.preflight.outputs.market_watermark }}
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "refs/heads/$MARKET_BRANCH:refs/remotes/origin/occ-r2b2-market" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2b2-market)" = "$MARKET_COMMIT"
+          git checkout "$MARKET_COMMIT" --             outputs/current/CURRENT_RELEASE.json             outputs/current/DAILY_MARKET_SNAPSHOT.csv             outputs/current/DAILY_MARKET_SNAPSHOT_MANIFEST.json             outputs/current/A_SHARE_UNIVERSE.csv             outputs/current/A_SHARE_UNIVERSE_MANIFEST.json
+          python -c "import json,os; r=json.load(open('outputs/current/CURRENT_RELEASE.json',encoding='utf-8')); assert r['as_of_date']==os.environ['MARKET_WATERMARK']; assert r['status'] in {'PUBLISHED','PUBLISHED_WITH_WARNINGS'}"
+      - name: Build real effective-share capitalization shard
+        run: python -m scripts.run_fmdl3db_shard --shard-id ${{ matrix.shard_id }}
+      - name: Independently validate capitalization shard
+        run: python -m scripts.validate_fmdl3db_shard --shard-id ${{ matrix.shard_id }}
+      - name: Upload validated capitalization shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: occ-r2b2-cap-shard-${{ matrix.shard_id }}
+          path: outputs/capitalization/full_build/shards/shard-${{ matrix.shard_id }}/
+          if-no-files-found: error
+          retention-days: 30
+
+  valuation-chain:
+    needs: [preflight, capitalization-shards]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Restore exact accepted market source
+        shell: bash
+        env:
+          MARKET_BRANCH: ${{ needs.preflight.outputs.market_branch }}
+          MARKET_COMMIT: ${{ needs.preflight.outputs.market_commit }}
+          MARKET_WATERMARK: ${{ needs.preflight.outputs.market_watermark }}
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "refs/heads/$MARKET_BRANCH:refs/remotes/origin/occ-r2b2-market" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2b2-market)" = "$MARKET_COMMIT"
+          git checkout "$MARKET_COMMIT" --             outputs/current/CURRENT_RELEASE.json             outputs/current/DAILY_MARKET_SNAPSHOT.csv             outputs/current/DAILY_MARKET_SNAPSHOT_MANIFEST.json             outputs/current/A_SHARE_UNIVERSE.csv             outputs/current/A_SHARE_UNIVERSE_MANIFEST.json
+          python - <<'PY'
+          import json,os
+          payload={
+            'status':'PASS',
+            'data_watermark':os.environ['MARKET_WATERMARK'],
+            'source_branch':os.environ['MARKET_BRANCH'],
+            'source_commit_sha':os.environ['MARKET_COMMIT'],
+            'trade_authority':'NONE',
+          }
+          open('/tmp/occ-r2b2-market-context.json','w',encoding='utf-8').write(json.dumps(payload,ensure_ascii=False,indent=2)+'\n')
+          PY
+      - name: Restore exact accepted R2B1 financial denominator source
+        shell: bash
+        env:
+          FINANCIAL_BRANCH: ${{ needs.preflight.outputs.financial_branch }}
+          FINANCIAL_COMMIT: ${{ needs.preflight.outputs.financial_commit }}
+          FINANCIAL_WATERMARK: ${{ needs.preflight.outputs.financial_watermark }}
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "refs/heads/$FINANCIAL_BRANCH:refs/remotes/origin/occ-r2b2-financial" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2b2-financial)" = "$FINANCIAL_COMMIT"
+          git show "$FINANCIAL_COMMIT:outputs/occ_r2/financial/current/FINANCIAL_CONTEXT_RELEASE.json" > /tmp/occ-r2b2-financial-context.json
+          FACTOR_RELEASE_ID="$(python -c "import json; print(json.load(open('/tmp/occ-r2b2-financial-context.json',encoding='utf-8'))['releases']['financial_factor_release_id'])")"
+          git checkout "$FINANCIAL_COMMIT" --             outputs/status/FMDL3CB_LAST_SUCCESS.json             outputs/financial_factors/engine/current
+          git checkout "$FINANCIAL_COMMIT" -- "datasets/financial_factors/engine/releases/$FACTOR_RELEASE_ID"
+          python - <<'PY'
+          import json,os
+          context=json.load(open('/tmp/occ-r2b2-financial-context.json',encoding='utf-8'))
+          pointer=json.load(open('outputs/status/FMDL3CB_LAST_SUCCESS.json',encoding='utf-8'))
+          release=json.load(open('outputs/financial_factors/engine/current/FMDL3CB_RELEASE.json',encoding='utf-8'))
+          expected=context['releases']['financial_factor_release_id']
+          assert context['status']=='PASS', context
+          assert context['market_as_of_date']==os.environ['FINANCIAL_WATERMARK'], context
+          assert pointer['release_id']==expected, (pointer,expected)
+          assert release['release_id']==expected, (release,expected)
+          assert release['trade_authority']=='NONE'
+          PY
+      - name: Download validated capitalization shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: occ-r2b2-cap-shard-*
+          path: downloaded-cap-shards
+          merge-multiple: false
+      - name: Aggregate validate and publish exact Capitalization Current
+        run: |
+          python -m scripts.aggregate_fmdl3db --input-root downloaded-cap-shards
+          python -m scripts.validate_fmdl3db_candidate
+          python -m scripts.publish_fmdl3db
+      - name: Rebuild validate and publish exact Valuation Current
+        run: |
+          python -m scripts.run_fmdl3dc_valuation_engine
+          python -m scripts.validate_fmdl3dc_candidate
+          python -m scripts.publish_fmdl3dc
+      - name: Summarize exact R2B2 valuation context
+        env:
+          MARKET_CONTEXT_PATH: /tmp/occ-r2b2-market-context.json
+          FINANCIAL_CONTEXT_PATH: /tmp/occ-r2b2-financial-context.json
+          MARKET_SOURCE_BRANCH: ${{ needs.preflight.outputs.market_branch }}
+          MARKET_SOURCE_COMMIT: ${{ needs.preflight.outputs.market_commit }}
+          FINANCIAL_SOURCE_BRANCH: ${{ needs.preflight.outputs.financial_branch }}
+          FINANCIAL_SOURCE_COMMIT: ${{ needs.preflight.outputs.financial_commit }}
+        run: python -m scripts.summarize_occ_r2b2_valuation_context
+      - name: Publish governed R2B2 result branch and Operating Current
+        shell: bash
+        env:
+          MARKET_WATERMARK: ${{ needs.preflight.outputs.market_watermark }}
+          RESULT_BRANCH: automation/occ-r2b2-valuation-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add -A --             datasets/capitalization             outputs/capitalization/current             outputs/capitalization/archive             datasets/valuation             outputs/valuation/engine/current             outputs/valuation/engine/archive             outputs/status/FMDL3DB_LAST_SUCCESS.json             outputs/status/FMDL3DC_LAST_SUCCESS.json             outputs/occ_r2/valuation/current
+          git commit -m "data: publish OCC-R2B2 exact valuation context"
+          git push origin "HEAD:refs/heads/$RESULT_BRANCH"
+          RESULT_COMMIT="$(git rev-parse HEAD)"
+          REPORT_WATERMARK="$(python -c "import json; print(json.load(open('outputs/occ_r2/valuation/current/FINANCIAL_VALUATION_CONTEXT_RELEASE.json',encoding='utf-8'))['financial_report_period_watermark'])")"
+          EV_SALES_COUNT="$(python -c "import json; print(json.load(open('outputs/occ_r2/valuation/current/FINANCIAL_VALUATION_CONTEXT_RELEASE.json',encoding='utf-8'))['valuation_metrics']['metric_valid_counts']['VAL_EV_SALES_TTM'])")"
+          EV_OI_COUNT="$(python -c "import json; print(json.load(open('outputs/occ_r2/valuation/current/FINANCIAL_VALUATION_CONTEXT_RELEASE.json',encoding='utf-8'))['valuation_metrics']['metric_valid_counts']['VAL_EV_OPERATING_INCOME_TTM'])")"
+          PUBLISH_DIR="$(mktemp -d /tmp/occ-r2b2-publisher.XXXXXX)"
+          cleanup() { git worktree remove --force "$PUBLISH_DIR" >/dev/null 2>&1 || true; rm -rf "$PUBLISH_DIR" || true; }
+          trap cleanup EXIT
+          git worktree add --detach "$PUBLISH_DIR" origin/main
+          (
+            cd "$PUBLISH_DIR"
+            python automation/operating_current/publish_operating_current.py               --domain FINANCIAL_VALUATION_CONTEXT               --status PASS               --source-workflow "OCC-R2B2 Capitalization and Exact Valuation Rebuild"               --source-run-id "${{ github.run_id }}"               --source-run-attempt "${{ github.run_attempt }}"               --source-branch "$RESULT_BRANCH"               --source-commit "$RESULT_COMMIT"               --watermark "$MARKET_WATERMARK"               --watermark-sort-key "$MARKET_WATERMARK"               --qc-status PASS_EXACT_VALUATION_REBUILT               --note "financial_event_propagation=COMPLETE;financial_report_period_watermark=$REPORT_WATERMARK;ev_sales_valid=$EV_SALES_COUNT;ev_operating_income_valid=$EV_OI_COUNT;trade_authority=NONE"               --advance-current
+          )
+          cleanup
+          trap - EXIT
+      - name: Record R2B2 boundary
+        if: always()
+        run: |
+          echo "OCC_R2B2_CAPITALIZATION_AND_EXACT_VALUATION_ONLY=true" >> "$GITHUB_STEP_SUMMARY"
+          echo "FINANCIAL_EVENT_PROPAGATION_TARGET=COMPLETE" >> "$GITHUB_STEP_SUMMARY"
+          echo "CANDIDATE_PORTFOLIO_ORDER_MUTATION=0" >> "$GITHUB_STEP_SUMMARY"
+          echo "TRADE_AUTHORITY=NONE" >> "$GITHUB_STEP_SUMMARY"
