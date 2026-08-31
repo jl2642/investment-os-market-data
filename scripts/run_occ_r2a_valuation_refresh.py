@@ -1,0 +1,181 @@
+from __future__ import annotations
+
+import json
+import shutil
+from datetime import datetime
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+import pandas as pd
+
+from scripts import fmdl3ede_core as core
+
+ROOT = Path(__file__).resolve().parents[1]
+TZ = ZoneInfo("Asia/Shanghai")
+CANDIDATE = ROOT / "outputs/occ_r2/valuation/candidate"
+BASELINE_PATH = ROOT / "outputs/fmdl3d/final/current/FMDL3D_UNIFIED_CURRENT.parquet"
+BASELINE_MANIFEST = ROOT / "outputs/fmdl3e/contract/current/FMDL3EA_BASELINE_MANIFEST.json"
+MARKET_RELEASE = ROOT / "outputs/current/CURRENT_RELEASE.json"
+MARKET_SNAPSHOT = ROOT / "outputs/current/DAILY_MARKET_SNAPSHOT.csv"
+STATEMENT_RELEASE = ROOT / "outputs/financials/statements/current/FMDL3B4_RELEASE.json"
+FACTOR_RELEASE = ROOT / "outputs/financial_factors/engine/current/FMDL3CB_RELEASE.json"
+SCORE_RELEASE = ROOT / "outputs/financial_factors/score/current/FMDL3CD_RELEASE.json"
+PROPAGATION_CONFIG = ROOT / "config/fmdl3ede_propagation_resilience.json"
+
+
+def read_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def build_market_delta(baseline: pd.DataFrame, snapshot: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    base = baseline[["symbol", "close"]].copy()
+    base["symbol"] = base["symbol"].astype(str)
+    snap = snapshot.copy()
+    snap["symbol"] = snap["symbol"].astype(str)
+    snap["close"] = pd.to_numeric(snap["close"], errors="coerce")
+    if snap["symbol"].duplicated().any():
+        raise ValueError("DUPLICATE_MARKET_SYMBOL")
+    merged = base.rename(columns={"close": "baseline_close"}).merge(
+        snap[["symbol", "close"]].rename(columns={"close": "refreshed_close"}),
+        on="symbol",
+        how="left",
+    )
+    positive = pd.to_numeric(merged["refreshed_close"], errors="coerce").gt(0)
+    overlap = int(merged["refreshed_close"].notna().sum())
+    metrics = {
+        "baseline_symbol_count": int(base["symbol"].nunique()),
+        "source_symbol_count": int(snap["symbol"].nunique()),
+        "matched_symbol_count": overlap,
+        "matched_positive_close_count": int(positive.sum()),
+        "market_coverage_ratio": float(positive.mean()) if len(merged) else 0.0,
+        "source_symbols_outside_financial_baseline": int(
+            len(set(snap["symbol"]) - set(base["symbol"]))
+        ),
+        "financial_baseline_symbols_missing_from_source": int(
+            len(set(base["symbol"]) - set(snap["symbol"]))
+        ),
+    }
+    return merged, metrics
+
+
+def main() -> int:
+    cfg = read_json(PROPAGATION_CONFIG)
+    baseline_manifest = read_json(BASELINE_MANIFEST)
+    market_release = read_json(MARKET_RELEASE)
+    statement_release = read_json(STATEMENT_RELEASE)
+    factor_release = read_json(FACTOR_RELEASE)
+    score_release = read_json(SCORE_RELEASE)
+
+    baseline_date = str(baseline_manifest["market_as_of_date"])
+    target_date = str(market_release.get("as_of_date") or "")
+    if market_release.get("status") not in {"PUBLISHED", "PUBLISHED_WITH_WARNINGS"}:
+        raise SystemExit("MARKET_CURRENT_NOT_ACCEPTED")
+    if not target_date or target_date <= baseline_date:
+        raise SystemExit(f"MARKET_DATE_NOT_LATER_THAN_FINANCIAL_BASELINE:{target_date}:{baseline_date}")
+
+    baseline = pd.read_parquet(BASELINE_PATH)
+    snapshot = pd.read_csv(MARKET_SNAPSHOT, encoding="utf-8-sig")
+    delta, metrics = build_market_delta(baseline, snapshot)
+
+    generated_at = datetime.now(TZ).isoformat(timespec="seconds")
+    release_id = f"OCC_R2A_VALUATION_{datetime.now(TZ).strftime('%Y%m%dT%H%M%S%z')}"
+    propagated = core.incremental_propagate(
+        baseline,
+        delta,
+        cfg=cfg,
+        release_id=release_id,
+        incremental_release_id="OCC_R2A_MARKET_ONLY",
+        target_date=target_date,
+    )
+    rebuilt = core.full_rebuild(
+        baseline,
+        delta,
+        cfg=cfg,
+        release_id=release_id,
+        incremental_release_id="OCC_R2A_MARKET_ONLY",
+        target_date=target_date,
+    )
+    audit = core.comparison_audit(propagated, rebuilt)
+    mismatch_count = int(audit["mismatch_count"].sum())
+    trade_values = set(propagated["trade_authority"].dropna().astype(str))
+    required_count = int(cfg["propagation"]["required_universe_symbol_count"])
+    required_coverage = float(cfg["propagation"]["required_market_coverage_ratio"])
+
+    checks = {
+        "MARKET_DATE_ADVANCED": target_date > baseline_date,
+        "FINANCIAL_BASELINE_UNIVERSE_FROZEN": len(propagated) == required_count,
+        "MARKET_COVERAGE": metrics["market_coverage_ratio"] >= required_coverage,
+        "FULL_REBUILD_EQUAL": mismatch_count == 0,
+        "DUPLICATE_SYMBOL_ZERO": not propagated["symbol"].duplicated().any(),
+        "ZERO_TRADE_AUTHORITY": trade_values == {"NONE"},
+        "FINANCIAL_DENOMINATOR_EXPLICIT_LKG": bool(statement_release.get("release_id")),
+    }
+    failures = [name for name, passed in checks.items() if not passed]
+
+    if CANDIDATE.exists():
+        shutil.rmtree(CANDIDATE)
+    CANDIDATE.mkdir(parents=True)
+    propagated.to_parquet(CANDIDATE / "VALUATION_CONTEXT_CURRENT.parquet", index=False, compression="zstd")
+    delta.to_parquet(CANDIDATE / "MARKET_DELTA.parquet", index=False, compression="zstd")
+    audit.to_csv(CANDIDATE / "FULL_REBUILD_AUDIT.csv", index=False)
+
+    decision = {
+        "schema_version": "1.0.0",
+        "release_id": release_id,
+        "generated_at": generated_at,
+        "status": "PASS" if not failures else "FAIL",
+        "qc_status": "PASS_MARKET_VALUATION_REFRESH_FINANCIAL_DENOMINATOR_LKG" if not failures else "FAIL",
+        "market_as_of_date": target_date,
+        "financial_baseline_market_as_of_date": baseline_date,
+        "financial_denominator": {
+            "status": "LKG_NOT_REFRESHED_BY_R2A",
+            "statement_release_id": statement_release.get("release_id"),
+            "statement_published_at": statement_release.get("published_at"),
+            "financial_factor_release_id": factor_release.get("release_id"),
+            "financial_score_release_id": score_release.get("release_id"),
+            "financial_event_propagation": "PENDING_OCC_R2B",
+        },
+        "universe": {
+            **metrics,
+            "valuation_context_row_count": int(len(propagated)),
+            "required_financial_baseline_symbol_count": required_count,
+            "coverage_scope": "FROZEN_FMDL3_FINANCIAL_BASELINE_ONLY",
+        },
+        "valuation_fields_updated_by_market": {
+            "price_multiple_fields": cfg["propagation"]["price_multiple_fields"],
+            "inverse_price_fields": cfg["propagation"]["inverse_price_fields"],
+            "market_cap_fields": ["total_market_cap_cny", "float_market_cap_cny"],
+        },
+        "checks": checks,
+        "hard_failures": failures,
+        "controlled_limitations": [
+            "FINANCIAL_FACT_DENOMINATORS_REMAIN_LAST_KNOWN_GOOD_PENDING_OCC_R2B",
+            "FINANCIAL_BASELINE_UNIVERSE_IS_5528_AND_DOES_NOT_AUTO_ADMIT_NEWER_MARKET_SYMBOLS",
+            "SPECIALIZED_FINANCIAL_SECTOR_METRICS_REMAIN_CONTROLLED_BY_EXISTING_PROFILE_GATES",
+            "NO_RECOMMENDATION_PORTFOLIO_ACTION_OR_TRADE_AUTHORITY",
+        ],
+        "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+        "trade_authority": "NONE",
+    }
+    validation = {
+        "schema_version": "1.0.0",
+        "status": "PASS" if not failures else "FAIL",
+        "hard_failures": failures,
+        "market_as_of_date": target_date,
+        "financial_denominator_status": "LKG_NOT_REFRESHED_BY_R2A",
+        "full_rebuild_mismatch_count": mismatch_count,
+        "metrics": metrics,
+        "trade_authority": "NONE",
+    }
+    (CANDIDATE / "VALUATION_CONTEXT_DECISION.json").write_text(
+        json.dumps(decision, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    (CANDIDATE / "VALUATION_CONTEXT_VALIDATION.json").write_text(
+        json.dumps(validation, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    print(json.dumps(decision, ensure_ascii=False, sort_keys=True))
+    return 0 if not failures else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
