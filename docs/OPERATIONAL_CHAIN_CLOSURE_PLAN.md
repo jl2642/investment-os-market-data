@@ -32,8 +32,8 @@ Market -> History -> Factor -> Screening -> Financial/Valuation -> Candidate/Opp
 
 - OCC-R0: freeze this repair contract and defect registry.
 - OCC-R1: A-share Market -> History -> Factor -> Screening coherence. **COMPLETE (2026-08-31)**
-- OCC-R2: financial and valuation live wiring. **IN PROGRESS**
-- OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure.
+- OCC-R2: financial and valuation live wiring. **COMPLETE (2026-08-31)**
+- OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure. **IN PROGRESS**
 - OCC-R4: HK/US, SEC and portfolio freshness repair.
 - OCC-R5: nightly orchestration and 08:00 controller acceptance.
 
@@ -210,7 +210,7 @@ R2B1 is a recovery/full-baseline transaction for reporting-season catch-up. It i
 - candidate / portfolio / order mutations: 0.
 - TRADE_AUTHORITY = NONE.
 
-### OCC-R2B2 — Capitalization + Exact Valuation Rebuild **IN PROGRESS**
+### OCC-R2B2 — Capitalization + Exact Valuation Rebuild **COMPLETE (2026-08-31)**
 
 After R2B1 acceptance:
 - inject latest accepted A-share market Current into the existing 16-shard FMDL3DB capitalization engine;
@@ -219,5 +219,67 @@ After R2B1 acceptance:
 - publish FINANCIAL_VALUATION_CONTEXT with financial_event_propagation=COMPLETE only after exact replay passes.
 
 R2B2 does not reopen financial-factor or scoring methodology.
+
+#### OCC-R2B2 closure evidence
+
+- PR #379 merged to main; merge commit: df1f44c2d2d3982c3f9d270067f0a68cbf7b5b36.
+- accepted production run: 33386156007.
+- capitalization shards: 16 / 16 SUCCESS; failures: 0.
+- exact capitalization aggregate / validation / publication: SUCCESS.
+- exact FMDL3DC valuation rebuild / validation / publication: SUCCESS.
+- FINANCIAL_VALUATION_CONTEXT Operating Current: PASS_EXACT_VALUATION_REBUILT.
+- market watermark: 2026-08-28.
+- financial report-period watermark: 2026-06-30.
+- financial_event_propagation: COMPLETE.
+- source branch: automation/occ-r2b2-valuation-33386156007-a1.
+- source commit: 7270d64d36a99a86173aa43d6f81fa9a290593d5.
+- capitalization release: FMDL3DB_20260831T192601+0800.
+- valuation release: FMDL3DC_20260831T192625+0800.
+- refreshed financial factor release: FMDL3CB_20260831T170042+0800.
+- valuation universe: 5,551; valuation rows: 5,551.
+- capitalization coverage ratio: 0.9990992613943434.
+- core resolved ratio: 0.9333934367111432.
+- future denominator blocked count: 0.
+- future selected denominator count: 0.
+- EV/Sales valid count: 1,059.
+- EV/Operating Income valid count: 776.
+- automatic action authorized count: 0.
+- candidate / portfolio / order mutations: 0.
+- TRADE_AUTHORITY = NONE.
+
+#### OCC-R2 closure
+
+OCC-002 is closed. OCC-005's financial/valuation blocker is closed for R2 scope; its Recommendation-chain portion remains governed by OCC-R3.
+
+OCC-R2 acceptance is complete only because both R2B1 financial baseline recovery and R2B2 exact capitalization/valuation replay passed production acceptance under the same accepted 2026-08-28 market watermark.
+
+TRADE_AUTHORITY = NONE.
+
+
+## OCC-R3 execution split
+
+R3 remains one frozen repair round and is implemented in three defect-scoped gates:
+
+### OCC-R3A — Opportunity Funnel Screening Freshness
+
+Close OCC-003 by forcing P4-2 to restore the exact accepted Screening inputs referenced by A_SHARE_FULL_MARKET Operating Current before every validate/operate build.
+
+R3A must:
+- resolve A_SHARE_FULL_MARKET from operating-current;
+- verify PASS / PASS_CHAIN_COHERENT / TRADE_AUTHORITY=NONE;
+- fetch the exact source branch and require its head to equal source_commit_sha;
+- restore SCREENING_MANIFEST, FMDL2C_RUN_REPORT and SCREENING_LONGLIST from that accepted commit;
+- require screening manifest as_of_date == Operating Current data_watermark;
+- preserve existing Funnel logic and zero protected-state mutation.
+
+### OCC-R3B — Governed Candidate Proposal Bridge
+
+Close OCC-004 by producing explicit admission/removal proposals from fresh Longlist/Candidate deltas without automatically mutating Candidate membership.
+
+### OCC-R3C — Recommendation and Forward Closure
+
+Close the remaining Recommendation portion of OCC-005 and OCC-006 by binding fresh accepted valuation/comparison context into Recommendation and making P4-5 backward-compatible with governed historical D2 source commits.
+
+R3 does not redesign D1/D2, Candidate methodology, recommendation scoring, forward model methodology, portfolio policy or trade authority.
 
 TRADE_AUTHORITY = NONE.

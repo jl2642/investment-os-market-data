@@ -28,6 +28,7 @@ env:
   TRADE_AUTHORITY: NONE
   D2_CURRENT_RUNTIME: .p4_2_runtime/RESEARCH_QUEUE_D2_CURRENT.json
   D2_DOMAIN_RUNTIME: .p4_2_runtime/RESEARCH_D2.json
+  SCREENING_DOMAIN_RUNTIME: .p4_2_runtime/A_SHARE_FULL_MARKET.json
   PRIOR_FUNNEL_RUNTIME: .p4_2_runtime/OPPORTUNITY_FUNNEL_PRIOR.json
   P4_2_OUTPUT: .p4_2_output
 
@@ -52,7 +53,24 @@ jobs:
           git fetch origin             refs/heads/operating-current:refs/remotes/origin/operating-current             refs/heads/automation/research-queue-d2-current:refs/remotes/origin/automation/research-queue-d2-current             --no-tags
           mkdir -p .p4_2_runtime
           git show origin/operating-current:operating_current/domains/RESEARCH_D2.json > "$D2_DOMAIN_RUNTIME"
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json > "$SCREENING_DOMAIN_RUNTIME"
           git show origin/automation/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$D2_CURRENT_RUNTIME"
+
+          SCREENING_BRANCH="$(python -c "import json; print(json.load(open('$SCREENING_DOMAIN_RUNTIME',encoding='utf-8'))['source_branch'])")"
+          SCREENING_COMMIT="$(python -c "import json; print(json.load(open('$SCREENING_DOMAIN_RUNTIME',encoding='utf-8'))['source_commit_sha'])")"
+          SCREENING_WATERMARK="$(python -c "import json; print(json.load(open('$SCREENING_DOMAIN_RUNTIME',encoding='utf-8'))['data_watermark'])")"
+          git fetch origin "refs/heads/$SCREENING_BRANCH:refs/remotes/origin/p4-2-screening" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/p4-2-screening)" = "$SCREENING_COMMIT"
+          git checkout "$SCREENING_COMMIT" --             outputs/screens/current/SCREENING_MANIFEST.json             outputs/screens/current/FMDL2C_RUN_REPORT.json             outputs/screens/current/SCREENING_LONGLIST.csv
+          python - <<'PY'
+          import json, os
+          domain=json.load(open(os.environ["SCREENING_DOMAIN_RUNTIME"],encoding="utf-8"))
+          manifest=json.load(open("outputs/screens/current/SCREENING_MANIFEST.json",encoding="utf-8"))
+          assert domain.get("status")=="PASS", domain
+          assert domain.get("qc_status")=="PASS_CHAIN_COHERENT", domain
+          assert domain.get("trade_authority")=="NONE", domain
+          assert manifest.get("as_of_date")==domain.get("data_watermark"), (manifest,domain)
+          PY
           if git cat-file -e origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json 2>/dev/null; then
             git show origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json > "$PRIOR_FUNNEL_RUNTIME"
           fi
@@ -62,7 +80,9 @@ jobs:
           python -m py_compile             automation/opportunity_funnel/build_funnel.py             automation/opportunity_funnel/publish_funnel.py
 
       - name: Deterministic contract tests
-        run: python -m unittest automation.opportunity_funnel.tests.test_build_funnel -v
+        run: |
+          python -m unittest automation.opportunity_funnel.tests.test_build_funnel -v
+          python tests/test_occ_r3a_funnel_screening_freshness.py
 
       - name: Build unified funnel against latest governed D2 source
         run: |
@@ -167,7 +187,24 @@ jobs:
           git fetch origin             refs/heads/operating-current:refs/remotes/origin/operating-current             refs/heads/automation/research-queue-d2-current:refs/remotes/origin/automation/research-queue-d2-current             --no-tags
           mkdir -p .p4_2_runtime
           git show origin/operating-current:operating_current/domains/RESEARCH_D2.json > "$D2_DOMAIN_RUNTIME"
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json > "$SCREENING_DOMAIN_RUNTIME"
           git show origin/automation/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$D2_CURRENT_RUNTIME"
+
+          SCREENING_BRANCH="$(python -c "import json; print(json.load(open('$SCREENING_DOMAIN_RUNTIME',encoding='utf-8'))['source_branch'])")"
+          SCREENING_COMMIT="$(python -c "import json; print(json.load(open('$SCREENING_DOMAIN_RUNTIME',encoding='utf-8'))['source_commit_sha'])")"
+          SCREENING_WATERMARK="$(python -c "import json; print(json.load(open('$SCREENING_DOMAIN_RUNTIME',encoding='utf-8'))['data_watermark'])")"
+          git fetch origin "refs/heads/$SCREENING_BRANCH:refs/remotes/origin/p4-2-screening" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/p4-2-screening)" = "$SCREENING_COMMIT"
+          git checkout "$SCREENING_COMMIT" --             outputs/screens/current/SCREENING_MANIFEST.json             outputs/screens/current/FMDL2C_RUN_REPORT.json             outputs/screens/current/SCREENING_LONGLIST.csv
+          python - <<'PY'
+          import json, os
+          domain=json.load(open(os.environ["SCREENING_DOMAIN_RUNTIME"],encoding="utf-8"))
+          manifest=json.load(open("outputs/screens/current/SCREENING_MANIFEST.json",encoding="utf-8"))
+          assert domain.get("status")=="PASS", domain
+          assert domain.get("qc_status")=="PASS_CHAIN_COHERENT", domain
+          assert domain.get("trade_authority")=="NONE", domain
+          assert manifest.get("as_of_date")==domain.get("data_watermark"), (manifest,domain)
+          PY
           if git cat-file -e origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json 2>/dev/null; then
             git show origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json > "$PRIOR_FUNNEL_RUNTIME"
           fi

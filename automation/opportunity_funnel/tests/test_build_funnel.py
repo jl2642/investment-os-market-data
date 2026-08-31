@@ -8,6 +8,9 @@ from pathlib import Path
 
 from automation.opportunity_funnel.build_funnel import build, validate_payloads
 
+ROOT = Path(__file__).resolve().parents[3]
+SCREENING_REPORT = ROOT / "outputs/screens/current/FMDL2C_RUN_REPORT.json"
+
 
 class P42OpportunityFunnelTests(unittest.TestCase):
     def test_expected_funnel_and_bounded_rotation(self):
@@ -29,16 +32,22 @@ class P42OpportunityFunnelTests(unittest.TestCase):
                 "READY_FOR_USER_DECISION_CONTEXT",
             ],
         )
-        self.assertEqual(current["stages"][0]["output_count"], 5539)
-        self.assertEqual(current["stages"][1]["output_count"], 4926)
-        self.assertEqual(current["stages"][2]["output_count"], 133)
-        self.assertEqual(current["stages"][3]["output_count"], 100)
-        self.assertEqual(current["stages"][4]["output_count"], 33)
-        self.assertEqual(len(work_queue["queue"]), 5)
+
+        screening = json.loads(SCREENING_REPORT.read_text(encoding="utf-8-sig"))
+        metrics = screening["metrics"]
+        self.assertEqual(current["stages"][0]["output_count"], metrics["universe_symbols"])
+        self.assertEqual(current["stages"][1]["output_count"], metrics["core_investable"])
         self.assertEqual(
-            [row["security_id"] for row in work_queue["queue"]],
-            ["000099.SZ", "000426.SZ", "000600.SZ", "000828.SZ", "000975.SZ"],
+            current["stages"][2]["output_count"],
+            metrics["distinct_sleeve_candidates"],
         )
+        self.assertEqual(current["stages"][3]["output_count"], metrics["longlist_symbols"])
+
+        self.assertLessEqual(len(work_queue["queue"]), 5)
+        self.assertEqual(len(work_queue["queue"]), 5)
+        queue_ids = [row["security_id"] for row in work_queue["queue"]]
+        self.assertEqual(len(queue_ids), len(set(queue_ids)))
+        self.assertTrue(all(queue_ids))
         self.assertFalse(current["bounded_rotation"]["automatic_d2_promotion_from_work_queue"])
         self.assertGreater(len(near_miss["rows"]), 0)
         self.assertEqual(current["controls"]["candidate_membership_mutations"], 0)
