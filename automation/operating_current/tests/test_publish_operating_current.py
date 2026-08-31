@@ -107,11 +107,19 @@ class OperatingCurrentTests(unittest.TestCase):
             failed["published_at_utc"]="2026-08-29T00:00:00Z"
             (root/"runs"/"A_SHARE_FULL_MARKET"/"2-a1-fail.json").write_text(json.dumps(failed),encoding="utf-8")
             index=build_index(root)
-            row=index["domains"][0]
+            rows={x["domain_id"]:x for x in index["domains"]}
+            row=rows["A_SHARE_FULL_MARKET"]
             self.assertEqual(row["current"]["data_watermark"],"2026-08-28")
             self.assertEqual(row["latest_attempt"]["status"],"FAIL")
             self.assertEqual(row["health"],"LATEST_ATTEMPT_FAILED_CURRENT_PRESERVED")
-            self.assertEqual(len(index["domains"]), 5)
+            self.assertTrue({
+                "A_SHARE_FULL_MARKET",
+                "PORTFOLIO_MARKS",
+                "CANDIDATE_WEEKLY_OBSERVATION",
+                "RESEARCH_D2",
+                "CROSS_MARKET_LIMITED",
+                "FINANCIAL_VALUATION_CONTEXT",
+            }.issubset(rows))
             missing=[x for x in index["domains"] if x["domain_id"]!="A_SHARE_FULL_MARKET"]
             self.assertTrue(all(x["health"]=="MISSING_CURRENT" for x in missing))
 

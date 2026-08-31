@@ -1,0 +1,142 @@
+name: OCC-R2A Financial Valuation Live Wiring
+run-name: "OCC-R2A market-driven valuation refresh"
+
+on:
+  workflow_run:
+    workflows: ["FMDL Daily A-share Governed Production"]
+    types: [completed]
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/run_occ_r2a_valuation_refresh.py"
+      - "scripts/validate_occ_r2a_valuation.py"
+      - "scripts/publish_occ_r2a_valuation.py"
+      - "scripts/fmdl3ede_core.py"
+      - "config/fmdl3ede_propagation_resilience.json"
+      - "automation/operating_current/publish_operating_current.py"
+      - "tests/test_occ_r2a_valuation_refresh.py"
+      - ".github/workflows/occ-r2a-financial-valuation-live.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/run_occ_r2a_valuation_refresh.py"
+      - "scripts/validate_occ_r2a_valuation.py"
+      - "scripts/publish_occ_r2a_valuation.py"
+      - "tests/test_occ_r2a_valuation_refresh.py"
+      - ".github/workflows/occ-r2a-financial-valuation-live.yml"
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+concurrency:
+  group: occ-r2a-valuation-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  deterministic-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout selected ref
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: OCC-R2A regression and compile checks
+        run: |
+          pytest -q tests/test_occ_r2a_valuation_refresh.py
+          python -m py_compile scripts/run_occ_r2a_valuation_refresh.py scripts/validate_occ_r2a_valuation.py scripts/publish_occ_r2a_valuation.py
+
+  production:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, 'OCC R2A'))
+    needs: deterministic-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Checkout Canonical main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Resolve latest accepted A-share Operating Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json | python -c "import json,sys; row=json.load(sys.stdin); assert row.get('status')=='PASS'; assert row.get('trade_authority')=='NONE'; pairs=[('source_branch','SOURCE_BRANCH'),('source_commit_sha','SOURCE_COMMIT'),('data_watermark','SOURCE_WATERMARK')]; vals=[(name,str(row.get(key) or '')) for key,name in pairs]; assert all(v for _,v in vals); print('\\n'.join(name+'='+value for name,value in vals))" > /tmp/OCC_R2A_SOURCE.env
+          cat /tmp/OCC_R2A_SOURCE.env >> "$GITHUB_ENV"
+          cat /tmp/OCC_R2A_SOURCE.env
+      - name: Restore accepted latest completed-session market input
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/occ-r2a-source" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2a-source)" = "$SOURCE_COMMIT"
+          git checkout "$SOURCE_COMMIT" -- outputs/current/CURRENT_RELEASE.json outputs/current/DAILY_MARKET_SNAPSHOT.csv
+          python -c "import json,os; row=json.load(open('outputs/current/CURRENT_RELEASE.json',encoding='utf-8')); assert row['as_of_date']==os.environ['SOURCE_WATERMARK']; assert row['status'] in {'PUBLISHED','PUBLISHED_WITH_WARNINGS'}; print({'market_as_of':row['as_of_date'],'trade_authority':'NONE'})"
+      - name: Build independent market-driven valuation candidate
+        run: python -m scripts.run_occ_r2a_valuation_refresh
+      - name: Independently validate valuation candidate
+        run: python -m scripts.validate_occ_r2a_valuation
+      - name: Materialize governed local Current
+        run: python -m scripts.publish_occ_r2a_valuation
+      - name: Publish governed result branch and Operating Current
+        shell: bash
+        env:
+          RESULT_BRANCH: automation/occ-r2a-valuation-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add -A -- outputs/occ_r2 outputs/status/OCC_R2A_VALUATION_LAST_SUCCESS.json datasets/occ_r2
+          git commit -m "data: publish OCC-R2A valuation context"
+          git push origin "HEAD:refs/heads/$RESULT_BRANCH"
+          RESULT_COMMIT="$(git rev-parse HEAD)"
+          PUBLISH_DIR="$(mktemp -d /tmp/occ-r2a-publisher.XXXXXX)"
+          cleanup() { git worktree remove --force "$PUBLISH_DIR" >/dev/null 2>&1 || true; rm -rf "$PUBLISH_DIR" || true; }
+          trap cleanup EXIT
+          git worktree add --detach "$PUBLISH_DIR" origin/main
+          (
+            cd "$PUBLISH_DIR"
+            python automation/operating_current/publish_operating_current.py \
+              --domain FINANCIAL_VALUATION_CONTEXT \
+              --status PASS \
+              --source-workflow "OCC-R2A Financial Valuation Live Wiring" \
+              --source-run-id "${{ github.run_id }}" \
+              --source-run-attempt "${{ github.run_attempt }}" \
+              --source-branch "$RESULT_BRANCH" \
+              --source-commit "$RESULT_COMMIT" \
+              --watermark "$SOURCE_WATERMARK" \
+              --watermark-sort-key "$SOURCE_WATERMARK" \
+              --qc-status PASS_MARKET_VALUATION_REFRESH_FINANCIAL_DENOMINATOR_LKG \
+              --note "financial_event_propagation=PENDING_OCC_R2B;financial_baseline_universe=5528;trade_authority=NONE" \
+              --advance-current
+          )
+          cleanup
+          trap - EXIT
+      - name: Record R2A boundary
+        if: always()
+        run: |
+          echo "OCC_R2A_MARKET_VALUATION_ONLY=true" >> "$GITHUB_STEP_SUMMARY"
+          echo "FINANCIAL_EVENT_PROPAGATION=PENDING_OCC_R2B" >> "$GITHUB_STEP_SUMMARY"
+          echo "TRADE_AUTHORITY=NONE" >> "$GITHUB_STEP_SUMMARY"
