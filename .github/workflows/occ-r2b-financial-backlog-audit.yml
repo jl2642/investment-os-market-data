@@ -1,0 +1,98 @@
+name: OCC-R2B Financial Backlog Audit
+run-name: "OCC-R2B financial filing backlog audit"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/scan_occ_r2b_financial_backlog.py"
+      - "tests/test_occ_r2b_financial_backlog.py"
+      - ".github/workflows/occ-r2b-financial-backlog-audit.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/scan_occ_r2b_financial_backlog.py"
+      - "tests/test_occ_r2b_financial_backlog.py"
+      - ".github/workflows/occ-r2b-financial-backlog-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Validate backlog scanner
+        run: |
+          pytest -q tests/test_occ_r2b_financial_backlog.py
+          python -m py_compile scripts/scan_occ_r2b_financial_backlog.py
+
+  audit:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout Canonical main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Resolve accepted A-share market source and statement baseline
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json | python -c "import json,sys; row=json.load(sys.stdin); assert row.get('status')=='PASS'; vals=[('SOURCE_BRANCH',str(row.get('source_branch') or '')),('SOURCE_COMMIT',str(row.get('source_commit_sha') or '')),('SOURCE_WATERMARK',str(row.get('data_watermark') or ''))]; assert all(v for _,v in vals); print('\\n'.join(k+'='+v for k,v in vals))" > /tmp/occ-r2b-source.env
+          python -c "import json; row=json.load(open('outputs/financials/statements/current/FMDL3B4_RELEASE.json',encoding='utf-8')); print('START_DATE='+str(row['published_at'])[:10])" >> /tmp/occ-r2b-source.env
+          cat /tmp/occ-r2b-source.env >> "$GITHUB_ENV"
+          cat /tmp/occ-r2b-source.env
+      - name: Restore accepted completed-session universe
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/occ-r2b-source" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2b-source)" = "$SOURCE_COMMIT"
+          git checkout "$SOURCE_COMMIT" -- outputs/current/DAILY_MARKET_SNAPSHOT.csv outputs/current/CURRENT_RELEASE.json
+      - name: Scan full financial filing backlog without symbol statement fetches
+        run: |
+          python -m scripts.scan_occ_r2b_financial_backlog --start-date "$START_DATE" --end-date "$SOURCE_WATERMARK"
+      - name: Publish immutable backlog audit branch
+        shell: bash
+        env:
+          RESULT_BRANCH: automation/occ-r2b-backlog-audit-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          git add -A -- outputs/occ_r2/financial_backlog_audit
+          git commit -m "data: publish OCC-R2B financial backlog audit"
+          git push origin "HEAD:refs/heads/$RESULT_BRANCH"
+      - name: Record audit boundary
+        if: always()
+        run: |
+          echo "SYMBOL_LEVEL_STATEMENT_FETCH=false" >> "$GITHUB_STEP_SUMMARY"
+          echo "CURRENT_MUTATION=false" >> "$GITHUB_STEP_SUMMARY"
+          echo "TRADE_AUTHORITY=NONE" >> "$GITHUB_STEP_SUMMARY"
