@@ -189,6 +189,33 @@ jobs:
               raise SystemExit('ROUND3_NON_TRADING_WEEKDAY_INPUT')
           PY
           echo "as_of=$as_of" >> "$GITHUB_OUTPUT"
+      - name: Restore accepted Cross-Market state from Operating Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git show origin/operating-current:operating_current/domains/CROSS_MARKET_LIMITED.json > /tmp/CROSS_MARKET_LIMITED.json
+          STATE_BRANCH="$(python -c "import json; print(json.load(open('/tmp/CROSS_MARKET_LIMITED.json',encoding='utf-8'))['source_branch'])")"
+          STATE_COMMIT="$(python -c "import json; print(json.load(open('/tmp/CROSS_MARKET_LIMITED.json',encoding='utf-8'))['source_commit_sha'])")"
+          python - <<'PY'
+          import json
+          row=json.load(open('/tmp/CROSS_MARKET_LIMITED.json',encoding='utf-8'))
+          assert row.get('status')=='PASS', row
+          assert row.get('trade_authority')=='NONE', row
+          assert row.get('orders')==0, row
+          PY
+          git fetch origin "refs/heads/$STATE_BRANCH:refs/remotes/origin/round3-state" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/round3-state)" = "$STATE_COMMIT"
+          for path in             investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_LEDGER_CURRENT.json             investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_LIMITED_RUN_CURRENT.json             investment_os_runtime/30_STATE_CURRENT/46_CROSS_MARKET_OPERATIONS/CROSS_MARKET_RESEARCH_PROPOSAL_CURRENT.json
+          do
+            mkdir -p "$(dirname "$path")"
+            git show "$STATE_COMMIT:$path" > "$path" || {
+              echo "OCC_R4_CROSS_MARKET_STATE_MISSING:$path"
+              exit 1
+            }
+          done
+          echo "Restored governed cross-market state from $STATE_BRANCH@$STATE_COMMIT"
+
       - name: Run bounded HK and US production batch
         id: operate
         shell: bash
