@@ -260,7 +260,7 @@ TRADE_AUTHORITY = NONE.
 
 R3 remains one frozen repair round and is implemented in three defect-scoped gates:
 
-### OCC-R3A — Opportunity Funnel Screening Freshness
+### OCC-R3A — Opportunity Funnel Screening Freshness **COMPLETE (2026-08-31)**
 
 Close OCC-003 by forcing P4-2 to restore the exact accepted Screening inputs referenced by A_SHARE_FULL_MARKET Operating Current before every validate/operate build.
 
@@ -272,13 +272,72 @@ R3A must:
 - require screening manifest as_of_date == Operating Current data_watermark;
 - preserve existing Funnel logic and zero protected-state mutation.
 
-### OCC-R3B — Governed Candidate Proposal Bridge
+
+#### OCC-R3A closure evidence
+
+- PR #381 merged; merge commit: b3c3750e401584be00bd567efaad86657256c238.
+- accepted live P4-2 run: 33391415127.
+- validate: SUCCESS.
+- operate: SUCCESS.
+- live Funnel publication: SUCCESS.
+- remote readback: SUCCESS.
+- OPPORTUNITY_FUNNEL Operating Current: PASS / PASS_P4_2_FUNNEL_VALIDATED.
+- accepted FULL_MARKET_SCREEN watermark consumed by Funnel: 2026-08-28.
+- Funnel universe: 5,551.
+- Research Longlist: 100.
+- D1 bounded queue: 5; automatic D2 promotion: false.
+- Candidate / real / simulation / orders mutations: 0 / 0 / 0 / 0.
+- TRADE_AUTHORITY = NONE.
+- OCC-003 is closed.
+
+The accepted live Funnel truthfully remains PARTIAL_STALE_UPSTREAM because Candidate Current and Candidate operating surfaces are older than the fresh Screening source; that residual is OCC-R3B scope, not an R3A failure.
+
+### OCC-R3B — Governed Candidate Proposal Bridge **COMPLETE (2026-08-31)**
 
 Close OCC-004 by producing explicit admission/removal proposals from fresh Longlist/Candidate deltas without automatically mutating Candidate membership.
 
-### OCC-R3C — Recommendation and Forward Closure
+
+#### OCC-R3B closure evidence
+
+- long-lived wiring PR #382 merged to main; merge commit: 25e12725aec1fb8ac87dc303dfb49ea8c6e9f5e6.
+- accepted one-shot recovery PR #385 merged to main; merge commit: 81b75d25de8a4805304d3126f28a1750b0b5f090.
+- accepted production run: 33393069738.
+- exact accepted Screening watermark consumed: 2026-08-28.
+- accepted Screening source branch: automation/occ-r1-screening-recovery-33353608967-a1.
+- accepted Screening source commit: 7515e7d21006f144b69ae44d88a0c82a7a10f5db.
+- Longlist rows consumed: 100.
+- proposal id: ROUND2_CANDIDATE_DELTA_20260828.
+- completed weekly Candidate observation cycles: 2.
+- governed admission proposals: 3 — 002827.SZ, 603268.SH, 600664.SH.
+- governed dynamic exit proposals: 0.
+- legacy exit reviews: 0.
+- Canonical Candidate Research Queue remained 33; proposed Candidate Research Queue is 36.
+- Canonical Candidate automatic mutations: 0.
+- Candidate Core / Shadow / Ready automatic mutations: 0 / 0 / 0.
+- portfolio mutations: 0.
+- orders: 0.
+- TRADE_AUTHORITY = NONE.
+- OCC-004 is closed.
+
+R3B acceptance requires only reliable governed proposal production; it does not authorize automatic application of the proposed Candidate delta. Application remains a separate human/governed merge boundary.
+
+### OCC-R3C — Recommendation and Forward Closure **IN PROGRESS**
 
 Close the remaining Recommendation portion of OCC-005 and OCC-006 by binding fresh accepted valuation/comparison context into Recommendation and making P4-5 backward-compatible with governed historical D2 source commits.
+
+
+R3C implementation contract:
+- Recommendation resolves FINANCIAL_VALUATION_CONTEXT from Operating Current and restores the exact accepted FMDL3DC valuation release/detail from its source commit.
+- A thin adapter merges live exact valuation evidence with the frozen Phase2C research blocker context.
+- Fresh-valuation blockers may be removed only when the exact accepted valuation metrics actually prove them resolved.
+- A TTM P/E must not be represented as a normalized P/E; normalization-specific blockers remain explicit unless independently proven.
+- Scenario probability, comparison-vector, governance, material-evidence and portfolio-fit gates remain fail-closed.
+- Recommendation route_state / BUY logic is unchanged.
+- P4-5 treats the exact governed D2 source commit and its resolvable D2 state/artifacts as authority; current branch ancestry is not required.
+- Unresolvable D2 commits or semantic-artifact mismatches still fail closed.
+- Forward checkpoint selection, R2 model, regime definition, 1/3/5-session outcome measurement and Phase-5 gate are unchanged.
+- Candidate / Real / Simulation / portfolio / order mutation authority remains zero.
+- TRADE_AUTHORITY = NONE.
 
 R3 does not redesign D1/D2, Candidate methodology, recommendation scoring, forward model methodology, portfolio policy or trade authority.
 

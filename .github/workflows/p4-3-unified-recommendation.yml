@@ -28,7 +28,9 @@ env:
   P43_CONTRACT_HEAD: 20a8605439258c7f7b6e8b2b12edd53ef240fcfd
   FUNNEL_RUNTIME: .p4_3_runtime/OPPORTUNITY_FUNNEL_CURRENT.json
   D2_RUNTIME: .p4_3_runtime/RESEARCH_QUEUE_D2_CURRENT.json
-  COMPARISON_RUNTIME: .p4_3_runtime/PHASE2C_CURRENT_SHADOW_COMPARISON_PACK.json
+  PHASE2C_RUNTIME: .p4_3_runtime/PHASE2C_CURRENT_SHADOW_COMPARISON_PACK.json
+  COMPARISON_RUNTIME: .p4_3_runtime/LIVE_CAPITAL_COMPARISON_CONTEXT.json
+  VALUATION_DOMAIN_RUNTIME: .p4_3_runtime/FINANCIAL_VALUATION_CONTEXT.json
   PRIOR_RECOMMENDATION_RUNTIME: .p4_3_runtime/RECOMMENDATION_PRIOR.json
   P4_3_OUTPUT: .p4_3_output
 
@@ -46,6 +48,9 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Install live valuation adapter runtime
+        run: python -m pip install --retries 5 --timeout 30 pandas pyarrow
+
       - name: Fetch governed P4-3 inputs
         shell: bash
         run: |
@@ -61,7 +66,25 @@ jobs:
           mkdir -p .p4_3_runtime
           git show origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json > "$FUNNEL_RUNTIME"
           git show origin/automation/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$D2_RUNTIME"
-          git show refs/remotes/origin/p4-3-contract:strategy_kernel_v2/generated/PHASE2C_CURRENT_SHADOW_COMPARISON_PACK.json > "$COMPARISON_RUNTIME"
+          git show refs/remotes/origin/p4-3-contract:strategy_kernel_v2/generated/PHASE2C_CURRENT_SHADOW_COMPARISON_PACK.json > "$PHASE2C_RUNTIME"
+          git show origin/operating-current:operating_current/domains/FINANCIAL_VALUATION_CONTEXT.json > "$VALUATION_DOMAIN_RUNTIME"
+
+          VALUATION_BRANCH="$(python -c "import json; print(json.load(open('$VALUATION_DOMAIN_RUNTIME',encoding='utf-8'))['source_branch'])")"
+          VALUATION_COMMIT="$(python -c "import json; print(json.load(open('$VALUATION_DOMAIN_RUNTIME',encoding='utf-8'))['source_commit_sha'])")"
+          python - <<'PY'
+          import json, os
+          row=json.load(open(os.environ["VALUATION_DOMAIN_RUNTIME"],encoding="utf-8"))
+          assert row.get("status")=="PASS", row
+          assert row.get("qc_status")=="PASS_EXACT_VALUATION_REBUILT", row
+          assert row.get("trade_authority")=="NONE", row
+          PY
+          git fetch origin "refs/heads/$VALUATION_BRANCH:refs/remotes/origin/p4-3-valuation" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/p4-3-valuation)" = "$VALUATION_COMMIT"
+          git checkout "$VALUATION_COMMIT" -- \
+            outputs/valuation/engine/current/FMDL3DC_RELEASE.json \
+            outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet
+          echo "VALUATION_SOURCE_COMMIT=$VALUATION_COMMIT" >> "$GITHUB_ENV"
+
           if git cat-file -e origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json 2>/dev/null; then
             git show origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json > "$PRIOR_RECOMMENDATION_RUNTIME"
           fi
@@ -70,10 +93,12 @@ jobs:
 
       - name: Compile P4-3 implementation
         run: |
-          python -m py_compile             automation/recommendations/build_recommendations.py             automation/recommendations/publish_recommendations.py
+          python -m py_compile             automation/recommendations/build_live_comparison_context.py             automation/recommendations/build_recommendations.py             automation/recommendations/publish_recommendations.py
 
       - name: Deterministic recommendation tests
-        run: python -m unittest automation.recommendations.tests.test_build_recommendations -v
+        run: |
+          python -m unittest automation.recommendations.tests.test_build_recommendations -v
+          python -m unittest automation.recommendations.tests.test_live_comparison_context -v
 
       - name: Build current recommendation surface
         shell: bash
@@ -83,7 +108,15 @@ jobs:
           if [[ -f "$PRIOR_RECOMMENDATION_RUNTIME" ]]; then
             PRIOR_ARGS=(--prior-current "$PRIOR_RECOMMENDATION_RUNTIME")
           fi
-          python automation/recommendations/build_recommendations.py             --funnel-current "$FUNNEL_RUNTIME"             --d2-current "$D2_RUNTIME"             --comparison-context "$COMPARISON_RUNTIME"             --d2-source-commit "$D2_SOURCE_COMMIT"             --comparison-context-source-id "$P43_CONTRACT_HEAD"             "${PRIOR_ARGS[@]}"             --output-dir "$P4_3_OUTPUT"
+          python automation/recommendations/build_live_comparison_context.py \
+            --phase2c-pack "$PHASE2C_RUNTIME" \
+            --valuation-detail outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet \
+            --valuation-release outputs/valuation/engine/current/FMDL3DC_RELEASE.json \
+            --valuation-domain "$VALUATION_DOMAIN_RUNTIME" \
+            --d2-current "$D2_RUNTIME" \
+            --phase2c-source-id "$P43_CONTRACT_HEAD" \
+            --output "$COMPARISON_RUNTIME"
+          python automation/recommendations/build_recommendations.py             --funnel-current "$FUNNEL_RUNTIME"             --d2-current "$D2_RUNTIME"             --comparison-context "$COMPARISON_RUNTIME"             --d2-source-commit "$D2_SOURCE_COMMIT"             --comparison-context-source-id "$P43_CONTRACT_HEAD@$VALUATION_SOURCE_COMMIT"             "${PRIOR_ARGS[@]}"             --output-dir "$P4_3_OUTPUT"
 
       - name: Validate current recommendation payload
         shell: bash
@@ -113,6 +146,8 @@ jobs:
           assert {x["market"] for x in current["market_coverage"]} == {
               "A_SHARE","H_SHARE","US_SHARE"
           }
+          assert current["source_snapshot"]["capital_comparison_context"]["live_operating_authority"] is True
+          assert current["source_snapshot"]["capital_comparison_context"]["source_bindings"]["market_as_of_date"] == "2026-08-28"
           assert all(row["orders"] == 0 and row["trade_authority"] == "NONE" for row in current["records"])
           assert all(
               not (
@@ -185,6 +220,9 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Install live valuation adapter runtime
+        run: python -m pip install --retries 5 --timeout 30 pandas pyarrow
+
       - name: Fetch latest governed P4-3 inputs
         shell: bash
         run: |
@@ -200,7 +238,25 @@ jobs:
           mkdir -p .p4_3_runtime
           git show origin/operating-current:operating_current/opportunity_funnel/OPPORTUNITY_FUNNEL_CURRENT.json > "$FUNNEL_RUNTIME"
           git show origin/automation/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$D2_RUNTIME"
-          git show refs/remotes/origin/p4-3-contract:strategy_kernel_v2/generated/PHASE2C_CURRENT_SHADOW_COMPARISON_PACK.json > "$COMPARISON_RUNTIME"
+          git show refs/remotes/origin/p4-3-contract:strategy_kernel_v2/generated/PHASE2C_CURRENT_SHADOW_COMPARISON_PACK.json > "$PHASE2C_RUNTIME"
+          git show origin/operating-current:operating_current/domains/FINANCIAL_VALUATION_CONTEXT.json > "$VALUATION_DOMAIN_RUNTIME"
+
+          VALUATION_BRANCH="$(python -c "import json; print(json.load(open('$VALUATION_DOMAIN_RUNTIME',encoding='utf-8'))['source_branch'])")"
+          VALUATION_COMMIT="$(python -c "import json; print(json.load(open('$VALUATION_DOMAIN_RUNTIME',encoding='utf-8'))['source_commit_sha'])")"
+          python - <<'PY'
+          import json, os
+          row=json.load(open(os.environ["VALUATION_DOMAIN_RUNTIME"],encoding="utf-8"))
+          assert row.get("status")=="PASS", row
+          assert row.get("qc_status")=="PASS_EXACT_VALUATION_REBUILT", row
+          assert row.get("trade_authority")=="NONE", row
+          PY
+          git fetch origin "refs/heads/$VALUATION_BRANCH:refs/remotes/origin/p4-3-valuation" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/p4-3-valuation)" = "$VALUATION_COMMIT"
+          git checkout "$VALUATION_COMMIT" -- \
+            outputs/valuation/engine/current/FMDL3DC_RELEASE.json \
+            outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet
+          echo "VALUATION_SOURCE_COMMIT=$VALUATION_COMMIT" >> "$GITHUB_ENV"
+
           if git cat-file -e origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json 2>/dev/null; then
             git show origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json > "$PRIOR_RECOMMENDATION_RUNTIME"
           fi
@@ -215,7 +271,15 @@ jobs:
           if [[ -f "$PRIOR_RECOMMENDATION_RUNTIME" ]]; then
             PRIOR_ARGS=(--prior-current "$PRIOR_RECOMMENDATION_RUNTIME")
           fi
-          python automation/recommendations/build_recommendations.py             --funnel-current "$FUNNEL_RUNTIME"             --d2-current "$D2_RUNTIME"             --comparison-context "$COMPARISON_RUNTIME"             --d2-source-commit "$D2_SOURCE_COMMIT"             --comparison-context-source-id "$P43_CONTRACT_HEAD"             "${PRIOR_ARGS[@]}"             --output-dir "$P4_3_OUTPUT"
+          python automation/recommendations/build_live_comparison_context.py \
+            --phase2c-pack "$PHASE2C_RUNTIME" \
+            --valuation-detail outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet \
+            --valuation-release outputs/valuation/engine/current/FMDL3DC_RELEASE.json \
+            --valuation-domain "$VALUATION_DOMAIN_RUNTIME" \
+            --d2-current "$D2_RUNTIME" \
+            --phase2c-source-id "$P43_CONTRACT_HEAD" \
+            --output "$COMPARISON_RUNTIME"
+          python automation/recommendations/build_recommendations.py             --funnel-current "$FUNNEL_RUNTIME"             --d2-current "$D2_RUNTIME"             --comparison-context "$COMPARISON_RUNTIME"             --d2-source-commit "$D2_SOURCE_COMMIT"             --comparison-context-source-id "$P43_CONTRACT_HEAD@$VALUATION_SOURCE_COMMIT"             "${PRIOR_ARGS[@]}"             --output-dir "$P4_3_OUTPUT"
 
       - name: Publish Recommendation Current atomically
         shell: bash
@@ -248,6 +312,7 @@ jobs:
               "real_account": 0,
               "simulation": 0,
           }
+          assert current["source_snapshot"]["capital_comparison_context"]["live_operating_authority"] is True
           assert current["controls"]["target_portfolio_writebacks"] == 0
           assert current["controls"]["user_decisions_generated"] == 0
           assert current["controls"]["orders"] == 0

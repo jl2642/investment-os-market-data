@@ -56,6 +56,18 @@ def git(repo_root: Path,*args: str,check: bool=True) -> subprocess.CompletedProc
     return cp
 
 
+def ensure_commit_available(repo_root: Path, commit: str) -> None:
+    local=git(repo_root,"cat-file","-e",f"{commit}^{{commit}}",check=False)
+    if local.returncode==0:
+        return
+    fetched=git(repo_root,"fetch","origin",commit,"--no-tags",check=False)
+    if fetched.returncode!=0:
+        raise RuntimeError(f"P45_D2_SOURCE_COMMIT_UNRESOLVED:{commit}")
+    local=git(repo_root,"cat-file","-e",f"{commit}^{{commit}}",check=False)
+    if local.returncode!=0:
+        raise RuntimeError(f"P45_D2_SOURCE_COMMIT_UNRESOLVED:{commit}")
+
+
 def blob_at(repo_root: Path,commit: str,path: str) -> str | None:
     cp=git(repo_root,"rev-parse",f"{commit}:{path}",check=False)
     return cp.stdout.strip() if cp.returncode==0 and cp.stdout.strip() else None
@@ -100,6 +112,7 @@ def d2_artifacts(repo_root: Path,source_commit: str,d2: Mapping[str,Any]) -> lis
 
 
 def d2_semantic_identity(repo_root: Path,source_commit: str) -> dict[str,Any]:
+    ensure_commit_available(repo_root,source_commit)
     d2=show_json(repo_root,source_commit,D2_STATE_PATH)
     state_blob=blob_at(repo_root,source_commit,D2_STATE_PATH)
     artifacts=d2_artifacts(repo_root,source_commit,d2)

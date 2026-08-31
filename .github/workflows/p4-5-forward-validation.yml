@@ -76,14 +76,26 @@ jobs:
           PY
           )"
           git fetch origin "refs/heads/$D2_BRANCH:refs/remotes/origin/p4-5-d2" --force --no-tags
+          git cat-file -e "$D2_COMMIT^{commit}" 2>/dev/null || git fetch origin "$D2_COMMIT" --force --no-tags
           git cat-file -e "$D2_COMMIT^{commit}" || {
             echo "P45_D2_SOURCE_COMMIT_UNRESOLVED"
             exit 1
           }
-          git merge-base --is-ancestor "$D2_COMMIT" refs/remotes/origin/p4-5-d2 || {
-            echo "P45_D2_SOURCE_COMMIT_NOT_ON_GOVERNED_BRANCH"
-            exit 1
-          }
+          python - "$D2_COMMIT" <<'PY'
+          import sys
+          from pathlib import Path
+          from automation.forward_validation.registered_evidence import d2_semantic_identity
+          commit=sys.argv[1]
+          identity=d2_semantic_identity(Path("."),commit)
+          assert identity["source_commit"]==commit, identity
+          assert identity["d2_state"].get("queue") is not None, identity
+          print({
+              "d2_source_commit":commit,
+              "semantic_identity":identity["semantic_identity"],
+              "artifact_count":len(identity["artifacts"]),
+              "branch_ancestry_required":False,
+          })
+          PY
           echo "$D2_COMMIT" > "$RUNTIME_DIR/D2_COMMIT"
 
           for path in             strategy_kernel_v2/__init__.py             strategy_kernel_v2/PHASE3B_R2_MODEL_CONTRACT.json             strategy_kernel_v2/phase3b_r2_contract.py             strategy_kernel_v2/historical_feature_extractor.py
@@ -171,10 +183,35 @@ jobs:
             echo "P45_STACKED_GOVERNANCE_CHAIN_MUST_NOT_ENTER_MAIN"
             exit 1
           fi
-          if echo "$changed" | grep -Eq '^automation/(recommendations|opportunity_funnel|research_queue_d2|shadow_book)/'; then
+          if echo "$changed" | grep -Eq '^automation/(opportunity_funnel|research_queue_d2|shadow_book)/'; then
             echo "P45_UPSTREAM_COMPONENT_REWRITE_NOT_AUTHORIZED"
             exit 1
           fi
+          python - <<'PY'
+          import subprocess
+
+          allowed_recommendation_paths = {
+              "automation/recommendations/build_live_comparison_context.py",
+              "automation/recommendations/build_recommendations.py",
+              "automation/recommendations/tests/test_build_recommendations.py",
+              "automation/recommendations/tests/test_live_comparison_context.py",
+          }
+          changed = subprocess.check_output(
+              ["git", "diff", "--name-only", "origin/main...HEAD"], text=True
+          ).splitlines()
+          recommendation_changes = {
+              path for path in changed if path.startswith("automation/recommendations/")
+          }
+          forbidden = sorted(recommendation_changes - allowed_recommendation_paths)
+          if forbidden:
+              raise SystemExit(
+                  "P45_UPSTREAM_COMPONENT_REWRITE_NOT_AUTHORIZED:" + ",".join(forbidden)
+              )
+          print({
+              "coordinated_r3c_recommendation_paths": sorted(recommendation_changes),
+              "trade_authority": "NONE",
+          })
+          PY
 
       - name: Upload P4-5 validation evidence
         if: always()
@@ -233,14 +270,26 @@ jobs:
           PY
           )"
           git fetch origin "refs/heads/$D2_BRANCH:refs/remotes/origin/p4-5-d2" --force --no-tags
+          git cat-file -e "$D2_COMMIT^{commit}" 2>/dev/null || git fetch origin "$D2_COMMIT" --force --no-tags
           git cat-file -e "$D2_COMMIT^{commit}" || {
             echo "P45_D2_SOURCE_COMMIT_UNRESOLVED"
             exit 1
           }
-          git merge-base --is-ancestor "$D2_COMMIT" refs/remotes/origin/p4-5-d2 || {
-            echo "P45_D2_SOURCE_COMMIT_NOT_ON_GOVERNED_BRANCH"
-            exit 1
-          }
+          python - "$D2_COMMIT" <<'PY'
+          import sys
+          from pathlib import Path
+          from automation.forward_validation.registered_evidence import d2_semantic_identity
+          commit=sys.argv[1]
+          identity=d2_semantic_identity(Path("."),commit)
+          assert identity["source_commit"]==commit, identity
+          assert identity["d2_state"].get("queue") is not None, identity
+          print({
+              "d2_source_commit":commit,
+              "semantic_identity":identity["semantic_identity"],
+              "artifact_count":len(identity["artifacts"]),
+              "branch_ancestry_required":False,
+          })
+          PY
           echo "$D2_COMMIT" > "$RUNTIME_DIR/D2_COMMIT"
 
           for path in             strategy_kernel_v2/__init__.py             strategy_kernel_v2/PHASE3B_R2_MODEL_CONTRACT.json             strategy_kernel_v2/phase3b_r2_contract.py             strategy_kernel_v2/historical_feature_extractor.py
