@@ -64,7 +64,7 @@ jobs:
           python -m py_compile \
             automation/wp3_r/build_candidate_dynamic_loop.py \
             automation/wp3_r/validate_candidate_dynamic_pr.py
-          pytest -q automation/wp3_r/tests/test_candidate_dynamic_loop.py
+          pytest -q automation/wp3_r/tests/test_candidate_dynamic_loop.py tests/test_occ_r3b_candidate_proposal_bridge.py
 
   validate-generated-pr:
     if: github.event_name == 'pull_request'
