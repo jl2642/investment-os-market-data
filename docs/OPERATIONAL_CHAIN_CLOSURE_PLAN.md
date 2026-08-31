@@ -33,7 +33,7 @@ Market -> History -> Factor -> Screening -> Financial/Valuation -> Candidate/Opp
 - OCC-R0: freeze this repair contract and defect registry.
 - OCC-R1: A-share Market -> History -> Factor -> Screening coherence. **COMPLETE (2026-08-31)**
 - OCC-R2: financial and valuation live wiring. **COMPLETE (2026-08-31)**
-- OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure. **IN PROGRESS**
+- OCC-R3: Opportunity -> D1/D2 -> Recommendation -> Forward closure. **COMPLETE (2026-08-31)**
 - OCC-R4: HK/US, SEC and portfolio freshness repair.
 - OCC-R5: nightly orchestration and 08:00 controller acceptance.
 
@@ -321,7 +321,7 @@ Close OCC-004 by producing explicit admission/removal proposals from fresh Longl
 
 R3B acceptance requires only reliable governed proposal production; it does not authorize automatic application of the proposed Candidate delta. Application remains a separate human/governed merge boundary.
 
-### OCC-R3C — Recommendation and Forward Closure **IN PROGRESS**
+### OCC-R3C — Recommendation and Forward Closure **COMPLETE (2026-08-31)**
 
 Close the remaining Recommendation portion of OCC-005 and OCC-006 by binding fresh accepted valuation/comparison context into Recommendation and making P4-5 backward-compatible with governed historical D2 source commits.
 
@@ -340,5 +340,46 @@ R3C implementation contract:
 - TRADE_AUTHORITY = NONE.
 
 R3 does not redesign D1/D2, Candidate methodology, recommendation scoring, forward model methodology, portfolio policy or trade authority.
+
+#### OCC-R3C closure evidence
+
+- PR #387 merged to main; merge commit: a6407e501ca6ac7ffb4e33c0364c805c05291498.
+- accepted P4-3 production run: 33395324343.
+- P4-3 validate / operate / publication / remote readback: SUCCESS / SUCCESS / SUCCESS / SUCCESS.
+- RECOMMENDATION Operating Current: PASS / PASS_P4_3_RECOMMENDATION_VALIDATED.
+- Recommendation source commit: a6407e501ca6ac7ffb4e33c0364c805c05291498.
+- Recommendation exact valuation source commit: 7270d64d36a99a86173aa43d6f81fa9a290593d5.
+- Recommendation exact valuation release: FMDL3DC_20260831T192625+0800.
+- Recommendation market valuation watermark: 2026-08-28.
+- 000719.SZ stale fresh-valuation blocker removed only after exact valuation binding; remaining governance / scenario blockers preserved.
+- 002039.SZ exact TTM valuation bound but normalized-valuation blocker preserved.
+- 301215.SZ material-evidence blocker preserved.
+- BUY_NOW / BUY_ON_PRICE / BUY_ON_EVIDENCE: 0 / 0 / 0.
+- ready_for_user_decision: 0.
+- Candidate / Real / Simulation / target-portfolio writebacks: 0.
+- orders: 0.
+- TRADE_AUTHORITY = NONE.
+- remaining Recommendation portion of OCC-005 is closed.
+
+- accepted P4-5 production run: 33395324455.
+- P4-5 validate: SUCCESS.
+- P4-5 operate: SUCCESS.
+- active collection mode detected from accepted clean baseline.
+- governed RESEARCH_D2 receipts were materialized and replay path completed without source-commit ancestry requirement.
+- divergent historical D2 source commits are now resolvable by exact commit identity; unresolvable commits still fail closed.
+- registered-evidence discovery / checkpoint assembly / outcome refresh / publication / remote readback: SUCCESS.
+- collector result: ACTIVE_FORWARD_ACCUMULATION with new_checkpoints=0, observations=0, outcome_reads=0.
+- no substantive post-cutoff semantic checkpoint was eligible; publisher truthfully returned NO_OP and preserved the accepted baseline Current rather than manufacturing advancement.
+- phase5_migration_allowed: false.
+- Candidate / Real / Simulation / target-portfolio writebacks: 0.
+- orders: 0.
+- TRADE_AUTHORITY = NONE.
+- OCC-006 is closed.
+
+#### OCC-R3 closure
+
+OCC-003, OCC-004, the Recommendation portion of OCC-005, and OCC-006 are closed under accepted production evidence.
+
+OCC-R3 is COMPLETE. The next frozen round is OCC-R4: HK/US honesty, SEC consumer and portfolio decision freshness repair.
 
 TRADE_AUTHORITY = NONE.
