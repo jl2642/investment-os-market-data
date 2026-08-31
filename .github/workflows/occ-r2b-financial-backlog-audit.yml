@@ -77,7 +77,12 @@ jobs:
           git checkout "$SOURCE_COMMIT" -- outputs/current/DAILY_MARKET_SNAPSHOT.csv outputs/current/CURRENT_RELEASE.json
       - name: Scan full financial filing backlog without symbol statement fetches
         run: |
-          python -m scripts.scan_occ_r2b_financial_backlog --start-date "$START_DATE" --end-date "$SOURCE_WATERMARK"
+          python -m scripts.scan_occ_r2b_financial_backlog \
+            --start-date "$START_DATE" \
+            --end-date "$SOURCE_WATERMARK" \
+            --max-attempts 3 \
+            --initial-backoff-seconds 0.75 \
+            --workers 4
       - name: Publish immutable backlog audit branch
         shell: bash
         env:
@@ -95,4 +100,7 @@ jobs:
         run: |
           echo "SYMBOL_LEVEL_STATEMENT_FETCH=false" >> "$GITHUB_STEP_SUMMARY"
           echo "CURRENT_MUTATION=false" >> "$GITHUB_STEP_SUMMARY"
+          if test -f outputs/occ_r2/financial_backlog_audit/FINANCIAL_FILING_BACKLOG_DECISION.json; then
+            cat outputs/occ_r2/financial_backlog_audit/FINANCIAL_FILING_BACKLOG_DECISION.json >> "$GITHUB_STEP_SUMMARY"
+          fi
           echo "TRADE_AUTHORITY=NONE" >> "$GITHUB_STEP_SUMMARY"
