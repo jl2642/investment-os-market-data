@@ -24,11 +24,11 @@ on:
       - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
   workflow_run:
     workflows:
-      - "FMDL daily market, factor and screening transaction"
+      - "FMDL Daily A-share Governed Production"
       - "Research Queue D2 Auto Consumer"
     types: [completed]
   schedule:
-    - cron: "0 1 * * 1-5"
+    - cron: "30 10 * * 1-5"
   workflow_dispatch:
 
 permissions:
