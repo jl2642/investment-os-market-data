@@ -9,15 +9,16 @@ from typing import Any
 
 TRADE_AUTHORITY = "NONE"
 ACTION_ORDER = {
-    "EXIT": 0,
-    "TRIM": 1,
-    "ADD": 2,
-    "HOLD": 3,
-    "BUY": 4,
-    "BUY_BELOW": 5,
-    "WATCH_FOR_EVIDENCE": 6,
-    "WATCH": 7,
-    "AVOID": 8,
+    "REVIEW_POSITION_IDENTITY_CHANGE": 0,
+    "EXIT": 1,
+    "TRIM": 2,
+    "ADD": 3,
+    "HOLD": 4,
+    "BUY": 5,
+    "BUY_BELOW": 6,
+    "WATCH_FOR_EVIDENCE": 7,
+    "WATCH": 8,
+    "AVOID": 9,
 }
 
 
@@ -145,18 +146,46 @@ def build_surface(
             continue
         accounts = [name for name, book in (("REAL", real), ("SIMULATION", simulation)) if sid in book]
         base = real.get(sid) or simulation.get(sid) or {}
+        actual_existing = bool(accounts)
+        s2_implication = str(rec.get("portfolio_implication") or "")
+        identity_mismatch = (
+            (s2_implication == "EXISTING_POSITION" and not actual_existing)
+            or (
+                s2_implication == "NEW_CAPITAL_CANDIDATE"
+                and actual_existing
+            )
+        )
+        original_action = rec.get("action")
         row = {
             "security_id": sid,
             "security_name": rec.get("security_name") or base.get("security_name"),
             "accounts": accounts,
-            "action": rec.get("action"),
-            "ready_for_user_decision": bool(rec.get("ready_for_user_decision")),
+            "action": (
+                "REVIEW_POSITION_IDENTITY_CHANGE"
+                if identity_mismatch
+                else original_action
+            ),
+            "original_recommendation_action": original_action,
+            "position_identity_alignment": (
+                "MISMATCH_REUNDERWRITE_REQUIRED"
+                if identity_mismatch
+                else "ALIGNED_OR_NOT_DECLARED"
+            ),
+            "ready_for_user_decision": (
+                False
+                if identity_mismatch
+                else bool(rec.get("ready_for_user_decision"))
+            ),
             "current_price": rec.get("current_price"),
             "entry_price": rec.get("entry_price"),
             "expected_return": rec.get("expected_return"),
             "bear_downside": rec.get("bear_downside"),
             "confidence": rec.get("confidence"),
-            "top_blocker": rec.get("top_blocker"),
+            "top_blocker": (
+                "POSITION_IDENTITY_CHANGED_SINCE_S2_RECOMMENDATION"
+                if identity_mismatch
+                else rec.get("top_blocker")
+            ),
             "kill_thesis": rec.get("kill_thesis"),
             "catalysts": rec.get("catalysts") or [],
             "orders": 0,
@@ -246,6 +275,11 @@ def build_surface(
             "portfolio_uncovered_count": len(uncovered),
             "new_opportunity_count": len(opportunity_rows),
             "decision_review_required_count": review_count,
+            "position_identity_mismatch_count": sum(
+                row.get("position_identity_alignment")
+                == "MISMATCH_REUNDERWRITE_REQUIRED"
+                for row in portfolio_rows + opportunity_rows
+            ),
             "action_counts": action_counts,
             "implementation_ready": False,
             "automatic_rebalance_allowed": False,
