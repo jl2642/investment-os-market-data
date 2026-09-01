@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import json
+from pathlib import Path
 
 from automation.investment_pipeline.build_pipeline import (
     build_capital_comparison,
@@ -223,3 +225,59 @@ def test_missing_underwriting_fails_closed_to_watch() -> None:
         recommendation["records"][0]["ready_for_user_decision"]
         is False
     )
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_s2_is_registered_as_primary_and_old_p4_producers_are_retired() -> None:
+    system = json.loads(
+        (ROOT / "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    registry = json.loads(
+        (
+            ROOT
+            / "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert system["program_state"] == "S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS"
+    assert system["s2_scope"]["candidate_membership_as_research_gate"] is False
+    assert system["s2_scope"]["d1_batch_size"] == 10
+    assert system["s2_scope"]["d2_capacity"] == 3
+
+    active = {row["path"] for row in registry["active_runtime_core"]}
+    transitional = set(registry["transitional_investment_runtime_until_s2_s3"])
+    retired = {row["path"] for row in registry["retired_automatic_workflows_s1"]}
+    assert ".github/workflows/s2-investment-pipeline.yml" in active
+    assert ".github/workflows/p4-2-continuous-opportunity-funnel.yml" in retired
+    assert ".github/workflows/p4-3-unified-recommendation.yml" in retired
+    assert ".github/workflows/p4-2-continuous-opportunity-funnel.yml" not in transitional
+    assert ".github/workflows/p4-3-unified-recommendation.yml" not in transitional
+
+
+def test_retired_p4_workflows_have_no_automatic_production_triggers() -> None:
+    for path in (
+        ".github/workflows/p4-2-continuous-opportunity-funnel.yml",
+        ".github/workflows/p4-3-unified-recommendation.yml",
+    ):
+        text = (ROOT / path).read_text(encoding="utf-8")
+        assert "workflow_dispatch:" in text
+        assert "\n  schedule:" not in text
+        assert "\n  push:" not in text
+        assert "\n  workflow_run:" not in text
+
+
+def test_s2_workflow_uses_one_transactional_callback_not_duplicate_dispatch() -> None:
+    text = (
+        ROOT / ".github/workflows/s2-investment-pipeline.yml"
+    ).read_text(encoding="utf-8")
+    d2_text = (
+        ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml"
+    ).read_text(encoding="utf-8")
+    assert 'workflows:' in text
+    assert '"Research Queue D2 Auto Consumer"' in text
+    assert "Candidate membership is not a research gate." in text
+    assert "gh workflow run s2-investment-pipeline.yml" not in d2_text
+    assert "operating_current/investment_pipeline/D1_CURRENT.json" in d2_text
