@@ -1,0 +1,348 @@
+name: S2 Investment Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "automation/investment_pipeline/**"
+      - "automation/research_queue_d2/**"
+      - "tests/test_s2_investment_pipeline.py"
+      - ".github/workflows/s2-investment-pipeline.yml"
+      - ".github/workflows/research-queue-d2-auto-consumer.yml"
+      - ".github/workflows/p4-2-continuous-opportunity-funnel.yml"
+      - ".github/workflows/p4-3-unified-recommendation.yml"
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+  push:
+    branches: [main]
+    paths:
+      - "automation/investment_pipeline/**"
+      - "automation/research_queue_d2/**"
+      - ".github/workflows/s2-investment-pipeline.yml"
+      - ".github/workflows/research-queue-d2-auto-consumer.yml"
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+  workflow_run:
+    workflows:
+      - "FMDL daily market, factor and screening transaction"
+      - "Research Queue D2 Auto Consumer"
+    types: [completed]
+  schedule:
+    - cron: "0 1 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: s2-investment-pipeline-${{ github.event_name }}
+  cancel-in-progress: false
+
+env:
+  TRADE_AUTHORITY: NONE
+  S2_RUNTIME: .s2_runtime
+  S2_OUTPUT: .s2_output
+
+jobs:
+  validate:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install deterministic validation runtime
+        run: python -m pip install --disable-pip-version-check pytest pandas pyarrow pyyaml
+
+      - name: Compile S2 and D2 producers
+        run: |
+          python -m py_compile \
+            automation/investment_pipeline/build_pipeline.py \
+            automation/investment_pipeline/publish_pipeline.py \
+            automation/research_queue_d2/build_d2_queue.py \
+            automation/research_queue_d2/validate_d2_queue.py
+
+      - name: Prove S2 production reachability
+        run: |
+          pytest -q \
+            tests/test_s2_investment_pipeline.py \
+            automation/research_queue_d2/tests/test_d2_queue.py
+
+      - name: Parse modified workflows
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          for path in [
+              ".github/workflows/s2-investment-pipeline.yml",
+              ".github/workflows/research-queue-d2-auto-consumer.yml",
+              ".github/workflows/p4-2-continuous-opportunity-funnel.yml",
+              ".github/workflows/p4-3-unified-recommendation.yml",
+          ]:
+              yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+          print({"s2_workflow_yaml": "PASS"})
+          PY
+
+      - name: Prove S2 safety boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path("automation/investment_pipeline/build_pipeline.py").read_text(encoding="utf-8")
+          forbidden = [
+              "current_entry_basis_established",
+              "entry_trigger_satisfied",
+              "portfolio_fit_acceptable",
+              "capital_comparison_available",
+              "PHASE2C_CURRENT_SHADOW_COMPARISON_PACK",
+          ]
+          assert all(token not in text for token in forbidden)
+          assert "candidate_membership_required" in text
+          print({"orphan_gate_count": 0, "orders": 0, "trade_authority": "NONE"})
+          PY
+
+  operate:
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+       github.event.workflow_run.conclusion == 'success')
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install pipeline runtime
+        run: python -m pip install --disable-pip-version-check pandas pyarrow
+
+      - name: Resolve latest coherent A-share Screening source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -rf "$S2_RUNTIME" "$S2_OUTPUT"
+          mkdir -p "$S2_RUNTIME" "$S2_OUTPUT"
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          prefix="operating_current/runs/A_SHARE_FULL_MARKET/"
+          paths=subprocess.check_output(
+              ["git","ls-tree","-r","--name-only","origin/operating-current",prefix],
+              text=True,
+          ).splitlines()
+          eligible=[]
+          for path in paths:
+              if not path.endswith(".json"):
+                  continue
+              try:
+                  raw=subprocess.check_output(
+                      ["git","show",f"origin/operating-current:{path}"],
+                      text=True,
+                  )
+                  row=json.loads(raw)
+              except Exception:
+                  continue
+              if (
+                  row.get("status")=="PASS"
+                  and row.get("qc_status")=="PASS_CHAIN_COHERENT"
+                  and row.get("source_branch")
+                  and row.get("source_commit_sha")
+              ):
+                  eligible.append(row)
+          if not eligible:
+              raise SystemExit("S2_NO_COHERENT_SCREENING_RECEIPT")
+          eligible.sort(
+              key=lambda x: (
+                  str(x.get("watermark_sort_key") or x.get("data_watermark") or ""),
+                  str(x.get("published_at_utc") or ""),
+              ),
+              reverse=True,
+          )
+          chosen=eligible[0]
+          release_path=Path("outputs/financial_factors/score/current/FMDL3CD_RELEASE.json")
+          if release_path.exists():
+              chosen["financial_context_source"]=json.loads(
+                  release_path.read_text(encoding="utf-8")
+              )
+          out=Path(os.environ["S2_RUNTIME"])/"SCREEN_SOURCE.json"
+          out.write_text(
+              json.dumps(chosen,ensure_ascii=False,indent=2,sort_keys=True)+"\n",
+              encoding="utf-8",
+          )
+          env=Path(os.environ["GITHUB_ENV"])
+          with env.open("a",encoding="utf-8") as handle:
+              handle.write(f"SCREEN_BRANCH={chosen['source_branch']}\n")
+              handle.write(f"SCREEN_COMMIT={chosen['source_commit_sha']}\n")
+              handle.write(f"SCREEN_WATERMARK={chosen['data_watermark']}\n")
+          print({
+              "screen_watermark":chosen["data_watermark"],
+              "source_branch":chosen["source_branch"],
+              "source_commit":chosen["source_commit_sha"],
+          })
+          PY
+
+          git fetch origin "refs/heads/$SCREEN_BRANCH:refs/remotes/origin/s2-screening" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/s2-screening)" = "$SCREEN_COMMIT"
+          git show "$SCREEN_COMMIT":outputs/screens/current/SCREENING_LONGLIST.csv > "$S2_RUNTIME/SCREENING_LONGLIST.csv"
+
+          if git cat-file -e origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json 2>/dev/null; then
+            git show origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json > "$S2_RUNTIME/PRIOR_D1_CURRENT.json"
+          fi
+
+      - name: Build Opportunity Queue and D1 fast triage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          PRIOR=()
+          if [[ -f "$S2_RUNTIME/PRIOR_D1_CURRENT.json" ]]; then
+            PRIOR=(--prior-d1 "$S2_RUNTIME/PRIOR_D1_CURRENT.json")
+          fi
+          FIN=()
+          if [[ -f outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet ]]; then
+            FIN=(--financial-score outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet)
+          fi
+          python automation/investment_pipeline/build_pipeline.py opportunity-d1 \
+            --screening-longlist "$S2_RUNTIME/SCREENING_LONGLIST.csv" \
+            --screen-source "$S2_RUNTIME/SCREEN_SOURCE.json" \
+            "${PRIOR[@]}" "${FIN[@]}" \
+            --output-dir "$S2_OUTPUT"
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ["S2_OUTPUT"])
+          opportunity=json.loads((root/"OPPORTUNITY_CURRENT.json").read_text(encoding="utf-8"))
+          d1=json.loads((root/"D1_CURRENT.json").read_text(encoding="utf-8"))
+          assert opportunity["status"]=="PASS_OPPORTUNITY_DISCOVERY_NO_CANDIDATE_GATE"
+          assert opportunity["opportunity_count"] >= 10
+          assert d1["batch_size"] == 10
+          assert d1["routing_summary"]["advance_to_d2_count"] <= 3
+          assert all(x["candidate_membership_required"] is False for x in opportunity["rows"])
+          assert all(x["candidate_membership_required"] is False for x in d1["research_objects"])
+          print({
+              "opportunity_count":opportunity["opportunity_count"],
+              "d1_batch":d1["batch_size"],
+              "d2_routes":d1["routing_summary"]["advance_to_d2_count"],
+          })
+          PY
+
+      - name: Publish Opportunity and D1 Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          MAIN_HEAD="$(git rev-parse HEAD)"
+          python automation/investment_pipeline/publish_pipeline.py \
+            --stage opportunity \
+            --opportunity "$S2_OUTPUT/OPPORTUNITY_CURRENT.json" \
+            --d1 "$S2_OUTPUT/D1_CURRENT.json" \
+            --source-workflow "S2 Investment Pipeline" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch main \
+            --source-commit "$MAIN_HEAD"
+
+      - name: Restore main worktree after Operating Current publication
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git checkout --force -B main origin/main
+          git reset --hard origin/main
+          git clean -fd
+          mkdir -p "$S2_RUNTIME" "$S2_OUTPUT"
+          git show origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json > "$S2_RUNTIME/D1_CURRENT.json"
+
+      - name: Trigger D2 consumer for new D1 unless this run came from D2
+        if: >-
+          github.event_name != 'workflow_run' ||
+          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run research-queue-d2-auto-consumer.yml --ref main
+
+      - name: Bind latest D2 and build live capital comparison
+        id: decision
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/automation/research-queue-d2-current:refs/remotes/origin/s2-d2 --force --no-tags
+          git show refs/remotes/origin/s2-d2:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$S2_RUNTIME/D2_CURRENT.json"
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ["S2_RUNTIME"])
+          d1=json.loads((root/"D1_CURRENT.json").read_text(encoding="utf-8"))
+          d2=json.loads((root/"D2_CURRENT.json").read_text(encoding="utf-8"))
+          coherent=d2.get("source_d1_state_id")==d1.get("state_id")
+          with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as h:
+              h.write(f"coherent={'true' if coherent else 'false'}\n")
+          print({
+              "d1_state_id":d1.get("state_id"),
+              "d2_source_d1_state_id":d2.get("source_d1_state_id"),
+              "decision_lineage_coherent":coherent,
+          })
+          PY
+
+          if [[ "${{ steps.decision.outputs.coherent }}" != "true" ]]; then
+            echo "S2_DECISION_PENDING_D2_FOR_CURRENT_D1"
+            exit 0
+          fi
+
+          python automation/investment_pipeline/build_pipeline.py decision \
+            --d2-current "$S2_RUNTIME/D2_CURRENT.json" \
+            --real-positions investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
+            --simulation-positions investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            --output-dir "$S2_OUTPUT"
+
+      - name: Publish Capital Comparison and Recommendation Current
+        if: steps.decision.outputs.coherent == 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          MAIN_HEAD="$(git rev-parse HEAD)"
+          python automation/investment_pipeline/publish_pipeline.py \
+            --stage decision \
+            --comparison "$S2_OUTPUT/CAPITAL_COMPARISON_CURRENT.json" \
+            --recommendation "$S2_OUTPUT/RECOMMENDATION_CURRENT.json" \
+            --source-workflow "S2 Investment Pipeline" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch main \
+            --source-commit "$MAIN_HEAD"
+
+      - name: Record S2 product boundary
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## S2 Investment Pipeline
+          - Candidate membership is not a research gate.
+          - Opportunity discovery uses the latest PASS_CHAIN_COHERENT A-share screening receipt.
+          - D1 fast triage processes up to 10 names and routes at most 3 into D2.
+          - D2 semantic research must produce Bear/Base/Bull underwriting before decision-grade capital comparison.
+          - Capital comparison is computed live from underwriting and current position identity; frozen Phase2C comparison is not used.
+          - BUY / BUY_BELOW / WATCH_FOR_EVIDENCE / AVOID / ADD / HOLD / TRIM / EXIT are producer-reachable.
+          - Candidate / Real / Simulation economic mutations: 0 / 0 / 0.
+          - Orders: 0.
+          - trade_authority: NONE.
+          EOF
