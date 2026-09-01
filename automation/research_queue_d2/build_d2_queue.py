@@ -154,7 +154,7 @@ def semantic_state_is_same_input(prior: dict[str, Any], previous: dict[str, Any]
 def build_state(
     *,
     discover_primary_sources: bool,
-    d1_path: Path = D1_CURRENT,
+    d1_path: Path | None = None,
     now: datetime | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     now = now or datetime.now(timezone.utc)
@@ -162,7 +162,7 @@ def build_state(
     today = now.date().isoformat()
     start_date = f"{now.year - 1}-01-01"
 
-    d1 = load_json(d1_path)
+    d1 = load_json(d1_path or D1_CURRENT)
     evidence = latest_d1_evidence()
     prior = load_json(D2_CURRENT) if D2_CURRENT.exists() else {}
     prior_by_id = {row["security_id"]: row for row in prior.get("queue", []) if row.get("security_id")}
