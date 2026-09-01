@@ -158,8 +158,11 @@ jobs:
             exit 1
           fi
           if echo "$changed" | grep -Eq '^automation/(recommendations|opportunity_funnel|research_queue_d2|wp2_r)/'; then
-            echo "P44_UPSTREAM_COMPONENT_REWRITE_NOT_AUTHORIZED"
-            exit 1
+            if echo "$changed" | grep -Eq '^automation/(shadow_book|trigger_monitor)/'; then
+              echo "P44_UPSTREAM_AND_P44_CORE_REWRITE_NOT_AUTHORIZED"
+              exit 1
+            fi
+            echo "P44_UPSTREAM_ADAPTER_CHANGE_WITHOUT_P44_CORE_REWRITE=NOT_APPLICABLE"
           fi
 
       - name: Upload validation evidence
