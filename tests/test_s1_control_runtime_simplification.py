@@ -33,6 +33,8 @@ def test_active_registry_separates_runtime_core_transitional_and_retired() -> No
     assert ".github/workflows/p4-3-unified-recommendation.yml" in transitional
     assert ".github/workflows/r0_product_authority_freeze.yml" in retired
     assert ".github/workflows/r2_portfolio_construction.yml" in retired
+    assert ".github/workflows/fmdl-3-architecture.yml" in retired
+    assert ".github/workflows/stock-investment-assistant-final-integration.yml" in retired
     assert not (retired & active)
     assert not (retired & transitional)
 
@@ -65,3 +67,16 @@ def test_branch_policy_has_two_long_lived_authorities_only() -> None:
     assert "`operating-current`" in text
     assert "`agent/*` and `automation/*` branches are temporary" in text
     assert "trade_authority=NONE" in text
+
+
+def test_retired_architecture_gates_only_validate_their_own_tombstone() -> None:
+    for path in (
+        ".github/workflows/fmdl-3-architecture.yml",
+        ".github/workflows/stock-investment-assistant-final-integration.yml",
+    ):
+        text = _text(path)
+        assert "workflow_dispatch:" in text
+        assert "pull_request:" in text
+        assert f'- "{path}"' in text
+        assert "Development Complete · Operating Observation" not in text
+        assert "trade_authority=NONE" in text
