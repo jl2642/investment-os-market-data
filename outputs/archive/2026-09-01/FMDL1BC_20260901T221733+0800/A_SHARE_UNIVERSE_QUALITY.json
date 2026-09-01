@@ -1,0 +1,77 @@
+{
+  "dataset_id": "a_share_universe",
+  "qa_status": "PASS_WITH_WARNINGS",
+  "publication_status": "DEGRADED",
+  "hard_failures": [],
+  "soft_warnings": [
+    "industry_fill_ratio"
+  ],
+  "metrics": {
+    "row_count": 5553,
+    "duplicate_count": 0,
+    "symbol_valid_ratio": 1.0,
+    "identity_fill_ratio": 1.0,
+    "industry_fill_ratio": 0.5829281469475959,
+    "listing_date_fill_ratio": 1.0,
+    "lkg_row_ratio": 1.0025275320454956,
+    "schema_error_examples": []
+  },
+  "gate_results": [
+    {
+      "gate_id": "schema_valid",
+      "severity": "HARD",
+      "actual": 0,
+      "expected": "0",
+      "passed": true
+    },
+    {
+      "gate_id": "minimum_row_count",
+      "severity": "HARD",
+      "actual": 5553,
+      "expected": ">=4000",
+      "passed": true
+    },
+    {
+      "gate_id": "duplicate_natural_key",
+      "severity": "HARD",
+      "actual": 0,
+      "expected": "0",
+      "passed": true
+    },
+    {
+      "gate_id": "symbol_valid_ratio",
+      "severity": "HARD",
+      "actual": 1.0,
+      "expected": ">=1.0",
+      "passed": true
+    },
+    {
+      "gate_id": "required_identity_fill_ratio",
+      "severity": "HARD",
+      "actual": 1.0,
+      "expected": ">=0.995",
+      "passed": true
+    },
+    {
+      "gate_id": "minimum_lkg_row_ratio",
+      "severity": "HARD",
+      "actual": 1.0025275320454956,
+      "expected": ">=0.97",
+      "passed": true
+    },
+    {
+      "gate_id": "industry_fill_ratio",
+      "severity": "SOFT",
+      "actual": 0.5829281469475959,
+      "expected": ">=0.9",
+      "passed": false
+    },
+    {
+      "gate_id": "listing_date_fill_ratio",
+      "severity": "SOFT",
+      "actual": 1.0,
+      "expected": ">=0.95",
+      "passed": true
+    }
+  ]
+}
