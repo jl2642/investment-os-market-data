@@ -22,7 +22,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   group: research-queue-d2-auto-consumer-${{ github.event_name }}
@@ -172,12 +171,6 @@ jobs:
               --qc-status PASS \
               --advance-current
           fi
-      - name: Re-enter S2 decision pipeline after D2 queue refresh
-        if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run s2-investment-pipeline.yml --ref main
-
       - name: Record operating summary
         if: always()
         run: |
