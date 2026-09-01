@@ -215,7 +215,7 @@ jobs:
             --emit-missing-tsv /tmp/FMDL_HISTORY_MISSING.tsv
           while read -r DEP_BRANCH DEP_PATH DEP_SHA DEP_RELEASE; do
             [[ -z "$DEP_PATH" ]] && continue
-            if [[ -z "$DEP_BRANCH" ]]; then
+            if [[ "$DEP_BRANCH" == "__UNRESOLVED__" ]]; then
               echo "UNRESOLVABLE_HISTORY_DEPENDENCY path=$DEP_PATH release=$DEP_RELEASE"
               exit 2
             fi
