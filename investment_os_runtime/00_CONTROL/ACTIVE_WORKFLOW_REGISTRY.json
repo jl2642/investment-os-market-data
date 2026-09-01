@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "registry_id": "S1_ACTIVE_WORKFLOW_REGISTRY",
+  "registry_id": "S2_ACTIVE_WORKFLOW_REGISTRY",
   "effective_date": "2026-09-01",
   "authority": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json",
   "policy": {
@@ -37,8 +37,6 @@
     ".github/workflows/wp3_r_candidate_refresh.yml",
     ".github/workflows/research-queue-d2-auto-consumer.yml",
     ".github/workflows/occ-r2a-financial-valuation-live.yml",
-    ".github/workflows/p4-2-continuous-opportunity-funnel.yml",
-    ".github/workflows/p4-3-unified-recommendation.yml",
     ".github/workflows/occ-r4-portfolio-decision-freshness.yml",
     ".github/workflows/p4-4-trigger-shadow.yml",
     ".github/workflows/p4-5-forward-validation.yml",
@@ -80,14 +78,36 @@
     {
       "path": ".github/workflows/fmdl-5g-investment-os-integration.yml",
       "reason": "HISTORICAL_FMDL5G_INTEGRATION_ACCEPTANCE_REBUILT_OLD_PRODUCT_ON_UNRELATED_PR"
+    },
+    {
+      "path": ".github/workflows/p4-2-continuous-opportunity-funnel.yml",
+      "reason": "S2_REPLACED_CANDIDATE_GATED_FUNNEL_WITH_DIRECT_OPPORTUNITY_QUEUE_AND_ROLLING_D1"
+    },
+    {
+      "path": ".github/workflows/p4-3-unified-recommendation.yml",
+      "reason": "S2_REPLACED_ORPHAN_BOOLEAN_GATES_AND_FROZEN_PHASE2C_COMPARISON_WITH_UNDERWRITING_DRIVEN_DECISION_PIPELINE"
     }
   ],
   "s2_replacement_targets": [
-    "WP3_CANDIDATE_AS_RESEARCH_GATE",
-    "P4_2_OPPORTUNITY_FUNNEL_OLD_BINDINGS",
-    "P4_3_ORPHAN_RECOMMENDATION_GATES",
-    "FROZEN_PHASE2C_CAPITAL_COMPARISON"
+    "CANDIDATE_RESEARCH_GATE_REPLACED_BY_DIRECT_OPPORTUNITY_QUEUE",
+    "STATIC_D1_REPLACED_BY_ROLLING_D1_BATCH_10",
+    "D2_COMPLETE_NOW_REQUIRES_DECISION_GRADE_UNDERWRITING",
+    "FROZEN_PHASE2C_COMPARISON_REPLACED_BY_LIVE_D2_CAPITAL_COMPARISON",
+    "ORPHAN_RECOMMENDATION_BOOLEAN_GATES_REMOVED"
   ],
   "orders": 0,
-  "trade_authority": "NONE"
+  "trade_authority": "NONE",
+  "s2_status": "IN_PROGRESS",
+  "active_investment_runtime": [
+    {
+      "path": ".github/workflows/s2-investment-pipeline.yml",
+      "role": "PRIMARY_OPPORTUNITY_D1_CAPITAL_COMPARISON_RECOMMENDATION_PIPELINE",
+      "primary_or_recovery": "PRIMARY"
+    },
+    {
+      "path": ".github/workflows/research-queue-d2-auto-consumer.yml",
+      "role": "D2_QUEUE_DISCOVERY_AND_UNDERWRITING_HANDOFF",
+      "primary_or_recovery": "PRIMARY"
+    }
+  ]
 }
