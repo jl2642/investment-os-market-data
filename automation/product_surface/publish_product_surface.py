@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import time
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from automation.operating_current.publish_operating_current import (
     ROOT_DIR,
