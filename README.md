@@ -187,22 +187,30 @@ Not just source control. In this project GitHub also provides:
 - run history
 - governance and audit trail
 
-`main` is the single Canonical branch.
+`main` is the canonical code/control branch. `operating-current` is the canonical runtime pointer and receipt branch. Historical `agent/*` and `automation/*` branches are temporary evidence or transport surfaces, not additional authorities.
 
 ---
 
 ## Current operating state
 
-**Development Complete · Operating Observation**
+**S1 Simplification & Runtime Repair in progress**
 
-The integrated system now has a unified ChatGPT read interface across A-shares, Hong Kong Stock Connect, bounded U.S. research, real portfolio state and simulation portfolio state.
+The repository has substantial research, portfolio and runtime capability, but the 2026-08-31 end-to-end audit did **not** accept the system as a stable daily investment-decision chain. Development-era completion labels are therefore historical evidence, not the current whole-system maturity claim.
 
-Machine-readable entry points:
+The sole system-level machine-readable authority is:
 
-- [`outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_INTERFACE.json`](outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_INTERFACE.json)
-- [`outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json`](outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json)
+- [`investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json`](investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json)
 
-Current development closure means the core architecture and operating loop are in place. Individual workflow failures should be treated as operating defects or recovery events, not as a reason to redefine the whole system as unfinished.
+Runtime freshness, latest attempts and last-known-good domain state are read from the `operating-current` branch via:
+
+- `operating_current/OPERATING_CURRENT_INDEX.json`
+
+Supporting S1 control files:
+
+- [`investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json`](investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json)
+- [`investment_os_runtime/00_CONTROL/BRANCH_POLICY.md`](investment_os_runtime/00_CONTROL/BRANCH_POLICY.md)
+
+Legacy files such as `STOCK_INVESTMENT_ASSISTANT_CURRENT.json`, FMDL/WP/R0-R6 documents, and other files retaining `CURRENT` in their names may still be valid domain snapshots or historical development artifacts. They do not override `SYSTEM_CURRENT.json` for whole-system maturity or roadmap status.
 
 ---
 

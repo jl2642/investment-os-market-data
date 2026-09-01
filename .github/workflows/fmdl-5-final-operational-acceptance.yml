@@ -1,108 +1,27 @@
 name: FMDL 5 Final Operational Acceptance
+run-name: "FMDL 5 Final Operational Acceptance (retired)"
 
+# S1 retirement: historical acceptance evidence stays in Git, but unrelated PRs no longer rebuild it.
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - "config/fmdl5_final_*.json"
-      - "schemas/fmdl5_final_*.json"
-      - "scripts/fmdl5_final_*.py"
-      - "scripts/run_fmdl5_final_*.py"
-      - "scripts/validate_fmdl5_final_*.py"
-      - "scripts/publish_fmdl5_final.py"
-      - "tests/test_fmdl5_final_*.py"
-      - "docs/FMDL-5-FINAL_*.md"
       - ".github/workflows/fmdl-5-final-operational-acceptance.yml"
-      - "README.md"
-  push:
-    branches: [main]
-    paths:
-      - "config/fmdl5_final_*.json"
-      - "schemas/fmdl5_final_*.json"
-      - "scripts/fmdl5_final_*.py"
-      - "scripts/run_fmdl5_final_*.py"
-      - "scripts/validate_fmdl5_final_*.py"
-      - "scripts/publish_fmdl5_final.py"
-      - "tests/test_fmdl5_final_*.py"
-      - "docs/FMDL-5-FINAL_*.md"
-      - ".github/workflows/fmdl-5-final-operational-acceptance.yml"
-      - "README.md"
-  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
-concurrency:
-  group: fmdl-5-final-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+env:
+  TRADE_AUTHORITY: NONE
 
 jobs:
-  quality-gates:
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Unit tests
+      - name: Explain retirement
         run: |
-          set -o pipefail
-          python -m pytest -vv tests/test_fmdl5_final_acceptance.py 2>&1 | tee fmdl5-final-pytest.log
-      - name: Upload unit-test diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: fmdl5-final-unit-test-diagnostics
-          path: fmdl5-final-pytest.log
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Compile checks
-        run: >-
-          python -m py_compile
-          scripts/fmdl5_final_core.py
-          scripts/run_fmdl5_final_acceptance.py
-          scripts/validate_fmdl5_final_candidate.py
-          scripts/publish_fmdl5_final.py
-
-  build-and-accept:
-    needs: quality-gates
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Build FMDL-5 Final candidate
-        run: |
-          rm -rf outputs/fmdl5/final/candidate
-          python scripts/run_fmdl5_final_acceptance.py \
-            --repo-root . \
-            --output outputs/fmdl5/final/candidate
-      - name: Independent validation and same-input replay
-        run: python scripts/validate_fmdl5_final_candidate.py --repo-root . --candidate outputs/fmdl5/final/candidate
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: fmdl5-final-operational-acceptance-candidate
-          path: outputs/fmdl5/final/candidate
-          if-no-files-found: warn
-          retention-days: 30
-      - name: Publish Current Immutable Archive and Last-success
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
-        run: python scripts/publish_fmdl5_final.py --repo-root . --candidate outputs/fmdl5/final/candidate
-      - name: Commit accepted FMDL-5 Final state
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/fmdl5/final/current outputs/fmdl5/final/archive datasets/fmdl5/final/releases outputs/status/FMDL5_FINAL_LAST_SUCCESS.json
-          git diff --cached --quiet && exit 0
-          git commit -m "data: publish FMDL-5 Final operational acceptance [skip ci]"
-          git push
+          echo "Historical FMDL-5 final acceptance workflow; development-era acceptance is retained as evidence, not rerun during current product changes."
+          echo "Whole-system maturity is read from investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json."
+          echo "This workflow is not an active runtime or product-health signal."
+          echo "orders=0"
+          echo "trade_authority=NONE"

@@ -49,6 +49,7 @@ jobs:
         run: pytest -q tests
 
       - name: Build real A-share candidate data
+        if: github.event_name != 'pull_request'
         id: candidate_build
         shell: bash
         run: |
