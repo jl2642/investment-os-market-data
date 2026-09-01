@@ -10,20 +10,26 @@ on:
     branches: [main]
     paths:
       - "scripts/run_occ_r2a_valuation_refresh.py"
+      - "scripts/run_occ_r2a_exact_baseline_refresh.py"
       - "scripts/validate_occ_r2a_valuation.py"
+      - "scripts/validate_occ_r2a_exact_baseline_refresh.py"
       - "scripts/publish_occ_r2a_valuation.py"
       - "scripts/fmdl3ede_core.py"
       - "config/fmdl3ede_propagation_resilience.json"
       - "automation/operating_current/publish_operating_current.py"
       - "tests/test_occ_r2a_valuation_refresh.py"
+      - "tests/test_occ_r2a_exact_baseline_refresh.py"
       - ".github/workflows/occ-r2a-financial-valuation-live.yml"
   push:
     branches: [main]
     paths:
       - "scripts/run_occ_r2a_valuation_refresh.py"
+      - "scripts/run_occ_r2a_exact_baseline_refresh.py"
       - "scripts/validate_occ_r2a_valuation.py"
+      - "scripts/validate_occ_r2a_exact_baseline_refresh.py"
       - "scripts/publish_occ_r2a_valuation.py"
       - "tests/test_occ_r2a_valuation_refresh.py"
+      - "tests/test_occ_r2a_exact_baseline_refresh.py"
       - ".github/workflows/occ-r2a-financial-valuation-live.yml"
 
 permissions:
@@ -33,7 +39,7 @@ env:
   TRADE_AUTHORITY: NONE
 
 concurrency:
-  group: occ-r2a-valuation-${{ github.event_name }}
+  group: occ-r2a-valuation-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -54,8 +60,8 @@ jobs:
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
       - name: OCC-R2A regression and compile checks
         run: |
-          pytest -q tests/test_occ_r2a_valuation_refresh.py
-          python -m py_compile scripts/run_occ_r2a_valuation_refresh.py scripts/validate_occ_r2a_valuation.py scripts/publish_occ_r2a_valuation.py
+          pytest -q tests/test_occ_r2a_valuation_refresh.py tests/test_occ_r2a_exact_baseline_refresh.py
+          python -m py_compile scripts/run_occ_r2a_valuation_refresh.py scripts/run_occ_r2a_exact_baseline_refresh.py scripts/validate_occ_r2a_valuation.py scripts/validate_occ_r2a_exact_baseline_refresh.py scripts/publish_occ_r2a_valuation.py
 
   production:
     if: >-
@@ -77,26 +83,84 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
-      - name: Resolve latest accepted A-share Operating Current
+      - name: Resolve latest accepted A-share Current and latest exact valuation baseline receipt
         shell: bash
         run: |
           set -Eeuo pipefail
           git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
           git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json | python -c "import json,sys; row=json.load(sys.stdin); assert row.get('status')=='PASS'; assert row.get('trade_authority')=='NONE'; pairs=[('source_branch','SOURCE_BRANCH'),('source_commit_sha','SOURCE_COMMIT'),('data_watermark','SOURCE_WATERMARK')]; vals=[(name,str(row.get(key) or '')) for key,name in pairs]; assert all(v for _,v in vals); print('\\n'.join(name+'='+value for name,value in vals))" > /tmp/OCC_R2A_SOURCE.env
           cat /tmp/OCC_R2A_SOURCE.env >> "$GITHUB_ENV"
+
+          python - <<'PY' > /tmp/OCC_R2A_EXACT.env
+          import json, subprocess
+          prefix='operating_current/runs/FINANCIAL_VALUATION_CONTEXT/'
+          paths=subprocess.check_output(
+              ['git','ls-tree','-r','--name-only','origin/operating-current',prefix],
+              text=True
+          ).splitlines()
+          accepted=[]
+          for path in paths:
+              try:
+                  raw=subprocess.check_output(['git','show',f'origin/operating-current:{path}'],text=True)
+                  row=json.loads(raw)
+              except Exception:
+                  continue
+              if (
+                  row.get('status')=='PASS'
+                  and row.get('qc_status')=='PASS_EXACT_VALUATION_REBUILT'
+                  and row.get('trade_authority')=='NONE'
+                  and row.get('source_branch')
+                  and row.get('source_commit_sha')
+              ):
+                  accepted.append(row)
+          if not accepted:
+              raise SystemExit('NO_ACCEPTED_EXACT_VALUATION_BASELINE_RECEIPT')
+          row=max(accepted,key=lambda x:(str(x.get('published_at_utc') or ''),str(x.get('source_run_id') or '')))
+          open('/tmp/OCC_R2A_EXACT_RECEIPT.json','w',encoding='utf-8').write(
+              json.dumps(row,ensure_ascii=False,indent=2)+'\\n'
+          )
+          print('EXACT_BRANCH='+str(row['source_branch']))
+          print('EXACT_COMMIT='+str(row['source_commit_sha']))
+          print('EXACT_WATERMARK='+str(row['data_watermark']))
+          PY
+          cat /tmp/OCC_R2A_EXACT.env >> "$GITHUB_ENV"
           cat /tmp/OCC_R2A_SOURCE.env
-      - name: Restore accepted latest completed-session market input
+          cat /tmp/OCC_R2A_EXACT.env
+
+      - name: Restore immutable exact R2B2 baseline and latest completed-session market
         shell: bash
         run: |
           set -Eeuo pipefail
+          git fetch origin "refs/heads/$EXACT_BRANCH:refs/remotes/origin/occ-r2a-exact" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2a-exact)" = "$EXACT_COMMIT"
+          git show "$EXACT_COMMIT:outputs/valuation/engine/current/FMDL3DC_RELEASE.json" > /tmp/OCC_R2A_EXACT_RELEASE.json
+          git show "$EXACT_COMMIT:outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet" > /tmp/OCC_R2A_EXACT_DETAIL.parquet
+          git show "$EXACT_COMMIT:outputs/current/DAILY_MARKET_SNAPSHOT.csv" > /tmp/OCC_R2A_BASE_MARKET.csv
+          python - <<'PY'
+          import json,os
+          release=json.load(open('/tmp/OCC_R2A_EXACT_RELEASE.json',encoding='utf-8'))
+          assert release.get('status')=='FMDL3DC_VALUATION_ENGINE_CURRENT_ACCEPTED', release
+          assert release.get('source_releases',{}).get('market_as_of_date')==os.environ['EXACT_WATERMARK'], release
+          PY
+
           git fetch origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/occ-r2a-source" --force --no-tags
           test "$(git rev-parse refs/remotes/origin/occ-r2a-source)" = "$SOURCE_COMMIT"
           git checkout "$SOURCE_COMMIT" -- outputs/current/CURRENT_RELEASE.json outputs/current/DAILY_MARKET_SNAPSHOT.csv
-          python -c "import json,os; row=json.load(open('outputs/current/CURRENT_RELEASE.json',encoding='utf-8')); assert row['as_of_date']==os.environ['SOURCE_WATERMARK']; assert row['status'] in {'PUBLISHED','PUBLISHED_WITH_WARNINGS'}; print({'market_as_of':row['as_of_date'],'trade_authority':'NONE'})"
-      - name: Build independent market-driven valuation candidate
-        run: python -m scripts.run_occ_r2a_valuation_refresh
-      - name: Independently validate valuation candidate
-        run: python -m scripts.validate_occ_r2a_valuation
+          python -c "import json,os; row=json.load(open('outputs/current/CURRENT_RELEASE.json',encoding='utf-8')); assert row['as_of_date']==os.environ['SOURCE_WATERMARK']; assert row['status'] in {'PUBLISHED','PUBLISHED_WITH_WARNINGS'}"
+
+      - name: Build exact-baseline market valuation candidate
+        run: |
+          rm -rf outputs/occ_r2/valuation/candidate
+          python -m scripts.run_occ_r2a_exact_baseline_refresh \
+            --exact-detail /tmp/OCC_R2A_EXACT_DETAIL.parquet \
+            --exact-release /tmp/OCC_R2A_EXACT_RELEASE.json \
+            --base-market /tmp/OCC_R2A_BASE_MARKET.csv \
+            --target-market outputs/current/DAILY_MARKET_SNAPSHOT.csv \
+            --target-market-release outputs/current/CURRENT_RELEASE.json \
+            --exact-baseline-receipt /tmp/OCC_R2A_EXACT_RECEIPT.json \
+            --output-dir outputs/occ_r2/valuation/candidate
+      - name: Independently validate exact-baseline valuation candidate
+        run: python -m scripts.validate_occ_r2a_exact_baseline_refresh
       - name: Materialize governed local Current
         run: python -m scripts.publish_occ_r2a_valuation
       - name: Publish governed result branch and Operating Current
@@ -112,6 +176,8 @@ jobs:
           git commit -m "data: publish OCC-R2A valuation context"
           git push origin "HEAD:refs/heads/$RESULT_BRANCH"
           RESULT_COMMIT="$(git rev-parse HEAD)"
+          QC_STATUS="$(python -c "import json; print(json.load(open('outputs/occ_r2/valuation/current/VALUATION_CONTEXT_DECISION.json',encoding='utf-8'))['qc_status'])")"
+          BASELINE_DATE="$(python -c "import json; print(json.load(open('outputs/occ_r2/valuation/current/VALUATION_CONTEXT_DECISION.json',encoding='utf-8'))['exact_baseline_market_as_of_date'])")"
           PUBLISH_DIR="$(mktemp -d /tmp/occ-r2a-publisher.XXXXXX)"
           cleanup() { git worktree remove --force "$PUBLISH_DIR" >/dev/null 2>&1 || true; rm -rf "$PUBLISH_DIR" || true; }
           trap cleanup EXIT
@@ -128,8 +194,8 @@ jobs:
               --source-commit "$RESULT_COMMIT" \
               --watermark "$SOURCE_WATERMARK" \
               --watermark-sort-key "$SOURCE_WATERMARK" \
-              --qc-status PASS_MARKET_VALUATION_REFRESH_FINANCIAL_DENOMINATOR_LKG \
-              --note "financial_event_propagation=PENDING_OCC_R2B;financial_baseline_universe=5528;trade_authority=NONE" \
+              --qc-status "$QC_STATUS" \
+              --note "financial_event_propagation=COMPLETE_AS_OF_EXACT_BASELINE;exact_baseline_market_as_of_date=$BASELINE_DATE;exact_baseline_source_commit=$EXACT_COMMIT;trade_authority=NONE" \
               --advance-current
           )
           cleanup
@@ -137,6 +203,6 @@ jobs:
       - name: Record R2A boundary
         if: always()
         run: |
-          echo "OCC_R2A_MARKET_VALUATION_ONLY=true" >> "$GITHUB_STEP_SUMMARY"
-          echo "FINANCIAL_EVENT_PROPAGATION=PENDING_OCC_R2B" >> "$GITHUB_STEP_SUMMARY"
+          echo "OCC_R2A_MARKET_VALUATION_EXACT_BASELINE=true" >> "$GITHUB_STEP_SUMMARY"
+          echo "FINANCIAL_EVENT_PROPAGATION=COMPLETE_AS_OF_EXACT_BASELINE" >> "$GITHUB_STEP_SUMMARY"
           echo "TRADE_AUTHORITY=NONE" >> "$GITHUB_STEP_SUMMARY"
