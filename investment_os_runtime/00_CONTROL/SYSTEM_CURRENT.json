@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "authority_id": "STOCK_INVESTMENT_ASSISTANT_SYSTEM_CURRENT_S2",
+  "authority_id": "STOCK_INVESTMENT_ASSISTANT_SYSTEM_CURRENT",
   "authority_status": "CURRENT_SYSTEM_LEVEL_AUTHORITY",
   "effective_date": "2026-09-01",
   "source_base_sha": "5e19bcfb0d22ce74acf357983ee205bce8b70d59",
@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS",
-  "product_maturity": "S1_COMPLETE_S2_REBUILDING_INVESTMENT_PRODUCTION_CHAIN",
+  "program_state": "S2_INVESTMENT_PIPELINE_REBUILD_COMPLETE_S3_PENDING",
+  "product_maturity": "S2_INVESTMENT_PIPELINE_REBUILT_PORTFOLIO_PRODUCT_SURFACE_PENDING_S3",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -43,7 +43,7 @@
     "round_2_end_to_end_runtime_audit": "COMPLETE_CHAIN_FAIL",
     "round_3_investment_capability_audit": "COMPLETE_CURRENT_DAILY_INVESTMENT_PRODUCT_FAIL",
     "s1": "COMPLETE_ON_MAIN",
-    "s2": "IN_PROGRESS",
+    "s2": "COMPLETE_ON_MAIN",
     "s3": "PENDING",
     "s4": "PENDING",
     "development_closed": false
@@ -113,5 +113,40 @@
     "d2_capacity": 3,
     "trade_authority": "NONE",
     "orders": 0
+  },
+  "s2_acceptance": {
+    "merge_status": "MERGED_TO_MAIN",
+    "merge_sha": "a94afb053c790de748d0f22f9e74f924dda3ce23",
+    "final_pr": 401,
+    "final_head": "aa9c3b2e9aab01146e666f1e456af2d250052c17",
+    "opportunity_without_candidate_gate": "PASS",
+    "rolling_d1_batch_10": "PASS",
+    "d2_underwriting_completion_contract": "PASS",
+    "semantic_d2_identity": "PASS",
+    "live_capital_comparison_without_phase2c": "PASS",
+    "producer_reachable_actions": [
+      "BUY",
+      "BUY_BELOW",
+      "WATCH_FOR_EVIDENCE",
+      "WATCH",
+      "AVOID",
+      "ADD",
+      "HOLD",
+      "TRIM",
+      "EXIT"
+    ],
+    "orphan_boolean_gates_in_s2_path": 0,
+    "p4_2_automatic_production": "RETIRED",
+    "p4_3_automatic_production": "RETIRED",
+    "d1_d2_transaction_identity": "PASS",
+    "deterministic_s2_validation": "PASS",
+    "d2_consumer_validation": "PASS",
+    "a_share_daily_regression": "PASS",
+    "candidate_full_repository_regression": "PASS",
+    "operating_current_regression": "PASS",
+    "lineage_regression": "PASS",
+    "natural_end_to_end_runtime_acceptance": "DEFERRED_TO_S4",
+    "orders": 0,
+    "trade_authority": "NONE"
   }
 }
