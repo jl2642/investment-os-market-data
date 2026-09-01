@@ -11,6 +11,9 @@ on:
     paths:
       - "automation/shadow_book/**"
       - ".github/workflows/p4-4-trigger-shadow.yml"
+  workflow_run:
+    workflows: ["P4-3 Unified Decision Recommendation"]
+    types: [completed]
   schedule:
     - cron: "0 18 * * 1-5"
   workflow_dispatch:
@@ -38,6 +41,10 @@ env:
 
 jobs:
   validate:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -168,7 +175,11 @@ jobs:
           retention-days: 14
 
   operate:
-    if: github.event_name != 'pull_request'
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'))
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 20
