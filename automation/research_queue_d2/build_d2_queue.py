@@ -24,6 +24,7 @@ SEMANTIC_PASSTHROUGH_FIELDS = (
     "next_gate",
     "evidence_gap",
     "manual_user_input_required",
+    "underwriting",
 )
 
 
@@ -39,6 +40,25 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 def canonical_hash(payload: Any) -> str:
     text = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def underwriting_complete(row: dict[str, Any]) -> bool:
+    underwriting = row.get("underwriting")
+    if not isinstance(underwriting, dict):
+        return False
+    if underwriting.get("current_price") in (None, ""):
+        return False
+    if underwriting.get("entry_price") in (None, ""):
+        return False
+    if str(underwriting.get("confidence") or "").upper() not in {
+        "HIGH", "MEDIUM", "MEDIUM_HIGH", "HIGH_MEDIUM"
+    }:
+        return False
+    scenarios = underwriting.get("scenarios")
+    if not isinstance(scenarios, list):
+        return False
+    names = {str(x.get("name") or "").upper() for x in scenarios if isinstance(x, dict)}
+    return {"BEAR", "BASE", "BULL"}.issubset(names)
 
 
 def latest_d1_evidence() -> dict[str, Any]:
@@ -131,13 +151,18 @@ def semantic_state_is_same_input(prior: dict[str, Any], previous: dict[str, Any]
     return False
 
 
-def build_state(*, discover_primary_sources: bool, now: datetime | None = None) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+def build_state(
+    *,
+    discover_primary_sources: bool,
+    d1_path: Path = D1_CURRENT,
+    now: datetime | None = None,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     now = now or datetime.now(timezone.utc)
     now_iso = now.replace(microsecond=0).isoformat()
     today = now.date().isoformat()
     start_date = f"{now.year - 1}-01-01"
 
-    d1 = load_json(D1_CURRENT)
+    d1 = load_json(d1_path)
     evidence = latest_d1_evidence()
     prior = load_json(D2_CURRENT) if D2_CURRENT.exists() else {}
     prior_by_id = {row["security_id"]: row for row in prior.get("queue", []) if row.get("security_id")}
@@ -163,7 +188,9 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
             if discovery_error:
                 discovery_errors.append({"security_id": security_id, "error": discovery_error})
 
-        if previous_status in SEMANTIC_TERMINAL_STATUSES:
+        if previous_status == "D2_RESEARCH_COMPLETE" and not underwriting_complete(previous):
+            status = "D2_UNDERWRITING_PENDING"
+        elif previous_status in SEMANTIC_TERMINAL_STATUSES:
             status = str(previous_status)
         elif cninfo:
             status = "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
@@ -207,6 +234,7 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
         "PENDING_AUTO_RESEARCH",
         "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
         "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+        "D2_UNDERWRITING_PENDING",
     }
     active_pending = [row for row in queue if row["status"] in active_pending_statuses]
     completed = [row for row in queue if row["status"] == "D2_RESEARCH_COMPLETE"]
@@ -226,7 +254,7 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
             "manual_dispatch": "BREAK_GLASS_ONLY",
             "idempotence": "UNCHANGED_D1_STATE_OR_INPUT_WATERMARK_PRESERVES_SEMANTIC_TERMINAL_WORK",
             "fail_closed": True,
-            "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_CONSUMER",
+            "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
         },
         "queue": queue,
         "summary": {
@@ -292,9 +320,13 @@ def build_state(*, discover_primary_sources: bool, now: datetime | None = None) 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--discover-primary-sources", action="store_true")
+    parser.add_argument("--d1-current", default=str(D1_CURRENT))
     args = parser.parse_args()
 
-    state, liveness, evidence_run = build_state(discover_primary_sources=args.discover_primary_sources)
+    state, liveness, evidence_run = build_state(
+        discover_primary_sources=args.discover_primary_sources,
+        d1_path=Path(args.d1_current),
+    )
     write_json(D2_CURRENT, state)
     write_json(D2_LIVENESS, liveness)
     evidence_path = D2_EVIDENCE_DIR / f"{evidence_run['run_id']}.json"
