@@ -67,12 +67,149 @@ def holding_map(payload: dict[str, Any], account: str) -> dict[str, dict[str, An
         sid = str(row.get("security_id") or "").strip()
         if not sid:
             continue
-        rows[sid] = {
-            "security_id": sid,
-            "security_name": row.get("security_name"),
-            "account": account,
-        }
+        rows[sid] = dict(row)
+        rows[sid]["account"] = account
     return rows
+
+
+def _num(value: Any) -> float:
+    return float(value) if isinstance(value, (int, float)) else 0.0
+
+
+def build_portfolio_monitoring(
+    *,
+    real_positions: dict[str, Any],
+    simulation_positions: dict[str, Any],
+    marks_by_id: dict[str, dict[str, Any]],
+    covered: set[str],
+) -> dict[str, Any]:
+    account_payloads = {
+        "REAL": real_positions,
+        "SIMULATION": simulation_positions,
+    }
+    rows: list[dict[str, Any]] = []
+    account_summaries: dict[str, Any] = {}
+    unique: dict[str, dict[str, Any]] = {}
+
+    for account, payload in account_payloads.items():
+        summary = payload.get("summary") or {}
+        total_assets = _num(summary.get("account_total_assets"))
+        position_value = _num(summary.get("position_market_value"))
+        if not position_value:
+            position_value = sum(_num(x.get("market_value")) for x in payload.get("holdings", []) or [])
+        if not total_assets:
+            total_assets = position_value + _num(summary.get("execution_cash_balance"))
+        account_summaries[account] = {
+            "holding_count": len(payload.get("holdings", []) or []),
+            "account_total_assets": total_assets or None,
+            "position_market_value": position_value or None,
+            "execution_cash_balance": summary.get("execution_cash_balance"),
+            "open_unrealized_pnl": summary.get("open_unrealized_pnl"),
+            "account_total_pnl": summary.get("account_total_pnl"),
+        }
+
+        for holding in payload.get("holdings", []) or []:
+            sid = str(holding.get("security_id") or "").strip()
+            if not sid:
+                continue
+            mark = marks_by_id.get(sid, {})
+            market_value = _num(holding.get("market_value"))
+            cost_basis = _num(holding.get("cost_basis"))
+            pnl = holding.get("unrealized_pnl")
+            pnl_pct = holding.get("unrealized_pnl_pct")
+            if pnl is None and market_value and cost_basis:
+                pnl = market_value - cost_basis
+            if pnl_pct is None and cost_basis and pnl is not None:
+                pnl_pct = _num(pnl) / cost_basis
+            weight = market_value / total_assets if total_assets and market_value else None
+            flags = ["NO_CURRENT_S2_RECOMMENDATION"] if sid not in covered else []
+            if isinstance(pnl_pct, (int, float)) and pnl_pct <= -0.15:
+                flags.append("DRAWDOWN_GE_15PCT")
+            if isinstance(weight, (int, float)) and weight >= 0.15:
+                flags.append("ACCOUNT_WEIGHT_GE_15PCT")
+            row = {
+                "account": account,
+                "security_id": sid,
+                "security_name": holding.get("security_name"),
+                "current_price": mark.get("mark") if mark.get("mark") is not None else holding.get("mark"),
+                "market_value": market_value or None,
+                "cost_basis": cost_basis or None,
+                "unrealized_pnl": pnl,
+                "unrealized_pnl_pct": pnl_pct,
+                "account_weight": weight,
+                "monitoring_flags": flags,
+                "investment_recommendation_covered": sid in covered,
+                "orders": 0,
+                "trade_authority": TRADE_AUTHORITY,
+            }
+            rows.append(row)
+            agg = unique.setdefault(
+                sid,
+                {
+                    "security_id": sid,
+                    "security_name": holding.get("security_name"),
+                    "accounts": [],
+                    "max_account_weight": 0.0,
+                    "worst_unrealized_pnl_pct": None,
+                    "flags": set(),
+                },
+            )
+            agg["accounts"].append(account)
+            if isinstance(weight, (int, float)):
+                agg["max_account_weight"] = max(agg["max_account_weight"], weight)
+            if isinstance(pnl_pct, (int, float)):
+                current = agg["worst_unrealized_pnl_pct"]
+                agg["worst_unrealized_pnl_pct"] = pnl_pct if current is None else min(current, pnl_pct)
+            agg["flags"].update(flags)
+
+    for sid, agg in unique.items():
+        if len(agg["accounts"]) > 1:
+            agg["flags"].add("MULTI_ACCOUNT_EXPOSURE")
+
+    queue = []
+    for sid, agg in unique.items():
+        if sid in covered:
+            continue
+        high = (
+            "DRAWDOWN_GE_15PCT" in agg["flags"]
+            or "ACCOUNT_WEIGHT_GE_15PCT" in agg["flags"]
+        )
+        queue.append(
+            {
+                "security_id": sid,
+                "security_name": agg["security_name"],
+                "accounts": sorted(agg["accounts"]),
+                "priority": "HIGH" if high else "MEDIUM",
+                "max_account_weight": agg["max_account_weight"],
+                "worst_unrealized_pnl_pct": agg["worst_unrealized_pnl_pct"],
+                "monitoring_flags": sorted(agg["flags"]),
+                "next_step": "D2_REUNDERWRITE_WHEN_TRIGGERED_OR_REVIEW_SLOT_AVAILABLE",
+                "orders": 0,
+                "trade_authority": TRADE_AUTHORITY,
+            }
+        )
+    queue.sort(
+        key=lambda x: (
+            0 if x["priority"] == "HIGH" else 1,
+            -_num(x.get("max_account_weight")),
+            _num(x.get("worst_unrealized_pnl_pct")),
+            str(x.get("security_id")),
+        )
+    )
+    rows.sort(key=lambda x: (x["account"], str(x["security_id"])))
+    return {
+        "status": "PASS_PORTFOLIO_PERFORMANCE_MONITORING",
+        "performance_monitoring_coverage_count": len(rows),
+        "unique_security_count": len(unique),
+        "investment_recommendation_coverage_count": len(covered),
+        "account_summaries": account_summaries,
+        "rows": rows,
+        "reunderwriting_queue": queue[:3],
+        "reunderwriting_backlog_count": len(queue),
+        "automatic_trade_or_position_mutation": False,
+        "orders": 0,
+        "trade_authority": TRADE_AUTHORITY,
+    }
 
 
 def mark_map(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -232,6 +369,13 @@ def build_surface(
             }
         )
 
+    portfolio_monitoring = build_portfolio_monitoring(
+        real_positions=real_positions,
+        simulation_positions=simulation_positions,
+        marks_by_id=marks_by_id,
+        covered=covered,
+    )
+
     review_count = sum(bool(row.get("ready_for_user_decision")) for row in portfolio_rows + opportunity_rows)
     action_counts: dict[str, int] = {}
     for row in portfolio_rows + opportunity_rows:
@@ -271,8 +415,12 @@ def build_surface(
         },
         "executive": {
             "portfolio_holding_count": len(portfolio_ids),
+            "portfolio_performance_monitoring_line_count": portfolio_monitoring["performance_monitoring_coverage_count"],
+            "portfolio_performance_monitoring_unique_count": portfolio_monitoring["unique_security_count"],
             "portfolio_recommendation_coverage_count": len(covered),
             "portfolio_uncovered_count": len(uncovered),
+            "holding_reunderwriting_queue_count": len(portfolio_monitoring["reunderwriting_queue"]),
+            "holding_reunderwriting_backlog_count": portfolio_monitoring["reunderwriting_backlog_count"],
             "new_opportunity_count": len(opportunity_rows),
             "decision_review_required_count": review_count,
             "position_identity_mismatch_count": sum(
@@ -287,6 +435,7 @@ def build_surface(
         },
         "portfolio_decisions": portfolio_rows,
         "portfolio_uncovered": uncovered,
+        "portfolio_monitoring": portfolio_monitoring,
         "new_opportunities": opportunity_rows,
         "research_queue": {
             "batch_size": d1.get("batch_size", 0),
@@ -327,7 +476,8 @@ def render_daily_brief(surface: dict[str, Any]) -> str:
         "",
         f"- 数据日期：{surface['as_of_date']}",
         f"- 当前需人工复核的决策项：{executive['decision_review_required_count']}",
-        f"- 当前持仓覆盖：{executive['portfolio_recommendation_coverage_count']} / {executive['portfolio_holding_count']}",
+        f"- 持仓绩效监控：{executive['portfolio_performance_monitoring_unique_count']} / {executive['portfolio_holding_count']}（账户持仓行 {executive['portfolio_performance_monitoring_line_count']}）",
+        f"- 当前投资判断覆盖：{executive['portfolio_recommendation_coverage_count']} / {executive['portfolio_holding_count']}",
         f"- 新机会：{executive['new_opportunity_count']}",
         "- 自动交易：关闭；orders = 0；trade_authority = NONE",
         "",
@@ -354,7 +504,32 @@ def render_daily_brief(surface: dict[str, Any]) -> str:
                 "暂无当前 S2 underwriting / recommendation，不生成动作。"
             )
 
-    lines += ["", "## 2. 新资本机会", ""]
+    monitoring = surface.get("portfolio_monitoring") or {}
+    account_summaries = monitoring.get("account_summaries") or {}
+    lines += ["", "## 2. 组合表现与再承销队列", ""]
+    for account in ("REAL", "SIMULATION"):
+        row = account_summaries.get(account) or {}
+        total = row.get("account_total_assets")
+        pnl = row.get("account_total_pnl")
+        total_text = f"{total:,.2f}" if isinstance(total, (int, float)) else "—"
+        pnl_text = f"{pnl:,.2f}" if isinstance(pnl, (int, float)) else "—"
+        lines.append(
+            f"- {account}：总资产 {total_text}；账户累计收益 {pnl_text}；"
+            f"持仓数 {row.get('holding_count', 0)}。"
+        )
+    queue = monitoring.get("reunderwriting_queue") or []
+    if queue:
+        lines += ["", "### 优先持仓再承销", ""]
+        for row in queue:
+            lines.append(
+                f"- {row.get('priority')}｜{row.get('security_id')} {row.get('security_name') or ''}"
+                f"｜账户 {'/'.join(row.get('accounts') or [])}"
+                f"｜最大账户权重 {_fmt_pct(row.get('max_account_weight'))}"
+                f"｜最差浮盈亏 {_fmt_pct(row.get('worst_unrealized_pnl_pct'))}"
+                f"｜触发 {','.join(row.get('monitoring_flags') or [])}"
+            )
+
+    lines += ["", "## 3. 新资本机会", ""]
     if surface["new_opportunities"]:
         for row in surface["new_opportunities"]:
             lines.append(
@@ -369,7 +544,7 @@ def render_daily_brief(surface: dict[str, Any]) -> str:
     rq = surface["research_queue"]
     lines += [
         "",
-        "## 3. 研究队列",
+        "## 4. 研究队列",
         "",
         f"- D1 本轮：{rq.get('batch_size', 0)} 只；进入 D2：{(rq.get('routing_summary') or {}).get('advance_to_d2_count', 0)} 只。",
     ]
@@ -380,9 +555,11 @@ def render_daily_brief(surface: dict[str, Any]) -> str:
 
     lines += [
         "",
-        "## 4. 决策边界",
+        "## 5. 决策边界",
         "",
-        "- 本简报只整合当前持仓身份、Portfolio Marks、S2 D1/D2/Recommendation。",
+        "- 本简报持续维护真实盘/模拟盘的持仓身份、市场估值、组合表现与再承销优先级，并整合 S2 D1/D2/Recommendation。",
+        "- 绩效监控覆盖与投资判断覆盖是两个不同指标；未完成 D2 不等于持仓未被维护。",
+        "- 用户只需报告系统无法自行获知的实际交易、入出金或其他私有经济事实；公开行情/NAV/公司行动/财报与持仓绩效由系统维护。",
         "- 旧 R3/R4/WP5 决策包不再作为当前产品入口，只保留历史追溯价值。",
         "- ready_for_user_decision 只表示值得人工复核，不表示已授权执行。",
         "- 任何真实/模拟持仓变化仍需显式用户决策；系统不下单、不自动调仓。",
