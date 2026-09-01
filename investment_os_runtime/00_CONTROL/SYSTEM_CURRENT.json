@@ -177,7 +177,10 @@
     "old_product_catalog_role": "HISTORICAL_DEVELOPMENT_EVIDENCE_ONLY",
     "protected_mutations": 0,
     "orders": 0,
-    "trade_authority": "NONE"
+    "trade_authority": "NONE",
+    "performance_monitoring": "ALL_CURRENT_REAL_AND_SIMULATION_HOLDING_LINES",
+    "performance_monitoring_separate_from_recommendation_coverage": true,
+    "uncovered_holding_policy": "MONITOR_PERFORMANCE_AND_QUEUE_BOUNDED_REUNDERWRITING_NO_FABRICATED_ACTION"
   },
   "s3_acceptance": {
     "merge_status": "MERGED_TO_MAIN",
@@ -298,6 +301,19 @@
       "PORTFOLIO_DECISION_SURFACE"
     ],
     "orders": 0,
-    "trade_authority": "NONE"
+    "trade_authority": "NONE",
+    "portfolio_user_input_rule": "USER_REPORTS_ONLY_EXECUTED_TRADES_PRIVATE_CASH_FLOWS_AND_OTHER_NONPUBLIC_ECONOMIC_FACTS",
+    "portfolio_system_maintenance_rule": "SYSTEM_MAINTAINS_MARKS_NAV_PUBLIC_CORPORATE_ACTIONS_PERFORMANCE_MONITORING_AND_REUNDERWRITING_PRIORITY",
+    "portfolio_reconciliation_rule": "BROKER_OR_SIMULATION_SNAPSHOT_MAY_REBASE_CURRENT_STATE_WITHOUT_INVENTING_MISSING_TRANSACTION_HISTORY"
+  },
+  "portfolio_maintenance_contract": "investment_os_runtime/00_CONTROL/PORTFOLIO_MAINTENANCE_INPUT_CONTRACT.md",
+  "post_acceptance_maintenance": {
+    "portfolio_reconciliation_20260901": {
+      "scope": "REAL_AND_SIMULATION_USER_CONFIRMED_POST_CLOSE_BASELINE",
+      "purpose": "ALIGN_ACCOUNT_STATE_AND_RESTORE_USER_ONLY_REPORTS_ACTUAL_ECONOMIC_CHANGES_OPERATING_MODEL",
+      "protected_automatic_transaction_inference": 0,
+      "orders": 0,
+      "trade_authority": "NONE"
+    }
   }
 }
