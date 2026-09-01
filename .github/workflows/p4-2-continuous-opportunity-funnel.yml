@@ -13,6 +13,9 @@ on:
     paths:
       - "automation/opportunity_funnel/**"
       - ".github/workflows/p4-2-continuous-opportunity-funnel.yml"
+  workflow_run:
+    workflows: ["FMDL Daily A-share Governed Production", "Research Queue D2 Auto Consumer"]
+    types: [completed]
   schedule:
     - cron: "30 16 * * 1-5"
   workflow_dispatch:
@@ -34,6 +37,10 @@ env:
 
 jobs:
   validate:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -166,7 +173,11 @@ jobs:
           retention-days: 14
 
   operate:
-    if: github.event_name != 'pull_request'
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'))
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 15
