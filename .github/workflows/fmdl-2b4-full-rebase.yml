@@ -35,9 +35,7 @@ env:
   RECOVERY_RELEASE_ID: FMDL2B4_REBASE_${{ github.run_id }}_A${{ github.run_attempt }}
 
 concurrency:
-  # Shared with Daily production because both workflows operate on the same
-  # governed History/Factor baseline. GitHub cron delay must queue, not race.
-  group: fmdl-a-share-history-production-${{ github.ref }}
+  group: fmdl-2b4-full-rebase-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
