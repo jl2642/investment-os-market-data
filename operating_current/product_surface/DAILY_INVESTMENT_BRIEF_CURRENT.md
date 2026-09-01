@@ -4,7 +4,7 @@
 - 当前需人工复核的决策项：0
 - 持仓绩效监控：22 / 22（账户持仓行 23）
 - 当前投资判断覆盖：0 / 22
-- 新机会：3
+- 新机会：0
 - 自动交易：关闭；orders = 0；trade_authority = NONE
 
 ## 1. 当前持仓决策面
@@ -49,9 +49,7 @@
 
 ## 3. 新资本机会
 
-- WATCH｜000518.SZ 四环生物｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
-- WATCH｜300983.SZ 尤安设计｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
-- WATCH｜301109.SZ 军信股份｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
+- 当前没有新的 S2 推荐机会。
 
 ## 4. 研究队列
 
