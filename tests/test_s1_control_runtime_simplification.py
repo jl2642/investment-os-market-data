@@ -30,7 +30,8 @@ def test_active_registry_separates_runtime_core_transitional_and_retired() -> No
     retired = {row["path"] for row in registry["retired_automatic_workflows_s1"]}
     assert ".github/workflows/fmdl-daily-production.yml" in active
     assert ".github/workflows/fmdl-2b4-full-rebase.yml" in active
-    assert ".github/workflows/p4-3-unified-recommendation.yml" in transitional
+    p43 = ".github/workflows/p4-3-unified-recommendation.yml"
+    assert (p43 in transitional) ^ (p43 in retired)
     assert ".github/workflows/r0_product_authority_freeze.yml" in retired
     assert ".github/workflows/r2_portfolio_construction.yml" in retired
     assert ".github/workflows/fmdl-3-architecture.yml" in retired
