@@ -33,7 +33,7 @@ def test_p4_chain_is_success_driven_with_cron_backstops() -> None:
             'cron: "30 16 * * 1-5"',
         ),
         ".github/workflows/p4-3-unified-recommendation.yml": (
-            'workflows: ["P4-2 Continuous Opportunity Funnel"]',
+            'workflows: ["P4-2 Continuous Opportunity Funnel", "OCC-R2A Financial Valuation Live Wiring"]',
             'cron: "15 17 * * 1-5"',
         ),
         ".github/workflows/p4-4-trigger-shadow.yml": (
