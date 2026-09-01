@@ -8,14 +8,15 @@ def _text(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_a_share_recovery_and_daily_share_one_concurrency_surface() -> None:
+def test_a_share_daily_is_self_healing_and_retried_after_rebase() -> None:
     daily = _text(".github/workflows/fmdl-daily-production.yml")
     rebase = _text(".github/workflows/fmdl-2b4-full-rebase.yml")
-    group = "group: fmdl-a-share-history-production-${{ github.ref }}"
-    assert group in daily
-    assert group in rebase
+    assert 'workflows: ["FMDL 2B-4 Multi-Session Full Rebase Recovery"]' in daily
+    assert "group: fmdl-daily-production-${{ github.ref }}" in daily
+    assert "group: fmdl-2b4-full-rebase-${{ github.ref }}" in rebase
     assert "materialize_fmdl_history_dependencies.py" in daily
     assert "--verify" in daily
+    assert "github.event.workflow_run.conclusion == 'success'" in daily
 
 
 def test_d2_is_triggered_by_portfolio_marks_with_schedule_backstop() -> None:
