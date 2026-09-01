@@ -283,3 +283,14 @@ def test_s2_workflow_uses_one_transactional_callback_not_duplicate_dispatch() ->
     assert "Candidate membership is not a research gate." in text
     assert "gh workflow run s2-investment-pipeline.yml" not in d2_text
     assert "operating_current/investment_pipeline/D1_CURRENT.json" in d2_text
+
+
+def test_s2_runtime_binds_screen_vars_before_same_step_use() -> None:
+    text = (
+        ROOT / ".github/workflows/s2-investment-pipeline.yml"
+    ).read_text(encoding="utf-8")
+    fetch_token = 'git fetch origin "refs/heads/$SCREEN_BRANCH:refs/remotes/origin/s2-screening"'
+    bind_token = 'SCREEN_BRANCH="$(python -c'
+    assert bind_token in text
+    assert fetch_token in text
+    assert text.index(bind_token) < text.index(fetch_token)

@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFICATION_IN_PROGRESS",
-  "product_maturity": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFICATION_IN_PROGRESS",
+  "program_state": "S4_END_TO_END_ACCEPTANCE_HYGIENE_IN_PROGRESS",
+  "product_maturity": "S4_END_TO_END_ACCEPTANCE_IN_PROGRESS",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -44,8 +44,8 @@
     "round_3_investment_capability_audit": "COMPLETE_CURRENT_DAILY_INVESTMENT_PRODUCT_FAIL",
     "s1": "COMPLETE_ON_MAIN",
     "s2": "COMPLETE_ON_MAIN",
-    "s3": "IN_PROGRESS",
-    "s4": "PENDING",
+    "s3": "COMPLETE_ON_MAIN",
+    "s4": "IN_PROGRESS",
     "development_closed": false
   },
   "non_goals": [
@@ -178,5 +178,53 @@
     "protected_mutations": 0,
     "orders": 0,
     "trade_authority": "NONE"
+  },
+  "s3_acceptance": {
+    "merge_status": "MERGED_TO_MAIN",
+    "merge_sha": "b5c5038be3ca5c82eb56e9a4545497b07960e91a",
+    "final_pr": 403,
+    "final_pr_head": "a7dc7e06f5c9fd7370798edf9a3ac99604f86eea",
+    "canonical_main_validation_head": "b0cf8041320d9243f5a056ed67dbbe4687fed3e6",
+    "canonical_main_validation_status": "PASS",
+    "canonical_user_products": [
+      "DAILY_INVESTMENT_BRIEF",
+      "PORTFOLIO_DECISION_SURFACE"
+    ],
+    "legacy_r3_r4_wp5_current_product_authority": false,
+    "old_occ_r4_automatic_production": "RETIRED",
+    "current_holding_new_capital_uncovered_separation": "PASS",
+    "position_identity_drift_fail_closed": "PASS",
+    "nested_order_authority_fail_closed": "PASS",
+    "s2_regression": "PASS",
+    "lineage_regression": "PASS",
+    "deterministic_s3_validation": "PASS",
+    "canonical_main_push_validation": "PASS",
+    "natural_end_to_end_runtime_acceptance": "DEFERRED_TO_S4",
+    "protected_economic_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "s4_scope": {
+    "objective": "PROVE_NORMAL_PRODUCTION_CHAIN_AND_CLOSE_ONLY_REAL_RUNTIME_GAPS",
+    "chain": [
+      "A_SHARE_MARKET_AND_SCREENING",
+      "S2_OPPORTUNITY_AND_D1",
+      "D2_RESEARCH_HANDOFF",
+      "S2_CAPITAL_COMPARISON_AND_RECOMMENDATION",
+      "S3_PORTFOLIO_PRODUCT_SURFACE"
+    ],
+    "runtime_repairs_only": true,
+    "new_investment_architecture": false,
+    "hygiene_after_e2e_pass": true,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "s4_runtime_findings": {
+    "first_observed_at_main": "c232947ab5df0f0e98d7b107d9ebf2998f5acfd2",
+    "investment_pipeline_current": "MISSING",
+    "portfolio_product_surface_current": "MISSING",
+    "root_cause_1": "S2_SAME_STEP_GITHUB_ENV_SCREEN_BRANCH_NOT_AVAILABLE",
+    "repair_1_status": "IN_PR",
+    "natural_e2e_status": "FAIL_REAL_RUNTIME_GAP_FOUND"
   }
 }

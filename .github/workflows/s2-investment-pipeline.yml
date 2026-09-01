@@ -204,6 +204,11 @@ jobs:
           })
           PY
 
+          SCREEN_BRANCH="$(python -c 'import json; print(json.load(open(".s2_runtime/SCREEN_SOURCE.json", encoding="utf-8"))["source_branch"])')"
+          SCREEN_COMMIT="$(python -c 'import json; print(json.load(open(".s2_runtime/SCREEN_SOURCE.json", encoding="utf-8"))["source_commit_sha"])')"
+          SCREEN_WATERMARK="$(python -c 'import json; print(json.load(open(".s2_runtime/SCREEN_SOURCE.json", encoding="utf-8"))["data_watermark"])')"
+          export SCREEN_BRANCH SCREEN_COMMIT SCREEN_WATERMARK
+
           git fetch origin "refs/heads/$SCREEN_BRANCH:refs/remotes/origin/s2-screening" --force --no-tags
           test "$(git rev-parse refs/remotes/origin/s2-screening)" = "$SCREEN_COMMIT"
           git show "$SCREEN_COMMIT":outputs/screens/current/SCREENING_LONGLIST.csv > "$S2_RUNTIME/SCREENING_LONGLIST.csv"
