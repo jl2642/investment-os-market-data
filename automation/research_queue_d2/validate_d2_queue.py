@@ -3,8 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from automation.research_queue_d2.build_d2_queue import underwriting_complete
-
 ROOT = Path(__file__).resolve().parents[2]
 D2_CURRENT = ROOT / "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json"
 D2_LIVENESS = ROOT / "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json"
@@ -19,6 +17,29 @@ SEMANTIC_TERMINAL_STATUSES = {
     "D2_RESEARCH_COMPLETE",
     "D2_RESEARCH_HOLD_EVIDENCE_GAP",
 }
+
+
+def underwriting_complete(row: dict) -> bool:
+    underwriting = row.get("underwriting")
+    if not isinstance(underwriting, dict):
+        return False
+    if underwriting.get("current_price") in (None, ""):
+        return False
+    if underwriting.get("entry_price") in (None, ""):
+        return False
+    if str(underwriting.get("confidence") or "").upper() not in {
+        "HIGH", "MEDIUM", "MEDIUM_HIGH", "HIGH_MEDIUM"
+    }:
+        return False
+    scenarios = underwriting.get("scenarios")
+    if not isinstance(scenarios, list):
+        return False
+    names = {
+        str(x.get("name") or "").upper()
+        for x in scenarios
+        if isinstance(x, dict)
+    }
+    return {"BEAR", "BASE", "BULL"}.issubset(names)
 
 
 def load(path: Path) -> dict:
