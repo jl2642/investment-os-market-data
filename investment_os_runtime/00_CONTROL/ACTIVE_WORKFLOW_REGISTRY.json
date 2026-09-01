@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "registry_id": "S2_ACTIVE_WORKFLOW_REGISTRY",
+  "registry_id": "S3_ACTIVE_WORKFLOW_REGISTRY",
   "effective_date": "2026-09-01",
   "authority": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json",
   "policy": {
@@ -8,7 +8,8 @@
     "one_recovery_path_per_state": true,
     "unlisted_development_workflows_are_not_product_health_signals": true,
     "legacy_development_workflows_must_not_run_automatically": true,
-    "s2_transitional_workflows_may_remain_active_only_until_replaced": true
+    "s2_transitional_workflows_may_remain_active_only_until_replaced": true,
+    "s3_portfolio_surface_replaces_legacy_freshness_bridge": true
   },
   "active_runtime_core": [
     {
@@ -35,13 +36,17 @@
       "path": ".github/workflows/s2-investment-pipeline.yml",
       "role": "PRIMARY_SIMPLIFIED_INVESTMENT_PIPELINE",
       "primary_or_recovery": "PRIMARY"
+    },
+    {
+      "path": ".github/workflows/s3-portfolio-product-surface.yml",
+      "role": "PRIMARY_PORTFOLIO_AND_USER_PRODUCT_SURFACE",
+      "primary_or_recovery": "PRIMARY"
     }
   ],
   "transitional_investment_runtime_until_s2_s3": [
     ".github/workflows/wp3_r_candidate_price_ledger.yml",
     ".github/workflows/wp3_r_candidate_refresh.yml",
     ".github/workflows/occ-r2a-financial-valuation-live.yml",
-    ".github/workflows/occ-r4-portfolio-decision-freshness.yml",
     ".github/workflows/p4-4-trigger-shadow.yml",
     ".github/workflows/p4-5-forward-validation.yml",
     ".github/workflows/round3-cross-market-limited-production.yml"
@@ -90,6 +95,10 @@
     {
       "path": ".github/workflows/p4-3-unified-recommendation.yml",
       "reason": "S2_REPLACED_ORPHAN_BOOLEAN_GATES_AND_FROZEN_PHASE2C_COMPARISON_WITH_UNDERWRITING_DRIVEN_DECISION_PIPELINE"
+    },
+    {
+      "path": ".github/workflows/occ-r4-portfolio-decision-freshness.yml",
+      "reason": "S3_REPLACED_LEGACY_P4_3_TO_WP5_FRESHNESS_BRIDGE_WITH_S2_DRIVEN_PORTFOLIO_PRODUCT_SURFACE"
     }
   ],
   "s2_replacement_targets": [
@@ -124,5 +133,14 @@
     ]
   },
   "s2_merge_sha": "a94afb053c790de748d0f22f9e74f924dda3ce23",
-  "s2_final_head": "aa9c3b2e9aab01146e666f1e456af2d250052c17"
+  "s2_final_head": "aa9c3b2e9aab01146e666f1e456af2d250052c17",
+  "s3_status": "IN_PROGRESS",
+  "s3_primary_surface": {
+    "workflow": ".github/workflows/s3-portfolio-product-surface.yml",
+    "products": [
+      "DAILY_INVESTMENT_BRIEF",
+      "PORTFOLIO_DECISION_SURFACE"
+    ],
+    "operating_domain": "PORTFOLIO_PRODUCT_SURFACE"
+  }
 }
