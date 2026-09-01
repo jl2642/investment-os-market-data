@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0.0",
+  "release_id": "OCC_R2A_VALUATION_20260901T121045+0800",
+  "generated_at": "2026-09-01T12:10:45+08:00",
+  "status": "PASS",
+  "qc_status": "PASS_MARKET_VALUATION_REFRESH_FINANCIAL_DENOMINATOR_LKG",
+  "market_as_of_date": "2026-08-31",
+  "financial_baseline_market_as_of_date": "2026-07-17",
+  "financial_denominator": {
+    "status": "LKG_NOT_REFRESHED_BY_R2A",
+    "statement_release_id": "FMDL3B4_20260719T020726+0800",
+    "statement_published_at": "2026-07-19T02:07:27+08:00",
+    "financial_factor_release_id": "FMDL3CB_20260719T121912+0800",
+    "financial_score_release_id": "FMDL3CD_20260719T150020+0800",
+    "financial_event_propagation": "PENDING_OCC_R2B"
+  },
+  "universe": {
+    "baseline_symbol_count": 5528,
+    "source_symbol_count": 5551,
+    "matched_symbol_count": 5522,
+    "matched_positive_close_count": 5522,
+    "market_coverage_ratio": 0.9989146164978292,
+    "source_symbols_outside_financial_baseline": 24,
+    "financial_baseline_symbols_missing_from_source": 1,
+    "valuation_context_row_count": 5528,
+    "required_financial_baseline_symbol_count": 5528,
+    "coverage_scope": "FROZEN_FMDL3_FINANCIAL_BASELINE_ONLY"
+  },
+  "valuation_fields_updated_by_market": {
+    "exact_price_multiple_fields": [
+      "pe_ttm",
+      "pb",
+      "ps_ttm"
+    ],
+    "exact_inverse_price_fields": [
+      "earnings_yield_ttm",
+      "fcf_yield_ttm",
+      "dividend_yield_ttm"
+    ],
+    "price_invariant_share_change_fields": [
+      "completed_buyback_yield_ttm",
+      "completed_issuance_dilution_yield_ttm"
+    ],
+    "blocked_until_r2b": [
+      "ev_sales_ttm",
+      "ev_operating_income_ttm"
+    ],
+    "market_cap_fields": [
+      "total_market_cap_cny",
+      "float_market_cap_cny"
+    ]
+  },
+  "checks": {
+    "MARKET_DATE_ADVANCED": true,
+    "FINANCIAL_BASELINE_UNIVERSE_FROZEN": true,
+    "MARKET_COVERAGE": true,
+    "FULL_REBUILD_EQUAL": true,
+    "DUPLICATE_SYMBOL_ZERO": true,
+    "ZERO_TRADE_AUTHORITY": true,
+    "FINANCIAL_DENOMINATOR_EXPLICIT_LKG": true
+  },
+  "hard_failures": [],
+  "controlled_limitations": [
+    "FINANCIAL_FACT_DENOMINATORS_REMAIN_LAST_KNOWN_GOOD_PENDING_OCC_R2B",
+    "FINANCIAL_BASELINE_UNIVERSE_IS_5528_AND_DOES_NOT_AUTO_ADMIT_NEWER_MARKET_SYMBOLS",
+    "EV_MULTIPLES_ARE_BLOCKED_IN_R2A_BECAUSE_EXACT_NET_DEBT_COMPONENTS_ARE_NOT_IN_THE_UNIFIED_CONSUMER_TABLE",
+    "BUYBACK_AND_ISSUANCE_DILUTION_YIELDS_ARE_SHARE_CHANGE_RATIOS_AND_REMAIN_PRICE_INVARIANT",
+    "SPECIALIZED_FINANCIAL_SECTOR_METRICS_REMAIN_CONTROLLED_BY_EXISTING_PROFILE_GATES",
+    "NO_RECOMMENDATION_PORTFOLIO_ACTION_OR_TRADE_AUTHORITY"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
