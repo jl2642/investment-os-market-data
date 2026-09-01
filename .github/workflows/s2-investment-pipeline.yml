@@ -132,6 +132,9 @@ jobs:
         run: python -m pip install --disable-pip-version-check pandas pyarrow
 
       - name: Resolve latest coherent A-share Screening source
+        if: >-
+          github.event_name != 'workflow_run' ||
+          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -210,6 +213,9 @@ jobs:
           fi
 
       - name: Build Opportunity Queue and D1 fast triage
+        if: >-
+          github.event_name != 'workflow_run' ||
+          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -247,6 +253,9 @@ jobs:
           PY
 
       - name: Publish Opportunity and D1 Current
+        if: >-
+          github.event_name != 'workflow_run' ||
+          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -261,7 +270,7 @@ jobs:
             --source-branch main \
             --source-commit "$MAIN_HEAD"
 
-      - name: Restore main worktree after Operating Current publication
+      - name: Bind current S2 D1 transaction
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -271,6 +280,14 @@ jobs:
           git clean -fd
           mkdir -p "$S2_RUNTIME" "$S2_OUTPUT"
           git show origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json > "$S2_RUNTIME/D1_CURRENT.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          row=json.loads((Path(os.environ["S2_RUNTIME"])/"D1_CURRENT.json").read_text(encoding="utf-8"))
+          assert row.get("state_id")
+          assert row.get("controls",{}).get("trade_authority")=="NONE"
+          print({"bound_d1_state_id":row["state_id"],"d1_batch_size":len(row.get("research_objects",[]))})
+          PY
 
       - name: Trigger D2 consumer for new D1 unless this run came from D2
         if: >-
