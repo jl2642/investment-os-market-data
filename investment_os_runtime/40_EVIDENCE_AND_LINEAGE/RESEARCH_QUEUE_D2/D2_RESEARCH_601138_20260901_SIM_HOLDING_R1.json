@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260901_SIM_HOLDING_R1_601138",
+  "security_id": "601138.SH",
+  "security_name": "工业富联",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "HOLD",
+  "research_update_type": "USER_MANUAL_EXISTING_SIMULATION_HOLDING_UNDERWRITING",
+  "valuation_horizon": "12_MONTH",
+  "position_context": {
+    "quantity": 600,
+    "unit_cost": 76.43,
+    "canonical_price_date": "2026-08-31",
+    "canonical_current_price": 64.84,
+    "market_value": 38904,
+    "approximate_simulation_nav_weight": 0.0379343,
+    "position_mutation_authorized": false
+  },
+  "thesis": {
+    "core": "AI服务器与云计算基础设施需求驱动收入和利润高速增长，但低毛利制造模式、客户集中和营运资金/资本开支需求使当前估值的上行空间受到约束。",
+    "variant_wedge": "基本面强于传统EMS认知，但当前价格已经计入相当程度的AI高增长，真正的超额收益取决于利润率持续改善及现金转换跟上会计利润。",
+    "normalized_earnings_basis": "2026E normalized EPS 3.05，接近截至2026-08-31的23家机构一致预期3.09元，但对H1高增长作小幅保守折扣以反映现金转换和高基数风险。"
+  },
+  "underwriting": {
+    "current_price": 64.84,
+    "price_as_of": "2026-08-31",
+    "entry_price": 60,
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {
+      "year": "2026E",
+      "eps": 3.05,
+      "consensus_reference_eps": 3.09,
+      "basis": "H1 reported earnings momentum + current sell-side consensus, conservatively normalized for working-capital/cash-conversion risk"
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 2.65,
+        "valuation_multiple_pe": 17,
+        "value": 45.05,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "eps": 3.05,
+        "valuation_multiple_pe": 23,
+        "value": 70.15,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "eps": 3.35,
+        "valuation_multiple_pe": 27,
+        "value": 90.45,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 68.95,
+    "expected_return": 0.0633868,
+    "hurdle_entry_price_15pct": 59.96,
+    "action": "HOLD",
+    "add_below": 60,
+    "catalysts": [
+      "AI服务器及下一代云服务商产品在2026H2继续放量",
+      "云计算业务增长维持高位且产品结构改善推动净利率继续提升",
+      "经营现金流和营运资金周转明显改善"
+    ],
+    "kill_thesis": [
+      "AI服务器/云计算增速明显失速且主要客户订单或份额下降",
+      "收入高增长但毛利率/净利率无法延续改善",
+      "应收、库存和资本开支持续快于利润增长并导致现金转换长期偏弱",
+      "客户集中或地缘供应链风险导致产能利用和交付受损"
+    ]
+  },
+  "d2_answers": [
+    {
+      "question": "盈利增长是否可持续？",
+      "fact": "2026H1营收5578.6亿元，同比+54.6%；归母净利润237.4亿元，同比+96%；云计算收入同比+75.7%。",
+      "interpretation": "AI基础设施需求和产品结构改善是真实盈利驱动，但高基数将提高下半年同比难度。"
+    },
+    {
+      "question": "什么阻止现在加仓？",
+      "fact": "8/31价格64.84元；2026E机构一致预期EPS约3.09元。",
+      "interpretation": "当前价格对一致预期约21倍前瞻PE，概率加权价值仅提供约6%上行，未达到15%-20%的新增资本门槛。"
+    },
+    {
+      "question": "持仓动作？",
+      "judgment": "HOLD现有600股；不因成本76.43元而摊薄。只有价格约60元或以下且基本面/现金转换未恶化时再评估ADD。"
+    }
+  ],
+  "first_rejection_test": "若2026H2出现AI订单/收入明显失速，同时现金转换持续弱于利润增长，则取消ADD候选并重新承保。",
+  "evidence_gap": {
+    "material": false,
+    "missing": "缺少用户截图对应的2026-09-01最终成交价；本D2为保持系统一致性使用已接受的2026-08-31 Portfolio Marks。",
+    "recovery": "下一次用户确认行情或Portfolio Marks刷新时更新价格，不自动改变研究结论。",
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "COMPANY_IR",
+      "title": "工业富联公司动态：2026H1净利润首次突破200亿",
+      "url": "https://panel.fii-foxconn.com/gsdt.html",
+      "as_of": "2026-08-11"
+    },
+    {
+      "type": "CONSENSUS_AGGREGATOR",
+      "title": "同花顺F10 工业富联盈利预测",
+      "url": "https://basic.10jqka.com.cn/601138/worth.html",
+      "as_of": "2026-08-31"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "工业富联历史行情",
+      "url": "https://hk.investing.com/equities/foxconn-historical-data",
+      "as_of": "2026-08-31"
+    }
+  ],
+  "source_quality_note": "核心H1经营数据来自公司IR；一致预期来自聚合研报数据。情景估值、概率和入场价为ChatGPT分析假设，不是公司指引或卖方目标价。",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
