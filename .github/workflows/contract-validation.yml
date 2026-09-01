@@ -16,6 +16,8 @@ on:
       - ".github/workflows/fmdl-daily-production.yml"
       - ".github/workflows/r0_product_authority_freeze.yml"
       - ".github/workflows/r2_portfolio_construction.yml"
+      - ".github/workflows/fmdl-3-architecture.yml"
+      - ".github/workflows/stock-investment-assistant-final-integration.yml"
       - "scripts/materialize_fmdl_history_dependencies.py"
       - "tests/test_post_occ_history_dependency_materialization.py"
       - "tests/test_s1_control_runtime_simplification.py"
@@ -33,6 +35,8 @@ on:
       - ".github/workflows/fmdl-daily-production.yml"
       - ".github/workflows/r0_product_authority_freeze.yml"
       - ".github/workflows/r2_portfolio_construction.yml"
+      - ".github/workflows/fmdl-3-architecture.yml"
+      - ".github/workflows/stock-investment-assistant-final-integration.yml"
       - "scripts/materialize_fmdl_history_dependencies.py"
       - "tests/test_post_occ_history_dependency_materialization.py"
       - "tests/test_s1_control_runtime_simplification.py"
@@ -64,6 +68,8 @@ jobs:
               ".github/workflows/fmdl-daily-production.yml",
               ".github/workflows/r0_product_authority_freeze.yml",
               ".github/workflows/r2_portfolio_construction.yml",
+              ".github/workflows/fmdl-3-architecture.yml",
+              ".github/workflows/stock-investment-assistant-final-integration.yml",
           ]:
               yaml.safe_load(Path(path).read_text(encoding="utf-8"))
           print({"s1_workflow_yaml": "PASS"})
