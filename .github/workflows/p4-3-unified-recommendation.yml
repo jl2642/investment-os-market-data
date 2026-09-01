@@ -82,15 +82,26 @@ jobs:
           import json, os
           row=json.load(open(os.environ["VALUATION_DOMAIN_RUNTIME"],encoding="utf-8"))
           assert row.get("status")=="PASS", row
-          assert row.get("qc_status")=="PASS_EXACT_VALUATION_REBUILT", row
+          assert row.get("qc_status") in {
+              "PASS_EXACT_VALUATION_REBUILT",
+              "PASS_MARKET_VALUATION_REFRESH_EXACT_DENOMINATOR_LKG",
+          }, row
           assert row.get("trade_authority")=="NONE", row
           PY
           git fetch origin "refs/heads/$VALUATION_BRANCH:refs/remotes/origin/p4-3-valuation" --force --no-tags
           test "$(git rev-parse refs/remotes/origin/p4-3-valuation)" = "$VALUATION_COMMIT"
-          git checkout "$VALUATION_COMMIT" -- \
-            outputs/valuation/engine/current/FMDL3DC_RELEASE.json \
-            outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet
+          VALUATION_QC="$(python -c "import json; print(json.load(open('$VALUATION_DOMAIN_RUNTIME',encoding='utf-8'))['qc_status'])")"
+          if [[ "$VALUATION_QC" == "PASS_EXACT_VALUATION_REBUILT" ]]; then
+            VALUATION_RELEASE_PATH="outputs/valuation/engine/current/FMDL3DC_RELEASE.json"
+            VALUATION_DETAIL_PATH="outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet"
+          else
+            VALUATION_RELEASE_PATH="outputs/occ_r2/valuation/current/FMDL3DC_MARKET_REFRESH_RELEASE.json"
+            VALUATION_DETAIL_PATH="outputs/occ_r2/valuation/current/FMDL3DC_MARKET_REFRESH_DETAIL.parquet"
+          fi
+          git checkout "$VALUATION_COMMIT" -- "$VALUATION_RELEASE_PATH" "$VALUATION_DETAIL_PATH"
           echo "VALUATION_SOURCE_COMMIT=$VALUATION_COMMIT" >> "$GITHUB_ENV"
+          echo "VALUATION_RELEASE_PATH=$VALUATION_RELEASE_PATH" >> "$GITHUB_ENV"
+          echo "VALUATION_DETAIL_PATH=$VALUATION_DETAIL_PATH" >> "$GITHUB_ENV"
 
           if git cat-file -e origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json 2>/dev/null; then
             git show origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json > "$PRIOR_RECOMMENDATION_RUNTIME"
@@ -117,8 +128,8 @@ jobs:
           fi
           python automation/recommendations/build_live_comparison_context.py \
             --phase2c-pack "$PHASE2C_RUNTIME" \
-            --valuation-detail outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet \
-            --valuation-release outputs/valuation/engine/current/FMDL3DC_RELEASE.json \
+            --valuation-detail "$VALUATION_DETAIL_PATH" \
+            --valuation-release "$VALUATION_RELEASE_PATH" \
             --valuation-domain "$VALUATION_DOMAIN_RUNTIME" \
             --d2-current "$D2_RUNTIME" \
             --phase2c-source-id "$P43_CONTRACT_HEAD" \
@@ -154,7 +165,11 @@ jobs:
               "A_SHARE","H_SHARE","US_SHARE"
           }
           assert current["source_snapshot"]["capital_comparison_context"]["live_operating_authority"] is True
-          assert current["source_snapshot"]["capital_comparison_context"]["source_bindings"]["market_as_of_date"] == "2026-08-28"
+          valuation_domain=json.loads(Path(".p4_3_runtime/FINANCIAL_VALUATION_CONTEXT.json").read_text(encoding="utf-8"))
+          assert (
+              current["source_snapshot"]["capital_comparison_context"]["source_bindings"]["market_as_of_date"]
+              == valuation_domain["data_watermark"]
+          )
           assert all(row["orders"] == 0 and row["trade_authority"] == "NONE" for row in current["records"])
           assert all(
               not (
@@ -258,15 +273,26 @@ jobs:
           import json, os
           row=json.load(open(os.environ["VALUATION_DOMAIN_RUNTIME"],encoding="utf-8"))
           assert row.get("status")=="PASS", row
-          assert row.get("qc_status")=="PASS_EXACT_VALUATION_REBUILT", row
+          assert row.get("qc_status") in {
+              "PASS_EXACT_VALUATION_REBUILT",
+              "PASS_MARKET_VALUATION_REFRESH_EXACT_DENOMINATOR_LKG",
+          }, row
           assert row.get("trade_authority")=="NONE", row
           PY
           git fetch origin "refs/heads/$VALUATION_BRANCH:refs/remotes/origin/p4-3-valuation" --force --no-tags
           test "$(git rev-parse refs/remotes/origin/p4-3-valuation)" = "$VALUATION_COMMIT"
-          git checkout "$VALUATION_COMMIT" -- \
-            outputs/valuation/engine/current/FMDL3DC_RELEASE.json \
-            outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet
+          VALUATION_QC="$(python -c "import json; print(json.load(open('$VALUATION_DOMAIN_RUNTIME',encoding='utf-8'))['qc_status'])")"
+          if [[ "$VALUATION_QC" == "PASS_EXACT_VALUATION_REBUILT" ]]; then
+            VALUATION_RELEASE_PATH="outputs/valuation/engine/current/FMDL3DC_RELEASE.json"
+            VALUATION_DETAIL_PATH="outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet"
+          else
+            VALUATION_RELEASE_PATH="outputs/occ_r2/valuation/current/FMDL3DC_MARKET_REFRESH_RELEASE.json"
+            VALUATION_DETAIL_PATH="outputs/occ_r2/valuation/current/FMDL3DC_MARKET_REFRESH_DETAIL.parquet"
+          fi
+          git checkout "$VALUATION_COMMIT" -- "$VALUATION_RELEASE_PATH" "$VALUATION_DETAIL_PATH"
           echo "VALUATION_SOURCE_COMMIT=$VALUATION_COMMIT" >> "$GITHUB_ENV"
+          echo "VALUATION_RELEASE_PATH=$VALUATION_RELEASE_PATH" >> "$GITHUB_ENV"
+          echo "VALUATION_DETAIL_PATH=$VALUATION_DETAIL_PATH" >> "$GITHUB_ENV"
 
           if git cat-file -e origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json 2>/dev/null; then
             git show origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json > "$PRIOR_RECOMMENDATION_RUNTIME"
@@ -284,8 +310,8 @@ jobs:
           fi
           python automation/recommendations/build_live_comparison_context.py \
             --phase2c-pack "$PHASE2C_RUNTIME" \
-            --valuation-detail outputs/valuation/engine/current/FMDL3DC_VALUATION_METRIC_DETAIL.parquet \
-            --valuation-release outputs/valuation/engine/current/FMDL3DC_RELEASE.json \
+            --valuation-detail "$VALUATION_DETAIL_PATH" \
+            --valuation-release "$VALUATION_RELEASE_PATH" \
             --valuation-domain "$VALUATION_DOMAIN_RUNTIME" \
             --d2-current "$D2_RUNTIME" \
             --phase2c-source-id "$P43_CONTRACT_HEAD" \
