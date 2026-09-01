@@ -6,6 +6,10 @@ from pathlib import Path
 from typing import Any
 
 VALID_STATES = {"VALID", "VALID_WITH_WARNING"}
+VALID_VALUATION_QC = {
+    "PASS_EXACT_VALUATION_REBUILT",
+    "PASS_MARKET_VALUATION_REFRESH_EXACT_DENOMINATOR_LKG",
+}
 TRADE_AUTHORITY = "NONE"
 
 
@@ -70,8 +74,9 @@ def merge_live_context(
 ) -> dict[str, Any]:
     if valuation_domain.get("status") != "PASS":
         raise RuntimeError("P43_LIVE_VALUATION_DOMAIN_NOT_PASS")
-    if valuation_domain.get("qc_status") != "PASS_EXACT_VALUATION_REBUILT":
-        raise RuntimeError("P43_LIVE_VALUATION_QC_NOT_EXACT")
+    valuation_qc = str(valuation_domain.get("qc_status") or "")
+    if valuation_qc not in VALID_VALUATION_QC:
+        raise RuntimeError("P43_LIVE_VALUATION_QC_NOT_EXACT_OR_EXACT_BASELINE_REFRESH")
     if valuation_domain.get("trade_authority") != TRADE_AUTHORITY:
         raise RuntimeError("P43_LIVE_VALUATION_TRADE_AUTHORITY")
     if valuation_release.get("status") != "FMDL3DC_VALUATION_ENGINE_CURRENT_ACCEPTED":
@@ -104,7 +109,11 @@ def merge_live_context(
                 x for x in missing
                 if "fresh completed-close price/multiple bound to research object" not in str(x)
             ]
-            evidence_codes.append("LIVE_EXACT_VALUATION_BOUND")
+            evidence_codes.append(
+                "LIVE_EXACT_VALUATION_BOUND"
+                if valuation_qc == "PASS_EXACT_VALUATION_REBUILT"
+                else "LIVE_EXACT_DENOMINATOR_MARKET_REFRESH_BOUND"
+            )
 
         # A current PE_TTM is useful evidence, but it is not a normalized earnings
         # valuation. Do not silently cure FRESH_NORMALIZED_VALUATION_ABSENT.
@@ -120,6 +129,10 @@ def merge_live_context(
         row["live_operating_authority"] = True
         row["valuation_context"] = {
             "live_exact_valuation_bound": live_bound,
+            "valuation_qc_status": valuation_qc,
+            "exact_denominator_lkg_market_refresh": (
+                valuation_qc == "PASS_MARKET_VALUATION_REFRESH_EXACT_DENOMINATOR_LKG"
+            ),
             "resolved_decision_grade_metric_ids": resolved_ids,
             "metrics": {k: metrics[k] for k in sorted(metrics)},
             "market_as_of_date": market_as_of,
@@ -135,7 +148,11 @@ def merge_live_context(
     return {
         "schema_version": "1.0.0",
         "phase": "OCC_R3C_LIVE_RECOMMENDATION_CONTEXT",
-        "mode": "LIVE_EXACT_VALUATION_BOUND_PHASE2C_BLOCKERS_RETAINED",
+        "mode": (
+            "LIVE_EXACT_VALUATION_BOUND_PHASE2C_BLOCKERS_RETAINED"
+            if valuation_qc == "PASS_EXACT_VALUATION_REBUILT"
+            else "LIVE_EXACT_DENOMINATOR_MARKET_REFRESH_PHASE2C_BLOCKERS_RETAINED"
+        ),
         "generated_at": valuation_domain.get("published_at_utc"),
         "latest_validated_governed_market_as_of": market_as_of,
         "eligible_non_reference_count": phase2c.get("eligible_non_reference_count", 0),
@@ -148,6 +165,7 @@ def merge_live_context(
             "valuation_source_branch": valuation_domain.get("source_branch"),
             "valuation_source_commit": valuation_domain.get("source_commit_sha"),
             "valuation_release_id": valuation_release.get("release_id"),
+            "valuation_qc_status": valuation_qc,
             "market_as_of_date": market_as_of,
         },
         "controls": {
