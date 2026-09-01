@@ -14,7 +14,7 @@
       "security_id": "300750.SZ",
       "artifact": "D2_RESEARCH_300750_20260901_SIM_HOLDING_R1.json",
       "status": "D2_RESEARCH_COMPLETE",
-      "research_disposition": "ADD"
+      "research_disposition": "HOLD"
     },
     {
       "security_id": "300124.SZ",
@@ -29,8 +29,10 @@
         "rank": 1,
         "security_id": "300750.SZ",
         "security_name": "宁德时代",
-        "action": "ADD",
-        "probability_weighted_expected_return": 0.2027644
+        "action": "HOLD",
+        "probability_weighted_expected_return": 0.2027644,
+        "security_level_action": "ADD",
+        "portfolio_action_reason": "MINIMUM_A_SHARE_BUY_LOT_100_SHARES_WOULD_RAISE_POSITION_TO_ABOUT_7.1_PERCENT_NAV_ABOVE_INTENDED_APPROX_5_PERCENT_BUDGET"
       },
       {
         "rank": 2,
@@ -47,7 +49,7 @@
         "probability_weighted_expected_return": 0.0633868
       }
     ],
-    "interpretation": "Ranking reflects current security-level risk/reward at canonical 2026-08-31 prices, not absolute business quality.",
+    "interpretation": "Ranking reflects current security-level risk/reward at canonical 2026-08-31 prices. 宁德时代 retains the strongest security-level ADD signal, but the executable portfolio action is HOLD because the minimum 100-share A-share buy lot would raise the existing position from about 3.5% to about 7.1% NAV, above the intended ~5% position budget.",
     "simulation_execution_authorized": false,
     "real_account_action_authorized": false
   },
@@ -58,5 +60,13 @@
     "decision_mutations": 0,
     "orders": 0,
     "trade_authority": "NONE"
-  }
+  },
+  "correction_log": [
+    {
+      "corrected_at": "2026-09-01",
+      "issue": "INVALID_40_SHARE_A_SHARE_BUY_SUGGESTION_IN_CATL_D2",
+      "correction": "SECURITY_LEVEL_ADD_RETAINED; PORTFOLIO_ACTION_CHANGED_TO_HOLD_UNDER_CURRENT_POSITION_BUDGET",
+      "controls": "orders=0; simulation_mutations=0; real_account_mutations=0"
+    }
+  ]
 }
