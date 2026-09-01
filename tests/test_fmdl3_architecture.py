@@ -95,5 +95,13 @@ def test_no_period_end_as_availability_date():
 
 def test_readme_exposes_current_operating_state_and_authority_boundary():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "Development Complete · Operating Observation" in readme
+    system_current = json.loads(
+        (ROOT / "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json").read_text(encoding="utf-8")
+    )
+    assert "S1 Simplification & Runtime Repair in progress" in readme
+    assert "SYSTEM_CURRENT.json" in readme
+    assert "operating-current" in readme
+    assert system_current["sole_system_current_authority"] is True
+    assert system_current["canonical_runtime_branch"] == "operating-current"
+    assert system_current["trade_authority"] == "NONE"
     assert "trade_authority = NONE" in readme
