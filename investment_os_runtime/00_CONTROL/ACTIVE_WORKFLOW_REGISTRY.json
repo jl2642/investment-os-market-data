@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "S1_ACTIVE_WORKFLOW_REGISTRY",
+  "effective_date": "2026-09-01",
+  "authority": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json",
+  "policy": {
+    "one_primary_path_per_state": true,
+    "one_recovery_path_per_state": true,
+    "unlisted_development_workflows_are_not_product_health_signals": true,
+    "legacy_development_workflows_must_not_run_automatically": true,
+    "s2_transitional_workflows_may_remain_active_only_until_replaced": true
+  },
+  "active_runtime_core": [
+    {
+      "path": ".github/workflows/fmdl-daily-production.yml",
+      "role": "PRIMARY_A_SHARE_MARKET_HISTORY_FACTOR_SCREENING_TRANSACTION",
+      "primary_or_recovery": "PRIMARY"
+    },
+    {
+      "path": ".github/workflows/fmdl-2b4-full-rebase.yml",
+      "role": "A_SHARE_MULTI_SESSION_HISTORY_RECOVERY",
+      "primary_or_recovery": "RECOVERY"
+    },
+    {
+      "path": ".github/workflows/wp2_r_market_marks_refresh.yml",
+      "role": "PORTFOLIO_MARKS_REFRESH",
+      "primary_or_recovery": "PRIMARY"
+    },
+    {
+      "path": ".github/workflows/operating-current-failure-receipts.yml",
+      "role": "FAILURE_RECEIPT_AND_LATEST_ATTEMPT_TRUTH",
+      "primary_or_recovery": "SUPPORT"
+    }
+  ],
+  "transitional_investment_runtime_until_s2_s3": [
+    ".github/workflows/wp3_r_candidate_price_ledger.yml",
+    ".github/workflows/wp3_r_candidate_refresh.yml",
+    ".github/workflows/research-queue-d2-auto-consumer.yml",
+    ".github/workflows/occ-r2a-financial-valuation-live.yml",
+    ".github/workflows/p4-2-continuous-opportunity-funnel.yml",
+    ".github/workflows/p4-3-unified-recommendation.yml",
+    ".github/workflows/occ-r4-portfolio-decision-freshness.yml",
+    ".github/workflows/p4-4-trigger-shadow.yml",
+    ".github/workflows/p4-5-forward-validation.yml",
+    ".github/workflows/round3-cross-market-limited-production.yml"
+  ],
+  "retired_automatic_workflows_s1": [
+    {
+      "path": ".github/workflows/r0_product_authority_freeze.yml",
+      "reason": "HISTORICAL_PRODUCT_DEVELOPMENT_ACCEPTANCE_WORKFLOW_CAUSED_ZERO_JOB_CI_NOISE"
+    },
+    {
+      "path": ".github/workflows/r2_portfolio_construction.yml",
+      "reason": "HISTORICAL_PRODUCT_DEVELOPMENT_ACCEPTANCE_WORKFLOW_CAUSED_ZERO_JOB_CI_NOISE"
+    }
+  ],
+  "s2_replacement_targets": [
+    "WP3_CANDIDATE_AS_RESEARCH_GATE",
+    "P4_2_OPPORTUNITY_FUNNEL_OLD_BINDINGS",
+    "P4_3_ORPHAN_RECOMMENDATION_GATES",
+    "FROZEN_PHASE2C_CAPITAL_COMPARISON"
+  ],
+  "orders": 0,
+  "trade_authority": "NONE"
+}
