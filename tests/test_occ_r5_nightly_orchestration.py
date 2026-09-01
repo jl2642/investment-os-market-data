@@ -44,21 +44,29 @@ def test_legacy_wp3_2a_provider_retry_schedule_is_retired() -> None:
 
 
 def test_r5_preserves_zero_trade_authority() -> None:
-    paths = [
+    active_paths = [
         ".github/workflows/s2-investment-pipeline.yml",
         ".github/workflows/research-queue-d2-auto-consumer.yml",
-        ".github/workflows/p4-2-continuous-opportunity-funnel.yml",
-        ".github/workflows/p4-3-unified-recommendation.yml",
-        ".github/workflows/p4-4-trigger-shadow.yml",
-        ".github/workflows/p4-5-forward-validation.yml",
         ".github/workflows/round3-cross-market-limited-production.yml",
-        ".github/workflows/occ-r4-portfolio-decision-freshness.yml",
     ]
-    for path in paths:
+    for path in active_paths:
         workflow = text(path)
         assert "TRADE_AUTHORITY: NONE" in workflow
         assert "git push origin HEAD:main" not in workflow
 
+    retired_paths = [
+        ".github/workflows/p4-2-continuous-opportunity-funnel.yml",
+        ".github/workflows/p4-3-unified-recommendation.yml",
+        ".github/workflows/p4-4-trigger-shadow.yml",
+        ".github/workflows/p4-5-forward-validation.yml",
+        ".github/workflows/occ-r4-portfolio-decision-freshness.yml",
+    ]
+    for path in retired_paths:
+        workflow = text(path)
+        lower = workflow.lower()
+        assert "orders=0" in lower
+        assert "trade_authority=none" in lower
+        assert "git push origin head:main" not in lower
 
 def test_obsolete_p4_4_p4_5_schedules_are_retired() -> None:
     for path in (
