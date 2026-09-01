@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFICATION_COMPLETE_S4_PENDING",
-  "product_maturity": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFIED_S4_ACCEPTANCE_PENDING",
+  "program_state": "S4_END_TO_END_ACCEPTANCE_HYGIENE_IN_PROGRESS",
+  "product_maturity": "S4_END_TO_END_ACCEPTANCE_IN_PROGRESS",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -45,7 +45,7 @@
     "s1": "COMPLETE_ON_MAIN",
     "s2": "COMPLETE_ON_MAIN",
     "s3": "COMPLETE_ON_MAIN",
-    "s4": "PENDING",
+    "s4": "IN_PROGRESS",
     "development_closed": false
   },
   "non_goals": [
@@ -203,5 +203,28 @@
     "protected_economic_mutations": 0,
     "orders": 0,
     "trade_authority": "NONE"
+  },
+  "s4_scope": {
+    "objective": "PROVE_NORMAL_PRODUCTION_CHAIN_AND_CLOSE_ONLY_REAL_RUNTIME_GAPS",
+    "chain": [
+      "A_SHARE_MARKET_AND_SCREENING",
+      "S2_OPPORTUNITY_AND_D1",
+      "D2_RESEARCH_HANDOFF",
+      "S2_CAPITAL_COMPARISON_AND_RECOMMENDATION",
+      "S3_PORTFOLIO_PRODUCT_SURFACE"
+    ],
+    "runtime_repairs_only": true,
+    "new_investment_architecture": false,
+    "hygiene_after_e2e_pass": true,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "s4_runtime_findings": {
+    "first_observed_at_main": "c232947ab5df0f0e98d7b107d9ebf2998f5acfd2",
+    "investment_pipeline_current": "MISSING",
+    "portfolio_product_surface_current": "MISSING",
+    "root_cause_1": "S2_SAME_STEP_GITHUB_ENV_SCREEN_BRANCH_NOT_AVAILABLE",
+    "repair_1_status": "IN_PR",
+    "natural_e2e_status": "FAIL_REAL_RUNTIME_GAP_FOUND"
   }
 }
