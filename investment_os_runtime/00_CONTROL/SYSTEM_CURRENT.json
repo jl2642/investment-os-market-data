@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "authority_id": "STOCK_INVESTMENT_ASSISTANT_SYSTEM_CURRENT_S1",
+  "authority_status": "CURRENT_SYSTEM_LEVEL_AUTHORITY",
+  "effective_date": "2026-09-01",
+  "source_base_sha": "5e19bcfb0d22ce74acf357983ee205bce8b70d59",
+  "canonical_repository": "jl2642/investment-os-market-data",
+  "canonical_control_branch": "main",
+  "canonical_runtime_branch": "operating-current",
+  "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
+  "sole_system_current_authority": true,
+  "program_state": "S1_CONTROL_AND_RUNTIME_SIMPLIFICATION_IN_PROGRESS",
+  "product_maturity": "RESEARCH_AND_PORTFOLIO_CAPABILITY_PRESENT_END_TO_END_DAILY_INVESTMENT_CHAIN_NOT_YET_ACCEPTED",
+  "target_investment_chain": [
+    "MARKET_AND_FUNDAMENTALS",
+    "OPPORTUNITY_DISCOVERY",
+    "D1_FAST_TRIAGE",
+    "D2_INVESTMENT_UNDERWRITING",
+    "VALUATION_AND_CAPITAL_COMPARISON",
+    "RECOMMENDATION",
+    "PORTFOLIO_AND_DAILY_CONTROLLER",
+    "HUMAN_DECISION"
+  ],
+  "control_plane": [
+    "AUTHORITY",
+    "CURRENT_POINTER",
+    "FRESHNESS",
+    "LINEAGE",
+    "FAIL_CLOSED",
+    "RECOVERY",
+    "AUDIT"
+  ],
+  "current_semantics": {
+    "system_level_rule": "Only this file establishes the current system-level authority and program state.",
+    "runtime_rule": "Runtime freshness and latest-attempt truth are read from the operating-current branch and its domain receipts.",
+    "state_file_rule": "Other files whose names contain CURRENT may remain valid domain or portfolio state artifacts, but they do not establish whole-system maturity, roadmap or authority.",
+    "legacy_rule": "Historical FMDL/WP/R0-R6 documents retaining CURRENT in their filenames are development-history evidence only unless explicitly referenced by this authority."
+  },
+  "active_workflow_registry": "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json",
+  "branch_policy": "investment_os_runtime/00_CONTROL/BRANCH_POLICY.md",
+  "acceptance": {
+    "round_1_architecture_audit": "COMPLETE",
+    "round_2_end_to_end_runtime_audit": "COMPLETE_CHAIN_FAIL",
+    "round_3_investment_capability_audit": "COMPLETE_CURRENT_DAILY_INVESTMENT_PRODUCT_FAIL",
+    "s1": "IN_PROGRESS",
+    "s2": "PENDING",
+    "s3": "PENDING",
+    "s4": "PENDING",
+    "development_closed": false
+  },
+  "non_goals": [
+    "NEW_MARKETS",
+    "NEW_FACTOR_ZOO",
+    "BROKER_ORDER_INTEGRATION",
+    "AUTOMATIC_CANDIDATE_OR_PORTFOLIO_MUTATION",
+    "AUTOMATIC_TRADING"
+  ],
+  "orders": 0,
+  "trade_authority": "NONE"
+}
