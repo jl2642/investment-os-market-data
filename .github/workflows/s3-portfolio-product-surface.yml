@@ -2,6 +2,18 @@ name: S3 Portfolio + Product Surface
 run-name: "S3 simplify portfolio and user product surface"
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "automation/product_surface/**"
+      - "tests/test_s3_portfolio_product_surface.py"
+      - "tests/test_s2_investment_pipeline.py"
+      - ".github/workflows/s3-portfolio-product-surface.yml"
+      - ".github/workflows/occ-r4-portfolio-decision-freshness.yml"
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/50_OPERATING_PRODUCTS/S3_PRODUCT_SURFACE_CONTRACT.md"
+      - "automation/operating_current/publish_operating_current.py"
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
