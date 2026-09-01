@@ -1,0 +1,139 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260901_SIM_HOLDING_R1_300124",
+  "security_id": "300124.SZ",
+  "security_name": "汇川技术",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "HOLD",
+  "research_update_type": "USER_MANUAL_EXISTING_SIMULATION_HOLDING_UNDERWRITING",
+  "valuation_horizon": "12_MONTH",
+  "position_context": {
+    "quantity": 200,
+    "unit_cost": 79.02,
+    "canonical_price_date": "2026-08-31",
+    "canonical_current_price": 61.87,
+    "market_value": 12374,
+    "approximate_simulation_nav_weight": 0.0120656,
+    "position_mutation_authorized": false
+  },
+  "thesis": {
+    "core": "工业自动化龙头地位和国产替代继续强化，2026H1工业自动化与数字化高增长，但新能源汽车动力系统低毛利及现金流下降拖累整体利润质量。",
+    "variant_wedge": "核心工控业务比总利润表表现更强；如果新能源车业务毛利率企稳，当前估值存在修复空间，但在确认前不应把股价低于成本视为加仓理由。",
+    "normalized_earnings_basis": "2026E normalized EPS 2.22，贴近近期机构约2.19-2.22元预测，基于H1扣非利润增长与Q2盈利修复，同时保留新能源车业务利润压力。"
+  },
+  "underwriting": {
+    "current_price": 61.87,
+    "price_as_of": "2026-08-31",
+    "entry_price": 59,
+    "confidence": "MEDIUM",
+    "normalized_earnings_basis": {
+      "year": "2026E",
+      "eps": 2.22,
+      "consensus_reference_eps": 2.2,
+      "basis": "2026H1 reported earnings + recent broker forecasts around 2.19-2.22 EPS"
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 2,
+        "valuation_multiple_pe": 25,
+        "value": 50,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "eps": 2.22,
+        "valuation_multiple_pe": 32,
+        "value": 71.04,
+        "probability": 0.55
+      },
+      {
+        "name": "BULL",
+        "eps": 2.45,
+        "valuation_multiple_pe": 38,
+        "value": 93.1,
+        "probability": 0.2
+      }
+    ],
+    "probability_weighted_value": 70.192,
+    "expected_return": 0.1345078,
+    "hurdle_entry_price_15pct": 61.04,
+    "hurdle_entry_price_20pct": 58.49,
+    "action": "HOLD",
+    "add_below_range": [
+      58.5,
+      60
+    ],
+    "catalysts": [
+      "工业自动化OEM市场复苏及伺服/变频器/PLC继续提升份额",
+      "新能源汽车动力系统毛利率在低位企稳并恢复",
+      "AIDC、人形机器人、数字能源等新业务从收入增长转向利润贡献",
+      "Q2盈利修复延续至H2"
+    ],
+    "kill_thesis": [
+      "工业自动化收入增速跌至15%以下并伴随主要产品份额下降",
+      "新能源汽车动力系统毛利率持续低于10%或继续显著恶化",
+      "经营现金流连续显著弱于扣非利润且应收/存货恶化",
+      "新兴业务高增长但资本回报和利润率持续低于核心业务，形成价值稀释"
+    ]
+  },
+  "d2_answers": [
+    {
+      "question": "总利润下滑是否意味着核心业务坏了？",
+      "fact": "2026H1营收246.75亿元，同比+20.31%；归母净利润28.10亿元，同比-5.35%；扣非净利润27.56亿元，同比+3.15%；经营现金流19.75亿元，同比-34.6%。",
+      "interpretation": "核心经营并未坏掉，但现金转换和新能源车业务盈利是实际压力。"
+    },
+    {
+      "question": "核心护城河？",
+      "fact": "H1工业自动化与数字化收入约135亿元、同比约+29%；伺服份额约35.2%第一、低压变频器约20.6%第一，中大型/小型PLC均为国产品牌第一。",
+      "interpretation": "工控龙头地位强化，是持有的主要依据。"
+    },
+    {
+      "question": "持仓动作？",
+      "judgment": "HOLD现有200股。当前61.87元的概率加权上行约13.5%，略低于新增资本门槛；58.5-60元且新能源车毛利不继续恶化时再考虑ADD。"
+    }
+  ],
+  "first_rejection_test": "若工控份额/增速与新能源车毛利率同时恶化，或现金转换继续显著走弱，则取消ADD区间并重新评估是否TRIM。",
+  "evidence_gap": {
+    "material": false,
+    "missing": "用户9月1日截图未成功进入对话，因此正式价格使用2026-08-31系统Portfolio Marks 61.87元。",
+    "recovery": "下一次Portfolio Marks或用户确认行情更新时重算预期收益。",
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "FORMAL_REPORT_REPRODUCTION",
+      "title": "汇川技术2026年半年度报告",
+      "url": "https://stock.stockstar.com/notice/SN2026082800042879.shtml",
+      "as_of": "2026-08-28"
+    },
+    {
+      "type": "FORMAL_REPORT_REPRODUCTION",
+      "title": "汇川技术2026年半年度报告摘要",
+      "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12566550&stockid=300124",
+      "as_of": "2026-08-29"
+    },
+    {
+      "type": "BROKER_FORECAST_AGGREGATOR",
+      "title": "汇川技术研报盈利预测",
+      "url": "https://stock.stockstar.com/report/data_all_s300124.html",
+      "as_of": "2026-08-30"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "汇川技术8月31日行情",
+      "url": "https://data.cfi.cn/quote.aspx?client=pc&lm=cbgg&stockid=11247",
+      "as_of": "2026-08-31"
+    }
+  ],
+  "source_quality_note": "财务和市场份额数据来自正式半年报的公开再现；盈利预测来自近期研报聚合。情景估值、概率和58.5-60元加仓区间为ChatGPT分析假设。",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
