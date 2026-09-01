@@ -1,71 +1,27 @@
 name: Stock Investment Assistant Final Integration
+run-name: "Stock Investment Assistant Final Integration (retired)"
 
+# S1 retirement: this historical acceptance gate no longer runs on unrelated PRs.
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - 'config/stock_investment_assistant_final_integration_contract.json'
-      - 'outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json'
-      - 'outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_INTERFACE.json'
-      - 'pipeline/hk_candidate_operating_review.py'
-      - 'scripts/validate_hk_candidate_operating_review.py'
-      - 'scripts/validate_stock_investment_assistant_final_integration.py'
-      - 'docs/STOCK_INVESTMENT_ASSISTANT_FINAL_INTEGRATION.md'
-      - '.github/workflows/hk-candidate-operating-review.yml'
-      - '.github/workflows/stock-investment-assistant-final-integration.yml'
-  workflow_dispatch:
+      - ".github/workflows/stock-investment-assistant-final-integration.yml"
 
 permissions:
   contents: read
 
+env:
+  TRADE_AUTHORITY: NONE
+
 jobs:
-  scope-and-final-acceptance:
+  retired:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-      - run: pip install -r requirements.txt
-      - name: Enforce final integration scope
-        if: github.event_name == 'pull_request'
+      - name: Explain retirement
         run: |
-          git fetch origin "${{ github.base_ref }}"
-          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/final_paths.txt
-          cat /tmp/final_paths.txt
-          python - <<'PY'
-          from pathlib import Path
-          allowed={
-            'config/stock_investment_assistant_final_integration_contract.json',
-            'outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json',
-            'outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_INTERFACE.json',
-            'pipeline/hk_candidate_operating_review.py',
-            'scripts/validate_hk_candidate_operating_review.py',
-            'scripts/validate_stock_investment_assistant_final_integration.py',
-            'docs/STOCK_INVESTMENT_ASSISTANT_FINAL_INTEGRATION.md',
-            '.github/workflows/hk-candidate-operating-review.yml',
-            '.github/workflows/stock-investment-assistant-final-integration.yml',
-          }
-          actual={x.strip() for x in Path('/tmp/final_paths.txt').read_text().splitlines() if x.strip()}
-          bad=sorted(actual-allowed)
-          if bad: raise SystemExit('FINAL_INTEGRATION_SCOPE_VIOLATION:'+','.join(bad))
-          protected=('investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/','investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/','investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/','investment_os_runtime/30_STATE_CURRENT/45_CANDIDATE_OPERATIONS/','outputs/hk_candidate/current/','orders/')
-          muts=sorted(x for x in actual if x.startswith(protected))
-          if muts: raise SystemExit('PROTECTED_STATE_MUTATION:'+','.join(muts))
-          PY
-      - name: Prove HK Candidate operating review is zero-mutation
-        run: |
-          python -m pipeline.hk_candidate_operating_review --repo-root . --output work/hk_candidate_operating_review
-          python scripts/validate_hk_candidate_operating_review.py --repo-root . --output work/hk_candidate_operating_review
-      - name: Validate final system integration
-        run: python scripts/validate_stock_investment_assistant_final_integration.py
-      - uses: actions/upload-artifact@v4
-        with:
-          name: stock-investment-assistant-final-integration-${{ github.run_id }}
-          path: |
-            outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json
-            outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_INTERFACE.json
-            work/hk_candidate_operating_review/*
-            config/stock_investment_assistant_final_integration_contract.json
+          echo "Historical final-integration acceptance gate. Superseded by the S1-S4 simplification program and no longer a whole-system completion authority."
+          echo "The historical implementation and evidence remain available in Git history."
+          echo "Whole-system maturity is read from investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json."
+          echo "orders=0"
+          echo "trade_authority=NONE"
