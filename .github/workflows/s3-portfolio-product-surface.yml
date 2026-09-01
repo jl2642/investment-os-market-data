@@ -47,7 +47,7 @@ jobs:
 
       - name: Compile S3 producers
         run: |
-          python -m py_compile             automation/product_surface/build_product_surface.py             automation/product_surface/publish_product_surface.py
+          python -m py_compile automation/product_surface/build_product_surface.py automation/product_surface/publish_product_surface.py automation/operating_current/publish_operating_current.py
 
       - name: Validate S3 and preserve S2 contracts
         run: |
