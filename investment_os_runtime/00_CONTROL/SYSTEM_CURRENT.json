@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S1_CONTROL_AND_RUNTIME_SIMPLIFICATION_IN_PROGRESS",
-  "product_maturity": "RESEARCH_AND_PORTFOLIO_CAPABILITY_PRESENT_END_TO_END_DAILY_INVESTMENT_CHAIN_NOT_YET_ACCEPTED",
+  "program_state": "S1_CONTROL_AND_RUNTIME_SIMPLIFICATION_COMPLETE_S2_PENDING",
+  "product_maturity": "S1_CONTROL_RUNTIME_SIMPLIFIED_INVESTMENT_PIPELINE_REBUILD_PENDING_S2",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -42,7 +42,7 @@
     "round_1_architecture_audit": "COMPLETE",
     "round_2_end_to_end_runtime_audit": "COMPLETE_CHAIN_FAIL",
     "round_3_investment_capability_audit": "COMPLETE_CURRENT_DAILY_INVESTMENT_PRODUCT_FAIL",
-    "s1": "IN_PROGRESS",
+    "s1": "COMPLETE_PENDING_MERGE",
     "s2": "PENDING",
     "s3": "PENDING",
     "s4": "PENDING",
@@ -56,5 +56,15 @@
     "AUTOMATIC_TRADING"
   ],
   "orders": 0,
-  "trade_authority": "NONE"
+  "trade_authority": "NONE",
+  "s1_acceptance": {
+    "sole_system_current_authority": "PASS",
+    "active_workflow_registry": "PASS",
+    "legacy_automatic_gate_retirement": "PASS",
+    "a_share_daily_history_dependency_materialization": "PASS",
+    "full_rebase_success_retry_into_daily": "PASS",
+    "deterministic_validation_head": "6e49c5eb0bb46f5c6f285f10b2a3c0a083271905",
+    "deterministic_validation_status": "PASS",
+    "natural_runtime_acceptance": "DEFERRED_TO_S4_END_TO_END_ACCEPTANCE"
+  }
 }
