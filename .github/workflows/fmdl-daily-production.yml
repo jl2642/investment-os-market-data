@@ -4,6 +4,9 @@ run-name: "FMDL daily market, factor and screening transaction"
 on:
   schedule:
     - cron: "30 9 * * 1-5"
+  workflow_run:
+    workflows: ["FMDL 2B-4 Multi-Session Full Rebase Recovery"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       force_run:
@@ -52,13 +55,17 @@ env:
   TRADE_AUTHORITY: NONE
 
 concurrency:
-  # Shared with Full Rebase so delayed GitHub schedules cannot overlap while
-  # both workflows mutate/consume the same History/Factor production surface.
-  group: fmdl-a-share-history-production-${{ github.ref }}
+  # Cron and Full-Rebase-success retry are two paths into the same idempotent
+  # Daily transaction; serialize only Daily attempts, not the recovery workflow.
+  group: fmdl-daily-production-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   deterministic-validation:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -92,7 +99,12 @@ jobs:
             tests/test_round1_governed_publication_workflows.py
 
   operate:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 75
