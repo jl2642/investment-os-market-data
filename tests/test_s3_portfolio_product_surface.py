@@ -237,3 +237,34 @@ def test_surface_fails_closed_on_nested_nonzero_orders():
             recommendation=bad,
             d1=d1(),
         )
+
+
+def test_position_identity_drift_fails_closed():
+    rec = recommendation()
+    rec["records"][1]["portfolio_implication"] = "EXISTING_POSITION"
+    surface = build_surface(
+        marks_domain=marks_domain(),
+        investment_domain=investment_domain(),
+        marks=marks(),
+        real_positions=positions(True),
+        simulation_positions=positions(False),
+        recommendation=rec,
+        d1=d1(),
+    )
+    row = next(
+        item
+        for item in surface["new_opportunities"]
+        if item["security_id"] == "000001.SZ"
+    )
+    assert row["original_recommendation_action"] == "BUY"
+    assert row["action"] == "REVIEW_POSITION_IDENTITY_CHANGE"
+    assert row["ready_for_user_decision"] is False
+    assert (
+        row["position_identity_alignment"]
+        == "MISMATCH_REUNDERWRITE_REQUIRED"
+    )
+    assert (
+        row["top_blocker"]
+        == "POSITION_IDENTITY_CHANGED_SINCE_S2_RECOMMENDATION"
+    )
+    assert surface["executive"]["position_identity_mismatch_count"] == 1
