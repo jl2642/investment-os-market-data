@@ -1,5 +1,6 @@
 {
   "blocked_or_exception_count": 1,
+  "duplicate_replaced_on_latest_build": false,
   "entries": [
     {
       "compatibility_workflow_run_id": 30968030681,
@@ -42,16 +43,46 @@
       "validation_status": "REMOTE_PR_GATES_PASS_MERGED_TO_MAIN",
       "workflow_name": "Canonical Position Update / User-Confirmed Intraday / WP2-R Compatible",
       "workflow_run_attempt": 1
+    },
+    {
+      "canonical_source_commit": "707c47da6cb8b0bf8caadd6be0b494ece2dbee44",
+      "exceptions": [
+        "CORPORATE_ACTIONS_NOT_UNIFIED",
+        "INCOME_AND_FEES_NOT_UNIFIED"
+      ],
+      "idempotency_key": "R2 WP2-R tracked price and NAV refresh:33540700333:1",
+      "market_data_watermark": "2026-09-01",
+      "observed_at": "2026-09-01T17:58:18Z",
+      "position_watermark": "2026-09-01T16:09:00+08:00",
+      "report_ids": {
+        "DAILY": "DAILY_3e5368130c3f50911edf",
+        "STATUS": "STATUS_a44623f15ac1feee6276"
+      },
+      "run_id": "RUN_2f38186d41b576b3fc49",
+      "run_manifest": "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/WP2R_33540700333_a1.json",
+      "snapshot_ids": {
+        "REAL": "EODSNAP_d40f30f402c9ef7b139a",
+        "SIMULATION": "EODSNAP_83ca76ef6d2273a29851"
+      },
+      "status": "PASS_WITH_EXCEPTIONS",
+      "trade_authority": "NONE",
+      "upstream_conclusion": "success",
+      "upstream_run_attempt": 1,
+      "upstream_run_id": "33540700333"
     }
   ],
-  "failure_count": 0,
+  "failure_count": 1,
+  "latest_observed_at": "2026-09-01T17:58:18Z",
+  "latest_run_id": "RUN_2f38186d41b576b3fc49",
   "ledger_id": "P0_I1_OPERATING_RUN_LEDGER_CURRENT",
+  "missed_run_detection": "PARTIAL_REQUIRES_EXCHANGE_CALENDAR_INTEGRATION",
   "operating_activation": false,
   "orders": 0,
   "post_merge_closure_id": "POSITION_UPDATE_20260804_POST_MERGE_CLOSURE",
-  "run_count": 1,
+  "recovery_sla": "PENDING_R6_EVIDENCE",
+  "run_count": 2,
   "schema_version": "1.0.0",
-  "status": "PASS_WITH_EXCEPTIONS_CANONICAL_ON_MAIN",
+  "status": "OBSERVATION_ACTIVE_NOT_PRODUCTION_ACCEPTED",
   "success_count": 1,
   "trade_authority": "NONE"
 }
