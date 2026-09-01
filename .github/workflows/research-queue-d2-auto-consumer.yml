@@ -29,6 +29,7 @@ concurrency:
 
 env:
   TRADE_AUTHORITY: NONE
+  S2_D1_RUNTIME: .d2_runtime/D1_CURRENT.json
 
 jobs:
   validate:
@@ -86,8 +87,33 @@ jobs:
           cache-dependency-path: requirements.txt
       - name: Install runtime
         run: python -m pip install --retries 5 --timeout 30 -r requirements.txt
+      - name: Fetch S2 rolling D1 Current and prior D2 Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p .d2_runtime
+          git fetch origin \
+            refs/heads/operating-current:refs/remotes/origin/operating-current \
+            refs/heads/automation/research-queue-d2-current:refs/remotes/origin/research-queue-d2-current \
+            --force --no-tags
+          if git cat-file -e origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json 2>/dev/null; then
+            git show origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json > "$S2_D1_RUNTIME"
+          else
+            cp investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json "$S2_D1_RUNTIME"
+          fi
+          if git cat-file -e refs/remotes/origin/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json 2>/dev/null; then
+            git show refs/remotes/origin/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json
+          fi
+          python - <<'PY'
+          import json, os
+          row=json.load(open(os.environ["S2_D1_RUNTIME"],encoding="utf-8"))
+          assert row.get("research_objects"), row
+          assert row.get("controls",{}).get("trade_authority","NONE") == "NONE"
+          print({"d1_state_id":row.get("state_id"),"batch_size":len(row.get("research_objects",[]))})
+          PY
+
       - name: Discover primary disclosure evidence and refresh D2 Current
-        run: python automation/research_queue_d2/build_d2_queue.py --discover-primary-sources
+        run: python automation/research_queue_d2/build_d2_queue.py --discover-primary-sources --d1-current "$S2_D1_RUNTIME"
       - name: Validate D2 operating state
         run: python automation/research_queue_d2/validate_d2_queue.py
       - name: Prove protected economic domains unchanged
@@ -156,7 +182,7 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## Research Queue D2 Auto Consumer
-          - D1→D2 routes are consumed automatically; manual dispatch is break-glass only.
+          - S2 rolling D1→D2 routes are consumed automatically; Candidate membership is not a research gate.
           - Recovery cadence: weekdays 23:30 Asia/Shanghai, after the completed A-share daily and Portfolio Marks refresh and before the chained P4 controller stack.
           - Primary disclosure discovery: CNINFO via AkShare.
           - Semantic deep research remains fail-closed and is owned by the ChatGPT-native D2 research consumer.
