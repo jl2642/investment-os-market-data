@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import pytest
 from pathlib import Path
 
 from automation.product_surface.build_product_surface import build_surface, render_daily_brief
@@ -221,3 +222,18 @@ def test_retired_occ_r4_has_no_automatic_trigger():
     assert "\n  push:" not in text
     assert "\n  workflow_run:" not in text
     assert "\n  schedule:" not in text
+
+
+def test_surface_fails_closed_on_nested_nonzero_orders():
+    bad = recommendation()
+    bad["records"][0]["orders"] = 1
+    with pytest.raises(ValueError, match="ORDER_AUTHORITY_VIOLATION"):
+        build_surface(
+            marks_domain=marks_domain(),
+            investment_domain=investment_domain(),
+            marks=marks(),
+            real_positions=positions(True),
+            simulation_positions=positions(False),
+            recommendation=bad,
+            d1=d1(),
+        )
