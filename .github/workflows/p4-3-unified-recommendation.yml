@@ -12,7 +12,7 @@ on:
       - "automation/recommendations/**"
       - ".github/workflows/p4-3-unified-recommendation.yml"
   workflow_run:
-    workflows: ["P4-2 Continuous Opportunity Funnel"]
+    workflows: ["P4-2 Continuous Opportunity Funnel", "OCC-R2A Financial Valuation Live Wiring"]
     types: [completed]
   schedule:
     - cron: "15 17 * * 1-5"
@@ -75,6 +75,42 @@ jobs:
           git show origin/automation/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$D2_RUNTIME"
           git show refs/remotes/origin/p4-3-contract:strategy_kernel_v2/generated/PHASE2C_CURRENT_SHADOW_COMPARISON_PACK.json > "$PHASE2C_RUNTIME"
           git show origin/operating-current:operating_current/domains/FINANCIAL_VALUATION_CONTEXT.json > "$VALUATION_DOMAIN_RUNTIME"
+
+          # During this migration PR only, the live Current may still be the
+          # legacy R2A LKG context produced before this hotfix. Validate code
+          # against the latest immutable exact receipt instead; production
+          # remains fail-closed until the new R2A publishes its stronger qc.
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            python - <<'PY'
+          import json, os, subprocess
+          path=os.environ["VALUATION_DOMAIN_RUNTIME"]
+          row=json.load(open(path,encoding="utf-8"))
+          if row.get("qc_status") == "PASS_MARKET_VALUATION_REFRESH_FINANCIAL_DENOMINATOR_LKG":
+              prefix="operating_current/runs/FINANCIAL_VALUATION_CONTEXT/"
+              paths=subprocess.check_output(
+                  ["git","ls-tree","-r","--name-only","origin/operating-current",prefix],
+                  text=True
+              ).splitlines()
+              exact=[]
+              for candidate in paths:
+                  try:
+                      payload=json.loads(subprocess.check_output(
+                          ["git","show",f"origin/operating-current:{candidate}"], text=True
+                      ))
+                  except Exception:
+                      continue
+                  if (
+                      payload.get("status")=="PASS"
+                      and payload.get("qc_status")=="PASS_EXACT_VALUATION_REBUILT"
+                      and payload.get("trade_authority")=="NONE"
+                  ):
+                      exact.append(payload)
+              if not exact:
+                  raise SystemExit("P43_PR_NO_EXACT_VALUATION_BASELINE")
+              row=max(exact,key=lambda x:(str(x.get("published_at_utc") or ""),str(x.get("source_run_id") or "")))
+              open(path,"w",encoding="utf-8").write(json.dumps(row,ensure_ascii=False,indent=2)+"\\n")
+          PY
+          fi
 
           VALUATION_BRANCH="$(python -c "import json; print(json.load(open('$VALUATION_DOMAIN_RUNTIME',encoding='utf-8'))['source_branch'])")"
           VALUATION_COMMIT="$(python -c "import json; print(json.load(open('$VALUATION_DOMAIN_RUNTIME',encoding='utf-8'))['source_commit_sha'])")"
