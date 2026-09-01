@@ -4,12 +4,16 @@ run-name: "R2 WP2-R tracked price and NAV refresh"
 on:
   push:
     branches:
+      - main
       - agent/r2-product-capability-hardening
       - "agent/runtime-closure-*"
     paths:
       - "automation/wp2_r/**"
       - ".github/workflows/wp2_r_market_marks_refresh.yml"
+      - "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/**"
       - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/**"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json"
   pull_request:
     branches: [main]
     paths:
@@ -212,7 +216,7 @@ jobs:
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Upload immutable validated WP2-R result
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         uses: actions/upload-artifact@v4
         with:
           name: wp2r-eod-${{ github.run_id }}-a${{ github.run_attempt }}
@@ -226,8 +230,8 @@ jobs:
             investment_os_runtime/30_STATE_CURRENT/70_OPERATIONS/PORTFOLIO_CURRENT_RUN_CURRENT.json
             investment_os_runtime/00_CONTROL/WP2_R_PORTFOLIO_CURRENT_ACCEPTANCE_RECORD.json
 
-      - name: Publish scheduled result to governed run branch and Operating Current
-        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+      - name: Publish governed production result to run branch and Operating Current
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push') && github.ref == 'refs/heads/main'
         shell: bash
         env:
           RESULT_BRANCH: automation/wp2r-eod-${{ github.run_id }}-a${{ github.run_attempt }}
@@ -287,8 +291,9 @@ jobs:
           - Dynamic coverage for every current Real and Simulation security
           - Market-only refresh preserves the post-user-delta economic identity
           - User-confirmed transaction deltas remain explicit and auditable
-          - Scheduled results are stored as immutable artifacts and governed run branches
-          - Scheduled market-only results publish to Operating Current without opening a daily protected-main promotion PR
+          - Main source changes, scheduled runs and manual dispatches are stored as immutable artifacts and governed run branches
+          - User-confirmed source changes on main immediately refresh and publish Portfolio Current; the fixed clock remains a backstop
+          - Market-only results publish to Operating Current without opening a daily protected-main promotion PR
           - Protected main is never pushed directly
           - Pending settlement receivables remain separate from execution cash
           - Broker verification remains separate and false
