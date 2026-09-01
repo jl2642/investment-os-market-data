@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "lineage_id": "D2_SEMANTIC_LINEAGE_20260901_SIM_HOLDINGS_R1",
+  "trigger": "USER_EXPLICIT_MANUAL_D2_FOR_EXISTING_SIMULATION_HOLDINGS",
+  "scope_note": "Evidence-only semantic underwriting for existing simulation positions. These artifacts do not alter the current D1-routed D2 queue, S2 Recommendation Current, Candidate membership, real account, or simulation account.",
+  "outputs": [
+    {
+      "security_id": "601138.SH",
+      "artifact": "D2_RESEARCH_601138_20260901_SIM_HOLDING_R1.json",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD"
+    },
+    {
+      "security_id": "300750.SZ",
+      "artifact": "D2_RESEARCH_300750_20260901_SIM_HOLDING_R1.json",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "ADD"
+    },
+    {
+      "security_id": "300124.SZ",
+      "artifact": "D2_RESEARCH_300124_20260901_SIM_HOLDING_R1.json",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD"
+    }
+  ],
+  "capital_comparison": {
+    "ranking": [
+      {
+        "rank": 1,
+        "security_id": "300750.SZ",
+        "security_name": "宁德时代",
+        "action": "ADD",
+        "probability_weighted_expected_return": 0.2027644
+      },
+      {
+        "rank": 2,
+        "security_id": "300124.SZ",
+        "security_name": "汇川技术",
+        "action": "HOLD",
+        "probability_weighted_expected_return": 0.1345078
+      },
+      {
+        "rank": 3,
+        "security_id": "601138.SH",
+        "security_name": "工业富联",
+        "action": "HOLD",
+        "probability_weighted_expected_return": 0.0633868
+      }
+    ],
+    "interpretation": "Ranking reflects current security-level risk/reward at canonical 2026-08-31 prices, not absolute business quality.",
+    "simulation_execution_authorized": false,
+    "real_account_action_authorized": false
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
