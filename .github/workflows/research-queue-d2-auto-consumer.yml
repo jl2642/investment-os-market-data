@@ -16,6 +16,9 @@ on:
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D1/**"
       - "automation/research_queue_d2/**"
       - ".github/workflows/research-queue-d2-auto-consumer.yml"
+  workflow_run:
+    workflows: ["R2 WP2-R Market Marks Refresh"]
+    types: [completed]
   schedule:
     - cron: "30 15 * * 1-5"
   workflow_dispatch:
@@ -32,6 +35,10 @@ env:
 
 jobs:
   validate:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -70,7 +77,11 @@ jobs:
           fi
 
   operate:
-    if: github.event_name != 'pull_request'
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'))
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -157,7 +168,8 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## Research Queue D2 Auto Consumer
           - D1→D2 routes are consumed automatically; manual dispatch is break-glass only.
-          - Recovery cadence: weekdays 23:30 Asia/Shanghai, after the completed A-share daily and Portfolio Marks refresh and before the chained P4 controller stack.
+          - Primary trigger: successful Portfolio Marks workflow_run; 23:30 Asia/Shanghai remains a recovery/backstop schedule.
+          - P4 downstream is success-driven; manual dispatch remains break-glass only.
           - Primary disclosure discovery: CNINFO via AkShare.
           - Semantic deep research remains fail-closed and is owned by the ChatGPT-native D2 research consumer.
           - Publication remains on a governed automation branch and advances the low-risk Operating Current pointer after QC.
