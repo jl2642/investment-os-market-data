@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "S2_D2_INVESTMENT_UNDERWRITING_CONTRACT",
+  "purpose": "Convert semantic D2 research into decision-grade underwriting without granting trade authority.",
+  "semantic_owner": "CHATGPT_NATIVE_RESEARCH_AND_UNDERWRITING",
+  "complete_status": "D2_RESEARCH_COMPLETE",
+  "pending_status": "D2_UNDERWRITING_PENDING",
+  "required_underwriting_fields": [
+    "current_price",
+    "price_as_of",
+    "entry_price",
+    "confidence",
+    "normalized_earnings_basis",
+    "scenarios",
+    "kill_thesis",
+    "catalysts",
+    "portfolio_role"
+  ],
+  "scenarios": {
+    "required_names": [
+      "BEAR",
+      "BASE",
+      "BULL"
+    ],
+    "each_requires": [
+      "value",
+      "probability"
+    ],
+    "probability_sum_tolerance": 0.02
+  },
+  "confidence_allowed": [
+    "HIGH",
+    "MEDIUM_HIGH",
+    "HIGH_MEDIUM",
+    "MEDIUM"
+  ],
+  "semantics": {
+    "current_price": "Latest completed-session market price used for underwriting.",
+    "entry_price": "Maximum price at which the underwriting meets the analyst's required margin of safety; not an order instruction.",
+    "normalized_earnings_basis": "Explicit normalized earnings/FCF basis rather than raw headline run-rate.",
+    "kill_thesis": "Fundamental condition that invalidates the thesis.",
+    "catalysts": "Evidence/events that can close the thesis gap or change expected return.",
+    "portfolio_role": "Expected economic role if capital were allocated."
+  },
+  "downstream": {
+    "capital_comparison": "Computed deterministically from scenario values/probabilities, price, confidence and position identity.",
+    "recommendation": "Derived from underwriting and live comparison; no orphan boolean gates."
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE",
+    "user_confirmation_required_for_any_real_action": true
+  }
+}
