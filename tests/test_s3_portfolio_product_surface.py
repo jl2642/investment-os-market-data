@@ -297,3 +297,89 @@ def test_surface_reads_canonical_portfolio_mark_field():
     }
     assert prices["000005.SZ"] == 20.5
     assert prices["000006.SZ"] == 15.25
+
+
+def test_surface_monitors_all_account_lines_and_prioritizes_reunderwriting():
+    real = {
+        "holdings": [
+            {
+                "security_id": "000005.SZ",
+                "security_name": "ConcentratedReal",
+                "market_value": 300.0,
+                "cost_basis": 250.0,
+                "unrealized_pnl": 50.0,
+                "unrealized_pnl_pct": 0.20,
+            }
+        ],
+        "summary": {
+            "account_total_assets": 1000.0,
+            "position_market_value": 300.0,
+            "execution_cash_balance": 700.0,
+            "open_unrealized_pnl": 50.0,
+        },
+        "trade_authority": "NONE",
+    }
+    simulation = {
+        "holdings": [
+            {
+                "security_id": "000006.SZ",
+                "security_name": "DrawdownSim",
+                "market_value": 100.0,
+                "cost_basis": 130.0,
+                "unrealized_pnl": -30.0,
+                "unrealized_pnl_pct": -0.23076923,
+            }
+        ],
+        "summary": {
+            "account_total_assets": 1000.0,
+            "position_market_value": 100.0,
+            "execution_cash_balance": 900.0,
+            "open_unrealized_pnl": -30.0,
+            "account_total_pnl": 12.0,
+        },
+        "trade_authority": "NONE",
+    }
+    canonical_marks = {
+        "status": "CURRENT_COMPLETE",
+        "data_watermark": {"latest_mark_date": "2026-08-31"},
+        "marks": [
+            {"security_id": "000005.SZ", "mark": 20.5},
+            {"security_id": "000006.SZ", "mark": 15.25},
+        ],
+        "trade_authority": "NONE",
+    }
+    rec = recommendation()
+    rec["records"] = []
+    surface = build_surface(
+        marks_domain=marks_domain(),
+        investment_domain=investment_domain(),
+        marks=canonical_marks,
+        real_positions=real,
+        simulation_positions=simulation,
+        recommendation=rec,
+        d1=d1(),
+    )
+    monitoring = surface["portfolio_monitoring"]
+    assert monitoring["performance_monitoring_coverage_count"] == 2
+    assert monitoring["unique_security_count"] == 2
+    assert monitoring["investment_recommendation_coverage_count"] == 0
+    assert monitoring["reunderwriting_backlog_count"] == 2
+    assert monitoring["reunderwriting_queue"][0]["priority"] == "HIGH"
+    assert (
+        "ACCOUNT_WEIGHT_GE_15PCT"
+        in next(
+            row for row in monitoring["rows"]
+            if row["security_id"] == "000005.SZ"
+        )["monitoring_flags"]
+    )
+    assert (
+        "DRAWDOWN_GE_15PCT"
+        in next(
+            row for row in monitoring["rows"]
+            if row["security_id"] == "000006.SZ"
+        )["monitoring_flags"]
+    )
+    brief = render_daily_brief(surface)
+    assert "持仓绩效监控：2 / 2" in brief
+    assert "当前投资判断覆盖：0 / 2" in brief
+    assert "优先持仓再承销" in brief
