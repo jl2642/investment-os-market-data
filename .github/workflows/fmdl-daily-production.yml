@@ -242,7 +242,22 @@ jobs:
           python scripts/materialize_fmdl_history_dependencies.py \
             --manifest outputs/history/current/HISTORY_CURRENT_MANIFEST.json \
             --emit-missing-tsv /tmp/FMDL_HISTORY_MISSING.tsv
-          while IFS=
+          while read -r DEP_BRANCH DEP_PATH DEP_SHA DEP_RELEASE; do
+            [[ -z "$DEP_PATH" ]] && continue
+            if [[ "$DEP_BRANCH" == "__UNRESOLVED__" ]]; then
+              echo "UNRESOLVABLE_HISTORY_DEPENDENCY path=$DEP_PATH release=$DEP_RELEASE"
+              exit 2
+            fi
+            echo "MATERIALIZE_HISTORY_DEPENDENCY branch=$DEP_BRANCH path=$DEP_PATH"
+            git fetch origin "refs/heads/$DEP_BRANCH:refs/remotes/origin/fmdl-history-dependency" --force --no-tags
+            git cat-file -e "refs/remotes/origin/fmdl-history-dependency:$DEP_PATH"
+            git checkout refs/remotes/origin/fmdl-history-dependency -- "$DEP_PATH"
+          done < /tmp/FMDL_HISTORY_MISSING.tsv
+          python scripts/materialize_fmdl_history_dependencies.py \
+            --manifest outputs/history/current/HISTORY_CURRENT_MANIFEST.json \
+            --verify
+
+      - name: Run latest completed-session market Current
         id: market
         shell: bash
         run: |
