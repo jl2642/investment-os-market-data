@@ -4,6 +4,9 @@ run-name: "FMDL daily market, factor and screening transaction"
 on:
   schedule:
     - cron: "30 9 * * 1-5"
+  workflow_run:
+    workflows: ["FMDL 2B-4 Multi-Session Full Rebase Recovery"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       force_run:
@@ -28,6 +31,7 @@ on:
       - "scripts/fmdl2b4_history.py"
       - "scripts/run_incremental_history_refresh.py"
       - "scripts/run_incremental_history_refresh_v2.py"
+      - "scripts/materialize_fmdl_history_dependencies.py"
       - "scripts/finalize_b4_history_candidate.py"
       - "scripts/run_b4_factor_refresh.py"
       - "scripts/run_fmdl2b4_operating.py"
@@ -40,6 +44,11 @@ on:
       - "scripts/publish_fmdl2c.py"
       - "scripts/refresh_investment_os_interface.py"
       - "tests/test_a_share_chain_coherence.py"
+      - "tests/test_post_occ_history_dependency_materialization.py"
+      - "tests/test_s1_control_runtime_simplification.py"
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/BRANCH_POLICY.md"
       - "tests/test_round1_governed_publication_workflows.py"
 
 permissions:
@@ -54,6 +63,10 @@ concurrency:
 
 jobs:
   deterministic-validation:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -76,7 +89,10 @@ jobs:
         run: |
           python scripts/validate_contracts.py
           python scripts/validate_investment_os_interface.py
+          python -m py_compile scripts/materialize_fmdl_history_dependencies.py
           pytest -q \
+            tests/test_post_occ_history_dependency_materialization.py \
+            tests/test_s1_control_runtime_simplification.py \
             tests/test_fmdl2b4_incremental_refresh.py \
             tests/test_fmdl2b4_snapshot_identity.py \
             tests/test_fmdl2c_screening_funnel.py \
@@ -84,7 +100,12 @@ jobs:
             tests/test_round1_governed_publication_workflows.py
 
   operate:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 75
@@ -213,6 +234,259 @@ jobs:
               'trade_authority':'NONE',
           })
           PY
+
+      - name: Materialize and verify accepted History backing dependencies
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/materialize_fmdl_history_dependencies.py \
+            --manifest outputs/history/current/HISTORY_CURRENT_MANIFEST.json \
+            --emit-missing-tsv /tmp/FMDL_HISTORY_MISSING.tsv
+          while IFS=
+        id: market
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p diagnostics
+          args=(--trigger "${{ github.event_name }}")
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.force_run }}" == "true" ]]; then
+            args+=(--force-run)
+          fi
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.allow_same_date_refresh }}" == "true" ]]; then
+            args+=(--allow-same-date-refresh)
+          fi
+          python pipeline/run_daily.py "${args[@]}" 2>&1 | tee diagnostics/FMDL_DAILY_ACTION_LOG.txt
+
+      - name: Resolve transaction mode
+        id: mode
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          status_path = Path("outputs/status/LAST_RUN.json")
+          payload = json.loads(status_path.read_text(encoding="utf-8"))
+          status = str(payload.get("status", ""))
+          action = str(payload.get("action", ""))
+          no_op = status == "NO_OP" or action.startswith("NO_OP_")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"proceed={'false' if no_op else 'true'}\n")
+              handle.write(f"status={status or action}\n")
+          print({"status": status, "action": action, "proceed": not no_op})
+          PY
+
+      - name: Refresh and validate Investment OS interface
+        if: steps.mode.outputs.proceed == 'true'
+        run: |
+          python -m scripts.refresh_investment_os_interface
+          python scripts/validate_investment_os_interface.py
+
+      - name: Enforce latest completed-session Current
+        if: steps.mode.outputs.proceed == 'true'
+        run: python -m scripts.validate_fmdl2b4_freshness
+
+      - name: Publish validated market Current independently of downstream history
+        if: steps.mode.outputs.proceed == 'true' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          MARKET_RESULT_BRANCH: automation/fmdl-market-current-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$MARKET_RESULT_BRANCH"
+          git add -A -- outputs/current outputs/investment_os outputs/status/LAST_RUN.json
+          if git diff --cached --quiet; then
+            echo "MARKET_CURRENT_NO_NEW_GIT_DIFF"
+            exit 0
+          fi
+          git commit -m "data: stage governed A-share market Current"
+          git push origin "HEAD:refs/heads/$MARKET_RESULT_BRANCH"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          WATERMARK="$(python - <<'PY'
+          import json
+          print(json.load(open('outputs/current/CURRENT_RELEASE.json',encoding='utf-8'))['as_of_date'])
+          PY
+          )"
+          PUBLISH_DIR="$(mktemp -d /tmp/fmdl-operating-publisher.XXXXXX)"
+          cleanup() {
+            git worktree remove --force "$PUBLISH_DIR" >/dev/null 2>&1 || true
+            rm -rf "$PUBLISH_DIR" || true
+          }
+          trap cleanup EXIT
+          git worktree add --detach "$PUBLISH_DIR" origin/main
+          (
+            cd "$PUBLISH_DIR"
+            python automation/operating_current/publish_operating_current.py \
+              --domain A_SHARE_FULL_MARKET \
+              --status PASS \
+              --source-workflow "FMDL Daily A-share Governed Production / Market Current" \
+              --source-run-id "${{ github.run_id }}" \
+              --source-run-attempt "${{ github.run_attempt }}" \
+              --source-branch "$MARKET_RESULT_BRANCH" \
+              --source-commit "$SOURCE_COMMIT" \
+              --watermark "$WATERMARK" \
+              --watermark-sort-key "$WATERMARK" \
+              --qc-status PASS_LATEST_COMPLETED_SESSION_MARKET_CURRENT \
+              --advance-current
+          )
+          cleanup
+          trap - EXIT
+          echo "A_SHARE_MARKET_CURRENT_PUBLISHED=$WATERMARK"
+
+      - name: Run incremental history and factor chain
+        if: steps.mode.outputs.proceed == 'true'
+        run: python -m scripts.run_fmdl2b4_operating
+
+      - name: Build and independently validate screening candidate
+        if: steps.mode.outputs.proceed == 'true'
+        run: |
+          python -m scripts.run_screening_funnel_v2
+          python -m scripts.validate_fmdl2c_candidate
+
+      - name: Materialize screening Current in the same transaction
+        if: steps.mode.outputs.proceed == 'true'
+        run: python -m scripts.publish_fmdl2c
+
+      - name: Validate combined transaction outputs
+        if: steps.mode.outputs.proceed == 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test -f outputs/current/CURRENT_RELEASE.json
+          test -f outputs/history/current/HISTORY_CURRENT_MANIFEST.json
+          test -f outputs/factors/current/BASIC_FACTOR_MANIFEST.json
+          test -f outputs/screens/current/SCREENING_MANIFEST.json
+          test -f outputs/status/FMDL2C_LAST_SUCCESS.json
+          python scripts/validate_investment_os_interface.py
+          python -m scripts.a_share_chain_coherence --fail-on-incoherent --write outputs/status/A_SHARE_CHAIN_COHERENCE.json
+
+      - name: Upload immutable daily transaction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmdl-daily-${{ github.run_id }}-a${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            diagnostics/
+            outputs/status/
+            outputs/current/
+            outputs/investment_os/
+            outputs/quarantine/
+            outputs/archive/
+            outputs/candidate/
+            outputs/history/current/
+            outputs/history/archive/
+            outputs/history/refresh_candidate/
+            outputs/factors/current/
+            outputs/factors/archive/
+            outputs/factors/refresh_candidate/
+            outputs/screens/candidate/
+            outputs/screens/current/
+            datasets/history/incremental/
+            datasets/history/repair/
+
+      - name: Publish accepted transaction to governed run branch
+        if: steps.mode.outputs.proceed == 'true' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          RESULT_BRANCH: automation/fmdl-daily-${{ github.run_id }}-a${{ github.run_attempt }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RESULT_BRANCH"
+          publication_paths=(
+            outputs/current
+            outputs/investment_os
+            outputs/status
+            outputs/quarantine
+            outputs/archive
+            outputs/history/current
+            outputs/history/archive
+            outputs/history/refresh_candidate
+            outputs/factors/current
+            outputs/factors/archive
+            outputs/factors/refresh_candidate
+            outputs/screens/candidate
+            outputs/screens/current
+            datasets/history/incremental
+            datasets/history/repair
+          )
+          for path in "${publication_paths[@]}"; do
+            if [[ -e "$path" ]]; then
+              git add -A -- "$path"
+            fi
+          done
+          if git diff --cached --quiet; then
+            echo "No accepted production-state changes to publish."
+            exit 0
+          fi
+          git commit -m "data: stage governed A-share daily transaction"
+          git push origin "HEAD:$RESULT_BRANCH"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          WATERMARK="$(python - <<'PY'
+          import json
+          print(json.load(open('outputs/current/CURRENT_RELEASE.json', encoding='utf-8'))['as_of_date'])
+          PY
+          )"
+          python automation/operating_current/publish_operating_current.py \
+            --domain A_SHARE_FULL_MARKET \
+            --status PASS \
+            --source-workflow "FMDL Daily A-share Governed Production" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch "$RESULT_BRANCH" \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status PASS_CHAIN_COHERENT \
+            --advance-current
+          {
+            echo "### Governed publication handoff"
+            echo "- result_branch: \`$RESULT_BRANCH\`"
+            echo "- operating_current_domain: \`A_SHARE_FULL_MARKET\`"
+            echo "- operating_current_watermark: \`$WATERMARK\`"
+            echo "- transaction_scope: market Current + history + factors + screening"
+            echo "- direct_main_push: disabled"
+            echo "- daily protected-main promotion PR: not required for low-risk operating data"
+            echo "- orders: 0"
+            echo "- trade_authority: NONE"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record transaction summary
+        if: always()
+        shell: bash
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## FMDL Daily A-share Governed Production
+          - One transaction builds market Current, incremental history, factors and screening.
+          - Downstream screening consumes the same run's refreshed market and factor state.
+          - Scheduled publication is a unique governed result branch plus immutable artifact and an Operating Current pointer.
+          - Low-risk operating data no longer require a daily protected-main promotion PR.
+          - Protected main is never pushed directly.
+          - Candidate membership, portfolio quantities, costs and orders are not mutated here.
+          - trade_authority: NONE
+          EOF
+\t' read -r DEP_BRANCH DEP_PATH DEP_SHA DEP_RELEASE; do
+            [[ -z "$DEP_PATH" ]] && continue
+            if [[ "$DEP_BRANCH" == "__UNRESOLVED__" ]]; then
+              echo "UNRESOLVABLE_HISTORY_DEPENDENCY path=$DEP_PATH release=$DEP_RELEASE"
+              exit 2
+            fi
+            echo "MATERIALIZE_HISTORY_DEPENDENCY branch=$DEP_BRANCH path=$DEP_PATH"
+            git fetch origin \
+              "refs/heads/$DEP_BRANCH:refs/remotes/origin/fmdl-history-dependency" \
+              --force --no-tags
+            git cat-file -e "refs/remotes/origin/fmdl-history-dependency:$DEP_PATH"
+            git checkout refs/remotes/origin/fmdl-history-dependency -- "$DEP_PATH"
+          done < /tmp/FMDL_HISTORY_MISSING.tsv
+          python scripts/materialize_fmdl_history_dependencies.py \
+            --manifest outputs/history/current/HISTORY_CURRENT_MANIFEST.json \
+            --verify
 
       - name: Run latest completed-session market Current
         id: market
