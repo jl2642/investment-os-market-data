@@ -120,6 +120,39 @@ class LiveComparisonContextTests(unittest.TestCase):
             rows["002039.SZ"]["valuation_context"]["evidence_codes"],
         )
 
+
+    def test_exact_denominator_market_refresh_is_accepted_without_downgrading_authority(self):
+        domain = dict(self.domain)
+        domain["qc_status"] = "PASS_MARKET_VALUATION_REFRESH_EXACT_DENOMINATOR_LKG"
+        domain["data_watermark"] = "2026-08-31"
+        release = dict(self.release)
+        release["source_releases"] = {
+            **dict(self.release["source_releases"]),
+            "market_as_of_date": "2026-08-31",
+            "exact_baseline_valuation_release_id": self.release["release_id"],
+            "exact_baseline_market_as_of_date": "2026-08-28",
+        }
+        rows = [dict(row, market_as_of_date="2026-08-31") for row in self.rows]
+        out = merge_live_context(
+            self.phase2c, rows, release, domain,
+            {"000719.SZ", "002039.SZ", "301215.SZ"}, "phase2c"
+        )
+        self.assertEqual(
+            out["mode"],
+            "LIVE_EXACT_DENOMINATOR_MARKET_REFRESH_PHASE2C_BLOCKERS_RETAINED",
+        )
+        self.assertEqual(
+            out["source_bindings"]["valuation_qc_status"],
+            "PASS_MARKET_VALUATION_REFRESH_EXACT_DENOMINATOR_LKG",
+        )
+        row = {x["security_id"]: x for x in out["blocked"]}["000719.SZ"]
+        self.assertTrue(row["valuation_context"]["exact_denominator_lkg_market_refresh"])
+        self.assertIn(
+            "LIVE_EXACT_DENOMINATOR_MARKET_REFRESH_BOUND",
+            row["valuation_context"]["evidence_codes"],
+        )
+        self.assertEqual(out["controls"]["trade_authority"], "NONE")
+
     def test_material_evidence_blocker_is_preserved(self):
         out = merge_live_context(
             self.phase2c, self.rows, self.release, self.domain,
