@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from automation.research_queue_d2.build_d2_queue import underwriting_complete
+
 ROOT = Path(__file__).resolve().parents[2]
 D2_CURRENT = ROOT / "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json"
 D2_LIVENESS = ROOT / "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json"
@@ -40,6 +42,7 @@ def main() -> int:
         assert status in ACTIVE_PENDING_STATUSES | SEMANTIC_TERMINAL_STATUSES
         if status == "D2_RESEARCH_COMPLETE":
             assert row["semantic_research_required"] is False
+            assert underwriting_complete(row), row
         else:
             assert row["semantic_research_required"] is True
         assert row["candidate_membership_mutation_authorized"] is False
