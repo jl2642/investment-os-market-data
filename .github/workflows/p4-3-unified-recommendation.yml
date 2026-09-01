@@ -108,7 +108,7 @@ jobs:
               if not exact:
                   raise SystemExit("P43_PR_NO_EXACT_VALUATION_BASELINE")
               row=max(exact,key=lambda x:(str(x.get("published_at_utc") or ""),str(x.get("source_run_id") or "")))
-              open(path,"w",encoding="utf-8").write(json.dumps(row,ensure_ascii=False,indent=2)+"\\n")
+              open(path,"w",encoding="utf-8").write(json.dumps(row,ensure_ascii=False,indent=2)+"\n")
           PY
           fi
 
