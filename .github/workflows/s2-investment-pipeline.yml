@@ -7,13 +7,13 @@ on:
       - "automation/investment_pipeline/**"
       - "automation/research_queue_d2/**"
       - "tests/test_s2_investment_pipeline.py"
-      - "tests/test_s4_runtime_publishers.py"
       - ".github/workflows/s2-investment-pipeline.yml"
       - ".github/workflows/research-queue-d2-auto-consumer.yml"
       - ".github/workflows/p4-2-continuous-opportunity-funnel.yml"
       - ".github/workflows/p4-3-unified-recommendation.yml"
       - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
       - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/D2_UNDERWRITING_CONTRACT.json"
   push:
     branches: [main]
     paths:
@@ -23,28 +23,22 @@ on:
       - ".github/workflows/research-queue-d2-auto-consumer.yml"
       - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
       - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/D2_UNDERWRITING_CONTRACT.json"
   workflow_run:
     workflows:
       - "FMDL Daily A-share Governed Production"
       - "Research Queue D2 Auto Consumer"
     types: [completed]
+  schedule:
+    - cron: "30 10 * * 1-5"
   workflow_dispatch:
-    inputs:
-      mode:
-        description: "S2 execution mode"
-        required: false
-        default: "full"
-        type: choice
-        options:
-          - "full"
-          - "d2_callback"
 
 permissions:
   contents: write
   actions: write
 
 concurrency:
-  group: s2-investment-pipeline-${{ github.event_name }}
+  group: s2-investment-pipeline
   cancel-in-progress: false
 
 env:
@@ -56,8 +50,7 @@ jobs:
   validate:
     if: >-
       github.event_name != 'workflow_run' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main')
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -114,8 +107,13 @@ jobs:
               "capital_comparison_available",
               "PHASE2C_CURRENT_SHADOW_COMPARISON_PACK",
           ]
+          import json
           assert all(token not in text for token in forbidden)
           assert "candidate_membership_required" in text
+          contract=json.loads(Path("investment_os_runtime/00_CONTROL/D2_UNDERWRITING_CONTRACT.json").read_text(encoding="utf-8"))
+          assert contract["scenarios"]["required_names"] == ["BEAR","BASE","BULL"]
+          assert contract["controls"]["trade_authority"] == "NONE"
+          assert contract["controls"]["orders"] == 0
           print({"orphan_gate_count": 0, "orders": 0, "trade_authority": "NONE"})
           PY
 
@@ -123,8 +121,7 @@ jobs:
     if: >-
       github.event_name != 'pull_request' &&
       (github.event_name != 'workflow_run' ||
-       (github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'main'))
+       github.event.workflow_run.conclusion == 'success')
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -143,12 +140,8 @@ jobs:
 
       - name: Resolve latest coherent A-share Screening source
         if: >-
-          !(
-            (github.event_name == 'workflow_run' &&
-             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
-            (github.event_name == 'workflow_dispatch' &&
-             inputs.mode == 'd2_callback')
-          )
+          github.event_name != 'workflow_run' ||
+          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -218,11 +211,6 @@ jobs:
           })
           PY
 
-          SCREEN_BRANCH="$(python -c 'import json; print(json.load(open(".s2_runtime/SCREEN_SOURCE.json", encoding="utf-8"))["source_branch"])')"
-          SCREEN_COMMIT="$(python -c 'import json; print(json.load(open(".s2_runtime/SCREEN_SOURCE.json", encoding="utf-8"))["source_commit_sha"])')"
-          SCREEN_WATERMARK="$(python -c 'import json; print(json.load(open(".s2_runtime/SCREEN_SOURCE.json", encoding="utf-8"))["data_watermark"])')"
-          export SCREEN_BRANCH SCREEN_COMMIT SCREEN_WATERMARK
-
           git fetch origin "refs/heads/$SCREEN_BRANCH:refs/remotes/origin/s2-screening" --force --no-tags
           test "$(git rev-parse refs/remotes/origin/s2-screening)" = "$SCREEN_COMMIT"
           git show "$SCREEN_COMMIT":outputs/screens/current/SCREENING_LONGLIST.csv > "$S2_RUNTIME/SCREENING_LONGLIST.csv"
@@ -233,12 +221,8 @@ jobs:
 
       - name: Build Opportunity Queue and D1 fast triage
         if: >-
-          !(
-            (github.event_name == 'workflow_run' &&
-             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
-            (github.event_name == 'workflow_dispatch' &&
-             inputs.mode == 'd2_callback')
-          )
+          github.event_name != 'workflow_run' ||
+          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -277,12 +261,8 @@ jobs:
 
       - name: Publish Opportunity and D1 Current
         if: >-
-          !(
-            (github.event_name == 'workflow_run' &&
-             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
-            (github.event_name == 'workflow_dispatch' &&
-             inputs.mode == 'd2_callback')
-          )
+          github.event_name != 'workflow_run' ||
+          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -318,12 +298,8 @@ jobs:
 
       - name: Trigger D2 consumer for new D1 unless this run came from D2
         if: >-
-          !(
-            (github.event_name == 'workflow_run' &&
-             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
-            (github.event_name == 'workflow_dispatch' &&
-             inputs.mode == 'd2_callback')
-          )
+          github.event_name != 'workflow_run' ||
+          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run research-queue-d2-auto-consumer.yml --ref main
@@ -380,12 +356,6 @@ jobs:
             --source-run-attempt "${{ github.run_attempt }}" \
             --source-branch main \
             --source-commit "$MAIN_HEAD"
-
-      - name: Trigger S3 product surface after coherent decision publication
-        if: steps.decision.outputs.coherent == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run s3-portfolio-product-surface.yml --ref main
 
       - name: Record S2 product boundary
         if: always()
