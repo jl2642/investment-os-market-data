@@ -277,6 +277,8 @@ def test_s2_workflow_uses_one_transactional_callback_not_duplicate_dispatch() ->
         ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml"
     ).read_text(encoding="utf-8")
     assert 'workflows:' in text
+    assert '"FMDL Daily A-share Governed Production"' in text
+    assert '"FMDL daily market, factor and screening transaction"' not in text
     assert '"Research Queue D2 Auto Consumer"' in text
     assert "Candidate membership is not a research gate." in text
     assert "gh workflow run s2-investment-pipeline.yml" not in d2_text
