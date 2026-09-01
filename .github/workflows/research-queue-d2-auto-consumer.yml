@@ -27,7 +27,9 @@ permissions:
   contents: write
 
 concurrency:
-  group: research-queue-d2-auto-consumer-${{ github.event_name }}
+  # schedule and workflow_run are recovery paths for the same production state;
+  # serialize them so a delayed cron cannot race a success-driven trigger.
+  group: research-queue-d2-auto-consumer-${{ github.ref }}
   cancel-in-progress: false
 
 env:
