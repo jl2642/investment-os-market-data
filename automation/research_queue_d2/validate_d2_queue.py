@@ -11,11 +11,35 @@ ACTIVE_PENDING_STATUSES = {
     "PENDING_AUTO_RESEARCH",
     "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
     "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+    "D2_UNDERWRITING_PENDING",
 }
 SEMANTIC_TERMINAL_STATUSES = {
     "D2_RESEARCH_COMPLETE",
     "D2_RESEARCH_HOLD_EVIDENCE_GAP",
 }
+
+
+def underwriting_complete(row: dict) -> bool:
+    underwriting = row.get("underwriting")
+    if not isinstance(underwriting, dict):
+        return False
+    if underwriting.get("current_price") in (None, ""):
+        return False
+    if underwriting.get("entry_price") in (None, ""):
+        return False
+    if str(underwriting.get("confidence") or "").upper() not in {
+        "HIGH", "MEDIUM", "MEDIUM_HIGH", "HIGH_MEDIUM"
+    }:
+        return False
+    scenarios = underwriting.get("scenarios")
+    if not isinstance(scenarios, list):
+        return False
+    names = {
+        str(x.get("name") or "").upper()
+        for x in scenarios
+        if isinstance(x, dict)
+    }
+    return {"BEAR", "BASE", "BULL"}.issubset(names)
 
 
 def load(path: Path) -> dict:
@@ -39,6 +63,7 @@ def main() -> int:
         assert status in ACTIVE_PENDING_STATUSES | SEMANTIC_TERMINAL_STATUSES
         if status == "D2_RESEARCH_COMPLETE":
             assert row["semantic_research_required"] is False
+            assert underwriting_complete(row), row
         else:
             assert row["semantic_research_required"] is True
         assert row["candidate_membership_mutation_authorized"] is False
