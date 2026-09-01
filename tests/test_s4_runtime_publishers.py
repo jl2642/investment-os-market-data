@@ -37,3 +37,19 @@ def test_s3_publisher_direct_entrypoint_imports_repo_package() -> None:
     )
     assert result.returncode == 0, result.stderr
     assert "--surface-json" in result.stdout
+
+
+def test_s4_final_runtime_is_event_driven_and_temporary_replay_removed() -> None:
+    s2 = (ROOT / ".github/workflows/s2-investment-pipeline.yml").read_text(encoding="utf-8")
+    d2 = (ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml").read_text(encoding="utf-8")
+    assert "\n  schedule:\n" not in s2
+    assert "\n  schedule:\n" not in d2
+    assert "workflow_dispatch:" in s2
+    assert "workflow_dispatch:" in d2
+    assert not (ROOT / ".github/workflows/s4-controlled-same-date-replay.yml").exists()
+
+
+def test_s4_failure_receipt_tracks_exact_full_rebase_workflow_name() -> None:
+    receipt = (ROOT / ".github/workflows/operating-current-failure-receipts.yml").read_text(encoding="utf-8")
+    assert "FMDL 2B-4 Multi-Session Full Rebase Recovery" in receipt
+    assert '"FMDL 2B-4 Multi-Session Recovery"' not in receipt
