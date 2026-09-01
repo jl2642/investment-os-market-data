@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFICATION_IN_PROGRESS",
-  "product_maturity": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFICATION_IN_PROGRESS",
+  "program_state": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFICATION_COMPLETE_S4_PENDING",
+  "product_maturity": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFIED_S4_ACCEPTANCE_PENDING",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -44,7 +44,7 @@
     "round_3_investment_capability_audit": "COMPLETE_CURRENT_DAILY_INVESTMENT_PRODUCT_FAIL",
     "s1": "COMPLETE_ON_MAIN",
     "s2": "COMPLETE_ON_MAIN",
-    "s3": "IN_PROGRESS",
+    "s3": "COMPLETE_ON_MAIN",
     "s4": "PENDING",
     "development_closed": false
   },
@@ -176,6 +176,31 @@
     "product_count": 2,
     "old_product_catalog_role": "HISTORICAL_DEVELOPMENT_EVIDENCE_ONLY",
     "protected_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "s3_acceptance": {
+    "merge_status": "MERGED_TO_MAIN",
+    "merge_sha": "b5c5038be3ca5c82eb56e9a4545497b07960e91a",
+    "final_pr": 403,
+    "final_pr_head": "a7dc7e06f5c9fd7370798edf9a3ac99604f86eea",
+    "canonical_main_validation_head": "b0cf8041320d9243f5a056ed67dbbe4687fed3e6",
+    "canonical_main_validation_status": "PASS",
+    "canonical_user_products": [
+      "DAILY_INVESTMENT_BRIEF",
+      "PORTFOLIO_DECISION_SURFACE"
+    ],
+    "legacy_r3_r4_wp5_current_product_authority": false,
+    "old_occ_r4_automatic_production": "RETIRED",
+    "current_holding_new_capital_uncovered_separation": "PASS",
+    "position_identity_drift_fail_closed": "PASS",
+    "nested_order_authority_fail_closed": "PASS",
+    "s2_regression": "PASS",
+    "lineage_regression": "PASS",
+    "deterministic_s3_validation": "PASS",
+    "canonical_main_push_validation": "PASS",
+    "natural_end_to_end_runtime_acceptance": "DEFERRED_TO_S4",
+    "protected_economic_mutations": 0,
     "orders": 0,
     "trade_authority": "NONE"
   }
