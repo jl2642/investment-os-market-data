@@ -297,6 +297,8 @@ jobs:
           coherent=d2.get("source_d1_state_id")==d1.get("state_id")
           with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as h:
               h.write(f"coherent={'true' if coherent else 'false'}\n")
+          if coherent:
+              (root/"DECISION_COHERENT").write_text("true\n",encoding="utf-8")
           print({
               "d1_state_id":d1.get("state_id"),
               "d2_source_d1_state_id":d2.get("source_d1_state_id"),
@@ -304,7 +306,7 @@ jobs:
           })
           PY
 
-          if [[ "${{ steps.decision.outputs.coherent }}" != "true" ]]; then
+          if [[ ! -f "$S2_RUNTIME/DECISION_COHERENT" ]]; then
             echo "S2_DECISION_PENDING_D2_FOR_CURRENT_D1"
             exit 0
           fi
