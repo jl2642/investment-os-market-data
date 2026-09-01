@@ -243,8 +243,8 @@
     },
     "transaction_callback_design": "EXPLICIT_WORKFLOW_DISPATCH_S2_D2_CALLBACK_THEN_S3",
     "root_cause_4": "S3_PRODUCT_SURFACE_READ_MARK_PRICE_OR_PRICE_BUT_CANONICAL_PORTFOLIO_MARKS_FIELD_IS_MARK",
-    "repair_4_status": "IN_PR",
-    "core_e2e_status": "PASS_PRODUCT_CURRENT_CREATED_PENDING_PRICE_FIELD_REPAIR_AND_HYGIENE",
+    "repair_4_status": "MERGED_TO_MAIN_REPLAY_PENDING",
+    "core_e2e_status": "PASS_FIRST_COMPLETE_PRODUCT_CHAIN",
     "product_surface_first_pass": {
       "source_run_id": "33477574288",
       "status": "PASS",
@@ -252,6 +252,25 @@
       "portfolio_product_surface_current": "PRESENT",
       "orders": 0,
       "trade_authority": "NONE"
+    },
+    "screening_freshness_gap": {
+      "market_current": "2026-08-31",
+      "latest_chain_coherent_screening": "2026-08-28",
+      "old_daily_failure_run": "33418206299",
+      "old_failure_root_cause": "MISSING_HISTORY_COMPONENT_FROM_OLD_BASELINE",
+      "current_main_has_dependency_materialization_repair": true,
+      "controlled_same_date_replay": "PENDING"
     }
+  },
+  "s4_hygiene": {
+    "obsolete_p4_4_p4_5_automatic_runtime": "RETIRED_IN_PR",
+    "redundant_d2_push_trigger": "REMOVED_IN_PR",
+    "stale_occ_r5_tests": "UPDATED_IN_PR",
+    "transitional_registry": "CLOSED_IN_PR",
+    "repository_size_kb": 2068202,
+    "destructive_branch_history_cleanup": "DEFERRED_OPTIONAL_MAINTENANCE_NOT_S4_BLOCKER",
+    "controlled_replay_workflow": ".github/workflows/s4-controlled-same-date-replay.yml",
+    "controlled_replay_status": "PENDING_MERGE_DISPATCH",
+    "temporary_replay_workflow_must_be_removed_before_freeze": true
   }
 }
