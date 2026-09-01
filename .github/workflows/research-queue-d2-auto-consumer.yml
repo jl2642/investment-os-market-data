@@ -9,11 +9,19 @@ on:
       - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json"
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/**"
+  push:
+    branches: [main]
+    paths:
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D1/**"
+      - "automation/research_queue_d2/**"
+      - ".github/workflows/research-queue-d2-auto-consumer.yml"
+  schedule:
+    - cron: "30 15 * * 1-5"
   workflow_dispatch:
 
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   group: research-queue-d2-auto-consumer-${{ github.event_name }}
@@ -169,19 +177,13 @@ jobs:
               --qc-status PASS \
               --advance-current
           fi
-      - name: Dispatch S2 decision callback for workflow-dispatched D2
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback
-
       - name: Record operating summary
         if: always()
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## Research Queue D2 Auto Consumer
           - S2 rolling D1→D2 routes are consumed automatically; Candidate membership is not a research gate.
-          - Activation: explicit workflow_dispatch from S2 when the current D1 routes names into D2; no fixed cron.
+          - Recovery cadence: weekdays 23:30 Asia/Shanghai, after the completed A-share daily and Portfolio Marks refresh and before the chained P4 controller stack.
           - Primary disclosure discovery: CNINFO via AkShare.
           - Semantic deep research remains fail-closed and is owned by the ChatGPT-native D2 research consumer.
           - Publication remains on a governed automation branch and advances the low-risk Operating Current pointer after QC.
