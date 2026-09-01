@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "authority_id": "STOCK_INVESTMENT_ASSISTANT_SYSTEM_CURRENT",
+  "authority_id": "STOCK_INVESTMENT_ASSISTANT_SYSTEM_CURRENT_S2",
   "authority_status": "CURRENT_SYSTEM_LEVEL_AUTHORITY",
   "effective_date": "2026-09-01",
   "source_base_sha": "5e19bcfb0d22ce74acf357983ee205bce8b70d59",
@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S4_END_TO_END_ACCEPTANCE_HYGIENE_COMPLETE_SYSTEM_FROZEN",
-  "product_maturity": "PRODUCTION_OPERATIONAL_ACCEPTED",
+  "program_state": "S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS",
+  "product_maturity": "S1_CONTROL_RUNTIME_COMPLETE_S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -43,10 +43,10 @@
     "round_2_end_to_end_runtime_audit": "COMPLETE_CHAIN_FAIL",
     "round_3_investment_capability_audit": "COMPLETE_CURRENT_DAILY_INVESTMENT_PRODUCT_FAIL",
     "s1": "COMPLETE_ON_MAIN",
-    "s2": "COMPLETE_ON_MAIN",
-    "s3": "COMPLETE_ON_MAIN",
-    "s4": "COMPLETE_ON_MAIN",
-    "development_closed": true
+    "s2": "IN_PROGRESS",
+    "s3": "PENDING",
+    "s4": "PENDING",
+    "development_closed": false
   },
   "non_goals": [
     "NEW_MARKETS",
@@ -70,20 +70,12 @@
     "merge_status": "MERGED_TO_MAIN"
   },
   "s2_contract": {
-    "candidate_research_gate": "REMOVED",
-    "opportunity_queue": "DIRECT_FROM_LATEST_COHERENT_SCREENING",
-    "d1_fast_triage_batch_size": 10,
+    "primary_workflow": ".github/workflows/s2-investment-pipeline.yml",
+    "candidate_membership_is_research_gate": false,
+    "d1_batch_size": 10,
     "d2_capacity": 3,
-    "d2_underwriting_required_fields": [
-      "CURRENT_PRICE",
-      "ENTRY_PRICE",
-      "BEAR_BASE_BULL_VALUES",
-      "SCENARIO_PROBABILITIES",
-      "CONFIDENCE",
-      "NORMALIZED_EARNINGS_BASIS",
-      "KILL_THESIS"
-    ],
-    "live_capital_comparison": "REQUIRED",
+    "d2_semantic_owner": "CHATGPT_NATIVE_RESEARCH_AND_UNDERWRITING",
+    "capital_comparison": "LIVE_FROM_D2_UNDERWRITING_AND_POSITION_IDENTITY",
     "recommendation_states": [
       "BUY",
       "BUY_BELOW",
@@ -95,9 +87,7 @@
       "TRIM",
       "EXIT"
     ],
-    "orphan_boolean_gates": 0,
-    "frozen_phase2c_dependency": false,
-    "automatic_trading": false
+    "auto_trade": false
   },
   "s2_scope": {
     "primary_workflow": ".github/workflows/s2-investment-pipeline.yml",
@@ -113,207 +103,5 @@
     "d2_capacity": 3,
     "trade_authority": "NONE",
     "orders": 0
-  },
-  "s2_acceptance": {
-    "merge_status": "MERGED_TO_MAIN",
-    "merge_sha": "a94afb053c790de748d0f22f9e74f924dda3ce23",
-    "final_pr": 401,
-    "final_head": "aa9c3b2e9aab01146e666f1e456af2d250052c17",
-    "opportunity_without_candidate_gate": "PASS",
-    "rolling_d1_batch_10": "PASS",
-    "d2_underwriting_completion_contract": "PASS",
-    "semantic_d2_identity": "PASS",
-    "live_capital_comparison_without_phase2c": "PASS",
-    "producer_reachable_actions": [
-      "BUY",
-      "BUY_BELOW",
-      "WATCH_FOR_EVIDENCE",
-      "WATCH",
-      "AVOID",
-      "ADD",
-      "HOLD",
-      "TRIM",
-      "EXIT"
-    ],
-    "orphan_boolean_gates_in_s2_path": 0,
-    "p4_2_automatic_production": "RETIRED",
-    "p4_3_automatic_production": "RETIRED",
-    "d1_d2_transaction_identity": "PASS",
-    "deterministic_s2_validation": "PASS",
-    "d2_consumer_validation": "PASS",
-    "a_share_daily_regression": "PASS",
-    "candidate_full_repository_regression": "PASS",
-    "operating_current_regression": "PASS",
-    "lineage_regression": "PASS",
-    "natural_end_to_end_runtime_acceptance": "DEFERRED_TO_S4",
-    "orders": 0,
-    "trade_authority": "NONE"
-  },
-  "s3_scope": {
-    "primary_workflow": ".github/workflows/s3-portfolio-product-surface.yml",
-    "inputs": [
-      "PORTFOLIO_MARKS",
-      "CURRENT_REAL_AND_SIMULATION_POSITION_IDENTITY",
-      "S2_INVESTMENT_PIPELINE"
-    ],
-    "canonical_user_products": [
-      "DAILY_INVESTMENT_BRIEF",
-      "PORTFOLIO_DECISION_SURFACE"
-    ],
-    "legacy_r3_r4_wp5_current_product_authority": false,
-    "target_weight_engine": false,
-    "automatic_portfolio_mutation": false,
-    "natural_runtime_acceptance": "DEFERRED_TO_S4",
-    "orders": 0,
-    "trade_authority": "NONE"
-  },
-  "s3_contract": {
-    "portfolio_accounting": "REUSE_CURRENT_POSITION_AND_MARK_AUTHORITIES_NO_REBUILD",
-    "decision_surface": "S2_RECOMMENDATION_MAPPED_TO_CURRENT_POSITION_IDENTITY",
-    "uncovered_position_policy": "EXPLICIT_NO_CURRENT_S2_RECOMMENDATION_NO_ACTION",
-    "new_capital_policy": "SEPARATE_FROM_EXISTING_POSITION_ACTIONS",
-    "ready_for_user_decision_semantics": "HUMAN_REVIEW_REQUIRED_NOT_EXECUTION_AUTHORITY",
-    "product_count": 2,
-    "old_product_catalog_role": "HISTORICAL_DEVELOPMENT_EVIDENCE_ONLY",
-    "protected_mutations": 0,
-    "orders": 0,
-    "trade_authority": "NONE",
-    "performance_monitoring": "ALL_CURRENT_REAL_AND_SIMULATION_HOLDING_LINES",
-    "performance_monitoring_separate_from_recommendation_coverage": true,
-    "uncovered_holding_policy": "MONITOR_PERFORMANCE_AND_QUEUE_BOUNDED_REUNDERWRITING_NO_FABRICATED_ACTION"
-  },
-  "s3_acceptance": {
-    "merge_status": "MERGED_TO_MAIN",
-    "merge_sha": "b5c5038be3ca5c82eb56e9a4545497b07960e91a",
-    "final_pr": 403,
-    "final_pr_head": "a7dc7e06f5c9fd7370798edf9a3ac99604f86eea",
-    "canonical_main_validation_head": "b0cf8041320d9243f5a056ed67dbbe4687fed3e6",
-    "canonical_main_validation_status": "PASS",
-    "canonical_user_products": [
-      "DAILY_INVESTMENT_BRIEF",
-      "PORTFOLIO_DECISION_SURFACE"
-    ],
-    "legacy_r3_r4_wp5_current_product_authority": false,
-    "old_occ_r4_automatic_production": "RETIRED",
-    "current_holding_new_capital_uncovered_separation": "PASS",
-    "position_identity_drift_fail_closed": "PASS",
-    "nested_order_authority_fail_closed": "PASS",
-    "s2_regression": "PASS",
-    "lineage_regression": "PASS",
-    "deterministic_s3_validation": "PASS",
-    "canonical_main_push_validation": "PASS",
-    "natural_end_to_end_runtime_acceptance": "DEFERRED_TO_S4",
-    "protected_economic_mutations": 0,
-    "orders": 0,
-    "trade_authority": "NONE"
-  },
-  "s4_scope": {
-    "objective": "PROVE_NORMAL_PRODUCTION_CHAIN_AND_CLOSE_ONLY_REAL_RUNTIME_GAPS",
-    "chain": [
-      "A_SHARE_MARKET_AND_SCREENING",
-      "S2_OPPORTUNITY_AND_D1",
-      "D2_RESEARCH_HANDOFF",
-      "S2_CAPITAL_COMPARISON_AND_RECOMMENDATION",
-      "S3_PORTFOLIO_PRODUCT_SURFACE"
-    ],
-    "runtime_repairs_only": true,
-    "new_investment_architecture": false,
-    "hygiene_after_e2e_pass": true,
-    "orders": 0,
-    "trade_authority": "NONE"
-  },
-  "s4_runtime_findings": {
-    "first_observed_at_main": "c232947ab5df0f0e98d7b107d9ebf2998f5acfd2",
-    "investment_pipeline_current": "MISSING",
-    "portfolio_product_surface_current": "MISSING",
-    "root_cause_1": "S2_SAME_STEP_GITHUB_ENV_SCREEN_BRANCH_NOT_AVAILABLE",
-    "repair_1_status": "PASS_ON_MAIN_NATURAL_RUNTIME",
-    "natural_e2e_status": "PASS_CORE_CHAIN_WITH_EXPLICIT_D2_CALLBACK",
-    "root_cause_2": "DIRECT_PUBLISHER_EXECUTION_MISSING_REPO_ROOT_ON_SYS_PATH",
-    "repair_2_status": "PASS_ON_MAIN_NATURAL_RUNTIME",
-    "d1_production_observed": {
-      "opportunity_count": 30,
-      "d1_batch": 10,
-      "advance_to_d2": 3,
-      "status": "PASS_BEFORE_PUBLISH_BREAK"
-    },
-    "root_cause_3": "GITHUB_TOKEN_DISPATCHED_D2_COMPLETION_DOES_NOT_RELIABLY_CREATE_WORKFLOW_RUN_CALLBACK",
-    "repair_3_status": "PASS_ON_MAIN_EXPLICIT_CALLBACK",
-    "d2_current_observed": {
-      "source_run_id": "33476278128",
-      "watermark": "2026-09-01T06:11:19+00:00",
-      "status": "PASS"
-    },
-    "transaction_callback_design": "EXPLICIT_WORKFLOW_DISPATCH_S2_D2_CALLBACK_THEN_S3",
-    "root_cause_4": "S3_PRODUCT_SURFACE_READ_MARK_PRICE_OR_PRICE_BUT_CANONICAL_PORTFOLIO_MARKS_FIELD_IS_MARK",
-    "repair_4_status": "PASS_ON_MAIN_RUNTIME_READBACK",
-    "core_e2e_status": "PASS_COMPLETE_PRODUCT_CHAIN",
-    "product_surface_first_pass": {
-      "source_run_id": "33477574288",
-      "status": "PASS",
-      "investment_pipeline_current": "PRESENT",
-      "portfolio_product_surface_current": "PRESENT",
-      "orders": 0,
-      "trade_authority": "NONE"
-    },
-    "screening_freshness_gap": {
-      "market_current": "2026-08-31",
-      "chain_coherent_screening": "2026-08-31",
-      "prior_gap": "2026-08-31_MARKET_VS_2026-08-28_SCREENING",
-      "prior_failure_run": "33418206299",
-      "prior_failure_root_cause": "MISSING_HISTORY_COMPONENT_FROM_OLD_BASELINE",
-      "current_main_dependency_materialization_repair": "PASS",
-      "controlled_same_date_replay": "PASS_CHAIN_COHERENT",
-      "status": "CLOSED"
-    },
-    "controlled_replay": {
-      "run_id": "33478675609",
-      "conclusion": "SUCCESS",
-      "data_watermark": "2026-08-31",
-      "qc_status": "PASS_CHAIN_COHERENT",
-      "source_branch": "automation/fmdl-daily-33478675609-a1",
-      "source_commit_sha": "175be130ab8464d2d31fe080956835c7eef3a34e",
-      "published_at_utc": "2026-09-01T07:20:12Z",
-      "purpose": "PROVE_CURRENT_MAIN_A_SHARE_MARKET_HISTORY_FACTOR_SCREENING_CHAIN"
-    },
-    "controlled_replay_downstream_note": "The temporary replay was itself dispatched by repository GITHUB_TOKEN, so its completion is upstream freshness acceptance; the S2→D2 explicit callback→S3 product chain was separately proven on current main before freeze."
-  },
-  "s4_hygiene": {
-    "obsolete_p4_4_p4_5_automatic_runtime": "RETIRED_ON_MAIN",
-    "redundant_d2_push_trigger": "REMOVED_ON_MAIN",
-    "stale_occ_r5_tests": "UPDATED_ON_MAIN",
-    "transitional_registry": "CLOSED_ON_MAIN",
-    "repository_size_kb": 2068202,
-    "destructive_branch_history_cleanup": "DEFERRED_OPTIONAL_MAINTENANCE_NOT_S4_BLOCKER",
-    "controlled_replay_workflow": ".github/workflows/s4-controlled-same-date-replay.yml",
-    "controlled_replay_status": "PASS_AND_TEMPORARY_WORKFLOW_REMOVED_IN_FINAL_FREEZE",
-    "temporary_replay_workflow_must_be_removed_before_freeze": false
-  },
-  "operating_model": {
-    "primary_runtime": "EVENT_DRIVEN_WITH_CLOCK_WAKEUPS_FOR_MARKET_DATA_MARKS_AND_RECOVERY_ONLY",
-    "fixed_periodic_investment_reports": false,
-    "review_model": "CONDITION_AND_EVIDENCE_MATURITY_GATED",
-    "github_role": "DETERMINISTIC_DATA_MECHANICAL_STATE_AND_ROUTING",
-    "chatgpt_role": "DAILY_CONTROLLER_AND_SEMANTIC_D2_UNDERWRITING",
-    "complex_research_policy": "NOT_SILENTLY_AUTORUN; SURFACE_READINESS_AND_REQUIRE_EXPLICIT_USER_START_FOR_DECISION_GRADE_UNDERWRITING",
-    "user_surface": [
-      "DAILY_INVESTMENT_BRIEF",
-      "PORTFOLIO_DECISION_SURFACE"
-    ],
-    "orders": 0,
-    "trade_authority": "NONE",
-    "portfolio_user_input_rule": "USER_REPORTS_ONLY_EXECUTED_TRADES_PRIVATE_CASH_FLOWS_AND_OTHER_NONPUBLIC_ECONOMIC_FACTS",
-    "portfolio_system_maintenance_rule": "SYSTEM_MAINTAINS_MARKS_NAV_PUBLIC_CORPORATE_ACTIONS_PERFORMANCE_MONITORING_AND_REUNDERWRITING_PRIORITY",
-    "portfolio_reconciliation_rule": "BROKER_OR_SIMULATION_SNAPSHOT_MAY_REBASE_CURRENT_STATE_WITHOUT_INVENTING_MISSING_TRANSACTION_HISTORY"
-  },
-  "portfolio_maintenance_contract": "investment_os_runtime/00_CONTROL/PORTFOLIO_MAINTENANCE_INPUT_CONTRACT.md",
-  "post_acceptance_maintenance": {
-    "portfolio_reconciliation_20260901": {
-      "scope": "REAL_AND_SIMULATION_USER_CONFIRMED_POST_CLOSE_BASELINE",
-      "purpose": "ALIGN_ACCOUNT_STATE_AND_RESTORE_USER_ONLY_REPORTS_ACTUAL_ECONOMIC_CHANGES_OPERATING_MODEL",
-      "protected_automatic_transaction_inference": 0,
-      "orders": 0,
-      "trade_authority": "NONE"
-    }
   }
 }
