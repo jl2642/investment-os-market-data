@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-08-31",
+  "as_of_date": "2026-09-01",
   "controls": {
     "candidate_membership_mutations": 0,
     "orders": 0,
@@ -16,9 +16,13 @@
     "automatic_position_change_allowed": false,
     "automatic_rebalance_allowed": false,
     "decision_review_required_count": 0,
+    "holding_reunderwriting_backlog_count": 22,
+    "holding_reunderwriting_queue_count": 3,
     "implementation_ready": false,
     "new_opportunity_count": 3,
     "portfolio_holding_count": 22,
+    "portfolio_performance_monitoring_line_count": 23,
+    "portfolio_performance_monitoring_unique_count": 22,
     "portfolio_recommendation_coverage_count": 0,
     "portfolio_uncovered_count": 22,
     "position_identity_mismatch_count": 0
@@ -84,13 +88,491 @@
   ],
   "orders": 0,
   "portfolio_decisions": [],
+  "portfolio_monitoring": {
+    "account_summaries": {
+      "REAL": {
+        "account_total_assets": 793744.785632,
+        "account_total_pnl": null,
+        "execution_cash_balance": 101186.36,
+        "holding_count": 7,
+        "open_unrealized_pnl": 13578.745632,
+        "position_market_value": 692558.425632
+      },
+      "SIMULATION": {
+        "account_total_assets": 1030317.39,
+        "account_total_pnl": 30317.39,
+        "execution_cash_balance": 246549.29,
+        "holding_count": 16,
+        "open_unrealized_pnl": 41291.5,
+        "position_market_value": 783768.1
+      }
+    },
+    "automatic_trade_or_position_mutation": false,
+    "investment_recommendation_coverage_count": 0,
+    "orders": 0,
+    "performance_monitoring_coverage_count": 23,
+    "reunderwriting_backlog_count": 22,
+    "reunderwriting_queue": [
+      {
+        "accounts": [
+          "REAL"
+        ],
+        "max_account_weight": 0.4226938004170415,
+        "monitoring_flags": [
+          "ACCOUNT_WEIGHT_GE_15PCT",
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "next_step": "D2_REUNDERWRITE_WHEN_TRIGGERED_OR_REVIEW_SLOT_AVAILABLE",
+        "orders": 0,
+        "priority": "HIGH",
+        "security_id": "605090.SH",
+        "security_name": "九丰能源",
+        "trade_authority": "NONE",
+        "worst_unrealized_pnl_pct": 0.02526093
+      },
+      {
+        "accounts": [
+          "SIMULATION"
+        ],
+        "max_account_weight": 0.03665278327487028,
+        "monitoring_flags": [
+          "DRAWDOWN_GE_15PCT",
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "next_step": "D2_REUNDERWRITE_WHEN_TRIGGERED_OR_REVIEW_SLOT_AVAILABLE",
+        "orders": 0,
+        "priority": "HIGH",
+        "security_id": "601138.SH",
+        "security_name": "工业富联",
+        "trade_authority": "NONE",
+        "worst_unrealized_pnl_pct": -0.17650137
+      },
+      {
+        "accounts": [
+          "SIMULATION"
+        ],
+        "max_account_weight": 0.03475628029533696,
+        "monitoring_flags": [
+          "DRAWDOWN_GE_15PCT",
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "next_step": "D2_REUNDERWRITE_WHEN_TRIGGERED_OR_REVIEW_SLOT_AVAILABLE",
+        "orders": 0,
+        "priority": "HIGH",
+        "security_id": "300750.SZ",
+        "security_name": "宁德时代",
+        "trade_authority": "NONE",
+        "worst_unrealized_pnl_pct": -0.20572252
+      }
+    ],
+    "rows": [
+      {
+        "account": "REAL",
+        "account_weight": 0.14359523243387082,
+        "cost_basis": 110614.38,
+        "current_price": 1.3961,
+        "investment_recommendation_covered": false,
+        "market_value": 113977.966986,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "017534.OF",
+        "security_name": "富国天利增长债券C",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 3363.586986,
+        "unrealized_pnl_pct": 0.03040823
+      },
+      {
+        "account": "REAL",
+        "account_weight": 0.04425049541841549,
+        "cost_basis": 37838.2,
+        "current_price": 1.268,
+        "investment_recommendation_covered": false,
+        "market_value": 35123.6,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "159352.SZ",
+        "security_name": "A500ETF南方",
+        "trade_authority": "NONE",
+        "unrealized_pnl": -2714.6,
+        "unrealized_pnl_pct": -0.07174231
+      },
+      {
+        "account": "REAL",
+        "account_weight": 0.026716144009834845,
+        "cost_basis": 18309.0,
+        "current_price": 2.079,
+        "investment_recommendation_covered": false,
+        "market_value": 21205.8,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "159612.SZ",
+        "security_name": "标普500ETF国泰",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 2896.8,
+        "unrealized_pnl_pct": 0.15821727
+      },
+      {
+        "account": "REAL",
+        "account_weight": 0.02894242635144795,
+        "cost_basis": 18803.2,
+        "current_price": 2.033,
+        "investment_recommendation_covered": false,
+        "market_value": 22972.9,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "159655.SZ",
+        "security_name": "标普500ETF华夏",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 4169.7,
+        "unrealized_pnl_pct": 0.22175481
+      },
+      {
+        "account": "REAL",
+        "account_weight": 0.12788400060502736,
+        "cost_basis": 100000.0,
+        "current_price": 1.3878,
+        "investment_recommendation_covered": false,
+        "market_value": 101507.258646,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "217003.OF",
+        "security_name": "招商安泰债券A",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 1507.258646,
+        "unrealized_pnl_pct": 0.01507259
+      },
+      {
+        "account": "REAL",
+        "account_weight": 0.07843818457393338,
+        "cost_basis": 66170.4,
+        "current_price": 7.881,
+        "investment_recommendation_covered": false,
+        "market_value": 62259.9,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "510500.SH",
+        "security_name": "中证500ETF南方",
+        "trade_authority": "NONE",
+        "unrealized_pnl": -3910.5,
+        "unrealized_pnl_pct": -0.05909742
+      },
+      {
+        "account": "REAL",
+        "account_weight": 0.4226938004170415,
+        "cost_basis": 327244.5,
+        "current_price": 33.89,
+        "investment_recommendation_covered": false,
+        "market_value": 335511.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION",
+          "ACCOUNT_WEIGHT_GE_15PCT"
+        ],
+        "orders": 0,
+        "security_id": "605090.SH",
+        "security_name": "九丰能源",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 8266.5,
+        "unrealized_pnl_pct": 0.02526093
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.06793246496596549,
+        "cost_basis": 61904.0,
+        "current_price": 87.49,
+        "investment_recommendation_covered": false,
+        "market_value": 69992.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "000333.SZ",
+        "security_name": "美的集团",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 8088.0,
+        "unrealized_pnl_pct": 0.13065392
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.014713912574066132,
+        "cost_basis": 14040.0,
+        "current_price": 15.16,
+        "investment_recommendation_covered": false,
+        "market_value": 15160.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "300012.SZ",
+        "security_name": "华测检测",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 1120.0,
+        "unrealized_pnl_pct": 0.07977208
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.011831305691152122,
+        "cost_basis": 18814.0,
+        "current_price": 60.95,
+        "investment_recommendation_covered": false,
+        "market_value": 12190.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION",
+          "DRAWDOWN_GE_15PCT"
+        ],
+        "orders": 0,
+        "security_id": "300124.SZ",
+        "security_name": "汇川技术",
+        "trade_authority": "NONE",
+        "unrealized_pnl": -6624.0,
+        "unrealized_pnl_pct": -0.35207824
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.03475628029533696,
+        "cost_basis": 45085.0,
+        "current_price": 358.1,
+        "investment_recommendation_covered": false,
+        "market_value": 35810.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION",
+          "DRAWDOWN_GE_15PCT"
+        ],
+        "orders": 0,
+        "security_id": "300750.SZ",
+        "security_name": "宁德时代",
+        "trade_authority": "NONE",
+        "unrealized_pnl": -9275.0,
+        "unrealized_pnl_pct": -0.20572252
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.05430860484651239,
+        "cost_basis": 58759.6,
+        "current_price": 7.881,
+        "investment_recommendation_covered": false,
+        "market_value": 55955.1,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "510500.SH",
+        "security_name": "中证500ETF南方",
+        "trade_authority": "NONE",
+        "unrealized_pnl": -2804.5,
+        "unrealized_pnl_pct": -0.04772837
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.06345229211359812,
+        "cost_basis": 56672.0,
+        "current_price": 40.86,
+        "investment_recommendation_covered": false,
+        "market_value": 65376.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "600036.SH",
+        "security_name": "招商银行",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 8704.0,
+        "unrealized_pnl_pct": 0.15358554
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.03589573500258983,
+        "cost_basis": 40216.0,
+        "current_price": 46.23,
+        "investment_recommendation_covered": false,
+        "market_value": 36984.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "600276.SH",
+        "security_name": "恒瑞医药",
+        "trade_authority": "NONE",
+        "unrealized_pnl": -3232.0,
+        "unrealized_pnl_pct": -0.08036602
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.05232756480990775,
+        "cost_basis": 49007.0,
+        "current_price": 77.02,
+        "investment_recommendation_covered": false,
+        "market_value": 53914.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "600309.SH",
+        "security_name": "万华化学",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 4907.0,
+        "unrealized_pnl_pct": 0.10012855
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.04004203015538736,
+        "cost_basis": 40644.0,
+        "current_price": 22.92,
+        "investment_recommendation_covered": false,
+        "market_value": 41256.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "600406.SH",
+        "security_name": "国电南瑞",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 612.0,
+        "unrealized_pnl_pct": 0.01505757
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.08983639497727977,
+        "cost_basis": 79792.0,
+        "current_price": 57.85,
+        "investment_recommendation_covered": false,
+        "market_value": 92560.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "600660.SH",
+        "security_name": "福耀玻璃",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 12768.0,
+        "unrealized_pnl_pct": 0.16001604
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.03742147844364735,
+        "cost_basis": 35064.0,
+        "current_price": 21.42,
+        "investment_recommendation_covered": false,
+        "market_value": 38556.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "600690.SH",
+        "security_name": "海尔智家",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 3492.0,
+        "unrealized_pnl_pct": 0.09958932
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.06064150775907995,
+        "cost_basis": 58234.0,
+        "current_price": 28.4,
+        "investment_recommendation_covered": false,
+        "market_value": 62480.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "600900.SH",
+        "security_name": "长江电力",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 4246.0,
+        "unrealized_pnl_pct": 0.07291273
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.060290159714765174,
+        "cost_basis": 47268.0,
+        "current_price": 34.51,
+        "investment_recommendation_covered": false,
+        "market_value": 62118.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "600938.SH",
+        "security_name": "中国海油",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 14850.0,
+        "unrealized_pnl_pct": 0.31416603
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.06786549531110991,
+        "cost_basis": 60879.0,
+        "current_price": 99.89,
+        "investment_recommendation_covered": false,
+        "market_value": 69923.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "600941.SH",
+        "security_name": "中国移动",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 9044.0,
+        "unrealized_pnl_pct": 0.14855697
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.03665278327487028,
+        "cost_basis": 45858.0,
+        "current_price": 62.94,
+        "investment_recommendation_covered": false,
+        "market_value": 37764.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION",
+          "DRAWDOWN_GE_15PCT"
+        ],
+        "orders": 0,
+        "security_id": "601138.SH",
+        "security_name": "工业富联",
+        "trade_authority": "NONE",
+        "unrealized_pnl": -8094.0,
+        "unrealized_pnl_pct": -0.17650137
+      },
+      {
+        "account": "SIMULATION",
+        "account_weight": 0.03273748490258909,
+        "cost_basis": 30240.0,
+        "current_price": 33.73,
+        "investment_recommendation_covered": false,
+        "market_value": 33730.0,
+        "monitoring_flags": [
+          "NO_CURRENT_S2_RECOMMENDATION"
+        ],
+        "orders": 0,
+        "security_id": "601899.SH",
+        "security_name": "紫金矿业",
+        "trade_authority": "NONE",
+        "unrealized_pnl": 3490.0,
+        "unrealized_pnl_pct": 0.11541005
+      }
+    ],
+    "status": "PASS_PORTFOLIO_PERFORMANCE_MONITORING",
+    "trade_authority": "NONE",
+    "unique_security_count": 22
+  },
   "portfolio_uncovered": [
     {
       "accounts": [
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 87.73,
+      "current_price": 87.49,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "000333.SZ",
@@ -116,7 +598,7 @@
         "REAL"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 1.273,
+      "current_price": 1.268,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "159352.SZ",
@@ -129,7 +611,7 @@
         "REAL"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 2.074,
+      "current_price": 2.079,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "159612.SZ",
@@ -142,7 +624,7 @@
         "REAL"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 2.037,
+      "current_price": 2.033,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "159655.SZ",
@@ -168,7 +650,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 15.08,
+      "current_price": 15.16,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "300012.SZ",
@@ -181,7 +663,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 61.87,
+      "current_price": 60.95,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "300124.SZ",
@@ -194,7 +676,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 363.55,
+      "current_price": 358.1,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "300750.SZ",
@@ -208,7 +690,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 7.967,
+      "current_price": 7.881,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "510500.SH",
@@ -221,7 +703,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 40.12,
+      "current_price": 40.86,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "600036.SH",
@@ -234,7 +716,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 46.07,
+      "current_price": 46.23,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "600276.SH",
@@ -247,7 +729,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 76.32,
+      "current_price": 77.02,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "600309.SH",
@@ -260,7 +742,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 22.97,
+      "current_price": 22.92,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "600406.SH",
@@ -273,7 +755,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 56.59,
+      "current_price": 57.85,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "600660.SH",
@@ -286,7 +768,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 21.18,
+      "current_price": 21.42,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "600690.SH",
@@ -299,7 +781,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 28.09,
+      "current_price": 28.4,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "600900.SH",
@@ -312,7 +794,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 34.71,
+      "current_price": 34.51,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "600938.SH",
@@ -325,7 +807,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 99.05,
+      "current_price": 99.89,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "600941.SH",
@@ -338,7 +820,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 64.84,
+      "current_price": 62.94,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "601138.SH",
@@ -351,7 +833,7 @@
         "SIMULATION"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 33.67,
+      "current_price": 33.73,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "601899.SH",
@@ -364,7 +846,7 @@
         "REAL"
       ],
       "action": "NO_CURRENT_S2_RECOMMENDATION",
-      "current_price": 35.11,
+      "current_price": 33.89,
       "orders": 0,
       "ready_for_user_decision": false,
       "security_id": "605090.SH",
@@ -385,29 +867,15 @@
   "research_queue": {
     "batch_size": 10,
     "routing_summary": {
-      "advance_to_d2_count": 3,
+      "advance_to_d2_count": 0,
       "ready_for_user_decision": 0,
       "reject_count": 0,
-      "watch_count": 7
+      "watch_count": 10
     },
     "rows": [
       {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 1,
-        "d2_questions": [
-          "Separate cyclical/base-effect recovery from durable operating improvement.",
-          "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
-          "Normalize earnings and cash flow using the latest primary financial disclosures.",
-          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-          "Define the first-rejection test and the evidence that would invalidate the thesis."
-        ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "002437.SZ",
-        "security_name": "誉衡药业"
-      },
-      {
-        "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-        "d1_rank": 2,
         "d2_questions": [
           "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
           "Test whether the expected return remains attractive after normalizing current momentum.",
@@ -415,13 +883,13 @@
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "300983.SZ",
-        "security_name": "尤安设计"
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "301108.SZ",
+        "security_name": "洁雅股份"
       },
       {
-        "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-        "d1_rank": 3,
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
+        "d1_rank": 2,
         "d2_questions": [
           "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
           "Compare the opportunity with lower-risk defensive and cash alternatives.",
@@ -429,12 +897,26 @@
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "301109.SZ",
-        "security_name": "军信股份"
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "000333.SZ",
+        "security_name": "美的集团"
       },
       {
-        "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
+        "d1_rank": 3,
+        "d2_questions": [
+          "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
+          "Measure how much growth or margin improvement the current valuation already discounts.",
+          "Normalize earnings and cash flow using the latest primary financial disclosures.",
+          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+          "Define the first-rejection test and the evidence that would invalidate the thesis."
+        ],
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "688485.SH",
+        "security_name": "九州一轨"
+      },
+      {
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 4,
         "d2_questions": [
           "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
@@ -443,12 +925,12 @@
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "000518.SZ",
-        "security_name": "四环生物"
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "688309.SH",
+        "security_name": "恒誉科技"
       },
       {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 5,
         "d2_questions": [
           "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
@@ -457,12 +939,12 @@
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "000598.SZ",
-        "security_name": "兴蓉环境"
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "601818.SH",
+        "security_name": "光大银行"
       },
       {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 6,
         "d2_questions": [
           "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
@@ -471,12 +953,12 @@
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "601700.SH",
-        "security_name": "风范股份"
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "300951.SZ",
+        "security_name": "博硕科技"
       },
       {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 7,
         "d2_questions": [
           "Separate cyclical/base-effect recovery from durable operating improvement.",
@@ -485,12 +967,12 @@
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "002165.SZ",
-        "security_name": "红 宝 丽"
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "003040.SZ",
+        "security_name": "楚天龙"
       },
       {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 8,
         "d2_questions": [
           "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
@@ -499,12 +981,12 @@
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "002832.SZ",
-        "security_name": "比音勒芬"
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "301072.SZ",
+        "security_name": "中捷精工"
       },
       {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 9,
         "d2_questions": [
           "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
@@ -513,30 +995,30 @@
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "300770.SZ",
-        "security_name": "新媒股份"
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "600018.SH",
+        "security_name": "上港集团"
       },
       {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 10,
         "d2_questions": [
-          "Separate cyclical/base-effect recovery from durable operating improvement.",
-          "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
+          "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
+          "Measure how much growth or margin improvement the current valuation already discounts.",
           "Normalize earnings and cash flow using the latest primary financial disclosures.",
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "600272.SH",
-        "security_name": "开开实业"
+        "research_priority": "B_WATCH_OR_TRIGGER",
+        "security_id": "920045.BJ",
+        "security_name": "蘅东光"
       }
     ]
   },
   "schema_version": "1.0.0",
   "source_bindings": {
     "investment_pipeline": {
-      "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_5f11c7465c3386f2",
+      "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_85f95e3d0f2d6aea",
       "domain": "INVESTMENT_PIPELINE",
       "recommendation_state_id": "RECOMMENDATION_CURRENT_64825fa8ffdb8daf",
       "source_commit": "f1b41fd4172390c2edbc2d4645475aa2cc5c52d4",
@@ -544,11 +1026,11 @@
     },
     "portfolio_marks": {
       "domain": "PORTFOLIO_MARKS",
-      "source_commit": "d0aefac96b660f2e576a36ac76051019f089e966",
-      "watermark": "2026-08-31"
+      "source_commit": "ad429fc5a5e8d0985d9bf4c009621b5151046ca9",
+      "watermark": "2026-09-01"
     }
   },
   "status": "PASS_S3_PORTFOLIO_PRODUCT_SURFACE",
-  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_87d1c23bb109949b",
+  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_d4dc2ecc8a915f37",
   "trade_authority": "NONE"
 }

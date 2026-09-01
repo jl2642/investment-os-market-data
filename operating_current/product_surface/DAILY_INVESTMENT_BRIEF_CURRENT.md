@@ -1,8 +1,9 @@
 # 股票投资助手｜Daily Investment Brief
 
-- 数据日期：2026-08-31
+- 数据日期：2026-09-01
 - 当前需人工复核的决策项：0
-- 当前持仓覆盖：0 / 22
+- 持仓绩效监控：22 / 22（账户持仓行 23）
+- 当前投资判断覆盖：0 / 22
 - 新机会：3
 - 自动交易：关闭；orders = 0；trade_authority = NONE
 
@@ -35,29 +36,42 @@
 - 601899.SH 紫金矿业：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 605090.SH 九丰能源：暂无当前 S2 underwriting / recommendation，不生成动作。
 
-## 2. 新资本机会
+## 2. 组合表现与再承销队列
+
+- REAL：总资产 793,744.79；账户累计收益 —；持仓数 7。
+- SIMULATION：总资产 1,030,317.39；账户累计收益 30,317.39；持仓数 16。
+
+### 优先持仓再承销
+
+- HIGH｜605090.SH 九丰能源｜账户 REAL｜最大账户权重 42.3%｜最差浮盈亏 2.5%｜触发 ACCOUNT_WEIGHT_GE_15PCT,NO_CURRENT_S2_RECOMMENDATION
+- HIGH｜601138.SH 工业富联｜账户 SIMULATION｜最大账户权重 3.7%｜最差浮盈亏 -17.7%｜触发 DRAWDOWN_GE_15PCT,NO_CURRENT_S2_RECOMMENDATION
+- HIGH｜300750.SZ 宁德时代｜账户 SIMULATION｜最大账户权重 3.5%｜最差浮盈亏 -20.6%｜触发 DRAWDOWN_GE_15PCT,NO_CURRENT_S2_RECOMMENDATION
+
+## 3. 新资本机会
 
 - WATCH｜000518.SZ 四环生物｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
 - WATCH｜300983.SZ 尤安设计｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
 - WATCH｜301109.SZ 军信股份｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
 
-## 3. 研究队列
+## 4. 研究队列
 
-- D1 本轮：10 只；进入 D2：3 只。
-- 1. 002437.SZ 誉衡药业｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
-- 2. 300983.SZ 尤安设计｜ADVANCE_TO_D2_FAST_TRIAGE
-- 3. 301109.SZ 军信股份｜ADVANCE_TO_D2_FAST_TRIAGE
-- 4. 000518.SZ 四环生物｜ADVANCE_TO_D2_FAST_TRIAGE
-- 5. 000598.SZ 兴蓉环境｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
-- 6. 601700.SH 风范股份｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
-- 7. 002165.SZ 红 宝 丽｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
-- 8. 002832.SZ 比音勒芬｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
-- 9. 300770.SZ 新媒股份｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
-- 10. 600272.SH 开开实业｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
+- D1 本轮：10 只；进入 D2：0 只。
+- 1. 301108.SZ 洁雅股份｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- 2. 000333.SZ 美的集团｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- 3. 688485.SH 九州一轨｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- 4. 688309.SH 恒誉科技｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- 5. 601818.SH 光大银行｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- 6. 300951.SZ 博硕科技｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- 7. 003040.SZ 楚天龙｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- 8. 301072.SZ 中捷精工｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- 9. 600018.SH 上港集团｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- 10. 920045.BJ 蘅东光｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
 
-## 4. 决策边界
+## 5. 决策边界
 
-- 本简报只整合当前持仓身份、Portfolio Marks、S2 D1/D2/Recommendation。
+- 本简报持续维护真实盘/模拟盘的持仓身份、市场估值、组合表现与再承销优先级，并整合 S2 D1/D2/Recommendation。
+- 绩效监控覆盖与投资判断覆盖是两个不同指标；未完成 D2 不等于持仓未被维护。
+- 用户只需报告系统无法自行获知的实际交易、入出金或其他私有经济事实；公开行情/NAV/公司行动/财报与持仓绩效由系统维护。
 - 旧 R3/R4/WP5 决策包不再作为当前产品入口，只保留历史追溯价值。
 - ready_for_user_decision 只表示值得人工复核，不表示已授权执行。
 - 任何真实/模拟持仓变化仍需显式用户决策；系统不下单、不自动调仓。
