@@ -42,6 +42,7 @@ on:
       - "scripts/refresh_investment_os_interface.py"
       - "tests/test_a_share_chain_coherence.py"
       - "tests/test_post_occ_history_dependency_materialization.py"
+      - "tests/test_post_occ_success_driven_orchestration.py"
       - "tests/test_round1_governed_publication_workflows.py"
 
 permissions:
@@ -83,6 +84,7 @@ jobs:
           python -m py_compile scripts/materialize_fmdl_history_dependencies.py
           pytest -q \
             tests/test_post_occ_history_dependency_materialization.py \
+            tests/test_post_occ_success_driven_orchestration.py \
             tests/test_fmdl2b4_incremental_refresh.py \
             tests/test_fmdl2b4_snapshot_identity.py \
             tests/test_fmdl2c_screening_funnel.py \
