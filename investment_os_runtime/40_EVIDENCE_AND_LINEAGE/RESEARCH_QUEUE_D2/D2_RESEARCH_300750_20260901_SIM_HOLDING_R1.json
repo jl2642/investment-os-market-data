@@ -5,7 +5,7 @@
   "security_name": "宁德时代",
   "account_context": "SIMULATION_EXISTING_HOLDING",
   "status": "D2_RESEARCH_COMPLETE",
-  "research_disposition": "ADD",
+  "research_disposition": "HOLD",
   "research_update_type": "USER_MANUAL_EXISTING_SIMULATION_HOLDING_UNDERWRITING",
   "valuation_horizon": "12_MONTH",
   "position_context": {
@@ -15,7 +15,12 @@
     "canonical_current_price": 363.55,
     "market_value": 36355,
     "approximate_simulation_nav_weight": 0.0354488,
-    "position_mutation_authorized": false
+    "position_mutation_authorized": false,
+    "simulation_nav_reference": 1025562.29,
+    "current_weight": 0.0354488463,
+    "minimum_buy_lot_shares": 100,
+    "minimum_buy_lot_value_at_365": 36500,
+    "post_minimum_lot_weight_approx": 0.0712
   },
   "thesis": {
     "core": "动力电池全球份额和储能增长继续强化规模与技术护城河，2026H1收入和利润高速增长、产能利用率接近95%，当前估值相对增长质量已具备合理安全边际。",
@@ -60,13 +65,14 @@
     "expected_return": 0.2027644,
     "hurdle_entry_price_15pct": 380.23,
     "hurdle_entry_price_20pct": 364.39,
-    "action": "ADD",
+    "action": "HOLD",
     "add_at_or_below": 365,
     "proposed_simulation_add": {
-      "quantity": 40,
+      "quantity": 0,
+      "minimum_executable_lot": 100,
       "max_price": 365,
-      "purpose": "raise existing simulation weight from about 3.5% toward 5% NAV",
-      "execution_status": "NOT_AUTHORIZED_NOT_EXECUTED"
+      "execution_status": "NOT_RECOMMENDED_UNDER_CURRENT_POSITION_SIZE_BUDGET",
+      "note": "Security-level expected return supports ADD at/below 365, but the minimum A-share buy lot is 100 shares. One additional lot would roughly double the position to ~7.1% of simulation NAV, above the intended ~5% allocation. Keep HOLD unless the user explicitly approves a higher position-size budget."
     },
     "catalysts": [
       "动力电池全球份额维持约40%及以上并继续提升",
@@ -80,7 +86,9 @@
       "动力电池毛利率持续跌破18%并伴随价格竞争恶化",
       "经营现金流/自由现金流显著弱化且海外扩产回报低于资本成本",
       "重大海外监管、技术安全或产能爬坡问题削弱全球扩张"
-    ]
+    ],
+    "security_level_action": "ADD",
+    "portfolio_action_reason": "A_SHARE_MINIMUM_BUY_LOT_100_SHARES_WOULD_RAISE_POSITION_FROM_ABOUT_3.5_PERCENT_TO_ABOUT_7.1_PERCENT_NAV_EXCEEDING_THE_INTENDED_APPROX_5_PERCENT_RISK_BUDGET"
   },
   "d2_answers": [
     {
@@ -95,7 +103,7 @@
     },
     {
       "question": "持仓动作？",
-      "judgment": "ADD候选。以365元及以下为执行门槛，若用户明确批准，可在模拟盘增加40股，使总仓位接近5% NAV；真实账户不操作。"
+      "judgment": "SECURITY_LEVEL_ADD_BUT_PORTFOLIO_HOLD. 现有100股继续HOLD。A股竞价买入最小100股；若再买100股，仓位将从约3.5%升至约7.1%，超过原定约5%的单股风险预算，因此当前不执行加仓。只有用户明确接受更高仓位预算时，才重新评估100股整手ADD。"
     }
   ],
   "first_rejection_test": "如果份额和毛利率同时恶化，尤其动力电池全球份额持续跌破约37%且动力毛利率跌破18%，则撤销ADD并转HOLD/TRIM再承保。",
@@ -131,7 +139,7 @@
       "as_of": "2026-08-31"
     }
   ],
-  "source_quality_note": "核心经营和分部数据来自正式半年报；EPS中枢参考多家机构预测。情景估值、概率、365元门槛和40股建议均为ChatGPT投资判断，不是公司指引或自动执行指令。",
+  "source_quality_note": "核心经营和分部数据来自正式半年报；EPS中枢参考多家机构预测。情景估值、概率、365元门槛和40股建议均为ChatGPT投资判断，不是公司指引或自动执行指令。 Execution feasibility corrected on 2026-09-01: A-share buy orders must be 100 shares or integer multiples; the prior 40-share implementation suggestion was invalid and is superseded.",
   "controls": {
     "candidate_membership_mutations": 0,
     "real_account_mutations": 0,
@@ -139,5 +147,13 @@
     "decision_mutations": 0,
     "orders": 0,
     "trade_authority": "NONE"
-  }
+  },
+  "correction_log": [
+    {
+      "corrected_at": "2026-09-01",
+      "issue": "INVALID_A_SHARE_BUY_QUANTITY_40_SHARES",
+      "correction": "MINIMUM_BUY_LOT_IS_100_SHARES; SECURITY_LEVEL_ADD_RETAINED_BUT_PORTFOLIO_ACTION_CHANGED_TO_HOLD_UNDER_APPROX_5_PERCENT_POSITION_BUDGET",
+      "impact": "NO_SIMULATION_MUTATION_OCCURRED"
+    }
+  ]
 }
