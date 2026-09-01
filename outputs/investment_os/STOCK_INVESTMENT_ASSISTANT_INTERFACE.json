@@ -1,5 +1,5 @@
 {
-  "interface_id": "STOCK_INVESTMENT_ASSISTANT_UNIFIED_CHATGPT_INTERFACE_V1",
+  "interface_id": "STOCK_INVESTMENT_ASSISTANT_UNIFIED_CHATGPT_INTERFACE_V1_S1_COMPATIBILITY",
   "canonical_repository": "jl2642/investment-os-market-data",
   "canonical_branch": "main",
   "purpose": "Single read entrypoint for ChatGPT daily operations across A-share, HK Stock Connect, bounded US research, REAL and SIMULATION portfolios.",
@@ -16,7 +16,7 @@
     "real_portfolio": "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json",
     "simulation_portfolio": "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json",
     "wp3r_acceptance": "investment_os_runtime/00_CONTROL/WP3_R_CANDIDATE_REFRESH_ACCEPTANCE_RECORD.json",
-    "system_current": "outputs/investment_os/STOCK_INVESTMENT_ASSISTANT_CURRENT.json"
+    "system_current": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
   },
   "query_modes": [
     "DAILY_OPERATING_STATUS",
@@ -28,5 +28,13 @@
   ],
   "write_boundary": "READ_AND_RECOMMEND_ONLY; governed source workflows may propose state changes, but ChatGPT must not infer execution or bypass user gates.",
   "orders": 0,
-  "trade_authority": "NONE"
+  "trade_authority": "NONE",
+  "canonical_runtime_branch": "operating-current",
+  "system_level_authority": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json",
+  "runtime_index": {
+    "branch": "operating-current",
+    "path": "operating_current/OPERATING_CURRENT_INDEX.json"
+  },
+  "interface_status": "COMPATIBILITY_READ_INTERFACE_NOT_WHOLE_SYSTEM_AUTHORITY",
+  "legacy_note": "This interface remains a compatibility read map during S1. Whole-system maturity and roadmap authority come only from SYSTEM_CURRENT.json; runtime freshness comes from operating-current."
 }
