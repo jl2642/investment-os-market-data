@@ -294,3 +294,34 @@ def test_s2_runtime_binds_screen_vars_before_same_step_use() -> None:
     assert bind_token in text
     assert fetch_token in text
     assert text.index(bind_token) < text.index(fetch_token)
+
+
+def test_s4_explicit_transaction_callbacks_avoid_github_token_workflow_run_gap() -> None:
+    s2 = (
+        ROOT / ".github/workflows/s2-investment-pipeline.yml"
+    ).read_text(encoding="utf-8")
+    d2 = (
+        ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml"
+    ).read_text(encoding="utf-8")
+    s3 = (
+        ROOT / ".github/workflows/s3-portfolio-product-surface.yml"
+    ).read_text(encoding="utf-8")
+
+    assert 'mode:' in s2
+    assert '"d2_callback"' in s2
+    assert s2.count("inputs.mode == 'd2_callback'") >= 4
+    assert (
+        "gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback"
+        in d2
+    )
+    assert "actions: write" in d2
+    assert "GH_TOKEN: ${{ github.token }}" in d2
+    assert "gh workflow run s3-portfolio-product-surface.yml --ref main" in s2
+
+    s3_trigger = s3.split("permissions:", 1)[0]
+    assert '- "S2 Investment Pipeline"' not in s3_trigger
+    assert '- "R2 WP2-R Market Marks Refresh"' in s3_trigger
+
+    combined = s2 + d2 + s3
+    assert "secrets.PAT" not in combined
+    assert "personal_access_token" not in combined.lower()
