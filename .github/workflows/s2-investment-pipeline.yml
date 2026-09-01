@@ -13,6 +13,7 @@ on:
       - ".github/workflows/p4-3-unified-recommendation.yml"
       - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
       - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/D2_UNDERWRITING_CONTRACT.json"
   push:
     branches: [main]
     paths:
@@ -22,6 +23,7 @@ on:
       - ".github/workflows/research-queue-d2-auto-consumer.yml"
       - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
       - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/D2_UNDERWRITING_CONTRACT.json"
   workflow_run:
     workflows:
       - "FMDL Daily A-share Governed Production"
@@ -36,7 +38,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: s2-investment-pipeline-${{ github.event_name }}
+  group: s2-investment-pipeline
   cancel-in-progress: false
 
 env:
@@ -105,8 +107,13 @@ jobs:
               "capital_comparison_available",
               "PHASE2C_CURRENT_SHADOW_COMPARISON_PACK",
           ]
+          import json
           assert all(token not in text for token in forbidden)
           assert "candidate_membership_required" in text
+          contract=json.loads(Path("investment_os_runtime/00_CONTROL/D2_UNDERWRITING_CONTRACT.json").read_text(encoding="utf-8"))
+          assert contract["scenarios"]["required_names"] == ["BEAR","BASE","BULL"]
+          assert contract["controls"]["trade_authority"] == "NONE"
+          assert contract["controls"]["orders"] == 0
           print({"orphan_gate_count": 0, "orders": 0, "trade_authority": "NONE"})
           PY
 
