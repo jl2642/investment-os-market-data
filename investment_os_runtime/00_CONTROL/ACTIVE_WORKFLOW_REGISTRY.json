@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "registry_id": "S4_FINAL_HYGIENE_REGISTRY",
+  "registry_id": "S4_FINAL_FROZEN_RUNTIME_REGISTRY",
   "effective_date": "2026-09-01",
   "authority": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json",
   "policy": {
@@ -10,7 +10,11 @@
     "legacy_development_workflows_must_not_run_automatically": true,
     "s2_transitional_workflows_may_remain_active_only_until_replaced": false,
     "s3_portfolio_surface_replaces_legacy_freshness_bridge": true,
-    "supporting_non_blocking_runtime_does_not_establish_product_health": true
+    "supporting_non_blocking_runtime_does_not_establish_product_health": true,
+    "event_driven_primary_runtime": true,
+    "fixed_clock_wakeups_only_for_market_data_marks_and_recovery": true,
+    "semantic_d2_is_chatgpt_native_and_condition_gated": true,
+    "periodic_investment_reviews_are_maturity_gated_not_calendar_products": true
   },
   "active_runtime_core": [
     {
@@ -116,18 +120,18 @@
   "active_investment_runtime": [
     {
       "path": ".github/workflows/s2-investment-pipeline.yml",
-      "role": "PRIMARY_OPPORTUNITY_D1_CAPITAL_COMPARISON_RECOMMENDATION_PIPELINE",
-      "primary_or_recovery": "PRIMARY"
+      "role": "PRIMARY_EVENT_DRIVEN_OPPORTUNITY_D1_CAPITAL_COMPARISON_RECOMMENDATION_PIPELINE",
+      "primary_or_recovery": "EVENT_DRIVEN_PRIMARY"
     },
     {
       "path": ".github/workflows/research-queue-d2-auto-consumer.yml",
-      "role": "D2_QUEUE_DISCOVERY_AND_UNDERWRITING_HANDOFF",
-      "primary_or_recovery": "PRIMARY"
+      "role": "D2_QUEUE_DISCOVERY_PRIMARY_EVIDENCE_AND_CHATGPT_SEMANTIC_UNDERWRITING_HANDOFF",
+      "primary_or_recovery": "EVENT_DRIVEN_HANDOFF"
     },
     {
       "path": ".github/workflows/s3-portfolio-product-surface.yml",
       "role": "PORTFOLIO_DECISION_AND_USER_PRODUCT_SURFACE",
-      "primary_or_recovery": "PRIMARY"
+      "primary_or_recovery": "EVENT_DRIVEN_PRIMARY"
     }
   ],
   "s2_primary_chain": {
@@ -154,7 +158,7 @@
     "merge_sha": "b5c5038be3ca5c82eb56e9a4545497b07960e91a",
     "canonical_main_validation_head": "b0cf8041320d9243f5a056ed67dbbe4687fed3e6",
     "status": "COMPLETE_ON_MAIN",
-    "natural_runtime_acceptance": "DEFERRED_TO_S4"
+    "natural_runtime_acceptance": "PASS_IN_S4"
   },
   "supporting_non_blocking_runtime": [
     {
@@ -178,5 +182,21 @@
       "blocks_primary_investment_chain": false
     }
   ],
-  "s4_hygiene_status": "IN_PROGRESS_CONTROLLED_REPLAY_PENDING"
+  "s4_hygiene_status": "COMPLETE_ON_MAIN",
+  "scheduling_model": {
+    "primary_chain": "FMDL_DAILY_SUCCESS→S2→D2_WORKFLOW_DISPATCH→S2_D2_CALLBACK→S3",
+    "fixed_clock_primary": [
+      ".github/workflows/fmdl-daily-production.yml",
+      ".github/workflows/wp2_r_market_marks_refresh.yml"
+    ],
+    "fixed_clock_recovery": [
+      ".github/workflows/fmdl-2b4-full-rebase.yml"
+    ],
+    "s2_fixed_cron": false,
+    "d2_fixed_cron": false,
+    "d2_semantic_underwriting": "CHATGPT_NATIVE_EXPLICIT_USER_START_WHEN_DECISION_GRADE_RESEARCH_IS_READY",
+    "review_cycles": "CONDITION_AND_EVIDENCE_MATURITY_GATED",
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
 }
