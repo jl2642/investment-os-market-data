@@ -30,6 +30,11 @@
       "path": ".github/workflows/operating-current-failure-receipts.yml",
       "role": "FAILURE_RECEIPT_AND_LATEST_ATTEMPT_TRUTH",
       "primary_or_recovery": "SUPPORT"
+    },
+    {
+      "path": ".github/workflows/s2-investment-pipeline.yml",
+      "role": "PRIMARY_SIMPLIFIED_INVESTMENT_PIPELINE",
+      "primary_or_recovery": "PRIMARY"
     }
   ],
   "transitional_investment_runtime_until_s2_s3": [
@@ -109,5 +114,14 @@
       "role": "D2_QUEUE_DISCOVERY_AND_UNDERWRITING_HANDOFF",
       "primary_or_recovery": "PRIMARY"
     }
-  ]
+  ],
+  "s2_primary_chain": {
+    "workflow": ".github/workflows/s2-investment-pipeline.yml",
+    "d2_consumer": ".github/workflows/research-queue-d2-auto-consumer.yml",
+    "stages": [
+      "OPPORTUNITY_RESEARCH",
+      "RESEARCH_D2",
+      "INVESTMENT_PIPELINE"
+    ]
+  }
 }
