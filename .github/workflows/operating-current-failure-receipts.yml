@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows:
       - "FMDL Daily A-share Governed Production"
-      - "FMDL 2B-4 Multi-Session Recovery"
+      - "FMDL 2B-4 Multi-Session Full Rebase Recovery"
       - "R2 WP2-R Market Marks Refresh"
       - "WP3-R Weekly Candidate Price Screen"
       - "Research Queue D2 Auto Consumer"
@@ -41,7 +41,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           case "$SOURCE_WORKFLOW" in
-            "FMDL Daily A-share Governed Production"|"FMDL 2B-4 Multi-Session Recovery")
+            "FMDL Daily A-share Governed Production"|"FMDL 2B-4 Multi-Session Full Rebase Recovery")
               DOMAIN="A_SHARE_FULL_MARKET"
               ;;
             "R2 WP2-R Market Marks Refresh")

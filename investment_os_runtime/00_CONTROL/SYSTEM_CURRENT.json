@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S4_END_TO_END_ACCEPTANCE_HYGIENE_IN_PROGRESS",
-  "product_maturity": "S4_END_TO_END_ACCEPTANCE_IN_PROGRESS",
+  "program_state": "S4_END_TO_END_ACCEPTANCE_HYGIENE_COMPLETE_SYSTEM_FROZEN",
+  "product_maturity": "PRODUCTION_OPERATIONAL_ACCEPTED",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -45,8 +45,8 @@
     "s1": "COMPLETE_ON_MAIN",
     "s2": "COMPLETE_ON_MAIN",
     "s3": "COMPLETE_ON_MAIN",
-    "s4": "IN_PROGRESS",
-    "development_closed": false
+    "s4": "COMPLETE_ON_MAIN",
+    "development_closed": true
   },
   "non_goals": [
     "NEW_MARKETS",
@@ -225,7 +225,7 @@
     "portfolio_product_surface_current": "MISSING",
     "root_cause_1": "S2_SAME_STEP_GITHUB_ENV_SCREEN_BRANCH_NOT_AVAILABLE",
     "repair_1_status": "PASS_ON_MAIN_NATURAL_RUNTIME",
-    "natural_e2e_status": "FAIL_CALLBACK_GAP_FOUND",
+    "natural_e2e_status": "PASS_CORE_CHAIN_WITH_EXPLICIT_D2_CALLBACK",
     "root_cause_2": "DIRECT_PUBLISHER_EXECUTION_MISSING_REPO_ROOT_ON_SYS_PATH",
     "repair_2_status": "PASS_ON_MAIN_NATURAL_RUNTIME",
     "d1_production_observed": {
@@ -243,8 +243,8 @@
     },
     "transaction_callback_design": "EXPLICIT_WORKFLOW_DISPATCH_S2_D2_CALLBACK_THEN_S3",
     "root_cause_4": "S3_PRODUCT_SURFACE_READ_MARK_PRICE_OR_PRICE_BUT_CANONICAL_PORTFOLIO_MARKS_FIELD_IS_MARK",
-    "repair_4_status": "MERGED_TO_MAIN_REPLAY_PENDING",
-    "core_e2e_status": "PASS_FIRST_COMPLETE_PRODUCT_CHAIN",
+    "repair_4_status": "PASS_ON_MAIN_RUNTIME_READBACK",
+    "core_e2e_status": "PASS_COMPLETE_PRODUCT_CHAIN",
     "product_surface_first_pass": {
       "source_run_id": "33477574288",
       "status": "PASS",
@@ -255,22 +255,49 @@
     },
     "screening_freshness_gap": {
       "market_current": "2026-08-31",
-      "latest_chain_coherent_screening": "2026-08-28",
-      "old_daily_failure_run": "33418206299",
-      "old_failure_root_cause": "MISSING_HISTORY_COMPONENT_FROM_OLD_BASELINE",
-      "current_main_has_dependency_materialization_repair": true,
-      "controlled_same_date_replay": "PENDING"
-    }
+      "chain_coherent_screening": "2026-08-31",
+      "prior_gap": "2026-08-31_MARKET_VS_2026-08-28_SCREENING",
+      "prior_failure_run": "33418206299",
+      "prior_failure_root_cause": "MISSING_HISTORY_COMPONENT_FROM_OLD_BASELINE",
+      "current_main_dependency_materialization_repair": "PASS",
+      "controlled_same_date_replay": "PASS_CHAIN_COHERENT",
+      "status": "CLOSED"
+    },
+    "controlled_replay": {
+      "run_id": "33478675609",
+      "conclusion": "SUCCESS",
+      "data_watermark": "2026-08-31",
+      "qc_status": "PASS_CHAIN_COHERENT",
+      "source_branch": "automation/fmdl-daily-33478675609-a1",
+      "source_commit_sha": "175be130ab8464d2d31fe080956835c7eef3a34e",
+      "published_at_utc": "2026-09-01T07:20:12Z",
+      "purpose": "PROVE_CURRENT_MAIN_A_SHARE_MARKET_HISTORY_FACTOR_SCREENING_CHAIN"
+    },
+    "controlled_replay_downstream_note": "The temporary replay was itself dispatched by repository GITHUB_TOKEN, so its completion is upstream freshness acceptance; the S2→D2 explicit callback→S3 product chain was separately proven on current main before freeze."
   },
   "s4_hygiene": {
-    "obsolete_p4_4_p4_5_automatic_runtime": "RETIRED_IN_PR",
-    "redundant_d2_push_trigger": "REMOVED_IN_PR",
-    "stale_occ_r5_tests": "UPDATED_IN_PR",
-    "transitional_registry": "CLOSED_IN_PR",
+    "obsolete_p4_4_p4_5_automatic_runtime": "RETIRED_ON_MAIN",
+    "redundant_d2_push_trigger": "REMOVED_ON_MAIN",
+    "stale_occ_r5_tests": "UPDATED_ON_MAIN",
+    "transitional_registry": "CLOSED_ON_MAIN",
     "repository_size_kb": 2068202,
     "destructive_branch_history_cleanup": "DEFERRED_OPTIONAL_MAINTENANCE_NOT_S4_BLOCKER",
     "controlled_replay_workflow": ".github/workflows/s4-controlled-same-date-replay.yml",
-    "controlled_replay_status": "PENDING_MERGE_DISPATCH",
-    "temporary_replay_workflow_must_be_removed_before_freeze": true
+    "controlled_replay_status": "PASS_AND_TEMPORARY_WORKFLOW_REMOVED_IN_FINAL_FREEZE",
+    "temporary_replay_workflow_must_be_removed_before_freeze": false
+  },
+  "operating_model": {
+    "primary_runtime": "EVENT_DRIVEN_WITH_CLOCK_WAKEUPS_FOR_MARKET_DATA_MARKS_AND_RECOVERY_ONLY",
+    "fixed_periodic_investment_reports": false,
+    "review_model": "CONDITION_AND_EVIDENCE_MATURITY_GATED",
+    "github_role": "DETERMINISTIC_DATA_MECHANICAL_STATE_AND_ROUTING",
+    "chatgpt_role": "DAILY_CONTROLLER_AND_SEMANTIC_D2_UNDERWRITING",
+    "complex_research_policy": "NOT_SILENTLY_AUTORUN; SURFACE_READINESS_AND_REQUIRE_EXPLICIT_USER_START_FOR_DECISION_GRADE_UNDERWRITING",
+    "user_surface": [
+      "DAILY_INVESTMENT_BRIEF",
+      "PORTFOLIO_DECISION_SURFACE"
+    ],
+    "orders": 0,
+    "trade_authority": "NONE"
   }
 }
