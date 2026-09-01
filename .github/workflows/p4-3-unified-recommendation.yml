@@ -143,7 +143,17 @@ jobs:
             git show origin/operating-current:operating_current/recommendations/RECOMMENDATION_CURRENT.json > "$PRIOR_RECOMMENDATION_RUNTIME"
           fi
 
-          echo "D2_SOURCE_COMMIT=$(git rev-parse refs/remotes/origin/automation/research-queue-d2-current)" >> "$GITHUB_ENV"
+          D2_SOURCE_COMMIT="$(git rev-parse refs/remotes/origin/automation/research-queue-d2-current)"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            FUNNEL_D2_COMMIT="$(python -c "import json; print(json.load(open('$FUNNEL_RUNTIME',encoding='utf-8'))['source_snapshot']['D2']['source_identity'])")"
+            if [[ -n "$FUNNEL_D2_COMMIT" && "$FUNNEL_D2_COMMIT" != "$D2_SOURCE_COMMIT" ]]; then
+              git cat-file -e "$FUNNEL_D2_COMMIT^{commit}"
+              git show "$FUNNEL_D2_COMMIT:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json" > "$D2_RUNTIME"
+              D2_SOURCE_COMMIT="$FUNNEL_D2_COMMIT"
+              echo "P43_PR_REPLAY_FUNNEL_BOUND_D2=$D2_SOURCE_COMMIT"
+            fi
+          fi
+          echo "D2_SOURCE_COMMIT=$D2_SOURCE_COMMIT" >> "$GITHUB_ENV"
 
       - name: Compile P4-3 implementation
         run: |
