@@ -241,9 +241,27 @@ def build_state(
     holds = [row for row in queue if row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
     blocked = [row for row in queue if row["status"].startswith("AUTO_RESEARCH_BLOCKED") or row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
 
+    semantic_projection = [
+        {
+            "security_id": row.get("security_id"),
+            "input_watermark": row.get("input_watermark"),
+            "status": row.get("status"),
+            "research_disposition": row.get("research_disposition"),
+            "semantic_artifact": row.get("semantic_artifact"),
+            "first_rejection_test": row.get("first_rejection_test"),
+            "evidence_gap": row.get("evidence_gap"),
+            "underwriting": row.get("underwriting"),
+        }
+        for row in queue
+    ]
+    semantic_state_hash = canonical_hash({
+        "source_d1_state_id": d1.get("state_id"),
+        "queue": semantic_projection,
+    })
+
     state = {
-        "schema_version": "1.0.0",
-        "state_id": f"RESEARCH_QUEUE_D2_CURRENT_{now.strftime('%Y%m%dT%H%M%SZ')}",
+        "schema_version": "1.1.0",
+        "state_id": f"RESEARCH_QUEUE_D2_CURRENT_{semantic_state_hash[:16]}",
         "as_of": now_iso,
         "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING" if active_pending else "D2_AUTO_CONSUMER_ACTIVE_NO_PENDING_WORK",
         "source_d1_state_id": d1.get("state_id"),
