@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "registry_id": "S3_ACTIVE_WORKFLOW_REGISTRY",
+  "registry_id": "S4_FINAL_HYGIENE_REGISTRY",
   "effective_date": "2026-09-01",
   "authority": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json",
   "policy": {
@@ -8,8 +8,9 @@
     "one_recovery_path_per_state": true,
     "unlisted_development_workflows_are_not_product_health_signals": true,
     "legacy_development_workflows_must_not_run_automatically": true,
-    "s2_transitional_workflows_may_remain_active_only_until_replaced": true,
-    "s3_portfolio_surface_replaces_legacy_freshness_bridge": true
+    "s2_transitional_workflows_may_remain_active_only_until_replaced": false,
+    "s3_portfolio_surface_replaces_legacy_freshness_bridge": true,
+    "supporting_non_blocking_runtime_does_not_establish_product_health": true
   },
   "active_runtime_core": [
     {
@@ -43,14 +44,7 @@
       "primary_or_recovery": "PRIMARY"
     }
   ],
-  "transitional_investment_runtime_until_s2_s3": [
-    ".github/workflows/wp3_r_candidate_price_ledger.yml",
-    ".github/workflows/wp3_r_candidate_refresh.yml",
-    ".github/workflows/occ-r2a-financial-valuation-live.yml",
-    ".github/workflows/p4-4-trigger-shadow.yml",
-    ".github/workflows/p4-5-forward-validation.yml",
-    ".github/workflows/round3-cross-market-limited-production.yml"
-  ],
+  "transitional_investment_runtime_until_s2_s3": [],
   "retired_automatic_workflows_s1": [
     {
       "path": ".github/workflows/r0_product_authority_freeze.yml",
@@ -99,6 +93,14 @@
     {
       "path": ".github/workflows/occ-r4-portfolio-decision-freshness.yml",
       "reason": "S3_REPLACED_LEGACY_P4_3_TO_WP5_FRESHNESS_BRIDGE_WITH_S2_DRIVEN_PORTFOLIO_PRODUCT_SURFACE"
+    },
+    {
+      "path": ".github/workflows/p4-4-trigger-shadow.yml",
+      "reason": "S4_RETIRED_OLD_P4_3_RECOMMENDATION_TRIGGER_SHADOW_CHAIN"
+    },
+    {
+      "path": ".github/workflows/p4-5-forward-validation.yml",
+      "reason": "S4_RETIRED_FORWARD_VALIDATION_DEPENDENT_ON_OLD_P4_3_P4_4_CHAIN"
     }
   ],
   "s2_replacement_targets": [
@@ -153,5 +155,28 @@
     "canonical_main_validation_head": "b0cf8041320d9243f5a056ed67dbbe4687fed3e6",
     "status": "COMPLETE_ON_MAIN",
     "natural_runtime_acceptance": "DEFERRED_TO_S4"
-  }
+  },
+  "supporting_non_blocking_runtime": [
+    {
+      "path": ".github/workflows/wp3_r_candidate_price_ledger.yml",
+      "role": "CANDIDATE_OUTCOME_AND_PRICE_OBSERVATION_SUPPORT",
+      "blocks_primary_investment_chain": false
+    },
+    {
+      "path": ".github/workflows/wp3_r_candidate_refresh.yml",
+      "role": "MANUAL_CANDIDATE_REFRESH_AUDIT_SUPPORT",
+      "blocks_primary_investment_chain": false
+    },
+    {
+      "path": ".github/workflows/occ-r2a-financial-valuation-live.yml",
+      "role": "MARKET_DRIVEN_FINANCIAL_VALUATION_CONTEXT_SUPPORT",
+      "blocks_primary_investment_chain": false
+    },
+    {
+      "path": ".github/workflows/round3-cross-market-limited-production.yml",
+      "role": "BOUNDED_CROSS_MARKET_RESEARCH_SUPPORT",
+      "blocks_primary_investment_chain": false
+    }
+  ],
+  "s4_hygiene_status": "IN_PROGRESS_CONTROLLED_REPLAY_PENDING"
 }
