@@ -208,8 +208,8 @@ def test_s3_does_not_restore_target_weight_or_automatic_mutation_engine():
         "target_weight",
         "broker_order",
         "place_order",
-        "automatic_rebalance_allowed": True",
-        "automatic_position_change_allowed": True",
+        '"automatic_rebalance_allowed": True',
+        '"automatic_position_change_allowed": True',
     ]
     assert all(token not in text for token in forbidden)
 
