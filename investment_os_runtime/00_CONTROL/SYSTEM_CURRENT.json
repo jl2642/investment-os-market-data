@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "authority_id": "STOCK_INVESTMENT_ASSISTANT_SYSTEM_CURRENT_S1",
+  "authority_id": "STOCK_INVESTMENT_ASSISTANT_SYSTEM_CURRENT_S2",
   "authority_status": "CURRENT_SYSTEM_LEVEL_AUTHORITY",
   "effective_date": "2026-09-01",
   "source_base_sha": "5e19bcfb0d22ce74acf357983ee205bce8b70d59",
@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S1_CONTROL_AND_RUNTIME_SIMPLIFICATION_COMPLETE_S2_PENDING",
-  "product_maturity": "S1_CONTROL_RUNTIME_SIMPLIFIED_INVESTMENT_PIPELINE_REBUILD_PENDING_S2",
+  "program_state": "S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS",
+  "product_maturity": "S1_CONTROL_RUNTIME_SIMPLIFIED_S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -43,7 +43,7 @@
     "round_2_end_to_end_runtime_audit": "COMPLETE_CHAIN_FAIL",
     "round_3_investment_capability_audit": "COMPLETE_CURRENT_DAILY_INVESTMENT_PRODUCT_FAIL",
     "s1": "COMPLETE_ON_MAIN",
-    "s2": "PENDING",
+    "s2": "IN_PROGRESS",
     "s3": "PENDING",
     "s4": "PENDING",
     "development_closed": false
@@ -68,5 +68,35 @@
     "natural_runtime_acceptance": "DEFERRED_TO_S4_END_TO_END_ACCEPTANCE",
     "merge_sha": "b53a5bed83d97d2e740f128ff1531a3c1f15ea2a",
     "merge_status": "MERGED_TO_MAIN"
+  },
+  "s2_contract": {
+    "candidate_research_gate": "REMOVED",
+    "opportunity_queue": "DIRECT_FROM_LATEST_COHERENT_SCREENING",
+    "d1_fast_triage_batch_size": 10,
+    "d2_capacity": 3,
+    "d2_underwriting_required_fields": [
+      "CURRENT_PRICE",
+      "ENTRY_PRICE",
+      "BEAR_BASE_BULL_VALUES",
+      "SCENARIO_PROBABILITIES",
+      "CONFIDENCE",
+      "NORMALIZED_EARNINGS_BASIS",
+      "KILL_THESIS"
+    ],
+    "live_capital_comparison": "REQUIRED",
+    "recommendation_states": [
+      "BUY",
+      "BUY_BELOW",
+      "WATCH_FOR_EVIDENCE",
+      "WATCH",
+      "AVOID",
+      "ADD",
+      "HOLD",
+      "TRIM",
+      "EXIT"
+    ],
+    "orphan_boolean_gates": 0,
+    "frozen_phase2c_dependency": false,
+    "automatic_trading": false
   }
 }
