@@ -281,7 +281,14 @@ def test_s2_workflow_uses_one_transactional_callback_not_duplicate_dispatch() ->
     assert '"FMDL daily market, factor and screening transaction"' not in text
     assert '"Research Queue D2 Auto Consumer"' in text
     assert "Candidate membership is not a research gate." in text
-    assert "gh workflow run s2-investment-pipeline.yml" not in d2_text
+    explicit_callback = (
+        "gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback"
+    )
+    assert d2_text.count(explicit_callback) == 1
+    assert (
+        "gh workflow run s2-investment-pipeline.yml --ref main\n"
+        not in d2_text
+    )
     assert "operating_current/investment_pipeline/D1_CURRENT.json" in d2_text
 
 
