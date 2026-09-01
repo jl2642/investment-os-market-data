@@ -1,6 +1,6 @@
 # S3｜Portfolio + Product Surface Simplification Contract
 
-Status: IN_PROGRESS  
+Status: CURRENT  
 Authority: `investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json`  
 Canonical workflow: `.github/workflows/s3-portfolio-product-surface.yml`
 
@@ -28,6 +28,9 @@ Only two products are current user-facing operating surfaces:
 2. **PORTFOLIO_DECISION_SURFACE**
    - machine-readable source for the brief;
    - explicitly separates existing-position decisions, new-capital opportunities and uncovered holdings;
+   - continuously maintains Real/Simulation performance monitoring for every current account holding line;
+   - distinguishes mechanical performance-monitoring coverage from decision-grade recommendation coverage;
+   - maintains a bounded holding reunderwriting queue for uncovered positions;
    - preserves source bindings and safety controls.
 
 The historical R3 Decision Pack, R4 seven-product development catalog and WP5 portfolio decision artifacts remain auditable development evidence only. They are not current operating authority.
@@ -46,11 +49,20 @@ If a current holding has no S2 recommendation, S3 must show:
 
 `NO_CURRENT_S2_RECOMMENDATION`
 
-It must not reuse a stale R3/WP5 action as a substitute.
+It must not reuse a stale R3/WP5 action as a substitute. The holding still remains fully present in mechanical portfolio monitoring. Missing D2/Recommendation coverage becomes an explicit reunderwriting backlog rather than a monitoring gap.
 
 ## 4. Portfolio semantics
 
-S3 is a **decision surface, not a target-weight engine**.
+S3 is a **decision and monitoring surface, not a target-weight engine**.
+
+It continuously maintains current Real/Simulation performance facts including current marks, market value, unrealized P&L, account weight and monitoring flags. These mechanical facts do not constitute an investment action.
+
+The two coverage metrics are intentionally separate:
+
+- performance monitoring coverage should include every current Real/Simulation holding line;
+- investment recommendation coverage includes only securities with current decision-grade S2 output.
+
+Uncovered positions are prioritized into a bounded reunderwriting queue using mechanical risk/materiality signals such as drawdown and account concentration. Queue placement is a research priority, not an action recommendation.
 
 It must not:
 
@@ -93,6 +105,9 @@ S3 deterministic acceptance requires:
 - exactly two canonical user products;
 - S2 recommendation actions preserved without orphan legacy gates;
 - existing holdings, new opportunities and uncovered holdings explicitly separated;
+- every current Real/Simulation holding line mechanically monitored for performance;
+- performance-monitoring coverage reported separately from investment-recommendation coverage;
+- uncovered holdings produce a bounded reunderwriting queue without fabricated actions;
 - no stale R3/R4/WP5 action promoted to current;
 - protected economic mutations = 0;
 - orders = 0;
