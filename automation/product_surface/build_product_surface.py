@@ -208,7 +208,7 @@ def build_surface(
                 "security_name": base.get("security_name"),
                 "accounts": accounts,
                 "action": "NO_CURRENT_S2_RECOMMENDATION",
-                "current_price": mark.get("mark_price") or mark.get("price"),
+                "current_price": mark.get("mark") if mark.get("mark") is not None else (mark.get("mark_price") if mark.get("mark_price") is not None else mark.get("price")),
                 "ready_for_user_decision": False,
                 "top_blocker": "NO_CURRENT_D2_UNDERWRITING_OR_RECOMMENDATION",
                 "orders": 0,

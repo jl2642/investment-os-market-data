@@ -224,10 +224,10 @@
     "investment_pipeline_current": "MISSING",
     "portfolio_product_surface_current": "MISSING",
     "root_cause_1": "S2_SAME_STEP_GITHUB_ENV_SCREEN_BRANCH_NOT_AVAILABLE",
-    "repair_1_status": "IN_PR",
+    "repair_1_status": "PASS_ON_MAIN_NATURAL_RUNTIME",
     "natural_e2e_status": "FAIL_CALLBACK_GAP_FOUND",
     "root_cause_2": "DIRECT_PUBLISHER_EXECUTION_MISSING_REPO_ROOT_ON_SYS_PATH",
-    "repair_2_status": "IN_PR",
+    "repair_2_status": "PASS_ON_MAIN_NATURAL_RUNTIME",
     "d1_production_observed": {
       "opportunity_count": 30,
       "d1_batch": 10,
@@ -235,12 +235,23 @@
       "status": "PASS_BEFORE_PUBLISH_BREAK"
     },
     "root_cause_3": "GITHUB_TOKEN_DISPATCHED_D2_COMPLETION_DOES_NOT_RELIABLY_CREATE_WORKFLOW_RUN_CALLBACK",
-    "repair_3_status": "IN_PR",
+    "repair_3_status": "PASS_ON_MAIN_EXPLICIT_CALLBACK",
     "d2_current_observed": {
       "source_run_id": "33476278128",
       "watermark": "2026-09-01T06:11:19+00:00",
       "status": "PASS"
     },
-    "transaction_callback_design": "EXPLICIT_WORKFLOW_DISPATCH_S2_D2_CALLBACK_THEN_S3"
+    "transaction_callback_design": "EXPLICIT_WORKFLOW_DISPATCH_S2_D2_CALLBACK_THEN_S3",
+    "root_cause_4": "S3_PRODUCT_SURFACE_READ_MARK_PRICE_OR_PRICE_BUT_CANONICAL_PORTFOLIO_MARKS_FIELD_IS_MARK",
+    "repair_4_status": "IN_PR",
+    "core_e2e_status": "PASS_PRODUCT_CURRENT_CREATED_PENDING_PRICE_FIELD_REPAIR_AND_HYGIENE",
+    "product_surface_first_pass": {
+      "source_run_id": "33477574288",
+      "status": "PASS",
+      "investment_pipeline_current": "PRESENT",
+      "portfolio_product_surface_current": "PRESENT",
+      "orders": 0,
+      "trade_authority": "NONE"
+    }
   }
 }
