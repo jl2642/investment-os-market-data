@@ -35,12 +35,16 @@
       "path": ".github/workflows/s2-investment-pipeline.yml",
       "role": "PRIMARY_SIMPLIFIED_INVESTMENT_PIPELINE",
       "primary_or_recovery": "PRIMARY"
+    },
+    {
+      "path": ".github/workflows/research-queue-d2-auto-consumer.yml",
+      "role": "D2_PRIMARY_EVIDENCE_AND_SEMANTIC_UNDERWRITING_QUEUE_CONSUMER",
+      "primary_or_recovery": "PRIMARY"
     }
   ],
   "transitional_investment_runtime_until_s2_s3": [
     ".github/workflows/wp3_r_candidate_price_ledger.yml",
     ".github/workflows/wp3_r_candidate_refresh.yml",
-    ".github/workflows/research-queue-d2-auto-consumer.yml",
     ".github/workflows/occ-r2a-financial-valuation-live.yml",
     ".github/workflows/occ-r4-portfolio-decision-freshness.yml",
     ".github/workflows/p4-4-trigger-shadow.yml",
@@ -94,11 +98,11 @@
     }
   ],
   "s2_replacement_targets": [
-    "CANDIDATE_RESEARCH_GATE_REPLACED_BY_DIRECT_OPPORTUNITY_QUEUE",
-    "STATIC_D1_REPLACED_BY_ROLLING_D1_BATCH_10",
-    "D2_COMPLETE_NOW_REQUIRES_DECISION_GRADE_UNDERWRITING",
-    "FROZEN_PHASE2C_COMPARISON_REPLACED_BY_LIVE_D2_CAPITAL_COMPARISON",
-    "ORPHAN_RECOMMENDATION_BOOLEAN_GATES_REMOVED"
+    "LEGACY_CANDIDATE_MEMBERSHIP_AS_RESEARCH_GATE_REPLACED",
+    "ROLLING_D1_CONSUMER_ESTABLISHED",
+    "D2_UNDERWRITING_CONTRACT_ESTABLISHED",
+    "FROZEN_PHASE2C_CAPITAL_COMPARISON_REPLACED",
+    "ORPHAN_RECOMMENDATION_BOOLEAN_GATES_REMOVED_FROM_PRIMARY_PATH"
   ],
   "orders": 0,
   "trade_authority": "NONE",
