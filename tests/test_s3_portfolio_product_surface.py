@@ -211,3 +211,13 @@ def test_s3_does_not_restore_target_weight_or_automatic_mutation_engine():
         "automatic_position_change_allowed": True",
     ]
     assert all(token not in text for token in forbidden)
+
+
+def test_retired_occ_r4_has_no_automatic_trigger():
+    text = (
+        ROOT / ".github/workflows/occ-r4-portfolio-decision-freshness.yml"
+    ).read_text(encoding="utf-8")
+    assert "workflow_dispatch:" in text
+    assert "\n  push:" not in text
+    assert "\n  workflow_run:" not in text
+    assert "\n  schedule:" not in text
