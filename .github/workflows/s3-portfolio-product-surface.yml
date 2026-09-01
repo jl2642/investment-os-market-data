@@ -7,6 +7,7 @@ on:
     paths:
       - "automation/product_surface/**"
       - "tests/test_s3_portfolio_product_surface.py"
+      - "tests/test_s4_runtime_publishers.py"
       - "tests/test_s2_investment_pipeline.py"
       - ".github/workflows/s3-portfolio-product-surface.yml"
       - ".github/workflows/occ-r4-portfolio-decision-freshness.yml"
@@ -63,7 +64,7 @@ jobs:
 
       - name: Validate S3 and preserve S2 contracts
         run: |
-          pytest -q             tests/test_s3_portfolio_product_surface.py             tests/test_s2_investment_pipeline.py
+          pytest -q             tests/test_s3_portfolio_product_surface.py             tests/test_s2_investment_pipeline.py             tests/test_s4_runtime_publishers.py
 
       - name: Parse S3 and retired portfolio workflows
         run: |
