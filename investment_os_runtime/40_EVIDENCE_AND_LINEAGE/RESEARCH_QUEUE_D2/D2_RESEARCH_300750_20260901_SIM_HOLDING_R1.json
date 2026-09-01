@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260901_SIM_HOLDING_R1_300750",
+  "security_id": "300750.SZ",
+  "security_name": "宁德时代",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "ADD",
+  "research_update_type": "USER_MANUAL_EXISTING_SIMULATION_HOLDING_UNDERWRITING",
+  "valuation_horizon": "12_MONTH",
+  "position_context": {
+    "quantity": 100,
+    "unit_cost": 452.26,
+    "canonical_price_date": "2026-08-31",
+    "canonical_current_price": 363.55,
+    "market_value": 36355,
+    "approximate_simulation_nav_weight": 0.0354488,
+    "position_mutation_authorized": false
+  },
+  "thesis": {
+    "core": "动力电池全球份额和储能增长继续强化规模与技术护城河，2026H1收入和利润高速增长、产能利用率接近95%，当前估值相对增长质量已具备合理安全边际。",
+    "variant_wedge": "市场担忧动力/储能毛利率回落和全球扩产资本强度，但公司海外毛利率、材料回收利润和规模效应仍提供缓冲；当前价格已较前期回落，风险收益改善。",
+    "normalized_earnings_basis": "2026E normalized EPS 20.8，接近近期多家机构20-21元的预测中枢，并以H1归母净利润432.84亿元及业务增长作为基本面校验。"
+  },
+  "underwriting": {
+    "current_price": 363.55,
+    "price_as_of": "2026-08-31",
+    "entry_price": 365,
+    "confidence": "HIGH",
+    "normalized_earnings_basis": {
+      "year": "2026E",
+      "eps": 20.8,
+      "consensus_reference_eps": 20.77,
+      "basis": "2026H1 reported earnings + recent institutional forecast cluster around 20-21 EPS"
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 18.8,
+        "valuation_multiple_pe": 15,
+        "value": 282,
+        "probability": 0.2
+      },
+      {
+        "name": "BASE",
+        "eps": 20.8,
+        "valuation_multiple_pe": 21,
+        "value": 436.8,
+        "probability": 0.55
+      },
+      {
+        "name": "BULL",
+        "eps": 22.5,
+        "valuation_multiple_pe": 25,
+        "value": 562.5,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 437.265,
+    "expected_return": 0.2027644,
+    "hurdle_entry_price_15pct": 380.23,
+    "hurdle_entry_price_20pct": 364.39,
+    "action": "ADD",
+    "add_at_or_below": 365,
+    "proposed_simulation_add": {
+      "quantity": 40,
+      "max_price": 365,
+      "purpose": "raise existing simulation weight from about 3.5% toward 5% NAV",
+      "execution_status": "NOT_AUTHORIZED_NOT_EXECUTED"
+    },
+    "catalysts": [
+      "动力电池全球份额维持约40%及以上并继续提升",
+      "储能收入高增长延续且海外高毛利业务占比提升",
+      "海外基地爬坡、材料回收及新应用带来利润增量",
+      "大额回购或资本回报改善强化每股价值"
+    ],
+    "kill_thesis": [
+      "全球动力电池份额较约40%水平持续下降超过3个百分点且无产品周期解释",
+      "储能增速跌至30%以下且毛利率同时跌破20%",
+      "动力电池毛利率持续跌破18%并伴随价格竞争恶化",
+      "经营现金流/自由现金流显著弱化且海外扩产回报低于资本成本",
+      "重大海外监管、技术安全或产能爬坡问题削弱全球扩张"
+    ]
+  },
+  "d2_answers": [
+    {
+      "question": "增长是否有质量？",
+      "fact": "2026H1营收2769.17亿元，同比+54.8%；归母净利润432.84亿元，同比+41.98%；经营现金流602.17亿元。",
+      "interpretation": "收入、利润和现金流均为正向，利润增速低于收入主要反映毛利率回落而非利润失真。"
+    },
+    {
+      "question": "业务结构和护城河？",
+      "fact": "动力电池收入1921.25亿元、毛利率20.63%；储能收入532.61亿元、毛利率23.96%；1-5月全球动力电池份额约40.2%，H1产能利用率94.86%。",
+      "interpretation": "份额、产能利用率和储能增长共同支持规模/技术护城河，但动力与储能毛利率下行是主要监控项。"
+    },
+    {
+      "question": "持仓动作？",
+      "judgment": "ADD候选。以365元及以下为执行门槛，若用户明确批准，可在模拟盘增加40股，使总仓位接近5% NAV；真实账户不操作。"
+    }
+  ],
+  "first_rejection_test": "如果份额和毛利率同时恶化，尤其动力电池全球份额持续跌破约37%且动力毛利率跌破18%，则撤销ADD并转HOLD/TRIM再承保。",
+  "evidence_gap": {
+    "material": false,
+    "missing": "用户最新截图未成功进入对话；本D2以系统接受的2026-08-31价格363.55元为正式价格锚。9月1日15:05公开报道显示约358.10元，仅作盘中/近收盘交叉验证。",
+    "recovery": "Portfolio Marks下一次刷新后重算预期收益和执行门槛。",
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "宁德时代2026年半年度报告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-07-25/1225441586.PDF",
+      "as_of": "2026-07-25"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "宁德时代2026年半年度报告业务分部表",
+      "url": "https://disc.static.szse.cn/download/disc/disk03/finalpage/2026-07-25/8e6750da-b178-4be9-a74a-4b1d8fc42c58.PDF",
+      "as_of": "2026-07-25"
+    },
+    {
+      "type": "CONSENSUS_AGGREGATOR",
+      "title": "证券之星 宁德时代机构预测",
+      "url": "https://stock.quote.stockstar.com/finance/predict_300750.shtml",
+      "as_of": "2026-08-06"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "宁德时代历史行情",
+      "url": "https://cn.investing.com/equities/amperex-tech-a-historical-data",
+      "as_of": "2026-08-31"
+    }
+  ],
+  "source_quality_note": "核心经营和分部数据来自正式半年报；EPS中枢参考多家机构预测。情景估值、概率、365元门槛和40股建议均为ChatGPT投资判断，不是公司指引或自动执行指令。",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
