@@ -10,7 +10,7 @@
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
   "program_state": "S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS",
-  "product_maturity": "S1_CONTROL_RUNTIME_SIMPLIFIED_S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS",
+  "product_maturity": "S1_COMPLETE_S2_REBUILDING_INVESTMENT_PRODUCTION_CHAIN",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -98,5 +98,20 @@
     "orphan_boolean_gates": 0,
     "frozen_phase2c_dependency": false,
     "automatic_trading": false
+  },
+  "s2_scope": {
+    "primary_workflow": ".github/workflows/s2-investment-pipeline.yml",
+    "investment_chain": [
+      "OPPORTUNITY_DISCOVERY",
+      "D1_FAST_TRIAGE",
+      "D2_INVESTMENT_UNDERWRITING",
+      "LIVE_CAPITAL_COMPARISON",
+      "RECOMMENDATION"
+    ],
+    "candidate_membership_as_research_gate": false,
+    "d1_batch_size": 10,
+    "d2_capacity": 3,
+    "trade_authority": "NONE",
+    "orders": 0
   }
 }
