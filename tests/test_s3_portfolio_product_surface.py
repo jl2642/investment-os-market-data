@@ -268,3 +268,32 @@ def test_position_identity_drift_fails_closed():
         == "POSITION_IDENTITY_CHANGED_SINCE_S2_RECOMMENDATION"
     )
     assert surface["executive"]["position_identity_mismatch_count"] == 1
+
+
+def test_surface_reads_canonical_portfolio_mark_field():
+    canonical_marks = {
+        "status": "CURRENT_COMPLETE",
+        "data_watermark": {"latest_mark_date": "2026-08-31"},
+        "marks": [
+            {"security_id": "000005.SZ", "mark": 20.5},
+            {"security_id": "000006.SZ", "mark": 15.25},
+        ],
+        "trade_authority": "NONE",
+    }
+    rec = recommendation()
+    rec["records"] = []
+    surface = build_surface(
+        marks_domain=marks_domain(),
+        investment_domain=investment_domain(),
+        marks=canonical_marks,
+        real_positions=positions(True),
+        simulation_positions=positions(False),
+        recommendation=rec,
+        d1=d1(),
+    )
+    prices = {
+        row["security_id"]: row["current_price"]
+        for row in surface["portfolio_uncovered"]
+    }
+    assert prices["000005.SZ"] == 20.5
+    assert prices["000006.SZ"] == 15.25
