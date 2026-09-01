@@ -37,12 +37,45 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Resolve dated 2026-08-11 scope
+        id: scope
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin main
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import subprocess
+          changed=set(subprocess.check_output(
+              ["git","diff","--name-only","origin/main...HEAD"], text=True
+          ).splitlines())
+          dated_files={
+              "automation/canonical_position_update/apply_20260811_user_update.py",
+          }
+          dated_prefixes=(
+              "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_11/",
+          )
+          in_scope=bool(dated_files & changed) or any(
+              p.startswith(dated_prefixes) for p in changed
+          )
+          print(f"dated_scope={'true' if in_scope else 'false'}")
+          PY
+
+      - name: Record later portfolio maintenance as not applicable
+        if: github.event_name == 'pull_request' && steps.scope.outputs.dated_scope != 'true'
+        run: |
+          echo "Canonical User Position Update 20260811: NOT_APPLICABLE_TO_LATER_RECONCILIATION"
+          echo "orders=0"
+          echo "trade_authority=NONE"
+
       - name: Apply user-confirmed Real sale and continuity update
+        if: github.event_name != 'pull_request' || steps.scope.outputs.dated_scope == 'true'
         run: |
           python -m py_compile automation/canonical_position_update/apply_20260811_user_update.py
           python automation/canonical_position_update/apply_20260811_user_update.py
 
       - name: Validate position-engine interpretation
+        if: github.event_name != 'pull_request' || steps.scope.outputs.dated_scope == 'true'
         run: |
           python automation/wp2_r/build_portfolio_current.py --repo-root .
           python automation/wp2_r/finalize_account_summaries.py --repo-root .
@@ -97,6 +130,7 @@ jobs:
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Re-run as idempotency check
+        if: github.event_name != 'pull_request' || steps.scope.outputs.dated_scope == 'true'
         run: |
           python automation/canonical_position_update/apply_20260811_user_update.py
           git diff --exit-code -- \
