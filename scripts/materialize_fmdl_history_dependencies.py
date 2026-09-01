@@ -81,7 +81,7 @@ def main() -> int:
         with out.open("w", encoding="utf-8") as handle:
             for row in missing:
                 handle.write(
-                    f"{row.get('source_branch') or ''}\t{row['path']}\t"
+                    f"{row.get('source_branch') or '__UNRESOLVED__'}\t{row['path']}\t"
                     f"{row.get('sha256') or ''}\t{row.get('recovery_release_id') or ''}\n"
                 )
 
