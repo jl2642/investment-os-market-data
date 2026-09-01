@@ -31,6 +31,15 @@ on:
   schedule:
     - cron: "30 10 * * 1-5"
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "S2 execution mode"
+        required: false
+        default: "full"
+        type: choice
+        options:
+          - "full"
+          - "d2_callback"
 
 permissions:
   contents: write
@@ -134,8 +143,12 @@ jobs:
 
       - name: Resolve latest coherent A-share Screening source
         if: >-
-          github.event_name != 'workflow_run' ||
-          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
+          !(
+            (github.event_name == 'workflow_run' &&
+             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
+            (github.event_name == 'workflow_dispatch' &&
+             inputs.mode == 'd2_callback')
+          )
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -220,8 +233,12 @@ jobs:
 
       - name: Build Opportunity Queue and D1 fast triage
         if: >-
-          github.event_name != 'workflow_run' ||
-          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
+          !(
+            (github.event_name == 'workflow_run' &&
+             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
+            (github.event_name == 'workflow_dispatch' &&
+             inputs.mode == 'd2_callback')
+          )
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -260,8 +277,12 @@ jobs:
 
       - name: Publish Opportunity and D1 Current
         if: >-
-          github.event_name != 'workflow_run' ||
-          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
+          !(
+            (github.event_name == 'workflow_run' &&
+             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
+            (github.event_name == 'workflow_dispatch' &&
+             inputs.mode == 'd2_callback')
+          )
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -297,8 +318,12 @@ jobs:
 
       - name: Trigger D2 consumer for new D1 unless this run came from D2
         if: >-
-          github.event_name != 'workflow_run' ||
-          github.event.workflow_run.name != 'Research Queue D2 Auto Consumer'
+          !(
+            (github.event_name == 'workflow_run' &&
+             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
+            (github.event_name == 'workflow_dispatch' &&
+             inputs.mode == 'd2_callback')
+          )
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run research-queue-d2-auto-consumer.yml --ref main
@@ -355,6 +380,12 @@ jobs:
             --source-run-attempt "${{ github.run_attempt }}" \
             --source-branch main \
             --source-commit "$MAIN_HEAD"
+
+      - name: Trigger S3 product surface after coherent decision publication
+        if: steps.decision.outputs.coherent == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run s3-portfolio-product-surface.yml --ref main
 
       - name: Record S2 product boundary
         if: always()
