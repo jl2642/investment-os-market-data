@@ -87,16 +87,22 @@ jobs:
           cache-dependency-path: requirements.txt
       - name: Install runtime
         run: python -m pip install --retries 5 --timeout 30 -r requirements.txt
-      - name: Fetch S2 rolling D1 Current
+      - name: Fetch S2 rolling D1 Current and prior D2 Current
         shell: bash
         run: |
           set -Eeuo pipefail
           mkdir -p .d2_runtime
-          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git fetch origin \
+            refs/heads/operating-current:refs/remotes/origin/operating-current \
+            refs/heads/automation/research-queue-d2-current:refs/remotes/origin/research-queue-d2-current \
+            --force --no-tags
           if git cat-file -e origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json 2>/dev/null; then
             git show origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json > "$S2_D1_RUNTIME"
           else
             cp investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json "$S2_D1_RUNTIME"
+          fi
+          if git cat-file -e refs/remotes/origin/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json 2>/dev/null; then
+            git show refs/remotes/origin/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json
           fi
           python - <<'PY'
           import json, os
