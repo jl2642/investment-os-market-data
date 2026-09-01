@@ -69,7 +69,7 @@ jobs:
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
       (github.event_name == 'push' &&
        (contains(github.event.head_commit.message, 'OCC R2A') ||
-        contains(github.event.head_commit.message, 'Post-OCC')))
+        contains(github.event.head_commit.message, 'Post-OCC: natural-run runtime hotfix')))
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 50
