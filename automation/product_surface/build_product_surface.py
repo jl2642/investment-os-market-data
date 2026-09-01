@@ -33,26 +33,31 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
     )
 
 
-def walk_trade_authority(value: Any, out: list[Any]) -> None:
+def walk_safety_values(
+    value: Any, trade_authorities: list[Any], orders: list[Any]
+) -> None:
     if isinstance(value, dict):
         for key, item in value.items():
             if key == "trade_authority":
-                out.append(item)
-            walk_trade_authority(item, out)
+                trade_authorities.append(item)
+            if key == "orders":
+                orders.append(item)
+            walk_safety_values(item, trade_authorities, orders)
     elif isinstance(value, list):
         for item in value:
-            walk_trade_authority(item, out)
+            walk_safety_values(item, trade_authorities, orders)
 
 
 def assert_safe(label: str, payload: Any) -> None:
-    values: list[Any] = []
-    walk_trade_authority(payload, values)
-    if values and set(values) != {TRADE_AUTHORITY}:
-        raise ValueError(f"{label}_TRADE_AUTHORITY_VIOLATION:{values}")
-    if isinstance(payload, dict):
-        controls = payload.get("controls") or {}
-        if controls.get("orders", 0) != 0 or payload.get("orders", 0) != 0:
-            raise ValueError(f"{label}_ORDER_AUTHORITY_VIOLATION")
+    authorities: list[Any] = []
+    order_values: list[Any] = []
+    walk_safety_values(payload, authorities, order_values)
+    if authorities and set(authorities) != {TRADE_AUTHORITY}:
+        raise ValueError(
+            f"{label}_TRADE_AUTHORITY_VIOLATION:{authorities}"
+        )
+    if any(value not in {0, None} for value in order_values):
+        raise ValueError(f"{label}_ORDER_AUTHORITY_VIOLATION:{order_values}")
 
 
 def holding_map(payload: dict[str, Any], account: str) -> dict[str, dict[str, Any]]:
