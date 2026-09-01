@@ -1,120 +1,27 @@
 name: FMDL 6-0 US Equity Resume-Ready Architecture
+run-name: "FMDL 6-0 US Equity Resume-Ready Architecture (retired)"
 
+# S1 retirement: historical acceptance evidence stays in Git, but unrelated PRs no longer rebuild it.
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - "config/fmdl6_0_*.json"
-      - "schemas/fmdl6_0_*.json"
-      - "scripts/fmdl6_0_*.py"
-      - "scripts/validate_fmdl6_0_*.py"
-      - "scripts/publish_fmdl6_0_*.py"
-      - "tests/test_fmdl6_0_*.py"
-      - "docs/FMDL-6*.md"
       - ".github/workflows/fmdl-6-0-us-equity-resume-ready-architecture.yml"
-      - "README.md"
-  push:
-    branches: [main]
-    paths:
-      - "config/fmdl6_0_*.json"
-      - "schemas/fmdl6_0_*.json"
-      - "scripts/fmdl6_0_*.py"
-      - "scripts/validate_fmdl6_0_*.py"
-      - "scripts/publish_fmdl6_0_*.py"
-      - "tests/test_fmdl6_0_*.py"
-      - "docs/FMDL-6*.md"
-      - ".github/workflows/fmdl-6-0-us-equity-resume-ready-architecture.yml"
-      - "README.md"
-  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
-concurrency:
-  group: fmdl-6-0-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+env:
+  TRADE_AUTHORITY: NONE
 
 jobs:
-  quality-gates:
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Unit tests
-        run: python -m pytest -q tests/test_fmdl6_0_plan.py
-      - name: Compile checks
-        run: >-
-          python -m py_compile
-          scripts/validate_fmdl6_0_plan.py
-          scripts/fmdl6_0_publisher.py
-          scripts/publish_fmdl6_0_plan.py
-          scripts/validate_fmdl6_0_candidate.py
-      - name: Validate frozen architecture
+      - name: Explain retirement
         run: |
-          rm -rf outputs/fmdl6_0/work
-          python scripts/validate_fmdl6_0_plan.py \
-            --repo-root . \
-            --decision outputs/fmdl6_0/work/FMDL6_0_DECISION.json \
-            --validation outputs/fmdl6_0/work/FMDL6_0_VALIDATION.json
-
-  build-and-accept:
-    needs: quality-gates
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Validate plan and build candidate
-        run: |
-          rm -rf outputs/fmdl6_0/work outputs/fmdl6_0/candidate outputs/fmdl6_0/acceptance
-          python scripts/validate_fmdl6_0_plan.py \
-            --repo-root . \
-            --decision outputs/fmdl6_0/work/FMDL6_0_DECISION.json \
-            --validation outputs/fmdl6_0/work/FMDL6_0_VALIDATION.json
-          python scripts/publish_fmdl6_0_plan.py \
-            --repo-root . \
-            --decision outputs/fmdl6_0/work/FMDL6_0_DECISION.json \
-            --validation outputs/fmdl6_0/work/FMDL6_0_VALIDATION.json \
-            --candidate outputs/fmdl6_0/candidate
-      - name: Independent validation and same-input replay
-        run: |
-          python scripts/validate_fmdl6_0_candidate.py \
-            --repo-root . \
-            --candidate outputs/fmdl6_0/candidate \
-            --output outputs/fmdl6_0/acceptance/FMDL6_0_INDEPENDENT_ACCEPTANCE.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: fmdl6-0-us-equity-resume-ready-architecture-candidate
-          path: |
-            outputs/fmdl6_0/candidate
-            outputs/fmdl6_0/acceptance/FMDL6_0_INDEPENDENT_ACCEPTANCE.json
-          if-no-files-found: error
-          retention-days: 30
-      - name: Publish Current Immutable Archive and Last-success
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
-        run: |
-          python scripts/publish_fmdl6_0_plan.py \
-            --repo-root . \
-            --decision outputs/fmdl6_0/work/FMDL6_0_DECISION.json \
-            --validation outputs/fmdl6_0/work/FMDL6_0_VALIDATION.json \
-            --candidate outputs/fmdl6_0/candidate \
-            --publish
-      - name: Commit accepted FMDL-6-0 state
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/fmdl6_0/current outputs/fmdl6_0/archive datasets/fmdl6_0/releases outputs/status/FMDL6_0_LAST_SUCCESS.json
-          git diff --cached --quiet && exit 0
-          git commit -m "data: publish FMDL-6-0 resume-ready architecture [skip ci]"
-          git push
+          echo "Historical FMDL-6 architecture acceptance workflow; architecture evidence remains in Git history."
+          echo "Whole-system maturity is read from investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json."
+          echo "This workflow is not an active runtime or product-health signal."
+          echo "orders=0"
+          echo "trade_authority=NONE"

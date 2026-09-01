@@ -1,148 +1,27 @@
 name: FMDL 6B Source Interface and Access Benchmark
+run-name: "FMDL 6B Source Interface and Access Benchmark (retired)"
 
+# S1 retirement: historical acceptance evidence stays in Git, but unrelated PRs no longer rebuild it.
 on:
+  workflow_dispatch:
   pull_request:
     paths:
-      - "config/fmdl6b_*.json"
-      - "schemas/fmdl6b_*.json"
-      - "scripts/fmdl6b_*.py"
-      - "scripts/publish_fmdl6b.py"
-      - "scripts/validate_fmdl6b_*.py"
-      - "tests/test_fmdl6b_*.py"
-      - "docs/FMDL-6B*.md"
       - ".github/workflows/fmdl-6b-source-interface-access-benchmark.yml"
-      - "README.md"
-  push:
-    branches: [main]
-    paths:
-      - "config/fmdl6b_*.json"
-      - "schemas/fmdl6b_*.json"
-      - "scripts/fmdl6b_*.py"
-      - "scripts/publish_fmdl6b.py"
-      - "scripts/validate_fmdl6b_*.py"
-      - "tests/test_fmdl6b_*.py"
-      - "docs/FMDL-6B*.md"
-      - ".github/workflows/fmdl-6b-source-interface-access-benchmark.yml"
-      - "README.md"
-  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
-concurrency:
-  group: fmdl-6b-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+env:
+  TRADE_AUTHORITY: NONE
 
 jobs:
-  quality-gates:
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Unit tests
-        run: python -m pytest -q tests/test_fmdl6b_source_benchmark.py
-      - name: Compile checks
-        run: >-
-          python -m py_compile
-          scripts/fmdl6b_core.py
-          scripts/fmdl6b_fetch.py
-          scripts/fmdl6b_release.py
-          scripts/fmdl6b_benchmark.py
-          scripts/publish_fmdl6b.py
-          scripts/validate_fmdl6b_candidate.py
-      - name: Validate frozen contract
+      - name: Explain retirement
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import sys
-          sys.path.insert(0, "scripts")
-          from fmdl6b_benchmark import validate_contract
-          checks, errors = validate_contract(Path(".").resolve(), Path("config/fmdl6b_source_interface_access_benchmark_contract.json").resolve())
-          print({"check_count": len(checks), "errors": errors})
-          raise SystemExit(1 if errors else 0)
-          PY
-
-  live-benchmark-and-accept:
-    needs: quality-gates
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      SEC_USER_AGENT: InvestmentOS-FMDL6B/1.0 jl2642@users.noreply.github.com
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-      - name: Fetch live interface observations
-        run: |
-          rm -rf outputs/fmdl6b/work outputs/fmdl6b/candidate outputs/fmdl6b/acceptance
-          python scripts/fmdl6b_benchmark.py fetch \
-            --repo-root . \
-            --raw outputs/fmdl6b/work/FMDL6B_RAW_OBSERVATIONS.json
-      - name: Write normalized live diagnostic
-        run: |
-          python - <<'PY'
-          import json
-          import sys
-          from pathlib import Path
-          sys.path.insert(0, "scripts")
-          from fmdl6b_benchmark import load_json, normalize_observations, write_json
-          contract = load_json(Path("config/fmdl6b_source_interface_access_benchmark_contract.json"))
-          raw = load_json(Path("outputs/fmdl6b/work/FMDL6B_RAW_OBSERVATIONS.json"))
-          result = normalize_observations(contract, raw)
-          write_json(Path("outputs/fmdl6b/work/FMDL6B_NORMALIZED_DIAGNOSTIC.json"), result)
-          print(json.dumps({
-            "route_success_count": result["route_success_count"],
-            "route_failure_count": result["route_failure_count"],
-            "capability_summary": result["capability_summary"],
-            "controlled_limitations": result["controlled_limitations"],
-            "hard_failures": result["hard_failures"],
-          }, indent=2, sort_keys=True))
-          PY
-      - name: Build benchmark candidate
-        run: |
-          python scripts/fmdl6b_benchmark.py build \
-            --repo-root . \
-            --raw outputs/fmdl6b/work/FMDL6B_RAW_OBSERVATIONS.json \
-            --candidate outputs/fmdl6b/candidate
-      - name: Independent validation and captured-input replay
-        run: |
-          python scripts/fmdl6b_benchmark.py validate \
-            --repo-root . \
-            --raw outputs/fmdl6b/work/FMDL6B_RAW_OBSERVATIONS.json \
-            --candidate outputs/fmdl6b/candidate \
-            --acceptance outputs/fmdl6b/acceptance/FMDL6B_INDEPENDENT_ACCEPTANCE.json
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: fmdl6b-source-interface-access-benchmark-candidate
-          path: |
-            outputs/fmdl6b/work
-            outputs/fmdl6b/candidate
-            outputs/fmdl6b/acceptance/FMDL6B_INDEPENDENT_ACCEPTANCE.json
-          if-no-files-found: error
-          retention-days: 30
-      - name: Publish Current Immutable Archive and Last-success
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
-        run: |
-          python scripts/fmdl6b_benchmark.py publish \
-            --repo-root . \
-            --candidate outputs/fmdl6b/candidate
-      - name: Commit accepted FMDL-6B state
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/fmdl6b/current outputs/fmdl6b/archive datasets/fmdl6b/releases outputs/status/FMDL6B_LAST_SUCCESS.json
-          git diff --cached --quiet && exit 0
-          git commit -m "data: publish FMDL-6B source interface benchmark [skip ci]"
-          git push
+          echo "Historical FMDL-6B source-access benchmark acceptance workflow; bounded US runtime is not rebuilt by unrelated control-plane PRs."
+          echo "Whole-system maturity is read from investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json."
+          echo "This workflow is not an active runtime or product-health signal."
+          echo "orders=0"
+          echo "trade_authority=NONE"

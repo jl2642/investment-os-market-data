@@ -4,6 +4,9 @@ run-name: "FMDL daily market, factor and screening transaction"
 on:
   schedule:
     - cron: "30 9 * * 1-5"
+  workflow_run:
+    workflows: ["FMDL 2B-4 Multi-Session Full Rebase Recovery"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       force_run:
@@ -28,6 +31,7 @@ on:
       - "scripts/fmdl2b4_history.py"
       - "scripts/run_incremental_history_refresh.py"
       - "scripts/run_incremental_history_refresh_v2.py"
+      - "scripts/materialize_fmdl_history_dependencies.py"
       - "scripts/finalize_b4_history_candidate.py"
       - "scripts/run_b4_factor_refresh.py"
       - "scripts/run_fmdl2b4_operating.py"
@@ -40,6 +44,11 @@ on:
       - "scripts/publish_fmdl2c.py"
       - "scripts/refresh_investment_os_interface.py"
       - "tests/test_a_share_chain_coherence.py"
+      - "tests/test_post_occ_history_dependency_materialization.py"
+      - "tests/test_s1_control_runtime_simplification.py"
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/BRANCH_POLICY.md"
       - "tests/test_round1_governed_publication_workflows.py"
 
 permissions:
@@ -54,6 +63,10 @@ concurrency:
 
 jobs:
   deterministic-validation:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -76,7 +89,10 @@ jobs:
         run: |
           python scripts/validate_contracts.py
           python scripts/validate_investment_os_interface.py
+          python -m py_compile scripts/materialize_fmdl_history_dependencies.py
           pytest -q \
+            tests/test_post_occ_history_dependency_materialization.py \
+            tests/test_s1_control_runtime_simplification.py \
             tests/test_fmdl2b4_incremental_refresh.py \
             tests/test_fmdl2b4_snapshot_identity.py \
             tests/test_fmdl2c_screening_funnel.py \
@@ -84,7 +100,12 @@ jobs:
             tests/test_round1_governed_publication_workflows.py
 
   operate:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     needs: deterministic-validation
     runs-on: ubuntu-latest
     timeout-minutes: 75
@@ -213,6 +234,28 @@ jobs:
               'trade_authority':'NONE',
           })
           PY
+
+      - name: Materialize and verify accepted History backing dependencies
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/materialize_fmdl_history_dependencies.py \
+            --manifest outputs/history/current/HISTORY_CURRENT_MANIFEST.json \
+            --emit-missing-tsv /tmp/FMDL_HISTORY_MISSING.tsv
+          while read -r DEP_BRANCH DEP_PATH DEP_SHA DEP_RELEASE; do
+            [[ -z "$DEP_PATH" ]] && continue
+            if [[ "$DEP_BRANCH" == "__UNRESOLVED__" ]]; then
+              echo "UNRESOLVABLE_HISTORY_DEPENDENCY path=$DEP_PATH release=$DEP_RELEASE"
+              exit 2
+            fi
+            echo "MATERIALIZE_HISTORY_DEPENDENCY branch=$DEP_BRANCH path=$DEP_PATH"
+            git fetch origin "refs/heads/$DEP_BRANCH:refs/remotes/origin/fmdl-history-dependency" --force --no-tags
+            git cat-file -e "refs/remotes/origin/fmdl-history-dependency:$DEP_PATH"
+            git checkout refs/remotes/origin/fmdl-history-dependency -- "$DEP_PATH"
+          done < /tmp/FMDL_HISTORY_MISSING.tsv
+          python scripts/materialize_fmdl_history_dependencies.py \
+            --manifest outputs/history/current/HISTORY_CURRENT_MANIFEST.json \
+            --verify
 
       - name: Run latest completed-session market Current
         id: market

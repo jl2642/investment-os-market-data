@@ -18,7 +18,11 @@
     "ready_for_user_decision": 0,
     "dynamic_loop_status": "ROUND2_OPERATING_OBSERVATION",
     "completed_weekly_cycle_count": 1,
-    "latest_candidate_delta": {"admissions": 0, "dynamic_exits": 0, "legacy_exit_reviews": 0},
+    "latest_candidate_delta": {
+      "admissions": 0,
+      "dynamic_exits": 0,
+      "legacy_exit_reviews": 0
+    },
     "natural_workflow_run_trigger_observed": true
   },
   "hong_kong": {
@@ -67,5 +71,13 @@
     "development_reopened": false
   },
   "orders": 0,
-  "trade_authority": "NONE"
+  "trade_authority": "NONE",
+  "system_authority_status": "LEGACY_COMPATIBILITY_SNAPSHOT_NOT_SYSTEM_AUTHORITY",
+  "superseded_by_system_current": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json",
+  "runtime_truth_source": {
+    "branch": "operating-current",
+    "path": "operating_current/OPERATING_CURRENT_INDEX.json"
+  },
+  "development_status_legacy_label": "STOCK_INVESTMENT_ASSISTANT_DEVELOPMENT_COMPLETE",
+  "current_maturity_note": "The historical development-complete label is not the current whole-system acceptance state. See SYSTEM_CURRENT.json."
 }
