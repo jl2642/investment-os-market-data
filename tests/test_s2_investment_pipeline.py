@@ -242,7 +242,7 @@ def test_s2_is_registered_as_primary_and_old_p4_producers_are_retired() -> None:
             / "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
         ).read_text(encoding="utf-8")
     )
-    assert system["program_state"] == "S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS"
+    assert system["acceptance"]["s2"] == "COMPLETE_ON_MAIN"
     assert system["s2_scope"]["candidate_membership_as_research_gate"] is False
     assert system["s2_scope"]["d1_batch_size"] == 10
     assert system["s2_scope"]["d2_capacity"] == 3
