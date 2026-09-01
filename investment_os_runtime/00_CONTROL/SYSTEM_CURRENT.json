@@ -10,7 +10,7 @@
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
   "program_state": "S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS",
-  "product_maturity": "S1_COMPLETE_S2_REBUILDING_INVESTMENT_PRODUCTION_CHAIN",
+  "product_maturity": "S1_CONTROL_RUNTIME_COMPLETE_S2_INVESTMENT_PIPELINE_REBUILD_IN_PROGRESS",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -70,20 +70,12 @@
     "merge_status": "MERGED_TO_MAIN"
   },
   "s2_contract": {
-    "candidate_research_gate": "REMOVED",
-    "opportunity_queue": "DIRECT_FROM_LATEST_COHERENT_SCREENING",
-    "d1_fast_triage_batch_size": 10,
+    "primary_workflow": ".github/workflows/s2-investment-pipeline.yml",
+    "candidate_membership_is_research_gate": false,
+    "d1_batch_size": 10,
     "d2_capacity": 3,
-    "d2_underwriting_required_fields": [
-      "CURRENT_PRICE",
-      "ENTRY_PRICE",
-      "BEAR_BASE_BULL_VALUES",
-      "SCENARIO_PROBABILITIES",
-      "CONFIDENCE",
-      "NORMALIZED_EARNINGS_BASIS",
-      "KILL_THESIS"
-    ],
-    "live_capital_comparison": "REQUIRED",
+    "d2_semantic_owner": "CHATGPT_NATIVE_RESEARCH_AND_UNDERWRITING",
+    "capital_comparison": "LIVE_FROM_D2_UNDERWRITING_AND_POSITION_IDENTITY",
     "recommendation_states": [
       "BUY",
       "BUY_BELOW",
@@ -95,9 +87,7 @@
       "TRIM",
       "EXIT"
     ],
-    "orphan_boolean_gates": 0,
-    "frozen_phase2c_dependency": false,
-    "automatic_trading": false
+    "auto_trade": false
   },
   "s2_scope": {
     "primary_workflow": ".github/workflows/s2-investment-pipeline.yml",
