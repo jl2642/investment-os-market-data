@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S2_INVESTMENT_PIPELINE_REBUILD_COMPLETE_S3_PENDING",
-  "product_maturity": "S2_INVESTMENT_PIPELINE_REBUILT_PORTFOLIO_PRODUCT_SURFACE_PENDING_S3",
+  "program_state": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFICATION_IN_PROGRESS",
+  "product_maturity": "S3_PORTFOLIO_PRODUCT_SURFACE_SIMPLIFICATION_IN_PROGRESS",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -44,7 +44,7 @@
     "round_3_investment_capability_audit": "COMPLETE_CURRENT_DAILY_INVESTMENT_PRODUCT_FAIL",
     "s1": "COMPLETE_ON_MAIN",
     "s2": "COMPLETE_ON_MAIN",
-    "s3": "PENDING",
+    "s3": "IN_PROGRESS",
     "s4": "PENDING",
     "development_closed": false
   },
@@ -146,6 +146,36 @@
     "operating_current_regression": "PASS",
     "lineage_regression": "PASS",
     "natural_end_to_end_runtime_acceptance": "DEFERRED_TO_S4",
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "s3_scope": {
+    "primary_workflow": ".github/workflows/s3-portfolio-product-surface.yml",
+    "inputs": [
+      "PORTFOLIO_MARKS",
+      "CURRENT_REAL_AND_SIMULATION_POSITION_IDENTITY",
+      "S2_INVESTMENT_PIPELINE"
+    ],
+    "canonical_user_products": [
+      "DAILY_INVESTMENT_BRIEF",
+      "PORTFOLIO_DECISION_SURFACE"
+    ],
+    "legacy_r3_r4_wp5_current_product_authority": false,
+    "target_weight_engine": false,
+    "automatic_portfolio_mutation": false,
+    "natural_runtime_acceptance": "DEFERRED_TO_S4",
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "s3_contract": {
+    "portfolio_accounting": "REUSE_CURRENT_POSITION_AND_MARK_AUTHORITIES_NO_REBUILD",
+    "decision_surface": "S2_RECOMMENDATION_MAPPED_TO_CURRENT_POSITION_IDENTITY",
+    "uncovered_position_policy": "EXPLICIT_NO_CURRENT_S2_RECOMMENDATION_NO_ACTION",
+    "new_capital_policy": "SEPARATE_FROM_EXISTING_POSITION_ACTIONS",
+    "ready_for_user_decision_semantics": "HUMAN_REVIEW_REQUIRED_NOT_EXECUTION_AUTHORITY",
+    "product_count": 2,
+    "old_product_catalog_role": "HISTORICAL_DEVELOPMENT_EVIDENCE_ONLY",
+    "protected_mutations": 0,
     "orders": 0,
     "trade_authority": "NONE"
   }
