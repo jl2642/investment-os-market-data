@@ -59,9 +59,9 @@ jobs:
 
           # This workflow is the immutable compatibility gate for the historical
           # 2026-08-04 intraday position-reconciliation package. New user
-          # transactions have their own dated validation workflows and must not
-          # be forced through the 2026-08-04 numeric assertions merely because
-          # they update the shared Current/Delta materializations.
+          # transactions and later reconciliation baselines have their own
+          # validation paths and must not be forced through the 2026-08-04
+          # numeric assertions merely because they update shared Current files.
           legacy_prefixes = (
               'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_08_04/',
           )
@@ -77,9 +77,7 @@ jobs:
               '.github/workflows/wp2_r_portfolio_current.yml',
               'investment_os_runtime/20_SCHEMAS_AND_INTERFACES/equity_compensation_state.schema.json',
               'investment_os_runtime/20_SCHEMAS_AND_INTERFACES/SCHEMA_REGISTRY.json',
-              'investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_CURRENT.json',
               'investment_os_runtime/30_STATE_CURRENT/12_EQUITY_COMPENSATION/EQUITY_COMPENSATION_CURRENT.json',
-              'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
               'investment_os_runtime/50_OPERATING_PRODUCTS/OBSERVATION/STATUS/POSITION_UPDATE_STATUS_20260804_USER_INTRADAY.json',
               'investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/POSITION_UPDATE_20260804_USER_INTRADAY.json',
               'investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/REPORT_MANIFESTS/POSITION_UPDATE_20260804_USER_INTRADAY.json',
