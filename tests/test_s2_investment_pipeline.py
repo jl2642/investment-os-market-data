@@ -493,3 +493,15 @@ def test_semantic_d2_callback_is_not_blocked_by_newer_mechanical_watermark() -> 
     dispatch_index = d2_text.index("Dispatch S2 decision callback after D2 publication")
     preserve_index = d2_text.index("RESEARCH_D2_POINTER_PRESERVED_NEWER_WATERMARK")
     assert preserve_index < dispatch_index
+
+
+def test_decision_publish_buffers_generated_comparison_before_git_clean() -> None:
+    source = (
+        ROOT / "automation/investment_pipeline/publish_pipeline.py"
+    ).read_text(encoding="utf-8")
+    buffer_token = "incoming_decision_comparison = ("
+    clean_token = 'run("git", "reset", "--hard", "HEAD", check=False)'
+    assert buffer_token in source
+    assert clean_token in source
+    assert source.index(buffer_token) < source.index(clean_token)
+    assert "incoming_comparison = incoming_decision_comparison or {}" in source
