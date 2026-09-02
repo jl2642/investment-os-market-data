@@ -220,6 +220,11 @@ def publish(args: argparse.Namespace) -> dict[str, Any]:
     domain, source_files, fingerprint, watermark = stage_spec(args)
     verify_source_branch(args.source_branch, args.source_commit)
     file_texts = [(name, load_text(path)) for name, path in source_files]
+    incoming_decision_comparison = (
+        load_json(Path(args.comparison))
+        if domain == "INVESTMENT_PIPELINE"
+        else None
+    )
 
     run("git", "reset", "--hard", "HEAD", check=False)
     run("git", "clean", "-fd", check=False)
@@ -248,7 +253,7 @@ def publish(args: argparse.Namespace) -> dict[str, Any]:
                 ).get("state_id")
 
             if domain == "INVESTMENT_PIPELINE":
-                incoming_comparison = load_json(Path(args.comparison))
+                incoming_comparison = incoming_decision_comparison or {}
                 existing_comparison_path = (
                     TARGET_ROOT / "CAPITAL_COMPARISON_CURRENT.json"
                 )
