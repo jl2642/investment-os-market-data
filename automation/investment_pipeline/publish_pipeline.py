@@ -45,6 +45,28 @@ def verify_source_branch(branch: str, commit: str) -> None:
         )
 
 
+def decision_grade_count(comparison: dict[str, Any]) -> int:
+    coverage = comparison.get("coverage")
+    if not isinstance(coverage, dict):
+        return 0
+    value = coverage.get("decision_grade_underwriting_count", 0)
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def should_preserve_existing_decision(
+    incoming_comparison: dict[str, Any],
+    existing_comparison: dict[str, Any] | None,
+) -> bool:
+    if decision_grade_count(incoming_comparison) > 0:
+        return False
+    if not isinstance(existing_comparison, dict):
+        return False
+    return decision_grade_count(existing_comparison) > 0
+
+
 def stage_spec(
     args: argparse.Namespace,
 ) -> tuple[str, list[tuple[str, Path]], str, str]:
@@ -224,6 +246,29 @@ def publish(args: argparse.Namespace) -> dict[str, Any]:
                 existing_state = json.loads(
                     existing.read_text(encoding="utf-8")
                 ).get("state_id")
+
+            if domain == "INVESTMENT_PIPELINE":
+                incoming_comparison = load_json(Path(args.comparison))
+                existing_comparison_path = (
+                    TARGET_ROOT / "CAPITAL_COMPARISON_CURRENT.json"
+                )
+                existing_comparison = (
+                    load_json(existing_comparison_path)
+                    if existing_comparison_path.exists()
+                    else None
+                )
+                if should_preserve_existing_decision(
+                    incoming_comparison, existing_comparison
+                ):
+                    return {
+                        "status": "PRESERVED_DECISION_CURRENT",
+                        "domain": domain,
+                        "advanced": False,
+                        "reason": "NO_NEW_DECISION_GRADE_UNDERWRITING",
+                        "state_id": existing_state,
+                        "incoming_state_id": fingerprint,
+                    }
+
             status = "NO_OP" if existing_state == fingerprint else "PASS"
             receipt = receipt_args(
                 domain=domain,
