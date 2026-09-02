@@ -4,7 +4,7 @@
 - 当前需人工复核的决策项：1
 - 持仓绩效监控：22 / 22（账户持仓行 23）
 - 当前投资判断覆盖：22 / 22
-- 新机会：3
+- 新机会：6
 - 自动交易：关闭；orders = 0；trade_authority = NONE
 
 ## 1. 当前持仓决策面
@@ -42,6 +42,9 @@
 ## 3. 新资本机会
 
 - BUY_BELOW｜600428.SH 中远海特｜当前价 11.67｜预期收益 2.8%｜阻断 PRICE_BLOCKED
+- WATCH｜000598.SZ 兴蓉环境｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
+- WATCH｜002165.SZ 红 宝 丽｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
+- WATCH｜300983.SZ 尤安设计｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
 - AVOID｜002936.SZ 郑州银行｜当前价 1.81｜预期收益 -3.0%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜603268.SH 松发股份｜当前价 183.48｜预期收益 -29.5%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 
