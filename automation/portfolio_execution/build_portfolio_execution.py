@@ -750,17 +750,26 @@ def apply_ai_virtual_rebalance(
         })
 
     ending_nav = float(state.get("cash") or 0.0)
-    attribution = []
     for sid, pos in positions.items():
         price = prices.get(sid, float(pos.get("last_price") or 0.0))
         pos["last_price"] = price
         pos["market_value"] = float(pos.get("quantity") or 0.0) * price
         ending_nav += pos["market_value"]
+
+    # Attribution weights must use the fully computed ending NAV.  Computing
+    # them inside the NAV accumulation loop gives early positions a partial
+    # denominator and can make reported group weights exceed 100% of actual
+    # invested exposure even when the portfolio itself is within limits.
+    attribution = []
+    for sid, pos in positions.items():
+        price = float(pos.get("last_price") or 0.0)
         attribution.append({
             "security_id": sid,
             "security_name": pos.get("security_name"),
             "market_value": pos["market_value"],
-            "unrealized_pnl": float(pos.get("quantity") or 0.0) * (price - float(pos.get("average_cost") or 0.0)),
+            "unrealized_pnl": float(pos.get("quantity") or 0.0) * (
+                price - float(pos.get("average_cost") or 0.0)
+            ),
             "weight": pos["market_value"] / ending_nav if ending_nav > 0 else 0.0,
             "risk_group": pos.get("risk_group"),
         })
