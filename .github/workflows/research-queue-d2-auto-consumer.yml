@@ -201,18 +201,36 @@ jobs:
           print(json.load(open('investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json',encoding='utf-8'))['as_of'])
           PY
           )"
-          python automation/operating_current/publish_operating_current.py \
-            --domain RESEARCH_D2 \
-            --status PASS \
-            --source-workflow "Research Queue D2 Semantic Completion" \
-            --source-run-id "${{ github.run_id }}" \
-            --source-run-attempt "${{ github.run_attempt }}" \
-            --source-branch main \
-            --source-commit "$MAIN_HEAD" \
-            --watermark "$WATERMARK" \
-            --watermark-sort-key "$WATERMARK" \
-            --qc-status PASS_SEMANTIC_UNDERWRITING_COMPLETE \
-            --advance-current
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          PRIOR_WATERMARK=""
+          if git cat-file -e origin/operating-current:operating_current/domains/RESEARCH_D2.json 2>/dev/null; then
+            PRIOR_WATERMARK="$(git show origin/operating-current:operating_current/domains/RESEARCH_D2.json | python -c 'import json,sys; print(json.load(sys.stdin).get("watermark_sort_key") or "")')"
+          fi
+          SHOULD_ADVANCE="$(INCOMING="$WATERMARK" PRIOR="$PRIOR_WATERMARK" python - <<'PY'
+          import os
+          incoming=os.environ["INCOMING"]
+          prior=os.environ["PRIOR"]
+          print("true" if not prior or incoming >= prior else "false")
+          PY
+          )"
+          if [[ "$SHOULD_ADVANCE" == "true" ]]; then
+            python automation/operating_current/publish_operating_current.py \
+              --domain RESEARCH_D2 \
+              --status PASS \
+              --source-workflow "Research Queue D2 Semantic Completion" \
+              --source-run-id "${{ github.run_id }}" \
+              --source-run-attempt "${{ github.run_attempt }}" \
+              --source-branch main \
+              --source-commit "$MAIN_HEAD" \
+              --watermark "$WATERMARK" \
+              --watermark-sort-key "$WATERMARK" \
+              --qc-status PASS_SEMANTIC_UNDERWRITING_COMPLETE \
+              --advance-current
+            echo "semantic_pointer_action=advanced_or_revalidated" >> "$GITHUB_OUTPUT"
+          else
+            echo "RESEARCH_D2_POINTER_PRESERVED_NEWER_WATERMARK prior=$PRIOR_WATERMARK semantic=$WATERMARK"
+            echo "semantic_pointer_action=preserved_newer_pointer" >> "$GITHUB_OUTPUT"
+          fi
           echo "d2_source_branch=main" >> "$GITHUB_OUTPUT"
           echo "d2_source_commit=$MAIN_HEAD" >> "$GITHUB_OUTPUT"
 
