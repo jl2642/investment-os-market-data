@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "FINAL_PRODUCT_CLOSURE_PHASE_1_FULL_HOLDING_COVERAGE_PENDING_RUNTIME_ACCEPTANCE",
-  "product_maturity": "OPERATIONAL_RESEARCH_CHAIN_PORTFOLIO_LIFECYCLE_INCOMPLETE",
+  "program_state": "FINAL_PRODUCT_CLOSURE_PHASE_2_TRIGGER_POSITION_LIFECYCLE_IN_PROGRESS",
+  "product_maturity": "OPERATIONAL_RESEARCH_DECISION_CHAIN_PORTFOLIO_LIFECYCLE_INCOMPLETE",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -331,28 +331,55 @@
       "not_required_capabilities": 0
     },
     "phase_1": {
-      "status": "IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
+      "status": "COMPLETE",
       "objective": "RESEARCH_TO_DECISION_CLOSURE",
-      "holding_count_unique": 22,
-      "pre_phase1_recommendation_coverage": "0/22",
-      "intermediate_coverage_after_pr432": "3/22",
-      "thesis_persistence_fix": "MERGED_ON_MAIN_PR433",
-      "full_holding_current_underwriting_register": "D2_RESEARCH_PORTFOLIO_HOLDINGS_20260902_R1",
-      "expected_runtime_coverage_after_acceptance": "22/22",
-      "acceptance_requirements": [
-        "S2_CURRENT_RECOMMENDATION_CONTAINS_ALL_22_CURRENT_HOLDINGS",
-        "S3_PORTFOLIO_RECOMMENDATION_COVERAGE_EQUALS_22_OF_22",
-        "COMPLETED_SEMANTIC_D2_IS_NOT_ERASED_BY_MECHANICAL_D1_REFRESH",
-        "NEW_OPPORTUNITY_AND_EXISTING_POSITION_DECISIONS_COEXIST",
-        "ORDERS_ZERO_TRADE_AUTHORITY_NONE"
+      "accepted_at_utc": "2026-09-02T11:10:40+00:00",
+      "acceptance_evidence": {
+        "holding_count_unique": 22,
+        "s2_current_holding_recommendation_coverage": "22/22",
+        "s3_portfolio_recommendation_coverage": "22/22",
+        "portfolio_uncovered_count": 0,
+        "completed_nonholding_thesis_persistence": [
+          "600428.SH:BUY_BELOW",
+          "002936.SZ:AVOID",
+          "603268.SH:AVOID"
+        ],
+        "current_holding_action_counts": {
+          "HOLD": 21,
+          "TRIM": 1
+        },
+        "current_review_required_count": 1,
+        "orders": 0,
+        "trade_authority": "NONE"
+      },
+      "source_prs": [
+        432,
+        433,
+        434
       ],
-      "completion_claim_allowed": false
+      "source_main_shas": [
+        "c7167f90515fa10594fd98cb3077322e1864d6bb",
+        "9bd5b5efa98461cb5f6ce2709cc02650acc92592",
+        "f03c93c64c0578aa9bd747c42aa601b8acbc50ec"
+      ],
+      "completion_claim_allowed": true
     },
     "phases_remaining": [
       "PHASE_2_TRIGGER_AND_POSITION_LIFECYCLE",
       "PHASE_3_PORTFOLIO_EXECUTION_AND_AI_SIMULATION",
       "PHASE_4_END_TO_END_PRODUCT_ACCEPTANCE_AND_FREEZE"
     ],
-    "completion_claim_allowed": false
+    "completion_claim_allowed": false,
+    "phase_2": {
+      "status": "IN_PROGRESS",
+      "objective": "TRIGGER_AND_POSITION_LIFECYCLE_CLOSURE",
+      "acceptance_target": [
+        "PRICE_AND_FUNDAMENTAL_TRIGGER_CAN_REOPEN_DECISION_GRADE_RESEARCH",
+        "BUY_ADD_HOLD_TRIM_EXIT_LIFECYCLE_IS_ACTIVE_ON_CURRENT_PRODUCT_CHAIN",
+        "NO_PRICE_ONLY_AUTOTRADE",
+        "TRIGGER_STATE_CHANGE_SURFACES_TO_DAILY_BRIEF",
+        "ORDERS_ZERO_TRADE_AUTHORITY_NONE"
+      ]
+    }
   }
 }
