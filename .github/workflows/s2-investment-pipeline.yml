@@ -333,8 +333,16 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          git fetch origin refs/heads/automation/research-queue-d2-current:refs/remotes/origin/s2-d2 --force --no-tags
-          git show refs/remotes/origin/s2-d2:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$S2_RUNTIME/D2_CURRENT.json"
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          git show origin/operating-current:operating_current/domains/RESEARCH_D2.json > "$S2_RUNTIME/RESEARCH_D2_DOMAIN.json"
+          D2_BRANCH="$(python -c 'import json; print(json.load(open(".s2_runtime/RESEARCH_D2_DOMAIN.json",encoding="utf-8"))["source_branch"])')"
+          D2_COMMIT="$(python -c 'import json; print(json.load(open(".s2_runtime/RESEARCH_D2_DOMAIN.json",encoding="utf-8"))["source_commit_sha"])')"
+          test -n "$D2_BRANCH"
+          test -n "$D2_COMMIT"
+          git fetch origin "$D2_COMMIT" --force --no-tags
+          git cat-file -e "$D2_COMMIT^{commit}"
+          git show "$D2_COMMIT":investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$S2_RUNTIME/D2_CURRENT.json"
+          echo "Bound D2 authority from $D2_BRANCH@$D2_COMMIT"
 
           python - <<'PY'
           import json, os
