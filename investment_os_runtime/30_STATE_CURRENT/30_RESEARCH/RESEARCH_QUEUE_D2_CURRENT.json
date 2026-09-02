@@ -1,8 +1,8 @@
 {
-  "as_of": "2026-09-02T01:45:00+00:00",
+  "as_of": "2026-09-02T02:34:00+00:00",
   "consumer_policy": {
     "bounded_batch_size": 3,
-    "event_trigger": "PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES",
+    "event_trigger": "D1_MECHANICAL_ROUTE_PLUS_SEMANTIC_COMPLETION_PUSH_TO_MAIN",
     "fail_closed": true,
     "idempotence": "UNCHANGED_D1_STATE_OR_INPUT_WATERMARK_PRESERVES_SEMANTIC_TERMINAL_WORK",
     "manual_dispatch": "BREAK_GLASS_ONLY",
@@ -49,7 +49,65 @@
       "first_rejection_test": "VALUATION_LEG_TRIGGERED_FOR_PROMOTION",
       "next_gate": "REOPEN_ON_PRICE_OR_EARNINGS_UPGRADE",
       "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_600428_20260902_R1.json",
-      "semantic_completed_at": "2026-09-02T01:45:00+00:00"
+      "semantic_completed_at": "2026-09-02T01:45:00+00:00",
+      "underwriting": {
+        "current_price": 11.67,
+        "price_as_of": "2026-09-01",
+        "entry_price": 10.43,
+        "confidence": "MEDIUM_HIGH",
+        "normalized_earnings_basis": {
+          "metric": "ATTRIBUTABLE_NET_PROFIT_RMB_BN",
+          "base": 2.35,
+          "ttm_approx": 2.326,
+          "h1_2026_reported": 1.3713,
+          "fy_2025_reported": 1.78,
+          "rationale": "TTM anchors current run-rate while avoiding full H1 annualization through a cyclical peak."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "normalized_net_profit_rmb_bn": 2,
+            "valuation_multiple_pe": 10,
+            "value_per_share": 7.29,
+            "probability": 0.25,
+            "value": 7.29
+          },
+          {
+            "name": "BASE",
+            "normalized_net_profit_rmb_bn": 2.35,
+            "valuation_multiple_pe": 14,
+            "value_per_share": 11.99,
+            "probability": 0.5,
+            "value": 11.99
+          },
+          {
+            "name": "BULL",
+            "normalized_net_profit_rmb_bn": 2.7,
+            "valuation_multiple_pe": 17,
+            "value_per_share": 16.73,
+            "probability": 0.25,
+            "value": 16.73
+          }
+        ],
+        "probability_weighted_value": 12,
+        "expected_return_ex_dividend": 0.0282,
+        "hurdle_entry_price_15pct": 10.43,
+        "hurdle_entry_price_20pct": 10,
+        "action": "HOLD",
+        "catalysts": [
+          "New multipurpose/pulp and auto-carrier capacity continues converting into revenue without margin dilution.",
+          "Special-shipping TCE stays above the 2025 run-rate and high-value equipment/auto exports remain resilient.",
+          "Semi-submersible/offshore-wind project pipeline exits the current project-window softness.",
+          "Fleet expansion is funded without material deterioration in balance-sheet quality or cash conversion."
+        ],
+        "kill_thesis": [
+          "Normalized attributable earnings fall below roughly RMB2.0bn without a temporary explanation.",
+          "Fleet TCE and gross margin decline together while leased-capacity costs remain elevated.",
+          "Auto-export or high-value equipment demand normalizes faster than new fleet capacity can be absorbed.",
+          "Operating cash flow materially decouples from reported profit for a sustained period.",
+          "At prices materially above base value without commensurate earnings upgrades, valuation itself remains a rejection gate."
+        ]
+      }
     },
     {
       "archetype": "DEFENSIVE_STABILITY",
@@ -82,7 +140,49 @@
       "first_rejection_test": "TRIGGERED_FOR_PROMOTION_BY_CAPITAL_AND_SHAREHOLDER_RETURN_GATE",
       "next_gate": "REOPEN_ON_CORE_TIER1_NIM_PAYOUT_OR_PRICE_IMPROVEMENT",
       "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_002936_20260902_R1.json",
-      "semantic_completed_at": "2026-09-02T01:45:00+00:00"
+      "semantic_completed_at": "2026-09-02T01:45:00+00:00",
+      "underwriting": {
+        "current_price": 1.81,
+        "price_as_of": "2026-09-01",
+        "confidence": "MEDIUM_HIGH",
+        "normalized_earnings_basis": {
+          "metric": "COMMON_EQUITY_BVPS_AND_NORMALIZED_EPS",
+          "common_bvps_2026_h1": 5.16,
+          "h1_2026_eps": 0.18,
+          "normalized_eps_range": [
+            0.34,
+            0.36
+          ]
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "common_pb": 0.25,
+            "value_per_share": 1.29,
+            "probability": 0.3,
+            "value": 1.29
+          },
+          {
+            "name": "BASE",
+            "common_pb": 0.35,
+            "value_per_share": 1.81,
+            "probability": 0.5,
+            "value": 1.81
+          },
+          {
+            "name": "BULL",
+            "common_pb": 0.45,
+            "value_per_share": 2.32,
+            "probability": 0.2,
+            "value": 2.32
+          }
+        ],
+        "probability_weighted_value": 1.75,
+        "expected_return": -0.0307,
+        "research_reopen_price": 1.53,
+        "action": "HOLD",
+        "entry_price": 1.53
+      }
     },
     {
       "archetype": "TREND_PERSISTENCE",
@@ -115,13 +215,70 @@
       "first_rejection_test": "VALUATION_LEG_DECISIVELY_TRIGGERED_FOR_PROMOTION",
       "next_gate": "REOPEN_ON_MATERIAL_EARNINGS_ROIC_UPGRADE_OR_PRICE_RESET",
       "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_603268_20260902_R1.json",
-      "semantic_completed_at": "2026-09-02T01:45:00+00:00"
+      "semantic_completed_at": "2026-09-02T01:45:00+00:00",
+      "underwriting": {
+        "current_price": 183.48,
+        "price_as_of": "2026-09-01",
+        "entry_price": 112.54,
+        "confidence": "MEDIUM",
+        "normalized_earnings_basis": {
+          "metric": "ATTRIBUTABLE_NET_PROFIT_RMB_BN",
+          "base": 6.5,
+          "h1_2026_reported": 3.6087,
+          "h1_annualized": 7.2174,
+          "fy_2025_reported": 2.6546,
+          "rationale": "Base sits below H1 annualization but well above 2025, recognizing backlog/scale while hair-cutting current peak mix and margin."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "normalized_net_profit_rmb_bn": 4.5,
+            "valuation_multiple_pe": 15,
+            "value_per_share": 66.24,
+            "probability": 0.25,
+            "value": 66.24
+          },
+          {
+            "name": "BASE",
+            "normalized_net_profit_rmb_bn": 6.5,
+            "valuation_multiple_pe": 20,
+            "value_per_share": 127.58,
+            "probability": 0.5,
+            "value": 127.58
+          },
+          {
+            "name": "BULL",
+            "normalized_net_profit_rmb_bn": 8,
+            "valuation_multiple_pe": 25,
+            "value_per_share": 196.27,
+            "probability": 0.25,
+            "value": 196.27
+          }
+        ],
+        "probability_weighted_value": 129.42,
+        "expected_return": -0.2947,
+        "hurdle_entry_price_15pct": 112.54,
+        "action": "HOLD",
+        "catalysts": [
+          "207 H1 new ship orders and subsequent orders convert into high-margin deliveries without execution slippage.",
+          "High-value tanker/container/VLAC mix sustains H1 margin improvement.",
+          "New yard/engine capacity reaches high utilization without cost overruns.",
+          "Contract liabilities continue converting into revenue while debt growth moderates."
+        ],
+        "kill_thesis": [
+          "New-build price/margin cycle rolls over before the expanded capacity reaches mature utilization.",
+          "Order cancellations, delivery delays or raw-material/FX cost pressure reduce normalized margins materially.",
+          "Debt and finance expense grow faster than project earnings and customer advances.",
+          "Capex remains structurally above operating cash generation after the current expansion phase.",
+          "At prices requiring the bull case to justify value, valuation remains a standing rejection gate."
+        ]
+      }
     }
   ],
   "schema_version": "1.1.0",
   "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_a96dd85c08be4403",
-  "state_id": "RESEARCH_QUEUE_D2_CURRENT_20260902_SEMANTIC_D1_READY_R1",
-  "status": "D2_SEMANTIC_RESEARCH_D1_READY_R1_COMPLETE_THREE_HOLD_NO_DECISION",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_20260902_SEMANTIC_D1_READY_R1_UNDERWRITING_BOUND",
+  "status": "D2_SEMANTIC_RESEARCH_D1_READY_R1_COMPLETE_THREE_UNDERWRITING_BOUND_NO_DECISION",
   "summary": {
     "batch_capacity": 3,
     "blocked_count": 0,
