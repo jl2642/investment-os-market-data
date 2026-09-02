@@ -636,15 +636,88 @@ def apply_ai_virtual_rebalance(
 
     recs = recommendation_map(recommendation)
     buys.sort(key=lambda x: (-targets[x[0]]["score"], x[0]))
+    slippage_rate = slippage_bps / 10_000.0
+
+    def raw_position_value(security_id: str) -> float:
+        pos = positions.get(security_id)
+        if not pos:
+            return 0.0
+        raw_price = prices.get(
+            security_id,
+            float(pos.get("last_price") or 0.0),
+        )
+        return float(pos.get("quantity") or 0.0) * raw_price
+
+    def current_raw_nav() -> float:
+        return float(state.get("cash") or 0.0) + sum(
+            raw_position_value(existing_sid) for existing_sid in positions
+        )
+
+    def group_raw_value(group: str) -> float:
+        total = 0.0
+        for existing_sid, pos in positions.items():
+            existing_group = str(
+                targets.get(existing_sid, {}).get("risk_group")
+                or pos.get("risk_group")
+                or "UNKNOWN"
+            )
+            if existing_group == group:
+                total += raw_position_value(existing_sid)
+        return total
+
     for sid, desired_qty in buys:
         price_raw = prices[sid]
-        price = price_raw * (1.0 + slippage_bps / 10_000.0)
+        price = price_raw * (1.0 + slippage_rate)
         desired_qty = math.floor(desired_qty / LISTED_LOT) * LISTED_LOT
-        affordable_qty = math.floor(float(state.get("cash") or 0.0) / price / LISTED_LOT) * LISTED_LOT
-        qty = min(desired_qty, affordable_qty)
+
+        # Enforce portfolio limits on post-execution marked weights, not only
+        # on pre-trade target weights.  Buy slippage lowers ending NAV, so a
+        # nominal 10% / 30% target can otherwise finish slightly above cap.
+        nav_before_buy = current_raw_nav()
+        current_single_value = raw_position_value(sid)
+        group = str(targets[sid]["risk_group"])
+        current_group_value = group_raw_value(group)
+
+        max_single_raw_add = max(
+            0.0,
+            (DEFAULT_SINGLE_NAME_CAP * nav_before_buy - current_single_value)
+            / (1.0 + DEFAULT_SINGLE_NAME_CAP * slippage_rate),
+        )
+        max_group_raw_add = max(
+            0.0,
+            (DEFAULT_GROUP_CAP * nav_before_buy - current_group_value)
+            / (1.0 + DEFAULT_GROUP_CAP * slippage_rate),
+        )
+        cap_qty = math.floor(
+            min(max_single_raw_add, max_group_raw_add)
+            / price_raw
+            / LISTED_LOT
+        ) * LISTED_LOT
+        desired_after_caps = min(desired_qty, cap_qty)
+
+        affordable_qty = math.floor(
+            float(state.get("cash") or 0.0) / price / LISTED_LOT
+        ) * LISTED_LOT
+        qty = min(desired_after_caps, affordable_qty)
         if qty <= 0:
-            diagnostics.append({"security_id": sid, "status": "BLOCK_CASH_OR_LOT"})
+            reason = "BLOCK_POST_EXECUTION_CAP_OR_CASH_OR_LOT"
+            diagnostics.append({
+                "security_id": sid,
+                "status": reason,
+                "desired_quantity": desired_qty,
+                "cap_quantity": cap_qty,
+                "affordable_quantity": affordable_qty,
+            })
             continue
+        if qty < desired_qty:
+            diagnostics.append({
+                "security_id": sid,
+                "status": "BUY_REDUCED_BY_POST_EXECUTION_CAP_OR_CASH",
+                "desired_quantity": desired_qty,
+                "validated_quantity": qty,
+                "cap_quantity": cap_qty,
+                "affordable_quantity": affordable_qty,
+            })
         notional = qty * price
         state["cash"] = float(state.get("cash") or 0.0) - notional
         old = positions.get(sid)
@@ -677,17 +750,26 @@ def apply_ai_virtual_rebalance(
         })
 
     ending_nav = float(state.get("cash") or 0.0)
-    attribution = []
     for sid, pos in positions.items():
         price = prices.get(sid, float(pos.get("last_price") or 0.0))
         pos["last_price"] = price
         pos["market_value"] = float(pos.get("quantity") or 0.0) * price
         ending_nav += pos["market_value"]
+
+    # Attribution weights must use the fully computed ending NAV.  Computing
+    # them inside the NAV accumulation loop gives early positions a partial
+    # denominator and can make reported group weights exceed 100% of actual
+    # invested exposure even when the portfolio itself is within limits.
+    attribution = []
+    for sid, pos in positions.items():
+        price = float(pos.get("last_price") or 0.0)
         attribution.append({
             "security_id": sid,
             "security_name": pos.get("security_name"),
             "market_value": pos["market_value"],
-            "unrealized_pnl": float(pos.get("quantity") or 0.0) * (price - float(pos.get("average_cost") or 0.0)),
+            "unrealized_pnl": float(pos.get("quantity") or 0.0) * (
+                price - float(pos.get("average_cost") or 0.0)
+            ),
             "weight": pos["market_value"] / ending_nav if ending_nav > 0 else 0.0,
             "risk_group": pos.get("risk_group"),
         })
