@@ -425,6 +425,39 @@ def evidence_gap_is_material(row: dict[str, Any]) -> bool:
     return bool(gap)
 
 
+def load_latest_semantic_d2(
+    directory: Path | None,
+) -> list[dict[str, Any]]:
+    if directory is None or not directory.exists():
+        return []
+    latest: dict[str, tuple[tuple[str, str], dict[str, Any]]] = {}
+    for path in sorted(directory.glob("D2_RESEARCH_*.json")):
+        try:
+            row = load_json(path)
+        except Exception:
+            continue
+        sid = str(row.get("security_id") or "")
+        if not sid:
+            continue
+        if str(row.get("status") or "") not in {
+            "D2_RESEARCH_COMPLETE",
+            "D2_RESEARCH_HOLD_EVIDENCE_GAP",
+        }:
+            continue
+        if not isinstance(row.get("underwriting"), dict):
+            continue
+        underwriting = row.get("underwriting") or {}
+        sort_key = (
+            str(underwriting.get("price_as_of") or ""),
+            path.name,
+        )
+        candidate = dict(row)
+        candidate["source_semantic_d2_artifact"] = path.name
+        if sid not in latest or sort_key > latest[sid][0]:
+            latest[sid] = (sort_key, candidate)
+    return [latest[sid][1] for sid in sorted(latest)]
+
+
 def load_latest_holding_d2(
     directory: Path | None,
     *,
@@ -461,9 +494,78 @@ def load_latest_holding_d2(
         )
         candidate = dict(row)
         candidate["source_holding_d2_artifact"] = path.name
+        candidate["source_semantic_d2_artifact"] = path.name
         if sid not in latest or sort_key > latest[sid][0]:
             latest[sid] = (sort_key, candidate)
     return [latest[sid][1] for sid in sorted(latest)]
+
+
+def merge_d2_with_semantic_research(
+    primary_d2: dict[str, Any],
+    semantic_rows: list[dict[str, Any]],
+    *,
+    holding_ids: set[str] | None = None,
+) -> dict[str, Any]:
+    holding_ids = holding_ids or set()
+    semantic_by_id = {
+        str(row.get("security_id") or ""): row
+        for row in semantic_rows
+        if row.get("security_id")
+    }
+    merged_primary: list[dict[str, Any]] = []
+    carried_forward: list[dict[str, Any]] = []
+    for primary in list(primary_d2.get("queue", []) or []):
+        sid = str(primary.get("security_id") or "")
+        status = str(primary.get("status") or "")
+        decision_grade_primary = (
+            status in {"D2_RESEARCH_COMPLETE", "D2_RESEARCH_HOLD_EVIDENCE_GAP"}
+            and isinstance(primary.get("underwriting"), dict)
+        )
+        semantic = semantic_by_id.get(sid)
+        if not decision_grade_primary and semantic is not None:
+            replacement = dict(semantic)
+            replacement["source_reuse_reason"] = (
+                "LATEST_DECISION_GRADE_D2_CARRY_FORWARD_FOR_REPEATED_D1_SUBJECT"
+            )
+            merged_primary.append(replacement)
+            carried_forward.append(replacement)
+        else:
+            merged_primary.append(primary)
+
+    seen = {
+        str(row.get("security_id") or "")
+        for row in merged_primary
+        if row.get("security_id")
+    }
+    supplemental = [
+        row
+        for row in semantic_rows
+        if str(row.get("security_id") or "") in holding_ids
+        and str(row.get("security_id") or "") not in seen
+    ]
+    merged = dict(primary_d2)
+    merged["queue"] = merged_primary + supplemental
+    merged["source_primary_d2_state_id"] = primary_d2.get("state_id")
+    merged["carried_forward_semantic_d2_count"] = len(carried_forward)
+    merged["supplemental_holding_d2_count"] = len(supplemental)
+    if carried_forward or supplemental:
+        identity = canonical_hash(
+            {
+                "primary_d2_state_id": primary_d2.get("state_id"),
+                "carried_forward_artifacts": [
+                    row.get("source_semantic_d2_artifact")
+                    for row in carried_forward
+                ],
+                "holding_artifacts": [
+                    row.get("source_semantic_d2_artifact")
+                    for row in supplemental
+                ],
+            }
+        )
+        merged["state_id"] = (
+            f"{primary_d2.get('state_id') or 'D2_CURRENT'}_SEMANTIC_{identity[:12]}"
+        )
+    return merged
 
 
 def merge_d2_with_holding_research(
@@ -834,7 +936,11 @@ def main() -> int:
     p2.add_argument("--d2-current", required=True)
     p2.add_argument("--real-positions", required=True)
     p2.add_argument("--simulation-positions", required=True)
-    p2.add_argument("--holding-d2-dir")
+    p2.add_argument(
+        "--semantic-d2-dir",
+        "--holding-d2-dir",
+        dest="semantic_d2_dir",
+    )
     p2.add_argument("--output-dir", required=True)
 
     args = parser.parse_args()
@@ -877,12 +983,14 @@ def main() -> int:
     d2 = load_json(Path(args.d2_current))
     real = load_json(Path(args.real_positions))
     sim = load_json(Path(args.simulation_positions))
-    holding_rows = load_latest_holding_d2(
-        Path(args.holding_d2_dir) if args.holding_d2_dir else None,
-        real_positions=real,
-        simulation_positions=sim,
+    semantic_rows = load_latest_semantic_d2(
+        Path(args.semantic_d2_dir) if args.semantic_d2_dir else None
     )
-    d2 = merge_d2_with_holding_research(d2, holding_rows)
+    d2 = merge_d2_with_semantic_research(
+        d2,
+        semantic_rows,
+        holding_ids=position_ids(real) | position_ids(sim),
+    )
     comparison = build_capital_comparison(
         d2, real_positions=real, simulation_positions=sim
     )
@@ -894,6 +1002,7 @@ def main() -> int:
             {
                 "status": "PASS_DECISION",
                 "subjects": recommendation["summary"]["subject_count"],
+                "carried_forward_semantic_d2": d2.get("carried_forward_semantic_d2_count", 0),
                 "supplemental_holding_d2": d2.get("supplemental_holding_d2_count", 0),
                 "actions": recommendation["summary"]["action_counts"],
                 "orders": 0,
