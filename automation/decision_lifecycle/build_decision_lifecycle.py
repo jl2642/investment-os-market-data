@@ -119,6 +119,30 @@ def priority_rank(value: str) -> int:
     }.get(value, 9)
 
 
+def is_equity_security(security_id: str, security_name: Any) -> bool:
+    name = str(security_name or "")
+    if security_id.endswith(".OF"):
+        return False
+    if "ETF" in name.upper():
+        return False
+    return security_id.endswith((".SH", ".SZ", ".BJ"))
+
+
+def event_evidence_map(payload: dict[str, Any] | None) -> dict[str, list[dict[str, Any]]]:
+    out: dict[str, list[dict[str, Any]]] = {}
+    if not isinstance(payload, dict):
+        return out
+    rows = payload.get("records") if isinstance(payload.get("records"), list) else []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        sid = str(row.get("security_id") or "")
+        if not sid or not bool(row.get("material")):
+            continue
+        out.setdefault(sid, []).append(row)
+    return out
+
+
 def build(
     *,
     recommendation: dict[str, Any],
@@ -126,6 +150,8 @@ def build(
     market_rows: dict[str, dict[str, Any]] | None = None,
     market_date: str | None = None,
     prior: dict[str, Any] | None = None,
+    financial_context: dict[str, Any] | None = None,
+    event_evidence: dict[str, Any] | None = None,
     now: datetime | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     now = now or datetime.now(timezone.utc)
@@ -135,6 +161,22 @@ def build(
     monitoring, held_ids = monitoring_maps(surface)
     prior_keys = prior_trigger_keys(prior)
     baseline = not bool(prior.get("lifecycle_id"))
+    financial_context = financial_context or {}
+    financial_watermark = str(
+        financial_context.get("watermark_sort_key")
+        or financial_context.get("data_watermark")
+        or ""
+    )
+    prior_financial_watermark = str(
+        (prior.get("input_identity") or {}).get("financial_statement_watermark")
+        or ""
+    )
+    financial_context_advanced = bool(
+        prior_financial_watermark
+        and financial_watermark
+        and financial_watermark > prior_financial_watermark
+    )
+    material_events = event_evidence_map(event_evidence)
 
     subjects: list[dict[str, Any]] = []
     review_queue: list[dict[str, Any]] = []
@@ -212,6 +254,58 @@ def build(
                     "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
                 })
 
+        probability_weighted_value = num(rec.get("probability_weighted_value"))
+        base_value = num(rec.get("base_value"))
+        mark_expected_return = None
+        if latest_price is not None and latest_price > 0 and probability_weighted_value is not None:
+            mark_expected_return = probability_weighted_value / latest_price - 1.0
+        if held and is_equity_security(sid, name) and latest_price is not None:
+            valuation_exhausted = False
+            if base_value is not None and latest_price >= base_value:
+                valuation_exhausted = True
+            if mark_expected_return is not None and mark_expected_return <= 0.05:
+                valuation_exhausted = True
+            if valuation_exhausted and action not in {"TRIM", "EXIT"}:
+                key = "VALUATION_EXHAUSTION_REUNDERWRITE"
+                trigger_keys.append(key)
+                review_reasons.append({
+                    "type": "REUNDERWRITE_REQUIRED",
+                    "key": key,
+                    "priority": "HIGH",
+                    "reason": (
+                        f"Latest price {latest_price:.4f} has exhausted the current valuation margin; "
+                        f"mark-to-weighted-value expected return is "
+                        f"{mark_expected_return:.2%}." if mark_expected_return is not None
+                        else f"Latest price {latest_price:.4f} is at/above current base value."
+                    ),
+                    "next_step": "FRESH_D2_FOR_HOLD_TRIM_OR_EXIT",
+                })
+
+        for event in material_events.get(sid, []):
+            key = "MATERIAL_FUNDAMENTAL_EVENT_REUNDERWRITE"
+            trigger_keys.append(key)
+            review_reasons.append({
+                "type": "REUNDERWRITE_REQUIRED",
+                "key": key,
+                "priority": "CRITICAL" if bool(event.get("thesis_break_risk")) else "HIGH",
+                "reason": str(event.get("summary") or event.get("event_type") or "Material new fundamental event evidence."),
+                "next_step": "FRESH_D2_ON_NEW_FILING_GUIDANCE_OR_THSIS_EVIDENCE",
+            })
+
+        if financial_context_advanced and is_equity_security(sid, name):
+            key = "FINANCIAL_CONTEXT_ADVANCED_TRIAGE"
+            trigger_keys.append(key)
+            review_reasons.append({
+                "type": "REUNDERWRITE_REQUIRED",
+                "key": key,
+                "priority": "MEDIUM_HIGH",
+                "reason": (
+                    f"Financial statement context advanced from {prior_financial_watermark} "
+                    f"to {financial_watermark}; security-level filing relevance must be triaged."
+                ),
+                "next_step": "TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL",
+            })
+
         if "ACCOUNT_WEIGHT_GE_15PCT" in flags:
             key = "PORTFOLIO_CONCENTRATION_ACTIVE"
             trigger_keys.append(key)
@@ -226,20 +320,30 @@ def build(
         if "DRAWDOWN_GE_15PCT" in flags:
             key = "DRAWDOWN_MONITOR_ACTIVE"
             trigger_keys.append(key)
-            # Drawdown is already reflected in a current D2 thesis.  It remains
-            # a lifecycle state but does not mechanically force repeated D2.
             review_reasons.append({
                 "type": "RISK_MONITOR",
                 "key": key,
                 "priority": "MEDIUM",
                 "reason": "Current unrealized drawdown is at/above 15%; loss alone is not an exit trigger.",
-                "next_step": "REUNDERWRITE_ONLY_ON_NEW_EVIDENCE_OR_PRICE_REOPEN",
+                "next_step": "REUNDERWRITE_ON_FIRST_CROSS_OR_NEW_EVIDENCE",
             })
 
         current_set = set(trigger_keys)
         prior_set = prior_keys.get(sid, set())
         new_keys = sorted(current_set - prior_set) if not baseline else []
         cleared_keys = sorted(prior_set - current_set) if not baseline else []
+
+        if (
+            not baseline
+            and "DRAWDOWN_MONITOR_ACTIVE" in new_keys
+        ):
+            review_reasons.append({
+                "type": "REUNDERWRITE_REQUIRED",
+                "key": "DRAWDOWN_MONITOR_ACTIVE",
+                "priority": "HIGH",
+                "reason": "Holding newly crossed the 15% drawdown review threshold; loss is not an automatic exit but thesis must be refreshed once.",
+                "next_step": "FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT",
+            })
 
         for reason in review_reasons:
             include = reason["type"] in {"USER_ACTION_REVIEW", "REUNDERWRITE_REQUIRED", "PORTFOLIO_REVIEW_REQUIRED"}
@@ -296,6 +400,9 @@ def build(
             "price_as_of": price_as_of,
             "entry_price": entry_price,
             "expected_return": num(rec.get("expected_return")),
+            "mark_expected_return": mark_expected_return,
+            "base_value": base_value,
+            "probability_weighted_value": probability_weighted_value,
             "top_blocker": rec.get("top_blocker"),
             "ready_for_user_decision": bool(rec.get("ready_for_user_decision")),
             "monitoring_flags": flags,
@@ -319,6 +426,8 @@ def build(
         "surface_id": surface.get("surface_id"),
         "surface_as_of_date": surface.get("as_of_date"),
         "market_date": market_date,
+        "financial_statement_watermark": financial_watermark or None,
+        "event_evidence_id": (event_evidence or {}).get("event_evidence_id"),
     }
     lifecycle_id = "DECISION_LIFECYCLE_CURRENT_" + canonical_hash({
         "inputs": input_identity,
@@ -358,6 +467,18 @@ def build(
                 for x in subjects
             ),
             "automatic_semantic_trigger_count": 0,
+            "material_event_trigger_count": sum(
+                1 for x in review_queue
+                if x["trigger_key"] == "MATERIAL_FUNDAMENTAL_EVENT_REUNDERWRITE"
+            ),
+            "valuation_reunderwrite_count": sum(
+                1 for x in review_queue
+                if x["trigger_key"] == "VALUATION_EXHAUSTION_REUNDERWRITE"
+            ),
+            "financial_context_triage_count": sum(
+                1 for x in review_queue
+                if x["trigger_key"] == "FINANCIAL_CONTEXT_ADVANCED_TRIAGE"
+            ),
         },
         "subjects": subjects,
         "controls": {
@@ -365,6 +486,9 @@ def build(
             "automatic_position_mutation": False,
             "automatic_semantic_keyword_inference": False,
             "fresh_d2_required_after_price_trigger": True,
+            "fresh_d2_required_after_valuation_trigger": True,
+            "fresh_d2_required_after_material_fundamental_event": True,
+            "first_cross_drawdown_requires_one_reunderwrite": True,
             "candidate_membership_mutations": 0,
             "real_account_mutations": 0,
             "simulation_mutations": 0,
@@ -432,6 +556,8 @@ def main() -> None:
     p.add_argument("--market-snapshot")
     p.add_argument("--market-date")
     p.add_argument("--prior")
+    p.add_argument("--financial-context-domain")
+    p.add_argument("--event-evidence")
     p.add_argument("--output-json", required=True)
     p.add_argument("--output-queue", required=True)
     p.add_argument("--output-md", required=True)
@@ -441,12 +567,24 @@ def main() -> None:
     surface = load_json(Path(args.surface))
     market_rows, detected_date = load_market_snapshot(Path(args.market_snapshot) if args.market_snapshot else None)
     prior = load_json(Path(args.prior), {}) if args.prior else {}
+    financial_context = (
+        load_json(Path(args.financial_context_domain), {})
+        if args.financial_context_domain
+        else {}
+    )
+    event_evidence = (
+        load_json(Path(args.event_evidence), {})
+        if args.event_evidence
+        else {}
+    )
     lifecycle, queue = build(
         recommendation=recommendation,
         surface=surface,
         market_rows=market_rows,
         market_date=args.market_date or detected_date,
         prior=prior,
+        financial_context=financial_context,
+        event_evidence=event_evidence,
     )
     write_json(Path(args.output_json), lifecycle)
     write_json(Path(args.output_queue), queue)

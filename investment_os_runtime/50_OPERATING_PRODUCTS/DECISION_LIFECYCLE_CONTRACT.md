@@ -29,3 +29,14 @@ Catalyst 与 kill-thesis 只登记为监控条款。GitHub 不允许用关键词
 - Real / Simulation / Candidate mutation：0。
 - Orders：0。
 - trade_authority：`NONE`。
+
+
+## Phase 4 Preflight Closure Addendum
+
+为满足 Final Product Closure 的真实场景验收，Phase 2 进一步冻结以下触发语义：
+
+- 估值耗尽：上市个股最新价格达到/超过当前 Base Value，或按最新价格重算的概率加权预期收益降至5%及以下，进入 fresh D2；不得直接 TRIM/EXIT。
+- 新回撤跨线：持仓首次进入 >=15% drawdown 状态时触发一次 fresh D2；若该状态持续，后续只监控，避免重复研究。
+- 财务上下文：FINANCIAL_STATEMENT_CONTEXT 水位推进时，上市个股进入新增财务证据 triage；ETF/基金不因此制造财报噪声。
+- Material Event Evidence：明确的新财报、业绩预告、guidance、重大事件证据可进入 EVENT_EVIDENCE_CURRENT；material=true 时必须 fresh D2。
+- Catalyst / kill-thesis 仍不得做关键词自动推断；event evidence 必须是结构化、可追溯的外部证据或人工确认事实。
