@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
-  "registry_id": "S4_FINAL_FROZEN_RUNTIME_REGISTRY",
-  "effective_date": "2026-09-01",
+  "registry_id": "FINAL_PRODUCT_CLOSURE_PHASE2_RUNTIME_REGISTRY",
+  "effective_date": "2026-09-02",
   "authority": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json",
   "policy": {
     "one_primary_path_per_state": true,
@@ -46,6 +46,11 @@
       "path": ".github/workflows/s3-portfolio-product-surface.yml",
       "role": "PRIMARY_PORTFOLIO_AND_USER_PRODUCT_SURFACE",
       "primary_or_recovery": "PRIMARY"
+    },
+    {
+      "path": ".github/workflows/final-closure-phase2-decision-lifecycle.yml",
+      "role": "PRIMARY_DECISION_TRIGGER_AND_POSITION_LIFECYCLE_WATCH",
+      "primary_or_recovery": "EVENT_DRIVEN_PRIMARY"
     }
   ],
   "transitional_investment_runtime_until_s2_s3": [],
@@ -132,6 +137,11 @@
       "path": ".github/workflows/s3-portfolio-product-surface.yml",
       "role": "PORTFOLIO_DECISION_AND_USER_PRODUCT_SURFACE",
       "primary_or_recovery": "EVENT_DRIVEN_PRIMARY"
+    },
+    {
+      "path": ".github/workflows/final-closure-phase2-decision-lifecycle.yml",
+      "role": "PRIMARY_DECISION_TRIGGER_AND_POSITION_LIFECYCLE_WATCH",
+      "primary_or_recovery": "EVENT_DRIVEN_PRIMARY"
     }
   ],
   "s2_primary_chain": {
@@ -196,6 +206,20 @@
     "d2_fixed_cron": false,
     "d2_semantic_underwriting": "CHATGPT_NATIVE_EXPLICIT_USER_START_WHEN_DECISION_GRADE_RESEARCH_IS_READY",
     "review_cycles": "CONDITION_AND_EVIDENCE_MATURITY_GATED",
+    "orders": 0,
+    "trade_authority": "NONE"
+  },
+  "phase2_status": "IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
+  "phase2_chain": {
+    "workflow": ".github/workflows/final-closure-phase2-decision-lifecycle.yml",
+    "upstream": [
+      "INVESTMENT_PIPELINE",
+      "PORTFOLIO_PRODUCT_SURFACE",
+      "A_SHARE_FULL_MARKET"
+    ],
+    "output_domain": "DECISION_LIFECYCLE",
+    "automatic_trade_or_position_mutation": false,
+    "automatic_semantic_keyword_inference": false,
     "orders": 0,
     "trade_authority": "NONE"
   }

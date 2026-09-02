@@ -1,0 +1,214 @@
+name: Final Closure Phase 2 Decision Lifecycle
+
+run-name: "Phase 2 trigger watch and position lifecycle"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "automation/decision_lifecycle/**"
+      - "tests/test_phase2_decision_lifecycle.py"
+      - ".github/workflows/final-closure-phase2-decision-lifecycle.yml"
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/50_OPERATING_PRODUCTS/DECISION_LIFECYCLE_CONTRACT.md"
+      - "automation/operating_current/publish_operating_current.py"
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/decision_lifecycle/**"
+      - "tests/test_phase2_decision_lifecycle.py"
+      - ".github/workflows/final-closure-phase2-decision-lifecycle.yml"
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/50_OPERATING_PRODUCTS/DECISION_LIFECYCLE_CONTRACT.md"
+      - "automation/operating_current/publish_operating_current.py"
+  workflow_run:
+    workflows:
+      - "S3 Portfolio + Product Surface"
+      - "FMDL daily market, factor and screening transaction"
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install deterministic validation runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest pyyaml
+
+      - name: Compile Phase 2 producers
+        run: |
+          python -m py_compile \
+            automation/decision_lifecycle/build_decision_lifecycle.py \
+            automation/decision_lifecycle/publish_decision_lifecycle.py \
+            automation/operating_current/publish_operating_current.py
+
+      - name: Validate trigger and lifecycle semantics
+        run: |
+          pytest -q \
+            tests/test_phase2_decision_lifecycle.py \
+            tests/test_s2_investment_pipeline.py \
+            tests/test_s3_portfolio_product_surface.py \
+            tests/test_s4_runtime_publishers.py
+
+      - name: Parse Phase 2 workflow
+        run: |
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          yaml.safe_load(Path(".github/workflows/final-closure-phase2-decision-lifecycle.yml").read_text(encoding="utf-8"))
+          print({"phase2_workflow_yaml":"PASS"})
+          PY
+
+      - name: Enforce zero economic mutation
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed=set(subprocess.check_output(
+              ["git","diff","--name-only","origin/main...HEAD"], text=True
+          ).splitlines())
+          forbidden_prefixes=(
+              "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/",
+              "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/",
+              "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/",
+              "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/",
+          )
+          leaked=sorted(path for path in changed if path.startswith(forbidden_prefixes))
+          if leaked:
+              raise SystemExit("PHASE2_PROTECTED_STATE_MUTATION:" + ",".join(leaked))
+          print({"protected_mutations":0,"orders":0,"trade_authority":"NONE"})
+          PY
+
+  production:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event != 'pull_request')
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: final-closure-phase2-decision-lifecycle
+      cancel-in-progress: false
+    steps:
+      - name: Checkout canonical main
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Resolve Current authorities
+        id: authority
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin operating-current:refs/remotes/origin/operating-current --force
+          git show origin/operating-current:operating_current/domains/INVESTMENT_PIPELINE.json > /tmp/investment-domain.json
+          git show origin/operating-current:operating_current/domains/PORTFOLIO_PRODUCT_SURFACE.json > /tmp/surface-domain.json
+          git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json > /tmp/market-domain.json
+          git show origin/operating-current:operating_current/investment_pipeline/RECOMMENDATION_CURRENT.json > /tmp/recommendation.json
+          git show origin/operating-current:operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json > /tmp/surface.json
+          git show origin/operating-current:operating_current/decision_lifecycle/DECISION_LIFECYCLE_CURRENT.json > /tmp/prior-lifecycle.json 2>/dev/null || echo '{}' > /tmp/prior-lifecycle.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          for path in ["/tmp/investment-domain.json","/tmp/surface-domain.json","/tmp/market-domain.json"]:
+              payload=json.load(open(path,encoding="utf-8"))
+              if payload.get("status") != "PASS":
+                  raise SystemExit("PHASE2_INPUT_NOT_PASS:" + path)
+              if payload.get("orders") != 0 or payload.get("trade_authority") != "NONE":
+                  raise SystemExit("PHASE2_INPUT_AUTHORITY_VIOLATION:" + path)
+          market=json.load(open("/tmp/market-domain.json",encoding="utf-8"))
+          print(f"market_branch={market['source_branch']}")
+          print(f"market_commit={market['source_commit_sha']}")
+          print(f"market_date={market['data_watermark']}")
+          PY
+
+      - name: Restore exact full-market snapshot
+        shell: bash
+        env:
+          MARKET_BRANCH: ${{ steps.authority.outputs.market_branch }}
+          MARKET_COMMIT: ${{ steps.authority.outputs.market_commit }}
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "$MARKET_BRANCH"
+          git cat-file -e "$MARKET_COMMIT^{commit}"
+          git show "$MARKET_COMMIT:outputs/current/DAILY_MARKET_SNAPSHOT.csv" > /tmp/market-snapshot.csv
+
+      - name: Build decision lifecycle and trigger review queue
+        run: |
+          python automation/decision_lifecycle/build_decision_lifecycle.py \
+            --recommendation /tmp/recommendation.json \
+            --surface /tmp/surface.json \
+            --market-snapshot /tmp/market-snapshot.csv \
+            --market-date "${{ steps.authority.outputs.market_date }}" \
+            --prior /tmp/prior-lifecycle.json \
+            --output-json /tmp/DECISION_LIFECYCLE_CURRENT.json \
+            --output-queue /tmp/TRIGGER_REVIEW_QUEUE_CURRENT.json \
+            --output-md /tmp/DECISION_LIFECYCLE_BRIEF_CURRENT.md
+
+      - name: Validate lifecycle boundary
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open("/tmp/DECISION_LIFECYCLE_CURRENT.json",encoding="utf-8"))
+          assert p["status"] == "PASS_DECISION_LIFECYCLE"
+          assert p["summary"]["held_subject_count"] == 22
+          assert p["summary"]["subject_count"] >= 22
+          assert p["summary"]["automatic_semantic_trigger_count"] == 0
+          assert p["controls"]["automatic_buy_sell"] is False
+          assert p["controls"]["automatic_position_mutation"] is False
+          assert p["orders"] == 0
+          assert p["trade_authority"] == "NONE"
+          print(p["summary"])
+          PY
+
+      - name: Publish Decision Lifecycle to Operating Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          MAIN_HEAD="$(git rev-parse HEAD)"
+          python automation/decision_lifecycle/publish_decision_lifecycle.py \
+            --lifecycle-json /tmp/DECISION_LIFECYCLE_CURRENT.json \
+            --review-queue-json /tmp/TRIGGER_REVIEW_QUEUE_CURRENT.json \
+            --brief /tmp/DECISION_LIFECYCLE_BRIEF_CURRENT.md \
+            --source-workflow "Final Closure Phase 2 Decision Lifecycle" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch main \
+            --source-commit "$MAIN_HEAD"
+
+      - name: Record Phase 2 operating summary
+        run: |
+          {
+            echo "## Final Closure Phase 2 Decision Lifecycle"
+            echo "- mechanical trigger types: price / current action / portfolio risk"
+            echo "- semantic catalysts and kill thesis: registered, never keyword-fired"
+            echo "- price crossing: re-underwrite, never auto-buy"
+            echo "- drawdown alone: monitor, never auto-exit"
+            echo "- orders: 0; trade_authority: NONE"
+          } >> "$GITHUB_STEP_SUMMARY"

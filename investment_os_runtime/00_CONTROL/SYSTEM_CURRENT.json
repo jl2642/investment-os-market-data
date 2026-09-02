@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "FINAL_PRODUCT_CLOSURE_PHASE_2_TRIGGER_POSITION_LIFECYCLE_IN_PROGRESS",
-  "product_maturity": "OPERATIONAL_RESEARCH_DECISION_CHAIN_PORTFOLIO_LIFECYCLE_INCOMPLETE",
+  "program_state": "FINAL_PRODUCT_CLOSURE_PHASE_2_TRIGGER_AND_POSITION_LIFECYCLE_IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
+  "product_maturity": "OPERATIONAL_RESEARCH_AND_DECISION_LIFECYCLE_PORTFOLIO_EXECUTION_INCOMPLETE",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -371,15 +371,29 @@
     ],
     "completion_claim_allowed": false,
     "phase_2": {
-      "status": "IN_PROGRESS",
-      "objective": "TRIGGER_AND_POSITION_LIFECYCLE_CLOSURE",
-      "acceptance_target": [
-        "PRICE_AND_FUNDAMENTAL_TRIGGER_CAN_REOPEN_DECISION_GRADE_RESEARCH",
-        "BUY_ADD_HOLD_TRIM_EXIT_LIFECYCLE_IS_ACTIVE_ON_CURRENT_PRODUCT_CHAIN",
-        "NO_PRICE_ONLY_AUTOTRADE",
-        "TRIGGER_STATE_CHANGE_SURFACES_TO_DAILY_BRIEF",
+      "status": "IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
+      "objective": "TRIGGER_AND_POSITION_LIFECYCLE",
+      "primary_workflow": ".github/workflows/final-closure-phase2-decision-lifecycle.yml",
+      "canonical_surface": "operating_current/decision_lifecycle/DECISION_LIFECYCLE_CURRENT.json",
+      "canonical_review_queue": "operating_current/decision_lifecycle/TRIGGER_REVIEW_QUEUE_CURRENT.json",
+      "mechanical_triggers": [
+        "BUY_BELOW_OR_HOLD_ENTRY_PRICE_REOPEN",
+        "CURRENT_ADD_TRIM_EXIT_ACTION",
+        "PORTFOLIO_CONCENTRATION",
+        "DRAWDOWN_MONITOR"
+      ],
+      "semantic_trigger_policy": "REGISTER_CATALYST_AND_KILL_THESIS_NO_KEYWORD_AUTO_FIRE_FRESH_D2_REQUIRED",
+      "sell_mechanism": "CURRENT_DECISION_GRADE_TRIM_EXIT_OR_REUNDERWRITTEN_TRIM_EXIT_ONLY",
+      "acceptance_requirements": [
+        "BUY_BELOW_PRICE_CROSS_ROUTES_TO_REUNDERWRITE_NOT_BUY",
+        "EXISTING_TRIM_EXIT_ROUTES_TO_USER_ACTION_REVIEW",
+        "DRAWDOWN_ALONE_DOES_NOT_AUTO_EXIT",
+        "CONCENTRATION_ROUTES_TO_PHASE3_PORTFOLIO_REVIEW",
+        "SEMANTIC_KEYWORD_AUTO_FIRE_ZERO",
+        "DECISION_LIFECYCLE_PUBLISHED_TO_OPERATING_CURRENT",
         "ORDERS_ZERO_TRADE_AUTHORITY_NONE"
-      ]
+      ],
+      "completion_claim_allowed": false
     }
   }
 }
