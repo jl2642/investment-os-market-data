@@ -433,28 +433,37 @@ def load_latest_semantic_d2(
     latest: dict[str, tuple[tuple[str, str], dict[str, Any]]] = {}
     for path in sorted(directory.glob("D2_RESEARCH_*.json")):
         try:
-            row = load_json(path)
+            payload = load_json(path)
         except Exception:
             continue
-        sid = str(row.get("security_id") or "")
-        if not sid:
-            continue
-        if str(row.get("status") or "") not in {
-            "D2_RESEARCH_COMPLETE",
-            "D2_RESEARCH_HOLD_EVIDENCE_GAP",
-        }:
-            continue
-        if not isinstance(row.get("underwriting"), dict):
-            continue
-        underwriting = row.get("underwriting") or {}
-        sort_key = (
-            str(underwriting.get("price_as_of") or ""),
-            path.name,
+        rows = (
+            payload.get("records")
+            if isinstance(payload, dict) and isinstance(payload.get("records"), list)
+            else [payload]
         )
-        candidate = dict(row)
-        candidate["source_semantic_d2_artifact"] = path.name
-        if sid not in latest or sort_key > latest[sid][0]:
-            latest[sid] = (sort_key, candidate)
+        for ordinal, row in enumerate(rows, start=1):
+            if not isinstance(row, dict):
+                continue
+            sid = str(row.get("security_id") or "")
+            if not sid:
+                continue
+            if str(row.get("status") or "") not in {
+                "D2_RESEARCH_COMPLETE",
+                "D2_RESEARCH_HOLD_EVIDENCE_GAP",
+            }:
+                continue
+            if not isinstance(row.get("underwriting"), dict):
+                continue
+            underwriting = row.get("underwriting") or {}
+            sort_key = (
+                str(underwriting.get("price_as_of") or ""),
+                f"{path.name}:{ordinal:04d}",
+            )
+            candidate = dict(row)
+            candidate["source_semantic_d2_artifact"] = path.name
+            candidate["source_semantic_d2_record_ordinal"] = ordinal
+            if sid not in latest or sort_key > latest[sid][0]:
+                latest[sid] = (sort_key, candidate)
     return [latest[sid][1] for sid in sorted(latest)]
 
 
