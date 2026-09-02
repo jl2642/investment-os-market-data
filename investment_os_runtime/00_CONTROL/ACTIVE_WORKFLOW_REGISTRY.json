@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "registry_id": "FINAL_PRODUCT_CLOSURE_PHASE3_RUNTIME_REGISTRY",
+  "registry_id": "FINAL_PRODUCT_CLOSURE_PHASE4_FROZEN_RUNTIME_REGISTRY",
   "effective_date": "2026-09-02",
   "authority": "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json",
   "policy": {
@@ -233,7 +233,7 @@
     "orders": 0,
     "trade_authority": "NONE"
   },
-  "phase3_status": "IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
+  "phase3_status": "COMPLETE_ON_MAIN_RUNTIME",
   "phase3_chain": {
     "workflow": ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml",
     "upstream": [
@@ -245,6 +245,27 @@
     "ai_book": "AI_AUTONOMOUS_1M",
     "real_account_mutations": 0,
     "legacy_simulation_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE",
+    "runtime_acceptance": "PASS_PORTFOLIO_EXECUTION_AND_AI_SIMULATION"
+  },
+  "phase4_status": "COMPLETE_FINAL_PRODUCT_FROZEN",
+  "phase4_chain": {
+    "workflow": ".github/workflows/final-product-closure-phase4.yml",
+    "validates": [
+      "A_SHARE_FULL_MARKET",
+      "PORTFOLIO_MARKS",
+      "INVESTMENT_PIPELINE",
+      "DECISION_LIFECYCLE",
+      "PORTFOLIO_EXECUTION_SIMULATION",
+      "22_OF_22_CURRENT_HOLDING_RECOMMENDATION_COVERAGE",
+      "22_OF_22_CURRENT_HOLDING_LIFECYCLE_COVERAGE",
+      "DAILY_INVESTMENT_BRIEF",
+      "PORTFOLIO_DECISION_SURFACE",
+      "AI_AUTONOMOUS_1M"
+    ],
+    "ten_core_capabilities": "10/10_PASS",
+    "development_closed": true,
     "orders": 0,
     "trade_authority": "NONE"
   }
