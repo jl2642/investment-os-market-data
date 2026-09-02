@@ -714,3 +714,51 @@ def test_phase1_consolidated_holding_d2_register_is_machine_consumable(tmp_path:
         for row in rows
     )
     assert [row["source_semantic_d2_record_ordinal"] for row in rows] == [1, 2]
+
+
+def test_phase1_all_current_holdings_have_current_recommendation() -> None:
+    semantic_dir = (
+        ROOT
+        / "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2"
+    )
+    real = json.loads(
+        (
+            ROOT
+            / "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json"
+        ).read_text(encoding="utf-8")
+    )
+    simulation = json.loads(
+        (
+            ROOT
+            / "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json"
+        ).read_text(encoding="utf-8")
+    )
+    holding_ids = {
+        row["security_id"] for row in real["holdings"]
+    } | {
+        row["security_id"] for row in simulation["holdings"]
+    }
+    assert len(holding_ids) == 22
+
+    semantic_rows = load_latest_semantic_d2(semantic_dir)
+    merged = merge_d2_with_semantic_research(
+        {"state_id": "PHASE1_HOLDING_ACCEPTANCE", "queue": []},
+        semantic_rows,
+        holding_ids=holding_ids,
+    )
+    comparison = build_capital_comparison(
+        merged,
+        real_positions=real,
+        simulation_positions=simulation,
+        now=NOW,
+    )
+    recommendation = build_recommendations(merged, comparison, now=NOW)
+    covered = {
+        row["security_id"]
+        for row in recommendation["records"]
+        if row["portfolio_implication"] == "EXISTING_POSITION"
+    }
+    assert covered == holding_ids
+    assert len(covered) == 22
+    assert recommendation["controls"]["orders"] == 0
+    assert recommendation["controls"]["trade_authority"] == "NONE"
