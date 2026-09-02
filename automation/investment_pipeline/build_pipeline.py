@@ -433,28 +433,37 @@ def load_latest_semantic_d2(
     latest: dict[str, tuple[tuple[str, str], dict[str, Any]]] = {}
     for path in sorted(directory.glob("D2_RESEARCH_*.json")):
         try:
-            row = load_json(path)
+            payload = load_json(path)
         except Exception:
             continue
-        sid = str(row.get("security_id") or "")
-        if not sid:
-            continue
-        if str(row.get("status") or "") not in {
-            "D2_RESEARCH_COMPLETE",
-            "D2_RESEARCH_HOLD_EVIDENCE_GAP",
-        }:
-            continue
-        if not isinstance(row.get("underwriting"), dict):
-            continue
-        underwriting = row.get("underwriting") or {}
-        sort_key = (
-            str(underwriting.get("price_as_of") or ""),
-            path.name,
+        rows = (
+            payload.get("records")
+            if isinstance(payload, dict) and isinstance(payload.get("records"), list)
+            else [payload]
         )
-        candidate = dict(row)
-        candidate["source_semantic_d2_artifact"] = path.name
-        if sid not in latest or sort_key > latest[sid][0]:
-            latest[sid] = (sort_key, candidate)
+        for ordinal, row in enumerate(rows, start=1):
+            if not isinstance(row, dict):
+                continue
+            sid = str(row.get("security_id") or "")
+            if not sid:
+                continue
+            if str(row.get("status") or "") not in {
+                "D2_RESEARCH_COMPLETE",
+                "D2_RESEARCH_HOLD_EVIDENCE_GAP",
+            }:
+                continue
+            if not isinstance(row.get("underwriting"), dict):
+                continue
+            underwriting = row.get("underwriting") or {}
+            sort_key = (
+                str(underwriting.get("price_as_of") or ""),
+                f"{path.name}:{ordinal:04d}",
+            )
+            candidate = dict(row)
+            candidate["source_semantic_d2_artifact"] = path.name
+            candidate["source_semantic_d2_record_ordinal"] = ordinal
+            if sid not in latest or sort_key > latest[sid][0]:
+                latest[sid] = (sort_key, candidate)
     return [latest[sid][1] for sid in sorted(latest)]
 
 
@@ -540,14 +549,25 @@ def merge_d2_with_semantic_research(
     supplemental = [
         row
         for row in semantic_rows
+        if str(row.get("security_id") or "") not in seen
+    ]
+    supplemental_holding = [
+        row
+        for row in supplemental
         if str(row.get("security_id") or "") in holding_ids
-        and str(row.get("security_id") or "") not in seen
+    ]
+    supplemental_nonholding = [
+        row
+        for row in supplemental
+        if str(row.get("security_id") or "") not in holding_ids
     ]
     merged = dict(primary_d2)
     merged["queue"] = merged_primary + supplemental
     merged["source_primary_d2_state_id"] = primary_d2.get("state_id")
     merged["carried_forward_semantic_d2_count"] = len(carried_forward)
-    merged["supplemental_holding_d2_count"] = len(supplemental)
+    merged["supplemental_semantic_d2_count"] = len(supplemental)
+    merged["supplemental_holding_d2_count"] = len(supplemental_holding)
+    merged["supplemental_nonholding_d2_count"] = len(supplemental_nonholding)
     if carried_forward or supplemental:
         identity = canonical_hash(
             {
@@ -556,7 +576,7 @@ def merge_d2_with_semantic_research(
                     row.get("source_semantic_d2_artifact")
                     for row in carried_forward
                 ],
-                "holding_artifacts": [
+                "supplemental_artifacts": [
                     row.get("source_semantic_d2_artifact")
                     for row in supplemental
                 ],
@@ -1003,7 +1023,9 @@ def main() -> int:
                 "status": "PASS_DECISION",
                 "subjects": recommendation["summary"]["subject_count"],
                 "carried_forward_semantic_d2": d2.get("carried_forward_semantic_d2_count", 0),
+                "supplemental_semantic_d2": d2.get("supplemental_semantic_d2_count", 0),
                 "supplemental_holding_d2": d2.get("supplemental_holding_d2_count", 0),
+                "supplemental_nonholding_d2": d2.get("supplemental_nonholding_d2_count", 0),
                 "actions": recommendation["summary"]["action_counts"],
                 "orders": 0,
                 "trade_authority": "NONE",
