@@ -9,6 +9,12 @@ on:
       - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json"
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/**"
+  push:
+    branches: [main]
+    paths:
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/**"
   workflow_dispatch:
 
 permissions:
@@ -45,6 +51,8 @@ jobs:
             automation/research_queue_d2/build_d2_queue.py \
             automation/research_queue_d2/validate_d2_queue.py
           python -m pytest -q automation/research_queue_d2/tests/test_d2_queue.py
+      - name: Validate committed D2 semantic contract
+        run: python automation/research_queue_d2/validate_d2_queue.py
       - name: Build deterministic queue state without network
         run: python automation/research_queue_d2/build_d2_queue.py
       - name: Validate zero-economic-mutation contract
@@ -79,22 +87,24 @@ jobs:
           cache-dependency-path: requirements.txt
       - name: Install runtime
         run: python -m pip install --retries 5 --timeout 30 -r requirements.txt
-      - name: Fetch S2 rolling D1 Current and prior D2 Current
+      - name: Fetch S2 rolling D1 Current and prior D2 authority
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           set -Eeuo pipefail
           mkdir -p .d2_runtime
-          git fetch origin \
-            refs/heads/operating-current:refs/remotes/origin/operating-current \
-            refs/heads/automation/research-queue-d2-current:refs/remotes/origin/research-queue-d2-current \
-            --force --no-tags
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
           if git cat-file -e origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json 2>/dev/null; then
             git show origin/operating-current:operating_current/investment_pipeline/D1_CURRENT.json > "$S2_D1_RUNTIME"
           else
             cp investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D1_CURRENT.json "$S2_D1_RUNTIME"
           fi
-          if git cat-file -e refs/remotes/origin/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json 2>/dev/null; then
-            git show refs/remotes/origin/research-queue-d2-current:investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json
+          if git cat-file -e origin/operating-current:operating_current/domains/RESEARCH_D2.json 2>/dev/null; then
+            git show origin/operating-current:operating_current/domains/RESEARCH_D2.json > .d2_runtime/RESEARCH_D2_DOMAIN.json
+            D2_COMMIT="$(python -c 'import json; print(json.load(open(".d2_runtime/RESEARCH_D2_DOMAIN.json",encoding="utf-8"))["source_commit_sha"])')"
+            test -n "$D2_COMMIT"
+            git fetch origin "$D2_COMMIT" --force --no-tags
+            git show "$D2_COMMIT":investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json
           fi
           python - <<'PY'
           import json, os
@@ -105,10 +115,13 @@ jobs:
           PY
 
       - name: Discover primary disclosure evidence and refresh D2 Current
+        if: github.event_name == 'workflow_dispatch'
         run: python automation/research_queue_d2/build_d2_queue.py --discover-primary-sources --d1-current "$S2_D1_RUNTIME"
       - name: Validate D2 operating state
+        if: github.event_name == 'workflow_dispatch'
         run: python automation/research_queue_d2/validate_d2_queue.py
       - name: Prove protected economic domains unchanged
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -119,6 +132,7 @@ jobs:
             exit 1
           fi
       - name: Publish governed D2 operating-state branch
+        if: github.event_name == 'workflow_dispatch'
         env:
           WP3R_PUBLISH_BRANCH: automation/research-queue-d2-current
           WP3R_BASE_BRANCH: main
@@ -169,8 +183,32 @@ jobs:
               --qc-status PASS \
               --advance-current
           fi
-      - name: Dispatch S2 decision callback for workflow-dispatched D2
-        if: github.event_name == 'workflow_dispatch'
+      - name: Publish semantic D2 completion to Operating Current
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python automation/research_queue_d2/validate_d2_queue.py
+          MAIN_HEAD="$(git rev-parse HEAD)"
+          WATERMARK="$(python - <<'PY'
+          import json
+          print(json.load(open('investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json',encoding='utf-8'))['as_of'])
+          PY
+          )"
+          python automation/operating_current/publish_operating_current.py \
+            --domain RESEARCH_D2 \
+            --status PASS \
+            --source-workflow "Research Queue D2 Semantic Completion" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch main \
+            --source-commit "$MAIN_HEAD" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status PASS_SEMANTIC_UNDERWRITING_COMPLETE \
+            --advance-current
+
+      - name: Dispatch S2 decision callback after D2 publication
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback
@@ -181,10 +219,10 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## Research Queue D2 Auto Consumer
           - S2 rolling D1→D2 routes are consumed automatically; Candidate membership is not a research gate.
-          - Activation: explicit workflow_dispatch from S2 when the current D1 routes names into D2; no fixed cron.
+          - Activation: S2 workflow_dispatch performs mechanical evidence discovery; semantic D2 completion on main automatically republishes RESEARCH_D2 authority and dispatches the S2 decision callback.
           - Primary disclosure discovery: CNINFO via AkShare.
           - Semantic deep research remains fail-closed and is owned by the ChatGPT-native D2 research consumer.
-          - Publication remains on a governed automation branch and advances the low-risk Operating Current pointer after QC.
+          - Mechanical D2 publishes a governed automation branch; semantic completion on protected main becomes the authoritative RESEARCH_D2 source after QC.
           - Formal Candidate / Decision / economic-state promotion remains protected-main governed.
           - Candidate / Real / Simulation / Decision economic mutations: 0.
           - Orders: 0.
