@@ -1,0 +1,1860 @@
+{
+  "schema_version": "1.0.0",
+  "register_id": "D2_RESEARCH_PORTFOLIO_HOLDINGS_20260902_R1",
+  "generated_at_utc": "2026-09-02T10:50:00+00:00",
+  "purpose": "PHASE1_RESEARCH_TO_DECISION_FULL_CURRENT_HOLDING_COVERAGE",
+  "price_source": "S3_PORTFOLIO_DECISION_SURFACE_CURRENT_AS_OF_2026_09_01",
+  "record_count": 19,
+  "records": [
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_017534_OF",
+      "security_id": "017534.OF",
+      "security_name": "富国天利增长债券C",
+      "account_context": "REAL_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "作为真实账户固定收益防御仓，当前主要功能是降低权益波动并提供中低波动收益，而非追求权益级资本增值。",
+        "variant_wedge": "当前持仓约14.4%，单独看不存在需要主动扩张的证据；是否调整应由Phase 3全组合目标权重决定。",
+        "normalized_earnings_basis": "Bond-fund total-return/NAV scenario; not corporate EPS valuation."
+      },
+      "underwriting": {
+        "current_price": 1.3963,
+        "price_as_of": "2026-09-01",
+        "entry_price": 1.38,
+        "confidence": "MEDIUM",
+        "valuation_method": "FIXED_INCOME_NAV_TOTAL_RETURN_SCENARIO",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Bond-fund total-return/NAV scenario; not corporate EPS valuation."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 1.37,
+            "probability": 0.2
+          },
+          {
+            "name": "BASE",
+            "value": 1.45,
+            "probability": 0.6
+          },
+          {
+            "name": "BULL",
+            "value": 1.5,
+            "probability": 0.2
+          }
+        ],
+        "probability_weighted_value": 1.444,
+        "expected_return": 0.03416171,
+        "action": "HOLD",
+        "catalysts": [
+          "债券收益率下行或信用利差改善",
+          "基金持续获得稳定正收益"
+        ],
+        "kill_thesis": [
+          "显著信用事件或持续净值异常回撤",
+          "组合层防御仓预算显著下调"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026-09-01系统Current NAV/mark为1.3963，持仓浮盈约3.1%。",
+          "interpretation": "当前没有来自价格或损益本身的退出理由。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不新增，仅在组合防御预算或基金基本面发生变化时复核。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; material credit/fund-quality deterioration would reopen TRIM/EXIT review.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "HISTORICAL_RESEARCH_CONTEXT_ONLY",
+          "title": "R2 Portfolio Construction historical role/guardrails",
+          "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+          "as_of": "2026-07-24",
+          "current_action_authority": false
+        }
+      ],
+      "source_quality_note": "Current mark/position from S3; portfolio-role context from historical R2 only; scenario return bands are current analyst assumptions.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_159352_SZ",
+      "security_id": "159352.SZ",
+      "security_name": "A500ETF南方",
+      "account_context": "REAL_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "A500是低个股特异风险的A股宽基核心工具，当前作用是提供大中盘核心Beta而非独立Alpha。",
+        "variant_wedge": "历史R2把A500定义为A股核心，但当前真实账户结构已显著变化；Phase 1只确认继续持有，目标权重留待Phase 3。",
+        "normalized_earnings_basis": "Broad A500 index total-return scenario and portfolio-role analysis."
+      },
+      "underwriting": {
+        "current_price": 1.268,
+        "price_as_of": "2026-09-01",
+        "entry_price": 1.2,
+        "confidence": "MEDIUM",
+        "valuation_method": "BROAD_INDEX_TOTAL_RETURN_SCENARIO",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Broad A500 index total-return scenario and portfolio-role analysis."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 1.08,
+            "probability": 0.2
+          },
+          {
+            "name": "BASE",
+            "value": 1.38,
+            "probability": 0.6
+          },
+          {
+            "name": "BULL",
+            "value": 1.55,
+            "probability": 0.2
+          }
+        ],
+        "probability_weighted_value": 1.354,
+        "expected_return": 0.06782334,
+        "action": "HOLD",
+        "catalysts": [
+          "A股盈利预期改善",
+          "市场风险溢价回落"
+        ],
+        "kill_thesis": [
+          "产品跟踪质量显著恶化",
+          "组合层取消A500核心角色"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026-09-01系统价格1.268，真实账户权重约4.4%，浮亏约7.2%。",
+          "interpretation": "亏损本身不构成卖出理由，当前更重要的是其作为宽基核心与其他A股敞口的组合角色。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；是否ADD由Phase 3目标权重与整体权益预算决定。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; tracking quality or portfolio-role invalidation would reopen EXIT review.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "HISTORICAL_RESEARCH_CONTEXT_ONLY",
+          "title": "R2 Portfolio Construction historical role/guardrails",
+          "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+          "as_of": "2026-07-24",
+          "current_action_authority": false
+        }
+      ],
+      "source_quality_note": "Current price/position from S3; historical role only as context; no stale R3 action carried forward.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_159612_SZ",
+      "security_id": "159612.SZ",
+      "security_name": "标普500ETF国泰",
+      "account_context": "REAL_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "TRIM",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "标普500长期分散化价值仍成立，但真实账户同时持有159612与159655，两个工具提供高度重复的同类Beta。",
+        "variant_wedge": "当前问题不是看空标普500，而是重复载体增加管理复杂度且没有明显分散化收益。",
+        "normalized_earnings_basis": "S&P 500 exposure scenario plus duplicate-vehicle portfolio fit."
+      },
+      "underwriting": {
+        "current_price": 2.079,
+        "price_as_of": "2026-09-01",
+        "entry_price": 2,
+        "confidence": "MEDIUM",
+        "valuation_method": "INDEX_EXPOSURE_AND_DUPLICATION_SCENARIO",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "S&P 500 exposure scenario plus duplicate-vehicle portfolio fit."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 1.7,
+            "probability": 0.2
+          },
+          {
+            "name": "BASE",
+            "value": 2.25,
+            "probability": 0.6
+          },
+          {
+            "name": "BULL",
+            "value": 2.45,
+            "probability": 0.2
+          }
+        ],
+        "probability_weighted_value": 2.18,
+        "expected_return": 0.04858105,
+        "action": "TRIM",
+        "catalysts": [
+          "统一为单一低成本、高流动性S&P500载体"
+        ],
+        "kill_thesis": [
+          "若159612在跟踪误差、流动性、费用等方面显著优于替代载体，则撤销TRIM并重新比较"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026-09-01系统价格2.079，159612与159655均在真实账户中，合计约5.6%账户权重。",
+          "interpretation": "证券层面可继续持有S&P500敞口，但组合层没有必要长期维持两个高度重复载体。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "TRIM 159612，保留S&P500总敞口；具体迁移数量和是否集中到159655留待Phase 3执行验证。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; new evidence showing 159612 is the superior long-term vehicle would cancel the trim thesis.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "HISTORICAL_RESEARCH_CONTEXT_ONLY",
+          "title": "R2 Portfolio Construction historical role/guardrails",
+          "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+          "as_of": "2026-07-24",
+          "current_action_authority": false
+        }
+      ],
+      "source_quality_note": "Current duplicate identity and price from S3; historical R2 duplication diagnosis used only as a hypothesis, refreshed as a current portfolio-fit judgment.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_159655_SZ",
+      "security_id": "159655.SZ",
+      "security_name": "标普500ETF华夏",
+      "account_context": "REAL_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "继续承担真实账户海外宽基分散化角色；当前没有证券层面退出理由。",
+        "variant_wedge": "若执行重复载体精简，159655可作为保留载体候选，但最终选择需Phase 3比较流动性、费率与跟踪质量。",
+        "normalized_earnings_basis": "S&P 500 total-return scenario and retained global-diversification role."
+      },
+      "underwriting": {
+        "current_price": 2.033,
+        "price_as_of": "2026-09-01",
+        "entry_price": 1.95,
+        "confidence": "MEDIUM",
+        "valuation_method": "BROAD_US_INDEX_TOTAL_RETURN_SCENARIO",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "S&P 500 total-return scenario and retained global-diversification role."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 1.66,
+            "probability": 0.2
+          },
+          {
+            "name": "BASE",
+            "value": 2.2,
+            "probability": 0.6
+          },
+          {
+            "name": "BULL",
+            "value": 2.4,
+            "probability": 0.2
+          }
+        ],
+        "probability_weighted_value": 2.132,
+        "expected_return": 0.04869651,
+        "action": "HOLD",
+        "catalysts": [
+          "美股企业盈利增长",
+          "人民币资产与美元资产分散化价值"
+        ],
+        "kill_thesis": [
+          "跟踪质量或交易成本显著恶化",
+          "组合层取消海外权益敞口"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026-09-01系统价格2.033，真实账户权重约2.9%，浮盈约22.2%。",
+          "interpretation": "较大浮盈不是自动卖出理由；重点是是否保留海外宽基角色。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不因浮盈机械止盈。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; vehicle-quality deterioration or portfolio-role invalidation would reopen TRIM/EXIT.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "HISTORICAL_RESEARCH_CONTEXT_ONLY",
+          "title": "R2 Portfolio Construction historical role/guardrails",
+          "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+          "as_of": "2026-07-24",
+          "current_action_authority": false
+        }
+      ],
+      "source_quality_note": "Current position/price from S3; long-term role is portfolio judgment, not a forecast.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_217003_OF",
+      "security_id": "217003.OF",
+      "security_name": "招商安泰债券A",
+      "account_context": "REAL_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "作为固定收益防御仓继续提供低波动和流动性缓冲，当前未出现需要退出的信用或净值信号。",
+        "variant_wedge": "与017534同属防御仓，是否合并或缩减属于Phase 3组合构建问题，而不是Phase 1凭历史收益决定。",
+        "normalized_earnings_basis": "Bond-fund total-return/NAV scenario; not corporate EPS valuation."
+      },
+      "underwriting": {
+        "current_price": 1.3869,
+        "price_as_of": "2026-09-01",
+        "entry_price": 1.37,
+        "confidence": "MEDIUM",
+        "valuation_method": "FIXED_INCOME_NAV_TOTAL_RETURN_SCENARIO",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Bond-fund total-return/NAV scenario; not corporate EPS valuation."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 1.36,
+            "probability": 0.2
+          },
+          {
+            "name": "BASE",
+            "value": 1.44,
+            "probability": 0.6
+          },
+          {
+            "name": "BULL",
+            "value": 1.49,
+            "probability": 0.2
+          }
+        ],
+        "probability_weighted_value": 1.434,
+        "expected_return": 0.03396063,
+        "action": "HOLD",
+        "catalysts": [
+          "债券市场利率环境改善"
+        ],
+        "kill_thesis": [
+          "信用/久期风险显著恶化",
+          "组合防御预算下降"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026-09-01系统mark 1.3869，真实账户权重约12.8%，浮盈约1.4%。",
+          "interpretation": "当前持仓表现稳定，但新增资本吸引力有限。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不新增。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; material fixed-income risk deterioration would reopen TRIM/EXIT.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "HISTORICAL_RESEARCH_CONTEXT_ONLY",
+          "title": "R2 Portfolio Construction historical role/guardrails",
+          "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+          "as_of": "2026-07-24",
+          "current_action_authority": false
+        }
+      ],
+      "source_quality_note": "Current mark from S3; scenario returns and role are analyst assumptions.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_510500_SH",
+      "security_id": "510500.SH",
+      "security_name": "中证500ETF南方",
+      "account_context": "REAL_AND_SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "中证500提供中盘Beta和风格分散，但真实账户与模拟盘同时持有，跨账户暴露需要在组合层统一预算。",
+        "variant_wedge": "当前并无充分证据要求证券层退出；真正问题是两个账户用途不同，Phase 3应分别给目标权重。",
+        "normalized_earnings_basis": "CSI 500 total-return scenario with cross-account overlap awareness."
+      },
+      "underwriting": {
+        "current_price": 7.881,
+        "price_as_of": "2026-09-01",
+        "entry_price": 7.4,
+        "confidence": "MEDIUM",
+        "valuation_method": "MIDCAP_INDEX_TOTAL_RETURN_SCENARIO",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "CSI 500 total-return scenario with cross-account overlap awareness."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 6.5,
+            "probability": 0.2
+          },
+          {
+            "name": "BASE",
+            "value": 8.7,
+            "probability": 0.6
+          },
+          {
+            "name": "BULL",
+            "value": 9.6,
+            "probability": 0.2
+          }
+        ],
+        "probability_weighted_value": 8.44,
+        "expected_return": 0.07093009,
+        "action": "HOLD",
+        "catalysts": [
+          "中盘盈利周期改善",
+          "小中盘风险溢价修复"
+        ],
+        "kill_thesis": [
+          "组合层明确削减中盘Beta",
+          "产品跟踪质量恶化"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026-09-01系统价格7.881；真实账户约7.8%、模拟盘约5.4%，两账户均持有。",
+          "interpretation": "跨账户重叠不等于必须卖出，但禁止继续无约束加仓。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD / NO ADD；Phase 3按账户分别决定目标权重。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; portfolio beta budget reduction would reopen TRIM review.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "HISTORICAL_RESEARCH_CONTEXT_ONLY",
+          "title": "R2 Portfolio Construction historical role/guardrails",
+          "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+          "as_of": "2026-07-24",
+          "current_action_authority": false
+        }
+      ],
+      "source_quality_note": "Current marks and cross-account identity from S3; expected-return range is an index scenario, not intrinsic value.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_605090_SH",
+      "security_id": "605090.SH",
+      "security_name": "九丰能源",
+      "account_context": "REAL_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "2026H1利润和现金流增长、LPG与特气改善支持公司层面持有逻辑，但真实账户约42.3%的单一标的权重构成显著组合集中风险。",
+        "variant_wedge": "公司基本面改善与组合层需要降集中度可以同时成立；Phase 1不把集中度问题伪装成公司thesis破裂。",
+        "normalized_earnings_basis": "2026H1 earnings/cash-flow improvement; scenario values reflect normalized LNG/LPG/service earnings and cycle risk."
+      },
+      "underwriting": {
+        "current_price": 33.89,
+        "price_as_of": "2026-09-01",
+        "entry_price": 31,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "2026H1 earnings/cash-flow improvement; scenario values reflect normalized LNG/LPG/service earnings and cycle risk."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 28,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 38,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 46,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 37.5,
+        "expected_return": 0.1065211,
+        "action": "HOLD",
+        "catalysts": [
+          "LPG盈利保持韧性",
+          "LNG资源与服务恢复",
+          "特燃特气持续放量"
+        ],
+        "kill_thesis": [
+          "核心能源业务毛利持续恶化",
+          "现金流显著转弱",
+          "重大资本配置损害每股价值"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收96.35亿元，同比-7.60%；归母净利润9.50亿元，同比+10.40%；经营现金流17.58亿元，同比+142.14%。",
+          "interpretation": "盈利质量改善，尤其现金流和LPG/特气贡献增强；但高权重使组合风险远高于证券自身风险。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "SECURITY HOLD；PORTFOLIO CONCENTRATION REVIEW REQUIRED。具体TRIM目标留待Phase 3目标权重引擎。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; fundamental deterioration would change HOLD to TRIM/EXIT; concentration alone routes to Phase 3 sizing.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "PUBLIC_FINANCIAL_REPORT_SUMMARY",
+          "title": "九丰能源2026年半年报",
+          "url": "https://finance.eastmoney.com/a/202608133840758169.html",
+          "as_of": "2026-08-14"
+        }
+      ],
+      "source_quality_note": "2026H1 figures from published half-year report summary; price/weight from S3; scenario values are analyst assumptions.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_000333_SZ",
+      "security_id": "000333.SZ",
+      "security_name": "美的集团",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "智能家居与ToB业务仍具规模、品牌与现金流优势；2026H1收入和归母利润保持正增长，但汇率会计分类显著扰动扣非利润表观。",
+        "variant_wedge": "扣非利润大降主要受外汇损失计入经常性、对冲收益计入非经常性的会计分类影响，不能机械解读为核心经营崩塌。",
+        "normalized_earnings_basis": "2026H1 reported EPS 3.52; 2026E normalized EPS around low-6 range used as broad reference; scenario multiples reflect mature quality consumer/industrial franchise."
+      },
+      "underwriting": {
+        "current_price": 87.49,
+        "price_as_of": "2026-09-01",
+        "entry_price": 82,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "2026H1 reported EPS 3.52; 2026E normalized EPS around low-6 range used as broad reference; scenario multiples reflect mature quality consumer/industrial franchise."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 74,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 98.6,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 117,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 97.05,
+        "expected_return": 0.10926963,
+        "action": "HOLD",
+        "catalysts": [
+          "海外与ToB业务恢复增长",
+          "汇率扰动正常化",
+          "资本回报持续"
+        ],
+        "kill_thesis": [
+          "核心家电份额明显下降",
+          "现金流持续弱于利润",
+          "ToB业务盈利能力长期恶化"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收2600.42亿元，同比+3.55%；归母净利润264.46亿元，同比+1.66%；经营现金流375.52亿元，同比+0.73%；EPS 3.52元。",
+          "interpretation": "增长放缓但现金流和核心盈利仍具韧性，当前估值提供一定但非极高安全边际。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD现有800股；当前不追高加仓。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; core operating deterioration and cash conversion weakness would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "FORMAL_REPORT_REPRODUCTION",
+          "title": "美的集团2026年半年度报告",
+          "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12572219&stockid=000333",
+          "as_of": "2026-08-29"
+        }
+      ],
+      "source_quality_note": "H1 facts from formal-report reproduction; current price/position from S3; valuation multiples are analyst assumptions.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_300012_SZ",
+      "security_id": "300012.SZ",
+      "security_name": "华测检测",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "检验检测平台化能力和生命科学/工业测试等多赛道布局继续兑现，2026H1收入、利润和现金流同步改善。",
+        "variant_wedge": "现金流同比大幅改善使盈利质量优于此前担忧，但当前价格的新增资本上行仍需更大安全边际。",
+        "normalized_earnings_basis": "2026H1 EPS 0.3363 and double-digit earnings/cash-flow growth; scenario values use quality TIC growth multiples."
+      },
+      "underwriting": {
+        "current_price": 15.16,
+        "price_as_of": "2026-09-01",
+        "entry_price": 14.5,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "2026H1 EPS 0.3363 and double-digit earnings/cash-flow growth; scenario values use quality TIC growth multiples."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 12.6,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 17.5,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 21,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 17.15,
+        "expected_return": 0.13126649,
+        "action": "HOLD",
+        "catalysts": [
+          "生命科学与工业测试增长",
+          "现金转换持续改善"
+        ],
+        "kill_thesis": [
+          "公信力/合规事件",
+          "收入增速与现金转换同时显著恶化"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收34.29亿元，同比+15.86%；归母净利润5.64亿元，同比+20.63%；经营现金流4.38亿元，同比+150.34%；EPS 0.3363元。",
+          "interpretation": "基本面方向正面，当前持仓继续成立。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；若估值回落且增长保持再评估ADD。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; quality or trust impairment would reopen EXIT review.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "FORMAL_REPORT_REPRODUCTION",
+          "title": "华测检测2026年半年度报告",
+          "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12497345&stockid=300012",
+          "as_of": "2026-08-17"
+        }
+      ],
+      "source_quality_note": "H1 facts from formal-report reproduction; price from S3; scenario multiples are analyst assumptions.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_600036_SH",
+      "security_id": "600036.SH",
+      "security_name": "招商银行",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "零售银行与财富管理护城河仍在，低利率压息差但2026H1营收和利润恢复正增长，资产质量保持稳健。",
+        "variant_wedge": "行业逆风仍存在，但0.94%不良率和高拨备覆盖为估值提供质量支撑。",
+        "normalized_earnings_basis": "Bank valuation uses profitability/asset-quality scenario values rather than a single PE; H1 ROAE and NPL metrics anchor downside quality."
+      },
+      "underwriting": {
+        "current_price": 40.86,
+        "price_as_of": "2026-09-01",
+        "entry_price": 38,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Bank valuation uses profitability/asset-quality scenario values rather than a single PE; H1 ROAE and NPL metrics anchor downside quality."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 34,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 46,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 54,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 45,
+        "expected_return": 0.10132159,
+        "action": "HOLD",
+        "catalysts": [
+          "净息差企稳",
+          "财富管理与非息收入改善"
+        ],
+        "kill_thesis": [
+          "零售资产质量持续恶化",
+          "ROE结构性下滑且拨备消耗明显"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收1781.81亿元，同比+4.83%；归母净利润764.45亿元，同比+2.02%；ROAE 13.42%；不良率0.94%。",
+          "interpretation": "基本面未破坏，当前价格提供中等而非极端安全边际。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不因已有浮盈机械TRIM。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; asset-quality or profitability deterioration would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "FORMAL_REPORT_SUMMARY",
+          "title": "招商银行2026年半年度报告摘要",
+          "url": "https://paper.cnstock.com/html/2026-08/29/content_2262443.htm",
+          "as_of": "2026-08-29"
+        }
+      ],
+      "source_quality_note": "H1 operating and asset-quality facts from half-year report summary; valuation values are analyst scenarios.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_600276_SH",
+      "security_id": "600276.SH",
+      "security_name": "恒瑞医药",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "创新药研发与国际化管线仍提供长期可选性，但2026H1核心利润增长偏弱，当前持有逻辑依赖管线兑现而非短期利润加速。",
+        "variant_wedge": "不能因为创新药主题而忽视扣非利润下降；新增资本需要更明确的商业化与估值安全边际。",
+        "normalized_earnings_basis": "Pipeline-adjusted earnings/value scenario; H1 reported profit is flat while adjusted profit is weaker, so optionality is explicitly separated from current earnings."
+      },
+      "underwriting": {
+        "current_price": 46.23,
+        "price_as_of": "2026-09-01",
+        "entry_price": 43,
+        "confidence": "MEDIUM",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Pipeline-adjusted earnings/value scenario; H1 reported profit is flat while adjusted profit is weaker, so optionality is explicitly separated from current earnings."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 38,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 52,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 66,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 52,
+        "expected_return": 0.12481073,
+        "action": "HOLD",
+        "catalysts": [
+          "创新药获批/放量",
+          "海外授权与商业化兑现"
+        ],
+        "kill_thesis": [
+          "核心管线重大失败",
+          "研发投入无法转化且利润持续下滑"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收约154.56亿元，同比-1.94%；归母净利润约44.65亿元，同比+0.34%；扣非归母净利润约37.30亿元，同比-12.71%。",
+          "interpretation": "公司thesis尚未破裂，但security thesis仍需管线/利润兑现。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不ADD。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; pipeline failure or sustained core-profit deterioration would reopen TRIM/EXIT.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "ISSUER_INVESTOR_RELATIONS",
+          "title": "恒瑞医药2026年半年度报告/中期业绩入口",
+          "url": "https://www.hengrui.com/investor/provisionalNotice.html",
+          "as_of": "2026-08-19"
+        }
+      ],
+      "source_quality_note": "H1 facts from disclosed interim results; pipeline valuation is necessarily scenario-based.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_600309_SH",
+      "security_id": "600309.SH",
+      "security_name": "万华化学",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "聚氨酯、石化与新材料协同继续体现成本和规模优势，2026H1利润增速显著快于收入，但周期高景气不可线性外推。",
+        "variant_wedge": "当前估值不贵但利润处于强周期阶段，新增资本应保留周期回落折扣。",
+        "normalized_earnings_basis": "2026H1 EPS 3.21 and strong cyclical earnings recovery; scenarios explicitly haircut commodity/chemical-cycle normalization."
+      },
+      "underwriting": {
+        "current_price": 77.02,
+        "price_as_of": "2026-09-01",
+        "entry_price": 72,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "2026H1 EPS 3.21 and strong cyclical earnings recovery; scenarios explicitly haircut commodity/chemical-cycle normalization."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 60,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 88.7,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 106.4,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 85.95,
+        "expected_return": 0.11594391,
+        "action": "HOLD",
+        "catalysts": [
+          "新材料放量",
+          "化工供需改善",
+          "成本优势扩大"
+        ],
+        "kill_thesis": [
+          "MDI/石化景气和利润率同步急剧恶化",
+          "扩产回报低于资本成本"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收1193.16亿元，同比+31.26%；归母净利润100.63亿元，同比+64.35%；EPS 3.21元。",
+          "interpretation": "基本面强，但应以正常化盈利而不是当期峰值盈利定价。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；价格明显回落或正常化盈利继续上修再考虑ADD。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; normalized earnings collapse would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "PUBLIC_REPORT_SUMMARY",
+          "title": "万华化学2026年半年报",
+          "url": "https://www.yicai.com/brief/103331122.html",
+          "as_of": "2026-08-24"
+        }
+      ],
+      "source_quality_note": "H1 facts from public half-year disclosure summary; scenario values normalize cyclicality.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_600406_SH",
+      "security_id": "600406.SH",
+      "security_name": "国电南瑞",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "新型电力系统和电网数字化长期需求仍在，2026H1收入增长稳健，但利润增速明显低于收入，现金转换需要观察。",
+        "variant_wedge": "收入增长14.5%并不等于同等质量的盈利增长，新增资本应等待利润率/现金流改善。",
+        "normalized_earnings_basis": "Grid-automation quality-growth scenario; profit and cash conversion are given more weight than revenue growth alone."
+      },
+      "underwriting": {
+        "current_price": 22.92,
+        "price_as_of": "2026-09-01",
+        "entry_price": 21,
+        "confidence": "MEDIUM",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Grid-automation quality-growth scenario; profit and cash conversion are given more weight than revenue growth alone."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 18.6,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 24.4,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 29,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 24.1,
+        "expected_return": 0.05148342,
+        "action": "HOLD",
+        "catalysts": [
+          "电网投资持续",
+          "海外和新业务盈利改善"
+        ],
+        "kill_thesis": [
+          "订单/收入放缓同时利润率继续压缩",
+          "现金转换长期恶化"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收277.67亿元，同比+14.54%；归母净利润30.73亿元，同比+4.08%。",
+          "interpretation": "公司thesis完整，但短期盈利质量不足以支持积极加仓。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不ADD。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; profit-quality deterioration would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "FORMAL_REPORT_SUMMARY",
+          "title": "国电南瑞2026年半年度报告摘要",
+          "url": "https://paper.cnstock.com/html/2026-08/27/content_2260635.htm",
+          "as_of": "2026-08-27"
+        }
+      ],
+      "source_quality_note": "H1 facts from formal report summary; scenarios are analyst valuation assumptions.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_600660_SH",
+      "security_id": "600660.SH",
+      "security_name": "福耀玻璃",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "汽车玻璃全球竞争力与高附加值产品升级仍成立；2026H1利润下滑主要受汇兑损益反向波动影响，核心毛利率实际改善。",
+        "variant_wedge": "表观净利润-17%掩盖了扣除汇兑后利润总额同比增长约4.8%的经营韧性。",
+        "normalized_earnings_basis": "Core auto-glass earnings normalized for exceptional FX swing; product-mix upgrade supports quality multiple but not FX-driven extrapolation."
+      },
+      "underwriting": {
+        "current_price": 57.85,
+        "price_as_of": "2026-09-01",
+        "entry_price": 54,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Core auto-glass earnings normalized for exceptional FX swing; product-mix upgrade supports quality multiple but not FX-driven extrapolation."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 48,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 61,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 75,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 61.25,
+        "expected_return": 0.05877269,
+        "action": "HOLD",
+        "catalysts": [
+          "高附加值玻璃占比提升",
+          "海外产能与客户拓展"
+        ],
+        "kill_thesis": [
+          "核心汽车玻璃份额或毛利率持续下降",
+          "高附加值产品升级停滞"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收219.71亿元，同比+2.44%；归母净利润39.70亿元，同比-17.37%；若扣除汇兑影响，利润总额同比+4.78%。",
+          "interpretation": "核心经营未破坏，但当前价格的新增安全边际有限。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不追高。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; core margin/share deterioration would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "ISSUER_PRIMARY",
+          "title": "福耀玻璃2026年半年度报告",
+          "url": "https://www.fuyaogroup.com/reports.html",
+          "as_of": "2026-08-19"
+        }
+      ],
+      "source_quality_note": "Issuer report supports H1 facts; FX effect separated from operating thesis; valuation is analyst scenario.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_600690_SH",
+      "security_id": "600690.SH",
+      "security_name": "海尔智家",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "全球品牌、渠道和高端化能力仍具长期价值，但2026H1需求、原材料和汇率压力导致整体业绩承压。",
+        "variant_wedge": "Q2营收同比转正、利润环比改善说明Q1可能是阶段低点，但尚不足以证明全面恢复。",
+        "normalized_earnings_basis": "Global appliance franchise scenario with explicit demand/FX headwinds; valuation recognizes Q2 sequential stabilization but not a full recovery."
+      },
+      "underwriting": {
+        "current_price": 21.42,
+        "price_as_of": "2026-09-01",
+        "entry_price": 20,
+        "confidence": "MEDIUM",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Global appliance franchise scenario with explicit demand/FX headwinds; valuation recognizes Q2 sequential stabilization but not a full recovery."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 17,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 24,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 29,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 23.5,
+        "expected_return": 0.09710551,
+        "action": "HOLD",
+        "catalysts": [
+          "Q2改善延续",
+          "AI/高端产品提升效率与结构"
+        ],
+        "kill_thesis": [
+          "需求疲弱与成本压力持续导致利润连续下修",
+          "海外竞争力明显恶化"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收1521.15亿元，归母净利润103.16亿元；Q2营收784.28亿元，同比+1.36%，Q2净利润环比+21.78%。",
+          "interpretation": "维持持有但需要后续季度验证需求与利润率恢复。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不ADD。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; failed recovery and sustained margin deterioration would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "ISSUER_PRIMARY",
+          "title": "海尔智家2026H1经营更新",
+          "url": "https://www.haier.com/about_haier/xinwen/20260828_294376.shtml",
+          "as_of": "2026-08-27"
+        }
+      ],
+      "source_quality_note": "Issuer communication supports H1/Q2 facts; valuation scenarios remain analyst assumptions.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_600900_SH",
+      "security_id": "600900.SH",
+      "security_name": "长江电力",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "六库联调水电资产继续提供高可见度现金流和分红能力，2026H1利润增长快于收入，但当前估值已体现较强防御溢价。",
+        "variant_wedge": "高质量防御属性成立，但低波动不代表任何价格都值得加仓。",
+        "normalized_earnings_basis": "Defensive infrastructure cash-flow/dividend scenario, refreshed from existing Core2 research and 2026H1 report."
+      },
+      "underwriting": {
+        "current_price": 28.4,
+        "price_as_of": "2026-09-01",
+        "entry_price": 27,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Defensive infrastructure cash-flow/dividend scenario, refreshed from existing Core2 research and 2026H1 report."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 24.8,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 29.2,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 33.6,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 29.2,
+        "expected_return": 0.02816901,
+        "action": "HOLD",
+        "catalysts": [
+          "来水改善",
+          "融资成本下降",
+          "稳定分红"
+        ],
+        "kill_thesis": [
+          "发电量/电价结构性恶化",
+          "现金流不能覆盖分红与资本开支"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收约379.29亿元，同比+3.36%；归母净利润约147.56亿元，同比+13.02%。",
+          "interpretation": "持有逻辑稳定，新增资本预期收益一般。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不ADD。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; cash-flow/dividend impairment would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "ISSUER_PRIMARY",
+          "title": "长江电力2026年半年度报告",
+          "url": "https://www.cypc.com.cn/",
+          "as_of": "2026-08-30"
+        },
+        {
+          "type": "HISTORICAL_RESEARCH_CONTEXT_ONLY",
+          "title": "R2 Portfolio Construction historical role/guardrails",
+          "path": "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/R2_PORTFOLIO_CONSTRUCTION_SYNTHESIS_CURRENT.json",
+          "as_of": "2026-07-24",
+          "current_action_authority": false
+        }
+      ],
+      "source_quality_note": "Existing Core2 research refreshed with current H1 and S3 price; old action not reused.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_600938_SH",
+      "security_id": "600938.SH",
+      "security_name": "中国海油",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "低成本储量、增产能力和高股东回报继续支持核心持有逻辑，2026H1产量与利润创同期新高。",
+        "variant_wedge": "当前强盈利部分来自高油价，估值必须对油价正常化留出折扣。",
+        "normalized_earnings_basis": "Oil-price-normalized upstream cash-flow scenario; H1 record earnings are not extrapolated as permanent."
+      },
+      "underwriting": {
+        "current_price": 34.51,
+        "price_as_of": "2026-09-01",
+        "entry_price": 31,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Oil-price-normalized upstream cash-flow scenario; H1 record earnings are not extrapolated as permanent."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 27,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 36,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 45,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 36,
+        "expected_return": 0.04317589,
+        "action": "HOLD",
+        "catalysts": [
+          "产量增长",
+          "新项目投产",
+          "资本回报维持"
+        ],
+        "kill_thesis": [
+          "油价下行叠加成本明显上升",
+          "储量替代/产量增长失速"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1净产量3.987亿桶油当量，同比+3.7%；归母净利润858亿元，同比+23.4%；中期股息0.94港元/股。",
+          "interpretation": "公司质量与现金回报仍强，但周期上行后不宜追高。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不因31%浮盈机械止盈。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; normalized cash-flow deterioration would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "ISSUER_PRIMARY",
+          "title": "CNOOC Limited H1 2026 Results",
+          "url": "https://www.cnoocltd.com/english/presscenter/pressreleases/2026/202608/t20260826_122439.html",
+          "as_of": "2026-08-26"
+        }
+      ],
+      "source_quality_note": "Issuer H1 results are primary; scenario values explicitly normalize commodity price.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_600941_SH",
+      "security_id": "600941.SH",
+      "security_name": "中国移动",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "现金流、网络规模和分红能力仍构成防御价值，但2026H1收入和利润下滑说明传统业务压力不可忽视。",
+        "variant_wedge": "高分红不能替代增长质量；新增资本需要看到核心服务收入企稳或估值进一步下降。",
+        "normalized_earnings_basis": "Dividend/FCF defensive telecom scenario; weak H1 core service trend offsets cash-generation and strategic optionality."
+      },
+      "underwriting": {
+        "current_price": 99.89,
+        "price_as_of": "2026-09-01",
+        "entry_price": 95,
+        "confidence": "MEDIUM",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Dividend/FCF defensive telecom scenario; weak H1 core service trend offsets cash-generation and strategic optionality."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 84,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 105,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 120,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 103.5,
+        "expected_return": 0.03613975,
+        "action": "HOLD",
+        "catalysts": [
+          "核心服务收入企稳",
+          "云/算力/AI业务贡献提升",
+          "稳定分红"
+        ],
+        "kill_thesis": [
+          "核心服务收入持续下滑且资本回报下降",
+          "自由现金流或分红能力弱化"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营业收入5380.35亿元，归母净利润789.34亿元；公司同时加大研发投入。",
+          "interpretation": "当前仍可持有，但不应把防御属性当成无条件加仓理由。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不ADD。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; persistent core-service deterioration would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "PUBLIC_REPORT_SUMMARY",
+          "title": "中国移动2026年半年度报告报道",
+          "url": "https://www.nbd.com.cn/articles/2026-08-13/4541372.html",
+          "as_of": "2026-08-13"
+        }
+      ],
+      "source_quality_note": "H1 figures based on disclosed interim report coverage; valuation is dividend/FCF scenario.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "D2_PORTFOLIO_HOLDING_20260902_601899_SH",
+      "security_id": "601899.SH",
+      "security_name": "紫金矿业",
+      "account_context": "SIMULATION_EXISTING_HOLDING",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD",
+      "research_update_type": "FINAL_PRODUCT_CLOSURE_PHASE1_EXISTING_HOLDING_CURRENT_UNDERWRITING",
+      "valuation_horizon": "12_MONTH",
+      "thesis": {
+        "core": "铜金资源组合、成本控制和项目扩张继续提供长期成长，2026H1盈利与现金流强劲，但铜产量约束和商品价格周期要求保守估值。",
+        "variant_wedge": "利润高增长不能线性外推；卡莫阿减产和金属价格波动是主要反事实。",
+        "normalized_earnings_basis": "Commodity-normalized copper/gold earnings scenario; exceptional H1 profit growth is haircut for metal-price and project risks."
+      },
+      "underwriting": {
+        "current_price": 33.73,
+        "price_as_of": "2026-09-01",
+        "entry_price": 30,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "SCENARIO_NORMALIZED_EARNINGS_AND_RELATIVE_VALUE",
+        "normalized_earnings_basis": {
+          "year": "2026E_OR_CURRENT_CYCLE",
+          "basis": "Commodity-normalized copper/gold earnings scenario; exceptional H1 profit growth is haircut for metal-price and project risks."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "value": 25,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "value": 36,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "value": 44,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 35.25,
+        "expected_return": 0.04506374,
+        "action": "HOLD",
+        "catalysts": [
+          "金铜价格维持强势",
+          "项目扩产兑现"
+        ],
+        "kill_thesis": [
+          "核心矿山产量/成本显著恶化",
+          "金属价格与项目执行同时反转"
+        ]
+      },
+      "d2_answers": [
+        {
+          "question": "当前核心事实？",
+          "fact": "2026H1营收1941.78亿元，同比+15.78%；归母净利润391.70亿元，同比+68.17%；经营现金流约555亿元，同比+92.41%。",
+          "interpretation": "基本面很强，但当前持有优于追涨。"
+        },
+        {
+          "question": "当前持仓动作？",
+          "judgment": "HOLD；不ADD。"
+        }
+      ],
+      "first_rejection_test": "NOT_TRIGGERED_CURRENTLY; commodity and execution deterioration would reopen TRIM.",
+      "evidence_gap": {
+        "material": false,
+        "missing": "No material evidence gap for Phase 1 current-view coverage; valuation scenarios remain analyst assumptions rather than issuer guidance.",
+        "recovery": "Refresh on the next material filing, thesis trigger, or governed price/portfolio review.",
+        "manual_user_input_required": false
+      },
+      "sources": [
+        {
+          "type": "SYSTEM_CURRENT",
+          "title": "S3 Portfolio Decision Surface Current",
+          "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+          "as_of": "2026-09-01"
+        },
+        {
+          "type": "PUBLIC_REPORT_SUMMARY",
+          "title": "紫金矿业2026年半年度报告报道",
+          "url": "https://www.thepaper.cn/newsDetail_forward_33833599",
+          "as_of": "2026-08-22"
+        }
+      ],
+      "source_quality_note": "H1 facts from report coverage; scenario values normalize commodity cycle.",
+      "controls": {
+        "candidate_membership_mutations": 0,
+        "real_account_mutations": 0,
+        "simulation_mutations": 0,
+        "decision_mutations": 0,
+        "orders": 0,
+        "trade_authority": "NONE"
+      }
+    }
+  ],
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
