@@ -675,3 +675,42 @@ def test_phase1_new_decision_grade_primary_d2_overrides_older_semantic_copy() ->
     )
     assert merged["carried_forward_semantic_d2_count"] == 0
     assert merged["queue"][0]["underwriting"]["entry_price"] == 9.0
+
+
+def test_phase1_consolidated_holding_d2_register_is_machine_consumable(tmp_path: Path) -> None:
+    semantic_dir = tmp_path / "semantic_d2"
+    semantic_dir.mkdir()
+    payload = {
+        "schema_version": "1.0.0",
+        "records": [
+            {
+                "security_id": "000111.SZ",
+                "security_name": "HoldingA",
+                "status": "D2_RESEARCH_COMPLETE",
+                "underwriting": {
+                    **uw(10.0, 9.0, 8.0, 11.0, 14.0),
+                    "action": "HOLD",
+                },
+            },
+            {
+                "security_id": "000222.SZ",
+                "security_name": "HoldingB",
+                "status": "D2_RESEARCH_COMPLETE",
+                "underwriting": {
+                    **uw(20.0, 18.0, 15.0, 22.0, 28.0),
+                    "action": "TRIM",
+                },
+            },
+        ],
+    }
+    (semantic_dir / "D2_RESEARCH_PORTFOLIO_HOLDINGS_TEST.json").write_text(
+        json.dumps(payload), encoding="utf-8"
+    )
+    rows = load_latest_semantic_d2(semantic_dir)
+    assert [row["security_id"] for row in rows] == ["000111.SZ", "000222.SZ"]
+    assert all(
+        row["source_semantic_d2_artifact"]
+        == "D2_RESEARCH_PORTFOLIO_HOLDINGS_TEST.json"
+        for row in rows
+    )
+    assert [row["source_semantic_d2_record_ordinal"] for row in rows] == [1, 2]
