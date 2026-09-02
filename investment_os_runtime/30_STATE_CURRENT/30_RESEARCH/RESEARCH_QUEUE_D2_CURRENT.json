@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-01T14:58:09+00:00",
+  "as_of": "2026-09-02T01:45:00+00:00",
   "consumer_policy": {
     "bounded_batch_size": 3,
     "event_trigger": "PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES",
@@ -41,10 +41,15 @@
       "real_account_mutation_authorized": false,
       "security_id": "600428.SH",
       "security_name": "中远海特",
-      "semantic_research_required": true,
+      "semantic_research_required": false,
       "simulation_mutation_authorized": false,
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "research_disposition": "HOLD_RESEARCH_COMPLETE_VALUATION_FULL",
+      "first_rejection_test": "VALUATION_LEG_TRIGGERED_FOR_PROMOTION",
+      "next_gate": "REOPEN_ON_PRICE_OR_EARNINGS_UPGRADE",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_600428_20260902_R1.json",
+      "semantic_completed_at": "2026-09-02T01:45:00+00:00"
     },
     {
       "archetype": "DEFENSIVE_STABILITY",
@@ -69,10 +74,15 @@
       "real_account_mutation_authorized": false,
       "security_id": "002936.SZ",
       "security_name": "郑州银行",
-      "semantic_research_required": true,
+      "semantic_research_required": false,
       "simulation_mutation_authorized": false,
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "research_disposition": "HOLD_RESEARCH_COMPLETE_DEFENSIVE_LABEL_NOT_CLEARED",
+      "first_rejection_test": "TRIGGERED_FOR_PROMOTION_BY_CAPITAL_AND_SHAREHOLDER_RETURN_GATE",
+      "next_gate": "REOPEN_ON_CORE_TIER1_NIM_PAYOUT_OR_PRICE_IMPROVEMENT",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_002936_20260902_R1.json",
+      "semantic_completed_at": "2026-09-02T01:45:00+00:00"
     },
     {
       "archetype": "TREND_PERSISTENCE",
@@ -97,23 +107,30 @@
       "real_account_mutation_authorized": false,
       "security_id": "603268.SH",
       "security_name": "松发股份",
-      "semantic_research_required": true,
+      "semantic_research_required": false,
       "simulation_mutation_authorized": false,
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "research_disposition": "HOLD_RESEARCH_COMPLETE_VALUATION_AND_FINANCING_GATE",
+      "first_rejection_test": "VALUATION_LEG_DECISIVELY_TRIGGERED_FOR_PROMOTION",
+      "next_gate": "REOPEN_ON_MATERIAL_EARNINGS_ROIC_UPGRADE_OR_PRICE_RESET",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_603268_20260902_R1.json",
+      "semantic_completed_at": "2026-09-02T01:45:00+00:00"
     }
   ],
   "schema_version": "1.1.0",
   "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_a96dd85c08be4403",
-  "state_id": "RESEARCH_QUEUE_D2_CURRENT_6b455ad6a81c6413",
-  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_20260902_SEMANTIC_D1_READY_R1",
+  "status": "D2_SEMANTIC_RESEARCH_D1_READY_R1_COMPLETE_THREE_HOLD_NO_DECISION",
   "summary": {
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 0,
+    "completed_count": 3,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 3,
-    "routed_count": 3
-  }
+    "pending_count": 0,
+    "routed_count": 3,
+    "user_input_required": false
+  },
+  "source_primary_discovery_state_id": "RESEARCH_QUEUE_D2_CURRENT_6b455ad6a81c6413"
 }
