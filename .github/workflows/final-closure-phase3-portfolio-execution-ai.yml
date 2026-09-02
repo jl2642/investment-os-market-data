@@ -1,0 +1,235 @@
+name: Final Closure Phase 3 Portfolio Execution AI
+
+run-name: "Phase 3 target weights execution validator and AI autonomous book"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "automation/portfolio_execution/**"
+      - "tests/test_phase3_portfolio_execution_ai.py"
+      - ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml"
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/50_OPERATING_PRODUCTS/PORTFOLIO_EXECUTION_AI_CONTRACT.md"
+      - "automation/operating_current/publish_operating_current.py"
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/portfolio_execution/**"
+      - "tests/test_phase3_portfolio_execution_ai.py"
+      - ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml"
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/50_OPERATING_PRODUCTS/PORTFOLIO_EXECUTION_AI_CONTRACT.md"
+      - "automation/operating_current/publish_operating_current.py"
+  workflow_run:
+    workflows:
+      - "Final Closure Phase 2 Decision Lifecycle"
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install deterministic validation runtime
+        run: python -m pip install --retries 5 --timeout 30 pytest pyyaml
+
+      - name: Compile Phase 3 producers
+        run: |
+          python -m py_compile \
+            automation/portfolio_execution/build_portfolio_execution.py \
+            automation/portfolio_execution/publish_portfolio_execution.py \
+            automation/operating_current/publish_operating_current.py
+
+      - name: Validate target weights execution and AI ledger
+        run: |
+          pytest -q \
+            tests/test_phase3_portfolio_execution_ai.py \
+            tests/test_phase2_decision_lifecycle.py \
+            tests/test_s2_investment_pipeline.py \
+            tests/test_s3_portfolio_product_surface.py \
+            tests/test_s4_runtime_publishers.py
+
+      - name: Parse Phase 3 workflow
+        run: |
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          yaml.safe_load(Path(".github/workflows/final-closure-phase3-portfolio-execution-ai.yml").read_text(encoding="utf-8"))
+          print({"phase3_workflow_yaml":"PASS"})
+          PY
+
+      - name: Enforce protected-state boundary
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed=set(subprocess.check_output(
+              ["git","diff","--name-only","origin/main...HEAD"], text=True
+          ).splitlines())
+          forbidden_prefixes=(
+              "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/",
+              "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/",
+              "investment_os_runtime/30_STATE_CURRENT/40_CANDIDATE/",
+          )
+          leaked=sorted(path for path in changed if path.startswith(forbidden_prefixes))
+          if leaked:
+              raise SystemExit("PHASE3_PROTECTED_STATE_MUTATION:" + ",".join(leaked))
+          print({
+              "real_account_mutations":0,
+              "legacy_simulation_mutations":0,
+              "candidate_mutations":0,
+              "ai_autonomous_virtual_mutation_only":True,
+              "orders":0,
+              "trade_authority":"NONE",
+          })
+          PY
+
+  production:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event != 'pull_request')
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: final-closure-phase3-portfolio-execution-ai
+      cancel-in-progress: false
+    steps:
+      - name: Checkout canonical main
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Resolve current authorities
+        id: authority
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin operating-current:refs/remotes/origin/operating-current --force
+          git show origin/operating-current:operating_current/domains/PORTFOLIO_MARKS.json > /tmp/marks-domain.json
+          git show origin/operating-current:operating_current/domains/INVESTMENT_PIPELINE.json > /tmp/investment-domain.json
+          git show origin/operating-current:operating_current/domains/DECISION_LIFECYCLE.json > /tmp/lifecycle-domain.json
+          git show origin/operating-current:operating_current/investment_pipeline/RECOMMENDATION_CURRENT.json > /tmp/recommendation.json
+          git show origin/operating-current:operating_current/decision_lifecycle/DECISION_LIFECYCLE_CURRENT.json > /tmp/lifecycle.json
+          git show origin/operating-current:operating_current/ai_autonomous/AI_AUTONOMOUS_1M_CURRENT.json > /tmp/prior-ai.json 2>/dev/null || echo '{}' > /tmp/prior-ai.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          for path in ["/tmp/marks-domain.json","/tmp/investment-domain.json","/tmp/lifecycle-domain.json"]:
+              payload=json.load(open(path,encoding="utf-8"))
+              if payload.get("status") != "PASS":
+                  raise SystemExit("PHASE3_INPUT_NOT_PASS:" + path)
+              if payload.get("orders") != 0 or payload.get("trade_authority") != "NONE":
+                  raise SystemExit("PHASE3_INPUT_AUTHORITY_VIOLATION:" + path)
+          marks=json.load(open("/tmp/marks-domain.json",encoding="utf-8"))
+          print(f"mark_branch={marks['source_branch']}")
+          print(f"mark_commit={marks['source_commit_sha']}")
+          print(f"as_of_date={marks['data_watermark']}")
+          PY
+
+      - name: Restore exact current account states
+        shell: bash
+        env:
+          MARK_BRANCH: ${{ steps.authority.outputs.mark_branch }}
+          MARK_COMMIT: ${{ steps.authority.outputs.mark_commit }}
+        run: |
+          set -Eeuo pipefail
+          git fetch origin "$MARK_BRANCH"
+          git cat-file -e "$MARK_COMMIT^{commit}"
+          git show "$MARK_COMMIT:investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json" > /tmp/real.json
+          git show "$MARK_COMMIT:investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json" > /tmp/simulation.json
+
+      - name: Build Portfolio Construction Execution and AI Autonomous
+        run: |
+          python automation/portfolio_execution/build_portfolio_execution.py \
+            --recommendation /tmp/recommendation.json \
+            --lifecycle /tmp/lifecycle.json \
+            --real /tmp/real.json \
+            --simulation /tmp/simulation.json \
+            --prior-ai /tmp/prior-ai.json \
+            --as-of-date "${{ steps.authority.outputs.as_of_date }}" \
+            --output-json /tmp/PORTFOLIO_EXECUTION_CURRENT.json \
+            --output-ai /tmp/AI_AUTONOMOUS_1M_CURRENT.json \
+            --output-md /tmp/PORTFOLIO_EXECUTION_BRIEF_CURRENT.md
+
+      - name: Validate Phase 3 boundary
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open("/tmp/PORTFOLIO_EXECUTION_CURRENT.json",encoding="utf-8"))
+          ai=json.load(open("/tmp/AI_AUTONOMOUS_1M_CURRENT.json",encoding="utf-8"))
+          assert p["status"] == "PASS_PORTFOLIO_EXECUTION_AND_AI_SIMULATION"
+          assert p["controls"]["target_weight_engine"] is True
+          assert p["controls"]["execution_validator"] is True
+          assert p["controls"]["ai_autonomous_virtual_ledger"] is True
+          assert p["real_account"]["automatic_mutation_authorized"] is False
+          assert p["simulation_account"]["automatic_mutation_authorized"] is False
+          assert ai["book_id"] == "AI_AUTONOMOUS_1M"
+          assert ai["initial_capital"] == 1000000.0
+          assert p["orders"] == 0
+          assert p["trade_authority"] == "NONE"
+          print({
+              "real_target_count":len(p["real_account"]["target_plan"]["rows"]),
+              "simulation_target_count":len(p["simulation_account"]["target_plan"]["rows"]),
+              "ai_positions":len(ai["positions"]),
+              "ai_cash":ai["cash"],
+              "ai_nav":ai["current_nav"],
+              "orders":0,
+              "trade_authority":"NONE",
+          })
+          PY
+
+      - name: Publish Phase 3 to Operating Current
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          MAIN_HEAD="$(git rev-parse HEAD)"
+          python automation/portfolio_execution/publish_portfolio_execution.py \
+            --phase3-json /tmp/PORTFOLIO_EXECUTION_CURRENT.json \
+            --ai-state-json /tmp/AI_AUTONOMOUS_1M_CURRENT.json \
+            --brief /tmp/PORTFOLIO_EXECUTION_BRIEF_CURRENT.md \
+            --source-workflow "Final Closure Phase 3 Portfolio Execution AI" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch main \
+            --source-commit "$MAIN_HEAD"
+
+      - name: Record Phase 3 summary
+        run: |
+          {
+            echo "## Final Closure Phase 3"
+            echo "- Target Weight Engine: active"
+            echo "- Deterministic execution validator: active"
+            echo "- A-share listed buy lot: 100"
+            echo "- AI_AUTONOMOUS_1M: isolated virtual ledger"
+            echo "- Real / legacy Simulation automatic mutation: 0 / 0"
+            echo "- orders: 0; trade_authority: NONE"
+          } >> "$GITHUB_STEP_SUMMARY"
