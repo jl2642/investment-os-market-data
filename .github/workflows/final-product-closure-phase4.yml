@@ -1,0 +1,118 @@
+name: Final Product Closure Phase 4 Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/FINAL_PRODUCT_CAPABILITY_MATRIX_CURRENT.md"
+      - ".github/workflows/final-product-closure-phase4.yml"
+      - "tests/test_phase4_final_product_closure.py"
+  push:
+    branches: [main]
+    paths:
+      - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
+      - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
+      - "investment_os_runtime/00_CONTROL/FINAL_PRODUCT_CAPABILITY_MATRIX_CURRENT.md"
+      - ".github/workflows/final-product-closure-phase4.yml"
+      - "tests/test_phase4_final_product_closure.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Validate final closure control contract
+        run: python -m unittest -v tests.test_phase4_final_product_closure
+
+  live-operating-current:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Read current runtime authority
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin operating-current:refs/remotes/origin/operating-current --force
+          for f in             operating_current/domains/A_SHARE_FULL_MARKET.json             operating_current/domains/PORTFOLIO_MARKS.json             operating_current/domains/INVESTMENT_PIPELINE.json             operating_current/domains/DECISION_LIFECYCLE.json             operating_current/domains/PORTFOLIO_EXECUTION_SIMULATION.json             operating_current/investment_pipeline/RECOMMENDATION_CURRENT.json             operating_current/decision_lifecycle/DECISION_LIFECYCLE_CURRENT.json             operating_current/portfolio_execution/PORTFOLIO_EXECUTION_CURRENT.json             operating_current/ai_autonomous/AI_AUTONOMOUS_1M_CURRENT.json             operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json             operating_current/product_surface/DAILY_INVESTMENT_BRIEF_CURRENT.md
+          do
+            git show "origin/operating-current:$f" > "/tmp/$(basename "$f")"
+          done
+      - name: Validate live ten-capability chain
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def j(name):
+              return json.loads(Path("/tmp", name).read_text(encoding="utf-8"))
+
+          domains = [
+              j("A_SHARE_FULL_MARKET.json"),
+              j("PORTFOLIO_MARKS.json"),
+              j("INVESTMENT_PIPELINE.json"),
+              j("DECISION_LIFECYCLE.json"),
+              j("PORTFOLIO_EXECUTION_SIMULATION.json"),
+          ]
+          for row in domains:
+              assert row["status"] == "PASS", row
+              assert row["orders"] == 0, row
+              assert row["trade_authority"] == "NONE", row
+
+          rec = j("RECOMMENDATION_CURRENT.json")
+          existing = [
+              r for r in rec.get("records", [])
+              if r.get("portfolio_implication") == "EXISTING_POSITION"
+          ]
+          assert len({r["security_id"] for r in existing}) == 22, len(existing)
+          allowed = {
+              "BUY","BUY_BELOW","WATCH_FOR_EVIDENCE","WATCH","AVOID",
+              "ADD","HOLD","TRIM","EXIT"
+          }
+          assert {r["action"] for r in rec.get("records", [])} <= allowed
+
+          life = j("DECISION_LIFECYCLE_CURRENT.json")
+          held = [s for s in life.get("subjects", []) if s.get("position_state") == "HELD"]
+          assert len({s["security_id"] for s in held}) == 22
+          assert life["controls"]["automatic_buy_sell"] is False
+          assert life["controls"]["automatic_position_mutation"] is False
+
+          exe = j("PORTFOLIO_EXECUTION_CURRENT.json")
+          assert exe["status"] == "PASS_PORTFOLIO_EXECUTION_AND_AI_SIMULATION"
+          assert exe["controls"]["target_weight_engine"] is True
+          assert exe["controls"]["execution_validator"] is True
+          assert exe["real_account"]["automatic_mutation_authorized"] is False
+          assert exe["simulation_account"]["automatic_mutation_authorized"] is False
+
+          ai = j("AI_AUTONOMOUS_1M_CURRENT.json")
+          assert ai["book_id"] == "AI_AUTONOMOUS_1M"
+          assert ai["initial_capital"] == 1_000_000.0
+          assert ai["orders"] == 0
+          assert ai["trade_authority"] == "NONE"
+
+          surface = j("PORTFOLIO_DECISION_SURFACE_CURRENT.json")
+          assert surface["orders"] == 0
+          assert surface["trade_authority"] == "NONE"
+          assert Path("/tmp/DAILY_INVESTMENT_BRIEF_CURRENT.md").stat().st_size > 0
+
+          print({
+              "phase4_live_acceptance":"PASS",
+              "current_holding_coverage":"22/22",
+              "ten_core_capabilities":"10/10",
+              "orders":0,
+              "trade_authority":"NONE",
+          })
+          PY
