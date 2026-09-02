@@ -9,7 +9,7 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "FINAL_PRODUCT_CLOSURE_PHASE_1_RESEARCH_DECISION_IN_PROGRESS",
+  "program_state": "FINAL_PRODUCT_CLOSURE_PHASE_1_FULL_HOLDING_COVERAGE_PENDING_RUNTIME_ACCEPTANCE",
   "product_maturity": "OPERATIONAL_RESEARCH_CHAIN_PORTFOLIO_LIFECYCLE_INCOMPLETE",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
@@ -331,15 +331,22 @@
       "not_required_capabilities": 0
     },
     "phase_1": {
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
       "objective": "RESEARCH_TO_DECISION_CLOSURE",
-      "current_holding_recommendation_coverage_before": "0/22",
-      "immediate_completed_holding_d2_to_wire": [
-        "300750.SZ",
-        "300124.SZ",
-        "601138.SH"
+      "holding_count_unique": 22,
+      "pre_phase1_recommendation_coverage": "0/22",
+      "intermediate_coverage_after_pr432": "3/22",
+      "thesis_persistence_fix": "MERGED_ON_MAIN_PR433",
+      "full_holding_current_underwriting_register": "D2_RESEARCH_PORTFOLIO_HOLDINGS_20260902_R1",
+      "expected_runtime_coverage_after_acceptance": "22/22",
+      "acceptance_requirements": [
+        "S2_CURRENT_RECOMMENDATION_CONTAINS_ALL_22_CURRENT_HOLDINGS",
+        "S3_PORTFOLIO_RECOMMENDATION_COVERAGE_EQUALS_22_OF_22",
+        "COMPLETED_SEMANTIC_D2_IS_NOT_ERASED_BY_MECHANICAL_D1_REFRESH",
+        "NEW_OPPORTUNITY_AND_EXISTING_POSITION_DECISIONS_COEXIST",
+        "ORDERS_ZERO_TRADE_AUTHORITY_NONE"
       ],
-      "acceptance_target": "ALL_CURRENT_HOLDINGS_HAVE_A_CURRENT_INVESTMENT_VIEW; DECISION_GRADE_D2_MUST_FLOW_TO_CURRENT_RECOMMENDATION"
+      "completion_claim_allowed": false
     },
     "phases_remaining": [
       "PHASE_2_TRIGGER_AND_POSITION_LIFECYCLE",
