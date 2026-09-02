@@ -9,16 +9,19 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "S4_END_TO_END_ACCEPTANCE_HYGIENE_COMPLETE_SYSTEM_FROZEN",
-  "product_maturity": "PRODUCTION_OPERATIONAL_ACCEPTED",
+  "program_state": "FINAL_PRODUCT_CLOSURE_PHASE_1_RESEARCH_DECISION_IN_PROGRESS",
+  "product_maturity": "OPERATIONAL_RESEARCH_CHAIN_PORTFOLIO_LIFECYCLE_INCOMPLETE",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
     "D1_FAST_TRIAGE",
     "D2_INVESTMENT_UNDERWRITING",
-    "VALUATION_AND_CAPITAL_COMPARISON",
-    "RECOMMENDATION",
-    "PORTFOLIO_AND_DAILY_CONTROLLER",
+    "THESIS_AND_RECOMMENDATION_REGISTER",
+    "TRIGGER_AND_CONTINUOUS_MONITORING",
+    "POSITION_LIFECYCLE_AND_PORTFOLIO_CONSTRUCTION",
+    "EXECUTION_VALIDATION",
+    "PORTFOLIO_MONITORING_AND_RISK",
+    "PERFORMANCE_ATTRIBUTION_AND_LEARNING",
     "HUMAN_DECISION"
   ],
   "control_plane": [
@@ -34,7 +37,8 @@
     "system_level_rule": "Only this file establishes the current system-level authority and program state.",
     "runtime_rule": "Runtime freshness and latest-attempt truth are read from the operating-current branch and its domain receipts.",
     "state_file_rule": "Other files whose names contain CURRENT may remain valid domain or portfolio state artifacts, but they do not establish whole-system maturity, roadmap or authority.",
-    "legacy_rule": "Historical FMDL/WP/R0-R6 documents retaining CURRENT in their filenames are development-history evidence only unless explicitly referenced by this authority."
+    "legacy_rule": "Historical FMDL/WP/R0-R6 documents retaining CURRENT in their filenames are development-history evidence only unless explicitly referenced by this authority.",
+    "final_closure_rule": "Prior S4 acceptance proved the simplified research-to-recommendation product chain only; it must not be interpreted as acceptance of the full frozen investment lifecycle."
   },
   "active_workflow_registry": "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json",
   "branch_policy": "investment_os_runtime/00_CONTROL/BRANCH_POLICY.md",
@@ -46,7 +50,7 @@
     "s2": "COMPLETE_ON_MAIN",
     "s3": "COMPLETE_ON_MAIN",
     "s4": "COMPLETE_ON_MAIN",
-    "development_closed": true
+    "development_closed": false
   },
   "non_goals": [
     "NEW_MARKETS",
@@ -315,5 +319,33 @@
       "orders": 0,
       "trade_authority": "NONE"
     }
+  },
+  "final_product_closure": {
+    "plan_version": "FINAL_PRODUCT_CLOSURE_20260902_V1",
+    "product_definition_frozen": true,
+    "phase_0": {
+      "status": "COMPLETE",
+      "complete_capabilities": 2,
+      "partial_capabilities": 6,
+      "missing_capabilities": 2,
+      "not_required_capabilities": 0
+    },
+    "phase_1": {
+      "status": "IN_PROGRESS",
+      "objective": "RESEARCH_TO_DECISION_CLOSURE",
+      "current_holding_recommendation_coverage_before": "0/22",
+      "immediate_completed_holding_d2_to_wire": [
+        "300750.SZ",
+        "300124.SZ",
+        "601138.SH"
+      ],
+      "acceptance_target": "ALL_CURRENT_HOLDINGS_HAVE_A_CURRENT_INVESTMENT_VIEW; DECISION_GRADE_D2_MUST_FLOW_TO_CURRENT_RECOMMENDATION"
+    },
+    "phases_remaining": [
+      "PHASE_2_TRIGGER_AND_POSITION_LIFECYCLE",
+      "PHASE_3_PORTFOLIO_EXECUTION_AND_AI_SIMULATION",
+      "PHASE_4_END_TO_END_PRODUCT_ACCEPTANCE_AND_FREEZE"
+    ],
+    "completion_claim_allowed": false
   }
 }

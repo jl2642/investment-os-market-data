@@ -383,6 +383,7 @@ jobs:
             --d2-current "$S2_RUNTIME/D2_CURRENT.json" \
             --real-positions investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
             --simulation-positions investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            --holding-d2-dir investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2 \
             --output-dir "$S2_OUTPUT"
 
       - name: Publish Capital Comparison and Recommendation Current
@@ -416,6 +417,7 @@ jobs:
           - Opportunity discovery uses the latest PASS_CHAIN_COHERENT A-share screening receipt.
           - D1 fast triage processes up to 10 names and routes at most 3 into D2.
           - D2 semantic research must produce Bear/Base/Bull underwriting before decision-grade capital comparison.
+          - Existing-position semantic D2 artifacts are folded into the current decision pass; current D1-routed D2 wins on duplicate security identity.
           - Capital comparison is computed live from underwriting and current position identity; frozen Phase2C comparison is not used.
           - BUY / BUY_BELOW / WATCH_FOR_EVIDENCE / AVOID / ADD / HOLD / TRIM / EXIT are producer-reachable.
           - Candidate / Real / Simulation economic mutations: 0 / 0 / 0.

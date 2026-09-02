@@ -418,6 +418,88 @@ def position_ids(position_payload: dict[str, Any]) -> set[str]:
     }
 
 
+def evidence_gap_is_material(row: dict[str, Any]) -> bool:
+    gap = row.get("evidence_gap")
+    if isinstance(gap, dict):
+        return bool(gap.get("material"))
+    return bool(gap)
+
+
+def load_latest_holding_d2(
+    directory: Path | None,
+    *,
+    real_positions: dict[str, Any] | None = None,
+    simulation_positions: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    if directory is None or not directory.exists():
+        return []
+    holding_ids = position_ids(real_positions or {}) | position_ids(
+        simulation_positions or {}
+    )
+    latest: dict[str, tuple[tuple[str, str], dict[str, Any]]] = {}
+    for path in sorted(directory.glob("D2_RESEARCH_*.json")):
+        try:
+            row = load_json(path)
+        except Exception:
+            continue
+        sid = str(row.get("security_id") or "")
+        if not sid or sid not in holding_ids:
+            continue
+        context = str(row.get("account_context") or "").upper()
+        update_type = str(row.get("research_update_type") or "").upper()
+        if "EXISTING" not in context and "EXISTING" not in update_type:
+            continue
+        if str(row.get("status") or "") not in {
+            "D2_RESEARCH_COMPLETE",
+            "D2_RESEARCH_HOLD_EVIDENCE_GAP",
+        }:
+            continue
+        underwriting = row.get("underwriting") or {}
+        sort_key = (
+            str(underwriting.get("price_as_of") or ""),
+            path.name,
+        )
+        candidate = dict(row)
+        candidate["source_holding_d2_artifact"] = path.name
+        if sid not in latest or sort_key > latest[sid][0]:
+            latest[sid] = (sort_key, candidate)
+    return [latest[sid][1] for sid in sorted(latest)]
+
+
+def merge_d2_with_holding_research(
+    primary_d2: dict[str, Any],
+    holding_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    primary_rows = list(primary_d2.get("queue", []) or [])
+    seen = {
+        str(row.get("security_id") or "")
+        for row in primary_rows
+        if row.get("security_id")
+    }
+    supplemental = [
+        row
+        for row in holding_rows
+        if str(row.get("security_id") or "") not in seen
+    ]
+    merged = dict(primary_d2)
+    merged["queue"] = primary_rows + supplemental
+    merged["source_primary_d2_state_id"] = primary_d2.get("state_id")
+    merged["supplemental_holding_d2_count"] = len(supplemental)
+    if supplemental:
+        identity = canonical_hash(
+            {
+                "primary_d2_state_id": primary_d2.get("state_id"),
+                "holding_artifacts": [
+                    row.get("source_holding_d2_artifact") for row in supplemental
+                ],
+            }
+        )
+        merged["state_id"] = (
+            f"{primary_d2.get('state_id') or 'D2_CURRENT'}_HOLDINGS_{identity[:12]}"
+        )
+    return merged
+
+
 def _underwriting_metrics(
     row: dict[str, Any],
 ) -> tuple[dict[str, Any] | None, list[str]]:
@@ -503,7 +585,7 @@ def build_capital_comparison(
         existing = sid in real_ids or sid in sim_ids
         material_gap = (
             status == "D2_RESEARCH_HOLD_EVIDENCE_GAP"
-            or bool(d2row.get("evidence_gap"))
+            or evidence_gap_is_material(d2row)
         )
         if rejection_triggered(d2row.get("first_rejection_test")):
             comp = "AVOID_INVALIDATION_TRIGGERED"
@@ -625,8 +707,17 @@ def build_recommendations(
         )
         existing = bool(comp.get("existing_position"))
         metrics = comp.get("metrics") or {}
+        explicit_position_action = str(
+            (d2row.get("underwriting") or {}).get("action") or ""
+        ).upper()
+        explicit_position_action = {
+            "TRIM_REVIEW": "TRIM",
+            "EXIT_REVIEW": "EXIT",
+        }.get(explicit_position_action, explicit_position_action)
         if rejection_triggered(d2row.get("first_rejection_test")):
             action = "EXIT" if existing else "AVOID"
+        elif existing and explicit_position_action in {"ADD", "HOLD", "TRIM", "EXIT"}:
+            action = explicit_position_action
         elif cstatus == "EVIDENCE_BLOCKED":
             action = "WATCH_FOR_EVIDENCE"
         elif cstatus in {"UNDERWRITING_PENDING", "UNDERWRITING_INCOMPLETE"}:
@@ -662,7 +753,12 @@ def build_recommendations(
                         or d2row.get("status")
                         or ""
                     ),
-                    cstatus,
+                    (
+                        f"D2_EXPLICIT_POSITION_ACTION_{explicit_position_action}"
+                        if existing
+                        and explicit_position_action in {"ADD", "HOLD", "TRIM", "EXIT"}
+                        else cstatus
+                    ),
                     (
                         f"D2_CAPITAL_RANK_{comp.get('rank_among_current_d2')}"
                         if comp.get("rank_among_current_d2")
@@ -738,6 +834,7 @@ def main() -> int:
     p2.add_argument("--d2-current", required=True)
     p2.add_argument("--real-positions", required=True)
     p2.add_argument("--simulation-positions", required=True)
+    p2.add_argument("--holding-d2-dir")
     p2.add_argument("--output-dir", required=True)
 
     args = parser.parse_args()
@@ -780,6 +877,12 @@ def main() -> int:
     d2 = load_json(Path(args.d2_current))
     real = load_json(Path(args.real_positions))
     sim = load_json(Path(args.simulation_positions))
+    holding_rows = load_latest_holding_d2(
+        Path(args.holding_d2_dir) if args.holding_d2_dir else None,
+        real_positions=real,
+        simulation_positions=sim,
+    )
+    d2 = merge_d2_with_holding_research(d2, holding_rows)
     comparison = build_capital_comparison(
         d2, real_positions=real, simulation_positions=sim
     )
@@ -791,6 +894,7 @@ def main() -> int:
             {
                 "status": "PASS_DECISION",
                 "subjects": recommendation["summary"]["subject_count"],
+                "supplemental_holding_d2": d2.get("supplemental_holding_d2_count", 0),
                 "actions": recommendation["summary"]["action_counts"],
                 "orders": 0,
                 "trade_authority": "NONE",
