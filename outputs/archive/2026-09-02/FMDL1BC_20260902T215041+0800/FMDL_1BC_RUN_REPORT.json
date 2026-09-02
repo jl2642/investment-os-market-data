@@ -1,0 +1,201 @@
+{
+  "run_id": "FMDL1BC_20260902T215041+0800",
+  "as_of_date": "2026-09-02",
+  "generated_at": "2026-09-02T21:50:41+08:00",
+  "adapter_version": "1.18.94",
+  "market_wide_source_function": "stock_zh_a_spot",
+  "market_wide_provider": "sina_public",
+  "market_wide_volume_unit": "SHARES",
+  "universe": {
+    "dataset_id": "a_share_universe",
+    "qa_status": "PASS_WITH_WARNINGS",
+    "publication_status": "DEGRADED",
+    "hard_failures": [],
+    "soft_warnings": [
+      "industry_fill_ratio"
+    ],
+    "metrics": {
+      "row_count": 5554,
+      "duplicate_count": 0,
+      "symbol_valid_ratio": 1.0,
+      "identity_fill_ratio": 1.0,
+      "industry_fill_ratio": 0.583003240907454,
+      "listing_date_fill_ratio": 1.0,
+      "lkg_row_ratio": 1.0027080700487452,
+      "schema_error_examples": []
+    },
+    "gate_results": [
+      {
+        "gate_id": "schema_valid",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "minimum_row_count",
+        "severity": "HARD",
+        "actual": 5554,
+        "expected": ">=4000",
+        "passed": true
+      },
+      {
+        "gate_id": "duplicate_natural_key",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "symbol_valid_ratio",
+        "severity": "HARD",
+        "actual": 1.0,
+        "expected": ">=1.0",
+        "passed": true
+      },
+      {
+        "gate_id": "required_identity_fill_ratio",
+        "severity": "HARD",
+        "actual": 1.0,
+        "expected": ">=0.995",
+        "passed": true
+      },
+      {
+        "gate_id": "minimum_lkg_row_ratio",
+        "severity": "HARD",
+        "actual": 1.0027080700487452,
+        "expected": ">=0.97",
+        "passed": true
+      },
+      {
+        "gate_id": "industry_fill_ratio",
+        "severity": "SOFT",
+        "actual": 0.583003240907454,
+        "expected": ">=0.9",
+        "passed": false
+      },
+      {
+        "gate_id": "listing_date_fill_ratio",
+        "severity": "SOFT",
+        "actual": 1.0,
+        "expected": ">=0.95",
+        "passed": true
+      }
+    ]
+  },
+  "snapshot": {
+    "dataset_id": "daily_market_snapshot",
+    "qa_status": "PASS_WITH_WARNINGS",
+    "publication_status": "DEGRADED",
+    "hard_failures": [],
+    "soft_warnings": [
+      "market_cap_fill_ratio",
+      "valuation_fill_ratio",
+      "maximum_unexplained_absolute_return_pct"
+    ],
+    "metrics": {
+      "row_count": 5554,
+      "universe_coverage_ratio": 1.0,
+      "traded_row_count": 5548,
+      "positive_close_ratio_for_traded_rows": 1.0,
+      "negative_volume_rows": 0,
+      "negative_turnover_rows": 0,
+      "maximum_return_reconciliation_difference_pp": 0.0004999999999999449,
+      "market_cap_fill_ratio": 0.0,
+      "valuation_fill_ratio": 0.0,
+      "zero_turnover_ratio": 0.0014404033129276198,
+      "maximum_absolute_return_pct": 104.406,
+      "schema_error_examples": []
+    },
+    "gate_results": [
+      {
+        "gate_id": "schema_valid",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "minimum_active_universe_coverage",
+        "severity": "HARD",
+        "actual": 1.0,
+        "expected": ">=0.95",
+        "passed": true
+      },
+      {
+        "gate_id": "duplicate_natural_key",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "minimum_positive_close_ratio_for_traded_rows",
+        "severity": "HARD",
+        "actual": 1.0,
+        "expected": ">=1.0",
+        "passed": true
+      },
+      {
+        "gate_id": "maximum_negative_volume_rows",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "maximum_negative_turnover_rows",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "return_reconciliation",
+        "severity": "HARD",
+        "actual": 0.0004999999999999449,
+        "expected": "<=0.05",
+        "passed": true
+      },
+      {
+        "gate_id": "market_cap_fill_ratio",
+        "severity": "SOFT",
+        "actual": 0.0,
+        "expected": ">=0.9",
+        "passed": false
+      },
+      {
+        "gate_id": "valuation_fill_ratio",
+        "severity": "SOFT",
+        "actual": 0.0,
+        "expected": ">=0.7",
+        "passed": false
+      },
+      {
+        "gate_id": "maximum_unexplained_absolute_return_pct",
+        "severity": "SOFT",
+        "actual": 104.406,
+        "expected": "<=35.0",
+        "passed": false
+      },
+      {
+        "gate_id": "maximum_zero_turnover_ratio",
+        "severity": "SOFT",
+        "actual": 0.0014404033129276198,
+        "expected": "<=0.15",
+        "passed": true
+      }
+    ]
+  },
+  "source_warnings": [
+    "primary_provider_unavailable: stock_zh_a_spot_em",
+    "attempt_1: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+    "optional_source_unavailable",
+    "volume_unit_source=SHARES; no lot multiplier applied",
+    "source_zero_price_rows_classified_as_suspended=002731.SZ,002870.SZ,300472.SZ,301139.SZ,301266.SZ"
+  ],
+  "candidate_files": [
+    "outputs/candidate/A_SHARE_UNIVERSE.csv",
+    "outputs/candidate/DAILY_MARKET_SNAPSHOT.csv"
+  ]
+}
