@@ -3,13 +3,17 @@
 - 数据日期：2026-09-01
 - 当前需人工复核的决策项：0
 - 持仓绩效监控：22 / 22（账户持仓行 23）
-- 当前投资判断覆盖：0 / 22
+- 当前投资判断覆盖：3 / 22
 - 新机会：3
 - 自动交易：关闭；orders = 0；trade_authority = NONE
 
 ## 1. 当前持仓决策面
 
-当前没有被 S2 Recommendation 覆盖的持仓决策项。
+| 标的 | 账户 | 动作 | 当前价 | 预期收益 | 关键阻断 |
+|---|---|---|---:|---:|---|
+| 300124.SZ 汇川技术 | SIMULATION | HOLD | 61.87 | 13.5% | PRICE_BLOCKED |
+| 300750.SZ 宁德时代 | SIMULATION | HOLD | 363.55 | 20.3% | — |
+| 601138.SH 工业富联 | SIMULATION | HOLD | 64.84 | 6.3% | PRICE_BLOCKED |
 
 ### 未覆盖持仓
 
@@ -20,8 +24,6 @@
 - 159655.SZ 标普500ETF华夏：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 217003.OF 招商安泰债券A：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 300012.SZ 华测检测：暂无当前 S2 underwriting / recommendation，不生成动作。
-- 300124.SZ 汇川技术：暂无当前 S2 underwriting / recommendation，不生成动作。
-- 300750.SZ 宁德时代：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 510500.SH 中证500ETF南方：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 600036.SH 招商银行：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 600276.SH 恒瑞医药：暂无当前 S2 underwriting / recommendation，不生成动作。
@@ -32,7 +34,6 @@
 - 600900.SH 长江电力：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 600938.SH 中国海油：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 600941.SH 中国移动：暂无当前 S2 underwriting / recommendation，不生成动作。
-- 601138.SH 工业富联：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 601899.SH 紫金矿业：暂无当前 S2 underwriting / recommendation，不生成动作。
 - 605090.SH 九丰能源：暂无当前 S2 underwriting / recommendation，不生成动作。
 
@@ -44,29 +45,28 @@
 ### 优先持仓再承销
 
 - HIGH｜605090.SH 九丰能源｜账户 REAL｜最大账户权重 42.3%｜最差浮盈亏 2.5%｜触发 ACCOUNT_WEIGHT_GE_15PCT,NO_CURRENT_S2_RECOMMENDATION
-- HIGH｜601138.SH 工业富联｜账户 SIMULATION｜最大账户权重 3.7%｜最差浮盈亏 -17.7%｜触发 DRAWDOWN_GE_15PCT,NO_CURRENT_S2_RECOMMENDATION
-- HIGH｜300750.SZ 宁德时代｜账户 SIMULATION｜最大账户权重 3.5%｜最差浮盈亏 -20.6%｜触发 DRAWDOWN_GE_15PCT,NO_CURRENT_S2_RECOMMENDATION
-- HIGH｜300124.SZ 汇川技术｜账户 SIMULATION｜最大账户权重 1.2%｜最差浮盈亏 -35.2%｜触发 DRAWDOWN_GE_15PCT,NO_CURRENT_S2_RECOMMENDATION
+- MEDIUM｜017534.OF 富国天利增长债券C｜账户 REAL｜最大账户权重 14.4%｜最差浮盈亏 3.1%｜触发 NO_CURRENT_S2_RECOMMENDATION
+- MEDIUM｜217003.OF 招商安泰债券A｜账户 REAL｜最大账户权重 12.8%｜最差浮盈亏 1.4%｜触发 NO_CURRENT_S2_RECOMMENDATION
 
 ## 3. 新资本机会
 
-- BUY_BELOW｜600428.SH 中远海特｜当前价 11.67｜预期收益 2.8%｜阻断 PRICE_BLOCKED
-- AVOID｜002936.SZ 郑州银行｜当前价 1.81｜预期收益 -3.0%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
-- AVOID｜603268.SH 松发股份｜当前价 183.48｜预期收益 -29.5%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
+- WATCH｜002936.SZ 郑州银行｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
+- WATCH｜600428.SH 中远海特｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
+- WATCH｜603268.SH 松发股份｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
 
 ## 4. 研究队列
 
-- D1 本轮：10 只；进入 D2：0 只。
-- 1. 600036.SH 招商银行｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
-- 2. 605179.SH 一鸣食品｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
-- 3. 603259.SH 药明康德｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
-- 4. 000088.SZ 盐 田 港｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
-- 5. 000017.SZ 深中华A｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
-- 6. 002437.SZ 誉衡药业｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
-- 7. 301122.SZ 采纳股份｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
-- 8. 601818.SH 光大银行｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
-- 9. 301080.SZ 百普赛斯｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
-- 10. 300927.SZ 江天化学｜WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION
+- D1 本轮：10 只；进入 D2：3 只。
+- 1. 600613.SH 神奇制药｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
+- 2. 600428.SH 中远海特｜ADVANCE_TO_D2_FAST_TRIAGE
+- 3. 600664.SH 哈药股份｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
+- 4. 002936.SZ 郑州银行｜ADVANCE_TO_D2_FAST_TRIAGE
+- 5. 603268.SH 松发股份｜ADVANCE_TO_D2_FAST_TRIAGE
+- 6. 600127.SH 金健米业｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
+- 7. 301109.SZ 军信股份｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
+- 8. 002827.SZ 高争民爆｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
+- 9. 000518.SZ 四环生物｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
+- 10. 002807.SZ 江阴银行｜WATCH_FOR_FUNDAMENTAL_CONFIRMATION
 
 ## 5. 决策边界
 
