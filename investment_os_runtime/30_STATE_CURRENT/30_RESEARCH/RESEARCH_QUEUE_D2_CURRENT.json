@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-02T02:34:00+00:00",
+  "as_of": "2026-09-02T02:50:00+00:00",
   "consumer_policy": {
     "bounded_batch_size": 3,
     "event_trigger": "D1_MECHANICAL_ROUTE_PLUS_SEMANTIC_COMPLETION_PUSH_TO_MAIN",
@@ -7,7 +7,9 @@
     "idempotence": "UNCHANGED_D1_STATE_OR_INPUT_WATERMARK_PRESERVES_SEMANTIC_TERMINAL_WORK",
     "manual_dispatch": "BREAK_GLASS_ONLY",
     "recovery_cadence": "WEEKDAYS_00:35_UTC_08:35_ASIA_SHANGHAI",
-    "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER"
+    "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
+    "semantic_callback_binding": "EXACT_PUBLISHED_D2_SOURCE_COMMIT",
+    "rolling_d1_advance_policy": "COMPLETED_D2_CALLBACK_MAY_FINISH_AFTER_D1_ROLLS_FORWARD"
   },
   "controls": {
     "candidate_membership_mutations": 0,
@@ -278,7 +280,7 @@
   "schema_version": "1.1.0",
   "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_a96dd85c08be4403",
   "state_id": "RESEARCH_QUEUE_D2_CURRENT_20260902_SEMANTIC_D1_READY_R1_UNDERWRITING_BOUND",
-  "status": "D2_SEMANTIC_RESEARCH_D1_READY_R1_COMPLETE_THREE_UNDERWRITING_BOUND_NO_DECISION",
+  "status": "D2_SEMANTIC_RESEARCH_D1_READY_R1_COMPLETE_THREE_UNDERWRITING_BOUND_EXACT_CALLBACK",
   "summary": {
     "batch_capacity": 3,
     "blocked_count": 0,
