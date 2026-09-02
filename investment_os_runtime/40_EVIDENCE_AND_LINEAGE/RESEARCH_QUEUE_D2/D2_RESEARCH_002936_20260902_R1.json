@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260902_R1_002936",
+  "security_id": "002936.SZ",
+  "security_name": "郑州银行",
+  "d1_rank": 4,
+  "archetype": "DEFENSIVE_STABILITY",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "HOLD_RESEARCH_COMPLETE_DEFENSIVE_LABEL_NOT_CLEARED",
+  "research_update_type": "USER_EXPLICIT_D2_FROM_20260901_D1_READY_BATCH",
+  "valuation_horizon": "12_MONTH",
+  "thesis": {
+    "core": "Asset quality and provision coverage are improving, but the defensive-equity case is not yet strong: net interest margin is still compressing, core Tier-1 and total capital buffers are thin and declining, customer concentration has risen, and the bank approved zero 2025 cash dividend to preserve core capital.",
+    "variant_wedge": "The headline low valuation is not enough by itself. Common-shareholder return, capital resilience and payout capacity are the binding variables.",
+    "normalized_earnings_basis": "Use H1 ordinary BVPS RMB5.16 and normalized annual EPS around RMB0.34-0.36 as reference; value primarily on common P/B because sustainable ROE and capital generation dominate bank economics."
+  },
+  "underwriting": {
+    "current_price": 1.81,
+    "price_as_of": "2026-09-01",
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {
+      "metric": "COMMON_EQUITY_BVPS_AND_NORMALIZED_EPS",
+      "common_bvps_2026_h1": 5.16,
+      "h1_2026_eps": 0.18,
+      "normalized_eps_range": [
+        0.34,
+        0.36
+      ]
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "common_pb": 0.25,
+        "value_per_share": 1.29,
+        "probability": 0.3
+      },
+      {
+        "name": "BASE",
+        "common_pb": 0.35,
+        "value_per_share": 1.81,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "common_pb": 0.45,
+        "value_per_share": 2.32,
+        "probability": 0.2
+      }
+    ],
+    "probability_weighted_value": 1.75,
+    "expected_return": -0.0307,
+    "research_reopen_price": 1.53,
+    "action": "HOLD"
+  },
+  "d2_answers": [
+    {
+      "question": "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
+      "fact": "At 2026H1, NPL ratio improved to 1.68% from 1.71% and provision coverage rose to 193.61% from 185.81%. Core Tier-1 fell to 8.20% from 8.45%, total capital to 11.32% from 11.71%, while regulatory minima are 7.5% and 10.5%. NIM fell to 1.52% from 1.64%. The bank approved no 2025 cash dividend, retaining earnings to support core capital.",
+      "interpretation": "Credit resilience is improving, but capital and shareholder-return resilience are not yet strong enough for a clean defensive label.",
+      "judgment": "DEFENSIVE_LABEL_NOT_CLEARED"
+    },
+    {
+      "question": "Compare the opportunity with lower-risk defensive and cash alternatives.",
+      "fact": "Latest complete close was RMB1.81 and reported ordinary BVPS RMB5.16, about 0.35x common P/B. 2025 ordinary cash dividend was zero; 2024 paid RMB0.02/share.",
+      "interpretation": "Low valuation gives asset-value cushion, but without current cash yield and with capital ratios declining, the equity does not clearly dominate lower-risk alternatives.",
+      "judgment": "LOW_VALUATION_NOT_SUFFICIENT_TO_CREATE_DEFENSIVE_EDGE"
+    },
+    {
+      "question": "Normalize earnings and cash flow using latest primary financial disclosures.",
+      "fact": "2026H1 revenue RMB6.759bn (+1.04%), attributable net profit RMB1.677bn (+3.03%), interest net income +3.29%, non-interest income -7.96%, credit impairment expense +3.13%, annualized ROE 7.29%. Deposits +11.02% from year-end while loans +2.08%.",
+      "interpretation": "Normalized earnings are stable rather than strongly improving; deposit growth strengthens funding but highlights asset-deployment and margin pressure.",
+      "judgment": "NORMALIZED_EARNINGS_STABLE_LOW_ROE"
+    },
+    {
+      "question": "Build an explicit valuation range and identify embedded expectations.",
+      "assumption": "Bear/base/bull common P/B 0.25x/0.35x/0.45x imply RMB1.29/RMB1.81/RMB2.32.",
+      "interpretation": "Probability-weighted value is about RMB1.75, slightly below market; meaningful upside requires capital/NIM/payout improvement.",
+      "judgment": "CURRENT_PRICE_NEAR_OR_ABOVE_BASE_RISK_ADJUSTED_VALUE"
+    },
+    {
+      "question": "Define first-rejection test and invalidation evidence.",
+      "judgment": "First rejection is triggered for D2 promotion: declining core capital ratios plus zero 2025 ordinary dividend mean normalized shareholder return does not support the intended DEFENSIVE_STABILITY label. Reopen if core capital and NIM stabilize with restored payout capacity or a sufficient price reset."
+    }
+  ],
+  "first_rejection_test": "TRIGGERED_FOR_PROMOTION_BY_CAPITAL_AND_SHAREHOLDER_RETURN_GATE_DESPITE_IMPROVING_ASSET_QUALITY",
+  "next_gate": "CORE_TIER1_NIM_PAYOUT_OR_PRICE_REOPEN",
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "郑州银行2026年半年度报告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=002936&announcementId=1225531956&orgId=9900011028&announcementTime=2026-08-29%2000:00:00"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "郑州银行2025年年度报告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=002936&announcementId=1225059563&orgId=9900011028&announcementTime=2026-03-31%2000:00:00"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "郑州银行2025年度利润分配方案",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-03-31/1225059570.PDF"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "郑州银行2026-09-01 close",
+      "url": "https://quotedx.cfi.cn/quote58650_002936.html"
+    }
+  ],
+  "source_quality_note": "Financial and capital facts are anchored to formal disclosures. Scenario P/B, probabilities and research reopen level are analytical assumptions and do not authorize a trade.",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
