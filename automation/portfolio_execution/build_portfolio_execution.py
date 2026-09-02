@@ -227,8 +227,83 @@ def build_account_target_plan(
             "confidence": rec.get("confidence"),
         })
 
+    held_ids = {str(row.get("security_id") or "") for row in rows}
+    new_buy_rows: list[dict[str, Any]] = []
+    for sid, rec in sorted(recs.items()):
+        if sid in held_ids or str(rec.get("action") or "") != "BUY":
+            continue
+        score = research_score(rec)
+        if score <= 0:
+            continue
+        target = min(
+            DEFAULT_SINGLE_NAME_CAP,
+            max(0.025, min(0.05, score * 0.25)),
+        )
+        candidate = {
+            "security_id": sid,
+            "security_name": rec.get("security_name"),
+            "asset_class": "A_SHARE_STOCK"
+            if sid.endswith((".SH", ".SZ", ".BJ"))
+            else "OTHER",
+            "current_weight": 0.0,
+            "target_weight": target,
+            "research_score": score,
+            "risk_group": risk_group(None, rec),
+            "target_weight_reasons": ["CURRENT_DECISION_BUY_NEW_CAPITAL"],
+            "action": "BUY",
+            "current_quantity": 0.0,
+            "available_quantity": 0.0,
+            "current_price": num(rec.get("current_price"), 0.0),
+            "expected_return": num(rec.get("expected_return"), 0.0),
+            "bear_downside": num(rec.get("bear_downside"), None),
+            "confidence": rec.get("confidence"),
+        }
+        rows.append(candidate)
+        new_buy_rows.append(candidate)
+
     enforce_group_caps(rows)
     target_total = sum(float(x["target_weight"]) for x in rows)
+
+    # New decision-grade BUY ideas compete for capital. Use existing cash first;
+    # if target weights exceed 100%, fund only the excess by reducing the
+    # weakest held HOLD exposures. This is bounded opportunity-cost
+    # reallocation, not an implicit EXIT and never mutates an account.
+    if target_total > 1.0 and new_buy_rows:
+        excess = target_total - 1.0
+        funders = sorted(
+            [
+                row
+                for row in rows
+                if float(row.get("current_weight") or 0.0) > 0
+                and str(row.get("action") or "") == "HOLD"
+                and float(row.get("target_weight") or 0.0) > 0
+            ],
+            key=lambda row: (
+                float(row.get("research_score") or 0.0),
+                str(row.get("security_id") or ""),
+            ),
+        )
+        strongest_new_score = max(
+            float(row.get("research_score") or 0.0) for row in new_buy_rows
+        )
+        for row in funders:
+            if excess <= 1e-12:
+                break
+            held_score = float(row.get("research_score") or 0.0)
+            # Require a material edge before displacing a current HOLD.
+            if strongest_new_score < max(0.01, held_score * 1.50):
+                continue
+            reducible = float(row["target_weight"]) * 0.50
+            cut = min(excess, reducible)
+            if cut <= 0:
+                continue
+            row["target_weight"] -= cut
+            row["target_weight_reasons"].append(
+                "OPPORTUNITY_COST_REALLOCATION_TO_SUPERIOR_BUY"
+            )
+            excess -= cut
+        target_total = sum(float(x["target_weight"]) for x in rows)
+
     if target_total > 1.0:
         scale = 1.0 / target_total
         for row in rows:

@@ -366,3 +366,58 @@ def test_ai_cash_floor_and_risk_group_cap_hold() -> None:
         "positions": state["positions"],
         "current_nav": state["current_nav"],
     }
+
+
+def test_real_target_plan_includes_nonheld_decision_grade_buy() -> None:
+    acc = account(
+        "REAL",
+        1_000_000,
+        200_000,
+        [holding("600900.SH", 20_000, 40.0, name="Held")],
+    )
+    recs = recommendation(
+        rec("600900.SH", "HOLD", price=40.0, expected=0.05, name="Held"),
+        rec("600428.SH", "BUY", price=10.0, expected=0.30, name="NewBuy"),
+    )
+    life = lifecycle(
+        life_row("600900.SH", 40.0, "HELD_HOLD"),
+        life_row("600428.SH", 10.0, "FLAT_BUY_REVIEW"),
+    )
+    plan = build_account_target_plan(acc, recs, life)
+    rows = {row["security_id"]: row for row in plan["rows"]}
+    assert "600428.SH" in rows
+    assert rows["600428.SH"]["current_weight"] == 0.0
+    assert rows["600428.SH"]["target_weight"] > 0.0
+    execution = build_execution_plan(plan)
+    buy = next(row for row in execution["rows"] if row["security_id"] == "600428.SH")
+    assert buy["side"] == "BUY"
+    assert buy["validated_quantity"] % 100 == 0
+    assert buy["validated_quantity"] > 0
+
+
+def test_superior_new_buy_displaces_weak_hold_when_cash_is_insufficient() -> None:
+    acc = account(
+        "SIMULATION",
+        1_000_000,
+        0,
+        [
+            holding("600900.SH", 12_500, 40.0, name="WeakHold"),
+            holding("600938.SH", 14_500, 34.4827586207, name="StrongHold"),
+        ],
+    )
+    recs = recommendation(
+        rec("600900.SH", "HOLD", price=40.0, expected=0.02, confidence="MEDIUM", name="WeakHold"),
+        rec("600938.SH", "HOLD", price=34.4827586207, expected=0.15, confidence="HIGH", name="StrongHold"),
+        rec("600428.SH", "BUY", price=10.0, expected=0.40, confidence="HIGH", name="SuperiorBuy"),
+    )
+    life = lifecycle(
+        life_row("600900.SH", 40.0, "HELD_HOLD"),
+        life_row("600938.SH", 34.4827586207, "HELD_HOLD"),
+        life_row("600428.SH", 10.0, "FLAT_BUY_REVIEW"),
+    )
+    plan = build_account_target_plan(acc, recs, life)
+    rows = {row["security_id"]: row for row in plan["rows"]}
+    assert rows["600428.SH"]["target_weight"] > 0
+    assert rows["600900.SH"]["target_weight"] < rows["600900.SH"]["current_weight"]
+    assert "OPPORTUNITY_COST_REALLOCATION_TO_SUPERIOR_BUY" in rows["600900.SH"]["target_weight_reasons"]
+    assert rows["600938.SH"]["target_weight"] == rows["600938.SH"]["current_weight"]
