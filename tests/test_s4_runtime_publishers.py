@@ -67,8 +67,10 @@ def test_runtime_hygiene_retires_legacy_wp5_schedules() -> None:
         ".github/workflows/wp5_f_position_continuity_interface.yml",
     ):
         workflow = (ROOT / rel).read_text(encoding="utf-8")
-        assert "\n  schedule:\n" not in workflow
         assert "workflow_dispatch:" in workflow
+        assert "\n  schedule:\n" not in workflow
+        assert "\n  push:\n" not in workflow
+        assert "\n  pull_request:\n" not in workflow
 
 
 def test_failure_receipt_maps_current_cross_market_run_name() -> None:
