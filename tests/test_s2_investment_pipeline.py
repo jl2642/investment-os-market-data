@@ -10,6 +10,9 @@ from automation.investment_pipeline.build_pipeline import (
     build_opportunity_queue,
     build_recommendations,
 )
+from automation.investment_pipeline.publish_pipeline import (
+    should_preserve_existing_decision,
+)
 
 NOW = datetime(2026, 9, 1, 4, 0, tzinfo=timezone.utc)
 
@@ -429,3 +432,49 @@ def test_d2_callback_exact_source_survives_rolling_d1_advance() -> None:
     assert "d2_source_commit:" in s2_text
     assert 'coherent=callback or current_d1_match' in s2_text
     assert 'D2_COMMIT="$REQUESTED_D2_COMMIT"' in s2_text
+
+
+def test_empty_or_non_decision_grade_cycle_preserves_existing_decision_current() -> None:
+    existing = {
+        "coverage": {
+            "d2_subject_count": 3,
+            "decision_grade_underwriting_count": 3,
+        },
+        "rows": [
+            {"security_id": "600428.SH", "comparison_status": "PRICE_BLOCKED"},
+            {"security_id": "002936.SZ", "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN"},
+            {"security_id": "603268.SH", "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN"},
+        ],
+    }
+    empty = {
+        "coverage": {
+            "d2_subject_count": 0,
+            "decision_grade_underwriting_count": 0,
+        },
+        "rows": [],
+    }
+    pending = {
+        "coverage": {
+            "d2_subject_count": 3,
+            "decision_grade_underwriting_count": 0,
+        },
+        "rows": [
+            {"security_id": "A", "comparison_status": "UNDERWRITING_PENDING"},
+            {"security_id": "B", "comparison_status": "UNDERWRITING_PENDING"},
+            {"security_id": "C", "comparison_status": "UNDERWRITING_PENDING"},
+        ],
+    }
+    new_valid = {
+        "coverage": {
+            "d2_subject_count": 1,
+            "decision_grade_underwriting_count": 1,
+        },
+        "rows": [
+            {"security_id": "NEW", "comparison_status": "PRICE_BLOCKED"},
+        ],
+    }
+
+    assert should_preserve_existing_decision(empty, existing) is True
+    assert should_preserve_existing_decision(pending, existing) is True
+    assert should_preserve_existing_decision(new_valid, existing) is False
+    assert should_preserve_existing_decision(empty, None) is False
