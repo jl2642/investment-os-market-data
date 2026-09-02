@@ -9,6 +9,8 @@ from automation.investment_pipeline.build_pipeline import (
     build_d1,
     build_opportunity_queue,
     build_recommendations,
+    load_latest_holding_d2,
+    merge_d2_with_holding_research,
 )
 from automation.investment_pipeline.publish_pipeline import (
     should_preserve_existing_decision,
@@ -505,3 +507,96 @@ def test_decision_publish_buffers_generated_comparison_before_git_clean() -> Non
     assert clean_token in source
     assert source.index(buffer_token) < source.index(clean_token)
     assert "incoming_comparison = incoming_decision_comparison or {}" in source
+
+
+def test_phase1_existing_holding_d2_enters_current_recommendation(tmp_path: Path) -> None:
+    holding_dir = tmp_path / "holding_d2"
+    holding_dir.mkdir()
+    row = {
+        "artifact_id": "D2_HOLDING_TEST_000777",
+        "security_id": "000777.SZ",
+        "security_name": "HoldingTest",
+        "account_context": "SIMULATION_EXISTING_HOLDING",
+        "research_update_type": "USER_MANUAL_EXISTING_SIMULATION_HOLDING_UNDERWRITING",
+        "status": "D2_RESEARCH_COMPLETE",
+        "research_disposition": "HOLD",
+        "evidence_gap": {
+            "material": False,
+            "missing": "non-material refresh note",
+        },
+        "underwriting": {
+            **uw(10.0, 12.0, 8.0, 14.0, 20.0),
+            "action": "HOLD",
+        },
+    }
+    (holding_dir / "D2_RESEARCH_000777_20260902_SIM_HOLDING_R1.json").write_text(
+        json.dumps(row), encoding="utf-8"
+    )
+    real = {"holdings": []}
+    simulation = {
+        "holdings": [
+            {
+                "security_id": "000777.SZ",
+                "security_name": "HoldingTest",
+            }
+        ]
+    }
+    supplemental = load_latest_holding_d2(
+        holding_dir,
+        real_positions=real,
+        simulation_positions=simulation,
+    )
+    merged = merge_d2_with_holding_research(
+        {"state_id": "D2_PRIMARY", "queue": []},
+        supplemental,
+    )
+    comparison = build_capital_comparison(
+        merged,
+        real_positions=real,
+        simulation_positions=simulation,
+        now=NOW,
+    )
+    recommendation = build_recommendations(merged, comparison, now=NOW)
+
+    assert merged["supplemental_holding_d2_count"] == 1
+    assert comparison["rows"][0]["comparison_status"] == "PASS_NEW_CAPITAL"
+    assert recommendation["records"][0]["portfolio_implication"] == "EXISTING_POSITION"
+    assert recommendation["records"][0]["action"] == "HOLD"
+    assert recommendation["records"][0]["top_reasons"][1] == "D2_EXPLICIT_POSITION_ACTION_HOLD"
+
+
+def test_phase1_current_d1_d2_wins_over_supplemental_holding_copy() -> None:
+    primary = {
+        "state_id": "D2_PRIMARY",
+        "queue": [
+            {
+                "security_id": "000888.SZ",
+                "status": "D2_RESEARCH_COMPLETE",
+                "underwriting": uw(10.0, 11.0, 8.0, 12.0, 16.0),
+            }
+        ],
+    }
+    supplemental = [
+        {
+            "security_id": "000888.SZ",
+            "status": "D2_RESEARCH_COMPLETE",
+            "source_holding_d2_artifact": "older.json",
+            "underwriting": {
+                **uw(10.0, 12.0, 8.0, 14.0, 20.0),
+                "action": "HOLD",
+            },
+        }
+    ]
+    merged = merge_d2_with_holding_research(primary, supplemental)
+    assert len(merged["queue"]) == 1
+    assert merged["queue"][0]["underwriting"]["entry_price"] == 11.0
+    assert merged["supplemental_holding_d2_count"] == 0
+
+
+def test_phase1_workflow_binds_holding_d2_evidence_to_s2_decision() -> None:
+    text = (
+        ROOT / ".github/workflows/s2-investment-pipeline.yml"
+    ).read_text(encoding="utf-8")
+    assert "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/**" in text
+    assert "--holding-d2-dir" in text
+    assert "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2" in text
