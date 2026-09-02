@@ -2,25 +2,6 @@ name: WP5-F Position Continuity Interface
 run-name: "WP5-F canonical closure and user position continuity request"
 
 on:
-  push:
-    branches:
-      - agent/wp5-f-continuity-interface
-      - main
-    paths:
-      - ".wp5_f_materialize_trigger"
-      - "automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py"
-      - ".github/workflows/wp5_f_position_continuity_interface.yml"
-      - "investment_os_runtime/00_CONTROL/WP5_POSITION_CONTINUITY_CONTRACT.json"
-  pull_request:
-    branches: [main]
-    paths:
-      - "automation/wp5_portfolio_decision/build_wp5_position_continuity_interface.py"
-      - ".github/workflows/wp5_f_position_continuity_interface.yml"
-      - "investment_os_runtime/00_CONTROL/WP5_POSITION_CONTINUITY_CONTRACT.json"
-      - "investment_os_runtime/00_CONTROL/WP5_F_POSITION_CONTINUITY_INTERFACE_ACCEPTANCE_RECORD.json"
-      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/WP5_POSITION_CONTINUITY_REQUEST_CURRENT.json"
-      - "investment_os_runtime/00_CONTROL/EXECUTION_REGISTER_CURRENT.json"
-      - "investment_os_runtime/00_CONTROL/AUTHORITATIVE_ASSET_REGISTRY.json"
   workflow_dispatch:
 
 permissions:
