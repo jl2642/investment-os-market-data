@@ -350,5 +350,19 @@ def test_ai_cash_floor_and_risk_group_cap_hold() -> None:
     by_group = {}
     for row in report["attribution"]:
         by_group[row["risk_group"]] = by_group.get(row["risk_group"], 0.0) + row["weight"]
-    assert all(weight <= 0.30 + 1e-9 for weight in by_group.values())
-    assert all(pos["market_value"] / state["current_nav"] <= 0.10 + 1e-9 for pos in state["positions"])
+    assert all(
+        weight <= 0.30 + 1e-9 for weight in by_group.values()
+    ), {
+        "by_group": by_group,
+        "current_nav": state["current_nav"],
+        "cash_weight": report["cash_weight"],
+        "attribution": report["attribution"],
+        "diagnostics": report["diagnostics"],
+    }
+    assert all(
+        pos["market_value"] / state["current_nav"] <= 0.10 + 1e-9
+        for pos in state["positions"]
+    ), {
+        "positions": state["positions"],
+        "current_nav": state["current_nav"],
+    }
