@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0.0",
+  "lineage_id": "D2_SEMANTIC_LINEAGE_20260902_D1_READY_R1",
+  "trigger": "USER_EXPLICIT_START_AFTER_D2_READINESS_MONITOR surfaced 600428.SH, 002936.SZ, 603268.SH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_a96dd85c08be4403",
+  "source_primary_discovery_state_id": "RESEARCH_QUEUE_D2_CURRENT_6b455ad6a81c6413",
+  "scope_note": "Decision-grade semantic D2 underwriting only. Candidate membership, real/simulation positions, Decision, Policy and order state are outside scope and unchanged.",
+  "outputs": [
+    {
+      "security_id": "600428.SH",
+      "artifact": "D2_RESEARCH_600428_20260902_R1.json",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD_RESEARCH_COMPLETE_VALUATION_FULL",
+      "next_gate": "PRICE_OR_EARNINGS_REOPEN"
+    },
+    {
+      "security_id": "002936.SZ",
+      "artifact": "D2_RESEARCH_002936_20260902_R1.json",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD_RESEARCH_COMPLETE_DEFENSIVE_LABEL_NOT_CLEARED",
+      "next_gate": "CAPITAL_NIM_PAYOUT_OR_PRICE_REOPEN"
+    },
+    {
+      "security_id": "603268.SH",
+      "artifact": "D2_RESEARCH_603268_20260902_R1.json",
+      "status": "D2_RESEARCH_COMPLETE",
+      "research_disposition": "HOLD_RESEARCH_COMPLETE_VALUATION_AND_FINANCING_GATE",
+      "next_gate": "EARNINGS_ROIC_OR_PRICE_REOPEN"
+    }
+  ],
+  "capital_comparison": {
+    "ranking": [
+      {
+        "rank": 1,
+        "security_id": "600428.SH",
+        "security_name": "中远海特",
+        "probability_weighted_value": 12,
+        "current_price": 11.67,
+        "expected_return": 0.0282,
+        "action": "HOLD"
+      },
+      {
+        "rank": 2,
+        "security_id": "002936.SZ",
+        "security_name": "郑州银行",
+        "probability_weighted_value": 1.75,
+        "current_price": 1.81,
+        "expected_return": -0.0307,
+        "action": "HOLD"
+      },
+      {
+        "rank": 3,
+        "security_id": "603268.SH",
+        "security_name": "松发股份",
+        "probability_weighted_value": 129.42,
+        "current_price": 183.48,
+        "expected_return": -0.2947,
+        "action": "HOLD"
+      }
+    ],
+    "interpretation": "All three complete semantic D2, but none clears the required expected-return/risk gate at the latest complete close. 中远海特 has the strongest fundamentals-to-valuation balance but insufficient margin of safety; 郑州银行 fails the defensive capital/payout gate; 松发股份 has the strongest earnings inflection but the weakest valuation margin and an active financed-growth gate."
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
