@@ -285,3 +285,50 @@ def test_ai_performance_tracks_drawdown_and_turnover() -> None:
     assert report1["performance"]["turnover_since_inception"] > 0
     assert state2["current_nav"] < state1["current_nav"]
     assert state2["max_drawdown"] < 0
+
+
+def test_ai_add_increases_existing_position_with_legal_lot() -> None:
+    first_state, _ = apply_ai_virtual_rebalance(
+        recommendation=recommendation(rec("000001.SZ", "BUY", price=10.0, expected=0.20)),
+        lifecycle=lifecycle(life_row("000001.SZ", 10.0, "FLAT_BUY_REVIEW")),
+        prior_state=None,
+        as_of_date="2026-09-01",
+    )
+    first_qty = first_state["positions"][0]["quantity"]
+    second_state, report = apply_ai_virtual_rebalance(
+        recommendation=recommendation(rec("000001.SZ", "ADD", price=10.0, expected=0.50)),
+        lifecycle=lifecycle(life_row("000001.SZ", 10.0, "HELD_ADD_REVIEW")),
+        prior_state=first_state,
+        as_of_date="2026-09-02",
+    )
+    second_qty = second_state["positions"][0]["quantity"]
+    assert second_qty > first_qty
+    assert second_qty % 100 == 0
+    assert any(x["side"] == "BUY" for x in report["new_transactions"])
+
+
+def test_ai_cash_floor_and_risk_group_cap_hold() -> None:
+    recs = recommendation(
+        rec("000001.SZ", "BUY", price=10.0, expected=0.50, name="A"),
+        rec("000002.SZ", "BUY", price=10.0, expected=0.45, name="B"),
+        rec("000003.SZ", "BUY", price=10.0, expected=0.40, name="C"),
+        rec("000004.SZ", "BUY", price=10.0, expected=0.35, name="D"),
+    )
+    life = lifecycle(
+        life_row("000001.SZ", 10.0, "FLAT_BUY_REVIEW"),
+        life_row("000002.SZ", 10.0, "FLAT_BUY_REVIEW"),
+        life_row("000003.SZ", 10.0, "FLAT_BUY_REVIEW"),
+        life_row("000004.SZ", 10.0, "FLAT_BUY_REVIEW"),
+    )
+    state, report = apply_ai_virtual_rebalance(
+        recommendation=recs,
+        lifecycle=life,
+        prior_state=None,
+        as_of_date="2026-09-01",
+    )
+    assert report["cash_weight"] >= 0.20 - 1e-9
+    by_group = {}
+    for row in report["attribution"]:
+        by_group[row["risk_group"]] = by_group.get(row["risk_group"], 0.0) + row["weight"]
+    assert all(weight <= 0.30 + 1e-9 for weight in by_group.values())
+    assert all(pos["market_value"] / state["current_nav"] <= 0.10 + 1e-9 for pos in state["positions"])
