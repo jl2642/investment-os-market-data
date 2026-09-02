@@ -156,3 +156,117 @@ def test_prior_state_marks_only_new_transition_as_new_trigger() -> None:
     by_key = {x["trigger_key"]: x for x in queue["records"]}
     assert by_key["POSITION_ACTION_TRIM"]["transition"] == "NEW_TRIGGER"
     assert by_key["PORTFOLIO_CONCENTRATION_ACTIVE"]["transition"] == "PERSISTING"
+
+
+def test_valuation_exhaustion_reopens_holding_d2() -> None:
+    r = rec("600001.SH", "HOLD", price=100.0, entry=80.0, blocker=None)
+    r["base_value"] = 110.0
+    r["probability_weighted_value"] = 108.0
+    lifecycle, queue = build(
+        recommendation=recommendation(r),
+        surface=surface(holding("600001.SH", 112.0)),
+        market_rows={"600001.SH": {"price": 112.0, "as_of_date": "2026-09-02"}},
+        market_date="2026-09-02",
+        now=NOW,
+    )
+    row = lifecycle["subjects"][0]
+    assert row["mark_expected_return"] < 0
+    assert "VALUATION_EXHAUSTION_REUNDERWRITE" in row["mechanical_trigger_keys"]
+    q = [x for x in queue["records"] if x["trigger_key"] == "VALUATION_EXHAUSTION_REUNDERWRITE"]
+    assert len(q) == 1
+    assert q[0]["review_type"] == "REUNDERWRITE_REQUIRED"
+    assert q[0]["next_step"] == "FRESH_D2_FOR_HOLD_TRIM_OR_EXIT"
+
+
+def test_new_drawdown_cross_reunderwrites_once_then_persists_as_monitor() -> None:
+    prior = {
+        "lifecycle_id": "OLD",
+        "input_identity": {},
+        "subjects": [{
+            "security_id": "300124.SZ",
+            "mechanical_trigger_keys": [],
+        }],
+    }
+    current, queue = build(
+        recommendation=recommendation(rec("300124.SZ", "HOLD", price=60.0, entry=59.0)),
+        surface=surface(holding("300124.SZ", 60.0, flags=["DRAWDOWN_GE_15PCT"])),
+        prior=prior,
+        now=NOW,
+    )
+    assert "DRAWDOWN_MONITOR_ACTIVE" in current["subjects"][0]["new_trigger_keys"]
+    q = [x for x in queue["records"] if x["trigger_key"] == "DRAWDOWN_MONITOR_ACTIVE"]
+    assert len(q) == 1
+    assert q[0]["review_type"] == "REUNDERWRITE_REQUIRED"
+
+    prior2 = current
+    again, queue2 = build(
+        recommendation=recommendation(rec("300124.SZ", "HOLD", price=60.0, entry=59.0)),
+        surface=surface(holding("300124.SZ", 60.0, flags=["DRAWDOWN_GE_15PCT"])),
+        prior=prior2,
+        now=NOW,
+    )
+    assert again["subjects"][0]["new_trigger_keys"] == []
+    assert not [
+        x for x in queue2["records"]
+        if x["trigger_key"] == "DRAWDOWN_MONITOR_ACTIVE"
+        and x["review_type"] == "REUNDERWRITE_REQUIRED"
+    ]
+
+
+def test_financial_context_advance_creates_equity_triage_not_etf_noise() -> None:
+    prior = {
+        "lifecycle_id": "OLD",
+        "input_identity": {"financial_statement_watermark": "2026-08-28"},
+        "subjects": [],
+    }
+    eq = rec("600036.SH", "HOLD", price=40.0, entry=38.0)
+    etf = rec("159352.SZ", "HOLD", price=1.2, entry=1.1)
+    etf["security_name"] = "A500ETF南方"
+    lifecycle_payload, queue = build(
+        recommendation=recommendation(eq, etf),
+        surface=surface(
+            holding("600036.SH", 40.0),
+            holding("159352.SZ", 1.2),
+        ),
+        prior=prior,
+        financial_context={
+            "domain_id": "FINANCIAL_STATEMENT_CONTEXT",
+            "data_watermark": "2026-09-30",
+            "watermark_sort_key": "2026-09-30",
+        },
+        now=NOW,
+    )
+    q = [x for x in queue["records"] if x["trigger_key"] == "FINANCIAL_CONTEXT_ADVANCED_TRIAGE"]
+    assert [x["security_id"] for x in q] == ["600036.SH"]
+    assert lifecycle_payload["summary"]["financial_context_triage_count"] == 1
+
+
+def test_material_event_evidence_forces_fresh_d2_without_auto_action() -> None:
+    prior = {
+        "lifecycle_id": "OLD",
+        "input_identity": {"financial_statement_watermark": "2026-08-28"},
+        "subjects": [],
+    }
+    lifecycle_payload, queue = build(
+        recommendation=recommendation(rec("600309.SH", "HOLD", price=77.0, entry=72.0)),
+        surface=surface(holding("600309.SH", 77.0)),
+        prior=prior,
+        financial_context={"data_watermark": "2026-08-28"},
+        event_evidence={
+            "event_evidence_id": "EVENTS_1",
+            "records": [{
+                "security_id": "600309.SH",
+                "material": True,
+                "event_type": "EARNINGS_GUIDANCE",
+                "summary": "Management materially cut guidance.",
+                "thesis_break_risk": True,
+            }],
+        },
+        now=NOW,
+    )
+    q = [x for x in queue["records"] if x["trigger_key"] == "MATERIAL_FUNDAMENTAL_EVENT_REUNDERWRITE"]
+    assert len(q) == 1
+    assert q[0]["priority"] == "CRITICAL"
+    assert q[0]["review_type"] == "REUNDERWRITE_REQUIRED"
+    assert lifecycle_payload["controls"]["automatic_buy_sell"] is False
+    assert lifecycle_payload["summary"]["material_event_trigger_count"] == 1
