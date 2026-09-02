@@ -415,6 +415,8 @@ def test_d2_semantic_completion_pushes_to_s2_via_operating_current_authority() -
     assert 'ARGS=(-f mode=d2_callback)' in d2_text
     assert "d2_source_commit" in d2_text
     assert "d2_source_branch" in d2_text
+    assert "RESEARCH_D2_POINTER_PRESERVED_NEWER_WATERMARK" in d2_text
+    assert "SHOULD_ADVANCE" in d2_text
     assert "operating_current/domains/RESEARCH_D2.json" in s2_text
     assert "source_commit_sha" in s2_text
     assert "REQUESTED_D2_COMMIT" in s2_text
@@ -478,3 +480,16 @@ def test_empty_or_non_decision_grade_cycle_preserves_existing_decision_current()
     assert should_preserve_existing_decision(pending, existing) is True
     assert should_preserve_existing_decision(new_valid, existing) is False
     assert should_preserve_existing_decision(empty, None) is False
+
+
+def test_semantic_d2_callback_is_not_blocked_by_newer_mechanical_watermark() -> None:
+    d2_text = (
+        ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml"
+    ).read_text(encoding="utf-8")
+    assert 'PRIOR_WATERMARK=""' in d2_text
+    assert 'incoming >= prior' in d2_text
+    assert "RESEARCH_D2_POINTER_PRESERVED_NEWER_WATERMARK" in d2_text
+    assert 'echo "d2_source_commit=$MAIN_HEAD"' in d2_text
+    dispatch_index = d2_text.index("Dispatch S2 decision callback after D2 publication")
+    preserve_index = d2_text.index("RESEARCH_D2_POINTER_PRESERVED_NEWER_WATERMARK")
+    assert preserve_index < dispatch_index
