@@ -9,8 +9,8 @@
   "canonical_runtime_branch": "operating-current",
   "runtime_index_path": "operating_current/OPERATING_CURRENT_INDEX.json",
   "sole_system_current_authority": true,
-  "program_state": "FINAL_PRODUCT_CLOSURE_PHASE_2_TRIGGER_AND_POSITION_LIFECYCLE_IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
-  "product_maturity": "OPERATIONAL_RESEARCH_AND_DECISION_LIFECYCLE_PORTFOLIO_EXECUTION_INCOMPLETE",
+  "program_state": "FINAL_PRODUCT_CLOSURE_PHASE_3_PORTFOLIO_EXECUTION_AI_IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
+  "product_maturity": "OPERATIONAL_RESEARCH_DECISION_LIFECYCLE_WITH_PORTFOLIO_EXECUTION_PENDING_ACCEPTANCE",
   "target_investment_chain": [
     "MARKET_AND_FUNDAMENTALS",
     "OPPORTUNITY_DISCOVERY",
@@ -365,32 +365,72 @@
       "completion_claim_allowed": true
     },
     "phases_remaining": [
-      "PHASE_2_TRIGGER_AND_POSITION_LIFECYCLE",
       "PHASE_3_PORTFOLIO_EXECUTION_AND_AI_SIMULATION",
       "PHASE_4_END_TO_END_PRODUCT_ACCEPTANCE_AND_FREEZE"
     ],
     "completion_claim_allowed": false,
     "phase_2": {
-      "status": "IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
+      "status": "COMPLETE",
       "objective": "TRIGGER_AND_POSITION_LIFECYCLE",
-      "primary_workflow": ".github/workflows/final-closure-phase2-decision-lifecycle.yml",
-      "canonical_surface": "operating_current/decision_lifecycle/DECISION_LIFECYCLE_CURRENT.json",
-      "canonical_review_queue": "operating_current/decision_lifecycle/TRIGGER_REVIEW_QUEUE_CURRENT.json",
-      "mechanical_triggers": [
-        "BUY_BELOW_OR_HOLD_ENTRY_PRICE_REOPEN",
-        "CURRENT_ADD_TRIM_EXIT_ACTION",
-        "PORTFOLIO_CONCENTRATION",
-        "DRAWDOWN_MONITOR"
+      "accepted_at_utc": "2026-09-02T11:31:06+00:00",
+      "source_prs": [
+        436,
+        437
       ],
-      "semantic_trigger_policy": "REGISTER_CATALYST_AND_KILL_THESIS_NO_KEYWORD_AUTO_FIRE_FRESH_D2_REQUIRED",
-      "sell_mechanism": "CURRENT_DECISION_GRADE_TRIM_EXIT_OR_REUNDERWRITTEN_TRIM_EXIT_ONLY",
+      "source_main_shas": [
+        "c284b90c0edcd541896fdea9943afc6a66cc220e",
+        "c10939d15de2233f77f2266bb583d6dffb511876"
+      ],
+      "acceptance_evidence": {
+        "lifecycle_status": "PASS_DECISION_LIFECYCLE",
+        "thesis_subject_count": 28,
+        "held_subject_count": 22,
+        "flat_subject_count": 6,
+        "review_queue_count": 2,
+        "user_action_review_count": 1,
+        "portfolio_review_required_count": 1,
+        "reunderwrite_required_count": 0,
+        "semantic_watch_clause_count": 495,
+        "automatic_semantic_trigger_count": 0,
+        "observed_states": [
+          "600428.SH:FLAT_WAIT_BUY_BELOW",
+          "159612.SZ:HELD_TRIM_REVIEW",
+          "605090.SH:HELD_CONCENTRATION_REVIEW",
+          "300124.SZ:HELD_HOLD_DRAWDOWN_MONITOR",
+          "300750.SZ:HELD_HOLD_DRAWDOWN_MONITOR",
+          "601138.SH:HELD_HOLD_DRAWDOWN_MONITOR"
+        ],
+        "automatic_buy_sell": false,
+        "orders": 0,
+        "trade_authority": "NONE"
+      },
+      "completion_claim_allowed": true
+    },
+    "phase_3": {
+      "status": "IMPLEMENTED_PENDING_RUNTIME_ACCEPTANCE",
+      "objective": "PORTFOLIO_EXECUTION_AND_AI_SIMULATION",
+      "primary_workflow": ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml",
+      "canonical_surface": "operating_current/portfolio_execution/PORTFOLIO_EXECUTION_CURRENT.json",
+      "ai_book": "operating_current/ai_autonomous/AI_AUTONOMOUS_1M_CURRENT.json",
+      "capabilities": [
+        "CURRENT_WEIGHT_TO_TARGET_WEIGHT",
+        "DETERMINISTIC_EXECUTION_VALIDATOR",
+        "A_SHARE_100_SHARE_BUY_LOT",
+        "CASH_AND_SINGLE_NAME_AND_RISK_GROUP_GATES",
+        "AI_AUTONOMOUS_1M_ISOLATED_VIRTUAL_LEDGER",
+        "AI_NAV_RETURN_DRAWDOWN_TURNOVER_ATTRIBUTION"
+      ],
       "acceptance_requirements": [
-        "BUY_BELOW_PRICE_CROSS_ROUTES_TO_REUNDERWRITE_NOT_BUY",
-        "EXISTING_TRIM_EXIT_ROUTES_TO_USER_ACTION_REVIEW",
-        "DRAWDOWN_ALONE_DOES_NOT_AUTO_EXIT",
-        "CONCENTRATION_ROUTES_TO_PHASE3_PORTFOLIO_REVIEW",
-        "SEMANTIC_KEYWORD_AUTO_FIRE_ZERO",
-        "DECISION_LIFECYCLE_PUBLISHED_TO_OPERATING_CURRENT",
+        "REAL_AND_SIMULATION_TARGET_WEIGHT_PLAN_PUBLISHED",
+        "CATL_SUB_LOT_BUY_BLOCKED",
+        "CURRENT_TRIM_OR_EXIT_CONVERTS_TO_LEGAL_QUANTITY",
+        "AI_BOOK_INITIAL_CAPITAL_1000000_AND_ISOLATED",
+        "AI_NO_BUY_SCENARIO_MAY_HOLD_100PCT_CASH",
+        "AI_MULTINAME_CAPITAL_COMPETITION_TESTED",
+        "AI_ADD_TRIM_EXIT_TESTED",
+        "AI_CASH_LOT_SINGLE_NAME_GROUP_LIMITS_TESTED",
+        "AI_NAV_RETURN_DRAWDOWN_TURNOVER_ATTRIBUTION_PRESENT",
+        "REAL_AND_LEGACY_SIMULATION_MUTATIONS_ZERO",
         "ORDERS_ZERO_TRADE_AUTHORITY_NONE"
       ],
       "completion_claim_allowed": false
