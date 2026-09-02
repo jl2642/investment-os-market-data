@@ -88,9 +88,15 @@ def test_obsolete_p4_4_p4_5_schedules_are_retired() -> None:
         assert "workflow_run:" not in on_block
 
 
-def test_d2_automatic_runtime_has_no_redundant_main_push_trigger() -> None:
+def test_d2_runtime_has_only_bounded_semantic_main_push_trigger() -> None:
     workflow = text(".github/workflows/research-queue-d2-auto-consumer.yml")
     on_block = workflow.split("permissions:", 1)[0]
     assert "workflow_dispatch:" in on_block
     assert "schedule:" not in on_block
-    assert "push:" not in on_block
+    assert "push:" in on_block
+    push_block = on_block.split("  push:", 1)[1].split("  workflow_dispatch:", 1)[0]
+    assert "branches: [main]" in push_block
+    assert "RESEARCH_QUEUE_D2_CURRENT.json" in push_block
+    assert "RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json" in push_block
+    assert "40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/**" in push_block
+    assert "automation/research_queue_d2/**" not in push_block
