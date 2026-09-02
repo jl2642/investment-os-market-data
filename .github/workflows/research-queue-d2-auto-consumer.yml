@@ -132,6 +132,7 @@ jobs:
             exit 1
           fi
       - name: Publish governed D2 operating-state branch
+        id: mechanical_publish
         if: github.event_name == 'workflow_dispatch'
         env:
           WP3R_PUBLISH_BRANCH: automation/research-queue-d2-current
@@ -169,6 +170,8 @@ jobs:
               --watermark-sort-key "$WATERMARK" \
               --qc-status PASS_REVALIDATED \
               --note "No new D2 operating commit; Current preserved"
+            echo "d2_source_branch=" >> "$GITHUB_OUTPUT"
+            echo "d2_source_commit=" >> "$GITHUB_OUTPUT"
           else
             python automation/operating_current/publish_operating_current.py \
               --domain RESEARCH_D2 \
@@ -182,8 +185,11 @@ jobs:
               --watermark-sort-key "$WATERMARK" \
               --qc-status PASS \
               --advance-current
+            echo "d2_source_branch=$SOURCE_BRANCH" >> "$GITHUB_OUTPUT"
+            echo "d2_source_commit=$AFTER" >> "$GITHUB_OUTPUT"
           fi
       - name: Publish semantic D2 completion to Operating Current
+        id: semantic_publish
         if: github.event_name == 'push'
         shell: bash
         run: |
@@ -207,11 +213,27 @@ jobs:
             --watermark-sort-key "$WATERMARK" \
             --qc-status PASS_SEMANTIC_UNDERWRITING_COMPLETE \
             --advance-current
+          echo "d2_source_branch=main" >> "$GITHUB_OUTPUT"
+          echo "d2_source_commit=$MAIN_HEAD" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch S2 decision callback after D2 publication
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            D2_BRANCH="${{ steps.semantic_publish.outputs.d2_source_branch }}"
+            D2_COMMIT="${{ steps.semantic_publish.outputs.d2_source_commit }}"
+          else
+            D2_BRANCH="${{ steps.mechanical_publish.outputs.d2_source_branch }}"
+            D2_COMMIT="${{ steps.mechanical_publish.outputs.d2_source_commit }}"
+          fi
+          ARGS=(-f mode=d2_callback)
+          if [[ -n "$D2_COMMIT" ]]; then
+            ARGS+=(-f "d2_source_branch=$D2_BRANCH" -f "d2_source_commit=$D2_COMMIT")
+          fi
+          gh workflow run s2-investment-pipeline.yml --ref main "${ARGS[@]}"
 
       - name: Record operating summary
         if: always()
@@ -222,7 +244,7 @@ jobs:
           - Activation: S2 workflow_dispatch performs mechanical evidence discovery; semantic D2 completion on main automatically republishes RESEARCH_D2 authority and dispatches the S2 decision callback.
           - Primary disclosure discovery: CNINFO via AkShare.
           - Semantic deep research remains fail-closed and is owned by the ChatGPT-native D2 research consumer.
-          - Mechanical D2 publishes a governed automation branch; semantic completion on protected main becomes the authoritative RESEARCH_D2 source after QC.
+          - Mechanical and semantic D2 callbacks bind S2 to the exact source commit they just published, avoiding rolling-D1 / rolling-pointer races.
           - Formal Candidate / Decision / economic-state promotion remains protected-main governed.
           - Candidate / Real / Simulation / Decision economic mutations: 0.
           - Orders: 0.
