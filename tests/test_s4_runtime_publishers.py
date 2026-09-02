@@ -59,3 +59,23 @@ def test_s2_workflow_run_requires_main_source_branch() -> None:
     workflow = (ROOT / ".github/workflows/s2-investment-pipeline.yml").read_text(encoding="utf-8")
     assert "github.event.workflow_run.head_branch == 'main'" in workflow
     assert workflow.count("github.event.workflow_run.head_branch == 'main'") >= 2
+
+
+def test_runtime_hygiene_retires_legacy_wp5_schedules() -> None:
+    for rel in (
+        ".github/workflows/wp5_e_post_close_action_gate.yml",
+        ".github/workflows/wp5_f_position_continuity_interface.yml",
+    ):
+        workflow = (ROOT / rel).read_text(encoding="utf-8")
+        assert "\n  schedule:\n" not in workflow
+        assert "workflow_dispatch:" in workflow
+
+
+def test_failure_receipt_maps_current_cross_market_run_name() -> None:
+    receipt = (ROOT / ".github/workflows/operating-current-failure-receipts.yml").read_text(encoding="utf-8")
+    assert "Round 3 bounded cross-market batch and research proposal" in receipt
+
+
+def test_daily_runner_accepts_workflow_run_trigger() -> None:
+    daily = (ROOT / "pipeline/run_daily.py").read_text(encoding="utf-8")
+    assert '"workflow_run"' in daily

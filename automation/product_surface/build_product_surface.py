@@ -197,6 +197,8 @@ def build_portfolio_monitoring(
         )
     )
     rows.sort(key=lambda x: (x["account"], str(x["security_id"])))
+    high_priority = [row for row in queue if row["priority"] == "HIGH"]
+    visible_queue = high_priority if len(high_priority) >= 3 else queue[:3]
     return {
         "status": "PASS_PORTFOLIO_PERFORMANCE_MONITORING",
         "performance_monitoring_coverage_count": len(rows),
@@ -204,7 +206,7 @@ def build_portfolio_monitoring(
         "investment_recommendation_coverage_count": len(covered),
         "account_summaries": account_summaries,
         "rows": rows,
-        "reunderwriting_queue": queue[:3],
+        "reunderwriting_queue": visible_queue,
         "reunderwriting_backlog_count": len(queue),
         "automatic_trade_or_position_mutation": False,
         "orders": 0,

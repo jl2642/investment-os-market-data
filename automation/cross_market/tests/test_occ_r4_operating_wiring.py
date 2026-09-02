@@ -29,14 +29,13 @@ def test_occ_r4_cross_market_policy_is_fail_closed_and_sec_consumer_is_live_wire
 
 def test_occ_r4_portfolio_freshness_workflow_is_governed_and_non_mutating() -> None:
     workflow = (ROOT / ".github/workflows/occ-r4-portfolio-decision-freshness.yml").read_text(encoding="utf-8")
-    assert "--domain PORTFOLIO_DECISION_FRESHNESS" in workflow
-    assert "WP5_PORTFOLIO_DECISION_CURRENT.json" in workflow
-    assert "PORTFOLIO_MARKS.json" in workflow
-    assert "RECOMMENDATION.json" in workflow
-    assert "RECOMMENDATION_CURRENT.json" in workflow
-    assert "PASS_FRESH_INPUTS_BOUND_STALE_LEGACY_DECISION_BLOCKED" in workflow
+    assert "RETIRED — OCC-R4 Portfolio Decision Freshness" in workflow
+    assert "\n  schedule:" not in workflow
+    assert "\n  workflow_run:" not in workflow
+    assert "S3 Portfolio + Product Surface is the canonical portfolio/user product producer." in workflow
+    assert "Historical automation/portfolio_freshness code remains for audit only." in workflow
     assert "git push origin HEAD:main" not in workflow
-    assert "TRADE_AUTHORITY: NONE" in workflow
+    assert "trade_authority=NONE" in workflow
 
 
 def test_occ_r4_operating_current_health_registers_new_authorities() -> None:

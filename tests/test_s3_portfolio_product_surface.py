@@ -383,3 +383,49 @@ def test_surface_monitors_all_account_lines_and_prioritizes_reunderwriting():
     assert "持仓绩效监控：2 / 2" in brief
     assert "当前投资判断覆盖：0 / 2" in brief
     assert "优先持仓再承销" in brief
+
+
+def test_reunderwriting_surface_keeps_all_high_priority_rows_visible() -> None:
+    real = {
+        "holdings": [
+            {
+                "security_id": f"60000{i}.SH",
+                "security_name": f"High{i}",
+                "market_value": 160.0,
+                "cost_basis": 200.0,
+                "unrealized_pnl": -40.0,
+                "unrealized_pnl_pct": -0.20,
+            }
+            for i in range(1, 5)
+        ],
+        "summary": {
+            "account_total_assets": 1000.0,
+            "position_market_value": 640.0,
+            "execution_cash_balance": 360.0,
+        },
+        "trade_authority": "NONE",
+    }
+    simulation = {"holdings": [], "summary": {"account_total_assets": 1000.0}, "trade_authority": "NONE"}
+    canonical_marks = {
+        "status": "CURRENT_COMPLETE",
+        "data_watermark": {"latest_mark_date": "2026-08-31"},
+        "marks": [
+            {"security_id": f"60000{i}.SH", "mark": 10.0}
+            for i in range(1, 5)
+        ],
+        "trade_authority": "NONE",
+    }
+    rec = recommendation()
+    rec["records"] = []
+    surface = build_surface(
+        marks_domain=marks_domain(),
+        investment_domain=investment_domain(),
+        marks=canonical_marks,
+        real_positions=real,
+        simulation_positions=simulation,
+        recommendation=rec,
+        d1=d1(),
+    )
+    queue = surface["portfolio_monitoring"]["reunderwriting_queue"]
+    assert len(queue) == 4
+    assert all(row["priority"] == "HIGH" for row in queue)

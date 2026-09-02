@@ -17,6 +17,17 @@ OPERATING_BRANCH = "operating-current"
 ROOT_DIR = "operating_current"
 VALID_STATUS = {"PASS", "FAIL", "BLOCKED", "NO_OP"}
 DOMAIN_RE = re.compile(r"^[A-Z0-9_]+$")
+
+QC_QUALITY_RANK = {
+    "PASS_HISTORY_FACTOR_SCREENING_REFRESH_REQUIRED": 10,
+    "PASS_LATEST_COMPLETED_SESSION_MARKET_CURRENT": 20,
+    "PASS_REVALIDATED": 30,
+    "PASS": 40,
+    "PASS_CHAIN_COHERENT": 100,
+    "PASS_COMPLETE": 100,
+    "PASS_S2_SIMPLIFIED_PIPELINE": 100,
+    "PASS_S3_PORTFOLIO_PRODUCT_SURFACE": 100,
+}
 DOMAIN_STALE_DAYS = {
     "A_SHARE_FULL_MARKET": 5,
     "PORTFOLIO_MARKS": 5,
@@ -112,6 +123,13 @@ def can_advance(current: dict[str, Any] | None, new_receipt: dict[str, Any]) -> 
         return False, "MISSING_SORT_KEY"
     if old_key and new_key < old_key:
         return False, "WATERMARK_REGRESSION"
+    if old_key and new_key == old_key:
+        old_qc = str(current.get("qc_status") or "")
+        new_qc = str(new_receipt.get("qc_status") or "")
+        old_rank = QC_QUALITY_RANK.get(old_qc, 50 if old_qc.startswith("PASS") else 0)
+        new_rank = QC_QUALITY_RANK.get(new_qc, 50 if new_qc.startswith("PASS") else 0)
+        if new_rank < old_rank:
+            return False, "SAME_WATERMARK_QC_REGRESSION"
     return True, "PASS_NONREGRESSING"
 
 
