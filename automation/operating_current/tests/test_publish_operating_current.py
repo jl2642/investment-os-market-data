@@ -16,12 +16,12 @@ from automation.operating_current.publish_operating_current import (
 
 
 class OperatingCurrentTests(unittest.TestCase):
-    def make_receipt(self, status="PASS", key="2026-08-28", advance=True):
+    def make_receipt(self, status="PASS", key="2026-08-28", advance=True, qc_status="PASS"):
         args=Namespace(
             domain="A_SHARE_FULL_MARKET",status=status,
             source_workflow="wf",source_run_id="1",source_run_attempt=1,
             source_branch="automation/result",source_commit="a"*40,
-            watermark=key,watermark_sort_key=key,qc_status="PASS",
+            watermark=key,watermark_sort_key=key,qc_status=qc_status,
             advance_current=advance,real_account_mutations=0,
             simulation_mutations=0,candidate_membership_mutations=0,
             orders=0,trade_authority="NONE",note=""
@@ -43,6 +43,26 @@ class OperatingCurrentTests(unittest.TestCase):
     def test_equal_watermark_refresh_allowed(self):
         current=pointer_payload(self.make_receipt(key="2026-08-28"))
         ok,reason=can_advance(current,self.make_receipt(key="2026-08-28"))
+        self.assertTrue(ok)
+        self.assertEqual(reason,"PASS_NONREGRESSING")
+
+    def test_equal_watermark_qc_regression_rejected(self):
+        current=pointer_payload(self.make_receipt(
+            key="2026-08-28", qc_status="PASS_CHAIN_COHERENT"
+        ))
+        ok,reason=can_advance(current,self.make_receipt(
+            key="2026-08-28", qc_status="PASS_HISTORY_FACTOR_SCREENING_REFRESH_REQUIRED"
+        ))
+        self.assertFalse(ok)
+        self.assertEqual(reason,"SAME_WATERMARK_QC_REGRESSION")
+
+    def test_equal_watermark_qc_upgrade_allowed(self):
+        current=pointer_payload(self.make_receipt(
+            key="2026-08-28", qc_status="PASS_HISTORY_FACTOR_SCREENING_REFRESH_REQUIRED"
+        ))
+        ok,reason=can_advance(current,self.make_receipt(
+            key="2026-08-28", qc_status="PASS_CHAIN_COHERENT"
+        ))
         self.assertTrue(ok)
         self.assertEqual(reason,"PASS_NONREGRESSING")
 
