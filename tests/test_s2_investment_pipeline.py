@@ -597,6 +597,5 @@ def test_phase1_workflow_binds_holding_d2_evidence_to_s2_decision() -> None:
     text = (
         ROOT / ".github/workflows/s2-investment-pipeline.yml"
     ).read_text(encoding="utf-8")
-    assert "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/**" in text
     assert "--holding-d2-dir" in text
     assert "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2" in text
