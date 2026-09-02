@@ -10,7 +10,9 @@ from automation.investment_pipeline.build_pipeline import (
     build_opportunity_queue,
     build_recommendations,
     load_latest_holding_d2,
+    load_latest_semantic_d2,
     merge_d2_with_holding_research,
+    merge_d2_with_semantic_research,
 )
 from automation.investment_pipeline.publish_pipeline import (
     should_preserve_existing_decision,
@@ -597,5 +599,79 @@ def test_phase1_workflow_binds_holding_d2_evidence_to_s2_decision() -> None:
     text = (
         ROOT / ".github/workflows/s2-investment-pipeline.yml"
     ).read_text(encoding="utf-8")
-    assert "--holding-d2-dir" in text
+    assert "--semantic-d2-dir" in text
     assert "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2" in text
+
+
+def test_phase1_completed_semantic_d2_survives_repeated_mechanical_d1_cycle(tmp_path: Path) -> None:
+    semantic_dir = tmp_path / "semantic_d2"
+    semantic_dir.mkdir()
+    completed = {
+        "artifact_id": "D2_SEMANTIC_COMPLETE_600428",
+        "security_id": "600428.SH",
+        "security_name": "PersistentThesis",
+        "status": "D2_RESEARCH_COMPLETE",
+        "research_disposition": "HOLD_RESEARCH_COMPLETE_VALUATION_FULL",
+        "underwriting": uw(11.67, 10.43, 7.29, 11.99, 17.25, "MEDIUM_HIGH"),
+    }
+    (semantic_dir / "D2_RESEARCH_600428_20260902_R1.json").write_text(
+        json.dumps(completed), encoding="utf-8"
+    )
+    primary = {
+        "state_id": "D2_NEW_MECHANICAL",
+        "queue": [
+            {
+                "security_id": "600428.SH",
+                "security_name": "PersistentThesis",
+                "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+                "last_attempt_at": "2026-09-02T05:24:38+00:00",
+            }
+        ],
+    }
+    semantic_rows = load_latest_semantic_d2(semantic_dir)
+    merged = merge_d2_with_semantic_research(
+        primary,
+        semantic_rows,
+        holding_ids=set(),
+    )
+    comparison = build_capital_comparison(
+        merged,
+        real_positions={},
+        simulation_positions={},
+        now=NOW,
+    )
+    recommendation = build_recommendations(merged, comparison, now=NOW)
+
+    assert merged["carried_forward_semantic_d2_count"] == 1
+    assert merged["queue"][0]["status"] == "D2_RESEARCH_COMPLETE"
+    assert merged["queue"][0]["source_reuse_reason"].startswith(
+        "LATEST_DECISION_GRADE_D2_CARRY_FORWARD"
+    )
+    assert comparison["rows"][0]["comparison_status"] == "PRICE_BLOCKED"
+    assert recommendation["records"][0]["action"] == "BUY_BELOW"
+
+
+def test_phase1_new_decision_grade_primary_d2_overrides_older_semantic_copy() -> None:
+    old = {
+        "security_id": "000999.SZ",
+        "status": "D2_RESEARCH_COMPLETE",
+        "source_semantic_d2_artifact": "old.json",
+        "underwriting": uw(10.0, 12.0, 8.0, 14.0, 20.0),
+    }
+    current = {
+        "state_id": "D2_PRIMARY_CURRENT",
+        "queue": [
+            {
+                "security_id": "000999.SZ",
+                "status": "D2_RESEARCH_COMPLETE",
+                "underwriting": uw(10.0, 9.0, 7.0, 11.0, 14.0),
+            }
+        ],
+    }
+    merged = merge_d2_with_semantic_research(
+        current,
+        [old],
+        holding_ids=set(),
+    )
+    assert merged["carried_forward_semantic_d2_count"] == 0
+    assert merged["queue"][0]["underwriting"]["entry_price"] == 9.0
