@@ -762,3 +762,23 @@ def test_phase1_all_current_holdings_have_current_recommendation() -> None:
     assert len(covered) == 22
     assert recommendation["controls"]["orders"] == 0
     assert recommendation["controls"]["trade_authority"] == "NONE"
+
+
+def test_phase1_completed_nonholding_semantic_d2_remains_in_thesis_register() -> None:
+    primary = {"state_id": "D2_PRIMARY_NEW_BATCH", "queue": []}
+    completed_nonholding = {
+        "security_id": "600428.SH",
+        "security_name": "PriorOpportunity",
+        "status": "D2_RESEARCH_COMPLETE",
+        "source_semantic_d2_artifact": "D2_RESEARCH_600428_COMPLETE.json",
+        "underwriting": uw(11.0, 10.0, 8.0, 13.0, 18.0),
+    }
+    merged = merge_d2_with_semantic_research(
+        primary,
+        [completed_nonholding],
+        holding_ids=set(),
+    )
+    assert [row["security_id"] for row in merged["queue"]] == ["600428.SH"]
+    assert merged["supplemental_semantic_d2_count"] == 1
+    assert merged["supplemental_nonholding_d2_count"] == 1
+    assert merged["supplemental_holding_d2_count"] == 0
