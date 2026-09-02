@@ -549,14 +549,25 @@ def merge_d2_with_semantic_research(
     supplemental = [
         row
         for row in semantic_rows
+        if str(row.get("security_id") or "") not in seen
+    ]
+    supplemental_holding = [
+        row
+        for row in supplemental
         if str(row.get("security_id") or "") in holding_ids
-        and str(row.get("security_id") or "") not in seen
+    ]
+    supplemental_nonholding = [
+        row
+        for row in supplemental
+        if str(row.get("security_id") or "") not in holding_ids
     ]
     merged = dict(primary_d2)
     merged["queue"] = merged_primary + supplemental
     merged["source_primary_d2_state_id"] = primary_d2.get("state_id")
     merged["carried_forward_semantic_d2_count"] = len(carried_forward)
-    merged["supplemental_holding_d2_count"] = len(supplemental)
+    merged["supplemental_semantic_d2_count"] = len(supplemental)
+    merged["supplemental_holding_d2_count"] = len(supplemental_holding)
+    merged["supplemental_nonholding_d2_count"] = len(supplemental_nonholding)
     if carried_forward or supplemental:
         identity = canonical_hash(
             {
@@ -565,7 +576,7 @@ def merge_d2_with_semantic_research(
                     row.get("source_semantic_d2_artifact")
                     for row in carried_forward
                 ],
-                "holding_artifacts": [
+                "supplemental_artifacts": [
                     row.get("source_semantic_d2_artifact")
                     for row in supplemental
                 ],
@@ -1012,7 +1023,9 @@ def main() -> int:
                 "status": "PASS_DECISION",
                 "subjects": recommendation["summary"]["subject_count"],
                 "carried_forward_semantic_d2": d2.get("carried_forward_semantic_d2_count", 0),
+                "supplemental_semantic_d2": d2.get("supplemental_semantic_d2_count", 0),
                 "supplemental_holding_d2": d2.get("supplemental_holding_d2_count", 0),
+                "supplemental_nonholding_d2": d2.get("supplemental_nonholding_d2_count", 0),
                 "actions": recommendation["summary"]["action_counts"],
                 "orders": 0,
                 "trade_authority": "NONE",
