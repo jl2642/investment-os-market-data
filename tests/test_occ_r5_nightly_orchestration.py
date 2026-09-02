@@ -33,13 +33,17 @@ def test_cross_market_uses_previous_shanghai_date_before_controller() -> None:
     assert "Restore accepted Cross-Market state from Operating Current" in workflow
 
 
-def test_s2_decision_callback_uses_d2_success_without_rotating_d1() -> None:
+def test_s2_decision_callback_uses_exact_d2_source_without_rotating_d1() -> None:
     workflow = text(".github/workflows/s2-investment-pipeline.yml")
-    assert '"Research Queue D2 Auto Consumer"' in workflow
+    trigger_block = workflow.split("  workflow_dispatch:", 1)[0]
+    assert '"Research Queue D2 Auto Consumer"' not in trigger_block
     assert "workflow_dispatch:" in workflow
     assert "d2_callback" in workflow
+    assert "d2_source_branch" in workflow
+    assert "d2_source_commit" in workflow
     assert "Bind current S2 D1 transaction" in workflow
     assert "source_d1_state_id" in workflow
+    assert "coherent=callback or current_d1_match" in workflow
     assert "Trigger S3 product surface after coherent decision publication" in workflow
 
 
