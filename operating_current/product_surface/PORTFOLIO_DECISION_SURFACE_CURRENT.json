@@ -10,14 +10,17 @@
     "user_decisions_generated": 0
   },
   "executive": {
-    "action_counts": {},
+    "action_counts": {
+      "AVOID": 2,
+      "BUY_BELOW": 1
+    },
     "automatic_position_change_allowed": false,
     "automatic_rebalance_allowed": false,
     "decision_review_required_count": 0,
     "holding_reunderwriting_backlog_count": 22,
     "holding_reunderwriting_queue_count": 4,
     "implementation_ready": false,
-    "new_opportunity_count": 0,
+    "new_opportunity_count": 3,
     "portfolio_holding_count": 22,
     "portfolio_performance_monitoring_line_count": 23,
     "portfolio_performance_monitoring_unique_count": 22,
@@ -25,7 +28,87 @@
     "portfolio_uncovered_count": 22,
     "position_identity_mismatch_count": 0
   },
-  "new_opportunities": [],
+  "new_opportunities": [
+    {
+      "accounts": [],
+      "action": "BUY_BELOW",
+      "bear_downside": -0.3753213367609255,
+      "catalysts": [
+        "New multipurpose/pulp and auto-carrier capacity continues converting into revenue without margin dilution.",
+        "Special-shipping TCE stays above the 2025 run-rate and high-value equipment/auto exports remain resilient.",
+        "Semi-submersible/offshore-wind project pipeline exits the current project-window softness.",
+        "Fleet expansion is funded without material deterioration in balance-sheet quality or cash conversion."
+      ],
+      "confidence": "MEDIUM_HIGH",
+      "current_price": 11.67,
+      "entry_price": 10.43,
+      "expected_return": 0.028277634961439535,
+      "kill_thesis": [
+        "Normalized attributable earnings fall below roughly RMB2.0bn without a temporary explanation.",
+        "Fleet TCE and gross margin decline together while leased-capacity costs remain elevated.",
+        "Auto-export or high-value equipment demand normalizes faster than new fleet capacity can be absorbed.",
+        "Operating cash flow materially decouples from reported profit for a sustained period.",
+        "At prices materially above base value without commensurate earnings upgrades, valuation itself remains a rejection gate."
+      ],
+      "orders": 0,
+      "original_recommendation_action": "BUY_BELOW",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "600428.SH",
+      "security_name": "中远海特",
+      "top_blocker": "PRICE_BLOCKED",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "AVOID",
+      "bear_downside": -0.28729281767955805,
+      "catalysts": [],
+      "confidence": "MEDIUM_HIGH",
+      "current_price": 1.81,
+      "entry_price": 1.53,
+      "expected_return": -0.029834254143646488,
+      "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+      "orders": 0,
+      "original_recommendation_action": "AVOID",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "002936.SZ",
+      "security_name": "郑州银行",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "AVOID",
+      "bear_downside": -0.6389797253106606,
+      "catalysts": [
+        "207 H1 new ship orders and subsequent orders convert into high-margin deliveries without execution slippage.",
+        "High-value tanker/container/VLAC mix sustains H1 margin improvement.",
+        "New yard/engine capacity reaches high utilization without cost overruns.",
+        "Contract liabilities continue converting into revenue while debt growth moderates."
+      ],
+      "confidence": "MEDIUM",
+      "current_price": 183.48,
+      "entry_price": 112.54,
+      "expected_return": -0.2946506431218662,
+      "kill_thesis": [
+        "New-build price/margin cycle rolls over before the expanded capacity reaches mature utilization.",
+        "Order cancellations, delivery delays or raw-material/FX cost pressure reduce normalized margins materially.",
+        "Debt and finance expense grow faster than project earnings and customer advances.",
+        "Capex remains structurally above operating cash generation after the current expansion phase.",
+        "At prices requiring the bull case to justify value, valuation remains a standing rejection gate."
+      ],
+      "orders": 0,
+      "original_recommendation_action": "AVOID",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "603268.SH",
+      "security_name": "松发股份",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "trade_authority": "NONE"
+    }
+  ],
   "orders": 0,
   "portfolio_decisions": [],
   "portfolio_monitoring": {
@@ -977,9 +1060,9 @@
     "investment_pipeline": {
       "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_273ede321ef22162",
       "domain": "INVESTMENT_PIPELINE",
-      "recommendation_state_id": "RECOMMENDATION_CURRENT_17e4aaf002ec04ed",
-      "source_commit": "c9e2c3604f9f09f475feb338539cb5efda729233",
-      "watermark": "2026-09-02T03:04:11+00:00"
+      "recommendation_state_id": "RECOMMENDATION_CURRENT_8fa5f0da0fe607c6",
+      "source_commit": "a04f1cdefe4a786564d273e1663e5a1d2d13a2b1",
+      "watermark": "2026-09-02T03:54:56+00:00"
     },
     "portfolio_marks": {
       "domain": "PORTFOLIO_MARKS",
@@ -988,6 +1071,6 @@
     }
   },
   "status": "PASS_S3_PORTFOLIO_PRODUCT_SURFACE",
-  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_f754953561b3520b",
+  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_6e319eb5ef167373",
   "trade_authority": "NONE"
 }
