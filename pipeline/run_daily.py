@@ -72,7 +72,7 @@ def _write_noop(root: Path, *, generated_at: str, as_of_date: str, reason: str) 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--trigger", choices=["schedule", "workflow_dispatch", "push", "pull_request", "manual"], default="manual")
+    parser.add_argument("--trigger", choices=["schedule", "workflow_dispatch", "workflow_run", "push", "pull_request", "manual"], default="manual")
     parser.add_argument("--force-run", action="store_true")
     parser.add_argument("--allow-same-date-refresh", action="store_true")
     args = parser.parse_args()
