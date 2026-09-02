@@ -285,6 +285,7 @@ def test_s2_workflow_uses_one_transactional_callback_not_duplicate_dispatch() ->
         "gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback"
     )
     assert d2_text.count(explicit_callback) == 1
+    assert "PASS_SEMANTIC_UNDERWRITING_COMPLETE" in d2_text
     assert (
         "gh workflow run s2-investment-pipeline.yml --ref main\n"
         not in d2_text
@@ -332,3 +333,86 @@ def test_s4_explicit_transaction_callbacks_avoid_github_token_workflow_run_gap()
     combined = s2 + d2 + s3
     assert "secrets.PAT" not in combined
     assert "personal_access_token" not in combined.lower()
+
+
+def test_promotion_gate_does_not_equal_thesis_invalidation() -> None:
+    d2 = {
+        "state_id": "D2_PROMOTION_GATE",
+        "queue": [
+            {
+                "security_id": "600428.SH",
+                "security_name": "PromotionGate",
+                "status": "D2_RESEARCH_COMPLETE",
+                "research_disposition": "HOLD_RESEARCH_COMPLETE_VALUATION_FULL",
+                "first_rejection_test": "VALUATION_LEG_TRIGGERED_FOR_PROMOTION",
+                "underwriting": uw(15, 12, 10, 18, 24),
+            }
+        ],
+    }
+    comparison = build_capital_comparison(
+        d2,
+        real_positions={},
+        simulation_positions={},
+        now=NOW,
+    )
+    recommendation = build_recommendations(d2, comparison, now=NOW)
+    assert comparison["rows"][0]["comparison_status"] == "PRICE_BLOCKED"
+    assert recommendation["records"][0]["action"] == "BUY_BELOW"
+
+
+def test_semantic_underwriting_aliases_are_machine_consumable() -> None:
+    d2 = {
+        "state_id": "D2_ALIAS",
+        "queue": [
+            {
+                "security_id": "002936.SZ",
+                "security_name": "Alias",
+                "status": "D2_RESEARCH_COMPLETE",
+                "research_disposition": "HOLD",
+                "first_rejection_test": "TRIGGERED_FOR_PROMOTION_BY_CAPITAL_AND_SHAREHOLDER_RETURN_GATE",
+                "underwriting": {
+                    "current_price": 1.81,
+                    "research_reopen_price": 1.53,
+                    "confidence": "MEDIUM_HIGH",
+                    "scenarios": [
+                        {"name": "BEAR", "value_per_share": 1.29, "probability": 0.30},
+                        {"name": "BASE", "value_per_share": 1.81, "probability": 0.50},
+                        {"name": "BULL", "value_per_share": 2.32, "probability": 0.20},
+                    ],
+                },
+            }
+        ],
+    }
+    comparison = build_capital_comparison(
+        d2,
+        real_positions={},
+        simulation_positions={},
+        now=NOW,
+    )
+    recommendation = build_recommendations(d2, comparison, now=NOW)
+    row = comparison["rows"][0]
+    assert row["metrics"]["entry_price"] == 1.53
+    assert row["metrics"]["base_value"] == 1.81
+    assert row["comparison_status"] == "AVOID_NEGATIVE_EXPECTED_RETURN"
+    assert recommendation["records"][0]["action"] == "AVOID"
+
+
+def test_d2_semantic_completion_pushes_to_s2_via_operating_current_authority() -> None:
+    d2_text = (
+        ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml"
+    ).read_text(encoding="utf-8")
+    s2_text = (
+        ROOT / ".github/workflows/s2-investment-pipeline.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "\n  push:\n" in d2_text
+    assert "RESEARCH_QUEUE_D2_CURRENT.json" in d2_text
+    assert "PASS_SEMANTIC_UNDERWRITING_COMPLETE" in d2_text
+    assert "Research Queue D2 Semantic Completion" in d2_text
+    assert (
+        "gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback"
+        in d2_text
+    )
+    assert "operating_current/domains/RESEARCH_D2.json" in s2_text
+    assert "source_commit_sha" in s2_text
+    assert "refs/heads/automation/research-queue-d2-current:refs/remotes/origin/s2-d2" not in s2_text

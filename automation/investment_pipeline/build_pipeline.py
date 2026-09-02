@@ -382,13 +382,31 @@ def build_d1(
 
 
 def rejection_triggered(value: Any) -> bool:
+    """Return True only for thesis invalidation, not promotion/price gates."""
     text = str(value or "").upper()
     if not text:
         return False
-    return (
-        "TRIGGERED" in text
-        and "NOT_TRIGGERED" not in text
-        and "NOT_FORMALLY_TRIGGERED" not in text
+    if any(
+        token in text
+        for token in (
+            "NOT_TRIGGERED",
+            "NOT_FORMALLY_TRIGGERED",
+            "FOR_PROMOTION",
+            "VALUATION_LEG_TRIGGERED",
+            "PRICE_GATE_TRIGGERED",
+            "CAPITAL_GATE_TRIGGERED",
+        )
+    ):
+        return False
+    return any(
+        token in text
+        for token in (
+            "TRIGGERED_BY_KILL_THESIS",
+            "KILL_THESIS_TRIGGERED",
+            "THESIS_INVALIDATED",
+            "INVALIDATION_TRIGGERED",
+            "FUNDAMENTAL_REJECTION_TRIGGERED",
+        )
     )
 
 
@@ -408,14 +426,26 @@ def _underwriting_metrics(
     if not isinstance(u, dict):
         return None, ["UNDERWRITING_OBJECT_ABSENT"]
     current = _num(u.get("current_price"))
-    entry = _num(u.get("entry_price"))
+    entry = _num(
+        u.get("entry_price")
+        if u.get("entry_price") not in (None, "")
+        else (
+            u.get("research_reopen_price")
+            if u.get("research_reopen_price") not in (None, "")
+            else u.get("hurdle_entry_price_15pct")
+        )
+    )
     confidence = str(u.get("confidence") or "").upper()
     scenarios = u.get("scenarios") if isinstance(u.get("scenarios"), list) else []
     values: dict[str, float] = {}
     probs: dict[str, float] = {}
     for s in scenarios:
         name = str(s.get("name") or "").upper()
-        value = _num(s.get("value"))
+        value = _num(
+            s.get("value")
+            if s.get("value") not in (None, "")
+            else s.get("value_per_share")
+        )
         prob = _num(s.get("probability"))
         if name and value is not None and prob is not None:
             values[name] = value

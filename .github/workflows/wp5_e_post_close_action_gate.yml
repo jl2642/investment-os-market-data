@@ -2,23 +2,6 @@ name: WP5-E Post-Close Action Gate
 run-name: "WP5-E completed-close, continuity and conditional proposal gate"
 
 on:
-  push:
-    branches:
-      - agent/wp5-e-post-close-action-gate
-      - main
-    paths:
-      - ".wp5_e_materialize_trigger"
-      - "automation/wp5_portfolio_decision/build_wp5_post_close_action_gate.py"
-      - ".github/workflows/wp5_e_post_close_action_gate.yml"
-      - "investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_CONTRACT.json"
-  pull_request:
-    branches: [main]
-    paths:
-      - "automation/wp5_portfolio_decision/build_wp5_post_close_action_gate.py"
-      - ".github/workflows/wp5_e_post_close_action_gate.yml"
-      - "investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_CONTRACT.json"
-      - "investment_os_runtime/00_CONTROL/WP5_E_POST_CLOSE_ACTION_GATE_ACCEPTANCE_RECORD.json"
-      - "investment_os_runtime/30_STATE_CURRENT/60_DECISIONS/WP5_POST_CLOSE_ACTION_GATE_CURRENT.json"
   workflow_dispatch:
 
 permissions:
