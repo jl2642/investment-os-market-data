@@ -26,7 +26,6 @@ on:
   workflow_run:
     workflows:
       - "FMDL Daily A-share Governed Production"
-      - "Research Queue D2 Auto Consumer"
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -38,6 +37,14 @@ on:
         options:
           - "full"
           - "d2_callback"
+      d2_source_branch:
+        description: "Exact D2 source branch for callback"
+        required: false
+        type: string
+      d2_source_commit:
+        description: "Exact D2 source commit for callback"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -144,10 +151,8 @@ jobs:
       - name: Resolve latest coherent A-share Screening source
         if: >-
           !(
-            (github.event_name == 'workflow_run' &&
-             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
-            (github.event_name == 'workflow_dispatch' &&
-             inputs.mode == 'd2_callback')
+            github.event_name == 'workflow_dispatch' &&
+            inputs.mode == 'd2_callback'
           )
         shell: bash
         run: |
@@ -234,10 +239,8 @@ jobs:
       - name: Build Opportunity Queue and D1 fast triage
         if: >-
           !(
-            (github.event_name == 'workflow_run' &&
-             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
-            (github.event_name == 'workflow_dispatch' &&
-             inputs.mode == 'd2_callback')
+            github.event_name == 'workflow_dispatch' &&
+            inputs.mode == 'd2_callback'
           )
         shell: bash
         run: |
@@ -278,10 +281,8 @@ jobs:
       - name: Publish Opportunity and D1 Current
         if: >-
           !(
-            (github.event_name == 'workflow_run' &&
-             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
-            (github.event_name == 'workflow_dispatch' &&
-             inputs.mode == 'd2_callback')
+            github.event_name == 'workflow_dispatch' &&
+            inputs.mode == 'd2_callback'
           )
         shell: bash
         run: |
@@ -319,30 +320,37 @@ jobs:
       - name: Trigger D2 consumer for new D1 unless this run came from D2
         if: >-
           !(
-            (github.event_name == 'workflow_run' &&
-             github.event.workflow_run.name == 'Research Queue D2 Auto Consumer') ||
-            (github.event_name == 'workflow_dispatch' &&
-             inputs.mode == 'd2_callback')
+            github.event_name == 'workflow_dispatch' &&
+            inputs.mode == 'd2_callback'
           )
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run research-queue-d2-auto-consumer.yml --ref main
 
-      - name: Bind latest D2 and build live capital comparison
+      - name: Bind exact D2 authority and build live capital comparison
         id: decision
         shell: bash
+        env:
+          D2_CALLBACK_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'd2_callback' }}
+          REQUESTED_D2_BRANCH: ${{ inputs.d2_source_branch }}
+          REQUESTED_D2_COMMIT: ${{ inputs.d2_source_commit }}
         run: |
           set -Eeuo pipefail
-          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
-          git show origin/operating-current:operating_current/domains/RESEARCH_D2.json > "$S2_RUNTIME/RESEARCH_D2_DOMAIN.json"
-          D2_BRANCH="$(python -c 'import json; print(json.load(open(".s2_runtime/RESEARCH_D2_DOMAIN.json",encoding="utf-8"))["source_branch"])')"
-          D2_COMMIT="$(python -c 'import json; print(json.load(open(".s2_runtime/RESEARCH_D2_DOMAIN.json",encoding="utf-8"))["source_commit_sha"])')"
+          if [[ -n "$REQUESTED_D2_COMMIT" ]]; then
+            D2_BRANCH="${REQUESTED_D2_BRANCH:-main}"
+            D2_COMMIT="$REQUESTED_D2_COMMIT"
+          else
+            git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+            git show origin/operating-current:operating_current/domains/RESEARCH_D2.json > "$S2_RUNTIME/RESEARCH_D2_DOMAIN.json"
+            D2_BRANCH="$(python -c 'import json; print(json.load(open(".s2_runtime/RESEARCH_D2_DOMAIN.json",encoding="utf-8"))["source_branch"])')"
+            D2_COMMIT="$(python -c 'import json; print(json.load(open(".s2_runtime/RESEARCH_D2_DOMAIN.json",encoding="utf-8"))["source_commit_sha"])')"
+          fi
           test -n "$D2_BRANCH"
           test -n "$D2_COMMIT"
           git fetch origin "$D2_COMMIT" --force --no-tags
           git cat-file -e "$D2_COMMIT^{commit}"
           git show "$D2_COMMIT":investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > "$S2_RUNTIME/D2_CURRENT.json"
-          echo "Bound D2 authority from $D2_BRANCH@$D2_COMMIT"
+          echo "Bound exact D2 authority from $D2_BRANCH@$D2_COMMIT"
 
           python - <<'PY'
           import json, os
@@ -350,7 +358,9 @@ jobs:
           root=Path(os.environ["S2_RUNTIME"])
           d1=json.loads((root/"D1_CURRENT.json").read_text(encoding="utf-8"))
           d2=json.loads((root/"D2_CURRENT.json").read_text(encoding="utf-8"))
-          coherent=d2.get("source_d1_state_id")==d1.get("state_id")
+          callback=os.environ.get("D2_CALLBACK_MODE","").lower()=="true"
+          current_d1_match=d2.get("source_d1_state_id")==d1.get("state_id")
+          coherent=callback or current_d1_match
           with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as h:
               h.write(f"coherent={'true' if coherent else 'false'}\n")
           if coherent:
@@ -358,6 +368,8 @@ jobs:
           print({
               "d1_state_id":d1.get("state_id"),
               "d2_source_d1_state_id":d2.get("source_d1_state_id"),
+              "current_d1_match":current_d1_match,
+              "d2_callback_mode":callback,
               "decision_lineage_coherent":coherent,
           })
           PY
