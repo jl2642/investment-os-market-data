@@ -279,17 +279,16 @@ def test_s2_workflow_uses_one_transactional_callback_not_duplicate_dispatch() ->
     assert 'workflows:' in text
     assert '"FMDL Daily A-share Governed Production"' in text
     assert '"FMDL daily market, factor and screening transaction"' not in text
-    assert '"Research Queue D2 Auto Consumer"' in text
+    trigger_block = text.split("  workflow_dispatch:", 1)[0]
+    assert '"Research Queue D2 Auto Consumer"' not in trigger_block
     assert "Candidate membership is not a research gate." in text
-    explicit_callback = (
-        "gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback"
-    )
-    assert d2_text.count(explicit_callback) == 1
+    assert d2_text.count(
+        "gh workflow run s2-investment-pipeline.yml --ref main"
+    ) == 1
     assert "PASS_SEMANTIC_UNDERWRITING_COMPLETE" in d2_text
-    assert (
-        "gh workflow run s2-investment-pipeline.yml --ref main\n"
-        not in d2_text
-    )
+    assert 'ARGS=(-f mode=d2_callback)' in d2_text
+    assert 'd2_source_branch=$D2_BRANCH' in d2_text
+    assert 'd2_source_commit=$D2_COMMIT' in d2_text
     assert "operating_current/investment_pipeline/D1_CURRENT.json" in d2_text
 
 
@@ -318,10 +317,10 @@ def test_s4_explicit_transaction_callbacks_avoid_github_token_workflow_run_gap()
     assert 'mode:' in s2
     assert '"d2_callback"' in s2
     assert s2.count("inputs.mode == 'd2_callback'") >= 4
-    assert (
-        "gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback"
-        in d2
-    )
+    assert "gh workflow run s2-investment-pipeline.yml --ref main" in d2
+    assert 'ARGS=(-f mode=d2_callback)' in d2
+    assert "d2_source_commit" in d2
+    assert "d2_source_branch" in d2
     assert "actions: write" in d2
     assert "GH_TOKEN: ${{ github.token }}" in d2
     assert "gh workflow run s3-portfolio-product-surface.yml --ref main" in s2
@@ -409,10 +408,24 @@ def test_d2_semantic_completion_pushes_to_s2_via_operating_current_authority() -
     assert "RESEARCH_QUEUE_D2_CURRENT.json" in d2_text
     assert "PASS_SEMANTIC_UNDERWRITING_COMPLETE" in d2_text
     assert "Research Queue D2 Semantic Completion" in d2_text
-    assert (
-        "gh workflow run s2-investment-pipeline.yml --ref main -f mode=d2_callback"
-        in d2_text
-    )
+    assert "gh workflow run s2-investment-pipeline.yml --ref main" in d2_text
+    assert 'ARGS=(-f mode=d2_callback)' in d2_text
+    assert "d2_source_commit" in d2_text
+    assert "d2_source_branch" in d2_text
     assert "operating_current/domains/RESEARCH_D2.json" in s2_text
     assert "source_commit_sha" in s2_text
+    assert "REQUESTED_D2_COMMIT" in s2_text
+    assert "D2_CALLBACK_MODE" in s2_text
     assert "refs/heads/automation/research-queue-d2-current:refs/remotes/origin/s2-d2" not in s2_text
+
+
+def test_d2_callback_exact_source_survives_rolling_d1_advance() -> None:
+    s2_text = (
+        ROOT / ".github/workflows/s2-investment-pipeline.yml"
+    ).read_text(encoding="utf-8")
+    trigger_block = s2_text.split("  workflow_dispatch:", 1)[0]
+    assert '"Research Queue D2 Auto Consumer"' not in trigger_block
+    assert "d2_source_branch:" in s2_text
+    assert "d2_source_commit:" in s2_text
+    assert 'coherent=callback or current_d1_match' in s2_text
+    assert 'D2_COMMIT="$REQUESTED_D2_COMMIT"' in s2_text
