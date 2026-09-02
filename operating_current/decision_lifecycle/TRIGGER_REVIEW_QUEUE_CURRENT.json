@@ -1,0 +1,52 @@
+{
+  "as_of_date": "2026-09-01",
+  "generated_at_utc": "2026-09-02T11:31:06+00:00",
+  "orders": 0,
+  "queue_id": "TRIGGER_REVIEW_QUEUE_7cf3876acc0969a3",
+  "records": [
+    {
+      "accounts": [
+        "REAL"
+      ],
+      "current_action": "TRIM",
+      "entry_price": 2.0,
+      "latest_price": 2.079,
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
+      "orders": 0,
+      "price_as_of": null,
+      "price_source": "S3_PORTFOLIO_MARK",
+      "priority": "HIGH",
+      "reason": "Current decision-grade holding action is TRIM.",
+      "review_type": "USER_ACTION_REVIEW",
+      "security_id": "159612.SZ",
+      "security_name": "标普500ETF国泰",
+      "trade_authority": "NONE",
+      "transition": "BASELINE_ACTIVE",
+      "trigger_key": "POSITION_ACTION_TRIM"
+    },
+    {
+      "accounts": [
+        "REAL"
+      ],
+      "current_action": "HOLD",
+      "entry_price": 31.0,
+      "latest_price": 33.89,
+      "next_step": "PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW",
+      "orders": 0,
+      "price_as_of": "2026-09-01",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "HIGH",
+      "reason": "Current account weight is at/above the governed 15% concentration flag.",
+      "review_type": "PORTFOLIO_REVIEW_REQUIRED",
+      "security_id": "605090.SH",
+      "security_name": "九丰能源",
+      "trade_authority": "NONE",
+      "transition": "BASELINE_ACTIVE",
+      "trigger_key": "PORTFOLIO_CONCENTRATION_ACTIVE"
+    }
+  ],
+  "review_count": 2,
+  "schema_version": "1.0.0",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_4fbb4381a0eea7cf",
+  "trade_authority": "NONE"
+}
