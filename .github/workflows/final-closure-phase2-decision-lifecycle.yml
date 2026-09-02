@@ -28,6 +28,7 @@ on:
     workflows:
       - "S3 Portfolio + Product Surface"
       - "FMDL daily market, factor and screening transaction"
+      - "OCC-R2B1 full financial baseline recovery"
     types: [completed]
   workflow_dispatch:
 
@@ -132,12 +133,14 @@ jobs:
           git show origin/operating-current:operating_current/domains/INVESTMENT_PIPELINE.json > /tmp/investment-domain.json
           git show origin/operating-current:operating_current/domains/PORTFOLIO_PRODUCT_SURFACE.json > /tmp/surface-domain.json
           git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json > /tmp/market-domain.json
+          git show origin/operating-current:operating_current/domains/FINANCIAL_STATEMENT_CONTEXT.json > /tmp/financial-domain.json
           git show origin/operating-current:operating_current/investment_pipeline/RECOMMENDATION_CURRENT.json > /tmp/recommendation.json
           git show origin/operating-current:operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json > /tmp/surface.json
           git show origin/operating-current:operating_current/decision_lifecycle/DECISION_LIFECYCLE_CURRENT.json > /tmp/prior-lifecycle.json 2>/dev/null || echo '{}' > /tmp/prior-lifecycle.json
+          git show origin/operating-current:operating_current/decision_lifecycle/EVENT_EVIDENCE_CURRENT.json > /tmp/event-evidence.json 2>/dev/null || echo '{"event_evidence_id":null,"records":[]}' > /tmp/event-evidence.json
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json
-          for path in ["/tmp/investment-domain.json","/tmp/surface-domain.json","/tmp/market-domain.json"]:
+          for path in ["/tmp/investment-domain.json","/tmp/surface-domain.json","/tmp/market-domain.json","/tmp/financial-domain.json"]:
               payload=json.load(open(path,encoding="utf-8"))
               if payload.get("status") != "PASS":
                   raise SystemExit("PHASE2_INPUT_NOT_PASS:" + path)
@@ -168,6 +171,8 @@ jobs:
             --market-snapshot /tmp/market-snapshot.csv \
             --market-date "${{ steps.authority.outputs.market_date }}" \
             --prior /tmp/prior-lifecycle.json \
+            --financial-context-domain /tmp/financial-domain.json \
+            --event-evidence /tmp/event-evidence.json \
             --output-json /tmp/DECISION_LIFECYCLE_CURRENT.json \
             --output-queue /tmp/TRIGGER_REVIEW_QUEUE_CURRENT.json \
             --output-md /tmp/DECISION_LIFECYCLE_BRIEF_CURRENT.md
@@ -182,6 +187,9 @@ jobs:
           assert p["summary"]["subject_count"] >= 22
           assert p["summary"]["automatic_semantic_trigger_count"] == 0
           assert p["controls"]["automatic_buy_sell"] is False
+          assert p["controls"]["fresh_d2_required_after_valuation_trigger"] is True
+          assert p["controls"]["fresh_d2_required_after_material_fundamental_event"] is True
+          assert p["controls"]["first_cross_drawdown_requires_one_reunderwrite"] is True
           assert p["controls"]["automatic_position_mutation"] is False
           assert p["orders"] == 0
           assert p["trade_authority"] == "NONE"
@@ -207,7 +215,8 @@ jobs:
         run: |
           {
             echo "## Final Closure Phase 2 Decision Lifecycle"
-            echo "- mechanical trigger types: price / current action / portfolio risk"
+            echo "- mechanical trigger types: entry price / valuation exhaustion / current action / portfolio risk"
+            echo "- fundamental trigger: financial-context advance triage plus optional material event evidence"
             echo "- semantic catalysts and kill thesis: registered, never keyword-fired"
             echo "- price crossing: re-underwrite, never auto-buy"
             echo "- drawdown alone: monitor, never auto-exit"
