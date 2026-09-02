@@ -288,23 +288,43 @@ def test_ai_performance_tracks_drawdown_and_turnover() -> None:
 
 
 def test_ai_add_increases_existing_position_with_legal_lot() -> None:
+    first_recs = []
+    first_life = []
+    for i in range(10):
+        sid = f"{i+1:06d}.SZ"
+        first_recs.append(rec(sid, "BUY", price=10.0, expected=0.20))
+        first_life.append(life_row(sid, 10.0, "FLAT_BUY_REVIEW"))
     first_state, _ = apply_ai_virtual_rebalance(
-        recommendation=recommendation(rec("000001.SZ", "BUY", price=10.0, expected=0.20)),
-        lifecycle=lifecycle(life_row("000001.SZ", 10.0, "FLAT_BUY_REVIEW")),
+        recommendation=recommendation(*first_recs),
+        lifecycle=lifecycle(*first_life),
         prior_state=None,
         as_of_date="2026-09-01",
     )
-    first_qty = first_state["positions"][0]["quantity"]
+    first_qty = next(
+        x["quantity"] for x in first_state["positions"] if x["security_id"] == "000001.SZ"
+    )
+
+    second_recs = [rec("000001.SZ", "ADD", price=10.0, expected=0.50)]
+    second_life = [life_row("000001.SZ", 10.0, "HELD_ADD_REVIEW")]
+    for i in range(1, 10):
+        sid = f"{i+1:06d}.SZ"
+        second_recs.append(rec(sid, "HOLD", price=10.0, expected=0.20))
+        second_life.append(life_row(sid, 10.0, "HELD_HOLD"))
     second_state, report = apply_ai_virtual_rebalance(
-        recommendation=recommendation(rec("000001.SZ", "ADD", price=10.0, expected=0.50)),
-        lifecycle=lifecycle(life_row("000001.SZ", 10.0, "HELD_ADD_REVIEW")),
+        recommendation=recommendation(*second_recs),
+        lifecycle=lifecycle(*second_life),
         prior_state=first_state,
         as_of_date="2026-09-02",
     )
-    second_qty = second_state["positions"][0]["quantity"]
+    second_qty = next(
+        x["quantity"] for x in second_state["positions"] if x["security_id"] == "000001.SZ"
+    )
     assert second_qty > first_qty
     assert second_qty % 100 == 0
-    assert any(x["side"] == "BUY" for x in report["new_transactions"])
+    assert any(
+        x["security_id"] == "000001.SZ" and x["side"] == "BUY"
+        for x in report["new_transactions"]
+    )
 
 
 def test_ai_cash_floor_and_risk_group_cap_hold() -> None:
