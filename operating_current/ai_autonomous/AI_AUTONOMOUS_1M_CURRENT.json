@@ -3,11 +3,63 @@
   "cash": 1000000.0,
   "cumulative_return": 0.0,
   "current_nav": 1000000.0,
+  "decision_grade_d2_seen": [
+    "002936.SZ",
+    "600428.SH",
+    "603268.SH"
+  ],
+  "deployment_discipline": {
+    "cash_weight": 1.0,
+    "cumulative_decision_grade_d2_count": 3,
+    "cumulative_decision_grade_d2_ids": [
+      "002936.SZ",
+      "600428.SH",
+      "603268.SH"
+    ],
+    "current_buy_below_ids": [
+      "600428.SH"
+    ],
+    "current_decision_grade_d2_ids": [
+      "002936.SZ",
+      "600428.SH",
+      "603268.SH"
+    ],
+    "current_eligible_buy_ids": [],
+    "deployed_weight": 0.0,
+    "deployment_status": "NORMAL_ACCUMULATION",
+    "experiment_trading_day": 2,
+    "high_cash_reason": "INSUFFICIENT_CUMULATIVE_DECISION_GRADE_D2",
+    "next_gate_trading_day": 10,
+    "orders": 0,
+    "position_count": 0,
+    "rules": {
+      "buy_below_direct_buy_authorized": false,
+      "day10_cash_gt_80pct": "AI_BOOK_DEPLOYMENT_REVIEW",
+      "day20_deployment_target_if_eligible_buys_exist": [
+        0.3,
+        0.5
+      ],
+      "day20_min_cumulative_decision_grade_d2": 5,
+      "day30_cash_gt_70pct": "OPPORTUNITY_STARVATION_REVIEW_REQUIRED",
+      "day40_cash_gt_50pct": "EXPERIMENT_INSUFFICIENT_DEPLOYMENT_POLICY_PROPOSAL_ONLY",
+      "forced_buying": false,
+      "policy_auto_effective": false
+    },
+    "trade_authority": "NONE",
+    "trading_days_to_next_gate": 8,
+    "triggered_gates": []
+  },
   "initial_capital": 1000000.0,
   "max_drawdown": 0.0,
   "nav_history": [
     {
       "as_of_date": "2026-09-01",
+      "cash": 1000000.0,
+      "nav": 1000000.0,
+      "position_market_value": 0.0
+    },
+    {
+      "as_of_date": "2026-09-02",
       "cash": 1000000.0,
       "nav": 1000000.0,
       "position_market_value": 0.0
