@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260903_FRESH_R1_600900",
+  "security_id": "600900.SH",
+  "security_name": "长江电力",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "HOLD_FRESH_D2_COMPLETE",
+  "research_update_type": "USER_ACCEPTED_FRESH_D2_PERSISTENCE_20260903",
+  "valuation_horizon": "12_MONTH",
+  "thesis": {
+    "core": "高可见度水电现金流与分红能力仍支撑持有；当前估值余量较前期收窄，但尚未收窄至需要机械减仓。",
+    "variant_wedge": "2026H1 headline利润增速高于扣非利润增速，normalized basis应以扣非盈利与现金流为核心；估值收窄不等于卖出信号。",
+    "normalized_earnings_basis": "2026H1归母净利润147.56亿元（+13.02%）；扣非归母净利润142.94亿元（+8.37%）作为更合适的normalized basis；经营现金流241.28亿元（+0.57%）；2026E EPS约1.47元、2027E约1.52元。"
+  },
+  "underwriting": {
+    "current_price": 28.72,
+    "price_as_of": "2026-09-02",
+    "entry_price": 27.26,
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {
+      "period": "2026H1 / 2026E-2027E",
+      "recurring_net_profit_rmb_bn": 14.294,
+      "reported_net_profit_rmb_bn": 14.756,
+      "operating_cash_flow_rmb_bn": 24.128,
+      "eps_2026e": 1.47,
+      "eps_2027e": 1.52,
+      "basis": "扣非盈利+经营现金流为normalized anchor，避免将headline 13%增速全部资本化。"
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 1.42,
+        "valuation_multiple_pe": 16.5,
+        "value": 23.43,
+        "probability": 0.2,
+        "total_return_including_dividend": -0.149
+      },
+      {
+        "name": "BASE",
+        "eps": 1.52,
+        "valuation_multiple_pe": 20.5,
+        "value": 31.16,
+        "probability": 0.6,
+        "total_return_including_dividend": 0.121
+      },
+      {
+        "name": "BULL",
+        "eps": 1.63,
+        "valuation_multiple_pe": 23.5,
+        "value": 38.31,
+        "probability": 0.2,
+        "total_return_including_dividend": 0.372
+      }
+    ],
+    "probability_weighted_value": 31.044,
+    "dividend_carry_assumption": 1.03,
+    "probability_weighted_total_value": 32.074,
+    "expected_return_total": 0.117,
+    "expected_return_basis": "12M_TOTAL_RETURN_INCLUDING_DIVIDEND_CARRY",
+    "action": "HOLD",
+    "add_review_at_or_below": 27.2,
+    "trim_review_at_or_above": 33,
+    "catalysts": [
+      "正常或偏好的来水/发电量继续支持盈利",
+      "融资成本下降",
+      "资产运营效率与海外业务贡献",
+      "分红可见性维持"
+    ],
+    "kill_thesis": [
+      "持续性来水恶化导致normalized earnings结构性下修",
+      "实质性电价或监管下行",
+      "资本开支或并购永久损害可分配现金流",
+      "2027 normalized EPS跌破约1.40且看不到恢复路径",
+      "分红能力发生结构性下降"
+    ]
+  },
+  "first_rejection_test": "NOT_TRIGGERED_FOR_EXIT_OR_TRIM; VALUATION_MARGIN_NARROWER_BUT_FRESH_D2_SUPPORTS_HOLD",
+  "next_gate": "HOLD_MONITOR; REOPEN_TRIM_REVIEW_AT_OR_ABOVE_33_OR_ON_KILL_THSIS_EVIDENCE; ADD_REVIEW_AT_OR_BELOW_27_2",
+  "source_quality_note": "Persistence-only artifact. Sole research authority is the user-accepted fresh D2 completed in this conversation; no new research or evidence search was performed during closure.",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
