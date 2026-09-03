@@ -59,7 +59,6 @@ jobs:
         run: |
           python -m py_compile \
             automation/portfolio_execution/build_portfolio_execution.py \
-            automation/portfolio_execution/apply_bounded_last_mile_policy.py \
             automation/portfolio_execution/publish_portfolio_execution.py \
             automation/operating_current/publish_operating_current.py
 
@@ -172,14 +171,6 @@ jobs:
             --output-json /tmp/PORTFOLIO_EXECUTION_CURRENT.json \
             --output-ai /tmp/AI_AUTONOMOUS_1M_CURRENT.json \
             --output-md /tmp/PORTFOLIO_EXECUTION_BRIEF_CURRENT.md
-
-      - name: Apply bounded action authorization and AI deployment discipline
-        run: |
-          python automation/portfolio_execution/apply_bounded_last_mile_policy.py \
-            --phase3 /tmp/PORTFOLIO_EXECUTION_CURRENT.json \
-            --ai /tmp/AI_AUTONOMOUS_1M_CURRENT.json \
-            --brief /tmp/PORTFOLIO_EXECUTION_BRIEF_CURRENT.md \
-            --as-of-date "${{ steps.authority.outputs.as_of_date }}"
 
       - name: Validate Phase 3 boundary
         run: |
