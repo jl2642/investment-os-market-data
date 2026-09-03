@@ -25,3 +25,10 @@
 - 只有该虚拟账本允许按正式 Recommendation 自主变更。
 - BUY_BELOW 达价不直接买入，仍需 fresh D2 后成为正式 BUY。
 - 10/20/30/40交易日 deployment discipline 只触发诊断/研究/Policy Proposal，不强迫买入。
+
+
+## Fresh D2 downstream closure 2026-09-03
+- 600900.SH：HOLD，execution = NO_ACTION_REVIEW_ONLY。
+- 600941.SH：TRIM，execution validator 仅生成 USER_ACTION_REVIEW 所需的受控减仓验证；未执行、未写入 Simulation 经济账本。
+- AI_AUTONOMOUS_1M：NO_OP（本次 fresh D2 无 Current BUY，故不触发虚拟建仓）。
+- protected REAL / legacy Simulation / Candidate mutation = 0 / 0 / 0；orders = 0；trade_authority = NONE。
