@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260903_FRESH_R1_600941",
+  "security_id": "600941.SH",
+  "security_name": "中国移动",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "TRIM_FRESH_D2_COMPLETE",
+  "research_update_type": "USER_ACCEPTED_FRESH_D2_PERSISTENCE_20260903",
+  "valuation_horizon": "12_MONTH",
+  "thesis": {
+    "core": "基本面并未恶化到EXIT，但A股约100元附近的资本效率已明显下降；在当前生产账本仍为持仓的前提下，fresh D2对应TRIM review，而非机械清仓。",
+    "variant_wedge": "H1报表利润承压但经营现金流明显改善，不能将盈利下滑等同于thesis break；核心问题是现价下未来总回报不足以继续占用同等资本。",
+    "normalized_earnings_basis": "2026H1营业收入5380.35亿元（-1.1%）、主营业务收入-3.1%、归母净利润789.34亿元（-6.3%）、扣非净利润-11.0%、经营现金流1148.54亿元（+37.0%）、EBITDA 1736.26亿元（-6.6%）；2026E EPS约6.09元、2027E约6.26元。"
+  },
+  "underwriting": {
+    "current_price": 100.8,
+    "price_as_of": "2026-09-02",
+    "entry_price": 101.05,
+    "confidence": "MEDIUM",
+    "normalized_earnings_basis": {
+      "period": "2026H1 / 2026E-2027E",
+      "revenue_rmb_bn": 538.035,
+      "attributable_net_profit_rmb_bn": 78.934,
+      "operating_cash_flow_rmb_bn": 114.854,
+      "ebitda_rmb_bn": 173.626,
+      "eps_2026e": 6.09,
+      "eps_2027e": 6.26,
+      "basis": "主营增长、EBITDA、现金流和EPS恢复路径共同作为normalized anchor；VAT口径变化使headline同比存在噪声。"
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 5.88,
+        "valuation_multiple_pe": 13,
+        "value": 76.44,
+        "probability": 0.25,
+        "total_return_including_dividend": -0.194
+      },
+      {
+        "name": "BASE",
+        "eps": 6.26,
+        "valuation_multiple_pe": 15.5,
+        "value": 97.03,
+        "probability": 0.55,
+        "total_return_including_dividend": 0.013
+      },
+      {
+        "name": "BULL",
+        "eps": 6.68,
+        "valuation_multiple_pe": 18,
+        "value": 120.24,
+        "probability": 0.2,
+        "total_return_including_dividend": 0.245
+      }
+    ],
+    "probability_weighted_value": 96.5245,
+    "dividend_carry_assumption": 5.05,
+    "probability_weighted_total_value": 101.5745,
+    "expected_return_total": 0.0077,
+    "expected_return_basis": "12M_TOTAL_RETURN_INCLUDING_DIVIDEND_CARRY",
+    "action": "TRIM",
+    "no_reentry_at_current_price": true,
+    "reentry_research_zone_at_or_below": 92,
+    "catalysts": [
+      "核心服务收入企稳或恢复增长",
+      "AI/云/算力业务形成可验证利润贡献",
+      "成本效率改善",
+      "现金流与分红能力维持"
+    ],
+    "kill_thesis": [
+      "可比口径核心服务收入持续萎缩且无法恢复",
+      "EBITDA持续下降",
+      "AI/算力资本开支无法形成资本回报",
+      "经营现金流改善逆转",
+      "分红政策或分红能力明显降级"
+    ]
+  },
+  "first_rejection_test": "NOT_THESIS_KILL; VALUATION_AND_CAPITAL_EFFICIENCY_SUPPORT_TRIM_REVIEW_FOR_EXISTING_HOLDING_NOT_EXIT",
+  "next_gate": "USER_ACTION_REVIEW_FOR_TRIM_ONLY; NO_AUTOMATIC_MUTATION; REUNDERWRITE_ON_NEW_MATERIAL_EVIDENCE_OR_FRESH_BASELINE_TRIGGER",
+  "source_quality_note": "Persistence-only artifact. Sole research authority is the user-accepted fresh D2 completed in this conversation; no new research or evidence search was performed during closure. Current production account identity maps the prior conditional held-account conclusion to TRIM review.",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
