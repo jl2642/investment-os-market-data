@@ -147,11 +147,15 @@ def provisional_target_weight(
         reasons.append("CURRENT_DECISION_TRIM_HALF_STEP")
     elif action == "ADD":
         score = research_score(rec)
-        target = min(
-            single_name_cap,
-            max(current_weight, current_weight + min(0.025, score * 0.10)),
-        )
-        reasons.append("CURRENT_DECISION_ADD_SCORE_SIZED")
+        if current_weight >= single_name_cap:
+            target = current_weight
+            reasons.append("CURRENT_DECISION_ADD_BLOCKED_BY_EXISTING_SINGLE_NAME_CAP")
+        else:
+            target = min(
+                single_name_cap,
+                current_weight + min(0.025, score * 0.10),
+            )
+            reasons.append("CURRENT_DECISION_ADD_SCORE_SIZED")
     elif action == "HOLD":
         target = current_weight
         reasons.append("CURRENT_DECISION_HOLD_PRESERVE")
