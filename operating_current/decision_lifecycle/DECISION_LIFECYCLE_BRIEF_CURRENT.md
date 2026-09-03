@@ -3,9 +3,9 @@
 - 数据水位：`2026-09-02`
 - Thesis subjects：`25`
 - 持仓 / 非持仓：`22 / 3`
-- 当前复核队列：`4`
-- 需要重新D2：`2`
-- 需要用户动作复核：`1`
+- 当前复核队列：`3`
+- 需要重新D2：`0`
+- 需要用户动作复核：`2`
 - 组合风险复核：`1`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
 
@@ -21,3 +21,10 @@
 - Catalyst / kill-thesis 只登记监控条款；GitHub 不做关键词推断。
 - 价格条件命中只会要求重新D2；不得直接转换成BUY/ADD。
 - 浮亏本身不是卖出条件；TRIM/EXIT 必须来自当前 decision-grade Recommendation。
+
+
+## Fresh D2 baseline reset 2026-09-03
+- 600900.SH：HOLD；旧 VALUATION_EXHAUSTION_REUNDERWRITE = CLEARED；恢复 HELD_HOLD monitoring。
+- 600941.SH：TRIM；旧 VALUATION_EXHAUSTION_REUNDERWRITE = CLEARED；新状态 HELD_TRIM_REVIEW / USER_ACTION_REVIEW。
+- FRESH_D2_FOR_HOLD_TRIM_OR_EXIT 对上述两只标的不再残留。
+- protected REAL / Simulation / Candidate mutation = 0 / 0 / 0；orders = 0；trade_authority = NONE。
