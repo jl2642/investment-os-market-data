@@ -1084,6 +1084,7 @@ def build_phase3(
             "simulation_plan": sim_plan,
             "ai_nav": ai_state.get("current_nav"),
             "ai_txn_count": len(ai_state.get("transactions", [])),
+            "ai_deployment_discipline": ai_report.get("deployment_discipline"),
         })[:16],
         "status": "PASS_PORTFOLIO_EXECUTION_AND_AI_SIMULATION",
         "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
