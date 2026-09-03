@@ -8,6 +8,7 @@ on:
     paths:
       - "automation/portfolio_execution/**"
       - "tests/test_phase3_portfolio_execution_ai.py"
+      - "tests/test_bounded_last_mile_policy.py"
       - ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml"
       - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
       - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
@@ -19,6 +20,7 @@ on:
     paths:
       - "automation/portfolio_execution/**"
       - "tests/test_phase3_portfolio_execution_ai.py"
+      - "tests/test_bounded_last_mile_policy.py"
       - ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml"
       - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
       - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
@@ -60,10 +62,11 @@ jobs:
             automation/portfolio_execution/publish_portfolio_execution.py \
             automation/operating_current/publish_operating_current.py
 
-      - name: Validate target weights execution and AI ledger
+      - name: Validate target weights execution AI ledger and bounded policy
         run: |
           pytest -q \
             tests/test_phase3_portfolio_execution_ai.py \
+            tests/test_bounded_last_mile_policy.py \
             tests/test_phase2_decision_lifecycle.py \
             tests/test_s2_investment_pipeline.py \
             tests/test_s3_portfolio_product_surface.py \
@@ -84,9 +87,7 @@ jobs:
           git fetch origin main
           python - <<'PY'
           import subprocess
-          changed=set(subprocess.check_output(
-              ["git","diff","--name-only","origin/main...HEAD"], text=True
-          ).splitlines())
+          changed=set(subprocess.check_output(["git","diff","--name-only","origin/main...HEAD"], text=True).splitlines())
           forbidden_prefixes=(
               "investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/",
               "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/",
@@ -95,14 +96,7 @@ jobs:
           leaked=sorted(path for path in changed if path.startswith(forbidden_prefixes))
           if leaked:
               raise SystemExit("PHASE3_PROTECTED_STATE_MUTATION:" + ",".join(leaked))
-          print({
-              "real_account_mutations":0,
-              "legacy_simulation_mutations":0,
-              "candidate_mutations":0,
-              "ai_autonomous_virtual_mutation_only":True,
-              "orders":0,
-              "trade_authority":"NONE",
-          })
+          print({"real_account_mutations":0,"legacy_simulation_mutations":0,"candidate_mutations":0,"ai_autonomous_virtual_mutation_only":True,"orders":0,"trade_authority":"NONE"})
           PY
 
   production:
@@ -145,10 +139,8 @@ jobs:
           import json
           for path in ["/tmp/marks-domain.json","/tmp/investment-domain.json","/tmp/lifecycle-domain.json"]:
               payload=json.load(open(path,encoding="utf-8"))
-              if payload.get("status") != "PASS":
-                  raise SystemExit("PHASE3_INPUT_NOT_PASS:" + path)
-              if payload.get("orders") != 0 or payload.get("trade_authority") != "NONE":
-                  raise SystemExit("PHASE3_INPUT_AUTHORITY_VIOLATION:" + path)
+              if payload.get("status") != "PASS": raise SystemExit("PHASE3_INPUT_NOT_PASS:" + path)
+              if payload.get("orders") != 0 or payload.get("trade_authority") != "NONE": raise SystemExit("PHASE3_INPUT_AUTHORITY_VIOLATION:" + path)
           marks=json.load(open("/tmp/marks-domain.json",encoding="utf-8"))
           print(f"mark_branch={marks['source_branch']}")
           print(f"mark_commit={marks['source_commit_sha']}")
@@ -190,21 +182,20 @@ jobs:
           assert p["controls"]["target_weight_engine"] is True
           assert p["controls"]["execution_validator"] is True
           assert p["controls"]["ai_autonomous_virtual_ledger"] is True
+          assert p["controls"]["risk_target_is_trade_authority"] is False
+          assert p["controls"]["hold_review_can_generate_trade"] is False
           assert p["real_account"]["automatic_mutation_authorized"] is False
           assert p["simulation_account"]["automatic_mutation_authorized"] is False
           assert ai["book_id"] == "AI_AUTONOMOUS_1M"
           assert ai["initial_capital"] == 1000000.0
-          assert p["orders"] == 0
-          assert p["trade_authority"] == "NONE"
-          print({
-              "real_target_count":len(p["real_account"]["target_plan"]["rows"]),
-              "simulation_target_count":len(p["simulation_account"]["target_plan"]["rows"]),
-              "ai_positions":len(ai["positions"]),
-              "ai_cash":ai["cash"],
-              "ai_nav":ai["current_nav"],
-              "orders":0,
-              "trade_authority":"NONE",
-          })
+          assert "deployment_discipline" in ai
+          assert p["orders"] == 0 and p["trade_authority"] == "NONE"
+          for account in [p["real_account"], p["simulation_account"]]:
+              actions={r["security_id"]:r.get("action") for r in account["target_plan"]["rows"]}
+              for row in account["execution_validation"]["rows"]:
+                  if row.get("side") in {"BUY","SELL"}:
+                      assert actions.get(row["security_id"]) in {"ADD","TRIM","EXIT"}
+          print({"authorization_boundary":"PASS","deployment_discipline":"PASS","ai_positions":len(ai["positions"]),"ai_cash":ai["cash"],"orders":0,"trade_authority":"NONE"})
           PY
 
       - name: Publish Phase 3 to Operating Current
@@ -226,10 +217,9 @@ jobs:
         run: |
           {
             echo "## Final Closure Phase 3"
-            echo "- Target Weight Engine: active"
-            echo "- Deterministic execution validator: active"
-            echo "- A-share listed buy lot: 100"
-            echo "- AI_AUTONOMOUS_1M: isolated virtual ledger"
+            echo "- Target Weight Engine: active; risk target != trade authority"
+            echo "- HOLD review cannot manufacture BUY/SELL"
+            echo "- AI_AUTONOMOUS_1M: isolated virtual ledger with 10/20/30/40 trading-day deployment discipline"
             echo "- Real / legacy Simulation automatic mutation: 0 / 0"
             echo "- orders: 0; trade_authority: NONE"
           } >> "$GITHUB_STEP_SUMMARY"
