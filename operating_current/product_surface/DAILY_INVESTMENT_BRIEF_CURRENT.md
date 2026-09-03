@@ -1,7 +1,7 @@
 # 股票投资助手｜Daily Investment Brief
 
 - 数据日期：2026-09-02
-- 当前需人工复核的决策项：1
+- 当前需人工复核的决策项：2
 - 持仓绩效监控：22 / 22（账户持仓行 23）
 - 当前投资判断覆盖：22 / 22
 - 新机会：3
@@ -27,9 +27,9 @@
 | 600406.SH 国电南瑞 | SIMULATION | HOLD | 22.92 | 5.1% | PRICE_BLOCKED |
 | 600660.SH 福耀玻璃 | SIMULATION | HOLD | 57.85 | 5.9% | PRICE_BLOCKED |
 | 600690.SH 海尔智家 | SIMULATION | HOLD | 21.42 | 9.7% | PRICE_BLOCKED |
-| 600900.SH 长江电力 | SIMULATION | HOLD | 28.40 | 2.8% | PRICE_BLOCKED |
+| 600900.SH 长江电力 | SIMULATION | HOLD | 28.72 | 8.1% | PRICE_BLOCKED |
 | 600938.SH 中国海油 | SIMULATION | HOLD | 34.51 | 4.3% | PRICE_BLOCKED |
-| 600941.SH 中国移动 | SIMULATION | HOLD | 99.89 | 3.6% | PRICE_BLOCKED |
+| 600941.SH 中国移动 | SIMULATION | TRIM | 100.80 | -4.2% | AVOID_NEGATIVE_EXPECTED_RETURN |
 | 601138.SH 工业富联 | SIMULATION | HOLD | 64.84 | 6.3% | PRICE_BLOCKED |
 | 601899.SH 紫金矿业 | SIMULATION | HOLD | 33.73 | 4.5% | PRICE_BLOCKED |
 | 605090.SH 九丰能源 | REAL | HOLD | 33.89 | 10.7% | PRICE_BLOCKED |
@@ -67,3 +67,9 @@
 - 旧 R3/R4/WP5 决策包不再作为当前产品入口，只保留历史追溯价值。
 - ready_for_user_decision 只表示值得人工复核，不表示已授权执行。
 - 任何真实/模拟持仓变化仍需显式用户决策；系统不下单、不自动调仓。
+
+
+## Fresh D2 closure 2026-09-03
+- 600900.SH 长江电力：fresh D2 = HOLD；旧估值耗尽请求由新基线替换。
+- 600941.SH 中国移动：fresh D2 = TRIM；仅进入 USER_ACTION_REVIEW，禁止自动修改 Simulation。
+- protected REAL / Simulation / Candidate mutation = 0 / 0 / 0；orders = 0；trade_authority = NONE。
