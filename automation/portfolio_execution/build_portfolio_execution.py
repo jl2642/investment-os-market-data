@@ -16,6 +16,9 @@ DEFAULT_SINGLE_NAME_CAP = 0.10
 DEFAULT_GROUP_CAP = 0.30
 AI_CASH_FLOOR = 0.20
 MAX_AI_POSITIONS = 10
+PROTECTED_POSITION_ACTIONS = {"ADD", "TRIM", "EXIT"}
+DEPLOYMENT_GATES = (10, 20, 30, 40)
+DAY20_MIN_DECISION_GRADE_D2 = 5
 
 CONFIDENCE_MULTIPLIER = {
     "HIGH": 1.00,
@@ -144,7 +147,10 @@ def provisional_target_weight(
         reasons.append("CURRENT_DECISION_TRIM_HALF_STEP")
     elif action == "ADD":
         score = research_score(rec)
-        target = min(single_name_cap, max(current_weight, current_weight + min(0.025, score * 0.10)))
+        target = min(
+            single_name_cap,
+            max(current_weight, current_weight + min(0.025, score * 0.10)),
+        )
         reasons.append("CURRENT_DECISION_ADD_SCORE_SIZED")
     elif action == "HOLD":
         target = current_weight
@@ -152,29 +158,52 @@ def provisional_target_weight(
     else:
         reasons.append("NO_HELD_ACTION_CHANGE")
 
-    if "CONCENTRATION_REVIEW" in lifecycle_state and target > single_name_cap:
-        target = single_name_cap
-        reasons.append("SINGLE_NAME_CAP_10PCT")
-    elif target > single_name_cap and action in {"ADD", "TRIM", "EXIT"}:
+    # Risk limits are diagnostics unless the current formal Recommendation
+    # already authorizes a position change.  They must never manufacture a
+    # protected-account BUY/SELL from HOLD alone.
+    if action in PROTECTED_POSITION_ACTIONS and target > single_name_cap:
         target = single_name_cap if action != "EXIT" else 0.0
-        reasons.append("SINGLE_NAME_CAP_10PCT")
+        reasons.append("SINGLE_NAME_CAP_10PCT_ACTION_SIZING")
+    elif current_weight > single_name_cap:
+        reasons.append("SINGLE_NAME_CAP_10PCT_RISK_REVIEW_ONLY")
+
+    if "CONCENTRATION_REVIEW" in lifecycle_state:
+        reasons.append("CONCENTRATION_REVIEW_DIAGNOSTIC_ONLY")
 
     return max(0.0, target), reasons
 
-
 def enforce_group_caps(rows: list[dict[str, Any]], group_cap: float = DEFAULT_GROUP_CAP) -> None:
+    """Limit only incremental ADD risk; never shrink HOLD/TRIM/EXIT rows mechanically."""
     by_group: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
         by_group.setdefault(row["risk_group"], []).append(row)
-    for group, members in by_group.items():
-        total = sum(float(x["target_weight"]) for x in members)
-        if total <= group_cap or total <= 0:
-            continue
-        scale = group_cap / total
-        for member in members:
-            member["target_weight"] = float(member["target_weight"]) * scale
-            member["target_weight_reasons"].append(f"RISK_GROUP_CAP_{group}_30PCT")
 
+    for group, members in by_group.items():
+        current_total = sum(float(x.get("current_weight") or 0.0) for x in members)
+        add_members = [x for x in members if str(x.get("action") or "") == "ADD"]
+        if not add_members:
+            if current_total > group_cap:
+                for member in members:
+                    member["target_weight_reasons"].append(
+                        f"RISK_GROUP_CAP_{group}_30PCT_REVIEW_ONLY"
+                    )
+            continue
+
+        allowed_increase = max(0.0, group_cap - current_total)
+        desired_increase = sum(
+            max(0.0, float(x["target_weight"]) - float(x.get("current_weight") or 0.0))
+            for x in add_members
+        )
+        if desired_increase <= allowed_increase + 1e-12:
+            continue
+        scale = allowed_increase / desired_increase if desired_increase > 0 else 0.0
+        for member in add_members:
+            current = float(member.get("current_weight") or 0.0)
+            desired = max(0.0, float(member["target_weight"]) - current)
+            member["target_weight"] = current + desired * scale
+            member["target_weight_reasons"].append(
+                f"RISK_GROUP_CAP_{group}_30PCT_LIMITS_ADD_ONLY"
+            )
 
 def build_account_target_plan(
     account: dict[str, Any],
@@ -228,13 +257,29 @@ def build_account_target_plan(
         })
 
     enforce_group_caps(rows)
+
+    # If proposed ADDs exceed available portfolio headroom, scale only the
+    # incremental ADD amounts.  Existing HOLD/TRIM/EXIT targets are preserved.
+    base_total = sum(
+        float(x.get("current_weight") or 0.0)
+        if str(x.get("action") or "") == "ADD"
+        else float(x["target_weight"])
+        for x in rows
+    )
+    add_rows = [x for x in rows if str(x.get("action") or "") == "ADD"]
+    desired_add = sum(
+        max(0.0, float(x["target_weight"]) - float(x.get("current_weight") or 0.0))
+        for x in add_rows
+    )
+    add_headroom = max(0.0, 1.0 - base_total)
+    if desired_add > add_headroom + 1e-12:
+        scale = add_headroom / desired_add if desired_add > 0 else 0.0
+        for row in add_rows:
+            current = float(row.get("current_weight") or 0.0)
+            increment = max(0.0, float(row["target_weight"]) - current)
+            row["target_weight"] = current + increment * scale
+            row["target_weight_reasons"].append("TOTAL_WEIGHT_HEADROOM_LIMITS_ADD_ONLY")
     target_total = sum(float(x["target_weight"]) for x in rows)
-    if target_total > 1.0:
-        scale = 1.0 / target_total
-        for row in rows:
-            row["target_weight"] *= scale
-            row["target_weight_reasons"].append("TOTAL_WEIGHT_NORMALIZED_TO_100PCT")
-        target_total = 1.0
 
     return {
         "account": snap["account"],
@@ -293,10 +338,12 @@ def build_execution_plan(account_plan: dict[str, Any]) -> dict[str, Any]:
         current_qty = float(row.get("current_quantity") or 0.0)
         price = float(row.get("current_price") or 0.0)
         asset_class = row.get("asset_class")
+        action = str(row.get("action") or "")
         base = {
             "security_id": sid,
             "security_name": row.get("security_name"),
             "asset_class": asset_class,
+            "action": action,
             "current_weight": row["current_weight"],
             "target_weight": row["target_weight"],
             "current_quantity": current_qty,
@@ -311,6 +358,16 @@ def build_execution_plan(account_plan: dict[str, Any]) -> dict[str, Any]:
                 "side": "REVIEW",
                 "validated_quantity": None,
                 "reason": "NON_LISTED_FUND_SUBSCRIPTION_REDEMPTION_RULES_NOT_MODELED",
+            })
+            continue
+        if action not in PROTECTED_POSITION_ACTIONS:
+            rows.append({
+                **base,
+                "status": "NO_ACTION_REVIEW_ONLY",
+                "side": "HOLD",
+                "validated_quantity": 0,
+                "target_quantity": current_qty,
+                "reason": "CURRENT_RECOMMENDATION_DOES_NOT_AUTHORIZE_POSITION_CHANGE",
             })
             continue
         if target_qty is None or price <= 0:
@@ -332,6 +389,27 @@ def build_execution_plan(account_plan: dict[str, Any]) -> dict[str, Any]:
                 "validated_quantity": 0,
                 "target_quantity": target_qty,
                 "reason": "CURRENT_QUANTITY_ALREADY_MATCHES_ROUNDED_TARGET",
+            })
+            continue
+
+        if action == "ADD" and delta < 0:
+            rows.append({
+                **base,
+                "status": "NO_ACTION_DIRECTION_BLOCKED",
+                "side": "HOLD",
+                "validated_quantity": 0,
+                "target_quantity": current_qty,
+                "reason": "ADD_CANNOT_AUTHORIZE_SELL",
+            })
+            continue
+        if action in {"TRIM", "EXIT"} and delta > 0:
+            rows.append({
+                **base,
+                "status": "NO_ACTION_DIRECTION_BLOCKED",
+                "side": "HOLD",
+                "validated_quantity": 0,
+                "target_quantity": current_qty,
+                "reason": "TRIM_OR_EXIT_CANNOT_AUTHORIZE_BUY",
             })
             continue
 
@@ -559,6 +637,141 @@ def lifecycle_prices(lifecycle: dict[str, Any]) -> dict[str, float]:
         if sid and price is not None and price > 0:
             out[sid] = price
     return out
+
+
+def current_decision_grade_ai_d2_ids(recommendation: dict[str, Any]) -> set[str]:
+    """Count formal new-capital D2 outcomes usable by the AI-book experiment."""
+    required = (
+        "current_price",
+        "entry_price",
+        "base_value",
+        "probability_weighted_value",
+        "expected_return",
+        "confidence",
+        "bear_downside",
+    )
+    valid_actions = {"BUY", "BUY_BELOW", "WATCH_FOR_EVIDENCE", "WATCH", "AVOID"}
+    out: set[str] = set()
+    for rec in recommendation.get("records", []):
+        sid = str(rec.get("security_id") or "")
+        if not sid.endswith((".SH", ".SZ", ".BJ")):
+            continue
+        if rec.get("portfolio_implication") != "NEW_CAPITAL_CANDIDATE":
+            continue
+        if str(rec.get("action") or "") not in valid_actions:
+            continue
+        if all(rec.get(key) is not None for key in required):
+            out.add(sid)
+    return out
+
+
+def update_ai_deployment_discipline(
+    *,
+    state: dict[str, Any],
+    recommendation: dict[str, Any],
+    as_of_date: str,
+) -> dict[str, Any]:
+    dates = sorted({
+        str(row.get("as_of_date"))
+        for row in state.get("nav_history", [])
+        if row.get("as_of_date")
+    })
+    if as_of_date not in dates:
+        dates.append(as_of_date)
+        dates.sort()
+    trading_day = max(1, len(dates))
+
+    current_d2 = current_decision_grade_ai_d2_ids(recommendation)
+    prior_seen = set(state.get("decision_grade_d2_seen", []))
+    seen = sorted(prior_seen | current_d2)
+    state["decision_grade_d2_seen"] = seen
+
+    nav = float(state.get("current_nav") or AI_INITIAL_CAPITAL)
+    cash = float(state.get("cash") or 0.0)
+    cash_weight = cash / nav if nav > 0 else 1.0
+    deployed_weight = max(0.0, 1.0 - cash_weight)
+    recs = recommendation_map(recommendation)
+    eligible_buy_ids = sorted(
+        sid for sid, rec in recs.items()
+        if rec.get("portfolio_implication") == "NEW_CAPITAL_CANDIDATE"
+        and rec.get("action") == "BUY"
+    )
+    buy_below_ids = sorted(
+        sid for sid, rec in recs.items()
+        if rec.get("portfolio_implication") == "NEW_CAPITAL_CANDIDATE"
+        and rec.get("action") == "BUY_BELOW"
+    )
+
+    triggered: list[str] = []
+    if trading_day >= 10 and cash_weight > 0.80:
+        triggered.append("AI_BOOK_DEPLOYMENT_REVIEW")
+    if trading_day >= 20:
+        if len(seen) < DAY20_MIN_DECISION_GRADE_D2:
+            triggered.append("D2_THROUGHPUT_SHORTFALL")
+        if cash_weight > 0.50:
+            triggered.append("DAY20_DEPLOYMENT_REVIEW")
+        if eligible_buy_ids and deployed_weight < 0.30:
+            triggered.append("DEPLOYMENT_BELOW_30PCT_WITH_ELIGIBLE_BUY")
+    if trading_day >= 30 and cash_weight > 0.70:
+        triggered.append("OPPORTUNITY_STARVATION_REVIEW_REQUIRED")
+    if trading_day >= 40 and cash_weight > 0.50:
+        triggered.append("EXPERIMENT_INSUFFICIENT_DEPLOYMENT")
+
+    if "EXPERIMENT_INSUFFICIENT_DEPLOYMENT" in triggered:
+        status = "POLICY_PROPOSAL_REVIEW_REQUIRED"
+    elif "OPPORTUNITY_STARVATION_REVIEW_REQUIRED" in triggered:
+        status = "OPPORTUNITY_RESEARCH_REVIEW_REQUIRED"
+    elif "D2_THROUGHPUT_SHORTFALL" in triggered:
+        status = "D2_THROUGHPUT_REVIEW_REQUIRED"
+    elif "DAY20_DEPLOYMENT_REVIEW" in triggered:
+        status = "DECISION_GRADE_D2_AND_ELIGIBLE_BUY_REVIEW"
+    elif "AI_BOOK_DEPLOYMENT_REVIEW" in triggered:
+        status = "THROUGHPUT_AND_GATE_REVIEW"
+    else:
+        status = "NORMAL_ACCUMULATION"
+
+    if cash_weight <= 0.70:
+        high_cash_reason = None
+    elif len(seen) < DAY20_MIN_DECISION_GRADE_D2:
+        high_cash_reason = "INSUFFICIENT_CUMULATIVE_DECISION_GRADE_D2"
+    elif not eligible_buy_ids and buy_below_ids:
+        high_cash_reason = "BUY_BELOW_REQUIRES_FRESH_D2_TO_BECOME_BUY"
+    elif not eligible_buy_ids:
+        high_cash_reason = "NO_CURRENT_DECISION_GRADE_BUY"
+    else:
+        high_cash_reason = "PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE"
+
+    next_gate = next((gate for gate in DEPLOYMENT_GATES if gate > trading_day), None)
+    discipline = {
+        "experiment_trading_day": trading_day,
+        "cash_weight": cash_weight,
+        "deployed_weight": deployed_weight,
+        "position_count": len(state.get("positions", [])),
+        "deployment_status": status,
+        "triggered_gates": triggered,
+        "next_gate_trading_day": next_gate,
+        "trading_days_to_next_gate": None if next_gate is None else next_gate - trading_day,
+        "cumulative_decision_grade_d2_count": len(seen),
+        "cumulative_decision_grade_d2_ids": seen,
+        "current_decision_grade_d2_ids": sorted(current_d2),
+        "current_eligible_buy_ids": eligible_buy_ids,
+        "current_buy_below_ids": buy_below_ids,
+        "high_cash_reason": high_cash_reason,
+        "rules": {
+            "day10_cash_gt_80pct": "AI_BOOK_DEPLOYMENT_REVIEW",
+            "day20_min_cumulative_decision_grade_d2": DAY20_MIN_DECISION_GRADE_D2,
+            "day20_deployment_target_if_eligible_buys_exist": [0.30, 0.50],
+            "day30_cash_gt_70pct": "OPPORTUNITY_STARVATION_REVIEW_REQUIRED",
+            "day40_cash_gt_50pct": "EXPERIMENT_INSUFFICIENT_DEPLOYMENT_POLICY_PROPOSAL_ONLY",
+            "buy_below_direct_buy_authorized": False,
+            "forced_buying": False,
+            "policy_auto_effective": False,
+        },
+        "orders": 0,
+        "trade_authority": TRADE_AUTHORITY,
+    }
+    state["deployment_discipline"] = discipline
+    return discipline
 
 
 def apply_ai_virtual_rebalance(
@@ -796,6 +1009,12 @@ def apply_ai_virtual_rebalance(
     state["orders"] = 0
     state["trade_authority"] = TRADE_AUTHORITY
 
+    discipline = update_ai_deployment_discipline(
+        state=state,
+        recommendation=recommendation,
+        as_of_date=as_of_date,
+    )
+
     report = {
         "book_id": AI_BOOK_ID,
         "as_of_date": as_of_date,
@@ -807,6 +1026,7 @@ def apply_ai_virtual_rebalance(
         "new_transaction_count": len(new_transactions),
         "new_transactions": new_transactions,
         "diagnostics": diagnostics,
+        "deployment_discipline": discipline,
         "target_weights": targets,
         "attribution": sorted(attribution, key=lambda x: x["security_id"]),
         "performance": {
@@ -882,6 +1102,8 @@ def build_phase3(
             "real_account_mutations": 0,
             "legacy_simulation_mutations": 0,
             "candidate_mutations": 0,
+            "risk_target_is_trade_authority": False,
+            "hold_review_can_generate_trade": False,
             "orders": 0,
             "trade_authority": TRADE_AUTHORITY,
         },
@@ -893,6 +1115,7 @@ def build_phase3(
 
 def render_markdown(phase3: dict[str, Any]) -> str:
     ai = phase3["ai_autonomous"]
+    discipline = ai.get("deployment_discipline", {})
     lines = [
         "# 股票投资助手｜Portfolio + Execution + AI Autonomous CURRENT",
         "",
@@ -904,6 +1127,14 @@ def render_markdown(phase3: dict[str, Any]) -> str:
         f"- AI持仓数：{ai['position_count']}",
         f"- AI累计收益：{ai['performance']['cumulative_return']:.2%}",
         f"- AI最大回撤：{ai['performance']['max_drawdown']:.2%}",
+        f"- AI部署阶段：第 {discipline.get('experiment_trading_day', 1)} 个完整观察交易日 / {discipline.get('deployment_status', 'NORMAL_ACCUMULATION')}",
+        f"- AI累计 decision-grade D2：{discipline.get('cumulative_decision_grade_d2_count', 0)}",
+        (
+            f"- 距下一 deployment gate：{discipline['trading_days_to_next_gate']} 个交易日"
+            if discipline.get("trading_days_to_next_gate") is not None
+            else "- 已进入最终 deployment gate 区间"
+        ),
+        f"- 高现金原因：{discipline.get('high_cash_reason') or 'N/A'}",
         "- Real / legacy Simulation 自动改仓：false",
         "- Orders：0；trade_authority：NONE",
         "",
@@ -912,7 +1143,12 @@ def render_markdown(phase3: dict[str, Any]) -> str:
     ]
     ready = [
         x for x in phase3["real_account"]["execution_validation"]["rows"]
-        if x["status"] not in {"NO_ACTION", "MANUAL_FUND_EXECUTION_REVIEW"}
+        if x["status"] not in {
+            "NO_ACTION",
+            "NO_ACTION_REVIEW_ONLY",
+            "NO_ACTION_DIRECTION_BLOCKED",
+            "MANUAL_FUND_EXECUTION_REVIEW",
+        }
     ]
     if not ready:
         lines.append("- 当前没有需要执行验证的上市证券调仓。")
@@ -927,9 +1163,10 @@ def render_markdown(phase3: dict[str, Any]) -> str:
         "",
         "## AI_AUTONOMOUS_1M",
         "",
-        "- 独立于真实账户和原有模拟盘。",
-        "- 只有该虚拟账本允许自动变更。",
-        "- 若没有当前 decision-grade BUY，允许保持100%现金。",
+        "- 独立于真实账户和原有受保护模拟盘。",
+        "- 只有该虚拟账本允许按正式 Recommendation 自主变更。",
+        "- BUY_BELOW 达价不直接买入，仍需 fresh D2 后成为正式 BUY。",
+        "- 10/20/30/40交易日 deployment discipline 只触发诊断/研究/Policy Proposal，不强迫买入。",
     ]
     return "\n".join(lines) + "\n"
 
