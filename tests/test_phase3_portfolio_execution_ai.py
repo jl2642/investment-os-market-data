@@ -90,7 +90,7 @@ def holding(
     return row
 
 
-def test_concentration_hold_becomes_10pct_target_not_thesis_exit() -> None:
+def test_concentration_hold_is_review_only_not_mechanical_sell() -> None:
     acc = account(
         "REAL",
         1_000_000,
@@ -103,8 +103,13 @@ def test_concentration_hold_becomes_10pct_target_not_thesis_exit() -> None:
         lifecycle(life_row("605090.SH", 35.0, "HELD_CONCENTRATION_REVIEW")),
     )
     row = plan["rows"][0]
-    assert row["target_weight"] == 0.10
-    assert "SINGLE_NAME_CAP_10PCT" in row["target_weight_reasons"]
+    assert row["target_weight"] == row["current_weight"]
+    assert "SINGLE_NAME_CAP_10PCT_RISK_REVIEW_ONLY" in row["target_weight_reasons"]
+    assert "CONCENTRATION_REVIEW_DIAGNOSTIC_ONLY" in row["target_weight_reasons"]
+    execution = build_execution_plan(plan)["rows"][0]
+    assert execution["side"] == "HOLD"
+    assert execution["status"] == "NO_ACTION_REVIEW_ONLY"
+    assert execution["validated_quantity"] == 0
 
 
 def test_trim_reduces_weight_instead_of_full_exit() -> None:
@@ -140,6 +145,7 @@ def test_catl_sub_lot_increment_is_blocked() -> None:
             "current_weight": 0.0,
             "target_weight": 0.05,
             "research_score": 1.0,
+            "action": "ADD",
             "current_quantity": 0.0,
             "available_quantity": 0.0,
             "current_price": 360.0,
