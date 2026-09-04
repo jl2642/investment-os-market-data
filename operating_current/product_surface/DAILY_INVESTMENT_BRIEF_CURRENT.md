@@ -1,7 +1,7 @@
 # 股票投资助手｜Daily Investment Brief
 
 - 数据日期：2026-09-03
-- 当前需人工复核的决策项：2
+- 当前需人工复核的决策项：3
 - 持仓绩效监控：22 / 22（账户持仓行 23）
 - 当前投资判断覆盖：22 / 22
 - 新机会：6
@@ -41,11 +41,11 @@
 
 ## 3. 新资本机会
 
+- BUY｜002807.SZ 江阴银行｜当前价 4.18｜预期收益 22.2%｜阻断 无
 - BUY_BELOW｜600428.SH 中远海特｜当前价 11.67｜预期收益 2.8%｜阻断 PRICE_BLOCKED
-- WATCH｜002807.SZ 江阴银行｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
-- WATCH｜301122.SZ 采纳股份｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
-- WATCH｜603995.SH 甬金股份｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
+- BUY_BELOW｜603995.SH 甬金股份｜当前价 25.34｜预期收益 1.9%｜阻断 PRICE_BLOCKED
 - AVOID｜002936.SZ 郑州银行｜当前价 1.81｜预期收益 -3.0%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
+- AVOID｜301122.SZ 采纳股份｜当前价 44.50｜预期收益 -57.3%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜603268.SH 松发股份｜当前价 183.48｜预期收益 -29.5%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 
 ## 4. 研究队列
