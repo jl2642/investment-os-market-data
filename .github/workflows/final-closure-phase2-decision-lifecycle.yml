@@ -34,6 +34,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 env:
   TRADE_AUTHORITY: NONE
@@ -75,8 +76,12 @@ jobs:
           python - <<'PY'
           import yaml
           from pathlib import Path
-          yaml.safe_load(Path(".github/workflows/final-closure-phase2-decision-lifecycle.yml").read_text(encoding="utf-8"))
-          print({"phase2_workflow_yaml":"PASS"})
+          path=Path(".github/workflows/final-closure-phase2-decision-lifecycle.yml")
+          yaml.safe_load(path.read_text(encoding="utf-8"))
+          text=path.read_text(encoding="utf-8")
+          assert "actions: write" in text
+          assert "gh workflow run final-closure-phase3-portfolio-execution-ai.yml --ref main" in text
+          print({"phase2_workflow_yaml":"PASS","explicit_phase3_handoff":"PASS"})
           PY
 
       - name: Enforce zero economic mutation
@@ -211,6 +216,15 @@ jobs:
             --source-branch main \
             --source-commit "$MAIN_HEAD"
 
+      - name: Explicitly hand off Current Lifecycle to Phase 3
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh workflow run final-closure-phase3-portfolio-execution-ai.yml --ref main
+          echo "Phase 3 workflow_dispatch accepted after Lifecycle publication."
+
       - name: Record Phase 2 operating summary
         run: |
           {
@@ -220,5 +234,6 @@ jobs:
             echo "- semantic catalysts and kill thesis: registered, never keyword-fired"
             echo "- price crossing: re-underwrite, never auto-buy"
             echo "- drawdown alone: monitor, never auto-exit"
+            echo "- downstream handoff: explicit workflow_dispatch to Phase 3"
             echo "- orders: 0; trade_authority: NONE"
           } >> "$GITHUB_STEP_SUMMARY"
