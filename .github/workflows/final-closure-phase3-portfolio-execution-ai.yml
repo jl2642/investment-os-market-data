@@ -76,7 +76,7 @@ jobs:
           path=Path(".github/workflows/final-closure-phase3-portfolio-execution-ai.yml")
           yaml.safe_load(path.read_text(encoding="utf-8"))
           text=path.read_text(encoding="utf-8")
-          assert "workflow_run:" not in text
+          assert ("workflow_" + "run:") not in text
           assert "workflow_dispatch:" in text
           print({"phase3_workflow_yaml":"PASS","single_explicit_handoff_path":"PASS"})
           PY
