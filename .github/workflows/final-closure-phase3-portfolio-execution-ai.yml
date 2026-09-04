@@ -26,10 +26,6 @@ on:
       - "investment_os_runtime/00_CONTROL/ACTIVE_WORKFLOW_REGISTRY.json"
       - "investment_os_runtime/50_OPERATING_PRODUCTS/PORTFOLIO_EXECUTION_AI_CONTRACT.md"
       - "automation/operating_current/publish_operating_current.py"
-  workflow_run:
-    workflows:
-      - "Final Closure Phase 2 Decision Lifecycle"
-    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -77,8 +73,12 @@ jobs:
           python - <<'PY'
           import yaml
           from pathlib import Path
-          yaml.safe_load(Path(".github/workflows/final-closure-phase3-portfolio-execution-ai.yml").read_text(encoding="utf-8"))
-          print({"phase3_workflow_yaml":"PASS"})
+          path=Path(".github/workflows/final-closure-phase3-portfolio-execution-ai.yml")
+          yaml.safe_load(path.read_text(encoding="utf-8"))
+          text=path.read_text(encoding="utf-8")
+          assert "workflow_run:" not in text
+          assert "workflow_dispatch:" in text
+          print({"phase3_workflow_yaml":"PASS","single_explicit_handoff_path":"PASS"})
           PY
 
       - name: Enforce protected-state boundary
@@ -100,12 +100,7 @@ jobs:
           PY
 
   production:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'workflow_run' &&
-       github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.event != 'pull_request')
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -217,6 +212,7 @@ jobs:
         run: |
           {
             echo "## Final Closure Phase 3"
+            echo "- authoritative upstream handoff: explicit workflow_dispatch from Decision Lifecycle"
             echo "- Target Weight Engine: active; risk target != trade authority"
             echo "- HOLD review cannot manufacture BUY/SELL"
             echo "- AI_AUTONOMOUS_1M: isolated virtual ledger with 10/20/30/40 trading-day deployment discipline"
