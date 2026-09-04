@@ -1,10 +1,19 @@
 {
   "ai_autonomous": {
     "as_of_date": "2026-09-03",
-    "attribution": [],
+    "attribution": [
+      {
+        "market_value": 99902.0,
+        "risk_group": "A_SHARE_STOCK",
+        "security_id": "002807.SZ",
+        "security_name": "江阴银行",
+        "unrealized_pnl": -99.90199999999643,
+        "weight": 0.09991198140676649
+      }
+    ],
     "book_id": "AI_AUTONOMOUS_1M",
-    "cash": 1000000.0,
-    "cash_weight": 1.0,
+    "cash": 899998.098,
+    "cash_weight": 0.9000880185932335,
     "controls": {
       "buy_lot": 100,
       "cash_floor": 0.2,
@@ -18,31 +27,40 @@
       "slippage_bps": 10.0,
       "trade_authority": "NONE"
     },
-    "current_nav": 1000000.0,
+    "current_nav": 999900.098,
     "deployment_discipline": {
-      "cash_weight": 1.0,
-      "cumulative_decision_grade_d2_count": 3,
+      "cash_weight": 0.9000880185932335,
+      "cumulative_decision_grade_d2_count": 6,
       "cumulative_decision_grade_d2_ids": [
+        "002807.SZ",
         "002936.SZ",
+        "301122.SZ",
         "600428.SH",
-        "603268.SH"
+        "603268.SH",
+        "603995.SH"
       ],
       "current_buy_below_ids": [
-        "600428.SH"
+        "600428.SH",
+        "603995.SH"
       ],
       "current_decision_grade_d2_ids": [
+        "002807.SZ",
         "002936.SZ",
+        "301122.SZ",
         "600428.SH",
-        "603268.SH"
+        "603268.SH",
+        "603995.SH"
       ],
-      "current_eligible_buy_ids": [],
-      "deployed_weight": 0.0,
+      "current_eligible_buy_ids": [
+        "002807.SZ"
+      ],
+      "deployed_weight": 0.09991198140676649,
       "deployment_status": "NORMAL_ACCUMULATION",
       "experiment_trading_day": 3,
-      "high_cash_reason": "INSUFFICIENT_CUMULATIVE_DECISION_GRADE_D2",
+      "high_cash_reason": "PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE",
       "next_gate_trading_day": 10,
       "orders": 0,
-      "position_count": 0,
+      "position_count": 1,
       "rules": {
         "buy_below_direct_buy_authorized": false,
         "day10_cash_gt_80pct": "AI_BOOK_DEPLOYMENT_REVIEW",
@@ -61,17 +79,37 @@
       "triggered_gates": []
     },
     "diagnostics": [],
-    "new_transaction_count": 0,
-    "new_transactions": [],
+    "new_transaction_count": 1,
+    "new_transactions": [
+      {
+        "as_of_date": "2026-09-03",
+        "execution_price": 4.18418,
+        "notional": 100001.90199999999,
+        "quantity": 23900,
+        "realized_pnl": 0.0,
+        "reason": "AI_TARGET_WEIGHT_REBALANCE",
+        "security_id": "002807.SZ",
+        "security_name": "江阴银行",
+        "side": "BUY"
+      }
+    ],
     "performance": {
-      "cumulative_return": 0.0,
-      "max_drawdown": 0.0,
+      "cumulative_return": -9.990199999998506e-05,
+      "max_drawdown": -9.990199999998506e-05,
       "realized_pnl": 0.0,
-      "turnover_since_inception": 0.0
+      "turnover_since_inception": 0.10000190199999999
     },
-    "position_count": 0,
+    "position_count": 1,
     "prior_nav": 1000000.0,
-    "target_weights": {}
+    "target_weights": {
+      "002807.SZ": {
+        "action": "BUY",
+        "risk_group": "A_SHARE_STOCK",
+        "score": 0.1476781667086378,
+        "security_name": "江阴银行",
+        "target_weight": 0.1
+      }
+    }
   },
   "as_of_date": "2026-09-03",
   "controls": {
@@ -86,9 +124,9 @@
     "target_weight_engine": true,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-04T01:52:46+00:00",
+  "generated_at_utc": "2026-09-04T02:54:39+00:00",
   "orders": 0,
-  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_e01f0e56d438d6f7",
+  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_73e743f2438c377a",
   "real_account": {
     "automatic_mutation_authorized": false,
     "execution_validation": {
