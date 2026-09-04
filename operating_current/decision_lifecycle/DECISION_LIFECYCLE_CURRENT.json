@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-04T01:44:09+00:00",
+  "generated_at_utc": "2026-09-04T02:52:50+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-09-03",
-    "recommendation_generated_at_utc": "2026-09-03T14:49:53+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_8bce97d7ff4d4583",
+    "recommendation_generated_at_utc": "2026-09-04T02:48:46+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_6f301329913ce4b4",
     "surface_as_of_date": "2026-09-03",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_5cdd6aa8eed316a1"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_ffa36f87a0277f6e"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_a3267d2b7d488c03",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_b0e7ae0a44e3724e",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -72,32 +72,46 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 5.16,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "BUY",
+      "entry_price": 4.25,
+      "expected_return": 0.22236842105263177,
       "latest_price": 4.18,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
-      "mechanical_trigger_keys": [],
+      "lifecycle_state": "FLAT_BUY_REVIEW",
+      "mark_expected_return": 0.22236842105263177,
+      "mechanical_trigger_keys": [
+        "NEW_CAPITAL_ACTION_BUY"
+      ],
       "monitoring_flags": [],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "NEW_CAPITAL_ACTION_BUY"
+      ],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-09-03",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
-      "ready_for_user_decision": false,
+      "probability_weighted_value": 5.109500000000001,
+      "ready_for_user_decision": true,
       "security_id": "002807.SZ",
       "security_name": "江阴银行",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+        "catalysts": [
+          "NIM stabilizes around or above current levels as deposit costs reprice down.",
+          "Watch and overdue loan ratios stabilize without translating into higher NPL formation.",
+          "Interim/full-year cash payout remains sustainable while capital ratios stay comfortably above minima.",
+          "Provision coverage remains high while earnings growth continues without relying on outsized bond-realization gains."
+        ],
+        "kill_thesis": [
+          "NPL ratio moves above roughly 1.0-1.1% with simultaneous watch/overdue deterioration and rising credit cost.",
+          "NIM falls materially below roughly 1.45% without offsetting funding-cost or fee-income improvement.",
+          "Core Tier-1 capital falls toward roughly 12.5% while loan growth remains aggressive or capital actions dilute common holders.",
+          "Recurring earnings become increasingly dependent on bond/investment gains while core spread and credit economics weaken."
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "UNDERWRITING_OBJECT_ABSENT",
+      "top_blocker": null,
       "trade_authority": "NONE"
     },
     {
@@ -452,14 +466,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 18.0,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "AVOID",
+      "entry_price": 16.5,
+      "expected_return": -0.5725280898876404,
       "latest_price": 44.5,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_AVOID",
+      "mark_expected_return": -0.5725280898876404,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -467,17 +481,27 @@
       "position_state": "FLAT",
       "price_as_of": "2026-09-03",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 19.0225,
       "ready_for_user_decision": false,
       "security_id": "301122.SZ",
       "security_name": "采纳股份",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+        "catalysts": [
+          "FDA import alert is formally removed and U.S. syringe shipments normalize.",
+          "Cambodia utilization ramps with stable gross margin and cash conversion.",
+          "Fenglin Medical integration turns profitable without further balance-sheet deterioration.",
+          "New Class III arterial blood-sampling product demonstrates material domestic revenue and margin."
+        ],
+        "kill_thesis": [
+          "FDA import alert remains unresolved or expands in scope.",
+          "Deduct-net-profit margin fails to normalize despite revenue growth.",
+          "Inventory/capex/acquisition working capital continues to absorb cash faster than core profit grows.",
+          "A recovery valuation remains dependent on a profit level materially above disclosed operating evidence."
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "UNDERWRITING_OBJECT_ABSENT",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -1042,14 +1066,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 25.63,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "BUY_BELOW",
+      "entry_price": 21.5,
+      "expected_return": 0.01874506708760837,
       "latest_price": 25.34,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_WAIT_BUY_BELOW",
+      "mark_expected_return": 0.01874506708760837,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -1057,17 +1081,27 @@
       "position_state": "FLAT",
       "price_as_of": "2026-09-03",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 25.814999999999998,
       "ready_for_user_decision": false,
       "security_id": "603995.SH",
       "security_name": "甬金股份",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+        "catalysts": [
+          "Q2 gross/net margin improvement persists through H2 without inventory build accelerating.",
+          "Thailand/overseas capacity reaches utilization with acceptable ROIC and cash conversion.",
+          "Industry capacity digestion improves stainless processing spreads.",
+          "Operating cash flow catches up with earnings while inventory and debt normalize."
+        ],
+        "kill_thesis": [
+          "Gross margin mean-reverts toward or below roughly 4.5% without a temporary explanation.",
+          "Inventory, short-term funding and receivables continue rising faster than revenue while CFO remains below earnings.",
+          "New governance or related-party/control issues materially raise capital-allocation risk.",
+          "Convertible/dilution or expansion capex reduces per-share returns without a commensurate ROIC improvement."
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "UNDERWRITING_OBJECT_ABSENT",
+      "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
     {
@@ -1123,10 +1157,10 @@
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 1,
     "reunderwrite_required_count": 0,
-    "review_queue_count": 3,
-    "semantic_watch_clause_count": 520,
+    "review_queue_count": 4,
+    "semantic_watch_clause_count": 155,
     "subject_count": 28,
-    "user_action_review_count": 2,
+    "user_action_review_count": 3,
     "valuation_reunderwrite_count": 0
   },
   "trade_authority": "NONE"
