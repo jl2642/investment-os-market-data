@@ -36,6 +36,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 env:
   TRADE_AUTHORITY: NONE
@@ -58,8 +59,7 @@ jobs:
         run: python -m pip install --retries 5 --timeout 30 pytest pyyaml
 
       - name: Compile S3 producers
-        run: |
-          python -m py_compile automation/product_surface/build_product_surface.py automation/product_surface/publish_product_surface.py automation/operating_current/publish_operating_current.py
+        run: python -m py_compile automation/product_surface/build_product_surface.py automation/product_surface/publish_product_surface.py automation/operating_current/publish_operating_current.py
 
       - name: Validate S3 and preserve S2 contracts
         run: |
@@ -75,7 +75,10 @@ jobs:
               ".github/workflows/occ-r4-portfolio-decision-freshness.yml",
           ]:
               yaml.safe_load(Path(path).read_text(encoding="utf-8"))
-          print({"s3_workflow_yaml": "PASS"})
+          s3 = Path(".github/workflows/s3-portfolio-product-surface.yml").read_text(encoding="utf-8")
+          assert "actions: write" in s3
+          assert "gh workflow run final-closure-phase2-decision-lifecycle.yml --ref main" in s3
+          print({"s3_workflow_yaml": "PASS", "explicit_lifecycle_handoff": "PASS"})
           PY
 
       - name: Enforce read-only S3 scope
@@ -209,6 +212,15 @@ jobs:
           MAIN_HEAD="$(git rev-parse HEAD)"
           python automation/product_surface/publish_product_surface.py             --surface-json /tmp/PORTFOLIO_DECISION_SURFACE_CURRENT.json             --daily-brief /tmp/DAILY_INVESTMENT_BRIEF_CURRENT.md             --source-workflow "S3 Portfolio + Product Surface"             --source-run-id "${{ github.run_id }}"             --source-run-attempt "${{ github.run_attempt }}"             --source-branch main             --source-commit "$MAIN_HEAD"
 
+      - name: Explicitly hand off Current S3 to Decision Lifecycle
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh workflow run final-closure-phase2-decision-lifecycle.yml --ref main
+          echo "Decision Lifecycle workflow_dispatch accepted after S3 publication."
+
       - name: Record S3 operating summary
         run: |
           {
@@ -216,6 +228,7 @@ jobs:
             echo "- Portfolio Marks: ${{ steps.authority.outputs.mark_watermark }}"
             echo "- S2 Investment Pipeline: ${{ steps.authority.outputs.investment_watermark }}"
             echo "- canonical user products: Daily Investment Brief + Portfolio Decision Surface"
+            echo "- downstream handoff: explicit workflow_dispatch to Decision Lifecycle"
             echo "- old R3/R4/WP5 product entrypoints: retired from current surface"
             echo "- automatic portfolio mutation / orders: 0 / 0"
             echo "- trade_authority: NONE"
