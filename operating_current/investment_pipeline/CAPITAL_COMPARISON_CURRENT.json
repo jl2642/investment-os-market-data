@@ -7,61 +7,54 @@
     "trade_authority": "NONE"
   },
   "coverage": {
-    "d2_subject_count": 28,
+    "d2_subject_count": 30,
     "decision_grade_underwriting_count": 28,
     "portfolio_comparison_boundary": "Current D2 subjects are ranked explicitly; holdings without D2 underwriting remain outside expected-return comparison rather than receiving invented returns.",
     "real_position_state_bound": true,
     "simulation_position_state_bound": true
   },
-  "generated_at_utc": "2026-09-04T02:48:46+00:00",
+  "generated_at_utc": "2026-09-04T14:22:42+00:00",
   "rows": [
     {
       "capital_hurdle": 0.1,
       "cash_hurdle": 0.04,
-      "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.7793258426966292,
+        "bear_downside": -0.154189050177163,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
-        "existing_position": false,
-        "expected_return": -0.5725280898876404
+        "existing_position": true,
+        "expected_return": 0.10926963081495034
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
-      "existing_position": false,
+      "existing_position": true,
       "metrics": {
-        "base_value": 18.0,
-        "bear_downside": -0.7793258426966292,
-        "bear_value": 9.82,
-        "bull_value": 30.27,
+        "base_value": 98.6,
+        "bear_downside": -0.154189050177163,
+        "bear_value": 74.0,
+        "bull_value": 117.0,
         "catalysts": [
-          "FDA import alert is formally removed and U.S. syringe shipments normalize.",
-          "Cambodia utilization ramps with stable gross margin and cash conversion.",
-          "Fenglin Medical integration turns profitable without further balance-sheet deterioration.",
-          "New Class III arterial blood-sampling product demonstrates material domestic revenue and margin."
+          "海外与ToB业务恢复增长",
+          "汇率扰动正常化",
+          "资本回报持续"
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_price": 44.5,
-        "entry_price": 16.5,
-        "expected_return": -0.5725280898876404,
+        "current_price": 87.49,
+        "entry_price": 82.0,
+        "expected_return": 0.10926963081495034,
         "kill_thesis": [
-          "FDA import alert remains unresolved or expands in scope.",
-          "Deduct-net-profit margin fails to normalize despite revenue growth.",
-          "Inventory/capex/acquisition working capital continues to absorb cash faster than core profit grows.",
-          "A recovery valuation remains dependent on a profit level materially above disclosed operating evidence."
+          "核心家电份额明显下降",
+          "现金流持续弱于利润",
+          "ToB业务盈利能力长期恶化"
         ],
         "normalized_earnings_basis": {
-          "base_net_profit_rmb_m": 60.0,
-          "bear_net_profit_rmb_m": 25.0,
-          "bull_net_profit_rmb_m": 100.0,
-          "excess_liquid_financial_assets_rmb_m": 700.0,
-          "metric": "NORMALIZED_ATTRIBUTABLE_NET_PROFIT_PLUS_HAIRCUT_EXCESS_LIQUID_ASSETS",
-          "rationale": "Generous asset cushion is included; earnings are normalized rather than annualizing H1 revenue growth.",
-          "shares_m": 122.245658
+          "basis": "2026H1 reported EPS 3.52; 2026E normalized EPS around low-6 range used as broad reference; scenario multiples reflect mature quality consumer/industrial franchise.",
+          "year": "2026E_OR_CURRENT_CYCLE"
         },
-        "portfolio_role": "NONE_UNTIL_REUNDERWRITTEN",
-        "price_as_of": "2026-09-03",
-        "probability_weighted_value": 19.0225,
+        "portfolio_role": null,
+        "price_as_of": "2026-09-01",
+        "probability_weighted_value": 97.05,
         "scenario_probabilities": {
           "BASE": 0.5,
           "BEAR": 0.25,
@@ -70,10 +63,62 @@
       },
       "missing_requirements": [],
       "peer_expected_return_median": 0.06338679827267124,
+      "position_accounts": [
+        "SIMULATION"
+      ],
+      "rank_among_current_d2": 7,
+      "security_id": "000333.SZ",
+      "security_name": "美的集团",
+      "trade_authority": "NONE"
+    },
+    {
+      "capital_hurdle": 0.1,
+      "cash_hurdle": 0.04,
+      "comparison_status": "UNDERWRITING_PENDING",
+      "comparison_vector": {
+        "bear_downside": null,
+        "capital_hurdle": 0.1,
+        "cash_hurdle": 0.04,
+        "confidence": null,
+        "existing_position": false,
+        "expected_return": null
+      },
+      "d2_status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+      "existing_position": false,
+      "metrics": null,
+      "missing_requirements": [
+        "UNDERWRITING_OBJECT_ABSENT"
+      ],
+      "peer_expected_return_median": 0.06338679827267124,
       "position_accounts": [],
-      "rank_among_current_d2": 28,
-      "security_id": "301122.SZ",
-      "security_name": "采纳股份",
+      "rank_among_current_d2": null,
+      "security_id": "600371.SH",
+      "security_name": "万向德农",
+      "trade_authority": "NONE"
+    },
+    {
+      "capital_hurdle": 0.1,
+      "cash_hurdle": 0.04,
+      "comparison_status": "UNDERWRITING_PENDING",
+      "comparison_vector": {
+        "bear_downside": null,
+        "capital_hurdle": 0.1,
+        "cash_hurdle": 0.04,
+        "confidence": null,
+        "existing_position": false,
+        "expected_return": null
+      },
+      "d2_status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+      "existing_position": false,
+      "metrics": null,
+      "missing_requirements": [
+        "UNDERWRITING_OBJECT_ABSENT"
+      ],
+      "peer_expected_return_median": 0.06338679827267124,
+      "position_accounts": [],
+      "rank_among_current_d2": null,
+      "security_id": "603819.SH",
+      "security_name": "神力股份",
       "trade_authority": "NONE"
     },
     {
@@ -136,121 +181,6 @@
       "rank_among_current_d2": 1,
       "security_id": "002807.SZ",
       "security_name": "江阴银行",
-      "trade_authority": "NONE"
-    },
-    {
-      "capital_hurdle": 0.1,
-      "cash_hurdle": 0.04,
-      "comparison_status": "PRICE_BLOCKED",
-      "comparison_vector": {
-        "bear_downside": -0.4277821625887924,
-        "capital_hurdle": 0.1,
-        "cash_hurdle": 0.04,
-        "confidence": "MEDIUM",
-        "existing_position": false,
-        "expected_return": 0.01874506708760837
-      },
-      "d2_status": "D2_RESEARCH_COMPLETE",
-      "existing_position": false,
-      "metrics": {
-        "base_value": 25.63,
-        "bear_downside": -0.4277821625887924,
-        "bear_value": 14.5,
-        "bull_value": 37.5,
-        "catalysts": [
-          "Q2 gross/net margin improvement persists through H2 without inventory build accelerating.",
-          "Thailand/overseas capacity reaches utilization with acceptable ROIC and cash conversion.",
-          "Industry capacity digestion improves stainless processing spreads.",
-          "Operating cash flow catches up with earnings while inventory and debt normalize."
-        ],
-        "confidence": "MEDIUM",
-        "current_price": 25.34,
-        "entry_price": 21.5,
-        "expected_return": 0.01874506708760837,
-        "kill_thesis": [
-          "Gross margin mean-reverts toward or below roughly 4.5% without a temporary explanation.",
-          "Inventory, short-term funding and receivables continue rising faster than revenue while CFO remains below earnings.",
-          "New governance or related-party/control issues materially raise capital-allocation risk.",
-          "Convertible/dilution or expansion capex reduces per-share returns without a commensurate ROIC improvement."
-        ],
-        "normalized_earnings_basis": {
-          "base_eps": 2.05,
-          "bear_eps": 1.45,
-          "bull_eps": 2.5,
-          "metric": "NORMALIZED_EPS",
-          "rationale": "Base sits around an improved but not peak normalized run-rate; Q2 is not annualized mechanically."
-        },
-        "portfolio_role": "CYCLICAL_INDUSTRIAL_ONLY_AFTER_REUNDERWRITING",
-        "price_as_of": "2026-09-03",
-        "probability_weighted_value": 25.814999999999998,
-        "scenario_probabilities": {
-          "BASE": 0.5,
-          "BEAR": 0.25,
-          "BULL": 0.25
-        }
-      },
-      "missing_requirements": [],
-      "peer_expected_return_median": 0.06338679827267124,
-      "position_accounts": [],
-      "rank_among_current_d2": 24,
-      "security_id": "603995.SH",
-      "security_name": "甬金股份",
-      "trade_authority": "NONE"
-    },
-    {
-      "capital_hurdle": 0.1,
-      "cash_hurdle": 0.04,
-      "comparison_status": "PRICE_BLOCKED",
-      "comparison_vector": {
-        "bear_downside": -0.154189050177163,
-        "capital_hurdle": 0.1,
-        "cash_hurdle": 0.04,
-        "confidence": "MEDIUM_HIGH",
-        "existing_position": true,
-        "expected_return": 0.10926963081495034
-      },
-      "d2_status": "D2_RESEARCH_COMPLETE",
-      "existing_position": true,
-      "metrics": {
-        "base_value": 98.6,
-        "bear_downside": -0.154189050177163,
-        "bear_value": 74.0,
-        "bull_value": 117.0,
-        "catalysts": [
-          "海外与ToB业务恢复增长",
-          "汇率扰动正常化",
-          "资本回报持续"
-        ],
-        "confidence": "MEDIUM_HIGH",
-        "current_price": 87.49,
-        "entry_price": 82.0,
-        "expected_return": 0.10926963081495034,
-        "kill_thesis": [
-          "核心家电份额明显下降",
-          "现金流持续弱于利润",
-          "ToB业务盈利能力长期恶化"
-        ],
-        "normalized_earnings_basis": {
-          "basis": "2026H1 reported EPS 3.52; 2026E normalized EPS around low-6 range used as broad reference; scenario multiples reflect mature quality consumer/industrial franchise.",
-          "year": "2026E_OR_CURRENT_CYCLE"
-        },
-        "portfolio_role": null,
-        "price_as_of": "2026-09-01",
-        "probability_weighted_value": 97.05,
-        "scenario_probabilities": {
-          "BASE": 0.5,
-          "BEAR": 0.25,
-          "BULL": 0.25
-        }
-      },
-      "missing_requirements": [],
-      "peer_expected_return_median": 0.06338679827267124,
-      "position_accounts": [
-        "SIMULATION"
-      ],
-      "rank_among_current_d2": 7,
-      "security_id": "000333.SZ",
-      "security_name": "美的集团",
       "trade_authority": "NONE"
     },
     {
@@ -744,6 +674,67 @@
       "rank_among_current_d2": 2,
       "security_id": "300750.SZ",
       "security_name": "宁德时代",
+      "trade_authority": "NONE"
+    },
+    {
+      "capital_hurdle": 0.1,
+      "cash_hurdle": 0.04,
+      "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "comparison_vector": {
+        "bear_downside": -0.7793258426966292,
+        "capital_hurdle": 0.1,
+        "cash_hurdle": 0.04,
+        "confidence": "MEDIUM_HIGH",
+        "existing_position": false,
+        "expected_return": -0.5725280898876404
+      },
+      "d2_status": "D2_RESEARCH_COMPLETE",
+      "existing_position": false,
+      "metrics": {
+        "base_value": 18.0,
+        "bear_downside": -0.7793258426966292,
+        "bear_value": 9.82,
+        "bull_value": 30.27,
+        "catalysts": [
+          "FDA import alert is formally removed and U.S. syringe shipments normalize.",
+          "Cambodia utilization ramps with stable gross margin and cash conversion.",
+          "Fenglin Medical integration turns profitable without further balance-sheet deterioration.",
+          "New Class III arterial blood-sampling product demonstrates material domestic revenue and margin."
+        ],
+        "confidence": "MEDIUM_HIGH",
+        "current_price": 44.5,
+        "entry_price": 16.5,
+        "expected_return": -0.5725280898876404,
+        "kill_thesis": [
+          "FDA import alert remains unresolved or expands in scope.",
+          "Deduct-net-profit margin fails to normalize despite revenue growth.",
+          "Inventory/capex/acquisition working capital continues to absorb cash faster than core profit grows.",
+          "A recovery valuation remains dependent on a profit level materially above disclosed operating evidence."
+        ],
+        "normalized_earnings_basis": {
+          "base_net_profit_rmb_m": 60.0,
+          "bear_net_profit_rmb_m": 25.0,
+          "bull_net_profit_rmb_m": 100.0,
+          "excess_liquid_financial_assets_rmb_m": 700.0,
+          "metric": "NORMALIZED_ATTRIBUTABLE_NET_PROFIT_PLUS_HAIRCUT_EXCESS_LIQUID_ASSETS",
+          "rationale": "Generous asset cushion is included; earnings are normalized rather than annualizing H1 revenue growth.",
+          "shares_m": 122.245658
+        },
+        "portfolio_role": "NONE_UNTIL_REUNDERWRITTEN",
+        "price_as_of": "2026-09-03",
+        "probability_weighted_value": 19.0225,
+        "scenario_probabilities": {
+          "BASE": 0.5,
+          "BEAR": 0.25,
+          "BULL": 0.25
+        }
+      },
+      "missing_requirements": [],
+      "peer_expected_return_median": 0.06338679827267124,
+      "position_accounts": [],
+      "rank_among_current_d2": 28,
+      "security_id": "301122.SZ",
+      "security_name": "采纳股份",
       "trade_authority": "NONE"
     },
     {
@@ -1550,6 +1541,65 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
+        "bear_downside": -0.4277821625887924,
+        "capital_hurdle": 0.1,
+        "cash_hurdle": 0.04,
+        "confidence": "MEDIUM",
+        "existing_position": false,
+        "expected_return": 0.01874506708760837
+      },
+      "d2_status": "D2_RESEARCH_COMPLETE",
+      "existing_position": false,
+      "metrics": {
+        "base_value": 25.63,
+        "bear_downside": -0.4277821625887924,
+        "bear_value": 14.5,
+        "bull_value": 37.5,
+        "catalysts": [
+          "Q2 gross/net margin improvement persists through H2 without inventory build accelerating.",
+          "Thailand/overseas capacity reaches utilization with acceptable ROIC and cash conversion.",
+          "Industry capacity digestion improves stainless processing spreads.",
+          "Operating cash flow catches up with earnings while inventory and debt normalize."
+        ],
+        "confidence": "MEDIUM",
+        "current_price": 25.34,
+        "entry_price": 21.5,
+        "expected_return": 0.01874506708760837,
+        "kill_thesis": [
+          "Gross margin mean-reverts toward or below roughly 4.5% without a temporary explanation.",
+          "Inventory, short-term funding and receivables continue rising faster than revenue while CFO remains below earnings.",
+          "New governance or related-party/control issues materially raise capital-allocation risk.",
+          "Convertible/dilution or expansion capex reduces per-share returns without a commensurate ROIC improvement."
+        ],
+        "normalized_earnings_basis": {
+          "base_eps": 2.05,
+          "bear_eps": 1.45,
+          "bull_eps": 2.5,
+          "metric": "NORMALIZED_EPS",
+          "rationale": "Base sits around an improved but not peak normalized run-rate; Q2 is not annualized mechanically."
+        },
+        "portfolio_role": "CYCLICAL_INDUSTRIAL_ONLY_AFTER_REUNDERWRITING",
+        "price_as_of": "2026-09-03",
+        "probability_weighted_value": 25.814999999999998,
+        "scenario_probabilities": {
+          "BASE": 0.5,
+          "BEAR": 0.25,
+          "BULL": 0.25
+        }
+      },
+      "missing_requirements": [],
+      "peer_expected_return_median": 0.06338679827267124,
+      "position_accounts": [],
+      "rank_among_current_d2": 24,
+      "security_id": "603995.SH",
+      "security_name": "甬金股份",
+      "trade_authority": "NONE"
+    },
+    {
+      "capital_hurdle": 0.1,
+      "cash_hurdle": 0.04,
+      "comparison_status": "PRICE_BLOCKED",
+      "comparison_vector": {
         "bear_downside": -0.17379758040719973,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
@@ -1603,7 +1653,7 @@
     }
   ],
   "schema_version": "2.0.0",
-  "source_d2_state_id": "RESEARCH_QUEUE_D2_CURRENT_72285cdac7eae2ba_SEMANTIC_6eede799cb8f",
-  "state_id": "CAPITAL_COMPARISON_CURRENT_67c1adf555240bad",
+  "source_d2_state_id": "RESEARCH_QUEUE_D2_CURRENT_0b7e5b9c6e14f074_SEMANTIC_4bbddbd17bcf",
+  "state_id": "CAPITAL_COMPARISON_CURRENT_933fb57f3b69844b",
   "status": "PASS_LIVE_CAPITAL_COMPARISON"
 }
