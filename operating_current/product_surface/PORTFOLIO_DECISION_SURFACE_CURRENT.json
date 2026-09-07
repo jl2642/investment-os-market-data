@@ -11,12 +11,11 @@
   },
   "executive": {
     "action_counts": {
-      "AVOID": 3,
+      "AVOID": 4,
       "BUY": 1,
       "BUY_BELOW": 2,
       "HOLD": 20,
-      "TRIM": 2,
-      "WATCH": 1
+      "TRIM": 2
     },
     "automatic_position_change_allowed": false,
     "automatic_rebalance_allowed": false,
@@ -123,25 +122,6 @@
     },
     {
       "accounts": [],
-      "action": "WATCH",
-      "bear_downside": null,
-      "catalysts": [],
-      "confidence": null,
-      "current_price": null,
-      "entry_price": null,
-      "expected_return": null,
-      "kill_thesis": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
-      "orders": 0,
-      "original_recommendation_action": "WATCH",
-      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
-      "ready_for_user_decision": false,
-      "security_id": "003040.SZ",
-      "security_name": "楚天龙",
-      "top_blocker": "UNDERWRITING_OBJECT_ABSENT",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
       "action": "AVOID",
       "bear_downside": -0.28729281767955805,
       "catalysts": [],
@@ -156,6 +136,35 @@
       "ready_for_user_decision": false,
       "security_id": "002936.SZ",
       "security_name": "郑州银行",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "AVOID",
+      "bear_downside": -0.8768939393939394,
+      "catalysts": [
+        "Embedded-security pricing and gross margin recover on sustained bank/social-security-card replacement demand.",
+        "eSIM certifications convert into material commercial shipments with positive gross-margin contribution.",
+        "Digital-RMB related revenue becomes economically material rather than remaining below 5% of company revenue.",
+        "Deducted net profit turns sustainably positive and operating cash flow improves without further inventory or receivable absorption."
+      ],
+      "confidence": "MEDIUM_HIGH",
+      "current_price": 21.12,
+      "entry_price": 5.8,
+      "expected_return": -0.6714015151515151,
+      "kill_thesis": [
+        "Embedded-security revenue or gross margin remains under pressure and no durable core-volume/price recovery is visible.",
+        "Digital-RMB/eSIM theme activity fails to convert into material revenue and cash earnings.",
+        "Deducted earnings remain negative or weak while working capital continues to absorb cash.",
+        "Valuation continues to require sustainable profit materially above the company's 2022 historical peak before primary evidence supports such an earnings step-up."
+      ],
+      "orders": 0,
+      "original_recommendation_action": "AVOID",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "003040.SZ",
+      "security_name": "楚天龙",
       "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
@@ -1392,9 +1401,9 @@
     "investment_pipeline": {
       "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_2cf2ca6b92fb833c",
       "domain": "INVESTMENT_PIPELINE",
-      "recommendation_state_id": "RECOMMENDATION_CURRENT_22f92edf56ee81d6",
-      "source_commit": "3c5e23fb8742e163ae90318e0c739f3576d4d8f1",
-      "watermark": "2026-09-04T14:26:23+00:00"
+      "recommendation_state_id": "RECOMMENDATION_CURRENT_38d611df43eff882",
+      "source_commit": "ac3e6b179eded7047874f9b7fcbcb9eda3631c07",
+      "watermark": "2026-09-07T03:23:46+00:00"
     },
     "portfolio_marks": {
       "domain": "PORTFOLIO_MARKS",
@@ -1403,6 +1412,6 @@
     }
   },
   "status": "PASS_S3_PORTFOLIO_PRODUCT_SURFACE",
-  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_451dda70f7c36e2d",
+  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_ee1f3983f9547e38",
   "trade_authority": "NONE"
 }
