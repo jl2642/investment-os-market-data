@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-04T17:51:53+00:00",
+  "generated_at_utc": "2026-09-07T03:27:16+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-09-04",
-    "recommendation_generated_at_utc": "2026-09-04T14:26:23+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_22f92edf56ee81d6",
+    "recommendation_generated_at_utc": "2026-09-07T03:23:46+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_38d611df43eff882",
     "surface_as_of_date": "2026-09-04",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_451dda70f7c36e2d"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_ee1f3983f9547e38"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_30022009e8919b2a",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_295cac32dcf56b7f",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -144,14 +144,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 6.29,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "AVOID",
+      "entry_price": 5.8,
+      "expected_return": -0.6714015151515151,
       "latest_price": 21.12,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_AVOID",
+      "mark_expected_return": -0.6714015151515151,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -159,17 +159,27 @@
       "position_state": "FLAT",
       "price_as_of": "2026-09-04",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 6.94,
       "ready_for_user_decision": false,
       "security_id": "003040.SZ",
       "security_name": "楚天龙",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
+        "catalysts": [
+          "Embedded-security pricing and gross margin recover on sustained bank/social-security-card replacement demand.",
+          "eSIM certifications convert into material commercial shipments with positive gross-margin contribution.",
+          "Digital-RMB related revenue becomes economically material rather than remaining below 5% of company revenue.",
+          "Deducted net profit turns sustainably positive and operating cash flow improves without further inventory or receivable absorption."
+        ],
+        "kill_thesis": [
+          "Embedded-security revenue or gross margin remains under pressure and no durable core-volume/price recovery is visible.",
+          "Digital-RMB/eSIM theme activity fails to convert into material revenue and cash earnings.",
+          "Deducted earnings remain negative or weak while working capital continues to absorb cash.",
+          "Valuation continues to require sustainable profit materially above the company's 2022 historical peak before primary evidence supports such an earnings step-up."
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "UNDERWRITING_OBJECT_ABSENT",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -1186,7 +1196,7 @@
     "portfolio_review_required_count": 1,
     "reunderwrite_required_count": 0,
     "review_queue_count": 4,
-    "semantic_watch_clause_count": 272,
+    "semantic_watch_clause_count": 163,
     "subject_count": 29,
     "user_action_review_count": 3,
     "valuation_reunderwrite_count": 0
