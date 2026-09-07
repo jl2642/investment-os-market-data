@@ -1,0 +1,209 @@
+{
+  "run_id": "FMDL1BC_20260907T235553+0800",
+  "as_of_date": "2026-09-07",
+  "generated_at": "2026-09-07T23:55:53+08:00",
+  "adapter_version": "1.18.94",
+  "market_wide_source_function": "stock_zh_a_spot",
+  "market_wide_provider": "sina_public",
+  "market_wide_volume_unit": "SHARES",
+  "universe": {
+    "dataset_id": "a_share_universe",
+    "qa_status": "PASS_WITH_WARNINGS",
+    "publication_status": "DEGRADED",
+    "hard_failures": [],
+    "soft_warnings": [
+      "industry_fill_ratio",
+      "listing_date_fill_ratio"
+    ],
+    "metrics": {
+      "row_count": 5557,
+      "duplicate_count": 0,
+      "symbol_valid_ratio": 1.0,
+      "identity_fill_ratio": 1.0,
+      "industry_fill_ratio": 0.5832283606262372,
+      "listing_date_fill_ratio": 0.5832283606262372,
+      "lkg_row_ratio": 1.0032496840584944,
+      "schema_error_examples": []
+    },
+    "gate_results": [
+      {
+        "gate_id": "schema_valid",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "minimum_row_count",
+        "severity": "HARD",
+        "actual": 5557,
+        "expected": ">=4000",
+        "passed": true
+      },
+      {
+        "gate_id": "duplicate_natural_key",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "symbol_valid_ratio",
+        "severity": "HARD",
+        "actual": 1.0,
+        "expected": ">=1.0",
+        "passed": true
+      },
+      {
+        "gate_id": "required_identity_fill_ratio",
+        "severity": "HARD",
+        "actual": 1.0,
+        "expected": ">=0.995",
+        "passed": true
+      },
+      {
+        "gate_id": "minimum_lkg_row_ratio",
+        "severity": "HARD",
+        "actual": 1.0032496840584944,
+        "expected": ">=0.97",
+        "passed": true
+      },
+      {
+        "gate_id": "industry_fill_ratio",
+        "severity": "SOFT",
+        "actual": 0.5832283606262372,
+        "expected": ">=0.9",
+        "passed": false
+      },
+      {
+        "gate_id": "listing_date_fill_ratio",
+        "severity": "SOFT",
+        "actual": 0.5832283606262372,
+        "expected": ">=0.95",
+        "passed": false
+      }
+    ]
+  },
+  "snapshot": {
+    "dataset_id": "daily_market_snapshot",
+    "qa_status": "PASS_WITH_WARNINGS",
+    "publication_status": "DEGRADED",
+    "hard_failures": [],
+    "soft_warnings": [
+      "market_cap_fill_ratio",
+      "valuation_fill_ratio"
+    ],
+    "metrics": {
+      "row_count": 5557,
+      "universe_coverage_ratio": 1.0,
+      "traded_row_count": 5551,
+      "positive_close_ratio_for_traded_rows": 1.0,
+      "negative_volume_rows": 0,
+      "negative_turnover_rows": 0,
+      "maximum_return_reconciliation_difference_pp": 0.0005000000000032756,
+      "market_cap_fill_ratio": 0.0,
+      "valuation_fill_ratio": 0.0,
+      "zero_turnover_ratio": 0.0016195789094835343,
+      "maximum_absolute_return_pct": 34.365,
+      "schema_error_examples": []
+    },
+    "gate_results": [
+      {
+        "gate_id": "schema_valid",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "minimum_active_universe_coverage",
+        "severity": "HARD",
+        "actual": 1.0,
+        "expected": ">=0.95",
+        "passed": true
+      },
+      {
+        "gate_id": "duplicate_natural_key",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "minimum_positive_close_ratio_for_traded_rows",
+        "severity": "HARD",
+        "actual": 1.0,
+        "expected": ">=1.0",
+        "passed": true
+      },
+      {
+        "gate_id": "maximum_negative_volume_rows",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "maximum_negative_turnover_rows",
+        "severity": "HARD",
+        "actual": 0,
+        "expected": "0",
+        "passed": true
+      },
+      {
+        "gate_id": "return_reconciliation",
+        "severity": "HARD",
+        "actual": 0.0005000000000032756,
+        "expected": "<=0.05",
+        "passed": true
+      },
+      {
+        "gate_id": "market_cap_fill_ratio",
+        "severity": "SOFT",
+        "actual": 0.0,
+        "expected": ">=0.9",
+        "passed": false
+      },
+      {
+        "gate_id": "valuation_fill_ratio",
+        "severity": "SOFT",
+        "actual": 0.0,
+        "expected": ">=0.7",
+        "passed": false
+      },
+      {
+        "gate_id": "maximum_unexplained_absolute_return_pct",
+        "severity": "SOFT",
+        "actual": 34.365,
+        "expected": "<=35.0",
+        "passed": true
+      },
+      {
+        "gate_id": "maximum_zero_turnover_ratio",
+        "severity": "SOFT",
+        "actual": 0.0016195789094835343,
+        "expected": "<=0.15",
+        "passed": true
+      }
+    ]
+  },
+  "source_warnings": [
+    "attempt_1: ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /sseQuery/commonQuery.do?STOCK_TYPE=1&REG_PROVINCE=&CSRC_CODE=&STOCK_CODE=&sqlId=COMMON_SSE_CP_GPJCTPZ_GPLB_GP_L&COMPANY_STATUS=2%2C4%2C5%2C7%2C8&type=inParams&isPagination=true&pageHelp.cacheSize=1&pageHelp.beginPage=1&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.endPage=1 (Caused by NewConnectionError(\"HTTPSConnection(host='query.sse.com.cn', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))",
+    "attempt_2: ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /sseQuery/commonQuery.do?STOCK_TYPE=1&REG_PROVINCE=&CSRC_CODE=&STOCK_CODE=&sqlId=COMMON_SSE_CP_GPJCTPZ_GPLB_GP_L&COMPANY_STATUS=2%2C4%2C5%2C7%2C8&type=inParams&isPagination=true&pageHelp.cacheSize=1&pageHelp.beginPage=1&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.endPage=1 (Caused by NewConnectionError(\"HTTPSConnection(host='query.sse.com.cn', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))",
+    "attempt_3: ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /sseQuery/commonQuery.do?STOCK_TYPE=1&REG_PROVINCE=&CSRC_CODE=&STOCK_CODE=&sqlId=COMMON_SSE_CP_GPJCTPZ_GPLB_GP_L&COMPANY_STATUS=2%2C4%2C5%2C7%2C8&type=inParams&isPagination=true&pageHelp.cacheSize=1&pageHelp.beginPage=1&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.endPage=1 (Caused by NewConnectionError(\"HTTPSConnection(host='query.sse.com.cn', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))",
+    "optional_source_unavailable",
+    "attempt_1: ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /sseQuery/commonQuery.do?STOCK_TYPE=8&REG_PROVINCE=&CSRC_CODE=&STOCK_CODE=&sqlId=COMMON_SSE_CP_GPJCTPZ_GPLB_GP_L&COMPANY_STATUS=2%2C4%2C5%2C7%2C8&type=inParams&isPagination=true&pageHelp.cacheSize=1&pageHelp.beginPage=1&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.endPage=1 (Caused by NewConnectionError(\"HTTPSConnection(host='query.sse.com.cn', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))",
+    "attempt_2: ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /sseQuery/commonQuery.do?STOCK_TYPE=8&REG_PROVINCE=&CSRC_CODE=&STOCK_CODE=&sqlId=COMMON_SSE_CP_GPJCTPZ_GPLB_GP_L&COMPANY_STATUS=2%2C4%2C5%2C7%2C8&type=inParams&isPagination=true&pageHelp.cacheSize=1&pageHelp.beginPage=1&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.endPage=1 (Caused by NewConnectionError(\"HTTPSConnection(host='query.sse.com.cn', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))",
+    "attempt_3: ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /sseQuery/commonQuery.do?STOCK_TYPE=8&REG_PROVINCE=&CSRC_CODE=&STOCK_CODE=&sqlId=COMMON_SSE_CP_GPJCTPZ_GPLB_GP_L&COMPANY_STATUS=2%2C4%2C5%2C7%2C8&type=inParams&isPagination=true&pageHelp.cacheSize=1&pageHelp.beginPage=1&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.endPage=1 (Caused by NewConnectionError(\"HTTPSConnection(host='query.sse.com.cn', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))",
+    "optional_source_unavailable",
+    "primary_provider_unavailable: stock_zh_a_spot_em",
+    "attempt_1: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+    "optional_source_unavailable",
+    "volume_unit_source=SHARES; no lot multiplier applied",
+    "source_zero_price_rows_classified_as_suspended=000016.SZ,002731.SZ,002743.SZ,002870.SZ,002998.SZ,301139.SZ"
+  ],
+  "candidate_files": [
+    "outputs/candidate/A_SHARE_UNIVERSE.csv",
+    "outputs/candidate/DAILY_MARKET_SNAPSHOT.csv"
+  ]
+}
