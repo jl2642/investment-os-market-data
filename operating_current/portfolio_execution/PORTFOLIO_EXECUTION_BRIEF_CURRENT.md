@@ -9,7 +9,7 @@
 - AI累计收益：0.09%
 - AI最大回撤：-0.01%
 - AI部署阶段：第 4 个完整观察交易日 / NORMAL_ACCUMULATION
-- AI累计 decision-grade D2：6
+- AI累计 decision-grade D2：7
 - 距下一 deployment gate：6 个交易日
 - 高现金原因：PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE
 - Real / legacy Simulation 自动改仓：false
