@@ -1,17 +1,17 @@
 {
-  "as_of_date": "2026-09-04",
-  "generated_at_utc": "2026-09-07T03:27:16+00:00",
+  "as_of_date": "2026-09-07",
+  "generated_at_utc": "2026-09-07T16:05:29+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_558e0b05c5785d1b",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_5ddf1963d12986d2",
   "records": [
     {
       "accounts": [],
       "current_action": "BUY",
       "entry_price": 4.25,
-      "latest_price": 4.22,
+      "latest_price": 4.17,
       "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
-      "price_as_of": "2026-09-04",
+      "price_as_of": "2026-09-07",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "HIGH",
       "reason": "Current decision-grade new-capital action is BUY.",
@@ -48,10 +48,10 @@
       ],
       "current_action": "TRIM",
       "entry_price": 101.05,
-      "latest_price": 100.3,
+      "latest_price": 98.7,
       "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
-      "price_as_of": "2026-09-04",
+      "price_as_of": "2026-09-07",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "HIGH",
       "reason": "Current decision-grade holding action is TRIM.",
@@ -64,14 +64,34 @@
     },
     {
       "accounts": [
+        "SIMULATION"
+      ],
+      "current_action": "HOLD",
+      "entry_price": 60.0,
+      "latest_price": 66.57,
+      "next_step": "FRESH_D2_FOR_HOLD_TRIM_OR_EXIT",
+      "orders": 0,
+      "price_as_of": "2026-09-07",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "HIGH",
+      "reason": "Latest price 66.5700 has exhausted the current valuation margin; mark-to-weighted-value expected return is 3.58%.",
+      "review_type": "REUNDERWRITE_REQUIRED",
+      "security_id": "601138.SH",
+      "security_name": "工业富联",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "VALUATION_EXHAUSTION_REUNDERWRITE"
+    },
+    {
+      "accounts": [
         "REAL"
       ],
       "current_action": "HOLD",
       "entry_price": 31.0,
-      "latest_price": 33.5,
+      "latest_price": 33.12,
       "next_step": "PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW",
       "orders": 0,
-      "price_as_of": "2026-09-04",
+      "price_as_of": "2026-09-07",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "HIGH",
       "reason": "Current account weight is at/above the governed 15% concentration flag.",
@@ -81,10 +101,30 @@
       "trade_authority": "NONE",
       "transition": "PERSISTING",
       "trigger_key": "PORTFOLIO_CONCENTRATION_ACTIVE"
+    },
+    {
+      "accounts": [
+        "SIMULATION"
+      ],
+      "current_action": "HOLD",
+      "entry_price": 59.0,
+      "latest_price": 58.9,
+      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "orders": 0,
+      "price_as_of": "2026-09-07",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "MEDIUM_HIGH",
+      "reason": "Holding price 58.9000 is at/below research entry threshold 59.0000.",
+      "review_type": "REUNDERWRITE_REQUIRED",
+      "security_id": "300124.SZ",
+      "security_name": "汇川技术",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
     }
   ],
-  "review_count": 4,
+  "review_count": 6,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_295cac32dcf56b7f",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_f267708d6f4d1e5b",
   "trade_authority": "NONE"
 }
