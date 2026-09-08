@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "qa_id": "FRESH_D2_601138_300124_20260908_BOUNDED_QA",
+  "checks": [
+    "AUTHORITY_CONSISTENCY",
+    "FRESH_D2_PERSISTENCE",
+    "RECOMMENDATION_CURRENTNESS",
+    "THESIS_REGISTER_CURRENTNESS",
+    "S3_REFRESH",
+    "DECISION_LIFECYCLE_REFRESH",
+    "TRIGGER_QUEUE_CONSISTENCY",
+    "PHASE3_DOWNSTREAM_VISIBILITY",
+    "CURRENT_VS_LATEST_ATTEMPT_CONSISTENCY",
+    "NO_LEGACY_PRODUCT_AUTHORITY",
+    "ORDERS_ZERO",
+    "TRADE_AUTHORITY_NONE"
+  ],
+  "premerge_expectation": "PIPELINE_AND_DOWNSTREAM_REBUILD_ON_MAIN_MUST_PROVE_ALL_CHECKS; FAIL_CLOSED_OTHERWISE",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
