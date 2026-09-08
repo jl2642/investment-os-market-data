@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-09-08",
-  "generated_at_utc": "2026-09-08T14:59:33+00:00",
+  "generated_at_utc": "2026-09-08T18:09:54+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_4f453cef11f66af7",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_168d39bead2cba23",
   "records": [
     {
       "accounts": [],
@@ -28,7 +28,7 @@
       ],
       "current_action": "TRIM",
       "entry_price": 2.0,
-      "latest_price": 2.079,
+      "latest_price": 2.073,
       "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": null,
@@ -81,6 +81,26 @@
       "trade_authority": "NONE",
       "transition": "PERSISTING",
       "trigger_key": "POSITION_ACTION_TRIM"
+    },
+    {
+      "accounts": [
+        "SIMULATION"
+      ],
+      "current_action": "HOLD",
+      "entry_price": 60.0,
+      "latest_price": 64.75,
+      "next_step": "FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT",
+      "orders": 0,
+      "price_as_of": "2026-09-08",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "HIGH",
+      "reason": "Holding newly crossed the 15% drawdown review threshold; loss is not an automatic exit but thesis must be refreshed once.",
+      "review_type": "REUNDERWRITE_REQUIRED",
+      "security_id": "601138.SH",
+      "security_name": "工业富联",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "DRAWDOWN_MONITOR_ACTIVE"
     },
     {
       "accounts": [
@@ -143,8 +163,8 @@
       "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
     }
   ],
-  "review_count": 7,
+  "review_count": 8,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_a1ce1391053ab208",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_cef409c5cd53b2eb",
   "trade_authority": "NONE"
 }
