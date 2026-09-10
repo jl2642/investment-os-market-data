@@ -97,15 +97,18 @@ def test_current_decision_rebases_to_latest_mark_without_mutating_underwriting_s
     assert recommendation["price_freshness_policy"]["latest_mark_date"] == "2026-09-09"
 
 
-def test_price_dependent_trim_is_rechecked_after_mark_rebase():
+def test_price_dependent_classification_is_recomputed_after_mark_rebase():
     comparison, recommendation = rebase_decisions(
         _comparison(), _recommendation(), _marks(), {"queue": []}
     )
-    # The original -4.2% thesis-price return becomes near-flat at the 9/9 mark;
-    # it must not remain a stale negative-return TRIM solely because D2 was priced at 100.80.
-    assert comparison["rows"][0]["comparison_status"] == "PRICE_BLOCKED"
-    assert recommendation["records"][0]["action"] == "HOLD"
-    assert recommendation["records"][0]["ready_for_user_decision"] is False
+    rec = recommendation["records"][0]
+    # The original roughly -4.2% thesis-price return becomes roughly -0.6% at the 9/9 mark.
+    # The action may remain TRIM under the existing <=0 hurdle, but its return basis must be current.
+    assert comparison["rows"][0]["comparison_status"] == "AVOID_NEGATIVE_EXPECTED_RETURN"
+    assert rec["action"] == "TRIM"
+    assert rec["ready_for_user_decision"] is True
+    assert rec["expected_return"] > 96.52 / 100.80 - 1
+    assert rec["expected_return"] == 96.52 / 97.11 - 1
 
 
 def test_active_semantic_refresh_fails_closed_even_if_old_d2_is_carried_forward():
