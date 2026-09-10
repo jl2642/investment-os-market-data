@@ -9,7 +9,7 @@
 - AI累计收益：0.11%
 - AI最大回撤：-0.12%
 - AI部署阶段：第 7 个完整观察交易日 / NORMAL_ACCUMULATION
-- AI累计 decision-grade D2：7
+- AI累计 decision-grade D2：8
 - 距下一 deployment gate：3 个交易日
 - 高现金原因：PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE
 - Real / legacy Simulation 自动改仓：false
@@ -17,7 +17,7 @@
 
 ## Real 当前需要关注的执行建议
 
-- 标普500ETF国泰 (159612.SZ) SELL 5100，状态 READY_FOR_USER_OR_VIRTUAL_EXECUTION。
+- 当前没有需要执行验证的上市证券调仓。
 
 ## AI_AUTONOMOUS_1M
 
