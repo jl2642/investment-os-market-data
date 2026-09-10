@@ -1,0 +1,100 @@
+name: Canonical User Simulation Writeback 20260910
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/canonical_position_update/apply_20260910_user_simulation_update.py"
+      - "automation/canonical_position_update/fix_20260910_simulation_summary.py"
+      - ".github/workflows/canonical-user-simulation-writeback-20260910.yml"
+      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/**"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_09_10/**"
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  apply-and-validate:
+    if: github.head_ref == 'agent/2026-09-10-user-simulation-trade-writeback'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Capture protected-state hashes
+        run: |
+          sha256sum investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json > /tmp/real.before
+      - name: Apply idempotent user-confirmed Simulation writeback
+        run: |
+          python -m py_compile \
+            automation/canonical_position_update/apply_20260910_user_simulation_update.py \
+            automation/canonical_position_update/fix_20260910_simulation_summary.py
+          python automation/canonical_position_update/apply_20260910_user_simulation_update.py
+          python automation/canonical_position_update/fix_20260910_simulation_summary.py
+      - name: Persist generated Current and evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if git diff --quiet; then
+            echo 'Already fully materialized.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_09_10/USER_CONFIRMED_SIMULATION_TRADES_20260910.json
+          git commit -m 'Materialize user-confirmed 20260910 Simulation trades'
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
+      - name: Validate idempotency and protected boundaries
+        run: |
+          python automation/canonical_position_update/apply_20260910_user_simulation_update.py
+          python automation/canonical_position_update/fix_20260910_simulation_summary.py
+          git diff --exit-code
+          sha256sum -c /tmp/real.before
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json')
+          s=json.loads(p.read_text(encoding='utf-8'))
+          q={r['security_id']:r['quantity'] for r in s['holdings']}
+          assert q['300124.SZ']==500.0 and q['600941.SH']==300.0 and q['300750.SZ']==100.0
+          assert s['summary']['execution_cash_balance']==269057.64
+          assert s['trade_authority']=='NONE'
+          src=json.loads(Path('investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json').read_text(encoding='utf-8'))
+          assert src['summary']['total_pnl']==31154.74
+          assert src['summary']['day_reference_pnl'] is None
+          print({'simulation_writeback':'PASS','summary_reconciliation':'PASS','real_mutations':0,'candidate_mutations':0,'ai_autonomous_mutations':0,'orders':0,'trade_authority':'NONE'})
+          PY
+      - name: Enforce exact economic scope
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed=set(subprocess.check_output(['git','diff','--name-only','origin/main...HEAD'],text=True).splitlines())
+          allowed=(
+            'automation/canonical_position_update/apply_20260910_user_simulation_update.py',
+            'automation/canonical_position_update/fix_20260910_simulation_summary.py',
+            '.github/workflows/canonical-user-simulation-writeback-20260910.yml',
+            'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json',
+            'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+            'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+            'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_09_10/USER_CONFIRMED_SIMULATION_TRADES_20260910.json',
+          )
+          leaked=sorted(x for x in changed if x not in allowed)
+          if leaked: raise SystemExit('UNEXPECTED_SCOPE:' + ','.join(leaked))
+          print({'exact_scope':'PASS','files':len(changed)})
+          PY
