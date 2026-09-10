@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-09-09",
-  "generated_at_utc": "2026-09-09T18:05:29+00:00",
+  "generated_at_utc": "2026-09-10T03:15:43+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_1cfaca5ce4a35836",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_5d182a295c0d4267",
   "records": [
     {
       "accounts": [],
@@ -21,26 +21,6 @@
       "trade_authority": "NONE",
       "transition": "PERSISTING",
       "trigger_key": "NEW_CAPITAL_ACTION_BUY"
-    },
-    {
-      "accounts": [
-        "REAL"
-      ],
-      "current_action": "TRIM",
-      "entry_price": 2.0,
-      "latest_price": 2.074,
-      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
-      "orders": 0,
-      "price_as_of": null,
-      "price_source": "S3_PORTFOLIO_MARK",
-      "priority": "HIGH",
-      "reason": "Current decision-grade holding action is TRIM.",
-      "review_type": "USER_ACTION_REVIEW",
-      "security_id": "159612.SZ",
-      "security_name": "标普500ETF国泰",
-      "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "POSITION_ACTION_TRIM"
     },
     {
       "accounts": [
@@ -106,25 +86,45 @@
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "HOLD",
-      "entry_price": 59.0,
+      "current_action": "ADD",
+      "entry_price": 61.39,
       "latest_price": 55.92,
-      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-09-09",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "MEDIUM_HIGH",
-      "reason": "Holding price 55.9200 is at/below research entry threshold 59.0000.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade holding action is ADD.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "300124.SZ",
       "security_name": "汇川技术",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "POSITION_ACTION_ADD"
+    },
+    {
+      "accounts": [
+        "SIMULATION"
+      ],
+      "current_action": "ADD",
+      "entry_price": 365.0,
+      "latest_price": 336.84,
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
+      "orders": 0,
+      "price_as_of": "2026-09-09",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "MEDIUM_HIGH",
+      "reason": "Current decision-grade holding action is ADD.",
+      "review_type": "USER_ACTION_REVIEW",
+      "security_id": "300750.SZ",
+      "security_name": "宁德时代",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
   "review_count": 6,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_dfe64d921ca96173",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_5ce6745993d86a09",
   "trade_authority": "NONE"
 }
