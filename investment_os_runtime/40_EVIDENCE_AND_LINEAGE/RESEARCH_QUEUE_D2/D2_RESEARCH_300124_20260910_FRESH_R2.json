@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260910_FRESH_R2_300124",
+  "security_id": "300124.SZ",
+  "security_name": "汇川技术",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "archetype": "QUALITY_GROWTH_AUTOMATION",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "ADD_RESEARCH_COMPLETE_CURRENT_PRICE_BELOW_DECISION_GRADE_ENTRY_HURDLE",
+  "research_update_type": "USER_EXPLICIT_FRESH_D2_20260910_REPLACING_UNPERSISTED_20260904_ATTEMPT",
+  "valuation_horizon": "12_MONTH",
+  "thesis": {
+    "core": "Industrial automation remains the quality anchor: 2026H1 industrial automation and digitalization revenue grew about 29% and the company retains leading domestic positions across servo, low-voltage drives and PLC. New-energy-vehicle power systems remain the principal margin drag, while robotics, digital energy and AI-linked equipment create optionality.",
+    "variant_wedge": "Headline attributable profit decline understates operating improvement because recurring profit grew and Q2 profitability recovered. At the same time, the stock should not be valued as if every emerging business immediately earns core-automation returns.",
+    "normalized_earnings_basis": "Use 2026E normalized EPS RMB2.20, essentially the latest 14-institution consensus through 2026-09-09; this is conservative versus the strongest sell-side estimates and reflects the continuing profitability drag in automotive power systems."
+  },
+  "financial_quality": {
+    "facts": {
+      "h1_2026_revenue_rmb_bn": 24.675,
+      "h1_2026_revenue_yoy": 0.2031,
+      "h1_2026_attributable_np_rmb_bn": 2.810,
+      "h1_2026_attributable_np_yoy": -0.0535,
+      "h1_2026_deduct_np_rmb_bn": 2.756,
+      "h1_2026_deduct_np_yoy": 0.0315,
+      "h1_2026_industrial_automation_revenue_rmb_bn": 13.5,
+      "h1_2026_industrial_automation_revenue_yoy": 0.29,
+      "h1_2026_auto_power_revenue_rmb_bn": 9.4,
+      "h1_2026_auto_power_revenue_yoy": 0.04,
+      "consensus_2026_eps": 2.20
+    },
+    "judgment": "Core automation growth and Q2 earnings recovery are healthy, while automotive-power-system margin and cash conversion remain the principal quality constraints."
+  },
+  "underwriting": {
+    "current_price": 55.92,
+    "price_as_of": "2026-09-09",
+    "entry_price": 61.39,
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {"metric": "2026E_NORMALIZED_EPS", "eps": 2.20, "consensus_reference_eps": 2.20, "rationale": "Latest consensus plus H1 recurring-profit and Q2 operating recovery, with a haircut for automotive-power-system profitability."},
+    "scenarios": [
+      {"name": "BEAR", "eps": 2.00, "valuation_multiple_pe": 25.0, "value_per_share": 50.00, "probability": 0.25},
+      {"name": "BASE", "eps": 2.20, "valuation_multiple_pe": 32.0, "value_per_share": 70.40, "probability": 0.55},
+      {"name": "BULL", "eps": 2.55, "valuation_multiple_pe": 38.0, "value_per_share": 96.90, "probability": 0.20}
+    ],
+    "probability_weighted_value": 70.60,
+    "expected_return": 0.2625,
+    "bear_downside": -0.1059,
+    "hurdle_entry_price_15pct": 61.39,
+    "hurdle_entry_price_20pct": 58.83,
+    "action": "ADD",
+    "add_range": [55.0, 58.8],
+    "catalysts": [
+      "General automation orders and market share continue to grow as AI equipment investment and domestic substitution support demand.",
+      "Automotive power-system gross margin stabilizes or recovers after the H1 pressure.",
+      "Robotics, AIDC and digital-energy growth begins to contribute material profit rather than revenue only.",
+      "Q2 earnings recovery continues through H2 with better operating leverage."
+    ],
+    "kill_thesis": [
+      "Core industrial automation growth falls materially below the market while servo/drive/PLC share declines.",
+      "Automotive power-system margin remains structurally depressed or worsens further.",
+      "Operating cash flow persistently lags recurring profit because receivables or inventory deteriorate.",
+      "Emerging businesses consume capital at returns materially below the core automation franchise without a credible path to improvement."
+    ]
+  },
+  "first_rejection_test": "PASSED_AT_CURRENT_PRICE_WITH_26PCT_PWV_UPSIDE_AND_BEAR_DOWNSIDE_WITHIN_RISK_GATE",
+  "next_gate": "ADD_ALLOWED_IN_SIMULATION_ONLY_UNDER_EXISTING_AI_BOOK_POLICY_WHILE_PRICE_IS_WITHIN_RMB55_58_8_AND_KILL_THESIS_NOT_TRIGGERED",
+  "d2_answers": [
+    {"question": "Did headline profit decline mean the core franchise weakened?", "fact": "H1 revenue rose 20.31%, attributable profit fell 5.35%, but recurring profit rose 3.15%; industrial automation and digitalization revenue grew about 29%.", "judgment": "NO_CORE_AUTOMATION_REMAINS_STRONG_HEADLINE_PROFIT_IS_DRAGGED_BY_AUTO_POWER_AND_NONCORE_MARKS"},
+    {"question": "What is the current valuation margin?", "assumption": "Bear/base/bull values RMB50.00/RMB70.40/RMB96.90 at 25%/55%/20%.", "judgment": "PWV_RMB70_60_IMPLIES_ABOUT_26PCT_UPSIDE_FROM_RMB55_92"},
+    {"question": "Portfolio action?", "judgment": "ADD for the simulation holding is decision-grade at the current mark under the existing AI-book sizing policy; no real-account order is authorized."}
+  ],
+  "evidence_gap": {"material": false, "missing": null, "manual_user_input_required": false},
+  "sources": [
+    {"type": "PRIMARY_DISCLOSURE_MIRROR", "title": "汇川技术2026年半年度报告", "url": "https://stock.stockstar.com/notice/SN2026082800042879.shtml", "as_of": "2026-08-28"},
+    {"type": "CONSENSUS_AGGREGATOR", "title": "同花顺F10 汇川技术盈利预测", "url": "https://basic.10jqka.com.cn/176/300124/worth.html", "as_of": "2026-09-09"},
+    {"type": "SYSTEM_MARKET_DATA", "title": "PORTFOLIO_MARKS_CURRENT", "as_of": "2026-09-09", "mark": 55.92}
+  ],
+  "source_quality_note": "H1 operating facts are anchored to the formal report mirror; consensus is secondary sell-side aggregation. Scenario multiples/probabilities and ADD range are analytical assumptions. The price is the system's completed-session Portfolio Marks authority.",
+  "continuous_monitoring": {"daily_full_d2": false, "fresh_d2_triggers": ["price_moves_outside_add_range_materially", "core_automation_growth_or_share_deteriorates", "auto_power_margin_changes_materially", "cash_conversion_deteriorates"], "semantic_keyword_triggering": false},
+  "controls": {"candidate_membership_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "decision_mutations": 0, "policy_mutations": 0, "orders": 0, "trade_authority": "NONE"}
+}
