@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260910_FRESH_R2_601138",
+  "security_id": "601138.SH",
+  "security_name": "工业富联",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "archetype": "AI_INFRASTRUCTURE_GROWTH",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "HOLD_RESEARCH_COMPLETE_PRICE_ABOVE_15PCT_ENTRY_HURDLE",
+  "research_update_type": "USER_EXPLICIT_FRESH_D2_20260910_REPLACING_UNPERSISTED_20260904_ATTEMPT",
+  "valuation_horizon": "12_MONTH",
+  "thesis": {
+    "core": "AI server and cloud infrastructure demand is producing a genuine earnings step-up, with 2026H1 revenue and attributable profit at record levels. The key underwriting issue is no longer whether AI demand is real, but whether margin improvement and cash conversion can remain strong enough to justify a premium multiple after the large rerating.",
+    "variant_wedge": "The market still tends to frame the company as a low-margin EMS manufacturer, while the AI mix is lifting profit faster than revenue. Conversely, current valuation already discounts substantial continuation of AI server growth, so the stock is attractive only with an adequate entry-price margin of safety.",
+    "normalized_earnings_basis": "Use 2026E normalized EPS RMB3.10, aligned with the latest 22-institution consensus through 2026-09-03 and supported by H1 EPS RMB1.20 plus continued H2 AI demand; do not annualize the 96% H1 profit growth mechanically."
+  },
+  "financial_quality": {
+    "facts": {
+      "h1_2026_revenue_rmb_bn": 557.861,
+      "h1_2026_revenue_yoy": 0.5463,
+      "h1_2026_attributable_np_rmb_bn": 23.740,
+      "h1_2026_attributable_np_yoy": 0.9599,
+      "h1_2026_deduct_np_rmb_bn": 22.984,
+      "h1_2026_cfo_rmb_bn": 7.391,
+      "h1_2026_eps": 1.20,
+      "h1_2026_roe": 0.1336,
+      "consensus_2026_eps": 3.10
+    },
+    "judgment": "Profitability is materially stronger, but cash conversion remains a watch item because H1 operating cash flow is well below accounting profit despite sharp year-on-year improvement."
+  },
+  "underwriting": {
+    "current_price": 65.24,
+    "price_as_of": "2026-09-09",
+    "entry_price": 62.57,
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {
+      "metric": "2026E_NORMALIZED_EPS",
+      "eps": 3.10,
+      "consensus_reference_eps": 3.10,
+      "rationale": "Consensus is anchored by record H1 earnings but the underwriting avoids extrapolating the near-doubling of H1 profit indefinitely."
+    },
+    "scenarios": [
+      {"name": "BEAR", "eps": 2.70, "valuation_multiple_pe": 18.0, "value_per_share": 48.60, "probability": 0.25},
+      {"name": "BASE", "eps": 3.10, "valuation_multiple_pe": 23.0, "value_per_share": 71.30, "probability": 0.50},
+      {"name": "BULL", "eps": 3.45, "valuation_multiple_pe": 28.0, "value_per_share": 96.60, "probability": 0.25}
+    ],
+    "probability_weighted_value": 71.95,
+    "expected_return": 0.1029,
+    "bear_downside": -0.2551,
+    "hurdle_entry_price_15pct": 62.57,
+    "action": "HOLD",
+    "catalysts": [
+      "Cloud-service-provider AI server revenue and GPU/ASIC rack shipments remain on a high-growth trajectory through H2.",
+      "Higher-value AI and networking mix sustains profit growth above revenue growth.",
+      "Operating cash conversion improves relative to net profit without a disproportionate working-capital build."
+    ],
+    "kill_thesis": [
+      "AI server or rack shipment growth decelerates sharply because of customer capex, technology transition or share loss.",
+      "Gross or net margin reverses despite continued revenue growth, showing that the mix upgrade is not durable.",
+      "Working capital and capex absorb cash persistently enough that free-cash-flow growth materially lags earnings.",
+      "Customer concentration, export controls or geopolitical supply-chain disruption materially impairs delivery."
+    ]
+  },
+  "first_rejection_test": "NO_FUNDAMENTAL_REJECTION; PRICE_GATE_ACTIVE_ABOVE_RMB62_57_FOR_15PCT_EXPECTED_RETURN",
+  "next_gate": "REOPEN_FOR_ADD_AT_OR_BELOW_RMB62_57_IF_AI_ORDER_MARGIN_AND_CASH_CONVERSION_EVIDENCE_REMAINS_INTACT",
+  "d2_answers": [
+    {"question": "Is the earnings inflection fundamental?", "fact": "2026H1 revenue rose 54.63% and attributable profit 95.99%; cloud computing revenue rose 75.7%, while cloud-customer AI server revenue rose about 2.3x.", "judgment": "YES_FUNDAMENTAL_AI_INFRASTRUCTURE_INFLECTION"},
+    {"question": "What does the current price discount?", "assumption": "Bear/base/bull values are RMB48.60/RMB71.30/RMB96.60 at 25%/50%/25%.", "judgment": "CURRENT_PRICE_OFFERS_ABOUT_10PCT_PWV_UPSIDE_BUT_NOT_15PCT_ENTRY_MARGIN"},
+    {"question": "Portfolio action?", "judgment": "HOLD the existing simulation position; do not add solely because the share price is below the user's historical cost. Reassess ADD around RMB62.6 or lower if the operating thesis remains intact."}
+  ],
+  "evidence_gap": {"material": false, "missing": null, "manual_user_input_required": false},
+  "sources": [
+    {"type": "PRIMARY_DISCLOSURE_MIRROR", "title": "工业富联2026年半年度报告", "url": "https://stock.stockstar.com/notice/SN2026081100031131.shtml", "as_of": "2026-08-11"},
+    {"type": "CONSENSUS_AGGREGATOR", "title": "同花顺F10 工业富联盈利预测", "url": "https://basic.10jqka.com.cn/48/601138/worth.html", "as_of": "2026-09-03"},
+    {"type": "SYSTEM_MARKET_DATA", "title": "PORTFOLIO_MARKS_CURRENT", "as_of": "2026-09-09", "mark": 65.24}
+  ],
+  "source_quality_note": "Reported H1 financials are anchored to the formal half-year disclosure mirror; 2026 EPS consensus is a secondary aggregation. Scenario multiples, probabilities and the entry hurdle are analytical assumptions. The system Portfolio Marks authority supplies the completed-session price.",
+  "continuous_monitoring": {"daily_full_d2": false, "fresh_d2_triggers": ["price_at_or_below_62_57", "material_ai_order_or_margin_change", "cash_conversion_deterioration", "material_export_control_or_customer_share_change"], "semantic_keyword_triggering": false},
+  "controls": {"candidate_membership_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "decision_mutations": 0, "policy_mutations": 0, "orders": 0, "trade_authority": "NONE"}
+}
