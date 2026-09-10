@@ -7,6 +7,7 @@ on:
       - "automation/investment_pipeline/**"
       - "automation/research_queue_d2/**"
       - "tests/test_s2_investment_pipeline.py"
+      - "tests/test_decision_price_freshness.py"
       - "tests/test_s4_runtime_publishers.py"
       - ".github/workflows/s2-investment-pipeline.yml"
       - ".github/workflows/research-queue-d2-auto-consumer.yml"
@@ -19,6 +20,7 @@ on:
     paths:
       - "automation/investment_pipeline/**"
       - "automation/research_queue_d2/**"
+      - "tests/test_decision_price_freshness.py"
       - ".github/workflows/s2-investment-pipeline.yml"
       - ".github/workflows/research-queue-d2-auto-consumer.yml"
       - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
@@ -84,6 +86,7 @@ jobs:
         run: |
           python -m py_compile \
             automation/investment_pipeline/build_pipeline.py \
+            automation/investment_pipeline/rebase_decision_to_marks.py \
             automation/investment_pipeline/publish_pipeline.py \
             automation/research_queue_d2/build_d2_queue.py \
             automation/research_queue_d2/validate_d2_queue.py
@@ -92,6 +95,7 @@ jobs:
         run: |
           pytest -q \
             tests/test_s2_investment_pipeline.py \
+            tests/test_decision_price_freshness.py \
             automation/research_queue_d2/tests/test_d2_queue.py
 
       - name: Parse modified workflows
@@ -379,12 +383,39 @@ jobs:
             exit 0
           fi
 
+          git show origin/operating-current:operating_current/domains/PORTFOLIO_MARKS.json > "$S2_RUNTIME/PORTFOLIO_MARKS_DOMAIN.json"
+          MARK_BRANCH="$(python -c 'import json; print(json.load(open(".s2_runtime/PORTFOLIO_MARKS_DOMAIN.json",encoding="utf-8"))["source_branch"])')"
+          MARK_COMMIT="$(python -c 'import json; print(json.load(open(".s2_runtime/PORTFOLIO_MARKS_DOMAIN.json",encoding="utf-8"))["source_commit_sha"])')"
+          test -n "$MARK_BRANCH"
+          test -n "$MARK_COMMIT"
+          git fetch origin "$MARK_COMMIT" --force --no-tags
+          git cat-file -e "$MARK_COMMIT^{commit}"
+          git show "$MARK_COMMIT":investment_os_runtime/30_STATE_CURRENT/25_PORTFOLIO_MARKS/PORTFOLIO_MARKS_CURRENT.json > "$S2_RUNTIME/PORTFOLIO_MARKS_CURRENT.json"
+
           python automation/investment_pipeline/build_pipeline.py decision \
             --d2-current "$S2_RUNTIME/D2_CURRENT.json" \
             --real-positions investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json \
             --simulation-positions investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
             --semantic-d2-dir investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2 \
             --output-dir "$S2_OUTPUT"
+
+          python automation/investment_pipeline/rebase_decision_to_marks.py \
+            --comparison "$S2_OUTPUT/CAPITAL_COMPARISON_CURRENT.json" \
+            --recommendation "$S2_OUTPUT/RECOMMENDATION_CURRENT.json" \
+            --portfolio-marks "$S2_RUNTIME/PORTFOLIO_MARKS_CURRENT.json" \
+            --raw-d2 "$S2_RUNTIME/D2_CURRENT.json"
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ["S2_OUTPUT"])
+          rec=json.loads((root/"RECOMMENDATION_CURRENT.json").read_text(encoding="utf-8"))
+          policy=rec.get("price_freshness_policy",{})
+          assert policy.get("portfolio_decisions_rebased_to_latest_marks") is True
+          assert rec.get("controls",{}).get("orders")==0
+          assert rec.get("controls",{}).get("trade_authority")=="NONE"
+          print({"mark_rebase":"PASS","latest_mark_date":policy.get("latest_mark_date"),"orders":0,"trade_authority":"NONE"})
+          PY
 
       - name: Publish Capital Comparison and Recommendation Current
         if: steps.decision.outputs.coherent == 'true'
@@ -417,9 +448,10 @@ jobs:
           - Opportunity discovery uses the latest PASS_CHAIN_COHERENT A-share screening receipt.
           - D1 fast triage processes up to 10 names and routes at most 3 into D2.
           - D2 semantic research must produce Bear/Base/Bull underwriting before decision-grade capital comparison.
-          - Latest decision-grade semantic D2 is persistent across repeated D1 cycles; a mechanical semantic-pending refresh cannot erase an already completed thesis.
+          - Latest decision-grade semantic D2 is persistent across repeated D1 cycles, but active semantic refresh subjects fail closed until fresh underwriting completes.
           - Existing-position semantic D2 artifacts are folded into the current decision pass even when they are outside the current D1 batch.
-          - Capital comparison is computed live from underwriting and current position identity; frozen Phase2C comparison is not used.
+          - Underwriting price remains a historical snapshot; current portfolio decisions are rebased to latest valid Portfolio Marks before publication.
+          - Capital comparison is computed live from underwriting, latest marks and current position identity; frozen Phase2C comparison is not used.
           - BUY / BUY_BELOW / WATCH_FOR_EVIDENCE / AVOID / ADD / HOLD / TRIM / EXIT are producer-reachable.
           - Candidate / Real / Simulation economic mutations: 0 / 0 / 0.
           - Orders: 0.
