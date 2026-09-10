@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-10T03:15:43+00:00",
+  "generated_at_utc": "2026-09-10T03:22:04+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-09-09",
-    "recommendation_generated_at_utc": "2026-09-10T03:10:59+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_36c6a39f384340c5",
+    "recommendation_generated_at_utc": "2026-09-10T03:16:09+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_2e3ecb6d07422e3d",
     "surface_as_of_date": "2026-09-09",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_92605b84f469aed5"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_628c454e56423d47"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_5ce6745993d86a09",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_43a561a98d2d75db",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -67,7 +67,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "PRICE_BLOCKED",
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -136,12 +136,16 @@
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
         "catalysts": [
-          "Core Tier-1 capital ratio stabilizes and begins to rebuild.",
-          "Net interest margin stabilizes and ordinary-share cash dividends resume sustainably."
+          "Core Tier-1 capital ratio stabilizes and begins to rebuild without dilutive capital raising.",
+          "Net interest margin stabilizes as deposit repricing and asset mix improve.",
+          "Ordinary-share cash dividends resume at a sustainable payout level while asset quality remains stable.",
+          "Provision coverage and NPL trends continue to improve without a new concentration-driven credit-cost cycle."
         ],
         "kill_thesis": [
-          "Core Tier-1 capital moves materially closer to the regulatory floor or requires dilutive replenishment.",
-          "NIM keeps compressing while ROE remains structurally below the cost of equity."
+          "Core Tier-1 capital ratio moves materially closer to the regulatory floor or requires dilutive replenishment.",
+          "NIM continues to compress while ROE remains structurally below the cost of equity.",
+          "Asset-quality improvement reverses, especially in concentrated corporate or local exposures.",
+          "Ordinary-share payout remains structurally absent despite retained earnings, preventing the low valuation from translating into shareholder return."
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
@@ -152,11 +156,11 @@
       "accounts": [],
       "base_value": 6.29,
       "cleared_trigger_keys": [],
-      "current_action": "AVOID",
+      "current_action": "WATCH",
       "entry_price": 5.8,
       "expected_return": -0.6714015151515151,
       "latest_price": 21.0,
-      "lifecycle_state": "FLAT_AVOID",
+      "lifecycle_state": "FLAT_WATCH",
       "mark_expected_return": -0.6695238095238095,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
@@ -185,7 +189,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -269,9 +273,7 @@
         "REAL"
       ],
       "base_value": 2.25,
-      "cleared_trigger_keys": [
-        "POSITION_ACTION_TRIM"
-      ],
+      "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 2.0,
       "expected_return": 0.05110896817743482,
@@ -420,9 +422,7 @@
         "SIMULATION"
       ],
       "base_value": 70.4,
-      "cleared_trigger_keys": [
-        "HOLD_PRICE_REOPEN_CONDITION_MET"
-      ],
+      "cleared_trigger_keys": [],
       "current_action": "ADD",
       "entry_price": 61.39,
       "expected_return": 0.26251788268955667,
@@ -436,9 +436,7 @@
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [
-        "POSITION_ACTION_ADD"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-09-09",
@@ -485,9 +483,7 @@
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [
-        "POSITION_ACTION_ADD"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-09-09",
@@ -790,6 +786,36 @@
       "trade_authority": "NONE"
     },
     {
+      "accounts": [],
+      "base_value": null,
+      "cleared_trigger_keys": [],
+      "current_action": "WATCH",
+      "entry_price": null,
+      "expected_return": null,
+      "latest_price": 9.02,
+      "lifecycle_state": "FLAT_WATCH",
+      "mark_expected_return": null,
+      "mechanical_trigger_keys": [],
+      "monitoring_flags": [],
+      "new_trigger_keys": [],
+      "orders": 0,
+      "position_state": "FLAT",
+      "price_as_of": "2026-09-09",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "probability_weighted_value": null,
+      "ready_for_user_decision": false,
+      "security_id": "600613.SH",
+      "security_name": "神奇制药",
+      "semantic_watch": {
+        "automatic_keyword_inference_authorized": false,
+        "catalysts": [],
+        "kill_thesis": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
+        "semantic_reunderwrite_required_before_state_change": true
+      },
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "trade_authority": "NONE"
+    },
+    {
       "accounts": [
         "SIMULATION"
       ],
@@ -890,11 +916,13 @@
         "automatic_keyword_inference_authorized": false,
         "catalysts": [
           "Sugar/tomato gross margins remain above prior-year levels despite lower selling prices.",
-          "Operating cash flow remains positive and inventory discipline limits commodity-cycle cash absorption."
+          "Operating cash flow remains positive and inventory discipline limits commodity-cycle cash absorption.",
+          "Domestic sugar supply/demand tightness supports processing and trading spreads."
         ],
         "kill_thesis": [
           "Sugar or tomato unit margins normalize sharply while the equity continues to price peak economics.",
-          "Inventory or hedging losses reverse the H1 cash-flow improvement."
+          "Inventory or hedging losses reverse the H1 cash-flow improvement.",
+          "Commodity prices and volumes weaken together, compressing both revenue and unit margin."
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
@@ -1133,11 +1161,13 @@
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
         "catalysts": [
-          "High-value ship orders convert into deliveries at or above H1 margins.",
-          "New yard and engine capacity reaches high utilization without material cost overruns."
+          "High-value tanker/container/gas-carrier orders convert into deliveries at or above H1 margins.",
+          "New yard and engine capacity reaches high utilization without material cost overruns.",
+          "Contract liabilities convert into revenue while borrowing growth and finance expense moderate."
         ],
         "kill_thesis": [
           "Newbuild pricing or orders roll over before expanded capacity reaches mature utilization.",
+          "Delivery delays, cancellations, steel/FX pressure or mix deterioration compress normalized margin.",
           "Debt, finance expense and capex continue to grow faster than sustainable operating cash generation."
         ],
         "semantic_reunderwrite_required_before_state_change": true
@@ -1233,14 +1263,14 @@
   "summary": {
     "automatic_semantic_trigger_count": 0,
     "financial_context_triage_count": 0,
-    "flat_subject_count": 8,
+    "flat_subject_count": 9,
     "held_subject_count": 22,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 1,
     "reunderwrite_required_count": 1,
     "review_queue_count": 6,
-    "semantic_watch_clause_count": 166,
-    "subject_count": 30,
+    "semantic_watch_clause_count": 291,
+    "subject_count": 31,
     "user_action_review_count": 4,
     "valuation_reunderwrite_count": 1
   },
