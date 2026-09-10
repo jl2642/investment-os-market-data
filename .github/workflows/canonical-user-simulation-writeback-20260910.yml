@@ -6,6 +6,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "automation/canonical_position_update/apply_20260910_user_simulation_update.py"
+      - "automation/canonical_position_update/fix_20260910_simulation_summary.py"
       - ".github/workflows/canonical-user-simulation-writeback-20260910.yml"
       - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/**"
@@ -34,11 +35,13 @@ jobs:
       - name: Capture protected-state hashes
         run: |
           sha256sum investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json > /tmp/real.before
-          git show HEAD:operating_current/ai_autonomous/AI_AUTONOMOUS_1M_CURRENT.json >/dev/null 2>&1 || true
       - name: Apply idempotent user-confirmed Simulation writeback
         run: |
-          python -m py_compile automation/canonical_position_update/apply_20260910_user_simulation_update.py
+          python -m py_compile \
+            automation/canonical_position_update/apply_20260910_user_simulation_update.py \
+            automation/canonical_position_update/fix_20260910_simulation_summary.py
           python automation/canonical_position_update/apply_20260910_user_simulation_update.py
+          python automation/canonical_position_update/fix_20260910_simulation_summary.py
       - name: Persist generated Current and evidence
         shell: bash
         run: |
@@ -59,6 +62,7 @@ jobs:
       - name: Validate idempotency and protected boundaries
         run: |
           python automation/canonical_position_update/apply_20260910_user_simulation_update.py
+          python automation/canonical_position_update/fix_20260910_simulation_summary.py
           git diff --exit-code
           sha256sum -c /tmp/real.before
           python - <<'PY'
@@ -70,7 +74,10 @@ jobs:
           assert q['300124.SZ']==500.0 and q['600941.SH']==300.0 and q['300750.SZ']==100.0
           assert s['summary']['execution_cash_balance']==269057.64
           assert s['trade_authority']=='NONE'
-          print({'simulation_writeback':'PASS','real_mutations':0,'candidate_mutations':0,'ai_autonomous_mutations':0,'orders':0,'trade_authority':'NONE'})
+          src=json.loads(Path('investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json').read_text(encoding='utf-8'))
+          assert src['summary']['total_pnl']==31154.74
+          assert src['summary']['day_reference_pnl'] is None
+          print({'simulation_writeback':'PASS','summary_reconciliation':'PASS','real_mutations':0,'candidate_mutations':0,'ai_autonomous_mutations':0,'orders':0,'trade_authority':'NONE'})
           PY
       - name: Enforce exact economic scope
         run: |
@@ -78,15 +85,16 @@ jobs:
           python - <<'PY'
           import subprocess
           changed=set(subprocess.check_output(['git','diff','--name-only','origin/main...HEAD'],text=True).splitlines())
-          allowed_prefixes=(
+          allowed=(
             'automation/canonical_position_update/apply_20260910_user_simulation_update.py',
+            'automation/canonical_position_update/fix_20260910_simulation_summary.py',
             '.github/workflows/canonical-user-simulation-writeback-20260910.yml',
             'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json',
             'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
             'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
             'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_09_10/USER_CONFIRMED_SIMULATION_TRADES_20260910.json',
           )
-          leaked=sorted(x for x in changed if x not in allowed_prefixes)
+          leaked=sorted(x for x in changed if x not in allowed)
           if leaked: raise SystemExit('UNEXPECTED_SCOPE:' + ','.join(leaked))
           print({'exact_scope':'PASS','files':len(changed)})
           PY
