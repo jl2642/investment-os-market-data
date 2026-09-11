@@ -1,10 +1,10 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
-- 数据水位：`2026-09-10`
+- 数据水位：`2026-09-11`
 - Thesis subjects：`30`
 - 持仓 / 非持仓：`22 / 8`
-- 当前复核队列：`7`
-- 需要重新D2：`0`
+- 当前复核队列：`8`
+- 需要重新D2：`1`
 - 需要用户动作复核：`6`
 - 组合风险复核：`1`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
@@ -12,6 +12,7 @@
 ## 当前复核队列
 
 - **江阴银行 (002807.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
+- **恒瑞医药 (600276.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Holding newly crossed the 15% drawdown review threshold; loss is not an automatic exit but thesis must be refreshed once. 下一步：`FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **华测检测 (300012.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
