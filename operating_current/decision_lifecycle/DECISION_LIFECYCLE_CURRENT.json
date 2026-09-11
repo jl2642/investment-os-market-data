@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-10T17:57:05+00:00",
+  "generated_at_utc": "2026-09-11T02:33:16+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-09-09",
-    "recommendation_generated_at_utc": "2026-09-10T03:16:09+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_2e3ecb6d07422e3d",
+    "recommendation_generated_at_utc": "2026-09-11T02:29:12+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_69bf35d31efeb6f5",
     "surface_as_of_date": "2026-09-10",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_0d4d625503dc1cd7"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_cfa20dbe2e3be972"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_31f620a4307fd940",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_99a944721de6cd8a",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -38,7 +38,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 82.0,
-      "expected_return": 0.1282259939548942,
+      "expected_return": 0.12587006960556835,
       "latest_price": 86.02,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.1282259939548942,
@@ -67,7 +67,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
     {
@@ -136,16 +136,12 @@
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
         "catalysts": [
-          "Core Tier-1 capital ratio stabilizes and begins to rebuild without dilutive capital raising.",
-          "Net interest margin stabilizes as deposit repricing and asset mix improve.",
-          "Ordinary-share cash dividends resume at a sustainable payout level while asset quality remains stable.",
-          "Provision coverage and NPL trends continue to improve without a new concentration-driven credit-cost cycle."
+          "Core Tier-1 capital ratio stabilizes and begins to rebuild.",
+          "Net interest margin stabilizes and ordinary-share cash dividends resume sustainably."
         ],
         "kill_thesis": [
-          "Core Tier-1 capital ratio moves materially closer to the regulatory floor or requires dilutive replenishment.",
-          "NIM continues to compress while ROE remains structurally below the cost of equity.",
-          "Asset-quality improvement reverses, especially in concentrated corporate or local exposures.",
-          "Ordinary-share payout remains structurally absent despite retained earnings, preventing the low valuation from translating into shareholder return."
+          "Core Tier-1 capital moves materially closer to the regulatory floor or requires dilutive replenishment.",
+          "NIM keeps compressing while ROE remains structurally below the cost of equity."
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
@@ -156,11 +152,11 @@
       "accounts": [],
       "base_value": 6.29,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
+      "current_action": "AVOID",
       "entry_price": 5.8,
       "expected_return": -0.6714015151515151,
       "latest_price": 21.0,
-      "lifecycle_state": "FLAT_WATCH",
+      "lifecycle_state": "FLAT_AVOID",
       "mark_expected_return": -0.6695238095238095,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
@@ -189,7 +185,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -200,7 +196,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 1.38,
-      "expected_return": 0.034309863190315815,
+      "expected_return": 0.034606290750161195,
       "latest_price": 1.3957,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.034606290750161195,
@@ -238,7 +234,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 1.2,
-      "expected_return": 0.07716785998408926,
+      "expected_return": 0.08406725380304247,
       "latest_price": 1.249,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.08406725380304247,
@@ -276,7 +272,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 2.0,
-      "expected_return": 0.05110896817743482,
+      "expected_return": 0.050602409638554,
       "latest_price": 2.075,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.050602409638554,
@@ -312,7 +308,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 1.95,
-      "expected_return": 0.05180069067587567,
+      "expected_return": 0.055968301139177834,
       "latest_price": 2.019,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.055968301139177834,
@@ -350,7 +346,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 1.37,
-      "expected_return": 0.03522956973722202,
+      "expected_return": 0.035379061371841214,
       "latest_price": 1.385,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.035379061371841214,
@@ -385,21 +381,25 @@
       ],
       "base_value": 17.5,
       "cleared_trigger_keys": [],
-      "current_action": "HOLD",
+      "current_action": "ADD",
       "entry_price": 14.5,
-      "expected_return": 0.16192411924119243,
+      "expected_return": 0.19014573213046493,
       "latest_price": 14.76,
-      "lifecycle_state": "HELD_HOLD",
+      "lifecycle_state": "HELD_ADD_REVIEW",
       "mark_expected_return": 0.16192411924119243,
-      "mechanical_trigger_keys": [],
+      "mechanical_trigger_keys": [
+        "POSITION_ACTION_ADD"
+      ],
       "monitoring_flags": [],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "POSITION_ACTION_ADD"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-09-09",
       "price_source": "A_SHARE_FULL_MARKET",
       "probability_weighted_value": 17.15,
-      "ready_for_user_decision": false,
+      "ready_for_user_decision": true,
       "security_id": "300012.SZ",
       "security_name": "华测检测",
       "semantic_watch": {
@@ -425,7 +425,7 @@
       "cleared_trigger_keys": [],
       "current_action": "ADD",
       "entry_price": 61.39,
-      "expected_return": 0.26251788268955667,
+      "expected_return": 0.29636430407638636,
       "latest_price": 55.92,
       "lifecycle_state": "HELD_ADD_REVIEW",
       "mark_expected_return": 0.26251788268955667,
@@ -472,7 +472,7 @@
       "cleared_trigger_keys": [],
       "current_action": "ADD",
       "entry_price": 365.0,
-      "expected_return": 0.2981385821161384,
+      "expected_return": 0.29345382476483484,
       "latest_price": 336.84,
       "lifecycle_state": "HELD_ADD_REVIEW",
       "mark_expected_return": 0.2981385821161384,
@@ -561,7 +561,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 7.4,
-      "expected_return": 0.08413615928066798,
+      "expected_return": 0.09015758202014967,
       "latest_price": 7.742,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.09015758202014967,
@@ -599,7 +599,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 38.0,
-      "expected_return": 0.09756097560975618,
+      "expected_return": 0.08251142650950194,
       "latest_price": 41.0,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.09756097560975618,
@@ -635,21 +635,25 @@
       ],
       "base_value": 52.0,
       "cleared_trigger_keys": [],
-      "current_action": "HOLD",
+      "current_action": "ADD",
       "entry_price": 43.0,
-      "expected_return": 0.16305077163945425,
+      "expected_return": 0.21127416724900994,
       "latest_price": 44.71,
-      "lifecycle_state": "HELD_HOLD",
+      "lifecycle_state": "HELD_ADD_REVIEW",
       "mark_expected_return": 0.16305077163945425,
-      "mechanical_trigger_keys": [],
+      "mechanical_trigger_keys": [
+        "POSITION_ACTION_ADD"
+      ],
       "monitoring_flags": [],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "POSITION_ACTION_ADD"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-09-09",
       "price_source": "A_SHARE_FULL_MARKET",
       "probability_weighted_value": 52.0,
-      "ready_for_user_decision": false,
+      "ready_for_user_decision": true,
       "security_id": "600276.SH",
       "security_name": "恒瑞医药",
       "semantic_watch": {
@@ -675,7 +679,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 72.0,
-      "expected_return": 0.08976797261316083,
+      "expected_return": 0.11406351263771874,
       "latest_price": 78.87,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.08976797261316083,
@@ -714,7 +718,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 21.0,
-      "expected_return": 0.07349665924276172,
+      "expected_return": 0.071587372165407,
       "latest_price": 22.45,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.07349665924276172,
@@ -786,36 +790,6 @@
       "trade_authority": "NONE"
     },
     {
-      "accounts": [],
-      "base_value": null,
-      "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
-      "latest_price": 9.02,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
-      "mechanical_trigger_keys": [],
-      "monitoring_flags": [],
-      "new_trigger_keys": [],
-      "orders": 0,
-      "position_state": "FLAT",
-      "price_as_of": "2026-09-09",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
-      "ready_for_user_decision": false,
-      "security_id": "600613.SH",
-      "security_name": "神奇制药",
-      "semantic_watch": {
-        "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
-        "semantic_reunderwrite_required_before_state_change": true
-      },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
-      "trade_authority": "NONE"
-    },
-    {
       "accounts": [
         "SIMULATION"
       ],
@@ -823,7 +797,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 54.0,
-      "expected_return": 0.11080885019949216,
+      "expected_return": 0.12799263351749546,
       "latest_price": 55.14,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.11080885019949216,
@@ -861,7 +835,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 20.0,
-      "expected_return": 0.10328638497652576,
+      "expected_return": 0.11006140765233807,
       "latest_price": 21.3,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.10328638497652576,
@@ -916,13 +890,11 @@
         "automatic_keyword_inference_authorized": false,
         "catalysts": [
           "Sugar/tomato gross margins remain above prior-year levels despite lower selling prices.",
-          "Operating cash flow remains positive and inventory discipline limits commodity-cycle cash absorption.",
-          "Domestic sugar supply/demand tightness supports processing and trading spreads."
+          "Operating cash flow remains positive and inventory discipline limits commodity-cycle cash absorption."
         ],
         "kill_thesis": [
           "Sugar or tomato unit margins normalize sharply while the equity continues to price peak economics.",
-          "Inventory or hedging losses reverse the H1 cash-flow improvement.",
-          "Commodity prices and volumes weaken together, compressing both revenue and unit margin."
+          "Inventory or hedging losses reverse the H1 cash-flow improvement."
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
@@ -937,7 +909,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 27.26,
-      "expected_return": 0.10673796791443846,
+      "expected_return": 0.10516197935208238,
       "latest_price": 28.05,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.10673796791443846,
@@ -980,7 +952,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 31.0,
-      "expected_return": 0.05324751316559384,
+      "expected_return": 0.04590354445090061,
       "latest_price": 34.18,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.05324751316559384,
@@ -1019,7 +991,7 @@
       "cleared_trigger_keys": [],
       "current_action": "TRIM",
       "entry_price": 101.05,
-      "expected_return": -0.006029245185871668,
+      "expected_return": -0.006642996809714918,
       "latest_price": 97.11,
       "lifecycle_state": "HELD_TRIM_REVIEW",
       "mark_expected_return": -0.006029245185871668,
@@ -1060,28 +1032,26 @@
       "accounts": [
         "SIMULATION"
       ],
-      "base_value": 71.3,
+      "base_value": 72.45,
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
-      "entry_price": 62.57,
-      "expected_return": 0.10285101164929511,
+      "entry_price": 63.46,
+      "expected_return": 0.1418400876232202,
       "latest_price": 65.24,
       "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
-      "mark_expected_return": 0.10285101164929511,
+      "mark_expected_return": 0.11856223175965663,
       "mechanical_trigger_keys": [
         "DRAWDOWN_MONITOR_ACTIVE"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [
-        "DRAWDOWN_MONITOR_ACTIVE"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-09-09",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": 71.95,
+      "probability_weighted_value": 72.975,
       "ready_for_user_decision": false,
       "security_id": "601138.SH",
       "security_name": "工业富联",
@@ -1089,14 +1059,14 @@
         "automatic_keyword_inference_authorized": false,
         "catalysts": [
           "Cloud-service-provider AI server revenue and GPU/ASIC rack shipments remain on a high-growth trajectory through H2.",
-          "Higher-value AI and networking mix sustains profit growth above revenue growth.",
-          "Operating cash conversion improves relative to net profit without a disproportionate working-capital build."
+          "Higher-value AI server and high-speed networking mix sustains profit growth above revenue growth.",
+          "Operating cash conversion and free cash flow improve relative to net profit without disproportionate working-capital absorption."
         ],
         "kill_thesis": [
-          "AI server or rack shipment growth decelerates sharply because of customer capex, technology transition or share loss.",
-          "Gross or net margin reverses despite continued revenue growth, showing that the mix upgrade is not durable.",
-          "Working capital and capex absorb cash persistently enough that free-cash-flow growth materially lags earnings.",
-          "Customer concentration, export controls or geopolitical supply-chain disruption materially impairs delivery."
+          "AI server or rack shipment growth decelerates sharply because customer capex weakens, technology transitions disrupt delivery, or market share is lost.",
+          "Gross or net margin reverses despite continued revenue growth, showing the mix upgrade is not durable.",
+          "Working capital and capex persistently absorb cash such that free-cash-flow growth materially lags earnings.",
+          "Customer concentration, export controls or geopolitical supply-chain disruption materially impair delivery or economics."
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
@@ -1107,36 +1077,40 @@
       "accounts": [
         "SIMULATION"
       ],
-      "base_value": 36.0,
-      "cleared_trigger_keys": [],
-      "current_action": "HOLD",
-      "entry_price": 30.0,
-      "expected_return": 0.024709302325581328,
-      "latest_price": 34.4,
-      "lifecycle_state": "HELD_HOLD",
-      "mark_expected_return": 0.024709302325581328,
-      "mechanical_trigger_keys": [
+      "base_value": 36.975,
+      "cleared_trigger_keys": [
         "VALUATION_EXHAUSTION_REUNDERWRITE"
       ],
+      "current_action": "HOLD",
+      "entry_price": 32.21,
+      "expected_return": 0.08582527118147176,
+      "latest_price": 34.4,
+      "lifecycle_state": "HELD_HOLD",
+      "mark_expected_return": 0.07667151162790709,
+      "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-09-09",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": 35.25,
+      "probability_weighted_value": 37.0375,
       "ready_for_user_decision": false,
       "security_id": "601899.SH",
       "security_name": "紫金矿业",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
         "catalysts": [
-          "金铜价格维持强势",
-          "项目扩产兑现"
+          "Gold and copper realized pricing stays supportive while mined output continues to grow.",
+          "Kamoa and other major expansion projects recover or ramp production without persistent execution slippage.",
+          "Lithium scale-up contributes positive cash economics without diluting group returns on capital.",
+          "Operating cash flow remains strong and balance-sheet leverage stays around or below the current sub-50% level."
         ],
         "kill_thesis": [
-          "核心矿山产量/成本显著恶化",
-          "金属价格与项目执行同时反转"
+          "A sustained gold and copper price reversal coincides with material production misses, compressing normalized earnings below the underwriting range.",
+          "Kamoa or other major-project operational, geopolitical or permitting disruptions become persistent rather than temporary.",
+          "Acquisition and expansion capex materially destroy return on invested capital or push leverage back to an uncomfortable level.",
+          "Mine-cost inflation or working-capital absorption causes cash conversion and unit margins to weaken materially despite reported revenue growth."
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
@@ -1167,13 +1141,11 @@
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
         "catalysts": [
-          "High-value tanker/container/gas-carrier orders convert into deliveries at or above H1 margins.",
-          "New yard and engine capacity reaches high utilization without material cost overruns.",
-          "Contract liabilities convert into revenue while borrowing growth and finance expense moderate."
+          "High-value ship orders convert into deliveries at or above H1 margins.",
+          "New yard and engine capacity reaches high utilization without material cost overruns."
         ],
         "kill_thesis": [
           "Newbuild pricing or orders roll over before expanded capacity reaches mature utilization.",
-          "Delivery delays, cancellations, steel/FX pressure or mix deterioration compress normalized margin.",
           "Debt, finance expense and capex continue to grow faster than sustainable operating cash generation."
         ],
         "semantic_reunderwrite_required_before_state_change": true
@@ -1229,7 +1201,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 31.0,
-      "expected_return": 0.11507582515611059,
+      "expected_return": 0.12007168458781381,
       "latest_price": 33.63,
       "lifecycle_state": "HELD_CONCENTRATION_REVIEW",
       "mark_expected_return": 0.11507582515611059,
@@ -1269,16 +1241,16 @@
   "summary": {
     "automatic_semantic_trigger_count": 0,
     "financial_context_triage_count": 0,
-    "flat_subject_count": 9,
+    "flat_subject_count": 8,
     "held_subject_count": 22,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 1,
-    "reunderwrite_required_count": 2,
+    "reunderwrite_required_count": 0,
     "review_queue_count": 7,
-    "semantic_watch_clause_count": 291,
-    "subject_count": 31,
-    "user_action_review_count": 4,
-    "valuation_reunderwrite_count": 1
+    "semantic_watch_clause_count": 170,
+    "subject_count": 30,
+    "user_action_review_count": 6,
+    "valuation_reunderwrite_count": 0
   },
   "trade_authority": "NONE"
 }
