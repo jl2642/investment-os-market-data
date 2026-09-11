@@ -111,14 +111,43 @@
     "hold_review_can_generate_trade": false,
     "legacy_simulation_mutations": 0,
     "orders": 0,
+    "protected_execution_episode_guard": true,
+    "protected_repeat_add_trim_after_user_execution": false,
     "real_account_mutations": 0,
     "risk_target_is_trade_authority": false,
     "target_weight_engine": true,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-10T17:59:13+00:00",
+  "generated_at_utc": "2026-09-11T01:43:14+00:00",
   "orders": 0,
-  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_e75c4df585890940",
+  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_0d6e1495c029051d",
+  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_e75c4df585890940",
+  "protected_execution_episode_guard": {
+    "ai_autonomous_1m_affected": false,
+    "diagnostics": [
+      {
+        "account": "SIMULATION",
+        "action": "ADD",
+        "episode_key": "ffa1bcc5a8b476e6bf22",
+        "guard_result": "SUPPRESS_REPEAT_ADD_TRIM",
+        "matched_user_delta_id": "SIM_20260910_BUY_300124_300",
+        "security_id": "300124.SZ"
+      },
+      {
+        "account": "SIMULATION",
+        "action": "TRIM",
+        "episode_key": "187464319358f1ad9ce9",
+        "guard_result": "SUPPRESS_REPEAT_ADD_TRIM",
+        "matched_user_delta_id": "SIM_20260910_SELL_600941_400",
+        "security_id": "600941.SH"
+      }
+    ],
+    "orders": 0,
+    "scope": "REAL_AND_LEGACY_SIMULATION_ONLY",
+    "status": "PASS",
+    "suppressed_repeat_action_count": 2,
+    "trade_authority": "NONE"
+  },
   "real_account": {
     "automatic_mutation_authorized": false,
     "execution_validation": {
@@ -414,7 +443,7 @@
         "single_name_cap": 0.1,
         "trade_authority": "NONE"
       },
-      "ending_cash_if_all_validated_actions_executed": 272153.64,
+      "ending_cash_if_all_validated_actions_executed": 269057.64,
       "rows": [
         {
           "action": "HOLD",
@@ -455,18 +484,19 @@
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 500.0,
           "current_weight": 0.0268508170576427,
-          "estimated_notional": 16338.0,
+          "execution_episode_key": "ffa1bcc5a8b476e6bf22",
+          "matched_user_delta_id": "SIM_20260910_BUY_300124_300",
           "orders": 0,
           "price": 54.46,
-          "reason": "BUY_QUANTITY_VALIDATED",
+          "reason": "USER_CONFIRMED_EXECUTION_ALREADY_SATISFIES_CURRENT_RECOMMENDATION_EPISODE",
           "security_id": "300124.SZ",
           "security_name": "汇川技术",
-          "side": "BUY",
-          "status": "READY_FOR_USER_OR_VIRTUAL_EXECUTION",
-          "target_quantity": 800.0,
-          "target_weight": 0.04797618315390531,
+          "side": "HOLD",
+          "status": "NO_ACTION_ALREADY_EXECUTED_RECOMMENDATION_EPISODE",
+          "target_quantity": 500.0,
+          "target_weight": 0.0268508170576427,
           "trade_authority": "NONE",
-          "validated_quantity": 300
+          "validated_quantity": 0
         },
         {
           "action": "ADD",
@@ -643,18 +673,19 @@
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 300.0,
           "current_weight": 0.02874506676633648,
-          "estimated_notional": 19434.0,
+          "execution_episode_key": "187464319358f1ad9ce9",
+          "matched_user_delta_id": "SIM_20260910_SELL_600941_400",
           "orders": 0,
           "price": 97.17,
-          "reason": "SELL_QUANTITY_VALIDATED",
+          "reason": "USER_CONFIRMED_EXECUTION_ALREADY_SATISFIES_CURRENT_RECOMMENDATION_EPISODE",
           "security_id": "600941.SH",
           "security_name": "中国移动",
-          "side": "SELL",
-          "status": "READY_FOR_USER_OR_VIRTUAL_EXECUTION",
-          "target_quantity": 100.0,
-          "target_weight": 0.01437253338316824,
+          "side": "HOLD",
+          "status": "NO_ACTION_ALREADY_EXECUTED_RECOMMENDATION_EPISODE",
+          "target_quantity": 300.0,
+          "target_weight": 0.02874506676633648,
           "trade_authority": "NONE",
-          "validated_quantity": 200
+          "validated_quantity": 0
         },
         {
           "action": "HOLD",
@@ -746,14 +777,17 @@
           "current_price": 54.46,
           "current_quantity": 500.0,
           "current_weight": 0.0268508170576427,
+          "execution_episode_key": "ffa1bcc5a8b476e6bf22",
           "expected_return": 0.26251788268955667,
+          "matched_user_delta_id": "SIM_20260910_BUY_300124_300",
           "research_score": 0.21125366096262607,
           "risk_group": "GROWTH",
           "security_id": "300124.SZ",
           "security_name": "汇川技术",
-          "target_weight": 0.04797618315390531,
+          "target_weight": 0.0268508170576427,
           "target_weight_reasons": [
-            "CURRENT_DECISION_ADD_SCORE_SIZED"
+            "CURRENT_DECISION_ADD_SCORE_SIZED",
+            "CURRENT_RECOMMENDATION_EPISODE_ALREADY_EXECUTED_USER_CONFIRMED"
           ]
         },
         {
@@ -959,15 +993,18 @@
           "current_price": 97.17,
           "current_quantity": 300.0,
           "current_weight": 0.02874506676633648,
+          "execution_episode_key": "187464319358f1ad9ce9",
           "expected_return": -0.006029245185871668,
+          "matched_user_delta_id": "SIM_20260910_SELL_600941_400",
           "research_score": 0.0,
           "risk_group": "CORE",
           "security_id": "600941.SH",
           "security_name": "中国移动",
-          "target_weight": 0.01437253338316824,
+          "target_weight": 0.02874506676633648,
           "target_weight_reasons": [
             "CURRENT_DECISION_TRIM_HALF_STEP",
-            "RISK_GROUP_CAP_CORE_30PCT_REVIEW_ONLY"
+            "RISK_GROUP_CAP_CORE_30PCT_REVIEW_ONLY",
+            "CURRENT_RECOMMENDATION_EPISODE_ALREADY_EXECUTED_USER_CONFIRMED"
           ]
         },
         {
@@ -1009,7 +1046,7 @@
           ]
         }
       ],
-      "target_cash_weight": 0.23359818292340828,
+      "target_cash_weight": 0.24035101563650263,
       "total_assets": 1014121.84
     }
   },
