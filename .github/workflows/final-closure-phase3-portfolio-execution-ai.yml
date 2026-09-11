@@ -8,6 +8,7 @@ on:
     paths:
       - "automation/portfolio_execution/**"
       - "tests/test_phase3_portfolio_execution_ai.py"
+      - "tests/test_phase3_execution_episode_guard.py"
       - "tests/test_bounded_last_mile_policy.py"
       - ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml"
       - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
@@ -20,6 +21,7 @@ on:
     paths:
       - "automation/portfolio_execution/**"
       - "tests/test_phase3_portfolio_execution_ai.py"
+      - "tests/test_phase3_execution_episode_guard.py"
       - "tests/test_bounded_last_mile_policy.py"
       - ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml"
       - "investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json"
@@ -55,6 +57,7 @@ jobs:
         run: |
           python -m py_compile \
             automation/portfolio_execution/build_portfolio_execution.py \
+            automation/portfolio_execution/apply_protected_execution_episode_guard.py \
             automation/portfolio_execution/publish_portfolio_execution.py \
             automation/operating_current/publish_operating_current.py
 
@@ -62,6 +65,7 @@ jobs:
         run: |
           pytest -q \
             tests/test_phase3_portfolio_execution_ai.py \
+            tests/test_phase3_execution_episode_guard.py \
             tests/test_bounded_last_mile_policy.py \
             tests/test_phase2_decision_lifecycle.py \
             tests/test_s2_investment_pipeline.py \
@@ -153,6 +157,7 @@ jobs:
           git cat-file -e "$MARK_COMMIT^{commit}"
           git show "$MARK_COMMIT:investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json" > /tmp/real.json
           git show "$MARK_COMMIT:investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json" > /tmp/simulation.json
+          git show "$MARK_COMMIT:investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json" > /tmp/user-transactions.json 2>/dev/null || echo '{"entries":[]}' > /tmp/user-transactions.json
 
       - name: Build Portfolio Construction Execution and AI Autonomous
         run: |
@@ -167,6 +172,14 @@ jobs:
             --output-ai /tmp/AI_AUTONOMOUS_1M_CURRENT.json \
             --output-md /tmp/PORTFOLIO_EXECUTION_BRIEF_CURRENT.md
 
+      - name: Apply protected-account execution episode guard
+        run: |
+          python automation/portfolio_execution/apply_protected_execution_episode_guard.py \
+            --phase3-json /tmp/PORTFOLIO_EXECUTION_CURRENT.json \
+            --recommendation /tmp/recommendation.json \
+            --user-transaction-ledger /tmp/user-transactions.json \
+            --output-json /tmp/PORTFOLIO_EXECUTION_CURRENT.json
+
       - name: Validate Phase 3 boundary
         run: |
           python - <<'PY'
@@ -179,8 +192,11 @@ jobs:
           assert p["controls"]["ai_autonomous_virtual_ledger"] is True
           assert p["controls"]["risk_target_is_trade_authority"] is False
           assert p["controls"]["hold_review_can_generate_trade"] is False
+          assert p["controls"]["protected_execution_episode_guard"] is True
+          assert p["controls"]["protected_repeat_add_trim_after_user_execution"] is False
           assert p["real_account"]["automatic_mutation_authorized"] is False
           assert p["simulation_account"]["automatic_mutation_authorized"] is False
+          assert p["protected_execution_episode_guard"]["ai_autonomous_1m_affected"] is False
           assert ai["book_id"] == "AI_AUTONOMOUS_1M"
           assert ai["initial_capital"] == 1000000.0
           assert "deployment_discipline" in ai
@@ -190,7 +206,7 @@ jobs:
               for row in account["execution_validation"]["rows"]:
                   if row.get("side") in {"BUY","SELL"}:
                       assert actions.get(row["security_id"]) in {"ADD","TRIM","EXIT"}
-          print({"authorization_boundary":"PASS","deployment_discipline":"PASS","ai_positions":len(ai["positions"]),"ai_cash":ai["cash"],"orders":0,"trade_authority":"NONE"})
+          print({"authorization_boundary":"PASS","protected_execution_episode_guard":"PASS","deployment_discipline":"PASS","ai_positions":len(ai["positions"]),"ai_cash":ai["cash"],"orders":0,"trade_authority":"NONE"})
           PY
 
       - name: Publish Phase 3 to Operating Current
@@ -215,6 +231,7 @@ jobs:
             echo "- authoritative upstream handoff: explicit workflow_dispatch from Decision Lifecycle"
             echo "- Target Weight Engine: active; risk target != trade authority"
             echo "- HOLD review cannot manufacture BUY/SELL"
+            echo "- Protected Real / legacy Simulation ADD/TRIM episodes are idempotent after user-confirmed execution"
             echo "- AI_AUTONOMOUS_1M: isolated virtual ledger with 10/20/30/40 trading-day deployment discipline"
             echo "- Real / legacy Simulation automatic mutation: 0 / 0"
             echo "- orders: 0; trade_authority: NONE"
