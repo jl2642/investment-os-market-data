@@ -24,6 +24,7 @@ LLM不得输出可直接执行的原始股数。
 - Target Weight → Target Value → Target Quantity，但 protected account 只有当前正式 ADD/TRIM/EXIT 才允许进入 BUY/SELL 数量验证。
 - HOLD、WATCH、风险复核或单纯超限不得生成 READY_FOR_USER_OR_VIRTUAL_EXECUTION 的 BUY/SELL。
 - ADD 只能授权加仓方向，TRIM/EXIT 只能授权减仓方向；方向相反时 fail closed。
+- Real / 原有 Simulation 的同一 ADD/TRIM underwriting episode 若已有用户确认且已物化的同方向成交，则后续 Phase3 重跑必须幂等：保持成交后的当前数量，不得再次机械 ADD/TRIM；只有 fresh underwriting / 新 episode 才重新打开动作验证。
 - A股/上市ETF买入按100股（份）整手。
 - 现金不足时缩减或BLOCK。
 - 目标增量不足100股时BLOCK。
