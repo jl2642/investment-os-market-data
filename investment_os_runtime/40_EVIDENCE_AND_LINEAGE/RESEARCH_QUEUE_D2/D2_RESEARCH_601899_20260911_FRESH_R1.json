@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260911_FRESH_R1_601899",
+  "security_id": "601899.SH",
+  "security_name": "紫金矿业",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "archetype": "GLOBAL_GOLD_COPPER_COMMODITY_GROWTH",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "HOLD_RESEARCH_COMPLETE_FUNDAMENTALS_STRONG_CURRENT_MARK_ABOVE_15PCT_ADD_HURDLE",
+  "research_update_type": "USER_EXPLICIT_FRESH_D2_20260911_EXISTING_HOLDING_R1",
+  "valuation_horizon": "12_MONTH",
+  "thesis": {
+    "core": "Gold, copper and lithium volume growth plus favorable commodity pricing are translating into materially stronger earnings and cash flow. 2026H1 attributable profit and operating cash flow accelerated sharply while the balance-sheet leverage ratio fell below 50%, so the fundamental thesis has strengthened rather than weakened.",
+    "variant_wedge": "The operating momentum is real, but spot commodity economics should not be capitalized as if they were permanent. The current share price already captures much of the stronger earnings profile, so the decision is to retain the existing position while demanding a lower entry price for additional capital.",
+    "normalized_earnings_basis": "Use RMB2.90 normalized 2026E EPS, deliberately below the roughly RMB3.07 current institutional consensus. H1 EPS was already RMB1.473, but a mid-cycle normalization discounts commodity-price dependence, project timing risk and some production shortfalls rather than annualizing favorable spot conditions."
+  },
+  "financial_quality": {
+    "facts": {
+      "h1_2026_revenue_rmb_bn": 194.178,
+      "h1_2026_revenue_yoy": 0.1578,
+      "h1_2026_attributable_np_rmb_bn": 39.170,
+      "h1_2026_attributable_np_yoy": 0.6817,
+      "h1_2026_deduct_np_rmb_bn": 38.035,
+      "h1_2026_cfo_rmb_bn": 55.472,
+      "h1_2026_eps": 1.473,
+      "h1_2026_roe": 0.196,
+      "h1_2026_asset_liability_ratio": 0.4955,
+      "h1_2026_mined_gold_tonnes": 47.0,
+      "h1_2026_mined_copper_kt": 534.0,
+      "h1_2026_lithium_lce_kt": 44.0,
+      "consensus_2026_eps": 3.07,
+      "normalized_2026_eps": 2.90,
+      "interim_dividend_rmb_bn": 11.1
+    },
+    "judgment": "Earnings quality is strong because operating cash flow exceeds attributable profit and leverage has declined. The key normalization risk is commodity-cycle dependence plus execution at large overseas mines and expansion projects, not weak current cash conversion."
+  },
+  "underwriting": {
+    "current_price": 34.11,
+    "price_as_of": "2026-09-10",
+    "entry_price": 32.21,
+    "confidence": "MEDIUM_HIGH",
+    "valuation_method": "COMMODITY_CYCLE_NORMALIZED_EARNINGS_PE_SCENARIO",
+    "normalized_earnings_basis": {
+      "metric": "2026E_MID_CYCLE_NORMALIZED_EPS",
+      "eps": 2.90,
+      "consensus_reference_eps": 3.07,
+      "rationale": "The base normalizes below current consensus to avoid treating strong spot gold/copper economics and H1 earnings momentum as permanent."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 2.60,
+        "valuation_multiple_pe": 9.5,
+        "value_per_share": 24.70,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "eps": 2.90,
+        "valuation_multiple_pe": 12.75,
+        "value_per_share": 36.975,
+        "probability": 0.50
+      },
+      {
+        "name": "BULL",
+        "eps": 3.30,
+        "valuation_multiple_pe": 15.0,
+        "value_per_share": 49.50,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 37.0375,
+    "expected_return": 0.0858252712,
+    "bear_downside": -0.2758721782,
+    "hurdle_entry_price_15pct": 32.2065,
+    "action": "HOLD",
+    "catalysts": [
+      "Gold and copper realized pricing stays supportive while mined output continues to grow.",
+      "Kamoa and other major expansion projects recover or ramp production without persistent execution slippage.",
+      "Lithium scale-up contributes positive cash economics without diluting group returns on capital.",
+      "Operating cash flow remains strong and balance-sheet leverage stays around or below the current sub-50% level."
+    ],
+    "kill_thesis": [
+      "A sustained gold and copper price reversal coincides with material production misses, compressing normalized earnings below the underwriting range.",
+      "Kamoa or other major-project operational, geopolitical or permitting disruptions become persistent rather than temporary.",
+      "Acquisition and expansion capex materially destroy return on invested capital or push leverage back to an uncomfortable level.",
+      "Mine-cost inflation or working-capital absorption causes cash conversion and unit margins to weaken materially despite reported revenue growth."
+    ]
+  },
+  "first_rejection_test": "NO_FUNDAMENTAL_REJECTION; CURRENT_MARK_OFFERS_INSUFFICIENT_15PCT_MARGIN_FOR_INCREMENTAL_CAPITAL",
+  "next_gate": "REOPEN_FOR_ADD_AT_OR_BELOW_RMB32_21_IF_PRODUCTION_CASH_FLOW_AND_COMMODITY_ECONOMICS_REMAIN_INTACT; REOPEN_TRIM_EXIT_ON_SEMANTIC_THESIS_DETERIORATION",
+  "d2_answers": [
+    {
+      "question": "Has the operating thesis strengthened or weakened?",
+      "fact": "2026H1 revenue rose 15.78%, attributable profit 68.17% and operating cash flow 92.41%; the asset-liability ratio fell below 50% while mined gold, copper and lithium volumes expanded.",
+      "judgment": "THESIS_STRENGTHENED_CASH_FLOW_AND_BALANCE_SHEET_SUPPORT_EARNINGS_GROWTH"
+    },
+    {
+      "question": "What does the current price discount?",
+      "assumption": "Bear/base/bull values are RMB24.70/RMB36.975/RMB49.50 at 25%/50%/25% using a normalized EPS base below current consensus.",
+      "judgment": "CURRENT_MARK_OFFERS_ABOUT_8_6PCT_PROBABILITY_WEIGHTED_UPSIDE_AND_DOES_NOT_CLEAR_THE_15PCT_ADD_HURDLE"
+    },
+    {
+      "question": "Portfolio action?",
+      "judgment": "HOLD the existing simulation position. Current gains are not a trim reason, but the expected-return margin is insufficient for ADD; reassess incremental capital around RMB32.21 or lower if operating and commodity evidence remains intact."
+    }
+  ],
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE_MIRROR",
+      "title": "紫金矿业2026年半年度报告",
+      "url": "https://stock.stockstar.com/notice/SN2026082100046817.shtml",
+      "as_of": "2026-08-21"
+    },
+    {
+      "type": "COMPANY_DISCLOSURE",
+      "title": "Zijin Mining 2026 interim operating update",
+      "url": "https://www.zijinmining.com/news/news-detail-122920.htm",
+      "as_of": "2026-08-21"
+    },
+    {
+      "type": "CONSENSUS_AGGREGATOR",
+      "title": "同花顺F10 紫金矿业盈利预测",
+      "url": "https://basic.10jqka.com.cn/601899/worth.html",
+      "as_of": "2026-09-10"
+    },
+    {
+      "type": "SYSTEM_CURRENT",
+      "title": "S3 Portfolio Decision Surface Current",
+      "path": "operating_current/product_surface/PORTFOLIO_DECISION_SURFACE_CURRENT.json",
+      "as_of": "2026-09-10",
+      "mark": 34.11
+    }
+  ],
+  "source_quality_note": "H1 operating and financial facts are anchored to the formal interim disclosure and company operating update; institutional EPS is secondary consensus context; scenario EPS, multiples and probabilities are analytical assumptions. The governed S3 portfolio surface supplies the completed-session mark used for this reunderwrite.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "price_at_or_below_32_21_with_thesis_intact",
+      "material_gold_or_copper_price_regime_change",
+      "material_kamoa_or_major_project_execution_change",
+      "cash_conversion_or_leverage_deterioration"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
