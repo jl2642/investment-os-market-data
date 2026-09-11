@@ -65,7 +65,7 @@ def phase3_row(account_key: str, sid: str, action: str, current_qty: float, targ
             }],
         },
     }
-    return {account_key: account, "controls": {}, "orders": 0, "trade_authority": "NONE"}
+    return {account_key: account, "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_BASE1234", "controls": {}, "orders": 0, "trade_authority": "NONE"}
 
 
 def test_simulation_add_is_idempotent_after_user_confirmed_execution() -> None:
@@ -84,6 +84,8 @@ def test_simulation_add_is_idempotent_after_user_confirmed_execution() -> None:
     assert row["target_quantity"] == 500
     assert "estimated_notional" not in row
     assert out["protected_execution_episode_guard"]["suppressed_repeat_action_count"] == 1
+    assert out["phase3_id"] != "PORTFOLIO_EXECUTION_CURRENT_BASE1234"
+    assert out["phase3_id_before_execution_episode_guard"] == "PORTFOLIO_EXECUTION_CURRENT_BASE1234"
 
 
 def test_simulation_trim_is_idempotent_after_user_confirmed_execution() -> None:
@@ -114,6 +116,7 @@ def test_opposite_direction_historical_trade_does_not_suppress_add() -> None:
     assert row["status"] == "READY_FOR_USER_OR_VIRTUAL_EXECUTION"
     assert row["validated_quantity"] == 300
     assert out["protected_execution_episode_guard"]["suppressed_repeat_action_count"] == 0
+    assert out["phase3_id"] == "PORTFOLIO_EXECUTION_CURRENT_BASE1234"
 
 
 def test_same_day_fresh_underwriting_after_trade_reopens_episode() -> None:

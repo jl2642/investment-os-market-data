@@ -230,6 +230,21 @@ def apply_protected_execution_episode_guard(
             )
         recompute_execution_cash(execution)
 
+    base_phase3_id = str(phase3.get("phase3_id") or "")
+    if diagnostics and base_phase3_id:
+        identity_payload = {
+            "base_phase3_id": base_phase3_id,
+            "protected_execution_episode_guard": diagnostics,
+        }
+        identity_body = json.dumps(
+            identity_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        )
+        phase3["phase3_id_before_execution_episode_guard"] = base_phase3_id
+        phase3["phase3_id"] = (
+            "PORTFOLIO_EXECUTION_CURRENT_"
+            + hashlib.sha256(identity_body.encode("utf-8")).hexdigest()[:16]
+        )
+
     controls = phase3.setdefault("controls", {})
     controls["protected_execution_episode_guard"] = True
     controls["protected_repeat_add_trim_after_user_execution"] = False
