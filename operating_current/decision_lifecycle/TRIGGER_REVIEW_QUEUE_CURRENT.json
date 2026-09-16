@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-09-15",
-  "generated_at_utc": "2026-09-15T18:38:58+00:00",
+  "generated_at_utc": "2026-09-16T02:07:03+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_9d34a15a20cee9e2",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_faa9b3532d154775",
   "records": [
     {
       "accounts": [],
@@ -107,26 +107,6 @@
         "SIMULATION"
       ],
       "current_action": "ADD",
-      "entry_price": 54.0,
-      "latest_price": 55.03,
-      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
-      "orders": 0,
-      "price_as_of": "2026-09-15",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "priority": "MEDIUM_HIGH",
-      "reason": "Current decision-grade holding action is ADD.",
-      "review_type": "USER_ACTION_REVIEW",
-      "security_id": "600660.SH",
-      "security_name": "福耀玻璃",
-      "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "POSITION_ACTION_ADD"
-    },
-    {
-      "accounts": [
-        "SIMULATION"
-      ],
-      "current_action": "ADD",
       "entry_price": 63.46,
       "latest_price": 60.8,
       "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
@@ -146,25 +126,25 @@
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "HOLD",
+      "current_action": "ADD",
       "entry_price": 32.21,
       "latest_price": 31.68,
-      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-09-15",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "MEDIUM_HIGH",
-      "reason": "Holding price 31.6800 is at/below research entry threshold 32.2100.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade holding action is ADD.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "601899.SH",
       "security_name": "紫金矿业",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
-  "review_count": 8,
+  "review_count": 7,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_72edcb18d3289df0",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_9050105ad81657d3",
   "trade_authority": "NONE"
 }
