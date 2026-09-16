@@ -1,0 +1,1 @@
+Bounded repair note: synchronize mark-rebased Recommendation action/top_blocker/top_reasons so PASS_NEW_CAPITAL cannot retain stale PRICE_BLOCKED metadata, while still preserving PRICE_BLOCKED when the entry gate has not been crossed. No economic-state mutation, orders=0, trade_authority=NONE.

@@ -108,6 +108,23 @@ def _action_for_status(status: str, existing: bool) -> str:
     return "HOLD" if existing else "WATCH"
 
 
+def _blocker_for_status(status: str) -> str | None:
+    if status == "PASS_NEW_CAPITAL":
+        return None
+    if status in {
+        "PRICE_BLOCKED",
+        "AVOID_NEGATIVE_EXPECTED_RETURN",
+        "AVOID_INVALIDATION_TRIGGERED",
+        "EVIDENCE_BLOCKED",
+        "UNDERWRITING_PENDING",
+        "UNDERWRITING_INCOMPLETE",
+        "RESEARCH_REFRESH_PENDING",
+        "CAPITAL_NOT_COMPETITIVE",
+    }:
+        return status
+    return "CAPITAL_NOT_COMPETITIVE"
+
+
 def rebase_decisions(
     comparison: dict[str, Any],
     recommendation: dict[str, Any],
@@ -198,11 +215,26 @@ def rebase_decisions(
         rec["action"] = _action_for_status(status, existing)
         rec["ready_for_user_decision"] = rec["action"] in {"BUY", "ADD", "TRIM", "EXIT"}
         rec["research_freshness"] = comp.get("research_freshness")
+        rec["top_blocker"] = _blocker_for_status(status)
         if status == "RESEARCH_REFRESH_PENDING":
-            rec["top_blocker"] = "RESEARCH_REFRESH_PENDING"
             rec["ready_for_user_decision"] = False
         reasons = list(rec.get("top_reasons") or [])
-        reasons = [x for x in reasons if not str(x).startswith("D2_CAPITAL_RANK_")]
+        status_tokens = {
+            "PASS_NEW_CAPITAL",
+            "PRICE_BLOCKED",
+            "AVOID_NEGATIVE_EXPECTED_RETURN",
+            "AVOID_INVALIDATION_TRIGGERED",
+            "EVIDENCE_BLOCKED",
+            "UNDERWRITING_PENDING",
+            "UNDERWRITING_INCOMPLETE",
+            "RESEARCH_REFRESH_PENDING",
+            "CAPITAL_NOT_COMPETITIVE",
+        }
+        reasons = [
+            x for x in reasons
+            if not str(x).startswith("D2_CAPITAL_RANK_") and str(x) not in status_tokens
+        ]
+        reasons.append(status)
         rank = comp.get("rank_among_current_d2")
         if rank:
             reasons.append(f"D2_CAPITAL_RANK_{rank}")
