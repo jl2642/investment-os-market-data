@@ -1,0 +1,48 @@
+{
+  "archetype": "DEFENSIVE_STABILITY",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260916_R1_301109",
+  "continuous_monitoring": {"daily_full_d2": false, "fresh_d2_triggers": ["price_at_or_below_12_40", "material_eps_or_payout_upgrade", "h_share_terms_material", "receivable_cash_conversion_deterioration", "new_project_capex_roic_change"], "semantic_keyword_triggering": false},
+  "controls": {"candidate_membership_mutations": 0, "decision_mutations": 0, "orders": 0, "policy_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "trade_authority": "NONE"},
+  "d1_rank": 4,
+  "evidence_gap": {"manual_user_input_required": false, "material": false, "missing": null},
+  "financial_quality": {"facts": {"h1_2026_attributable_np_rmb_m": 427.713, "h1_2026_attributable_np_yoy": 0.0689, "h1_2026_cfo_rmb_m": 627.66, "h1_2026_cfo_yoy": -0.1326, "h1_2026_deduct_np_rmb_m": 400.564, "h1_2026_deduct_np_yoy": 0.0388, "h1_2026_eps": 0.5507, "h1_2026_revenue_rmb_bn": 1.5583, "h1_2026_revenue_yoy": 0.0545, "h1_2026_roe": 0.0559, "h1_assets_rmb_bn": 14.255, "h1_attributable_equity_rmb_bn": 7.421}, "judgment": "Cash conversion remains strong despite the year-on-year CFO decline; recurring concession operations and volume growth support the defensive label."},
+  "first_rejection_test": "DEFENSIVE_CASHFLOW_CLEARED_BUT_CURRENT_PRICE_SLIGHTLY_ABOVE_15PCT_HURDLE_AND_H_SHARE_CAPEX_RISK_REMAINS",
+  "market_implied_expectation": {"current_price": 12.75, "interpretation": "At roughly low-teens normalized P/E, valuation is not demanding, but the current price leaves only ~12% probability-weighted price upside before dividend support, slightly below the system's 15% hurdle.", "price_as_of": "2026-09-15"},
+  "next_gate": "BUY_GATE_PRICE_AT_OR_BELOW_RMB12_40_OR_MATERIAL_EPS_PAYOUT_ROIC_UPGRADE_WITH_RECEIVABLES_AND_DILUTION_CONTROLLED",
+  "operating_and_capital": {"accounts_receivable_rmb_bn": 1.994, "cash_rmb_bn": 1.303, "financial_expense_rmb_m": 71.56, "grid_power_volume_yoy": 0.1848, "interest_expense_rmb_m": 68.22, "judgment": "Liquidity and payout are supportive, but rising receivables, project capex and the H-share capital-markets process must be monitored for dilution and ROIC.", "prior_cash_dividend_per_share_rmb": 0.653, "trading_financial_assets_rmb_m": 530.3, "waste_processing_volume_yoy": 0.1679},
+  "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_DEFENSIVE_CASHFLOW_AND_PAYOUT_CLEARED_PRICE_SLIGHTLY_ABOVE_15PCT_HURDLE",
+  "research_update_type": "USER_EXPLICIT_FRESH_D2_20260916_CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCES",
+  "schema_version": "1.0.0",
+  "security_id": "301109.SZ",
+  "security_name": "军信股份",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_884420752af1176e",
+  "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH_AFTER_EXPLICIT_USER_START",
+  "source_quality_note": "Core H1 financial and cash-flow facts are anchored to the formal CNINFO report summary and full-report mirror; market price is from the completed 2026-09-15 session. Scenario EPS, multiples, probabilities and the entry gate are analytical assumptions.",
+  "sources": [
+    {"as_of": "2026-08-25", "title": "军信股份2026年半年度报告摘要", "type": "PRIMARY_DISCLOSURE", "url": "https://static.cninfo.com.cn/finalpage/2026-08-25/1225494223.PDF"},
+    {"as_of": "2026-08-25", "title": "军信股份2026年半年度报告全文", "type": "PRIMARY_DISCLOSURE_MIRROR", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12522352&stockid=301109"},
+    {"as_of": "2026-09-15", "title": "军信股份历史行情", "type": "MARKET_DATA", "url": "https://hk.investing.com/equities/hunan-junxin-environmental-historical-data"}
+  ],
+  "status": "D2_RESEARCH_COMPLETE",
+  "thesis": {"core": "Waste-to-energy operations remain defensive and cash generative: H1 profit grew mid-single digits, CFO remained well above attributable profit and waste-processing/on-grid power volumes continued to rise.", "normalized_earnings_basis": "Use 2026 normalized EPS bear/base/bull of RMB0.95/RMB1.10/RMB1.20, anchored to H1 EPS RMB0.5507 and moderated for project timing, financing costs and cash-collection risk.", "variant_wedge": "The market underappreciates the durability of concession cash flows and payout capacity, but the current price is just above the system's 15% new-capital hurdle; the H-share listing process, new-project capex and receivable collection warrant a disciplined entry."},
+  "underwriting": {
+    "action": "BUY_BELOW",
+    "bear_downside": -0.2549019608,
+    "catalysts": ["Waste-processing and grid-power volumes continue growing without margin or collection deterioration.", "The Changsha Hexi waste-to-energy project progresses at acceptable construction cost and expected ROIC.", "H-share listing completes without materially dilutive economics for A-share holders.", "Cash payout remains durable while leverage and interest burden stay controlled."],
+    "confidence": "MEDIUM_HIGH",
+    "current_price": 12.75,
+    "entry_price": 12.40,
+    "expected_return": 0.1188235294,
+    "hurdle_entry_price_15pct": 12.4043,
+    "kill_thesis": ["Receivables and collection days worsen enough to break the current CFO-to-profit advantage.", "H-share issuance or pricing materially dilutes A-share per-share value without a compensating ROIC uplift.", "New-project capex and leverage grow faster than sustainable operating cash returns.", "Tipping fees, tariffs or concession economics deteriorate materially."],
+    "normalized_earnings_basis": {"base": 1.10, "bear": 0.95, "bull": 1.20, "metric": "2026E_NORMALIZED_EPS"},
+    "price_as_of": "2026-09-15",
+    "probability_weighted_value": 14.265,
+    "scenarios": [
+      {"eps": 0.95, "name": "BEAR", "probability": 0.20, "valuation_multiple_pe": 10.0, "value_per_share": 9.50},
+      {"eps": 1.10, "name": "BASE", "probability": 0.55, "valuation_multiple_pe": 13.0, "value_per_share": 14.30},
+      {"eps": 1.20, "name": "BULL", "probability": 0.25, "valuation_multiple_pe": 15.0, "value_per_share": 18.00}
+    ]
+  },
+  "valuation_horizon": "12_MONTH"
+}

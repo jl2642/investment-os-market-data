@@ -1,0 +1,65 @@
+{
+  "archetype": "RECOVERY_WATCH",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260916_R1_300647",
+  "balance_sheet_and_cash": {
+    "cash_rmb_m": 205.976,
+    "current_noncurrent_debt_rmb_m": 114.331,
+    "inventory_rmb_m": 280.531,
+    "judgment": "Net financial obligations remain large relative to equity and cash; inventory and funding needs constrain the recovery-to-free-cash-flow conversion.",
+    "lease_liabilities_rmb_m": 112.527,
+    "long_term_debt_rmb_m": 394.377,
+    "receivables_rmb_m": 203.255,
+    "short_term_debt_rmb_m": 521.044
+  },
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": ["positive_cfo_and_deleveraging", "material_liquid_cooling_revenue_profit_disclosure", "normalized_eps_material_upgrade", "price_at_or_below_1_97"],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {"candidate_membership_mutations": 0, "decision_mutations": 0, "orders": 0, "policy_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "trade_authority": "NONE"},
+  "d1_rank": 2,
+  "evidence_gap": {"manual_user_input_required": false, "material": false, "missing": null},
+  "financial_quality": {
+    "facts": {"h1_2026_attributable_np_rmb_m": 17.325, "h1_2026_attributable_np_yoy": 0.532, "h1_2026_cfo_rmb_m": -36.566, "h1_2026_deduct_np_rmb_m": 13.125, "h1_2026_deduct_np_yoy": 2.1208, "h1_2026_eps": 0.0379, "h1_2026_revenue_rmb_m": 634.328, "h1_2026_revenue_yoy": 0.3372, "h1_2026_roe": 0.0401, "h1_assets_rmb_bn": 2.17, "h1_attributable_equity_rmb_m": 439.333},
+    "judgment": "Headline profit recovery is real, but negative CFO, working-capital absorption and leverage make earnings quality materially weaker than the price signal suggests."
+  },
+  "first_rejection_test": "RECOVERY_REAL_BUT_CASH_CONVERSION_LEVERAGE_AND_THEME_VALUATION_GATE_FAIL",
+  "market_implied_expectation": {"current_price": 7.82, "interpretation": "At the current price, the equity requires durable earnings well above H1 run-rate and/or rapid monetization of liquid-cooling optionality; management explicitly says related business is still at an early market-development stage and will not materially affect near-term results.", "price_as_of": "2026-09-15"},
+  "next_gate": "REOPEN_ONLY_ON_MATERIAL_POSITIVE_CFO_DELEVERAGING_AND_CORE_EARNINGS_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB1_97",
+  "research_disposition": "AVOID_RESEARCH_COMPLETE_RECOVERY_REAL_BUT_CASH_CONVERSION_LEVERAGE_AND_THEME_VALUATION_GATE_FAIL",
+  "research_update_type": "USER_EXPLICIT_FRESH_D2_20260916_CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCES",
+  "schema_version": "1.0.0",
+  "security_id": "300647.SZ",
+  "security_name": "超频三",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_884420752af1176e",
+  "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH_AFTER_EXPLICIT_USER_START",
+  "source_quality_note": "Financial facts are anchored to the formal 2026H1 report; liquid-cooling maturity is company-stated through investor-response reprints; valuation multiples, EPS scenarios and probabilities are analytical assumptions.",
+  "sources": [
+    {"as_of": "2026-08-08", "title": "超频三2026年半年度报告全文", "type": "PRIMARY_DISCLOSURE", "url": "https://disc.static.szse.cn/download/disc/disk03/finalpage/2026-08-08/4f0fa93e-839f-4441-8b40-c68723e19e35.PDF"},
+    {"as_of": "2026-08-08", "title": "超频三2026年半年度报告摘要", "type": "PRIMARY_DISCLOSURE", "url": "https://static.cninfo.com.cn/finalpage/2026-08-08/1225463250.PDF"},
+    {"as_of": "2026-07-09", "title": "超频三液冷业务仍处市场拓展初步阶段", "type": "COMPANY_RESPONSE_REPRINT", "url": "https://finance.sina.com.cn/jjxw/2026-07-09/doc-inihefvk4532006.shtml"},
+    {"as_of": "2026-09-15", "title": "超频三历史行情", "type": "MARKET_DATA", "url": "https://cn.investing.com/equities/shenzhen-fluence-tech-historical-data"}
+  ],
+  "status": "D2_RESEARCH_COMPLETE",
+  "thesis": {"core": "2026H1 shows a real earnings recovery, but operating cash conversion deteriorated sharply and the balance sheet remains highly leveraged; the recent market rerating also prices liquid-cooling optionality that management says is still too early to materially affect near-term results.", "normalized_earnings_basis": "Use 2026 normalized EPS bear/base/bull of RMB0.04/RMB0.08/RMB0.15, anchored to H1 EPS RMB0.0379 but haircut for negative operating cash flow, inventory build and financing burden.", "variant_wedge": "The operating recovery is not dismissed, but the investable case fails because current valuation requires a much larger and more cash-generative earnings step-up than primary disclosures currently prove."},
+  "underwriting": {
+    "action": "AVOID",
+    "bear_downside": -0.9079283887,
+    "catalysts": ["Full-year revenue and normalized profit exceed the current recovery trajectory with positive operating cash conversion.", "Inventory and debt decline while gross margin holds, proving recovery quality rather than only revenue growth.", "Liquid-cooling products become a quantitatively disclosed, profitable business rather than an early-stage theme."],
+    "confidence": "MEDIUM_HIGH",
+    "current_price": 7.82,
+    "entry_price": 1.97,
+    "expected_return": -0.710230179,
+    "hurdle_entry_price_15pct": 1.9704,
+    "kill_thesis": ["Operating cash flow remains negative or materially below normalized profit.", "Inventory, debt and finance costs continue to grow faster than sustainable earnings.", "Liquid-cooling expectations continue to rerate the equity without material disclosed revenue, margin and cash contribution.", "The 2026-2028 incentive thresholds are met through revenue growth without acceptable ROIC or free-cash-flow conversion."],
+    "normalized_earnings_basis": {"base": 0.08, "bear": 0.04, "bull": 0.15, "metric": "2026E_NORMALIZED_EPS"},
+    "price_as_of": "2026-09-15",
+    "probability_weighted_value": 2.266,
+    "scenarios": [
+      {"eps": 0.04, "name": "BEAR", "probability": 0.30, "valuation_multiple_pe": 18.0, "value_per_share": 0.72},
+      {"eps": 0.08, "name": "BASE", "probability": 0.50, "valuation_multiple_pe": 25.0, "value_per_share": 2.00},
+      {"eps": 0.15, "name": "BULL", "probability": 0.20, "valuation_multiple_pe": 35.0, "value_per_share": 5.25}
+    ]
+  },
+  "valuation_horizon": "12_MONTH"
+}
