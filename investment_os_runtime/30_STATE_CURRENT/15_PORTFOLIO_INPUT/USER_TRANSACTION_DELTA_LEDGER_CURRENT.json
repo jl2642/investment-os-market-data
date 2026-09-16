@@ -1,7 +1,7 @@
 {
-  "applied_delta_count": 7,
-  "as_of": "2026-09-10T13:17:00+08:00",
-  "continuity_confirmed_through": "2026-09-10T13:17:00+08:00",
+  "applied_delta_count": 9,
+  "as_of": "2026-09-16T13:05:00+08:00",
+  "continuity_confirmed_through": "2026-09-16T13:05:00+08:00",
   "entries": [
     {
       "account": "REAL",
@@ -248,9 +248,59 @@
       "status": "REJECTED",
       "trade_authority": "NONE",
       "trade_date": "2026-09-10"
+    },
+    {
+      "account": "SIMULATION",
+      "action": "BUY",
+      "application_decision": "ALREADY_APPLIED_TO_POSITION_CURRENT_DO_NOT_REAPPLY",
+      "applied_run_id": "POSITION_UPDATE_20260916_USER_SIMULATION_INTRADAY",
+      "confirmation_authority": "USER",
+      "delta_id": "SIM_20260916_BUY_601138_200",
+      "event_type": "SIMULATION_TRADE",
+      "evidence_status": "USER_SCREENSHOT_CONFIRMED",
+      "execution_time": "2026-09-16T13:00:00+08:00",
+      "gross_amount": 12544.0,
+      "note": "User-executed ordinary Simulation trade recorded from transaction screenshot; canonical Simulation source and Position Current already include this delta.",
+      "orders": 0,
+      "position_engine_treatment": "SOURCE_BASELINE_ALREADY_CONTAINS_DELTA",
+      "price": 62.72,
+      "quantity": 200,
+      "quantity_delta": 200,
+      "rejection_reason": "Economic event is materialized in the canonical Simulation source baseline; reapplying it would double count the trade.",
+      "security_code": "601138",
+      "security_id": "601138.SH",
+      "security_name": "工业富联",
+      "status": "REJECTED",
+      "trade_authority": "NONE",
+      "trade_date": "2026-09-16"
+    },
+    {
+      "account": "SIMULATION",
+      "action": "BUY",
+      "application_decision": "ALREADY_APPLIED_TO_POSITION_CURRENT_DO_NOT_REAPPLY",
+      "applied_run_id": "POSITION_UPDATE_20260916_USER_SIMULATION_INTRADAY",
+      "confirmation_authority": "USER",
+      "delta_id": "SIM_20260916_BUY_601899_300",
+      "event_type": "SIMULATION_TRADE",
+      "evidence_status": "USER_SCREENSHOT_CONFIRMED",
+      "execution_time": "2026-09-16T13:00:01+08:00",
+      "gross_amount": 9618.0,
+      "note": "User-executed ordinary Simulation trade recorded from transaction screenshot; canonical Simulation source and Position Current already include this delta.",
+      "orders": 0,
+      "position_engine_treatment": "SOURCE_BASELINE_ALREADY_CONTAINS_DELTA",
+      "price": 32.06,
+      "quantity": 300,
+      "quantity_delta": 300,
+      "rejection_reason": "Economic event is materialized in the canonical Simulation source baseline; reapplying it would double count the trade.",
+      "security_code": "601899",
+      "security_id": "601899.SH",
+      "security_name": "紫金矿业",
+      "status": "REJECTED",
+      "trade_authority": "NONE",
+      "trade_date": "2026-09-16"
     }
   ],
-  "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260910",
+  "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260916",
   "materialized_delta_ids": [
     "REAL_605090_SECOND_4950_SETTLEMENT_20260806",
     "SIM_20260806_BUY_300012_1000",
@@ -258,7 +308,9 @@
     "SIM_20260806_SELL_300124_200",
     "REAL_20260806_SELL_110017_ALL",
     "SIM_20260910_SELL_600941_400",
-    "SIM_20260910_BUY_300124_300"
+    "SIM_20260910_BUY_300124_300",
+    "SIM_20260916_BUY_601138_200",
+    "SIM_20260916_BUY_601899_300"
   ],
   "orders": 0,
   "policy": {
@@ -273,7 +325,7 @@
     "unconfirmed_delta_action": "REJECT_AND_BLOCK_POSITION_MUTATION",
     "user_reports_only_economic_transactions": true
   },
-  "rejected_for_position_engine_count": 12,
+  "rejected_for_position_engine_count": 14,
   "schema_version": "1.0.0",
   "snapshot_type": "USER_CONFIRMED_CONTINUITY_AND_TRANSACTION_DELTA",
   "status": "USER_CONFIRMED_CONTINUITY_CURRENT_NO_UNAPPLIED_DELTAS",
