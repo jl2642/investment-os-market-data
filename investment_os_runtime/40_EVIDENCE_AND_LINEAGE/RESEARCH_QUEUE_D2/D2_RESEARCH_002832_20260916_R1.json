@@ -1,0 +1,48 @@
+{
+  "archetype": "TREND_PERSISTENCE",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260916_R1_002832",
+  "continuous_monitoring": {"daily_full_d2": false, "fresh_d2_triggers": ["price_at_or_below_23_35", "material_normalized_eps_upgrade", "inventory_or_impairment_acceleration", "online_margin_or_cash_conversion_deterioration", "new_brand_roic_evidence"], "semantic_keyword_triggering": false},
+  "controls": {"candidate_membership_mutations": 0, "decision_mutations": 0, "orders": 0, "policy_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "trade_authority": "NONE"},
+  "d1_rank": 3,
+  "evidence_gap": {"manual_user_input_required": false, "material": false, "missing": null},
+  "financial_quality": {"facts": {"h1_2026_attributable_np_rmb_m": 490.505, "h1_2026_attributable_np_yoy": 0.1841, "h1_2026_cfo_rmb_m": 522.24, "h1_2026_cfo_yoy": 0.5543, "h1_2026_deduct_np_rmb_m": 473.187, "h1_2026_deduct_np_yoy": 0.212, "h1_2026_eps": 0.86, "h1_2026_revenue_rmb_bn": 2.600888, "h1_2026_revenue_yoy": 0.2366, "h1_2026_roe": 0.0887}, "judgment": "Earnings quality is strong: CFO exceeds attributable profit and deduct-profit growth is healthy; online growth is material rather than purely narrative."},
+  "first_rejection_test": "QUALITY_AND_CASH_CONVERSION_CLEARED_BUT_CURRENT_VALUATION_FAILS_15PCT_NEW_CAPITAL_HURDLE",
+  "market_implied_expectation": {"current_price": 25.55, "interpretation": "Current valuation already requires sustained double-digit earnings growth and successful multi-brand execution; the business is attractive, but the margin of safety is not yet sufficient for a 15% new-capital hurdle.", "price_as_of": "2026-09-15"},
+  "next_gate": "BUY_GATE_PRICE_AT_OR_BELOW_RMB23_35_OR_MATERIAL_NORMALIZED_EPS_UPGRADE_WITH_INVENTORY_CASH_CONVERSION_INTACT",
+  "operating_detail": {"asset_impairment_loss_rmb_m": 39.798, "direct_revenue_rmb_bn": 1.6649, "direct_revenue_yoy": 0.1789, "franchise_revenue_rmb_m": 488.077, "franchise_revenue_yoy": 0.0533, "inventory_net_rmb_bn": 1.3035, "judgment": "Channel productivity is improving, but inventory and impairment are the key balance-sheet/earnings-quality counters to the growth thesis; new-brand expansion also adds execution risk.", "online_gross_margin": 0.7961, "online_revenue_rmb_m": 432.534, "online_revenue_yoy": 1.0193},
+  "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_QUALITY_GROWTH_AND_CASH_CONVERSION_CLEARED_CURRENT_VALUATION_BELOW_NEW_CAPITAL_HURDLE",
+  "research_update_type": "USER_EXPLICIT_FRESH_D2_20260916_CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCES",
+  "schema_version": "1.0.0",
+  "security_id": "002832.SZ",
+  "security_name": "比音勒芬",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_884420752af1176e",
+  "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH_AFTER_EXPLICIT_USER_START",
+  "source_quality_note": "Consolidated H1 figures are from the formal report summary/reprints; detailed channel and inventory figures are from the full-report mirror. Market price is the completed 2026-09-15 session. Scenario EPS, multiples and probabilities are analytical assumptions.",
+  "sources": [
+    {"as_of": "2026-08-28", "title": "比音勒芬2026年半年度报告摘要", "type": "PRIMARY_DISCLOSURE_REPRINT", "url": "https://paper.cnstock.com/html/2026-08/28/content_2262034.htm"},
+    {"as_of": "2026-08-27", "title": "比音勒芬2026年半年度报告全文", "type": "PRIMARY_DISCLOSURE_MIRROR", "url": "https://stock.stockstar.com/notice/SN2026082700052745.shtml"},
+    {"as_of": "2026-09-15", "title": "比音勒芬历史行情", "type": "MARKET_DATA", "url": "https://cn.investing.com/equities/biem.l-.fdlkk-garment-historical-data"}
+  ],
+  "status": "D2_RESEARCH_COMPLETE",
+  "thesis": {"core": "Core-brand growth remains healthy, online revenue is accelerating and H1 operating cash flow grew much faster than profit, supporting a high-quality earnings profile.", "normalized_earnings_basis": "Use 2026 normalized EPS bear/base/bull of RMB1.15/RMB1.32/RMB1.48, with H1 EPS RMB0.86 as the reported anchor and a conservative seasonal/full-year normalization.", "variant_wedge": "The business quality is stronger than many discretionary-apparel peers, but at the current price the valuation already recognizes much of the growth; inventory and impairment plus multi-brand expansion keep new-capital expected return below the system's 15% hurdle."},
+  "underwriting": {
+    "action": "BUY_BELOW",
+    "bear_downside": -0.32485322896,
+    "catalysts": ["Online growth remains high-margin while direct-store productivity improves.", "Inventory turns and impairment stabilize despite continued revenue growth.", "New brands and licensed brands progress toward break-even without diluting core-brand ROIC.", "Core-brand earnings compound faster than the valuation multiple compresses."],
+    "confidence": "MEDIUM_HIGH",
+    "current_price": 25.55,
+    "entry_price": 23.35,
+    "expected_return": 0.0508806262,
+    "hurdle_entry_price_15pct": 23.3478,
+    "kill_thesis": ["Online growth proves promotional or materially lower quality than reported gross-margin economics imply.", "Inventory and impairment grow persistently faster than revenue and cash earnings.", "Multi-brand expansion consumes capital without a credible path to acceptable ROIC.", "Core-brand growth slows materially while the equity remains priced above roughly 20x normalized earnings."],
+    "normalized_earnings_basis": {"base": 1.32, "bear": 1.15, "bull": 1.48, "metric": "2026E_NORMALIZED_EPS"},
+    "price_as_of": "2026-09-15",
+    "probability_weighted_value": 26.85,
+    "scenarios": [
+      {"eps": 1.15, "name": "BEAR", "probability": 0.20, "valuation_multiple_pe": 15.0, "value_per_share": 17.25},
+      {"eps": 1.32, "name": "BASE", "probability": 0.55, "valuation_multiple_pe": 20.0, "value_per_share": 26.40},
+      {"eps": 1.48, "name": "BULL", "probability": 0.25, "valuation_multiple_pe": 24.0, "value_per_share": 35.52}
+    ]
+  },
+  "valuation_horizon": "12_MONTH"
+}
