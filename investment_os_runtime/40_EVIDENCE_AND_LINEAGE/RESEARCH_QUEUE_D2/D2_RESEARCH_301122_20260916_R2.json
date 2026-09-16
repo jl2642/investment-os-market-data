@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260916_R2_301122",
+  "security_id": "301122.SZ",
+  "security_name": "采纳股份",
+  "d1_rank": 5,
+  "archetype": "TREND_PERSISTENCE",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "AVOID_RESEARCH_COMPLETE_VALUATION_EARNINGS_QUALITY_FDA_AND_OWNERSHIP_CATALYST_NOT_FUNDAMENTAL",
+  "research_update_type": "USER_EXPLICIT_FRESH_DELTA_D2_20260916_PROVIDER_FALLBACK",
+  "valuation_horizon": "12_TO_18_MONTH_NORMALIZATION",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_5897cfd4a19d1ff7",
+  "source_primary_discovery_commit": "e209d55d9dfd33900c74c9e764d4fc176a7d6b86",
+  "source_discovery_mode": "GOVERNED_SEMANTIC_FALLBACK_AFTER_CNINFO_PROVIDER_INCIDENT",
+  "thesis": {
+    "core": "2026H1 revenue recovery remains much stronger than core profit conversion, while regulatory/FDA and integration risks are not resolved. The newly completed 18.01% shareholder transfer is a meaningful ownership event but the company states it does not change control, assets or continuing operations, so it does not repair the fundamental valuation gap.",
+    "variant_wedge": "Momentum, ownership-event optionality and revenue growth are visible, but current price still capitalizes a much larger normalized core-earnings recovery than disclosed deduct profit and cash economics support.",
+    "normalized_earnings_basis": "Retain the prior 2027-style normalized attributable-profit range of RMB25m/RMB60m/RMB100m for bear/base/bull plus RMB0.70bn haircut-adjusted excess liquid-financial assets; do not treat the shareholder transfer as operating earnings."
+  },
+  "underwriting": {
+    "current_price": 45.95,
+    "price_as_of": "2026-09-15",
+    "entry_price": 16.54,
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {
+      "metric": "NORMALIZED_ATTRIBUTABLE_NET_PROFIT_PLUS_HAIRCUT_EXCESS_LIQUID_ASSETS",
+      "bear_net_profit_rmb_m": 25.0,
+      "base_net_profit_rmb_m": 60.0,
+      "bull_net_profit_rmb_m": 100.0,
+      "excess_liquid_financial_assets_rmb_m": 700.0,
+      "shares_m": 122.245658,
+      "rationale": "Fresh review retains prior normalization; the ownership transfer changes shareholder structure but not disclosed operating economics."
+    },
+    "scenarios": [
+      {"name": "BEAR", "normalized_net_profit_rmb_m": 25.0, "valuation_multiple_pe": 20.0, "value_per_share": 9.82, "probability": 0.25},
+      {"name": "BASE", "normalized_net_profit_rmb_m": 60.0, "valuation_multiple_pe": 25.0, "value_per_share": 18.00, "probability": 0.50},
+      {"name": "BULL", "normalized_net_profit_rmb_m": 100.0, "valuation_multiple_pe": 30.0, "value_per_share": 30.27, "probability": 0.25}
+    ],
+    "probability_weighted_value": 19.02,
+    "expected_return": -0.5860718172,
+    "bear_downside": -0.7862894450,
+    "hurdle_entry_price_15pct": 16.54,
+    "action": "AVOID",
+    "catalysts": [
+      "FDA import alert is formally removed and U.S. syringe shipments normalize.",
+      "Cambodia utilization ramps with stable gross margin and cash conversion.",
+      "Fenglin Medical integration turns profitable without further balance-sheet deterioration.",
+      "The new 18.01% shareholder relationship produces disclosed strategic or commercial synergies rather than remaining a financial ownership event."
+    ],
+    "kill_thesis": [
+      "FDA import alert remains unresolved or expands in scope.",
+      "Deduct-net-profit margin fails to normalize despite revenue growth.",
+      "Inventory/capex/acquisition working capital absorbs cash faster than core profit grows.",
+      "Ownership-event expectations rerate the stock without evidence of incremental operating earnings or cash flow."
+    ]
+  },
+  "first_rejection_test": "VALUATION_AND_EARNINGS_QUALITY_GATE_REMAINS_TRIGGERED; OWNERSHIP_TRANSFER_DOES_NOT_CHANGE_DISCLOSED_OPERATING_ECONOMICS",
+  "next_gate": "REOPEN_ONLY_IF_PRICE_AT_OR_BELOW_RMB16_54_OR_FDA_RESOLUTION_PLUS_MATERIAL_CORE_EARNINGS_CASH_CONVERSION_UPGRADE",
+  "evidence_gap": {"material": false, "missing": null, "manual_user_input_required": false},
+  "sources": [
+    {"type": "PRIMARY_DISCLOSURE_MIRROR", "title": "采纳股份2026年半年度报告", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12536280&stockid=301122", "as_of": "2026-08-26"},
+    {"type": "PRIMARY_DISCLOSURE_MIRROR", "title": "关于股东协议转让股份过户完成的公告", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12603327&stockid=301122", "as_of": "2026-09-15"},
+    {"type": "MARKET_DATA", "title": "采纳股份历史行情", "url": "https://hk.investing.com/equities/caina-technology-historical-data", "as_of": "2026-09-15"}
+  ],
+  "source_quality_note": "The mechanical CNINFO/AkShare path failed batch-wide. Semantic fallback uses formal company disclosure mirrors for H1 financials and the 18.01% transfer completion, plus completed-session market data. Scenario earnings, multiples, probabilities and entry hurdle are analytical assumptions.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": ["price_at_or_below_16_54", "formal_fda_import_alert_resolution_or_material_scope_change", "normalized_deduct_earnings_or_cash_flow_changes_materially", "major_fenglin_or_cambodia_evidence_changes", "new_shareholder_relationship_produces_disclosed_operating_synergy"],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {"candidate_membership_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "decision_mutations": 0, "policy_mutations": 0, "orders": 0, "trade_authority": "NONE"}
+}
