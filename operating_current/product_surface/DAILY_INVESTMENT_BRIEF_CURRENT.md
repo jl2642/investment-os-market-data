@@ -4,7 +4,7 @@
 - 当前需人工复核的决策项：6
 - 持仓绩效监控：22 / 22（账户持仓行 23）
 - 当前投资判断覆盖：22 / 22
-- 新机会：8
+- 新机会：11
 - 自动交易：关闭；orders = 0；trade_authority = NONE
 
 ## 1. 当前持仓决策面
@@ -44,6 +44,9 @@
 - BUY｜002807.SZ 江阴银行｜当前价 4.18｜预期收益 22.2%｜阻断 无
 - BUY_BELOW｜600428.SH 中远海特｜当前价 11.67｜预期收益 2.8%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜603995.SH 甬金股份｜当前价 25.34｜预期收益 1.9%｜阻断 PRICE_BLOCKED
+- WATCH｜002832.SZ 比音勒芬｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
+- WATCH｜300647.SZ 超频三｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
+- WATCH｜301109.SZ 军信股份｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_OBJECT_ABSENT
 - AVOID｜002936.SZ 郑州银行｜当前价 1.76｜预期收益 -0.2%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜003040.SZ 楚天龙｜当前价 21.12｜预期收益 -67.1%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜301122.SZ 采纳股份｜当前价 45.95｜预期收益 -58.6%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
