@@ -212,7 +212,10 @@ def rebase_decisions(
             rec["price_basis"] = metrics.get("price_basis", "D2_UNDERWRITING_SNAPSHOT")
         status = str(comp.get("comparison_status") or "UNDERWRITING_PENDING")
         existing = bool(comp.get("existing_position"))
-        rec["action"] = _action_for_status(status, existing)
+        previous_action = str(rec.get("action") or "")
+        new_action = _action_for_status(status, existing)
+        action_changed = bool(previous_action and previous_action != new_action)
+        rec["action"] = new_action
         rec["ready_for_user_decision"] = rec["action"] in {"BUY", "ADD", "TRIM", "EXIT"}
         rec["research_freshness"] = comp.get("research_freshness")
         rec["top_blocker"] = _blocker_for_status(status)
@@ -234,6 +237,14 @@ def rebase_decisions(
             x for x in reasons
             if not str(x).startswith("D2_CAPITAL_RANK_") and str(x) not in status_tokens
         ]
+        if action_changed:
+            reasons = [
+                x for x in reasons
+                if str(x) != previous_action
+                and str(x) != f"D2_EXPLICIT_POSITION_ACTION_{previous_action}"
+                and not str(x).startswith(f"{previous_action}_")
+            ]
+            reasons.append(f"MARK_REBASE_ACTION_{previous_action}_TO_{new_action}")
         reasons.append(status)
         rank = comp.get("rank_among_current_d2")
         if rank:

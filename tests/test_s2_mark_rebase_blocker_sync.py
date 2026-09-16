@@ -40,6 +40,7 @@ def test_mark_rebase_clears_stale_price_blocker_when_existing_position_crosses_e
                 "ready_for_user_decision": False,
                 "top_reasons": [
                     "HOLD_RESEARCH_COMPLETE_CURRENT_MARK_NEAR_BUT_ABOVE_15PCT_ADD_HURDLE",
+                    "D2_EXPLICIT_POSITION_ACTION_HOLD",
                     "PRICE_BLOCKED",
                     "D2_CAPITAL_RANK_5",
                 ],
@@ -68,6 +69,9 @@ def test_mark_rebase_clears_stale_price_blocker_when_existing_position_crosses_e
     assert record["top_blocker"] is None
     assert "PASS_NEW_CAPITAL" in record["top_reasons"]
     assert "PRICE_BLOCKED" not in record["top_reasons"]
+    assert "D2_EXPLICIT_POSITION_ACTION_HOLD" not in record["top_reasons"]
+    assert not any(str(reason).startswith("HOLD_") for reason in record["top_reasons"])
+    assert "MARK_REBASE_ACTION_HOLD_TO_ADD" in record["top_reasons"]
 
 
 def test_mark_rebase_preserves_price_blocker_when_gate_is_not_crossed() -> None:
@@ -101,7 +105,11 @@ def test_mark_rebase_preserves_price_blocker_when_gate_is_not_crossed() -> None:
                 "action": "BUY_BELOW",
                 "top_blocker": "PRICE_BLOCKED",
                 "ready_for_user_decision": False,
-                "top_reasons": ["PRICE_BLOCKED"],
+                "top_reasons": [
+                    "BUY_BELOW_RESEARCH_COMPLETE_QUALITY_GROWTH",
+                    "D2_EXPLICIT_POSITION_ACTION_BUY_BELOW",
+                    "PRICE_BLOCKED",
+                ],
             }
         ],
     }
@@ -125,3 +133,6 @@ def test_mark_rebase_preserves_price_blocker_when_gate_is_not_crossed() -> None:
     assert record["ready_for_user_decision"] is False
     assert record["top_blocker"] == "PRICE_BLOCKED"
     assert record["top_reasons"].count("PRICE_BLOCKED") == 1
+    assert "BUY_BELOW_RESEARCH_COMPLETE_QUALITY_GROWTH" in record["top_reasons"]
+    assert "D2_EXPLICIT_POSITION_ACTION_BUY_BELOW" in record["top_reasons"]
+    assert not any(str(reason).startswith("MARK_REBASE_ACTION_") for reason in record["top_reasons"])
