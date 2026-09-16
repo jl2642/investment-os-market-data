@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260916_R3_603268",
+  "security_id": "603268.SH",
+  "security_name": "松发股份",
+  "d1_rank": 1,
+  "archetype": "TREND_PERSISTENCE",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "AVOID_RESEARCH_COMPLETE_FUNDAMENTAL_INFLECTION_REAL_VALUATION_AND_FINANCED_GROWTH_GATE_FAIL",
+  "research_update_type": "USER_EXPLICIT_FRESH_DELTA_D2_20260916_PROVIDER_FALLBACK",
+  "valuation_horizon": "12_MONTH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_5897cfd4a19d1ff7",
+  "source_primary_discovery_commit": "e209d55d9dfd33900c74c9e764d4fc176a7d6b86",
+  "source_discovery_mode": "GOVERNED_SEMANTIC_FALLBACK_AFTER_CNINFO_PROVIDER_INCIDENT",
+  "thesis": {
+    "core": "Hengli shipbuilding continues to support a genuine earnings and order-book step change, but the equity still prices a sustained high-cycle outcome while expansion remains capital intensive.",
+    "variant_wedge": "The operating inflection is real; the rejection remains valuation and financed-growth risk rather than weak fundamentals. The new RMB5.0bn debt-financing registration adds funding flexibility but does not itself improve intrinsic value and reinforces the need to distinguish operating cash flow from free cash flow.",
+    "normalized_earnings_basis": "Retain the prior 2026E normalized EPS framework of RMB5.50/RMB7.50/RMB9.00 for bear/base/bull because no post-2026H1 disclosure changes normalized earnings sufficiently to justify a new model."
+  },
+  "financed_growth_gate": {
+    "status": "ACTIVE",
+    "h1_assets_rmb_bn": 74.611,
+    "h1_attributable_equity_rmb_bn": 13.060,
+    "h1_operating_cash_flow_rmb_bn": 8.509,
+    "h1_capex_rmb_bn": 10.160,
+    "registered_debt_financing_limit_rmb_bn": 5.0,
+    "interpretation": "Customer advances support CFO, but H1 capex exceeded CFO and the newly accepted debt-financing registration increases financing optionality rather than proving higher free cash return."
+  },
+  "underwriting": {
+    "current_price": 195.65,
+    "price_as_of": "2026-09-15",
+    "entry_price": 120.43,
+    "confidence": "MEDIUM",
+    "normalized_earnings_basis": {
+      "metric": "2026E_NORMALIZED_EPS",
+      "bear": 5.50,
+      "base": 7.50,
+      "bull": 9.00,
+      "rationale": "Fresh review retains the 2026-09-10 normalized earnings range; no new primary evidence warrants an upgrade."
+    },
+    "scenarios": [
+      {"name": "BEAR", "eps": 5.50, "valuation_multiple_pe": 14.0, "value_per_share": 77.00, "probability": 0.25},
+      {"name": "BASE", "eps": 7.50, "valuation_multiple_pe": 18.0, "value_per_share": 135.00, "probability": 0.50},
+      {"name": "BULL", "eps": 9.00, "valuation_multiple_pe": 23.0, "value_per_share": 207.00, "probability": 0.25}
+    ],
+    "probability_weighted_value": 138.50,
+    "expected_return": -0.2921032456,
+    "bear_downside": -0.6064400716,
+    "hurdle_entry_price_15pct": 120.43,
+    "action": "AVOID",
+    "catalysts": [
+      "High-value ship orders convert into deliveries at or above H1 margins.",
+      "New yard and engine capacity reaches high utilization without material cost overruns.",
+      "Financing flexibility improves without debt, finance expense and capex outrunning sustainable free cash generation."
+    ],
+    "kill_thesis": [
+      "Newbuild pricing or orders roll over before expanded capacity matures.",
+      "Delivery delays, cancellations, steel/FX pressure or mix deterioration compress normalized margin.",
+      "Debt, finance expense and capex continue to grow faster than sustainable free cash generation."
+    ]
+  },
+  "first_rejection_test": "VALUATION_AND_FINANCED_GROWTH_GATE_TRIGGERED_DESPITE_CONFIRMED_FUNDAMENTAL_INFLECTION",
+  "next_gate": "REOPEN_ON_MATERIAL_NORMALIZED_EARNINGS_ROIC_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB120_43_WITH_ORDER_MARGIN_EVIDENCE_INTACT",
+  "evidence_gap": {"material": false, "missing": null, "manual_user_input_required": false},
+  "sources": [
+    {"type": "PRIMARY_DISCLOSURE_MIRROR", "title": "松发股份2026年半年度报告", "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12525552&stockid=603268", "as_of": "2026-08-25"},
+    {"type": "PRIMARY_DISCLOSURE_REPRINT", "title": "关于债务融资工具注册申请获准的公告", "url": "https://paper.cnstock.com/html/2026-09/10/content_2267009.htm", "as_of": "2026-09-10"},
+    {"type": "MARKET_DATA", "title": "松发股份历史行情", "url": "https://cn.investing.com/equities/guangdong-songfa-ceramics-co-ltd-historical-data", "as_of": "2026-09-15"}
+  ],
+  "source_quality_note": "The mechanical CNINFO/AkShare discovery path failed batch-wide with JSONDecodeError. Semantic fallback uses the company's formal H1 filing mirror and a verbatim exchange-announcement reprint, with current completed-session market data. Scenario EPS, multiples and probabilities remain analytical assumptions.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": ["price_at_or_below_120_43", "material_earnings_or_roic_upgrade", "order_or_newbuild_price_rollover", "capex_debt_cash_conversion_deterioration"],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {"candidate_membership_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "decision_mutations": 0, "policy_mutations": 0, "orders": 0, "trade_authority": "NONE"}
+}

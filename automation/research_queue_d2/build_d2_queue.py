@@ -16,6 +16,7 @@ D2_EVIDENCE_DIR = ROOT / "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH
 
 BATCH_SIZE = 3
 TRADE_AUTHORITY = "NONE"
+CNINFO_MAX_ATTEMPTS = 2
 SEMANTIC_TERMINAL_STATUSES = {"D2_RESEARCH_COMPLETE", "D2_RESEARCH_HOLD_EVIDENCE_GAP"}
 SEMANTIC_PASSTHROUGH_FIELDS = (
     "research_disposition",
@@ -81,6 +82,10 @@ def baseline_sources(evidence: dict[str, Any], security_id: str) -> list[dict[st
     return [source for source in evidence.get("sources", []) if source.get("security_id") == security_id]
 
 
+def _cninfo_error(exc: Exception) -> str:
+    return f"CNINFO_DISCOVERY_FAILED:{type(exc).__name__}:ATTEMPTS_{CNINFO_MAX_ATTEMPTS}"
+
+
 def discover_cninfo(security_id: str, *, start_date: str, end_date: str) -> tuple[list[dict[str, Any]], str | None]:
     try:
         import akshare as ak
@@ -88,18 +93,25 @@ def discover_cninfo(security_id: str, *, start_date: str, end_date: str) -> tupl
         return [], f"AKSHARE_IMPORT_FAILED:{type(exc).__name__}"
 
     symbol = security_id.split(".")[0]
-    try:
-        frame = ak.stock_zh_a_disclosure_report_cninfo(
-            symbol=symbol,
-            market="沪深京",
-            keyword="",
-            category="",
-            start_date=start_date.replace("-", ""),
-            end_date=end_date.replace("-", ""),
-        )
-    except Exception as exc:  # pragma: no cover - network dependent
-        return [], f"CNINFO_DISCOVERY_FAILED:{type(exc).__name__}"
+    frame = None
+    last_error: Exception | None = None
+    for _attempt in range(1, CNINFO_MAX_ATTEMPTS + 1):
+        try:
+            frame = ak.stock_zh_a_disclosure_report_cninfo(
+                symbol=symbol,
+                market="沪深京",
+                keyword="",
+                category="",
+                start_date=start_date.replace("-", ""),
+                end_date=end_date.replace("-", ""),
+            )
+            last_error = None
+            break
+        except Exception as exc:  # pragma: no cover - network dependent
+            last_error = exc
 
+    if last_error is not None:
+        return [], _cninfo_error(last_error)
     if frame is None or frame.empty:
         return [], "CNINFO_DISCOVERY_EMPTY"
 
@@ -133,6 +145,32 @@ def discover_cninfo(security_id: str, *, start_date: str, end_date: str) -> tupl
         reverse=True,
     )
     return records[:20], None
+
+
+def provider_incident_summary(discovery_errors: list[dict[str, str]], routed_count: int) -> dict[str, Any]:
+    """Promote identical batch-wide source failures to a provider incident.
+
+    This changes observability only: the mechanical consumer still fails closed and
+    semantic completion must supply governed primary-source provenance separately.
+    """
+    if routed_count <= 1 or len(discovery_errors) != routed_count:
+        return {"active": False}
+    signatures = {str(row.get("error") or "") for row in discovery_errors}
+    if len(signatures) != 1:
+        return {"active": False}
+    signature = next(iter(signatures))
+    if not signature.startswith(("CNINFO_DISCOVERY_FAILED:", "AKSHARE_IMPORT_FAILED:")):
+        return {"active": False}
+    return {
+        "active": True,
+        "provider": "CNINFO_VIA_AKSHARE",
+        "scope": "BATCH_LEVEL",
+        "affected_count": routed_count,
+        "error_signature": signature,
+        "classification": "PROVIDER_INTERFACE_OR_ACCESS_FAILURE",
+        "semantic_fallback_allowed": True,
+        "mechanical_consumer_fail_closed": True,
+    }
 
 
 def semantic_state_is_same_input(prior: dict[str, Any], previous: dict[str, Any], d1: dict[str, Any], watermark: str) -> bool:
@@ -170,8 +208,9 @@ def build_state(
     queue: list[dict[str, Any]] = []
     run_sources: list[dict[str, Any]] = []
     discovery_errors: list[dict[str, str]] = []
+    routed = routed_objects(d1)
 
-    for obj in routed_objects(d1):
+    for obj in routed:
         security_id = str(obj["security_id"])
         watermark = canonical_hash(obj)
         previous = prior_by_id.get(security_id, {})
@@ -186,7 +225,11 @@ def build_state(
             cninfo, discovery_error = discover_cninfo(security_id, start_date=start_date, end_date=today)
             run_sources.extend(cninfo)
             if discovery_error:
-                discovery_errors.append({"security_id": security_id, "error": discovery_error})
+                discovery_errors.append({
+                    "provider": "CNINFO_VIA_AKSHARE",
+                    "security_id": security_id,
+                    "error": discovery_error,
+                })
 
         if previous_status == "D2_RESEARCH_COMPLETE" and not underwriting_complete(previous):
             status = "D2_UNDERWRITING_PENDING"
@@ -240,6 +283,7 @@ def build_state(
     completed = [row for row in queue if row["status"] == "D2_RESEARCH_COMPLETE"]
     holds = [row for row in queue if row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
     blocked = [row for row in queue if row["status"].startswith("AUTO_RESEARCH_BLOCKED") or row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
+    provider_incident = provider_incident_summary(discovery_errors, len(routed))
 
     semantic_projection = [
         {
@@ -283,6 +327,7 @@ def build_state(
             "blocked_count": len(blocked),
             "batch_capacity": BATCH_SIZE,
             "manual_trigger_required": False,
+            "provider_incident_active": bool(provider_incident.get("active")),
         },
         "controls": {
             "candidate_membership_mutations": 0,
@@ -314,6 +359,7 @@ def build_state(
         "manual_trigger_required": False,
         "blocked_items": [row["security_id"] for row in blocked],
         "completed_items": [row["security_id"] for row in completed],
+        "provider_incident": provider_incident,
         "trade_authority": TRADE_AUTHORITY,
     }
 
@@ -325,9 +371,11 @@ def build_state(
         "discovery_enabled": discover_primary_sources,
         "primary_sources": run_sources,
         "discovery_errors": discovery_errors,
+        "provider_incident": provider_incident,
         "policy": {
             "primary_source_preference": "CNINFO_OR_EXCHANGE_DISCLOSURE",
             "semantic_completion_prohibited": True,
+            "semantic_fallback": "CHATGPT_NATIVE_D2_MAY_USE_GOVERNED_EXCHANGE_OR_COMPANY_PRIMARY_DISCLOSURES_WITH_PROVENANCE",
             "purpose": "AUTOMATIC_PRIMARY_EVIDENCE_DISCOVERY_FOR_D2_SEMANTIC_RESEARCH",
         },
         "controls": state["controls"],
@@ -355,6 +403,7 @@ def main() -> int:
         "pending": state["summary"]["pending_count"],
         "completed": state["summary"]["completed_count"],
         "blocked": state["summary"]["blocked_count"],
+        "provider_incident_active": state["summary"].get("provider_incident_active", False),
         "evidence_path": str(evidence_path.relative_to(ROOT)),
         "manual_trigger_required": False,
         "orders": 0,

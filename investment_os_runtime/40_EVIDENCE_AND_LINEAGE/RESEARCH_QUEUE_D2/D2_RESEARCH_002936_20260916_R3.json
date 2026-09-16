@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260916_R3_002936",
+  "security_id": "002936.SZ",
+  "security_name": "郑州银行",
+  "d1_rank": 3,
+  "archetype": "DEFENSIVE_STABILITY",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "AVOID_RESEARCH_COMPLETE_DEFENSIVE_LABEL_NOT_CLEARED_CAPITAL_NIM_PAYOUT_GATE",
+  "research_update_type": "USER_EXPLICIT_FRESH_DELTA_D2_20260916_PROVIDER_FALLBACK",
+  "valuation_horizon": "12_MONTH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_5897cfd4a19d1ff7",
+  "source_primary_discovery_commit": "e209d55d9dfd33900c74c9e764d4fc176a7d6b86",
+  "source_discovery_mode": "GOVERNED_SEMANTIC_FALLBACK_AFTER_CNINFO_PROVIDER_INCIDENT",
+  "thesis": {
+    "core": "Asset quality and provision coverage remain improved, but the defensive-equity case is still constrained by compressed NIM, a thinner core Tier-1 buffer and weak ordinary-share payout economics. The lower share price closes the valuation gap but does not create the required expected-return margin of safety.",
+    "variant_wedge": "Low P/B is real, yet the discount remains economically justified until retained earnings convert into stronger core capital, stabilized NIM and a credible common-shareholder payout path.",
+    "normalized_earnings_basis": "Retain 2026H1 ordinary BVPS RMB5.16 and normalized annual EPS RMB0.34-0.36; value primarily on common P/B because sustainable ROE, capital generation and payout capacity remain binding."
+  },
+  "underwriting": {
+    "current_price": 1.76,
+    "price_as_of": "2026-09-15",
+    "entry_price": 1.53,
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {
+      "metric": "COMMON_EQUITY_BVPS_AND_NORMALIZED_EPS",
+      "common_bvps_2026_h1": 5.16,
+      "normalized_eps_range": [0.34, 0.36],
+      "rationale": "Fresh review finds no post-H1 evidence that changes the capital/NIM/payout framework."
+    },
+    "scenarios": [
+      {"name": "BEAR", "common_pb": 0.25, "value_per_share": 1.29, "probability": 0.30},
+      {"name": "BASE", "common_pb": 0.35, "value_per_share": 1.81, "probability": 0.50},
+      {"name": "BULL", "common_pb": 0.45, "value_per_share": 2.32, "probability": 0.20}
+    ],
+    "probability_weighted_value": 1.756,
+    "expected_return": -0.0022727273,
+    "bear_downside": -0.2670454545,
+    "hurdle_entry_price_15pct": 1.527,
+    "action": "AVOID",
+    "catalysts": [
+      "Core Tier-1 capital ratio stabilizes and rebuilds without dilutive capital raising.",
+      "Net interest margin stabilizes as deposit repricing and asset mix improve.",
+      "Ordinary-share cash dividends resume at a sustainable payout level while asset quality remains stable."
+    ],
+    "kill_thesis": [
+      "Core Tier-1 capital ratio moves materially closer to the regulatory floor or requires dilutive replenishment.",
+      "NIM continues to compress while ROE remains structurally below the cost of equity.",
+      "Asset-quality improvement reverses or ordinary-share payout remains structurally absent."
+    ]
+  },
+  "first_rejection_test": "CAPITAL_NIM_AND_SHAREHOLDER_RETURN_GATE_REMAINS_TRIGGERED; CURRENT_PRICE_ONLY_REACHES_APPROXIMATE_FAIR_VALUE_NOT_15PCT_HURDLE",
+  "next_gate": "CORE_TIER1_NIM_PAYOUT_IMPROVEMENT_OR_PRICE_AT_OR_BELOW_RMB1_53",
+  "evidence_gap": {"material": false, "missing": null, "manual_user_input_required": false},
+  "sources": [
+    {"type": "PRIMARY_DISCLOSURE", "title": "郑州银行2026年半年度报告摘要", "url": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225531955.PDF", "as_of": "2026-08-29"},
+    {"type": "MARKET_DATA", "title": "郑州银行历史行情", "url": "https://cn.investing.com/equities/bank-zhengzhou-historical-data", "as_of": "2026-09-15"}
+  ],
+  "source_quality_note": "The mechanical CNINFO/AkShare query failed in the current batch, but the formal H1 filing remains directly retrievable and decision-relevant metrics are unchanged. Current price is refreshed to the completed 2026-09-15 session. Scenario P/B and probabilities are analytical assumptions.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": ["price_at_or_below_1_53", "core_tier1_changes_materially", "nim_stabilizes_or_deteriorates", "ordinary_dividend_policy_changes", "asset_quality_reverses"],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {"candidate_membership_mutations": 0, "real_account_mutations": 0, "simulation_mutations": 0, "decision_mutations": 0, "policy_mutations": 0, "orders": 0, "trade_authority": "NONE"}
+}
