@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-09-16",
-  "generated_at_utc": "2026-09-16T18:32:45+00:00",
+  "generated_at_utc": "2026-09-17T02:27:57+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_370931d69e6203d1",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_43b52aae57b90a30",
   "records": [
     {
       "accounts": [],
@@ -106,21 +106,21 @@
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "HOLD",
-      "entry_price": 72.0,
+      "current_action": "ADD",
+      "entry_price": 72.7,
       "latest_price": 70.78,
-      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-09-16",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "MEDIUM_HIGH",
-      "reason": "Holding price 70.7800 is at/below research entry threshold 72.0000.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade holding action is ADD.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "600309.SH",
       "security_name": "万华化学",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "POSITION_ACTION_ADD"
     },
     {
       "accounts": [
@@ -165,6 +165,6 @@
   ],
   "review_count": 8,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_b8be4a4adb8be7c0",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_801dac05c5ea340e",
   "trade_authority": "NONE"
 }
