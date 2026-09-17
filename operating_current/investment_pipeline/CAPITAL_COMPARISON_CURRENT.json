@@ -8,15 +8,15 @@
   },
   "coverage": {
     "d2_subject_count": 34,
-    "decision_grade_underwriting_count": 33,
+    "decision_grade_underwriting_count": 34,
     "portfolio_comparison_boundary": "Current D2 subjects are ranked explicitly; holdings without D2 underwriting remain outside expected-return comparison rather than receiving invented returns.",
     "real_position_state_bound": true,
     "simulation_position_state_bound": true
   },
-  "generated_at_utc": "2026-09-16T16:02:38+00:00",
+  "generated_at_utc": "2026-09-17T02:23:24+00:00",
   "price_freshness_policy": {
     "active_semantic_refresh_fails_closed": true,
-    "latest_mark_date": "2026-09-15",
+    "latest_mark_date": "2026-09-16",
     "portfolio_decisions_rebased_to_latest_marks": true,
     "underwriting_snapshot_preserved": true
   },
@@ -24,24 +24,57 @@
     {
       "capital_hurdle": 0.1,
       "cash_hurdle": 0.04,
-      "comparison_status": "UNDERWRITING_PENDING",
+      "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "comparison_vector": {
-        "bear_downside": null,
+        "bear_downside": -0.4453781512605042,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
-        "confidence": null,
+        "confidence": "MEDIUM",
         "existing_position": false,
-        "expected_return": null
+        "expected_return": -0.008683473389355711
       },
-      "d2_status": "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+      "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": false,
-      "metrics": null,
-      "missing_requirements": [
-        "UNDERWRITING_OBJECT_ABSENT"
-      ],
-      "peer_expected_return_median": 0.0948905109489051,
+      "metrics": {
+        "base_value": 3.6,
+        "bear_downside": -0.4453781512605042,
+        "bear_value": 1.98,
+        "bull_value": 5.32,
+        "catalysts": [
+          "High-quality toll-road asset acquisition/extension replaces the earnings lost from Changyong Expressway.",
+          "Core road traffic/profitability remains stable while low-margin trading does not dilute group ROIC further.",
+          "Cash payout is sustainably maintained or raised without balance-sheet or credit-risk migration.",
+          "Environmental/financial contingent exposures are resolved without material additional losses."
+        ],
+        "confidence": "MEDIUM",
+        "current_price": 3.57,
+        "entry_price": 3.08,
+        "expected_return": -0.008683473389355711,
+        "kill_thesis": [
+          "Toll-road earnings structurally decline without credible replacement assets.",
+          "Trading revenue continues to dominate growth while margins, ROIC or deducted earnings weaken.",
+          "Financial/environmental exposures create material credit, guarantee or provision losses.",
+          "Dividend support increasingly relies on balance-sheet capacity rather than sustainable normalized earnings and cash flow."
+        ],
+        "normalized_earnings_basis": {
+          "base": 0.3,
+          "bear": 0.22,
+          "bull": 0.38,
+          "metric": "FY_NORMALIZED_EPS"
+        },
+        "portfolio_role": null,
+        "price_as_of": "2026-09-16",
+        "probability_weighted_value": 3.539,
+        "scenario_probabilities": {
+          "BASE": 0.55,
+          "BEAR": 0.25,
+          "BULL": 0.2
+        }
+      },
+      "missing_requirements": [],
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
-      "rank_among_current_d2": null,
+      "rank_among_current_d2": 29,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "000900.SZ",
       "security_name": "现代投资",
@@ -50,20 +83,88 @@
     {
       "capital_hurdle": 0.1,
       "cash_hurdle": 0.04,
-      "comparison_status": "PRICE_BLOCKED",
+      "comparison_status": "PASS_NEW_CAPITAL",
       "comparison_vector": {
-        "bear_downside": -0.15166800412702053,
+        "bear_downside": -0.3218423283413394,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.11257594864152232
+        "expected_return": 0.18112461147216719
+      },
+      "d2_status": "D2_RESEARCH_COMPLETE",
+      "existing_position": true,
+      "metrics": {
+        "base_value": 83.2,
+        "bear_downside": -0.3218423283413394,
+        "bear_value": 48.0,
+        "bull_value": 120.0,
+        "catalysts": [
+          "Polyurethane global share and margins remain resilient as industry supply stays rational.",
+          "Ethane-feed and integrated petrochemical optimization sustain the H1 cost advantage.",
+          "High-end fine chemicals and new materials scale with acceptable incremental ROIC.",
+          "Capex transitions toward cash returns and deleveraging while the interim payout remains sustainable."
+        ],
+        "confidence": "MEDIUM_HIGH",
+        "current_market_price": 70.78,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 70.78,
+        "entry_price": 72.7,
+        "expected_return": 0.18112461147216719,
+        "kill_thesis": [
+          "H1 profit uplift proves mainly temporary global supply disruption and core chemical spreads normalize sharply.",
+          "Debt and finance costs keep rising while free cash flow materially lags reported earnings.",
+          "Large new capex projects deliver sub-hurdle utilization or ROIC.",
+          "Core polyurethane profitability erodes structurally rather than cyclically."
+        ],
+        "normalized_earnings_basis": {
+          "base": 6.4,
+          "bear": 4.8,
+          "bull": 8.0,
+          "metric": "FY_NORMALIZED_EPS"
+        },
+        "original_bear_downside": -0.3218423283413394,
+        "original_expected_return": 0.18112461147216719,
+        "portfolio_role": null,
+        "price_as_of": "2026-09-16",
+        "price_basis": "PORTFOLIO_MARKS_CURRENT",
+        "probability_weighted_value": 83.6,
+        "scenario_probabilities": {
+          "BASE": 0.5,
+          "BEAR": 0.25,
+          "BULL": 0.25
+        },
+        "underwriting_price": 70.78,
+        "underwriting_price_as_of": "2026-09-16"
+      },
+      "missing_requirements": [],
+      "peer_expected_return_median": 0.09445958219800188,
+      "position_accounts": [
+        "SIMULATION"
+      ],
+      "rank_among_current_d2": 5,
+      "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
+      "security_id": "600309.SH",
+      "security_name": "万华化学",
+      "trade_authority": "NONE"
+    },
+    {
+      "capital_hurdle": 0.1,
+      "cash_hurdle": 0.04,
+      "comparison_status": "PRICE_BLOCKED",
+      "comparison_vector": {
+        "bear_downside": -0.12941176470588234,
+        "capital_hurdle": 0.1,
+        "cash_hurdle": 0.04,
+        "confidence": "MEDIUM_HIGH",
+        "existing_position": true,
+        "expected_return": 0.14176470588235301
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 98.6,
-        "bear_downside": -0.15166800412702053,
+        "bear_downside": -0.12941176470588234,
         "bear_value": 74.0,
         "bull_value": 117.0,
         "catalysts": [
@@ -72,11 +173,11 @@
           "资本回报持续"
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 87.23,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 87.23,
+        "current_market_price": 85.0,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 85.0,
         "entry_price": 82.0,
-        "expected_return": 0.11257594864152232,
+        "expected_return": 0.14176470588235301,
         "kill_thesis": [
           "核心家电份额明显下降",
           "现金流持续弱于利润",
@@ -101,11 +202,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
-      "rank_among_current_d2": 12,
+      "rank_among_current_d2": 10,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "000333.SZ",
       "security_name": "美的集团",
@@ -166,7 +267,7 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
       "rank_among_current_d2": 3,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -225,7 +326,7 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
       "rank_among_current_d2": 22,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -285,7 +386,7 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
       "rank_among_current_d2": 27,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -347,9 +448,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
-      "rank_among_current_d2": 32,
+      "rank_among_current_d2": 33,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "003040.SZ",
       "security_name": "楚天龙",
@@ -360,18 +461,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.018484023499068525,
+        "bear_downside": -0.01869493589284421,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": 0.03453216793236846
+        "expected_return": 0.034309863190315815
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 1.45,
-        "bear_downside": -0.018484023499068525,
+        "bear_downside": -0.01869493589284421,
         "bear_value": 1.37,
         "bull_value": 1.5,
         "catalysts": [
@@ -379,11 +480,11 @@
           "基金持续获得稳定正收益"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 1.3958,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 1.3958,
+        "current_market_price": 1.3961,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 1.3961,
         "entry_price": 1.38,
-        "expected_return": 0.03453216793236846,
+        "expected_return": 0.034309863190315815,
         "kill_thesis": [
           "显著信用事件或持续净值异常回撤",
           "组合层防御仓预算显著下调"
@@ -407,11 +508,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "REAL"
       ],
-      "rank_among_current_d2": 24,
+      "rank_among_current_d2": 23,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "017534.OF",
       "security_name": "富国天利增长债券C",
@@ -422,18 +523,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.11692559280457893,
+        "bear_downside": -0.12479740680713125,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": 0.1071136549468521
+        "expected_return": 0.0972447325769854
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 1.38,
-        "bear_downside": -0.11692559280457893,
+        "bear_downside": -0.12479740680713125,
         "bear_value": 1.08,
         "bull_value": 1.55,
         "catalysts": [
@@ -441,11 +542,11 @@
           "市场风险溢价回落"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 1.223,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 1.223,
+        "current_market_price": 1.234,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 1.234,
         "entry_price": 1.2,
-        "expected_return": 0.1071136549468521,
+        "expected_return": 0.0972447325769854,
         "kill_thesis": [
           "产品跟踪质量显著恶化",
           "组合层取消A500核心角色"
@@ -469,7 +570,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "REAL"
       ],
@@ -484,29 +585,29 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.169921875,
+        "bear_downside": -0.1751576904415333,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": 0.06445312499999978
+        "expected_return": 0.05773896166909265
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 2.25,
-        "bear_downside": -0.169921875,
+        "bear_downside": -0.1751576904415333,
         "bear_value": 1.7,
         "bull_value": 2.45,
         "catalysts": [
           "统一为单一低成本、高流动性S&P500载体"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 2.048,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 2.048,
+        "current_market_price": 2.061,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 2.061,
         "entry_price": 2.0,
-        "expected_return": 0.06445312499999978,
+        "expected_return": 0.05773896166909265,
         "kill_thesis": [
           "若159612在跟踪误差、流动性、费用等方面显著优于替代载体，则撤销TRIM并重新比较"
         ],
@@ -529,7 +630,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "REAL"
       ],
@@ -544,18 +645,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.17000000000000004,
+        "bear_downside": -0.1749502982107356,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": 0.06600000000000006
+        "expected_return": 0.05964214711729632
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 2.2,
-        "bear_downside": -0.17000000000000004,
+        "bear_downside": -0.1749502982107356,
         "bear_value": 1.66,
         "bull_value": 2.4,
         "catalysts": [
@@ -563,11 +664,11 @@
           "人民币资产与美元资产分散化价值"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 2.0,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 2.0,
+        "current_market_price": 2.012,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 2.012,
         "entry_price": 1.95,
-        "expected_return": 0.06600000000000006,
+        "expected_return": 0.05964214711729632,
         "kill_thesis": [
           "跟踪质量或交易成本显著恶化",
           "组合层取消海外权益敞口"
@@ -591,7 +692,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "REAL"
       ],
@@ -606,29 +707,29 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.017624963883270728,
+        "bear_downside": -0.019537163867060725,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": 0.03582779543484538
+        "expected_return": 0.0338115492754667
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 1.44,
-        "bear_downside": -0.017624963883270728,
+        "bear_downside": -0.019537163867060725,
         "bear_value": 1.36,
         "bull_value": 1.49,
         "catalysts": [
           "债券市场利率环境改善"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 1.3844,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 1.3844,
+        "current_market_price": 1.3871,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 1.3871,
         "entry_price": 1.37,
-        "expected_return": 0.03582779543484538,
+        "expected_return": 0.0338115492754667,
         "kill_thesis": [
           "信用/久期风险显著恶化",
           "组合防御预算下降"
@@ -652,11 +753,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "REAL"
       ],
-      "rank_among_current_d2": 23,
+      "rank_among_current_d2": 24,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "217003.OF",
       "security_name": "招商安泰债券A",
@@ -667,18 +768,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.144602851323829,
+        "bear_downside": -0.1440217391304348,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.16429056347589932
+        "expected_return": 0.16508152173913038
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 17.5,
-        "bear_downside": -0.144602851323829,
+        "bear_downside": -0.1440217391304348,
         "bear_value": 12.6,
         "bull_value": 21.0,
         "catalysts": [
@@ -686,11 +787,11 @@
           "现金转换持续改善"
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 14.73,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 14.73,
+        "current_market_price": 14.72,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 14.72,
         "entry_price": 14.5,
-        "expected_return": 0.16429056347589932,
+        "expected_return": 0.16508152173913038,
         "kill_thesis": [
           "公信力/合规事件",
           "收入增速与现金转换同时显著恶化"
@@ -714,11 +815,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
-      "rank_among_current_d2": 8,
+      "rank_among_current_d2": 7,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "300012.SZ",
       "security_name": "华测检测",
@@ -729,18 +830,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PASS_NEW_CAPITAL",
       "comparison_vector": {
-        "bear_downside": -0.030067895247332665,
+        "bear_downside": -0.027993779160186527,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.3695441319107664
+        "expected_return": 0.3724727838258166
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 70.4,
-        "bear_downside": -0.030067895247332665,
+        "bear_downside": -0.027993779160186527,
         "bear_value": 50.0,
         "bull_value": 96.9,
         "catalysts": [
@@ -750,11 +851,11 @@
           "Q2 earnings recovery continues through H2 with better operating leverage."
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 51.55,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 51.55,
+        "current_market_price": 51.44,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 51.44,
         "entry_price": 61.39,
-        "expected_return": 0.3695441319107664,
+        "expected_return": 0.3724727838258166,
         "kill_thesis": [
           "Core industrial automation growth falls materially below the market while servo/drive/PLC share declines.",
           "Automotive power-system margin remains structurally depressed or worsens further.",
@@ -782,7 +883,7 @@
         "underwriting_price_as_of": "2026-09-09"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -842,9 +943,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
-      "rank_among_current_d2": 33,
+      "rank_among_current_d2": 34,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "300647.SZ",
       "security_name": "超频三",
@@ -855,18 +956,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PASS_NEW_CAPITAL",
       "comparison_vector": {
-        "bear_downside": -0.10861044379820461,
+        "bear_downside": -0.07686264239884777,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "HIGH",
         "existing_position": true,
-        "expected_return": 0.3821753698318373
+        "expected_return": 0.43140303784208456
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 436.8,
-        "bear_downside": -0.10861044379820461,
+        "bear_downside": -0.07686264239884777,
         "bear_value": 282.0,
         "bull_value": 562.5,
         "catalysts": [
@@ -876,11 +977,11 @@
           "大额回购或资本回报改善强化每股价值"
         ],
         "confidence": "HIGH",
-        "current_market_price": 316.36,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 316.36,
+        "current_market_price": 305.48,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 305.48,
         "entry_price": 365.0,
-        "expected_return": 0.3821753698318373,
+        "expected_return": 0.43140303784208456,
         "kill_thesis": [
           "全球动力电池份额较约40%水平持续下降超过3个百分点且无产品周期解释",
           "储能增速跌至30%以下且毛利率同时跌破20%",
@@ -909,7 +1010,7 @@
         "underwriting_price_as_of": "2026-08-31"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -970,9 +1071,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
-      "rank_among_current_d2": 10,
+      "rank_among_current_d2": 13,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "301109.SZ",
       "security_name": "军信股份",
@@ -1032,9 +1133,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
-      "rank_among_current_d2": 31,
+      "rank_among_current_d2": 32,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "301122.SZ",
       "security_name": "采纳股份",
@@ -1045,18 +1146,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.143384290985767,
+        "bear_downside": -0.1569390402075227,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": 0.11228255139694254
+        "expected_return": 0.09468223086900118
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 8.7,
-        "bear_downside": -0.143384290985767,
+        "bear_downside": -0.1569390402075227,
         "bear_value": 6.5,
         "bull_value": 9.6,
         "catalysts": [
@@ -1064,11 +1165,11 @@
           "小中盘风险溢价修复"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 7.588,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 7.588,
+        "current_market_price": 7.71,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 7.71,
         "entry_price": 7.4,
-        "expected_return": 0.11228255139694254,
+        "expected_return": 0.09468223086900118,
         "kill_thesis": [
           "组合层明确削减中盘Beta",
           "产品跟踪质量恶化"
@@ -1092,12 +1193,12 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "REAL",
         "SIMULATION"
       ],
-      "rank_among_current_d2": 13,
+      "rank_among_current_d2": 16,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "510500.SH",
       "security_name": "中证500ETF南方",
@@ -1108,18 +1209,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.17274939172749393,
+        "bear_downside": -0.16911045943304015,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.0948905109489051
+        "expected_return": 0.0997067448680351
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 46.0,
-        "bear_downside": -0.17274939172749393,
+        "bear_downside": -0.16911045943304015,
         "bear_value": 34.0,
         "bull_value": 54.0,
         "catalysts": [
@@ -1127,11 +1228,11 @@
           "财富管理与非息收入改善"
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 41.1,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 41.1,
+        "current_market_price": 40.92,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 40.92,
         "entry_price": 38.0,
-        "expected_return": 0.0948905109489051,
+        "expected_return": 0.0997067448680351,
         "kill_thesis": [
           "零售资产质量持续恶化",
           "ROE结构性下滑且拨备消耗明显"
@@ -1155,11 +1256,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
-      "rank_among_current_d2": 17,
+      "rank_among_current_d2": 14,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "600036.SH",
       "security_name": "招商银行",
@@ -1170,18 +1271,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.11894273127753308,
+        "bear_downside": -0.12683823529411775,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": 0.20565731509390206
+        "expected_return": 0.19485294117647056
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 52.0,
-        "bear_downside": -0.11894273127753308,
+        "bear_downside": -0.12683823529411775,
         "bear_value": 38.0,
         "bull_value": 66.0,
         "catalysts": [
@@ -1189,11 +1290,11 @@
           "海外授权与商业化兑现"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 43.13,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 43.13,
+        "current_market_price": 43.52,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 43.52,
         "entry_price": 43.0,
-        "expected_return": 0.20565731509390206,
+        "expected_return": 0.19485294117647056,
         "kill_thesis": [
           "核心管线重大失败",
           "研发投入无法转化且利润持续下滑"
@@ -1217,7 +1318,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1232,81 +1333,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.17796958487464032,
-        "capital_hurdle": 0.1,
-        "cash_hurdle": 0.04,
-        "confidence": "MEDIUM_HIGH",
-        "existing_position": true,
-        "expected_return": 0.17755856966707784
-      },
-      "d2_status": "D2_RESEARCH_COMPLETE",
-      "existing_position": true,
-      "metrics": {
-        "base_value": 88.7,
-        "bear_downside": -0.17796958487464032,
-        "bear_value": 60.0,
-        "bull_value": 106.4,
-        "catalysts": [
-          "新材料放量",
-          "化工供需改善",
-          "成本优势扩大"
-        ],
-        "confidence": "MEDIUM_HIGH",
-        "current_market_price": 72.99,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 72.99,
-        "entry_price": 72.0,
-        "expected_return": 0.17755856966707784,
-        "kill_thesis": [
-          "MDI/石化景气和利润率同步急剧恶化",
-          "扩产回报低于资本成本"
-        ],
-        "normalized_earnings_basis": {
-          "basis": "2026H1 EPS 3.21 and strong cyclical earnings recovery; scenarios explicitly haircut commodity/chemical-cycle normalization.",
-          "year": "2026E_OR_CURRENT_CYCLE"
-        },
-        "original_bear_downside": -0.2209815632303297,
-        "original_expected_return": 0.11594391067255261,
-        "portfolio_role": null,
-        "price_as_of": "2026-09-01",
-        "price_basis": "PORTFOLIO_MARKS_CURRENT",
-        "probability_weighted_value": 85.95,
-        "scenario_probabilities": {
-          "BASE": 0.5,
-          "BEAR": 0.25,
-          "BULL": 0.25
-        },
-        "underwriting_price": 77.02,
-        "underwriting_price_as_of": "2026-09-01"
-      },
-      "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
-      "position_accounts": [
-        "SIMULATION"
-      ],
-      "rank_among_current_d2": 6,
-      "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
-      "security_id": "600309.SH",
-      "security_name": "万华化学",
-      "trade_authority": "NONE"
-    },
-    {
-      "capital_hurdle": 0.1,
-      "cash_hurdle": 0.04,
-      "comparison_status": "PRICE_BLOCKED",
-      "comparison_vector": {
-        "bear_downside": -0.15416098226466568,
+        "bear_downside": -0.15531335149863756,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": 0.09595270577535264
+        "expected_return": 0.09445958219800188
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 24.4,
-        "bear_downside": -0.15416098226466568,
+        "bear_downside": -0.15531335149863756,
         "bear_value": 18.6,
         "bull_value": 29.0,
         "catalysts": [
@@ -1314,11 +1352,11 @@
           "海外和新业务盈利改善"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 21.99,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 21.99,
+        "current_market_price": 22.02,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 22.02,
         "entry_price": 21.0,
-        "expected_return": 0.09595270577535264,
+        "expected_return": 0.09445958219800188,
         "kill_thesis": [
           "订单/收入放缓同时利润率继续压缩",
           "现金转换长期恶化"
@@ -1342,11 +1380,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
-      "rank_among_current_d2": 16,
+      "rank_among_current_d2": 17,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "600406.SH",
       "security_name": "国电南瑞",
@@ -1406,7 +1444,7 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
       "rank_among_current_d2": 25,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -1419,18 +1457,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.1277485008177358,
+        "bear_downside": -0.11455451023796348,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.11302925676903497
+        "expected_return": 0.12986533849843207
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 61.0,
-        "bear_downside": -0.1277485008177358,
+        "bear_downside": -0.11455451023796348,
         "bear_value": 48.0,
         "bull_value": 75.0,
         "catalysts": [
@@ -1438,11 +1476,11 @@
           "海外产能与客户拓展"
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 55.03,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 55.03,
+        "current_market_price": 54.21,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 54.21,
         "entry_price": 54.0,
-        "expected_return": 0.11302925676903497,
+        "expected_return": 0.12986533849843207,
         "kill_thesis": [
           "核心汽车玻璃份额或毛利率持续下降",
           "高附加值产品升级停滞"
@@ -1466,11 +1504,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
-      "rank_among_current_d2": 11,
+      "rank_among_current_d2": 12,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "600660.SH",
       "security_name": "福耀玻璃",
@@ -1481,18 +1519,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.1969768540387341,
+        "bear_downside": -0.18111753371868988,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": 0.11006140765233807
+        "expected_return": 0.13198458574181116
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 24.0,
-        "bear_downside": -0.1969768540387341,
+        "bear_downside": -0.18111753371868988,
         "bear_value": 17.0,
         "bull_value": 29.0,
         "catalysts": [
@@ -1500,11 +1538,11 @@
           "AI/高端产品提升效率与结构"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 21.17,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 21.17,
+        "current_market_price": 20.76,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 20.76,
         "entry_price": 20.0,
-        "expected_return": 0.11006140765233807,
+        "expected_return": 0.13198458574181116,
         "kill_thesis": [
           "需求疲弱与成本压力持续导致利润连续下修",
           "海外竞争力明显恶化"
@@ -1528,11 +1566,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
-      "rank_among_current_d2": 14,
+      "rank_among_current_d2": 11,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "600690.SH",
       "security_name": "海尔智家",
@@ -1589,9 +1627,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
-      "rank_among_current_d2": 30,
+      "rank_among_current_d2": 31,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "600737.SH",
       "security_name": "中粮糖业",
@@ -1602,18 +1640,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.17789473684210533,
+        "bear_downside": -0.1767392832044976,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.08926315789473671
+        "expected_return": 0.09079409697821483
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 31.16,
-        "bear_downside": -0.17789473684210533,
+        "bear_downside": -0.1767392832044976,
         "bear_value": 23.43,
         "bull_value": 38.31,
         "catalysts": [
@@ -1623,11 +1661,11 @@
           "分红可见性维持"
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 28.5,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 28.5,
+        "current_market_price": 28.46,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 28.46,
         "entry_price": 27.26,
-        "expected_return": 0.08926315789473671,
+        "expected_return": 0.09079409697821483,
         "kill_thesis": [
           "持续性来水恶化导致normalized earnings结构性下修",
           "实质性电价或监管下行",
@@ -1659,7 +1697,7 @@
         "underwriting_price_as_of": "2026-09-02"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1674,18 +1712,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.19282511210762343,
+        "bear_downside": -0.1837968561064086,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.07623318385650224
+        "expected_return": 0.08827085852478844
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 36.0,
-        "bear_downside": -0.19282511210762343,
+        "bear_downside": -0.1837968561064086,
         "bear_value": 27.0,
         "bull_value": 45.0,
         "catalysts": [
@@ -1694,11 +1732,11 @@
           "资本回报维持"
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 33.45,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 33.45,
+        "current_market_price": 33.08,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 33.08,
         "entry_price": 31.0,
-        "expected_return": 0.07623318385650224,
+        "expected_return": 0.08827085852478844,
         "kill_thesis": [
           "油价下行叠加成本明显上升",
           "储量替代/产量增长失速"
@@ -1722,7 +1760,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1737,18 +1775,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "comparison_vector": {
-        "bear_downside": -0.2183249821045098,
+        "bear_downside": -0.21147101299773052,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": true,
-        "expected_return": -0.01294099601186216
+        "expected_return": -0.004286156385392981
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 97.03,
-        "bear_downside": -0.2183249821045098,
+        "bear_downside": -0.21147101299773052,
         "bear_value": 76.44,
         "bull_value": 120.24,
         "catalysts": [
@@ -1758,11 +1796,11 @@
           "现金流与分红能力维持"
         ],
         "confidence": "MEDIUM",
-        "current_market_price": 97.79,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 97.79,
+        "current_market_price": 96.94,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 96.94,
         "entry_price": 101.05,
-        "expected_return": -0.01294099601186216,
+        "expected_return": -0.004286156385392981,
         "kill_thesis": [
           "可比口径核心服务收入持续萎缩且无法恢复",
           "EBITDA持续下降",
@@ -1795,7 +1833,7 @@
         "underwriting_price_as_of": "2026-09-02"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1810,18 +1848,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PASS_NEW_CAPITAL",
       "comparison_vector": {
-        "bear_downside": -0.17105263157894735,
+        "bear_downside": -0.19140060965827055,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.2002467105263157
+        "expected_return": 0.17078453393229576
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 72.45,
-        "bear_downside": -0.17105263157894735,
+        "bear_downside": -0.19140060965827055,
         "bear_value": 50.4,
         "bull_value": 96.6,
         "catalysts": [
@@ -1830,11 +1868,11 @@
           "Operating cash conversion and free cash flow improve relative to net profit without disproportionate working-capital absorption."
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 60.8,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 60.8,
+        "current_market_price": 62.33,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 62.33,
         "entry_price": 63.46,
-        "expected_return": 0.2002467105263157,
+        "expected_return": 0.17078453393229576,
         "kill_thesis": [
           "AI server or rack shipment growth decelerates sharply because customer capex weakens, technology transitions disrupt delivery, or market share is lost.",
           "Gross or net margin reverses despite continued revenue growth, showing the mix upgrade is not durable.",
@@ -1862,11 +1900,11 @@
         "underwriting_price_as_of": "2026-09-10"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
-      "rank_among_current_d2": 5,
+      "rank_among_current_d2": 6,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "601138.SH",
       "security_name": "工业富联",
@@ -1877,18 +1915,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PASS_NEW_CAPITAL",
       "comparison_vector": {
-        "bear_downside": -0.22032828282828287,
+        "bear_downside": -0.2322039166925708,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.1691130050505052
+        "expected_return": 0.15130556419023944
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 36.975,
-        "bear_downside": -0.22032828282828287,
+        "bear_downside": -0.2322039166925708,
         "bear_value": 24.7,
         "bull_value": 49.5,
         "catalysts": [
@@ -1898,11 +1936,11 @@
           "Operating cash flow remains strong and balance-sheet leverage stays around or below the current sub-50% level."
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 31.68,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 31.68,
+        "current_market_price": 32.17,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 32.17,
         "entry_price": 32.21,
-        "expected_return": 0.1691130050505052,
+        "expected_return": 0.15130556419023944,
         "kill_thesis": [
           "A sustained gold and copper price reversal coincides with material production misses, compressing normalized earnings below the underwriting range.",
           "Kamoa or other major-project operational, geopolitical or permitting disruptions become persistent rather than temporary.",
@@ -1930,11 +1968,11 @@
         "underwriting_price_as_of": "2026-09-10"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "SIMULATION"
       ],
-      "rank_among_current_d2": 7,
+      "rank_among_current_d2": 8,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "601899.SH",
       "security_name": "紫金矿业",
@@ -1990,9 +2028,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
-      "rank_among_current_d2": 29,
+      "rank_among_current_d2": 30,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "603268.SH",
       "security_name": "松发股份",
@@ -2050,7 +2088,7 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [],
       "rank_among_current_d2": 26,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -2063,18 +2101,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": -0.14163090128755362,
+        "bear_downside": -0.14529914529914523,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": true,
-        "expected_return": 0.14960147148988368
+        "expected_return": 0.14468864468864484
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": true,
       "metrics": {
         "base_value": 38.0,
-        "bear_downside": -0.14163090128755362,
+        "bear_downside": -0.14529914529914523,
         "bear_value": 28.0,
         "bull_value": 46.0,
         "catalysts": [
@@ -2083,11 +2121,11 @@
           "特燃特气持续放量"
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_market_price": 32.62,
-        "current_market_price_as_of": "2026-09-15",
-        "current_price": 32.62,
+        "current_market_price": 32.76,
+        "current_market_price_as_of": "2026-09-16",
+        "current_price": 32.76,
         "entry_price": 31.0,
-        "expected_return": 0.14960147148988368,
+        "expected_return": 0.14468864468864484,
         "kill_thesis": [
           "核心能源业务毛利持续恶化",
           "现金流显著转弱",
@@ -2112,7 +2150,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.0948905109489051,
+      "peer_expected_return_median": 0.09445958219800188,
       "position_accounts": [
         "REAL"
       ],
@@ -2124,7 +2162,7 @@
     }
   ],
   "schema_version": "2.0.0",
-  "source_d2_state_id": "RESEARCH_QUEUE_D2_CURRENT_423fffbab27f136a_SEMANTIC_1eea31c65ef2",
-  "state_id": "CAPITAL_COMPARISON_CURRENT_MARK_REBASED_c053df4480c0a022",
+  "source_d2_state_id": "RESEARCH_QUEUE_D2_CURRENT_20260917_000900_600309_COMPLETE_SEMANTIC_5138a7d45f97",
+  "state_id": "CAPITAL_COMPARISON_CURRENT_MARK_REBASED_b46215ea6b4a0c6f",
   "status": "PASS_LIVE_CAPITAL_COMPARISON"
 }
