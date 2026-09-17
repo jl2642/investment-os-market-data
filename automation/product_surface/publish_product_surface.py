@@ -22,6 +22,7 @@ from automation.operating_current.publish_operating_current import (
     run,
     utc_now,
 )
+from automation.product_surface.build_product_surface import render_daily_brief
 
 TRADE_AUTHORITY = "NONE"
 DOMAIN = "PORTFOLIO_PRODUCT_SURFACE"
@@ -34,6 +35,67 @@ def load_text(path: Path) -> str:
 
 def load_json(path: Path) -> dict[str, Any]:
     return json.loads(load_text(path))
+
+
+def normalize_display_surface(surface: dict[str, Any]) -> dict[str, Any]:
+    """Keep the user-facing S3 surface fresh without changing recommendation authority.
+
+    Portfolio monitoring already binds the exact current Portfolio Marks authority.  S3
+    recommendation rows may carry an older S2 price snapshot after a marks-only refresh,
+    so existing-position display prices are normalized from monitoring here.  This is a
+    read-only display correction: actions, blockers, sizing and economic state are not
+    changed.
+    """
+    fresh_prices: dict[str, float] = {}
+    for row in (surface.get("portfolio_monitoring") or {}).get("rows", []) or []:
+        sid = str(row.get("security_id") or "").strip()
+        price = row.get("current_price")
+        if sid and isinstance(price, (int, float)):
+            fresh_prices[sid] = float(price)
+
+    refreshed = 0
+    for row in surface.get("portfolio_decisions", []) or []:
+        sid = str(row.get("security_id") or "").strip()
+        if sid not in fresh_prices:
+            continue
+        price = fresh_prices[sid]
+        if row.get("current_price") != price:
+            refreshed += 1
+        row["current_price"] = price
+        row["current_price_source"] = "PORTFOLIO_MARKS_CURRENT"
+        row["current_price_as_of"] = surface.get("as_of_date")
+
+    surface["display_semantics"] = {
+        "portfolio_current_price_authority": "PORTFOLIO_MARKS_CURRENT",
+        "portfolio_price_rows_refreshed": refreshed,
+        "recommendation_review_count_is_execution_pending_count": False,
+        "execution_pending_authority": "PHASE3_EXECUTION_VALIDATOR_AND_EPISODE_GUARD",
+        "note": (
+            "S3 ADD/TRIM expresses current recommendation intent. It does not prove that "
+            "the recommendation episode remains unexecuted; Phase3 is authoritative for "
+            "validated quantities and repeat-action suppression."
+        ),
+        "orders": 0,
+        "trade_authority": TRADE_AUTHORITY,
+    }
+    return surface
+
+
+def render_published_daily_brief(surface: dict[str, Any]) -> str:
+    text = render_daily_brief(surface)
+    text = text.replace(
+        "- 当前需人工复核的决策项：",
+        "- Recommendation 人工复核项（非执行待办）：",
+        1,
+    )
+    boundary = "- ready_for_user_decision 只表示值得人工复核，不表示已授权执行。"
+    replacement = (
+        "- S3 的 ADD/TRIM 是当前投资意图，不表示该 recommendation episode 尚未执行；"
+        "实际待执行数量、已执行识别与重复动作抑制以 Phase3 Execution Validator / episode guard 为准。\n"
+        + boundary
+    )
+    text = text.replace(boundary, replacement, 1)
+    return text
 
 
 def verify_source_branch(branch: str, commit: str) -> None:
@@ -145,15 +207,21 @@ def write_surface(
 
 def publish(args: argparse.Namespace) -> dict[str, Any]:
     verify_source_branch(args.source_branch, args.source_commit)
-    surface = load_json(Path(args.surface_json))
+    surface = normalize_display_surface(load_json(Path(args.surface_json)))
     if surface.get("status") != "PASS_S3_PORTFOLIO_PRODUCT_SURFACE":
         raise RuntimeError("S3_SURFACE_NOT_PASS")
     if surface.get("orders") != 0 or surface.get("trade_authority") != TRADE_AUTHORITY:
         raise RuntimeError("S3_SURFACE_AUTHORITY_VIOLATION")
     surface_id = str(surface["surface_id"])
     watermark = str(surface["as_of_date"])
-    json_text = load_text(Path(args.surface_json))
-    markdown_text = load_text(Path(args.daily_brief))
+    json_text = json.dumps(
+        surface,
+        ensure_ascii=False,
+        indent=2,
+        sort_keys=True,
+        allow_nan=False,
+    ) + "\n"
+    markdown_text = render_published_daily_brief(surface)
 
     run("git", "reset", "--hard", "HEAD", check=False)
     run("git", "clean", "-fd", check=False)

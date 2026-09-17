@@ -1,0 +1,99 @@
+name: Canonical User Simulation Writeback 20260917 Wanhua
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "automation/canonical_position_update/apply_20260917_user_simulation_wanhua_update.py"
+      - ".github/workflows/canonical-user-simulation-writeback-20260917.yml"
+      - "investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json"
+      - "investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/**"
+      - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_09_17/**"
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  TRADE_AUTHORITY: NONE
+
+jobs:
+  apply-and-validate:
+    if: github.head_ref == 'agent/2026-09-17-user-simulation-wanhua-writeback'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Capture protected-state hashes
+        run: |
+          sha256sum investment_os_runtime/30_STATE_CURRENT/10_REAL_ACCOUNT/REAL_ACCOUNT_POSITIONS_CURRENT.json > /tmp/real.before
+      - name: Apply idempotent user-confirmed Wanhua Simulation writeback
+        run: |
+          python -m py_compile automation/canonical_position_update/apply_20260917_user_simulation_wanhua_update.py
+          python automation/canonical_position_update/apply_20260917_user_simulation_wanhua_update.py
+      - name: Persist generated Current and evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if git diff --quiet; then
+            echo 'Already fully materialized.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json \
+            investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json \
+            investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_09_17/USER_CONFIRMED_SIMULATION_WANHUA_TRADE_20260917.json
+          git commit -m 'Materialize user-confirmed 20260917 Wanhua Simulation trade'
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
+      - name: Validate idempotency and protected boundaries
+        run: |
+          python automation/canonical_position_update/apply_20260917_user_simulation_wanhua_update.py
+          git diff --exit-code
+          sha256sum -c /tmp/real.before
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          sim=json.loads(Path('investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json').read_text(encoding='utf-8'))
+          row=next(r for r in sim['holdings'] if r['security_id']=='600309.SH')
+          assert row['quantity']==800.0 and row['available_quantity']==700.0
+          assert abs(row['cost_basis']-56066.0)<1e-6
+          assert sim['summary']['execution_cash_balance']==240388.34
+          assert sim['trade_authority']=='NONE'
+          src=json.loads(Path('investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json').read_text(encoding='utf-8'))
+          assert src['summary']['available_cash']==240388.34
+          srow=next(r for r in src['holdings'] if (r.get('security_id') or '')=='600309.SH' or str(r.get('security_code') or r.get('code') or '').zfill(6)=='600309')
+          assert float(srow['quantity'])==800.0 and float(srow['available_quantity'])==700.0
+          assert abs(float(srow['broker_display_cost_price'])-69.38)<1e-9
+          delta=json.loads(Path('investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json').read_text(encoding='utf-8'))
+          ids={x.get('delta_id') for x in delta.get('entries',[])}
+          assert 'SIM_20260917_BUY_600309_100' in ids
+          print({'wanhua_simulation_writeback':'PASS','t_plus_one_availability':'PASS','real_mutations':0,'candidate_mutations':0,'ai_autonomous_mutations':0,'orders':0,'trade_authority':'NONE'})
+          PY
+      - name: Enforce exact economic scope
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import subprocess
+          changed=set(subprocess.check_output(['git','diff','--name-only','origin/main...HEAD'],text=True).splitlines())
+          allowed={
+            'automation/canonical_position_update/apply_20260917_user_simulation_wanhua_update.py',
+            '.github/workflows/canonical-user-simulation-writeback-20260917.yml',
+            'investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json',
+            'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_LEDGER_CURRENT.json',
+            'investment_os_runtime/30_STATE_CURRENT/20_SIMULATION/SIMULATION_POSITIONS_CURRENT.json',
+            'investment_os_runtime/40_EVIDENCE_AND_LINEAGE/POSITION_UPDATE_2026_09_17/USER_CONFIRMED_SIMULATION_WANHUA_TRADE_20260917.json',
+          }
+          leaked=sorted(changed-allowed)
+          if leaked: raise SystemExit('UNEXPECTED_SCOPE:' + ','.join(leaked))
+          print({'exact_scope':'PASS','files':len(changed)})
+          PY
