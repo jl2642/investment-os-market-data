@@ -41,6 +41,6 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add tests/test_s2_investment_pipeline.py .github/workflows/one-shot-dynamic-holding-coverage-test-repair-20260918.yml
+          git add -A
           git commit -m 'Fix holding coverage test for dynamic portfolio size'
           git push origin "HEAD:${GITHUB_HEAD_REF}"
