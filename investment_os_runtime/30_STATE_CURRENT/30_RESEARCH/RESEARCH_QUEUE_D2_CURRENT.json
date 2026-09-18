@@ -1,1 +1,120 @@
-{"schema_version":"1.1.0","state_id":"RESEARCH_QUEUE_D2_CURRENT_20260918_601138_REUNDERWRITE_COMPLETE","as_of":"2026-09-18T01:22:30+00:00","status":"D2_AUTO_CONSUMER_LIVE_SEMANTIC_COMPLETE","source_d1_state_id":"RESEARCH_QUEUE_D1_CURRENT_1f233a61e4f3956d","semantic_batch_id":"D2_SEMANTIC_RESEARCH_20260918_601138_R1","consumer_policy":{"bounded_batch_size":3,"event_trigger":"PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES","recovery_cadence":"WEEKDAYS_00:35_UTC_08:35_ASIA_SHANGHAI","manual_dispatch":"BREAK_GLASS_ONLY","idempotence":"UNCHANGED_D1_STATE_OR_INPUT_WATERMARK_PRESERVES_SEMANTIC_TERMINAL_WORK","fail_closed":true,"semantic_research_owner":"CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER","rolling_d1_advance_policy":"COMPLETED_D2_CALLBACK_MAY_FINISH_AFTER_D1_ROLLS_FORWARD","semantic_callback_binding":"EXACT_PUBLISHED_D2_SOURCE_COMMIT"},"queue":[{"security_id":"601138.SH","security_name":"工业富联","d1_rank":0,"d1_disposition":"LIFECYCLE_REUNDERWRITE_REQUIRED","archetype":"QUALITY_GROWTH_AI_INFRASTRUCTURE_SCALE","input_watermark":"88979f0fe2af2174da051a518d1a4b39dc03784e5b127ce6d9fec38ce1ab9f5e","d2_questions":["Test whether the newly triggered drawdown reflects a fundamental break or valuation/price volatility.","Re-underwrite 2026 normalized EPS using H1 AI server, rack and high-speed networking evidence.","Test operating cash conversion and customer/capex concentration before retaining ADD.","Rebuild bear/base/bull valuation and define the 15% hurdle plus kill thesis."],"first_rejection":"Reject ADD if H1 AI growth is not durable, normalized value does not clear the 15% hurdle, or cash conversion/customer-capex risk materially deteriorates.","baseline_source_count":0,"primary_source_count":2,"status":"D2_RESEARCH_COMPLETE","attempt_count":1,"last_attempt_at":"2026-09-18T01:22:30+00:00","semantic_research_required":false,"candidate_membership_mutation_authorized":false,"real_account_mutation_authorized":false,"simulation_mutation_authorized":false,"decision_mutation_authorized":false,"order_generation_authorized":false,"trade_authority":"NONE","research_disposition":"ADD_RESEARCH_COMPLETE_H1_AI_SCALE_GROWTH_INTACT_PRICE_NARROWLY_BELOW_FRESH_15PCT_HURDLE","semantic_artifact":"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_601138_20260918_R1.json","first_rejection_test":"H1_AI_GROWTH_THESIS_INTACT_AND_PRICE_NARROWLY_CLEARS_15PCT_HURDLE_BUT_CASH_CONVERSION_AND_AI_CAPEX_CYCLE_REQUIRE_DISCIPLINE","next_gate":"MAINTAIN_ADD_ONLY_WHILE_PRICE_AT_OR_BELOW_RMB62_43_OR_NORMALIZED_EPS_UPGRADE_OFFSETS_HIGHER_PRICE_AND_CASH_CONVERSION_REMAINS_ACCEPTABLE","evidence_gap":{"material":false,"missing":null,"manual_user_input_required":false},"manual_user_input_required":false,"underwriting":{"current_price":61.27,"price_as_of":"2026-09-17","entry_price":62.43,"confidence":"MEDIUM_HIGH","normalized_earnings_basis":{"metric":"2026E_NORMALIZED_EPS","bear":2.15,"base":2.65,"bull":3.1},"scenarios":[{"name":"BEAR","eps":2.15,"valuation_multiple_pe":18.0,"value_per_share":38.7,"probability":0.25},{"name":"BASE","eps":2.65,"valuation_multiple_pe":27.0,"value_per_share":71.55,"probability":0.5},{"name":"BULL","eps":3.1,"valuation_multiple_pe":34.0,"value_per_share":105.4,"probability":0.25}],"probability_weighted_value":71.8,"expected_return":0.1718622491,"bear_downside":-0.368369512,"hurdle_entry_price_15pct":62.4347826087,"action":"ADD","catalysts":["Cloud-service-provider AI server revenue and GPU/ASIC rack shipments remain on a high-growth trajectory through H2.","800G-plus networking and SuperNIC growth sustains mix improvement alongside server scale.","Normalized EPS tracks or exceeds the RMB2.65 base case without a deterioration in operating cash conversion.","Customer diversification and new AI infrastructure programs reduce dependence on any single hyperscaler or architecture."],"kill_thesis":["Hyperscaler AI capex or customer orders decelerate enough to break the current GPU/ASIC rack growth trajectory.","Operating cash flow persistently lags profit and working-capital consumption rises despite reported earnings growth.","AI-server/networking mix growth fails to support margins, indicating scale without acceptable economic value capture.","Export controls, geopolitics or customer concentration cause a material structural loss of accessible demand or market share."]},"source_discovery_mode":"CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH_AFTER_EXPLICIT_USER_START","semantic_completed_at":"2026-09-18T01:22:30+00:00"}],"summary":{"routed_count":1,"pending_count":0,"completed_count":1,"hold_evidence_gap_count":0,"blocked_count":0,"batch_capacity":3,"manual_trigger_required":false,"user_input_required":false},"controls":{"candidate_membership_mutations":0,"real_account_mutations":0,"simulation_mutations":0,"decision_mutations":0,"orders":0,"trade_authority":"NONE"}}
+{
+  "as_of": "2026-09-18T15:33:45+00:00",
+  "consumer_policy": {
+    "bounded_batch_size": 3,
+    "event_trigger": "PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES",
+    "fail_closed": true,
+    "idempotence": "UNCHANGED_D1_STATE_OR_INPUT_WATERMARK_PRESERVES_SEMANTIC_TERMINAL_WORK",
+    "manual_dispatch": "BREAK_GLASS_ONLY",
+    "recovery_cadence": "WEEKDAYS_00:35_UTC_08:35_ASIA_SHANGHAI",
+    "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER"
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "trade_authority": "NONE"
+  },
+  "queue": [
+    {
+      "archetype": "TREND_PERSISTENCE",
+      "attempt_count": 1,
+      "baseline_source_count": 0,
+      "candidate_membership_mutation_authorized": false,
+      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+      "d1_rank": 1,
+      "d2_questions": [
+        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
+        "Test whether the expected return remains attractive after normalizing current momentum.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "decision_mutation_authorized": false,
+      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+      "input_watermark": "d8a71bded85dcfd90e93d55cdd37d7eefef764935c6da9449c069a7f5d7e03ec",
+      "last_attempt_at": "2026-09-18T15:33:45+00:00",
+      "order_generation_authorized": false,
+      "primary_source_count": 0,
+      "real_account_mutation_authorized": false,
+      "security_id": "603268.SH",
+      "security_name": "松发股份",
+      "semantic_research_required": true,
+      "simulation_mutation_authorized": false,
+      "status": "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+      "trade_authority": "NONE"
+    },
+    {
+      "archetype": "DEFENSIVE_STABILITY",
+      "attempt_count": 1,
+      "baseline_source_count": 0,
+      "candidate_membership_mutation_authorized": false,
+      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+      "d1_rank": 3,
+      "d2_questions": [
+        "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
+        "Compare the opportunity with lower-risk defensive and cash alternatives.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "decision_mutation_authorized": false,
+      "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+      "input_watermark": "a2aaad2229a4b4507623f2ead32388c9203123e4dae5fccb6533e5faf968c1df",
+      "last_attempt_at": "2026-09-18T15:33:45+00:00",
+      "order_generation_authorized": false,
+      "primary_source_count": 0,
+      "real_account_mutation_authorized": false,
+      "security_id": "300230.SZ",
+      "security_name": "永利股份",
+      "semantic_research_required": true,
+      "simulation_mutation_authorized": false,
+      "status": "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+      "trade_authority": "NONE"
+    },
+    {
+      "archetype": "TREND_PERSISTENCE",
+      "attempt_count": 1,
+      "baseline_source_count": 0,
+      "candidate_membership_mutation_authorized": false,
+      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+      "d1_rank": 5,
+      "d2_questions": [
+        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
+        "Test whether the expected return remains attractive after normalizing current momentum.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "decision_mutation_authorized": false,
+      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+      "input_watermark": "56a9b1ecfba33467690dfc0f62ac36b53b069427c4cd52f967753906503856c3",
+      "last_attempt_at": "2026-09-18T15:33:45+00:00",
+      "order_generation_authorized": false,
+      "primary_source_count": 0,
+      "real_account_mutation_authorized": false,
+      "security_id": "301122.SZ",
+      "security_name": "采纳股份",
+      "semantic_research_required": true,
+      "simulation_mutation_authorized": false,
+      "status": "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+      "trade_authority": "NONE"
+    }
+  ],
+  "schema_version": "1.1.0",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_b8ce85577fc08e7f",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_24e3a688f1097470",
+  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
+  "summary": {
+    "batch_capacity": 3,
+    "blocked_count": 3,
+    "completed_count": 0,
+    "hold_evidence_gap_count": 0,
+    "manual_trigger_required": false,
+    "pending_count": 3,
+    "provider_incident_active": true,
+    "routed_count": 3
+  }
+}

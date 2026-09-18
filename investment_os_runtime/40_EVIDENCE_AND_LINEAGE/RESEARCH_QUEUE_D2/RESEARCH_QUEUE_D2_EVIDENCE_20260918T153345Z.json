@@ -1,0 +1,49 @@
+{
+  "captured_at": "2026-09-18T15:33:45+00:00",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "trade_authority": "NONE"
+  },
+  "discovery_enabled": true,
+  "discovery_errors": [
+    {
+      "error": "CNINFO_DISCOVERY_FAILED:JSONDecodeError:ATTEMPTS_2",
+      "provider": "CNINFO_VIA_AKSHARE",
+      "security_id": "603268.SH"
+    },
+    {
+      "error": "CNINFO_DISCOVERY_FAILED:JSONDecodeError:ATTEMPTS_2",
+      "provider": "CNINFO_VIA_AKSHARE",
+      "security_id": "300230.SZ"
+    },
+    {
+      "error": "CNINFO_DISCOVERY_FAILED:JSONDecodeError:ATTEMPTS_2",
+      "provider": "CNINFO_VIA_AKSHARE",
+      "security_id": "301122.SZ"
+    }
+  ],
+  "policy": {
+    "primary_source_preference": "CNINFO_OR_EXCHANGE_DISCLOSURE",
+    "purpose": "AUTOMATIC_PRIMARY_EVIDENCE_DISCOVERY_FOR_D2_SEMANTIC_RESEARCH",
+    "semantic_completion_prohibited": true,
+    "semantic_fallback": "CHATGPT_NATIVE_D2_MAY_USE_GOVERNED_EXCHANGE_OR_COMPANY_PRIMARY_DISCLOSURES_WITH_PROVENANCE"
+  },
+  "primary_sources": [],
+  "provider_incident": {
+    "active": true,
+    "affected_count": 3,
+    "classification": "PROVIDER_INTERFACE_OR_ACCESS_FAILURE",
+    "error_signature": "CNINFO_DISCOVERY_FAILED:JSONDecodeError:ATTEMPTS_2",
+    "mechanical_consumer_fail_closed": true,
+    "provider": "CNINFO_VIA_AKSHARE",
+    "scope": "BATCH_LEVEL",
+    "semantic_fallback_allowed": true
+  },
+  "run_id": "RESEARCH_QUEUE_D2_EVIDENCE_20260918T153345Z",
+  "schema_version": "1.0.0",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_b8ce85577fc08e7f"
+}
