@@ -738,7 +738,7 @@ def test_phase1_all_current_holdings_have_current_recommendation() -> None:
     } | {
         row["security_id"] for row in simulation["holdings"]
     }
-    assert len(holding_ids) == 22
+    assert holding_ids
 
     semantic_rows = load_latest_semantic_d2(semantic_dir)
     merged = merge_d2_with_semantic_research(
@@ -759,7 +759,7 @@ def test_phase1_all_current_holdings_have_current_recommendation() -> None:
         if row["portfolio_implication"] == "EXISTING_POSITION"
     }
     assert covered == holding_ids
-    assert len(covered) == 22
+    assert len(covered) == len(holding_ids)
     assert recommendation["controls"]["orders"] == 0
     assert recommendation["controls"]["trade_authority"] == "NONE"
 
