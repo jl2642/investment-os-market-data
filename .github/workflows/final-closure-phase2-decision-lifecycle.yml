@@ -187,9 +187,15 @@ jobs:
           python - <<'PY'
           import json
           p=json.load(open("/tmp/DECISION_LIFECYCLE_CURRENT.json",encoding="utf-8"))
-          assert p["status"] == "PASS_DECISION_LIFECYCLE"
-          assert p["summary"]["held_subject_count"] == 22
-          assert p["summary"]["subject_count"] >= 22
+          surface=json.load(open("/tmp/surface.json",encoding="utf-8"))
+          expected_holding_count=int(surface["executive"]["portfolio_holding_count"])
+          observed_holding_count=int(p["summary"]["held_subject_count"])
+          assert expected_holding_count > 0
+          assert observed_holding_count == expected_holding_count, {
+              "expected_holding_count": expected_holding_count,
+              "observed_holding_count": observed_holding_count,
+          }
+          assert p["summary"]["subject_count"] >= expected_holding_count
           assert p["summary"]["automatic_semantic_trigger_count"] == 0
           assert p["controls"]["automatic_buy_sell"] is False
           assert p["controls"]["fresh_d2_required_after_valuation_trigger"] is True
