@@ -39,5 +39,12 @@ class Phase4FinalProductClosureTest(unittest.TestCase):
         self.assertIn("trade_authority", text)
         self.assertIn("human", text.lower())
 
+    def test_live_phase4_holding_coverage_is_dynamic(self):
+        text = (ROOT / ".github/workflows/final-product-closure-phase4.yml").read_text(encoding="utf-8")
+        self.assertNotIn('== 22', text)
+        self.assertIn('portfolio_holding_count', text)
+        self.assertIn('portfolio_recommendation_coverage_count', text)
+        self.assertIn('expected_holding_count', text)
+
 if __name__ == "__main__":
     unittest.main()
