@@ -37,6 +37,7 @@ jobs:
         run: python -m unittest -v tests.test_phase4_final_product_closure
 
   live-operating-current:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
