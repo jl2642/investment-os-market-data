@@ -72,12 +72,23 @@ jobs:
               assert row["orders"] == 0, row
               assert row["trade_authority"] == "NONE", row
 
+          surface = j("PORTFOLIO_DECISION_SURFACE_CURRENT.json")
+          expected_holding_count = int(surface["executive"]["portfolio_holding_count"])
+          recommendation_coverage_count = int(surface["executive"]["portfolio_recommendation_coverage_count"])
+          assert expected_holding_count > 0
+          assert recommendation_coverage_count == expected_holding_count
+          assert int(surface["executive"]["portfolio_uncovered_count"]) == 0
+
           rec = j("RECOMMENDATION_CURRENT.json")
           existing = [
               r for r in rec.get("records", [])
               if r.get("portfolio_implication") == "EXISTING_POSITION"
           ]
-          assert len({r["security_id"] for r in existing}) == 22, len(existing)
+          existing_count = len({r["security_id"] for r in existing})
+          assert existing_count == expected_holding_count, {
+              "expected_holding_count": expected_holding_count,
+              "recommendation_existing_count": existing_count,
+          }
           allowed = {
               "BUY","BUY_BELOW","WATCH_FOR_EVIDENCE","WATCH","AVOID",
               "ADD","HOLD","TRIM","EXIT"
@@ -86,7 +97,11 @@ jobs:
 
           life = j("DECISION_LIFECYCLE_CURRENT.json")
           held = [s for s in life.get("subjects", []) if s.get("position_state") == "HELD"]
-          assert len({s["security_id"] for s in held}) == 22
+          held_count = len({s["security_id"] for s in held})
+          assert held_count == expected_holding_count, {
+              "expected_holding_count": expected_holding_count,
+              "lifecycle_held_count": held_count,
+          }
           assert life["controls"]["automatic_buy_sell"] is False
           assert life["controls"]["automatic_position_mutation"] is False
 
@@ -103,14 +118,13 @@ jobs:
           assert ai["orders"] == 0
           assert ai["trade_authority"] == "NONE"
 
-          surface = j("PORTFOLIO_DECISION_SURFACE_CURRENT.json")
           assert surface["orders"] == 0
           assert surface["trade_authority"] == "NONE"
           assert Path("/tmp/DAILY_INVESTMENT_BRIEF_CURRENT.md").stat().st_size > 0
 
           print({
               "phase4_live_acceptance":"PASS",
-              "current_holding_coverage":"22/22",
+              "current_holding_coverage":f"{expected_holding_count}/{expected_holding_count}",
               "ten_core_capabilities":"10/10",
               "orders":0,
               "trade_authority":"NONE",
