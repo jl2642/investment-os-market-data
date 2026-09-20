@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from pathlib import Path
 
 from automation.decision_lifecycle.build_decision_lifecycle import build
 
@@ -270,3 +271,25 @@ def test_material_event_evidence_forces_fresh_d2_without_auto_action() -> None:
     assert q[0]["review_type"] == "REUNDERWRITE_REQUIRED"
     assert lifecycle_payload["controls"]["automatic_buy_sell"] is False
     assert lifecycle_payload["summary"]["material_event_trigger_count"] == 1
+
+
+def test_holding_count_is_dynamic_across_portfolio_size_changes() -> None:
+    for count in (7, 22, 23):
+        recs = [rec(f"{600000 + i}.SH", "HOLD") for i in range(count)]
+        holdings = [holding(f"{600000 + i}.SH", 10.0) for i in range(count)]
+        lifecycle, _ = build(
+            recommendation=recommendation(*recs),
+            surface=surface(*holdings),
+            now=NOW,
+        )
+        assert lifecycle["summary"]["held_subject_count"] == count
+        assert lifecycle["summary"]["subject_count"] == count
+
+
+def test_phase2_workflow_does_not_freeze_holding_count() -> None:
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github/workflows/final-closure-phase2-decision-lifecycle.yml"
+    ).read_text(encoding="utf-8")
+    assert 'held_subject_count"] == 22' not in workflow
+    assert 'surface["executive"]["portfolio_holding_count"]' in workflow
