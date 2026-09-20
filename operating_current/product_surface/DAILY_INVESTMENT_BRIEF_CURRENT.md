@@ -4,7 +4,7 @@
 - Recommendation 人工复核项（非执行待办）：7
 - 持仓绩效监控：23 / 23（账户持仓行 24）
 - 当前投资判断覆盖：23 / 23
-- 新机会：12
+- 新机会：11
 - 自动交易：关闭；orders = 0；trade_authority = NONE
 
 ## 1. 当前持仓决策面
@@ -46,7 +46,6 @@
 - BUY_BELOW｜301109.SZ 军信股份｜当前价 12.75｜预期收益 11.9%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜600428.SH 中远海特｜当前价 11.67｜预期收益 2.8%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜603995.SH 甬金股份｜当前价 25.34｜预期收益 1.9%｜阻断 PRICE_BLOCKED
-- WATCH｜300230.SZ 永利股份｜当前价 —｜预期收益 —｜阻断 UNDERWRITING_PENDING
 - AVOID｜000900.SZ 现代投资｜当前价 3.57｜预期收益 -0.9%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜002936.SZ 郑州银行｜当前价 1.76｜预期收益 -0.2%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜003040.SZ 楚天龙｜当前价 21.12｜预期收益 -67.1%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
