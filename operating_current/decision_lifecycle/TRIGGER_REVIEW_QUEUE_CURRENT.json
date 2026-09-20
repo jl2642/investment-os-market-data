@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-09-18",
-  "generated_at_utc": "2026-09-20T01:24:52+00:00",
+  "generated_at_utc": "2026-09-20T02:51:39+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_f11582fbfff0ad12",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_d1422c760fcaa18c",
   "records": [
     {
       "accounts": [
@@ -61,7 +61,7 @@
       "security_id": "002807.SZ",
       "security_name": "江阴银行",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "POSITION_ACTION_ADD"
     },
     {
@@ -128,21 +128,21 @@
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "HOLD",
-      "entry_price": 54.0,
+      "current_action": "ADD",
+      "entry_price": 55.01,
       "latest_price": 53.68,
-      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-09-18",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "MEDIUM_HIGH",
-      "reason": "Holding price 53.6800 is at/below research entry threshold 54.0000.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade holding action is ADD.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "600660.SH",
       "security_name": "福耀玻璃",
       "trade_authority": "NONE",
       "transition": "NEW_TRIGGER",
-      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
+      "trigger_key": "POSITION_ACTION_ADD"
     },
     {
       "accounts": [
@@ -167,6 +167,6 @@
   ],
   "review_count": 8,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_4460c35b5e5061ee",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_c92c77d3cfb65bb9",
   "trade_authority": "NONE"
 }

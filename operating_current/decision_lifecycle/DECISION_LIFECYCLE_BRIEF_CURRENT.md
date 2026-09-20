@@ -1,11 +1,11 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
 - 数据水位：`2026-09-18`
-- Thesis subjects：`35`
-- 持仓 / 非持仓：`23 / 12`
+- Thesis subjects：`34`
+- 持仓 / 非持仓：`23 / 11`
 - 当前复核队列：`8`
-- 需要重新D2：`1`
-- 需要用户动作复核：`6`
+- 需要重新D2：`0`
+- 需要用户动作复核：`7`
 - 组合风险复核：`1`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
 
@@ -17,7 +17,7 @@
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **宁德时代 (300750.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **万华化学 (600309.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **福耀玻璃 (600660.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Holding price 53.6800 is at/below research entry threshold 54.0000. 下一步：`FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD`。
+- **福耀玻璃 (600660.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **紫金矿业 (601899.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 
 ## 语义触发边界
