@@ -45,6 +45,7 @@ class Phase4FinalProductClosureTest(unittest.TestCase):
         self.assertIn('portfolio_holding_count', text)
         self.assertIn('portfolio_recommendation_coverage_count', text)
         self.assertIn('expected_holding_count', text)
+        self.assertIn("if: github.event_name != 'pull_request'", text)
 
 if __name__ == "__main__":
     unittest.main()
