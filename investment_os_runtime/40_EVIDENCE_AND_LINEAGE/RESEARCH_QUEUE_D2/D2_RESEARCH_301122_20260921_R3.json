@@ -1,0 +1,140 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260921_R3_301122",
+  "security_id": "301122.SZ",
+  "security_name": "采纳股份",
+  "d1_rank": 5,
+  "archetype": "TREND_PERSISTENCE",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "AVOID_RESEARCH_COMPLETE_VALUATION_EARNINGS_QUALITY_AND_IMPORT_ALERT_GAP_WIDENS_AFTER_9_18_RERATING",
+  "research_update_type": "USER_EXPLICIT_FRESH_DELTA_D2_20260921_PROVIDER_FALLBACK",
+  "valuation_horizon": "12_TO_18_MONTH_NORMALIZATION",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_b8ce85577fc08e7f",
+  "source_primary_discovery_commit": "95ca9009beb4252ea6e6aa78f339d54a0ccbf70d",
+  "source_discovery_mode": "GOVERNED_SEMANTIC_FALLBACK_AFTER_CNINFO_PROVIDER_INCIDENT",
+  "thesis": {
+    "core": "Revenue recovery, Cambodia ramp and the new shareholder relationship provide optionality, but core earnings quality remains weak relative to the market price and the FDA import alert remains active.",
+    "variant_wedge": "FDA closed the 2024 warning-letter corrective-action file, but the current FDA import-alert record still lists Jiangsu Caina Medical and the company's H1 report states it had not been removed. Thus remediation progress should not be confused with restored U.S. market access; meanwhile the stock rerated to RMB49.69.",
+    "normalized_earnings_basis": "Retain normalized attributable-profit bear/base/bull of RMB25m/RMB60m/RMB100m plus RMB0.70bn haircut-adjusted excess liquid-financial assets; no post-H1 disclosure justifies an operating-earnings upgrade."
+  },
+  "regulatory_update": {
+    "warning_letter_closeout": "FDA closeout letter dated 2026-08-24 says cited warning-letter violations appear addressed.",
+    "import_alert_status": "FDA Import Alert 89-08 still lists Jiangsu Caina Medical; company H1 disclosure also states it had not been removed as of report publication.",
+    "judgment": "Compliance remediation progress is real, but commercial access risk is not resolved until formal import-alert removal."
+  },
+  "underwriting": {
+    "current_price": 49.69,
+    "price_as_of": "2026-09-18",
+    "entry_price": 16.54,
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {
+      "metric": "NORMALIZED_ATTRIBUTABLE_NET_PROFIT_PLUS_HAIRCUT_EXCESS_LIQUID_ASSETS",
+      "bear_net_profit_rmb_m": 25,
+      "base_net_profit_rmb_m": 60,
+      "bull_net_profit_rmb_m": 100,
+      "excess_liquid_financial_assets_rmb_m": 700,
+      "shares_m": 122.245658,
+      "rationale": "No post-H1 operating evidence supports changing the prior normalization."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "normalized_net_profit_rmb_m": 25,
+        "valuation_multiple_pe": 20,
+        "value_per_share": 9.82,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "normalized_net_profit_rmb_m": 60,
+        "valuation_multiple_pe": 25,
+        "value_per_share": 18,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "normalized_net_profit_rmb_m": 100,
+        "valuation_multiple_pe": 30,
+        "value_per_share": 30.27,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 19.0225,
+    "expected_return": -0.6171764943,
+    "bear_downside": -0.8023747233,
+    "hurdle_entry_price_15pct": 16.5413,
+    "action": "AVOID",
+    "catalysts": [
+      "FDA import alert is formally removed and U.S. syringe shipments normalize.",
+      "Cambodia utilization ramps with stable gross margin and cash conversion.",
+      "Fenglin Medical integration turns profitable without further balance-sheet deterioration.",
+      "The new 18.01% shareholder relationship produces disclosed strategic or commercial synergies rather than remaining a financial ownership event."
+    ],
+    "kill_thesis": [
+      "Import alert remains unresolved or expands in scope despite warning-letter remediation.",
+      "Deduct-net-profit margin fails to normalize despite revenue growth.",
+      "Inventory/capex/acquisition working capital absorbs cash faster than core profit grows.",
+      "Ownership-event expectations rerate the stock without evidence of incremental operating earnings or cash flow."
+    ]
+  },
+  "first_rejection_test": "VALUATION_AND_EARNINGS_QUALITY_GATE_MORE_SEVERE_AT_RMB49_69; WARNING_LETTER_CLOSEOUT_DOES_NOT_EQUAL_IMPORT_ALERT_REMOVAL",
+  "next_gate": "REOPEN_ONLY_IF_PRICE_AT_OR_BELOW_RMB16_54_OR_FORMAL_IMPORT_ALERT_REMOVAL_PLUS_MATERIAL_CORE_EARNINGS_CASH_CONVERSION_UPGRADE",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "采纳股份2026年半年度报告全文",
+      "url": "https://disc.static.szse.cn/disc/disk03/finalpage/2026-08-26/18170cf0-ebdf-4d11-abc7-87445a7420d3.PDF",
+      "as_of": "2026-08-26"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE_MIRROR",
+      "title": "关于股东协议转让股份过户完成的公告",
+      "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12603327&stockid=301122",
+      "as_of": "2026-09-15"
+    },
+    {
+      "type": "REGULATOR_PRIMARY",
+      "title": "Jiangsu Caina Medical Co. Ltd. Warning Letter Closeout",
+      "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/jiangsu-caina-medical-co-ltd-687033-08242026",
+      "as_of": "2026-08-24"
+    },
+    {
+      "type": "REGULATOR_PRIMARY",
+      "title": "FDA Import Alert 89-08",
+      "url": "https://www.accessdata.fda.gov/CMS_IA/importalert_244.html",
+      "as_of": "2026-09-21"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "采纳股份历史行情",
+      "url": "https://cn.investing.com/equities/caina-technology-historical-data",
+      "as_of": "2026-09-18"
+    }
+  ],
+  "source_quality_note": "Mechanical CNINFO/AkShare discovery failed again. Semantic fallback reconciles company H1 disclosure with current FDA regulator pages: warning-letter corrective actions were closed, but the import alert remains listed. 9/18 completed-session price is used. Scenario earnings, multiples and probabilities are analytical assumptions.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "price_at_or_below_16_54",
+      "formal_fda_import_alert_removal_or_material_scope_change",
+      "normalized_deduct_earnings_or_cash_flow_changes_materially",
+      "major_fenglin_or_cambodia_evidence_changes",
+      "new_shareholder_relationship_produces_disclosed_operating_synergy"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

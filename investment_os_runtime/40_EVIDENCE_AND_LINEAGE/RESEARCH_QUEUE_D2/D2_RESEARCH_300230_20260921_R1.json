@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260921_R1_300230",
+  "security_id": "300230.SZ",
+  "security_name": "永利股份",
+  "d1_rank": 3,
+  "archetype": "DEFENSIVE_STABILITY",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_BALANCE_SHEET_PAYOUT_AND_CORE_OPERATIONS_SOLID_BUT_CURRENT_PRICE_FAILS_15PCT_HURDLE",
+  "research_update_type": "USER_EXPLICIT_FRESH_D2_20260921_PROVIDER_FALLBACK",
+  "valuation_horizon": "12_MONTH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_b8ce85577fc08e7f",
+  "source_primary_discovery_commit": "95ca9009beb4252ea6e6aa78f339d54a0ccbf70d",
+  "source_discovery_mode": "GOVERNED_SEMANTIC_FALLBACK_AFTER_CNINFO_PROVIDER_INCIDENT",
+  "thesis": {
+    "core": "The two core businesses are growing, the light-conveyor segment shows improving domestic profitability, the balance sheet remains strong and shareholder payout is meaningful; however, current valuation already captures most of the normalized earnings recovery.",
+    "variant_wedge": "H1 headline cash conversion looks weak, but a large tax prepayment and inventory/order timing explain part of the decline. Even after normalizing those effects and allowing for FX relief, the equity does not clear a 15% new-capital hurdle at RMB4.30.",
+    "normalized_earnings_basis": "Use 2026E normalized EPS bear/base/bull of RMB0.24/RMB0.30/RMB0.36, anchored to H1 EPS RMB0.1411, H1 deduct EPS about RMB0.134, FX losses, segment mix and a second-half normalization assumption."
+  },
+  "financial_quality": {
+    "facts": {
+      "h1_2026_revenue_rmb_bn": 1.296886,
+      "h1_2026_revenue_yoy": 0.1365,
+      "h1_2026_attributable_np_rmb_m": 114.715,
+      "h1_2026_attributable_np_yoy": 0.0169,
+      "h1_2026_deduct_np_rmb_m": 109.03,
+      "h1_2026_deduct_np_yoy": 0.0227,
+      "h1_2026_eps": 0.1411,
+      "h1_2026_cfo_rmb_m": 66.63,
+      "h1_2026_cfo_yoy": -0.5764,
+      "h1_2026_attributable_equity_rmb_bn": 3.182294,
+      "h1_2026_cash_and_equivalents_rmb_m": 730.071,
+      "shares_m": 813.213441,
+      "prior_cash_dividend_per_share_rmb": 0.185
+    },
+    "judgment": "Earnings are stable rather than fast-growing; cash conversion is temporarily depressed but not fully explained by deterioration, while net assets and cash provide downside support."
+  },
+  "operating_detail": {
+    "light_conveyor_revenue_rmb_m": 654.605,
+    "light_conveyor_revenue_yoy": 0.1613,
+    "light_conveyor_np_rmb_m": 42.827,
+    "light_conveyor_np_yoy": 0.2539,
+    "precision_molding_revenue_rmb_m": 642.281,
+    "precision_molding_revenue_yoy": 0.1123,
+    "precision_molding_np_rmb_m": 71.889,
+    "precision_molding_np_yoy": -0.086,
+    "h1_fx_loss_rmb_m": 23.665,
+    "kunshan_intelligent_transmission_capex_rmb_m": 300,
+    "judgment": "Domestic conveyor profitability is improving, while precision molding is being held back by FX; the Kunshan project adds medium-term growth optionality but also raises execution and ROIC requirements."
+  },
+  "underwriting": {
+    "current_price": 4.3,
+    "price_as_of": "2026-09-18",
+    "entry_price": 3.94,
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {
+      "metric": "2026E_NORMALIZED_EPS",
+      "bear": 0.24,
+      "base": 0.3,
+      "bull": 0.36,
+      "rationale": "H1 EPS was RMB0.1411; scenarios normalize FX, tax timing and second-half mix without assuming a structural margin step-up."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 0.24,
+        "valuation_multiple_pe": 11,
+        "value_per_share": 2.64,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "eps": 0.3,
+        "valuation_multiple_pe": 15,
+        "value_per_share": 4.5,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "eps": 0.36,
+        "valuation_multiple_pe": 18,
+        "value_per_share": 6.48,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 4.53,
+    "expected_return": 0.0534883721,
+    "bear_downside": -0.3860465116,
+    "hurdle_entry_price_15pct": 3.9391,
+    "action": "BUY_BELOW",
+    "catalysts": [
+      "FX losses normalize or are better contained through pricing and hedging, allowing revenue growth to translate into profit growth.",
+      "Light-conveyor domestic margin improvement persists as automation/logistics demand and high-value products scale.",
+      "Operating cash conversion normalizes after tax-prepayment and working-capital timing effects.",
+      "The Kunshan intelligent-transmission project ramps toward 2027 commissioning with credible returns on capital."
+    ],
+    "kill_thesis": [
+      "Operating cash flow remains materially below normalized profit after temporary tax and working-capital effects reverse.",
+      "Precision-molding margins continue to decline even after FX normalization.",
+      "Kunshan or other expansion capex fails to produce acceptable ROIC or materially weakens the balance sheet.",
+      "The high shareholder payout proves unsustainable as growth capex and working capital rise."
+    ]
+  },
+  "first_rejection_test": "DEFENSIVE_BALANCE_SHEET_AND_PAYOUT_CLEARED_BUT_CURRENT_PRICE_FAILS_15PCT_NEW_CAPITAL_HURDLE",
+  "next_gate": "BUY_GATE_PRICE_AT_OR_BELOW_RMB3_94_OR_MATERIAL_NORMALIZED_EPS_UPGRADE_WITH_CASH_CONVERSION_AND_PAYOUT_INTACT",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE_MIRROR",
+      "title": "永利股份2026年半年度报告全文",
+      "url": "https://vip.stock.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12551214&stockid=300230",
+      "as_of": "2026-08-27"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE_MIRROR",
+      "title": "永利股份投资者关系管理信息20260916",
+      "url": "https://vip.stock.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12606977&stockid=300230",
+      "as_of": "2026-09-16"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE_MIRROR",
+      "title": "永利股份2025年年度权益分派实施公告",
+      "url": "https://vip.stock.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12405447&stockid=300230",
+      "as_of": "2026-06-23"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "永利股份历史行情",
+      "url": "https://cn.investing.com/equities/shanghai-yongli-belting-historical-data",
+      "as_of": "2026-09-18"
+    }
+  ],
+  "source_quality_note": "Mechanical CNINFO/AkShare discovery failed again. Semantic fallback uses formal disclosure mirrors and the 9/16 investor-relations record; 9/18 completed-session price is used. Scenario EPS, multiples and probabilities are analytical assumptions.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "price_at_or_below_3_94",
+      "material_eps_or_dividend_upgrade",
+      "cash_conversion_deterioration_after_tax_timing_normalizes",
+      "precision_molding_margin_deterioration",
+      "kunshan_capex_roic_change"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}

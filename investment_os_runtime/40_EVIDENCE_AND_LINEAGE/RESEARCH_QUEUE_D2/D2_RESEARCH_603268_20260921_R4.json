@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260921_R4_603268",
+  "security_id": "603268.SH",
+  "security_name": "松发股份",
+  "d1_rank": 1,
+  "archetype": "TREND_PERSISTENCE",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "AVOID_RESEARCH_COMPLETE_FUNDAMENTAL_INFLECTION_REAL_BUT_9_18_RERATING_WIDENS_VALUATION_AND_FINANCED_GROWTH_GAP",
+  "research_update_type": "USER_EXPLICIT_FRESH_DELTA_D2_20260921_PROVIDER_FALLBACK",
+  "valuation_horizon": "12_MONTH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_b8ce85577fc08e7f",
+  "source_primary_discovery_commit": "95ca9009beb4252ea6e6aa78f339d54a0ccbf70d",
+  "source_discovery_mode": "GOVERNED_SEMANTIC_FALLBACK_AFTER_CNINFO_PROVIDER_INCIDENT",
+  "thesis": {
+    "core": "Hengli shipbuilding continues to support a genuine operating and earnings step change, but the equity rerated further into 2026-09-18 while no new disclosure upgraded normalized earnings or free-cash-flow economics.",
+    "variant_wedge": "The operating inflection is real; the rejection is valuation and financed-growth risk. The 2026-09-16 shareholder-meeting actions and 2026-09-19 H1 briefing notice do not alter the earnings/cash framework, while the 9/18 close at RMB208 materially worsens prospective return.",
+    "normalized_earnings_basis": "Retain 2026E normalized EPS bear/base/bull of RMB5.50/RMB7.50/RMB9.00; no post-H1 primary evidence warrants an earnings upgrade."
+  },
+  "underwriting": {
+    "current_price": 208,
+    "price_as_of": "2026-09-18",
+    "entry_price": 120.43,
+    "confidence": "MEDIUM",
+    "normalized_earnings_basis": {
+      "metric": "2026E_NORMALIZED_EPS",
+      "bear": 5.5,
+      "base": 7.5,
+      "bull": 9,
+      "rationale": "No material post-H1 operating disclosure changes the prior normalized earnings range."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 5.5,
+        "valuation_multiple_pe": 14,
+        "value_per_share": 77,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "eps": 7.5,
+        "valuation_multiple_pe": 18,
+        "value_per_share": 135,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "eps": 9,
+        "valuation_multiple_pe": 23,
+        "value_per_share": 207,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 138.5,
+    "expected_return": -0.3341346154,
+    "bear_downside": -0.6298076923,
+    "hurdle_entry_price_15pct": 120.4348,
+    "action": "AVOID",
+    "catalysts": [
+      "High-value ship orders convert into deliveries at or above H1 margins.",
+      "New yard and engine capacity reaches high utilization without material cost overruns.",
+      "Normalized earnings or ROIC upgrades enough to offset the substantially higher market price.",
+      "Financing flexibility improves without debt, finance expense and capex outrunning sustainable free cash generation."
+    ],
+    "kill_thesis": [
+      "Newbuild pricing or orders roll over before expanded capacity matures.",
+      "Delivery delays, cancellations, steel/FX pressure or mix deterioration compress normalized margin.",
+      "Debt, finance expense and capex continue to grow faster than sustainable free cash generation."
+    ]
+  },
+  "first_rejection_test": "VALUATION_AND_FINANCED_GROWTH_GATE_MORE_SEVERE_AT_RMB208_DESPITE_CONFIRMED_FUNDAMENTAL_INFLECTION",
+  "next_gate": "REOPEN_ON_MATERIAL_NORMALIZED_EARNINGS_ROIC_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB120_43_WITH_ORDER_MARGIN_EVIDENCE_INTACT",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE_REPRINT",
+      "title": "松发股份2026年半年度报告摘要",
+      "url": "https://paper.cnstock.com/html/2026-08/25/content_2259095.htm",
+      "as_of": "2026-08-25"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE_REPRINT",
+      "title": "松发股份2026年第三次临时股东会决议公告",
+      "url": "https://paper.cnstock.com/html/2026-09/16/content_2269392.htm",
+      "as_of": "2026-09-16"
+    },
+    {
+      "type": "EXCHANGE_ANNOUNCEMENT_INDEX",
+      "title": "上交所：关于召开2026年半年度业绩说明会的公告",
+      "url": "https://www.sse.com.cn/disclosure/listedinfo/announcement/index.shtml?productId=603268",
+      "as_of": "2026-09-19"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "松发股份历史行情",
+      "url": "https://cn.investing.com/equities/guangdong-songfa-ceramics-co-ltd-historical-data",
+      "as_of": "2026-09-18"
+    }
+  ],
+  "source_quality_note": "Mechanical CNINFO/AkShare discovery failed again on 2026-09-21. Semantic fallback confirms no material post-H1 operating upgrade through the latest disclosed notices; 9/18 completed-session price is used. Scenario EPS, multiples and probabilities are analytical assumptions.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "price_at_or_below_120_43",
+      "material_earnings_or_roic_upgrade",
+      "order_or_newbuild_price_rollover",
+      "capex_debt_cash_conversion_deterioration"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
