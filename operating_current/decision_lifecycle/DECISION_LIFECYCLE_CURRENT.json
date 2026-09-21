@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-20T02:54:18+00:00",
+  "generated_at_utc": "2026-09-21T02:40:42+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-09-18",
-    "recommendation_generated_at_utc": "2026-09-20T02:49:47+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_b153c39c73608f23",
+    "recommendation_generated_at_utc": "2026-09-21T02:35:56+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_64df7642fe6ec3ca",
     "surface_as_of_date": "2026-09-18",
     "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_4f7f9103c050c918"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_6b25434978d15e3e",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_8dee587610eaef81",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -546,6 +546,46 @@
     },
     {
       "accounts": [],
+      "base_value": 4.5,
+      "cleared_trigger_keys": [],
+      "current_action": "BUY_BELOW",
+      "entry_price": 3.94,
+      "expected_return": 0.05348837209302326,
+      "latest_price": 4.3,
+      "lifecycle_state": "FLAT_WAIT_BUY_BELOW",
+      "mark_expected_return": 0.05348837209302326,
+      "mechanical_trigger_keys": [],
+      "monitoring_flags": [],
+      "new_trigger_keys": [],
+      "orders": 0,
+      "position_state": "FLAT",
+      "price_as_of": "2026-09-18",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "probability_weighted_value": 4.53,
+      "ready_for_user_decision": false,
+      "security_id": "300230.SZ",
+      "security_name": "永利股份",
+      "semantic_watch": {
+        "automatic_keyword_inference_authorized": false,
+        "catalysts": [
+          "FX losses normalize or are better contained through pricing and hedging, allowing revenue growth to translate into profit growth.",
+          "Light-conveyor domestic margin improvement persists as automation/logistics demand and high-value products scale.",
+          "Operating cash conversion normalizes after tax-prepayment and working-capital timing effects.",
+          "The Kunshan intelligent-transmission project ramps toward 2027 commissioning with credible returns on capital."
+        ],
+        "kill_thesis": [
+          "Operating cash flow remains materially below normalized profit after temporary tax and working-capital effects reverse.",
+          "Precision-molding margins continue to decline even after FX normalization.",
+          "Kunshan or other expansion capex fails to produce acceptable ROIC or materially weakens the balance sheet.",
+          "The high shareholder payout proves unsustainable as growth capex and working capital rise."
+        ],
+        "semantic_reunderwrite_required_before_state_change": true
+      },
+      "top_blocker": "PRICE_BLOCKED",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
       "base_value": 2.0,
       "cleared_trigger_keys": [],
       "current_action": "AVOID",
@@ -677,7 +717,7 @@
       "cleared_trigger_keys": [],
       "current_action": "AVOID",
       "entry_price": 16.54,
-      "expected_return": -0.5860174102285093,
+      "expected_return": -0.6171764942644395,
       "latest_price": 49.69,
       "lifecycle_state": "FLAT_AVOID",
       "mark_expected_return": -0.6171764942644395,
@@ -701,7 +741,7 @@
           "The new 18.01% shareholder relationship produces disclosed strategic or commercial synergies rather than remaining a financial ownership event."
         ],
         "kill_thesis": [
-          "FDA import alert remains unresolved or expands in scope.",
+          "Import alert remains unresolved or expands in scope despite warning-letter remediation.",
           "Deduct-net-profit margin fails to normalize despite revenue growth.",
           "Inventory/capex/acquisition working capital absorbs cash faster than core profit grows.",
           "Ownership-event expectations rerate the stock without evidence of incremental operating earnings or cash flow."
@@ -1288,7 +1328,7 @@
       "cleared_trigger_keys": [],
       "current_action": "AVOID",
       "entry_price": 120.43,
-      "expected_return": -0.2921032455916177,
+      "expected_return": -0.3341346153846154,
       "latest_price": 208.0,
       "lifecycle_state": "FLAT_AVOID",
       "mark_expected_return": -0.3341346153846154,
@@ -1308,6 +1348,7 @@
         "catalysts": [
           "High-value ship orders convert into deliveries at or above H1 margins.",
           "New yard and engine capacity reaches high utilization without material cost overruns.",
+          "Normalized earnings or ROIC upgrades enough to offset the substantially higher market price.",
           "Financing flexibility improves without debt, finance expense and capex outrunning sustainable free cash generation."
         ],
         "kill_thesis": [
@@ -1408,14 +1449,14 @@
   "summary": {
     "automatic_semantic_trigger_count": 0,
     "financial_context_triage_count": 0,
-    "flat_subject_count": 11,
+    "flat_subject_count": 12,
     "held_subject_count": 23,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 1,
     "reunderwrite_required_count": 0,
     "review_queue_count": 8,
-    "semantic_watch_clause_count": 215,
-    "subject_count": 34,
+    "semantic_watch_clause_count": 224,
+    "subject_count": 35,
     "user_action_review_count": 7,
     "valuation_reunderwrite_count": 0
   },
