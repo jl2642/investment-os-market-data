@@ -1,1 +1,328 @@
-{"schema_version":"1.1.0","state_id":"RESEARCH_QUEUE_D2_CURRENT_20260918_601138_REUNDERWRITE_COMPLETE","as_of":"2026-09-18T01:22:30+00:00","status":"D2_AUTO_CONSUMER_LIVE_SEMANTIC_COMPLETE","source_d1_state_id":"RESEARCH_QUEUE_D1_CURRENT_1f233a61e4f3956d","semantic_batch_id":"D2_SEMANTIC_RESEARCH_20260918_601138_R1","consumer_policy":{"bounded_batch_size":3,"event_trigger":"PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES","recovery_cadence":"WEEKDAYS_00:35_UTC_08:35_ASIA_SHANGHAI","manual_dispatch":"BREAK_GLASS_ONLY","idempotence":"UNCHANGED_D1_STATE_OR_INPUT_WATERMARK_PRESERVES_SEMANTIC_TERMINAL_WORK","fail_closed":true,"semantic_research_owner":"CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER","rolling_d1_advance_policy":"COMPLETED_D2_CALLBACK_MAY_FINISH_AFTER_D1_ROLLS_FORWARD","semantic_callback_binding":"EXACT_PUBLISHED_D2_SOURCE_COMMIT"},"queue":[{"security_id":"601138.SH","security_name":"工业富联","d1_rank":0,"d1_disposition":"LIFECYCLE_REUNDERWRITE_REQUIRED","archetype":"QUALITY_GROWTH_AI_INFRASTRUCTURE_SCALE","input_watermark":"88979f0fe2af2174da051a518d1a4b39dc03784e5b127ce6d9fec38ce1ab9f5e","d2_questions":["Test whether the newly triggered drawdown reflects a fundamental break or valuation/price volatility.","Re-underwrite 2026 normalized EPS using H1 AI server, rack and high-speed networking evidence.","Test operating cash conversion and customer/capex concentration before retaining ADD.","Rebuild bear/base/bull valuation and define the 15% hurdle plus kill thesis."],"first_rejection":"Reject ADD if H1 AI growth is not durable, normalized value does not clear the 15% hurdle, or cash conversion/customer-capex risk materially deteriorates.","baseline_source_count":0,"primary_source_count":2,"status":"D2_RESEARCH_COMPLETE","attempt_count":1,"last_attempt_at":"2026-09-18T01:22:30+00:00","semantic_research_required":false,"candidate_membership_mutation_authorized":false,"real_account_mutation_authorized":false,"simulation_mutation_authorized":false,"decision_mutation_authorized":false,"order_generation_authorized":false,"trade_authority":"NONE","research_disposition":"ADD_RESEARCH_COMPLETE_H1_AI_SCALE_GROWTH_INTACT_PRICE_NARROWLY_BELOW_FRESH_15PCT_HURDLE","semantic_artifact":"investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_601138_20260918_R1.json","first_rejection_test":"H1_AI_GROWTH_THESIS_INTACT_AND_PRICE_NARROWLY_CLEARS_15PCT_HURDLE_BUT_CASH_CONVERSION_AND_AI_CAPEX_CYCLE_REQUIRE_DISCIPLINE","next_gate":"MAINTAIN_ADD_ONLY_WHILE_PRICE_AT_OR_BELOW_RMB62_43_OR_NORMALIZED_EPS_UPGRADE_OFFSETS_HIGHER_PRICE_AND_CASH_CONVERSION_REMAINS_ACCEPTABLE","evidence_gap":{"material":false,"missing":null,"manual_user_input_required":false},"manual_user_input_required":false,"underwriting":{"current_price":61.27,"price_as_of":"2026-09-17","entry_price":62.43,"confidence":"MEDIUM_HIGH","normalized_earnings_basis":{"metric":"2026E_NORMALIZED_EPS","bear":2.15,"base":2.65,"bull":3.1},"scenarios":[{"name":"BEAR","eps":2.15,"valuation_multiple_pe":18.0,"value_per_share":38.7,"probability":0.25},{"name":"BASE","eps":2.65,"valuation_multiple_pe":27.0,"value_per_share":71.55,"probability":0.5},{"name":"BULL","eps":3.1,"valuation_multiple_pe":34.0,"value_per_share":105.4,"probability":0.25}],"probability_weighted_value":71.8,"expected_return":0.1718622491,"bear_downside":-0.368369512,"hurdle_entry_price_15pct":62.4347826087,"action":"ADD","catalysts":["Cloud-service-provider AI server revenue and GPU/ASIC rack shipments remain on a high-growth trajectory through H2.","800G-plus networking and SuperNIC growth sustains mix improvement alongside server scale.","Normalized EPS tracks or exceeds the RMB2.65 base case without a deterioration in operating cash conversion.","Customer diversification and new AI infrastructure programs reduce dependence on any single hyperscaler or architecture."],"kill_thesis":["Hyperscaler AI capex or customer orders decelerate enough to break the current GPU/ASIC rack growth trajectory.","Operating cash flow persistently lags profit and working-capital consumption rises despite reported earnings growth.","AI-server/networking mix growth fails to support margins, indicating scale without acceptable economic value capture.","Export controls, geopolitics or customer concentration cause a material structural loss of accessible demand or market share."]},"source_discovery_mode":"CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH_AFTER_EXPLICIT_USER_START","semantic_completed_at":"2026-09-18T01:22:30+00:00"}],"summary":{"routed_count":1,"pending_count":0,"completed_count":1,"hold_evidence_gap_count":0,"blocked_count":0,"batch_capacity":3,"manual_trigger_required":false,"user_input_required":false},"controls":{"candidate_membership_mutations":0,"real_account_mutations":0,"simulation_mutations":0,"decision_mutations":0,"orders":0,"trade_authority":"NONE"}}
+{
+  "schema_version": "1.1.0",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_20260921_SEMANTIC_COMPLETE",
+  "as_of": "2026-09-21T02:26:30+00:00",
+  "status": "D2_AUTO_CONSUMER_LIVE_SEMANTIC_COMPLETE",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_b8ce85577fc08e7f",
+  "semantic_batch_id": "D2_SEMANTIC_RESEARCH_20260921_603268_300230_301122_R1",
+  "consumer_policy": {
+    "bounded_batch_size": 3,
+    "event_trigger": "PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES",
+    "recovery_cadence": "WEEKDAYS_00:35_UTC_08:35_ASIA_SHANGHAI",
+    "manual_dispatch": "BREAK_GLASS_ONLY",
+    "idempotence": "UNCHANGED_D1_STATE_OR_INPUT_WATERMARK_PRESERVES_SEMANTIC_TERMINAL_WORK",
+    "fail_closed": true,
+    "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
+    "rolling_d1_advance_policy": "COMPLETED_D2_CALLBACK_MAY_FINISH_AFTER_D1_ROLLS_FORWARD",
+    "semantic_callback_binding": "EXACT_PUBLISHED_D2_SOURCE_COMMIT"
+  },
+  "queue": [
+    {
+      "security_id": "603268.SH",
+      "security_name": "松发股份",
+      "d1_rank": 1,
+      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+      "archetype": "TREND_PERSISTENCE",
+      "input_watermark": "d8a71bded85dcfd90e93d55cdd37d7eefef764935c6da9449c069a7f5d7e03ec",
+      "d2_questions": [
+        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
+        "Test whether the expected return remains attractive after normalizing current momentum.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+      "baseline_source_count": 0,
+      "primary_source_count": 3,
+      "status": "D2_RESEARCH_COMPLETE",
+      "attempt_count": 2,
+      "last_attempt_at": "2026-09-21T02:26:30+00:00",
+      "semantic_research_required": false,
+      "candidate_membership_mutation_authorized": false,
+      "real_account_mutation_authorized": false,
+      "simulation_mutation_authorized": false,
+      "decision_mutation_authorized": false,
+      "order_generation_authorized": false,
+      "trade_authority": "NONE",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_FUNDAMENTAL_INFLECTION_REAL_BUT_9_18_RERATING_WIDENS_VALUATION_AND_FINANCED_GROWTH_GAP",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_603268_20260921_R4.json",
+      "first_rejection_test": "VALUATION_AND_FINANCED_GROWTH_GATE_MORE_SEVERE_AT_RMB208_DESPITE_CONFIRMED_FUNDAMENTAL_INFLECTION",
+      "next_gate": "REOPEN_ON_MATERIAL_NORMALIZED_EARNINGS_ROIC_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB120_43_WITH_ORDER_MARGIN_EVIDENCE_INTACT",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false
+      },
+      "manual_user_input_required": false,
+      "underwriting": {
+        "current_price": 208,
+        "price_as_of": "2026-09-18",
+        "entry_price": 120.43,
+        "confidence": "MEDIUM",
+        "normalized_earnings_basis": {
+          "metric": "2026E_NORMALIZED_EPS",
+          "bear": 5.5,
+          "base": 7.5,
+          "bull": 9,
+          "rationale": "No material post-H1 operating disclosure changes the prior normalized earnings range."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "eps": 5.5,
+            "valuation_multiple_pe": 14,
+            "value_per_share": 77,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "eps": 7.5,
+            "valuation_multiple_pe": 18,
+            "value_per_share": 135,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "eps": 9,
+            "valuation_multiple_pe": 23,
+            "value_per_share": 207,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 138.5,
+        "expected_return": -0.3341346154,
+        "bear_downside": -0.6298076923,
+        "hurdle_entry_price_15pct": 120.4348,
+        "action": "AVOID",
+        "catalysts": [
+          "High-value ship orders convert into deliveries at or above H1 margins.",
+          "New yard and engine capacity reaches high utilization without material cost overruns.",
+          "Normalized earnings or ROIC upgrades enough to offset the substantially higher market price.",
+          "Financing flexibility improves without debt, finance expense and capex outrunning sustainable free cash generation."
+        ],
+        "kill_thesis": [
+          "Newbuild pricing or orders roll over before expanded capacity matures.",
+          "Delivery delays, cancellations, steel/FX pressure or mix deterioration compress normalized margin.",
+          "Debt, finance expense and capex continue to grow faster than sustainable free cash generation."
+        ]
+      },
+      "source_discovery_mode": "GOVERNED_SEMANTIC_FALLBACK_AFTER_CNINFO_PROVIDER_INCIDENT",
+      "semantic_completed_at": "2026-09-21T02:26:30+00:00"
+    },
+    {
+      "security_id": "300230.SZ",
+      "security_name": "永利股份",
+      "d1_rank": 3,
+      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+      "archetype": "DEFENSIVE_STABILITY",
+      "input_watermark": "a2aaad2229a4b4507623f2ead32388c9203123e4dae5fccb6533e5faf968c1df",
+      "d2_questions": [
+        "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
+        "Compare the opportunity with lower-risk defensive and cash alternatives.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+      "baseline_source_count": 0,
+      "primary_source_count": 3,
+      "status": "D2_RESEARCH_COMPLETE",
+      "attempt_count": 2,
+      "last_attempt_at": "2026-09-21T02:26:30+00:00",
+      "semantic_research_required": false,
+      "candidate_membership_mutation_authorized": false,
+      "real_account_mutation_authorized": false,
+      "simulation_mutation_authorized": false,
+      "decision_mutation_authorized": false,
+      "order_generation_authorized": false,
+      "trade_authority": "NONE",
+      "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_BALANCE_SHEET_PAYOUT_AND_CORE_OPERATIONS_SOLID_BUT_CURRENT_PRICE_FAILS_15PCT_HURDLE",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_300230_20260921_R1.json",
+      "first_rejection_test": "DEFENSIVE_BALANCE_SHEET_AND_PAYOUT_CLEARED_BUT_CURRENT_PRICE_FAILS_15PCT_NEW_CAPITAL_HURDLE",
+      "next_gate": "BUY_GATE_PRICE_AT_OR_BELOW_RMB3_94_OR_MATERIAL_NORMALIZED_EPS_UPGRADE_WITH_CASH_CONVERSION_AND_PAYOUT_INTACT",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false
+      },
+      "manual_user_input_required": false,
+      "underwriting": {
+        "current_price": 4.3,
+        "price_as_of": "2026-09-18",
+        "entry_price": 3.94,
+        "confidence": "MEDIUM_HIGH",
+        "normalized_earnings_basis": {
+          "metric": "2026E_NORMALIZED_EPS",
+          "bear": 0.24,
+          "base": 0.3,
+          "bull": 0.36,
+          "rationale": "H1 EPS was RMB0.1411; scenarios normalize FX, tax timing and second-half mix without assuming a structural margin step-up."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "eps": 0.24,
+            "valuation_multiple_pe": 11,
+            "value_per_share": 2.64,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "eps": 0.3,
+            "valuation_multiple_pe": 15,
+            "value_per_share": 4.5,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "eps": 0.36,
+            "valuation_multiple_pe": 18,
+            "value_per_share": 6.48,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 4.53,
+        "expected_return": 0.0534883721,
+        "bear_downside": -0.3860465116,
+        "hurdle_entry_price_15pct": 3.9391,
+        "action": "BUY_BELOW",
+        "catalysts": [
+          "FX losses normalize or are better contained through pricing and hedging, allowing revenue growth to translate into profit growth.",
+          "Light-conveyor domestic margin improvement persists as automation/logistics demand and high-value products scale.",
+          "Operating cash conversion normalizes after tax-prepayment and working-capital timing effects.",
+          "The Kunshan intelligent-transmission project ramps toward 2027 commissioning with credible returns on capital."
+        ],
+        "kill_thesis": [
+          "Operating cash flow remains materially below normalized profit after temporary tax and working-capital effects reverse.",
+          "Precision-molding margins continue to decline even after FX normalization.",
+          "Kunshan or other expansion capex fails to produce acceptable ROIC or materially weakens the balance sheet.",
+          "The high shareholder payout proves unsustainable as growth capex and working capital rise."
+        ]
+      },
+      "source_discovery_mode": "GOVERNED_SEMANTIC_FALLBACK_AFTER_CNINFO_PROVIDER_INCIDENT",
+      "semantic_completed_at": "2026-09-21T02:26:30+00:00"
+    },
+    {
+      "security_id": "301122.SZ",
+      "security_name": "采纳股份",
+      "d1_rank": 5,
+      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+      "archetype": "TREND_PERSISTENCE",
+      "input_watermark": "56a9b1ecfba33467690dfc0f62ac36b53b069427c4cd52f967753906503856c3",
+      "d2_questions": [
+        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
+        "Test whether the expected return remains attractive after normalizing current momentum.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+      "baseline_source_count": 0,
+      "primary_source_count": 4,
+      "status": "D2_RESEARCH_COMPLETE",
+      "attempt_count": 2,
+      "last_attempt_at": "2026-09-21T02:26:30+00:00",
+      "semantic_research_required": false,
+      "candidate_membership_mutation_authorized": false,
+      "real_account_mutation_authorized": false,
+      "simulation_mutation_authorized": false,
+      "decision_mutation_authorized": false,
+      "order_generation_authorized": false,
+      "trade_authority": "NONE",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_VALUATION_EARNINGS_QUALITY_AND_IMPORT_ALERT_GAP_WIDENS_AFTER_9_18_RERATING",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_301122_20260921_R3.json",
+      "first_rejection_test": "VALUATION_AND_EARNINGS_QUALITY_GATE_MORE_SEVERE_AT_RMB49_69; WARNING_LETTER_CLOSEOUT_DOES_NOT_EQUAL_IMPORT_ALERT_REMOVAL",
+      "next_gate": "REOPEN_ONLY_IF_PRICE_AT_OR_BELOW_RMB16_54_OR_FORMAL_IMPORT_ALERT_REMOVAL_PLUS_MATERIAL_CORE_EARNINGS_CASH_CONVERSION_UPGRADE",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false
+      },
+      "manual_user_input_required": false,
+      "underwriting": {
+        "current_price": 49.69,
+        "price_as_of": "2026-09-18",
+        "entry_price": 16.54,
+        "confidence": "MEDIUM_HIGH",
+        "normalized_earnings_basis": {
+          "metric": "NORMALIZED_ATTRIBUTABLE_NET_PROFIT_PLUS_HAIRCUT_EXCESS_LIQUID_ASSETS",
+          "bear_net_profit_rmb_m": 25,
+          "base_net_profit_rmb_m": 60,
+          "bull_net_profit_rmb_m": 100,
+          "excess_liquid_financial_assets_rmb_m": 700,
+          "shares_m": 122.245658,
+          "rationale": "No post-H1 operating evidence supports changing the prior normalization."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "normalized_net_profit_rmb_m": 25,
+            "valuation_multiple_pe": 20,
+            "value_per_share": 9.82,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "normalized_net_profit_rmb_m": 60,
+            "valuation_multiple_pe": 25,
+            "value_per_share": 18,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "normalized_net_profit_rmb_m": 100,
+            "valuation_multiple_pe": 30,
+            "value_per_share": 30.27,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 19.0225,
+        "expected_return": -0.6171764943,
+        "bear_downside": -0.8023747233,
+        "hurdle_entry_price_15pct": 16.5413,
+        "action": "AVOID",
+        "catalysts": [
+          "FDA import alert is formally removed and U.S. syringe shipments normalize.",
+          "Cambodia utilization ramps with stable gross margin and cash conversion.",
+          "Fenglin Medical integration turns profitable without further balance-sheet deterioration.",
+          "The new 18.01% shareholder relationship produces disclosed strategic or commercial synergies rather than remaining a financial ownership event."
+        ],
+        "kill_thesis": [
+          "Import alert remains unresolved or expands in scope despite warning-letter remediation.",
+          "Deduct-net-profit margin fails to normalize despite revenue growth.",
+          "Inventory/capex/acquisition working capital absorbs cash faster than core profit grows.",
+          "Ownership-event expectations rerate the stock without evidence of incremental operating earnings or cash flow."
+        ]
+      },
+      "source_discovery_mode": "GOVERNED_SEMANTIC_FALLBACK_AFTER_CNINFO_PROVIDER_INCIDENT",
+      "semantic_completed_at": "2026-09-21T02:26:30+00:00"
+    }
+  ],
+  "summary": {
+    "routed_count": 3,
+    "pending_count": 0,
+    "completed_count": 3,
+    "hold_evidence_gap_count": 0,
+    "blocked_count": 0,
+    "batch_capacity": 3,
+    "manual_trigger_required": false,
+    "user_input_required": false
+  },
+  "source_primary_discovery_commit": "95ca9009beb4252ea6e6aa78f339d54a0ccbf70d",
+  "source_primary_discovery_state_id": "RESEARCH_QUEUE_D2_CURRENT_24e3a688f1097470",
+  "source_incident_resolution": {
+    "provider": "CNINFO_VIA_AKSHARE",
+    "mechanical_error": "CNINFO_DISCOVERY_FAILED:JSONDecodeError:ATTEMPTS_2",
+    "classification": "PROVIDER_INTERFACE_OR_ACCESS_FAILURE",
+    "resolution": "GOVERNED_SEMANTIC_PRIMARY_SOURCE_FALLBACK",
+    "mechanical_fail_closed_preserved": true
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
