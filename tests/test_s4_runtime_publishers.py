@@ -39,13 +39,15 @@ def test_s3_publisher_direct_entrypoint_imports_repo_package() -> None:
     assert "--surface-json" in result.stdout
 
 
-def test_s4_final_runtime_is_event_driven_and_temporary_replay_removed() -> None:
+def test_s4_final_runtime_is_event_driven_with_bounded_d2_recovery_and_temporary_replay_removed() -> None:
     s2 = (ROOT / ".github/workflows/s2-investment-pipeline.yml").read_text(encoding="utf-8")
     d2 = (ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml").read_text(encoding="utf-8")
     assert "\n  schedule:\n" not in s2
-    assert "\n  schedule:\n" not in d2
+    assert "\n  schedule:\n" in d2
+    assert '- cron: "35 0 * * 1-5"' in d2
     assert "workflow_dispatch:" in s2
     assert "workflow_dispatch:" in d2
+    assert d2.count("github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'") >= 5
     assert not (ROOT / ".github/workflows/s4-controlled-same-date-replay.yml").exists()
 
 
