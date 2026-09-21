@@ -8,12 +8,12 @@
   },
   "coverage": {
     "d2_subject_count": 35,
-    "decision_grade_underwriting_count": 34,
+    "decision_grade_underwriting_count": 35,
     "portfolio_comparison_boundary": "Current D2 subjects are ranked explicitly; holdings without D2 underwriting remain outside expected-return comparison rather than receiving invented returns.",
     "real_position_state_bound": true,
     "simulation_position_state_bound": true
   },
-  "generated_at_utc": "2026-09-21T02:29:45+00:00",
+  "generated_at_utc": "2026-09-21T02:35:56+00:00",
   "price_freshness_policy": {
     "active_semantic_refresh_fails_closed": true,
     "latest_mark_date": "2026-09-18",
@@ -26,29 +26,30 @@
       "cash_hurdle": 0.04,
       "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "comparison_vector": {
-        "bear_downside": -0.6064400715563507,
+        "bear_downside": -0.6298076923076923,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM",
         "existing_position": false,
-        "expected_return": -0.2921032455916177
+        "expected_return": -0.3341346153846154
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": false,
       "metrics": {
         "base_value": 135.0,
-        "bear_downside": -0.6064400715563507,
+        "bear_downside": -0.6298076923076923,
         "bear_value": 77.0,
         "bull_value": 207.0,
         "catalysts": [
           "High-value ship orders convert into deliveries at or above H1 margins.",
           "New yard and engine capacity reaches high utilization without material cost overruns.",
+          "Normalized earnings or ROIC upgrades enough to offset the substantially higher market price.",
           "Financing flexibility improves without debt, finance expense and capex outrunning sustainable free cash generation."
         ],
         "confidence": "MEDIUM",
-        "current_price": 195.65,
+        "current_price": 208.0,
         "entry_price": 120.43,
-        "expected_return": -0.2921032455916177,
+        "expected_return": -0.3341346153846154,
         "kill_thesis": [
           "Newbuild pricing or orders roll over before expanded capacity matures.",
           "Delivery delays, cancellations, steel/FX pressure or mix deterioration compress normalized margin.",
@@ -57,12 +58,12 @@
         "normalized_earnings_basis": {
           "base": 7.5,
           "bear": 5.5,
-          "bull": 9.0,
+          "bull": 9,
           "metric": "2026E_NORMALIZED_EPS",
-          "rationale": "Fresh review retains the 2026-09-10 normalized earnings range; no new primary evidence warrants an upgrade."
+          "rationale": "No material post-H1 operating disclosure changes the prior normalized earnings range."
         },
         "portfolio_role": null,
-        "price_as_of": "2026-09-15",
+        "price_as_of": "2026-09-18",
         "probability_weighted_value": 138.5,
         "scenario_probabilities": {
           "BASE": 0.5,
@@ -71,9 +72,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 30,
+      "rank_among_current_d2": 31,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "603268.SH",
       "security_name": "松发股份",
@@ -82,24 +83,58 @@
     {
       "capital_hurdle": 0.1,
       "cash_hurdle": 0.04,
-      "comparison_status": "UNDERWRITING_PENDING",
+      "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
-        "bear_downside": null,
+        "bear_downside": -0.38604651162790693,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
-        "confidence": null,
+        "confidence": "MEDIUM_HIGH",
         "existing_position": false,
-        "expected_return": null
+        "expected_return": 0.05348837209302326
       },
-      "d2_status": "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+      "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": false,
-      "metrics": null,
-      "missing_requirements": [
-        "UNDERWRITING_OBJECT_ABSENT"
-      ],
-      "peer_expected_return_median": 0.09297052154195007,
+      "metrics": {
+        "base_value": 4.5,
+        "bear_downside": -0.38604651162790693,
+        "bear_value": 2.64,
+        "bull_value": 6.48,
+        "catalysts": [
+          "FX losses normalize or are better contained through pricing and hedging, allowing revenue growth to translate into profit growth.",
+          "Light-conveyor domestic margin improvement persists as automation/logistics demand and high-value products scale.",
+          "Operating cash conversion normalizes after tax-prepayment and working-capital timing effects.",
+          "The Kunshan intelligent-transmission project ramps toward 2027 commissioning with credible returns on capital."
+        ],
+        "confidence": "MEDIUM_HIGH",
+        "current_price": 4.3,
+        "entry_price": 3.94,
+        "expected_return": 0.05348837209302326,
+        "kill_thesis": [
+          "Operating cash flow remains materially below normalized profit after temporary tax and working-capital effects reverse.",
+          "Precision-molding margins continue to decline even after FX normalization.",
+          "Kunshan or other expansion capex fails to produce acceptable ROIC or materially weakens the balance sheet.",
+          "The high shareholder payout proves unsustainable as growth capex and working capital rise."
+        ],
+        "normalized_earnings_basis": {
+          "base": 0.3,
+          "bear": 0.24,
+          "bull": 0.36,
+          "metric": "2026E_NORMALIZED_EPS",
+          "rationale": "H1 EPS was RMB0.1411; scenarios normalize FX, tax timing and second-half mix without assuming a structural margin step-up."
+        },
+        "portfolio_role": null,
+        "price_as_of": "2026-09-18",
+        "probability_weighted_value": 4.53,
+        "scenario_probabilities": {
+          "BASE": 0.5,
+          "BEAR": 0.25,
+          "BULL": 0.25
+        }
+      },
+      "missing_requirements": [],
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": null,
+      "rank_among_current_d2": 20,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "300230.SZ",
       "security_name": "永利股份",
@@ -110,18 +145,18 @@
       "cash_hurdle": 0.04,
       "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "comparison_vector": {
-        "bear_downside": -0.7862894450489663,
+        "bear_downside": -0.802374723284363,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
         "confidence": "MEDIUM_HIGH",
         "existing_position": false,
-        "expected_return": -0.5860174102285093
+        "expected_return": -0.6171764942644395
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": false,
       "metrics": {
         "base_value": 18.0,
-        "bear_downside": -0.7862894450489663,
+        "bear_downside": -0.802374723284363,
         "bear_value": 9.82,
         "bull_value": 30.27,
         "catalysts": [
@@ -131,26 +166,26 @@
           "The new 18.01% shareholder relationship produces disclosed strategic or commercial synergies rather than remaining a financial ownership event."
         ],
         "confidence": "MEDIUM_HIGH",
-        "current_price": 45.95,
+        "current_price": 49.69,
         "entry_price": 16.54,
-        "expected_return": -0.5860174102285093,
+        "expected_return": -0.6171764942644395,
         "kill_thesis": [
-          "FDA import alert remains unresolved or expands in scope.",
+          "Import alert remains unresolved or expands in scope despite warning-letter remediation.",
           "Deduct-net-profit margin fails to normalize despite revenue growth.",
           "Inventory/capex/acquisition working capital absorbs cash faster than core profit grows.",
           "Ownership-event expectations rerate the stock without evidence of incremental operating earnings or cash flow."
         ],
         "normalized_earnings_basis": {
-          "base_net_profit_rmb_m": 60.0,
-          "bear_net_profit_rmb_m": 25.0,
-          "bull_net_profit_rmb_m": 100.0,
-          "excess_liquid_financial_assets_rmb_m": 700.0,
+          "base_net_profit_rmb_m": 60,
+          "bear_net_profit_rmb_m": 25,
+          "bull_net_profit_rmb_m": 100,
+          "excess_liquid_financial_assets_rmb_m": 700,
           "metric": "NORMALIZED_ATTRIBUTABLE_NET_PROFIT_PLUS_HAIRCUT_EXCESS_LIQUID_ASSETS",
-          "rationale": "Fresh review retains prior normalization; the ownership transfer changes shareholder structure but not disclosed operating economics.",
+          "rationale": "No post-H1 operating evidence supports changing the prior normalization.",
           "shares_m": 122.245658
         },
         "portfolio_role": null,
-        "price_as_of": "2026-09-15",
+        "price_as_of": "2026-09-18",
         "probability_weighted_value": 19.0225,
         "scenario_probabilities": {
           "BASE": 0.5,
@@ -159,9 +194,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 32,
+      "rank_among_current_d2": 33,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "301122.SZ",
       "security_name": "采纳股份",
@@ -221,7 +256,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -282,9 +317,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 29,
+      "rank_among_current_d2": 30,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "000900.SZ",
       "security_name": "现代投资",
@@ -352,7 +387,7 @@
         "underwriting_price_as_of": "2026-09-03"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "REAL"
       ],
@@ -413,9 +448,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 20,
+      "rank_among_current_d2": 21,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "002832.SZ",
       "security_name": "比音勒芬",
@@ -473,9 +508,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 28,
+      "rank_among_current_d2": 29,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "002936.SZ",
       "security_name": "郑州银行",
@@ -535,9 +570,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 33,
+      "rank_among_current_d2": 34,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "003040.SZ",
       "security_name": "楚天龙",
@@ -595,11 +630,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "REAL"
       ],
-      "rank_among_current_d2": 23,
+      "rank_among_current_d2": 24,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "017534.OF",
       "security_name": "富国天利增长债券C",
@@ -657,7 +692,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "REAL"
       ],
@@ -717,11 +752,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "REAL"
       ],
-      "rank_among_current_d2": 22,
+      "rank_among_current_d2": 23,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "159612.SZ",
       "security_name": "标普500ETF国泰",
@@ -779,11 +814,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "REAL"
       ],
-      "rank_among_current_d2": 21,
+      "rank_among_current_d2": 22,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "159655.SZ",
       "security_name": "标普500ETF华夏",
@@ -840,11 +875,11 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "REAL"
       ],
-      "rank_among_current_d2": 24,
+      "rank_among_current_d2": 25,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "217003.OF",
       "security_name": "招商安泰债券A",
@@ -902,7 +937,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -970,7 +1005,7 @@
         "underwriting_price_as_of": "2026-09-09"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1030,9 +1065,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 34,
+      "rank_among_current_d2": 35,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "300647.SZ",
       "security_name": "超频三",
@@ -1097,7 +1132,7 @@
         "underwriting_price_as_of": "2026-08-31"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1158,7 +1193,7 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
       "rank_among_current_d2": 13,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -1218,7 +1253,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "REAL",
         "SIMULATION"
@@ -1281,7 +1316,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1343,7 +1378,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1411,7 +1446,7 @@
         "underwriting_price_as_of": "2026-09-16"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1473,7 +1508,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1537,9 +1572,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 25,
+      "rank_among_current_d2": 26,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "600428.SH",
       "security_name": "中远海特",
@@ -1607,7 +1642,7 @@
         "underwriting_price_as_of": "2026-09-18"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1669,7 +1704,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1730,9 +1765,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 31,
+      "rank_among_current_d2": 32,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "600737.SH",
       "security_name": "中粮糖业",
@@ -1800,7 +1835,7 @@
         "underwriting_price_as_of": "2026-09-02"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1863,7 +1898,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1936,11 +1971,11 @@
         "underwriting_price_as_of": "2026-09-02"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
-      "rank_among_current_d2": 27,
+      "rank_among_current_d2": 28,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "600941.SH",
       "security_name": "中国移动",
@@ -2004,7 +2039,7 @@
         "underwriting_price_as_of": "2026-09-17"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -2072,7 +2107,7 @@
         "underwriting_price_as_of": "2026-09-10"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -2134,9 +2169,9 @@
         }
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [],
-      "rank_among_current_d2": 26,
+      "rank_among_current_d2": 27,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "603995.SH",
       "security_name": "甬金股份",
@@ -2196,7 +2231,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
+      "peer_expected_return_median": 0.086677367576244,
       "position_accounts": [
         "REAL"
       ],
@@ -2208,7 +2243,7 @@
     }
   ],
   "schema_version": "2.0.0",
-  "source_d2_state_id": "RESEARCH_QUEUE_D2_CURRENT_24e3a688f1097470_SEMANTIC_d339c66bb08d",
-  "state_id": "CAPITAL_COMPARISON_CURRENT_MARK_REBASED_0bf276b3fe0a1356",
+  "source_d2_state_id": "RESEARCH_QUEUE_D2_CURRENT_20260921_SEMANTIC_COMPLETE_SEMANTIC_202e129e4004",
+  "state_id": "CAPITAL_COMPARISON_CURRENT_MARK_REBASED_ce67a57944f36931",
   "status": "PASS_LIVE_CAPITAL_COMPARISON"
 }
