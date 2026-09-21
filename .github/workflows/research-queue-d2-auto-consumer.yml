@@ -1,6 +1,9 @@
 name: Research Queue D2 Auto Consumer
 
 on:
+  schedule:
+    # Weekday recovery wake-up at 08:35 Asia/Shanghai (00:35 UTC).
+    - cron: "35 0 * * 1-5"
   pull_request:
     branches: [main]
     paths:
@@ -88,7 +91,7 @@ jobs:
       - name: Install runtime
         run: python -m pip install --retries 5 --timeout 30 -r requirements.txt
       - name: Fetch S2 rolling D1 Current and prior D2 authority
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -115,13 +118,13 @@ jobs:
           PY
 
       - name: Discover primary disclosure evidence and refresh D2 Current
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python automation/research_queue_d2/build_d2_queue.py --discover-primary-sources --d1-current "$S2_D1_RUNTIME"
       - name: Validate D2 operating state
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python automation/research_queue_d2/validate_d2_queue.py
       - name: Prove protected economic domains unchanged
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -133,7 +136,7 @@ jobs:
           fi
       - name: Publish governed D2 operating-state branch
         id: mechanical_publish
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         env:
           WP3R_PUBLISH_BRANCH: automation/research-queue-d2-current
           WP3R_BASE_BRANCH: main
