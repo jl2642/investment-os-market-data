@@ -7,13 +7,13 @@
     "trade_authority": "NONE"
   },
   "coverage": {
-    "d2_subject_count": 34,
+    "d2_subject_count": 35,
     "decision_grade_underwriting_count": 34,
     "portfolio_comparison_boundary": "Current D2 subjects are ranked explicitly; holdings without D2 underwriting remain outside expected-return comparison rather than receiving invented returns.",
     "real_position_state_bound": true,
     "simulation_position_state_bound": true
   },
-  "generated_at_utc": "2026-09-20T02:49:47+00:00",
+  "generated_at_utc": "2026-09-21T02:29:45+00:00",
   "price_freshness_policy": {
     "active_semantic_refresh_fails_closed": true,
     "latest_mark_date": "2026-09-18",
@@ -24,69 +24,147 @@
     {
       "capital_hurdle": 0.1,
       "cash_hurdle": 0.04,
-      "comparison_status": "PRICE_BLOCKED",
+      "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "comparison_vector": {
-        "bear_downside": -0.38287354488917236,
+        "bear_downside": -0.6064400715563507,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
-        "confidence": "MEDIUM_HIGH",
-        "existing_position": true,
-        "expected_return": 0.14495295806091524
+        "confidence": "MEDIUM",
+        "existing_position": false,
+        "expected_return": -0.2921032455916177
       },
       "d2_status": "D2_RESEARCH_COMPLETE",
-      "existing_position": true,
+      "existing_position": false,
       "metrics": {
-        "base_value": 71.55,
-        "bear_downside": -0.38287354488917236,
-        "bear_value": 38.7,
-        "bull_value": 105.4,
+        "base_value": 135.0,
+        "bear_downside": -0.6064400715563507,
+        "bear_value": 77.0,
+        "bull_value": 207.0,
         "catalysts": [
-          "Cloud-service-provider AI server revenue and GPU/ASIC rack shipments remain on a high-growth trajectory through H2.",
-          "800G-plus networking and SuperNIC growth sustains mix improvement alongside server scale.",
-          "Normalized EPS tracks or exceeds the RMB2.65 base case without a deterioration in operating cash conversion.",
-          "Customer diversification and new AI infrastructure programs reduce dependence on any single hyperscaler or architecture."
+          "High-value ship orders convert into deliveries at or above H1 margins.",
+          "New yard and engine capacity reaches high utilization without material cost overruns.",
+          "Financing flexibility improves without debt, finance expense and capex outrunning sustainable free cash generation."
         ],
-        "confidence": "MEDIUM_HIGH",
-        "current_market_price": 62.71,
-        "current_market_price_as_of": "2026-09-18",
-        "current_price": 62.71,
-        "entry_price": 62.43,
-        "expected_return": 0.14495295806091524,
+        "confidence": "MEDIUM",
+        "current_price": 195.65,
+        "entry_price": 120.43,
+        "expected_return": -0.2921032455916177,
         "kill_thesis": [
-          "Hyperscaler AI capex or customer orders decelerate enough to break the current GPU/ASIC rack growth trajectory.",
-          "Operating cash flow persistently lags profit and working-capital consumption rises despite reported earnings growth.",
-          "AI-server/networking mix growth fails to support margins, indicating scale without acceptable economic value capture.",
-          "Export controls, geopolitics or customer concentration cause a material structural loss of accessible demand or market share."
+          "Newbuild pricing or orders roll over before expanded capacity matures.",
+          "Delivery delays, cancellations, steel/FX pressure or mix deterioration compress normalized margin.",
+          "Debt, finance expense and capex continue to grow faster than sustainable free cash generation."
         ],
         "normalized_earnings_basis": {
-          "base": 2.65,
-          "bear": 2.15,
-          "bull": 3.1,
-          "metric": "2026E_NORMALIZED_EPS"
+          "base": 7.5,
+          "bear": 5.5,
+          "bull": 9.0,
+          "metric": "2026E_NORMALIZED_EPS",
+          "rationale": "Fresh review retains the 2026-09-10 normalized earnings range; no new primary evidence warrants an upgrade."
         },
-        "original_bear_downside": -0.3683695119960829,
-        "original_expected_return": 0.17186224906153091,
         "portfolio_role": null,
-        "price_as_of": "2026-09-17",
-        "price_basis": "PORTFOLIO_MARKS_CURRENT",
-        "probability_weighted_value": 71.8,
+        "price_as_of": "2026-09-15",
+        "probability_weighted_value": 138.5,
         "scenario_probabilities": {
           "BASE": 0.5,
           "BEAR": 0.25,
           "BULL": 0.25
-        },
-        "underwriting_price": 61.27,
-        "underwriting_price_as_of": "2026-09-17"
+        }
       },
       "missing_requirements": [],
       "peer_expected_return_median": 0.09297052154195007,
-      "position_accounts": [
-        "SIMULATION"
-      ],
-      "rank_among_current_d2": 11,
+      "position_accounts": [],
+      "rank_among_current_d2": 30,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
-      "security_id": "601138.SH",
-      "security_name": "工业富联",
+      "security_id": "603268.SH",
+      "security_name": "松发股份",
+      "trade_authority": "NONE"
+    },
+    {
+      "capital_hurdle": 0.1,
+      "cash_hurdle": 0.04,
+      "comparison_status": "UNDERWRITING_PENDING",
+      "comparison_vector": {
+        "bear_downside": null,
+        "capital_hurdle": 0.1,
+        "cash_hurdle": 0.04,
+        "confidence": null,
+        "existing_position": false,
+        "expected_return": null
+      },
+      "d2_status": "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+      "existing_position": false,
+      "metrics": null,
+      "missing_requirements": [
+        "UNDERWRITING_OBJECT_ABSENT"
+      ],
+      "peer_expected_return_median": 0.09297052154195007,
+      "position_accounts": [],
+      "rank_among_current_d2": null,
+      "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
+      "security_id": "300230.SZ",
+      "security_name": "永利股份",
+      "trade_authority": "NONE"
+    },
+    {
+      "capital_hurdle": 0.1,
+      "cash_hurdle": 0.04,
+      "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "comparison_vector": {
+        "bear_downside": -0.7862894450489663,
+        "capital_hurdle": 0.1,
+        "cash_hurdle": 0.04,
+        "confidence": "MEDIUM_HIGH",
+        "existing_position": false,
+        "expected_return": -0.5860174102285093
+      },
+      "d2_status": "D2_RESEARCH_COMPLETE",
+      "existing_position": false,
+      "metrics": {
+        "base_value": 18.0,
+        "bear_downside": -0.7862894450489663,
+        "bear_value": 9.82,
+        "bull_value": 30.27,
+        "catalysts": [
+          "FDA import alert is formally removed and U.S. syringe shipments normalize.",
+          "Cambodia utilization ramps with stable gross margin and cash conversion.",
+          "Fenglin Medical integration turns profitable without further balance-sheet deterioration.",
+          "The new 18.01% shareholder relationship produces disclosed strategic or commercial synergies rather than remaining a financial ownership event."
+        ],
+        "confidence": "MEDIUM_HIGH",
+        "current_price": 45.95,
+        "entry_price": 16.54,
+        "expected_return": -0.5860174102285093,
+        "kill_thesis": [
+          "FDA import alert remains unresolved or expands in scope.",
+          "Deduct-net-profit margin fails to normalize despite revenue growth.",
+          "Inventory/capex/acquisition working capital absorbs cash faster than core profit grows.",
+          "Ownership-event expectations rerate the stock without evidence of incremental operating earnings or cash flow."
+        ],
+        "normalized_earnings_basis": {
+          "base_net_profit_rmb_m": 60.0,
+          "bear_net_profit_rmb_m": 25.0,
+          "bull_net_profit_rmb_m": 100.0,
+          "excess_liquid_financial_assets_rmb_m": 700.0,
+          "metric": "NORMALIZED_ATTRIBUTABLE_NET_PROFIT_PLUS_HAIRCUT_EXCESS_LIQUID_ASSETS",
+          "rationale": "Fresh review retains prior normalization; the ownership transfer changes shareholder structure but not disclosed operating economics.",
+          "shares_m": 122.245658
+        },
+        "portfolio_role": null,
+        "price_as_of": "2026-09-15",
+        "probability_weighted_value": 19.0225,
+        "scenario_probabilities": {
+          "BASE": 0.5,
+          "BEAR": 0.25,
+          "BULL": 0.25
+        }
+      },
+      "missing_requirements": [],
+      "peer_expected_return_median": 0.09297052154195007,
+      "position_accounts": [],
+      "rank_among_current_d2": 32,
+      "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
+      "security_id": "301122.SZ",
+      "security_name": "采纳股份",
       "trade_authority": "NONE"
     },
     {
@@ -1091,68 +1169,6 @@
     {
       "capital_hurdle": 0.1,
       "cash_hurdle": 0.04,
-      "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
-      "comparison_vector": {
-        "bear_downside": -0.7862894450489663,
-        "capital_hurdle": 0.1,
-        "cash_hurdle": 0.04,
-        "confidence": "MEDIUM_HIGH",
-        "existing_position": false,
-        "expected_return": -0.5860174102285093
-      },
-      "d2_status": "D2_RESEARCH_COMPLETE",
-      "existing_position": false,
-      "metrics": {
-        "base_value": 18.0,
-        "bear_downside": -0.7862894450489663,
-        "bear_value": 9.82,
-        "bull_value": 30.27,
-        "catalysts": [
-          "FDA import alert is formally removed and U.S. syringe shipments normalize.",
-          "Cambodia utilization ramps with stable gross margin and cash conversion.",
-          "Fenglin Medical integration turns profitable without further balance-sheet deterioration.",
-          "The new 18.01% shareholder relationship produces disclosed strategic or commercial synergies rather than remaining a financial ownership event."
-        ],
-        "confidence": "MEDIUM_HIGH",
-        "current_price": 45.95,
-        "entry_price": 16.54,
-        "expected_return": -0.5860174102285093,
-        "kill_thesis": [
-          "FDA import alert remains unresolved or expands in scope.",
-          "Deduct-net-profit margin fails to normalize despite revenue growth.",
-          "Inventory/capex/acquisition working capital absorbs cash faster than core profit grows.",
-          "Ownership-event expectations rerate the stock without evidence of incremental operating earnings or cash flow."
-        ],
-        "normalized_earnings_basis": {
-          "base_net_profit_rmb_m": 60.0,
-          "bear_net_profit_rmb_m": 25.0,
-          "bull_net_profit_rmb_m": 100.0,
-          "excess_liquid_financial_assets_rmb_m": 700.0,
-          "metric": "NORMALIZED_ATTRIBUTABLE_NET_PROFIT_PLUS_HAIRCUT_EXCESS_LIQUID_ASSETS",
-          "rationale": "Fresh review retains prior normalization; the ownership transfer changes shareholder structure but not disclosed operating economics.",
-          "shares_m": 122.245658
-        },
-        "portfolio_role": null,
-        "price_as_of": "2026-09-15",
-        "probability_weighted_value": 19.0225,
-        "scenario_probabilities": {
-          "BASE": 0.5,
-          "BEAR": 0.25,
-          "BULL": 0.25
-        }
-      },
-      "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
-      "position_accounts": [],
-      "rank_among_current_d2": 32,
-      "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
-      "security_id": "301122.SZ",
-      "security_name": "采纳股份",
-      "trade_authority": "NONE"
-    },
-    {
-      "capital_hurdle": 0.1,
-      "cash_hurdle": 0.04,
       "comparison_status": "PRICE_BLOCKED",
       "comparison_vector": {
         "bear_downside": -0.16985951468710092,
@@ -1933,6 +1949,74 @@
     {
       "capital_hurdle": 0.1,
       "cash_hurdle": 0.04,
+      "comparison_status": "PRICE_BLOCKED",
+      "comparison_vector": {
+        "bear_downside": -0.38287354488917236,
+        "capital_hurdle": 0.1,
+        "cash_hurdle": 0.04,
+        "confidence": "MEDIUM_HIGH",
+        "existing_position": true,
+        "expected_return": 0.14495295806091524
+      },
+      "d2_status": "D2_RESEARCH_COMPLETE",
+      "existing_position": true,
+      "metrics": {
+        "base_value": 71.55,
+        "bear_downside": -0.38287354488917236,
+        "bear_value": 38.7,
+        "bull_value": 105.4,
+        "catalysts": [
+          "Cloud-service-provider AI server revenue and GPU/ASIC rack shipments remain on a high-growth trajectory through H2.",
+          "800G-plus networking and SuperNIC growth sustains mix improvement alongside server scale.",
+          "Normalized EPS tracks or exceeds the RMB2.65 base case without a deterioration in operating cash conversion.",
+          "Customer diversification and new AI infrastructure programs reduce dependence on any single hyperscaler or architecture."
+        ],
+        "confidence": "MEDIUM_HIGH",
+        "current_market_price": 62.71,
+        "current_market_price_as_of": "2026-09-18",
+        "current_price": 62.71,
+        "entry_price": 62.43,
+        "expected_return": 0.14495295806091524,
+        "kill_thesis": [
+          "Hyperscaler AI capex or customer orders decelerate enough to break the current GPU/ASIC rack growth trajectory.",
+          "Operating cash flow persistently lags profit and working-capital consumption rises despite reported earnings growth.",
+          "AI-server/networking mix growth fails to support margins, indicating scale without acceptable economic value capture.",
+          "Export controls, geopolitics or customer concentration cause a material structural loss of accessible demand or market share."
+        ],
+        "normalized_earnings_basis": {
+          "base": 2.65,
+          "bear": 2.15,
+          "bull": 3.1,
+          "metric": "2026E_NORMALIZED_EPS"
+        },
+        "original_bear_downside": -0.3683695119960829,
+        "original_expected_return": 0.17186224906153091,
+        "portfolio_role": null,
+        "price_as_of": "2026-09-17",
+        "price_basis": "PORTFOLIO_MARKS_CURRENT",
+        "probability_weighted_value": 71.8,
+        "scenario_probabilities": {
+          "BASE": 0.5,
+          "BEAR": 0.25,
+          "BULL": 0.25
+        },
+        "underwriting_price": 61.27,
+        "underwriting_price_as_of": "2026-09-17"
+      },
+      "missing_requirements": [],
+      "peer_expected_return_median": 0.09297052154195007,
+      "position_accounts": [
+        "SIMULATION"
+      ],
+      "rank_among_current_d2": 11,
+      "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
+      "security_id": "601138.SH",
+      "security_name": "工业富联",
+      "trade_authority": "NONE"
+    },
+    {
+      "capital_hurdle": 0.1,
+      "cash_hurdle": 0.04,
       "comparison_status": "PASS_NEW_CAPITAL",
       "comparison_vector": {
         "bear_downside": -0.21362623368354028,
@@ -1996,64 +2080,6 @@
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "601899.SH",
       "security_name": "紫金矿业",
-      "trade_authority": "NONE"
-    },
-    {
-      "capital_hurdle": 0.1,
-      "cash_hurdle": 0.04,
-      "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
-      "comparison_vector": {
-        "bear_downside": -0.6064400715563507,
-        "capital_hurdle": 0.1,
-        "cash_hurdle": 0.04,
-        "confidence": "MEDIUM",
-        "existing_position": false,
-        "expected_return": -0.2921032455916177
-      },
-      "d2_status": "D2_RESEARCH_COMPLETE",
-      "existing_position": false,
-      "metrics": {
-        "base_value": 135.0,
-        "bear_downside": -0.6064400715563507,
-        "bear_value": 77.0,
-        "bull_value": 207.0,
-        "catalysts": [
-          "High-value ship orders convert into deliveries at or above H1 margins.",
-          "New yard and engine capacity reaches high utilization without material cost overruns.",
-          "Financing flexibility improves without debt, finance expense and capex outrunning sustainable free cash generation."
-        ],
-        "confidence": "MEDIUM",
-        "current_price": 195.65,
-        "entry_price": 120.43,
-        "expected_return": -0.2921032455916177,
-        "kill_thesis": [
-          "Newbuild pricing or orders roll over before expanded capacity matures.",
-          "Delivery delays, cancellations, steel/FX pressure or mix deterioration compress normalized margin.",
-          "Debt, finance expense and capex continue to grow faster than sustainable free cash generation."
-        ],
-        "normalized_earnings_basis": {
-          "base": 7.5,
-          "bear": 5.5,
-          "bull": 9.0,
-          "metric": "2026E_NORMALIZED_EPS",
-          "rationale": "Fresh review retains the 2026-09-10 normalized earnings range; no new primary evidence warrants an upgrade."
-        },
-        "portfolio_role": null,
-        "price_as_of": "2026-09-15",
-        "probability_weighted_value": 138.5,
-        "scenario_probabilities": {
-          "BASE": 0.5,
-          "BEAR": 0.25,
-          "BULL": 0.25
-        }
-      },
-      "missing_requirements": [],
-      "peer_expected_return_median": 0.09297052154195007,
-      "position_accounts": [],
-      "rank_among_current_d2": 30,
-      "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
-      "security_id": "603268.SH",
-      "security_name": "松发股份",
       "trade_authority": "NONE"
     },
     {
@@ -2182,7 +2208,7 @@
     }
   ],
   "schema_version": "2.0.0",
-  "source_d2_state_id": "RESEARCH_QUEUE_D2_CURRENT_20260918_601138_REUNDERWRITE_COMPLETE_SEMANTIC_07febc88733e",
-  "state_id": "CAPITAL_COMPARISON_CURRENT_MARK_REBASED_19ffa09b8070b1ee",
+  "source_d2_state_id": "RESEARCH_QUEUE_D2_CURRENT_24e3a688f1097470_SEMANTIC_d339c66bb08d",
+  "state_id": "CAPITAL_COMPARISON_CURRENT_MARK_REBASED_0bf276b3fe0a1356",
   "status": "PASS_LIVE_CAPITAL_COMPARISON"
 }
