@@ -1,28 +1,28 @@
 {
   "as_of_date": "2026-09-21",
-  "generated_at_utc": "2026-09-21T19:49:28+00:00",
+  "generated_at_utc": "2026-09-22T01:39:23+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_2e78ff1bb5f67cd8",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_b9dd354ed64454f1",
   "records": [
     {
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "TRIM",
+      "current_action": "HOLD",
       "entry_price": 101.05,
       "latest_price": 96.01,
-      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
+      "next_step": "FRESH_D2_FOR_HOLD_TRIM_OR_EXIT",
       "orders": 0,
       "price_as_of": "2026-09-21",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "HIGH",
-      "reason": "Current decision-grade holding action is TRIM.",
-      "review_type": "USER_ACTION_REVIEW",
+      "reason": "Latest price 96.0100 has exhausted the current valuation margin; mark-to-weighted-value expected return is 0.54%.",
+      "review_type": "REUNDERWRITE_REQUIRED",
       "security_id": "600941.SH",
       "security_name": "中国移动",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "POSITION_ACTION_TRIM"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "VALUATION_EXHAUSTION_REUNDERWRITE"
     },
     {
       "accounts": [
@@ -48,21 +48,21 @@
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "HOLD",
+      "current_action": "ADD",
       "entry_price": 82.0,
       "latest_price": 80.9,
-      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-09-21",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "MEDIUM_HIGH",
-      "reason": "Holding price 80.9000 is at/below research entry threshold 82.0000.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade holding action is ADD.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "000333.SZ",
       "security_name": "美的集团",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "POSITION_ACTION_ADD"
     },
     {
       "accounts": [
@@ -168,21 +168,21 @@
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "HOLD",
+      "current_action": "ADD",
       "entry_price": 20.0,
       "latest_price": 19.89,
-      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-09-21",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "MEDIUM_HIGH",
-      "reason": "Holding price 19.8900 is at/below research entry threshold 20.0000.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade holding action is ADD.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "600690.SH",
       "security_name": "海尔智家",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "POSITION_ACTION_ADD"
     },
     {
       "accounts": [
@@ -207,6 +207,6 @@
   ],
   "review_count": 10,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_6635950a7dbe46f1",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_e222103b5f708838",
   "trade_authority": "NONE"
 }
