@@ -290,10 +290,18 @@ def semantic_state_is_same_input(
     obj: dict[str, Any] | None = None,
 ) -> bool:
     """Preserve completed D2 across routine D1 rolls; reopen only on a material refresh signal."""
+    if obj is not None and previous.get("status") == SEMANTIC_COMPLETE_STATUS:
+        if explicit_semantic_refresh_required(obj):
+            return False
+        if underwriting_complete(previous):
+            return completed_semantic_reusable(previous, obj)
+        # Legacy rows marked complete before the underwriting contract was enforced still
+        # need one bounded upgrade pass, but only while bound to the same D1 transaction.
+        prior_d1 = prior.get("source_d1_state_id")
+        current_d1 = d1.get("state_id")
+        return bool(prior_d1 and current_d1 and prior_d1 == current_d1)
     if previous.get("input_watermark") == watermark:
         return True
-    if obj is not None and previous.get("status") == SEMANTIC_COMPLETE_STATUS:
-        return completed_semantic_reusable(previous, obj)
     if previous.get("status") in SEMANTIC_TERMINAL_STATUSES:
         prior_d1 = prior.get("source_d1_state_id")
         current_d1 = d1.get("state_id")
