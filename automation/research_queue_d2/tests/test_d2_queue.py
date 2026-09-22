@@ -58,12 +58,60 @@ def test_provider_incident_requires_batch_wide_identical_source_failure():
     assert d2.provider_incident_summary(errors[:2], 3) == {"active": False}
 
 
-def test_semantic_terminal_compatibility_uses_same_d1_state():
+def test_semantic_terminal_compatibility_uses_same_d1_state_for_legacy_hold():
     d1 = {"state_id": "D1-X"}
     prior = {"source_d1_state_id": "D1-X"}
-    previous = {"status": "D2_RESEARCH_COMPLETE"}
+    previous = {"status": "D2_RESEARCH_HOLD_EVIDENCE_GAP"}
     assert d2.semantic_state_is_same_input(prior, previous, d1, "new-watermark") is True
     assert d2.semantic_state_is_same_input({"source_d1_state_id": "D1-OLD"}, previous, d1, "new-watermark") is False
+
+
+def test_completed_semantic_reuse_ignores_daily_rank_and_market_signal_changes():
+    previous = {
+        "security_id": "300230.SZ",
+        "archetype": "DEFENSIVE_STABILITY",
+        "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+        "d2_questions": ["q"],
+        "first_rejection": "kill",
+        "status": "D2_RESEARCH_COMPLETE",
+        "underwriting": {
+            "current_price": 4.3,
+            "entry_price": 3.94,
+            "confidence": "MEDIUM_HIGH",
+            "scenarios": [{"name": "BEAR"}, {"name": "BASE"}, {"name": "BULL"}],
+        },
+    }
+    obj = {
+        "security_id": "300230.SZ",
+        "archetype": "DEFENSIVE_STABILITY",
+        "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+        "d1_rank": 4,
+        "d2_questions": ["q"],
+        "first_rejection": "kill",
+        "market_signal": {"return_20d": 0.02, "aggregate_score": 0.98},
+    }
+    assert d2.completed_semantic_reusable(previous, obj) is True
+
+
+def test_completed_semantic_reuse_reopens_only_on_explicit_refresh_signal():
+    previous = {
+        "security_id": "600660.SH",
+        "archetype": "QUALITY_GROWTH",
+        "status": "D2_RESEARCH_COMPLETE",
+        "underwriting": {
+            "current_price": 54,
+            "entry_price": 55,
+            "confidence": "HIGH",
+            "scenarios": [{"name": "BEAR"}, {"name": "BASE"}, {"name": "BULL"}],
+        },
+    }
+    obj = {
+        "security_id": "600660.SH",
+        "archetype": "QUALITY_GROWTH",
+        "d1_disposition": "LIFECYCLE_REUNDERWRITE_REQUIRED",
+        "semantic_refresh_required": True,
+    }
+    assert d2.completed_semantic_reusable(previous, obj) is False
 
 
 def test_build_state_fail_closed_without_network(tmp_path, monkeypatch):
@@ -201,3 +249,83 @@ def test_build_state_preserves_complete_research_with_decision_grade_underwritin
     assert state["summary"]["pending_count"] == 0
     assert state["summary"]["completed_count"] == 1
     assert liveness["d2_pending_count"] == 0
+
+
+def test_build_state_recovers_completed_semantic_artifact_after_rolling_current_was_overwritten(tmp_path, monkeypatch):
+    d1_current = tmp_path / "D1.json"
+    d1_current.write_text(
+        json.dumps({
+            "state_id": "D1-NEW",
+            "research_objects": [{
+                "security_id": "300230.SZ",
+                "security_name": "永利股份",
+                "d1_rank": 4,
+                "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+                "archetype": "DEFENSIVE_STABILITY",
+                "d2_questions": ["q"],
+                "first_rejection": "kill",
+                "market_signal": {"aggregate_score": 0.98},
+            }],
+        }),
+        encoding="utf-8",
+    )
+    evidence_dir = tmp_path / "d1e"
+    evidence_dir.mkdir()
+    (evidence_dir / "RESEARCH_QUEUE_D1_EVIDENCE_1.json").write_text('{"sources":[]}', encoding="utf-8")
+
+    d2_current = tmp_path / "D2.json"
+    d2_current.write_text(
+        json.dumps({
+            "source_d1_state_id": "D1-NEW",
+            "queue": [{
+                "security_id": "300230.SZ",
+                "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+                "input_watermark": "rolling-daily-hash",
+            }],
+        }),
+        encoding="utf-8",
+    )
+
+    d2e = tmp_path / "d2e"
+    d2e.mkdir()
+    (d2e / "D2_RESEARCH_300230_20260921_R1.json").write_text(
+        json.dumps({
+            "artifact_id": "D2_SEMANTIC_RESEARCH_20260921_R1_300230",
+            "security_id": "300230.SZ",
+            "security_name": "永利股份",
+            "archetype": "DEFENSIVE_STABILITY",
+            "status": "D2_RESEARCH_COMPLETE",
+            "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE",
+            "first_rejection_test": "gate",
+            "next_gate": "price_at_or_below_3_94",
+            "evidence_gap": {"material": False, "manual_user_input_required": False},
+            "sources": [{"title": "H1"}],
+            "underwriting": {
+                "current_price": 4.3,
+                "entry_price": 3.94,
+                "confidence": "MEDIUM_HIGH",
+                "scenarios": [{"name": "BEAR"}, {"name": "BASE"}, {"name": "BULL"}],
+            },
+        }),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(d2, "D1_CURRENT", d1_current)
+    monkeypatch.setattr(d2, "D1_EVIDENCE_DIR", evidence_dir)
+    monkeypatch.setattr(d2, "D2_CURRENT", d2_current)
+    monkeypatch.setattr(d2, "D2_LIVENESS", tmp_path / "LIVE.json")
+    monkeypatch.setattr(d2, "D2_EVIDENCE_DIR", d2e)
+
+    state, liveness, _ = d2.build_state(
+        discover_primary_sources=False,
+        now=datetime(2026, 9, 22, 1, 0, tzinfo=timezone.utc),
+    )
+    row = state["queue"][0]
+    assert row["status"] == "D2_RESEARCH_COMPLETE"
+    assert row["semantic_research_required"] is False
+    assert row["semantic_reuse_source"] == "DURABLE_SEMANTIC_ARTIFACT"
+    assert row["research_disposition"] == "BUY_BELOW_RESEARCH_COMPLETE"
+    assert state["summary"]["pending_count"] == 0
+    assert state["summary"]["reused_completed_count"] == 1
+    assert liveness["d2_pending_count"] == 0
+    assert liveness["d2_reused_completed_count"] == 1
