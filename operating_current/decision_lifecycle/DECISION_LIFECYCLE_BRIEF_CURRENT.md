@@ -1,8 +1,8 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
-- 数据水位：`2026-09-21`
-- Thesis subjects：`37`
-- 持仓 / 非持仓：`23 / 14`
+- 数据水位：`2026-09-22`
+- Thesis subjects：`38`
+- 持仓 / 非持仓：`23 / 15`
 - 当前复核队列：`10`
 - 需要重新D2：`1`
 - 需要用户动作复核：`8`
@@ -11,7 +11,7 @@
 
 ## 当前复核队列
 
-- **中国移动 (600941.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 96.0100 has exhausted the current valuation margin; mark-to-weighted-value expected return is 0.54%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
+- **中国移动 (600941.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 96.4500 has exhausted the current valuation margin; mark-to-weighted-value expected return is 0.08%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **美的集团 (000333.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **江阴银行 (002807.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
