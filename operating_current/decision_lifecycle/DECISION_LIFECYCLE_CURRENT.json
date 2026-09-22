@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-22T01:39:23+00:00",
+  "generated_at_utc": "2026-09-22T02:14:43+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-09-21",
-    "recommendation_generated_at_utc": "2026-09-22T01:34:13+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_c9d4e7f85c9ba4cf",
+    "recommendation_generated_at_utc": "2026-09-22T02:09:33+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_b9a8234273feb99e",
     "surface_as_of_date": "2026-09-21",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_c483bbec5ed073fd"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_7a01f2fb708dc057"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_e222103b5f708838",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_3674b6f42937266c",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -35,9 +35,7 @@
         "SIMULATION"
       ],
       "base_value": 98.6,
-      "cleared_trigger_keys": [
-        "HOLD_PRICE_REOPEN_CONDITION_MET"
-      ],
+      "cleared_trigger_keys": [],
       "current_action": "ADD",
       "entry_price": 82.0,
       "expected_return": 0.19962917181705797,
@@ -48,9 +46,7 @@
         "POSITION_ACTION_ADD"
       ],
       "monitoring_flags": [],
-      "new_trigger_keys": [
-        "POSITION_ACTION_ADD"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-09-21",
@@ -759,14 +755,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 6.08,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "BUY_BELOW",
+      "entry_price": 5.33,
+      "expected_return": 0.08599290780141855,
       "latest_price": 5.64,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_WAIT_BUY_BELOW",
+      "mark_expected_return": 0.08599290780141855,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -774,17 +770,28 @@
       "position_state": "FLAT",
       "price_as_of": "2026-09-21",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 6.125,
       "ready_for_user_decision": false,
       "security_id": "301175.SZ",
       "security_name": "中科环保",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+        "catalysts": [
+          "New waste-to-energy projects and acquired capacity ramp on schedule with stable utilization.",
+          "Grid-power output and industrial heat sales continue to grow faster than waste tonnage through efficiency gains.",
+          "Convertible-funded projects earn returns above the incremental funding cost while leverage stabilizes.",
+          "Operating cash conversion remains above normalized earnings and the 60%+ payout framework is maintained."
+        ],
+        "kill_thesis": [
+          "Project commissioning or utilization materially misses plan, reducing the expected 2027 earnings step-up.",
+          "Waste-treatment fees, power tariffs or subsidy collection deteriorate materially.",
+          "Receivables, debt and capex rise faster than operating cash generation for a sustained period.",
+          "Convertible financing creates dilution without a corresponding ROIC uplift.",
+          "Core waste-treatment margin or cash conversion deteriorates enough to negate the defensive-quality thesis."
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
     {
@@ -1074,9 +1081,7 @@
         "SIMULATION"
       ],
       "base_value": 24.0,
-      "cleared_trigger_keys": [
-        "HOLD_PRICE_REOPEN_CONDITION_MET"
-      ],
+      "cleared_trigger_keys": [],
       "current_action": "ADD",
       "entry_price": 20.0,
       "expected_return": 0.18149824032176975,
@@ -1087,9 +1092,7 @@
         "POSITION_ACTION_ADD"
       ],
       "monitoring_flags": [],
-      "new_trigger_keys": [
-        "POSITION_ACTION_ADD"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-09-21",
@@ -1238,9 +1241,7 @@
         "SIMULATION"
       ],
       "base_value": 97.03,
-      "cleared_trigger_keys": [
-        "POSITION_ACTION_TRIM"
-      ],
+      "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 101.05,
       "expected_return": 0.005358816789917675,
@@ -1251,9 +1252,7 @@
         "VALUATION_EXHAUSTION_REUNDERWRITE"
       ],
       "monitoring_flags": [],
-      "new_trigger_keys": [
-        "VALUATION_EXHAUSTION_REUNDERWRITE"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-09-21",
@@ -1326,14 +1325,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 13.68,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "BUY_BELOW",
+      "entry_price": 12.13,
+      "expected_return": 0.04045488441461598,
       "latest_price": 13.56,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_WAIT_BUY_BELOW",
+      "mark_expected_return": 0.028945427728613637,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -1341,17 +1340,28 @@
       "position_state": "FLAT",
       "price_as_of": "2026-09-21",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 13.9525,
       "ready_for_user_decision": false,
       "security_id": "601886.SH",
       "security_name": "江河集团",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+        "catalysts": [
+          "Overseas backlog converts to revenue while overseas gross margin remains structurally above mainland levels.",
+          "RMB840.82m Shouyi Medical repurchase consideration is collected on schedule and improves liquidity without new related-party leakage.",
+          "New-order growth re-accelerates, especially interior decoration and Middle East/Asia curtain-wall awards.",
+          "Operating cash flow improves materially as receivables and contract assets convert."
+        ],
+        "kill_thesis": [
+          "Overseas project execution, FX, claims or collection issues erode the current margin advantage.",
+          "New orders and backlog conversion weaken enough to break the 2026-2027 earnings growth path.",
+          "Operating cash flow remains structurally negative while receivables/contract assets continue to expand.",
+          "The related-party repurchase is delayed, impaired, or replaced by value-destructive capital allocation.",
+          "Valuation remains above a high-teens normalized PE without a matching earnings upgrade."
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
     {
@@ -1531,7 +1541,7 @@
     "portfolio_review_required_count": 1,
     "reunderwrite_required_count": 1,
     "review_queue_count": 10,
-    "semantic_watch_clause_count": 479,
+    "semantic_watch_clause_count": 242,
     "subject_count": 37,
     "user_action_review_count": 8,
     "valuation_reunderwrite_count": 1
