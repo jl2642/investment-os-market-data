@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -18,6 +19,8 @@ BATCH_SIZE = 3
 TRADE_AUTHORITY = "NONE"
 CNINFO_MAX_ATTEMPTS = 2
 SEMANTIC_TERMINAL_STATUSES = {"D2_RESEARCH_COMPLETE", "D2_RESEARCH_HOLD_EVIDENCE_GAP"}
+SEMANTIC_COMPLETE_STATUS = "D2_RESEARCH_COMPLETE"
+EXPLICIT_SEMANTIC_REFRESH_FLAGS = ("semantic_refresh_required", "fresh_d2_required", "reunderwrite_required")
 SEMANTIC_PASSTHROUGH_FIELDS = (
     "research_disposition",
     "semantic_artifact",
@@ -173,13 +176,130 @@ def provider_incident_summary(discovery_errors: list[dict[str, str]], routed_cou
     }
 
 
-def semantic_state_is_same_input(prior: dict[str, Any], previous: dict[str, Any], d1: dict[str, Any], watermark: str) -> bool:
-    """Compatibility gate for semantic states written before input_watermark was retained.
+def explicit_semantic_refresh_required(obj: dict[str, Any]) -> bool:
+    """Only an explicit material-refresh signal may invalidate completed semantic D2.
 
-    A semantic terminal state is preserved when either its object watermark matches or the
-    D2 state's source D1 state id still matches the current D1 state id. A genuine D1 state
-    change reopens research rather than silently carrying a stale semantic conclusion.
+    Routine D1 reranking and daily market-signal changes are not semantic research events;
+    downstream S2 already rebases completed underwriting to current portfolio marks.
     """
+    if any(obj.get(flag) is True for flag in EXPLICIT_SEMANTIC_REFRESH_FLAGS):
+        return True
+    disposition = str(obj.get("d1_disposition") or "").upper()
+    return any(token in disposition for token in ("REUNDERWRITE", "REFRESH_D2", "FRESH_D2_REQUIRED"))
+
+
+def semantic_input_projection(obj: dict[str, Any]) -> dict[str, Any]:
+    """Stable research-contract fields; intentionally excludes rank and daily market signals."""
+    return {
+        "security_id": obj.get("security_id"),
+        "archetype": obj.get("archetype"),
+        "d1_disposition": obj.get("d1_disposition"),
+        "d2_questions": obj.get("d2_questions", []),
+        "first_rejection": obj.get("first_rejection"),
+        "variant_wedge": obj.get("variant_wedge"),
+    }
+
+
+def semantic_input_watermark(obj: dict[str, Any]) -> str:
+    return canonical_hash(semantic_input_projection(obj))
+
+
+def _artifact_sort_key(path: Path) -> tuple[str, int, str]:
+    match = re.search(r"_(\d{8})_R(\d+)\.json$", path.name)
+    if match:
+        return (match.group(1), int(match.group(2)), path.name)
+    return ("", 0, path.name)
+
+
+def latest_completed_semantic_artifacts() -> dict[str, dict[str, Any]]:
+    """Recover durable decision-grade D2 when rolling Current was overwritten by pending state."""
+    latest: dict[str, tuple[tuple[str, int, str], Path, dict[str, Any]]] = {}
+    for path in D2_EVIDENCE_DIR.glob("D2_RESEARCH_*.json"):
+        try:
+            artifact = load_json(path)
+        except Exception:
+            continue
+        security_id = str(artifact.get("security_id") or "")
+        if not security_id or artifact.get("status") != SEMANTIC_COMPLETE_STATUS:
+            continue
+        if not underwriting_complete(artifact):
+            continue
+        key = _artifact_sort_key(path)
+        if security_id not in latest or key > latest[security_id][0]:
+            latest[security_id] = (key, path, artifact)
+
+    recovered: dict[str, dict[str, Any]] = {}
+    for security_id, (_key, path, artifact) in latest.items():
+        evidence_gap = artifact.get("evidence_gap") if isinstance(artifact.get("evidence_gap"), dict) else {}
+        try:
+            artifact_path = str(path.relative_to(ROOT)).replace("\\", "/")
+        except ValueError:
+            artifact_path = str(path)
+        recovered[security_id] = {
+            "security_id": security_id,
+            "security_name": artifact.get("security_name"),
+            "d1_rank": artifact.get("d1_rank"),
+            "archetype": artifact.get("archetype"),
+            "status": SEMANTIC_COMPLETE_STATUS,
+            "research_disposition": artifact.get("research_disposition"),
+            "semantic_artifact": artifact_path,
+            "first_rejection_test": artifact.get("first_rejection_test"),
+            "next_gate": artifact.get("next_gate"),
+            "evidence_gap": evidence_gap,
+            "manual_user_input_required": bool(evidence_gap.get("manual_user_input_required")),
+            "underwriting": artifact.get("underwriting"),
+            "primary_source_count": len(artifact.get("sources") or []),
+            "source_discovery_mode": artifact.get("source_discovery_mode"),
+            "durable_semantic_recovery": True,
+        }
+    return recovered
+
+
+def completed_semantic_reusable(previous: dict[str, Any], obj: dict[str, Any]) -> bool:
+    if previous.get("status") != SEMANTIC_COMPLETE_STATUS or not underwriting_complete(previous):
+        return False
+    if explicit_semantic_refresh_required(obj):
+        return False
+
+    current_semantic_watermark = semantic_input_watermark(obj)
+    prior_semantic_watermark = previous.get("semantic_input_watermark")
+    if prior_semantic_watermark:
+        return prior_semantic_watermark == current_semantic_watermark
+
+    # Compatibility for semantic completions written before semantic_input_watermark existed.
+    comparable_fields = ("security_id", "archetype", "d1_disposition", "d2_questions", "first_rejection", "variant_wedge")
+    comparable = {
+        field: previous.get(field)
+        for field in comparable_fields
+        if field in previous
+    }
+    if comparable:
+        current = semantic_input_projection(obj)
+        return all(current.get(field) == value for field, value in comparable.items())
+
+    # A durable completed artifact may not carry the original D1 questions.  Its completed
+    # underwriting remains authoritative until an explicit refresh trigger is raised.
+    return True
+
+
+def semantic_state_is_same_input(
+    prior: dict[str, Any],
+    previous: dict[str, Any],
+    d1: dict[str, Any],
+    watermark: str,
+    obj: dict[str, Any] | None = None,
+) -> bool:
+    """Preserve completed D2 across routine D1 rolls; reopen only on a material refresh signal."""
+    if obj is not None and previous.get("status") == SEMANTIC_COMPLETE_STATUS:
+        if explicit_semantic_refresh_required(obj):
+            return False
+        if underwriting_complete(previous):
+            return completed_semantic_reusable(previous, obj)
+        # Legacy rows marked complete before the underwriting contract was enforced still
+        # need one bounded upgrade pass, but only while bound to the same D1 transaction.
+        prior_d1 = prior.get("source_d1_state_id")
+        current_d1 = d1.get("state_id")
+        return bool(prior_d1 and current_d1 and prior_d1 == current_d1)
     if previous.get("input_watermark") == watermark:
         return True
     if previous.get("status") in SEMANTIC_TERMINAL_STATUSES:
@@ -204,6 +324,7 @@ def build_state(
     evidence = latest_d1_evidence()
     prior = load_json(D2_CURRENT) if D2_CURRENT.exists() else {}
     prior_by_id = {row["security_id"]: row for row in prior.get("queue", []) if row.get("security_id")}
+    durable_completed_by_id = latest_completed_semantic_artifacts()
 
     queue: list[dict[str, Any]] = []
     run_sources: list[dict[str, Any]] = []
@@ -214,7 +335,16 @@ def build_state(
         security_id = str(obj["security_id"])
         watermark = canonical_hash(obj)
         previous = prior_by_id.get(security_id, {})
-        same_input = semantic_state_is_same_input(prior, previous, d1, watermark)
+        recovered_from_artifact = False
+        if (
+            previous.get("status") != SEMANTIC_COMPLETE_STATUS
+            and not explicit_semantic_refresh_required(obj)
+            and security_id in durable_completed_by_id
+        ):
+            previous = durable_completed_by_id[security_id]
+            recovered_from_artifact = True
+
+        same_input = semantic_state_is_same_input(prior, previous, d1, watermark, obj=obj)
         previous_status = previous.get("status") if same_input else None
         attempts = int(previous.get("attempt_count", 0)) if same_input else 0
 
@@ -252,6 +382,7 @@ def build_state(
             "d1_disposition": obj.get("d1_disposition"),
             "archetype": obj.get("archetype"),
             "input_watermark": watermark,
+            "semantic_input_watermark": semantic_input_watermark(obj),
             "d2_questions": obj.get("d2_questions", []),
             "first_rejection": obj.get("first_rejection"),
             "baseline_source_count": len(baseline),
@@ -266,6 +397,11 @@ def build_state(
             "decision_mutation_authorized": False,
             "order_generation_authorized": False,
             "trade_authority": TRADE_AUTHORITY,
+            "semantic_reuse_source": (
+                "DURABLE_SEMANTIC_ARTIFACT"
+                if recovered_from_artifact and same_input
+                else ("PRIOR_D2_CURRENT" if same_input and previous_status == SEMANTIC_COMPLETE_STATUS else None)
+            ),
         }
         if same_input:
             for field in SEMANTIC_PASSTHROUGH_FIELDS:
@@ -281,6 +417,7 @@ def build_state(
     }
     active_pending = [row for row in queue if row["status"] in active_pending_statuses]
     completed = [row for row in queue if row["status"] == "D2_RESEARCH_COMPLETE"]
+    reused_completed = [row for row in completed if row.get("semantic_reuse_source")]
     holds = [row for row in queue if row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
     blocked = [row for row in queue if row["status"].startswith("AUTO_RESEARCH_BLOCKED") or row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
     provider_incident = provider_incident_summary(discovery_errors, len(routed))
@@ -314,7 +451,7 @@ def build_state(
             "event_trigger": "PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES",
             "recovery_cadence": "WEEKDAYS_00:35_UTC_08:35_ASIA_SHANGHAI",
             "manual_dispatch": "BREAK_GLASS_ONLY",
-            "idempotence": "UNCHANGED_D1_STATE_OR_INPUT_WATERMARK_PRESERVES_SEMANTIC_TERMINAL_WORK",
+            "idempotence": "COMPLETED_DECISION_GRADE_D2_PERSISTS_ACROSS_ROUTINE_D1_ROLLS_UNTIL_EXPLICIT_MATERIAL_REFRESH",
             "fail_closed": True,
             "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
         },
@@ -323,6 +460,7 @@ def build_state(
             "routed_count": len(queue),
             "pending_count": len(active_pending),
             "completed_count": len(completed),
+            "reused_completed_count": len(reused_completed),
             "hold_evidence_gap_count": len(holds),
             "blocked_count": len(blocked),
             "batch_capacity": BATCH_SIZE,
@@ -351,6 +489,7 @@ def build_state(
         "status": "PASS_D2_CONSUMER_LIVE" if queue else "PASS_D2_CONSUMER_LIVE_NO_ROUTED_WORK",
         "d2_pending_count": len(active_pending),
         "d2_completed_count": len(completed),
+        "d2_reused_completed_count": len(reused_completed),
         "d2_hold_evidence_gap_count": len(holds),
         "d2_blocked_count": len(blocked),
         "oldest_pending_attempt_at": oldest,
