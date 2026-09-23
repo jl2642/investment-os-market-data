@@ -1037,7 +1037,10 @@ def build_recommendations(
         elif cstatus == "AVOID_NEGATIVE_EXPECTED_RETURN":
             action = "TRIM" if existing else "AVOID"
         elif cstatus == "PASS_NEW_CAPITAL":
-            action = "ADD" if existing else "BUY"
+            # Formal 10% BUY-gate calibration is for new-capital eligibility.
+            # Existing protected positions may ADD only when semantic D2 explicitly
+            # authorizes ADD; otherwise a valuation pass preserves HOLD.
+            action = "HOLD" if existing else "BUY"
         elif cstatus == "PRICE_BLOCKED":
             action = "HOLD" if existing else "BUY_BELOW"
         else:
