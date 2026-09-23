@@ -95,6 +95,29 @@ def test_opportunity_bypasses_candidate_and_d1_processes_ten() -> None:
     assert d1["controls"]["trade_authority"] == "NONE"
 
 
+def test_s2_json_contract_normalizes_nonfinite_financial_values() -> None:
+    opportunity = build_opportunity_queue(
+        [screen_row(1)],
+        screen_source={
+            "qc_status": "PASS_CHAIN_COHERENT",
+            "data_watermark": "2026-09-22",
+        },
+        financial_rows=[
+            {
+                "symbol": "000001.SZ",
+                "financial_score": float("nan"),
+                "confidence_grade": "UNAVAILABLE",
+            }
+        ],
+        now=NOW,
+    )
+    assert (
+        opportunity["rows"][0]["fundamental_context"]["financial_score"]
+        is None
+    )
+    json.dumps(opportunity, allow_nan=False)
+
+
 def test_all_s2_actions_are_reachable_from_underwriting_not_boolean_gates() -> None:
     d2 = {
         "state_id": "D2_SYNTHETIC",
