@@ -184,6 +184,40 @@ def test_ai_day20_tracks_cumulative_decision_grade_d2_and_shortfall() -> None:
     assert "DAY20_DEPLOYMENT_REVIEW" in d["triggered_gates"]
 
 
+
+def test_ai_high_cash_surfaces_near_formal_gate_reunderwrite_candidate() -> None:
+    ai = {
+        "initial_capital": AI_INITIAL_CAPITAL,
+        "current_nav": AI_INITIAL_CAPITAL,
+        "cash": 900_000.0,
+        "positions": [],
+        "nav_history": [{"as_of_date": f"2026-09-{i:02d}"} for i in range(1, 11)],
+    }
+    near = rec(
+        "000006.SZ",
+        "BUY_BELOW",
+        price=10.2,
+        implication="NEW_CAPITAL_CANDIDATE",
+    )
+    near["formal_buy_entry_price"] = 10.0
+    far = rec(
+        "000007.SZ",
+        "BUY_BELOW",
+        price=11.0,
+        implication="NEW_CAPITAL_CANDIDATE",
+    )
+    far["formal_buy_entry_price"] = 10.0
+    d = update_ai_deployment_discipline(
+        state=ai,
+        recommendation={"records": [near, far]},
+        as_of_date="2026-09-10",
+    )
+    assert d["current_auto_reunderwrite_candidate_ids"] == ["000006.SZ"]
+    assert d["rules"]["high_cash_feedback_to_d2_enabled"] is True
+    assert d["rules"]["formal_buy_hurdle"] == 0.10
+    assert d["rules"]["preferred_entry_hurdle"] == 0.15
+
+
 def test_buy_below_never_directly_buys_ai_book() -> None:
     recommendation = {
         "state_id": "REC",

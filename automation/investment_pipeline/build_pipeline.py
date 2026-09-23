@@ -13,8 +13,13 @@ TRADE_AUTHORITY = "NONE"
 D1_BATCH_SIZE = 10
 D2_CAPACITY = 3
 CAPITAL_HURDLE = 0.10
+PREFERRED_ENTRY_HURDLE = 0.15
 CASH_HURDLE = 0.04
 MAX_ACCEPTABLE_BEAR_DOWNSIDE = -0.35
+AI_HIGH_CASH_THRESHOLD = 0.80
+AI_NEAR_FORMAL_BUY_GATE_PCT = 0.03
+VALUE_RESEARCH_SLEEVES = {"DEFENSIVE_STABILITY", "RECOVERY_WATCH"}
+MOMENTUM_RESEARCH_SLEEVES = {"TREND_PERSISTENCE", "LIQUID_BREAKOUT"}
 VALID_CONFIDENCE = {"HIGH", "MEDIUM", "MEDIUM_HIGH", "HIGH_MEDIUM"}
 
 
@@ -268,10 +273,135 @@ def _first_rejection(row: dict[str, Any]) -> str:
     )
 
 
+
+def _is_extreme_d1_signal(row: dict[str, Any]) -> bool:
+    signal = row.get("market_signal", {})
+    r60 = _num(signal.get("return_60d"))
+    vol = _num(signal.get("volatility_60d"))
+    return (r60 is not None and r60 > 1.0) or (
+        vol is not None and vol > 0.80
+    )
+
+
+def _formal_buy_entry_from_recommendation(rec: dict[str, Any]) -> float | None:
+    explicit = _num(rec.get("formal_buy_entry_price"))
+    if explicit is not None and explicit > 0:
+        return explicit
+    current = _num(rec.get("current_price"))
+    fair = _num(rec.get("probability_weighted_value"))
+    bear_downside = _num(rec.get("bear_downside"))
+    if current is None or current <= 0 or fair is None or fair <= 0:
+        return None
+    expected_entry = fair / (1.0 + CAPITAL_HURDLE)
+    if bear_downside is None:
+        return expected_entry
+    bear_value = current * (1.0 + bear_downside)
+    if bear_value <= 0:
+        return expected_entry
+    bear_entry = bear_value / (1.0 + MAX_ACCEPTABLE_BEAR_DOWNSIDE)
+    return min(expected_entry, bear_entry)
+
+
+def _ai_book_near_gate_refresh_ids(
+    opportunity: dict[str, Any],
+    *,
+    ai_book: dict[str, Any] | None,
+    recommendation: dict[str, Any] | None,
+) -> list[str]:
+    """Return BUY_BELOW names just above the formal 10% gate while AI cash is high.
+
+    Already-at-or-below formal BUY price is deliberately not reopened here: the
+    decision layer can promote it using the still-valid D2 underwriting.  This
+    bounded refresh route is for near-gate names where a small market move or
+    changed fundamentals could make them investable.
+    """
+    ai_book = ai_book or {}
+    recommendation = recommendation or {}
+    discipline = ai_book.get("deployment_discipline") or {}
+    cash_weight = _num(discipline.get("cash_weight"))
+    if cash_weight is None:
+        nav = _num(ai_book.get("current_nav"))
+        cash = _num(ai_book.get("cash"))
+        cash_weight = cash / nav if nav and cash is not None and nav > 0 else None
+    if cash_weight is None or cash_weight <= AI_HIGH_CASH_THRESHOLD:
+        return []
+
+    opportunity_ids = {
+        str(row.get("security_id") or "")
+        for row in opportunity.get("rows", [])
+        if row.get("security_id")
+    }
+    ranked: list[tuple[float, str]] = []
+    for rec in recommendation.get("records", []):
+        sid = str(rec.get("security_id") or "")
+        if sid not in opportunity_ids:
+            continue
+        if rec.get("portfolio_implication") != "NEW_CAPITAL_CANDIDATE":
+            continue
+        if str(rec.get("action") or "") != "BUY_BELOW":
+            continue
+        current = _num(rec.get("current_price"))
+        formal = _formal_buy_entry_from_recommendation(rec)
+        if current is None or formal is None or current <= formal:
+            continue
+        gap = current / formal - 1.0
+        if gap <= AI_NEAR_FORMAL_BUY_GATE_PCT:
+            ranked.append((gap, sid))
+    ranked.sort()
+    return [sid for _gap, sid in ranked]
+
+
+def _diversified_d2_route_ids(
+    selected: list[dict[str, Any]],
+    *,
+    preferred_ids: list[str] | None = None,
+    capacity: int = D2_CAPACITY,
+) -> list[str]:
+    eligible = [
+        row for row in selected
+        if str(row.get("research_priority") or "") == "A_IMMEDIATE_RESEARCH"
+        and not _is_extreme_d1_signal(row)
+    ]
+    if not eligible or capacity <= 0:
+        return []
+
+    chosen: list[str] = []
+    by_id = {
+        str(row.get("security_id") or ""): row
+        for row in eligible
+        if row.get("security_id")
+    }
+    for sid in preferred_ids or []:
+        if sid in by_id and sid not in chosen and len(chosen) < capacity:
+            chosen.append(sid)
+
+    def take_first(sleeves: set[str]) -> None:
+        if len(chosen) >= capacity:
+            return
+        for row in eligible:
+            sid = str(row.get("security_id") or "")
+            if sid in chosen:
+                continue
+            if str(row.get("primary_sleeve") or "") in sleeves:
+                chosen.append(sid)
+                return
+
+    take_first(VALUE_RESEARCH_SLEEVES)
+    take_first(MOMENTUM_RESEARCH_SLEEVES)
+
+    for row in eligible:
+        sid = str(row.get("security_id") or "")
+        if sid and sid not in chosen and len(chosen) < capacity:
+            chosen.append(sid)
+    return chosen[:capacity]
+
+
 def build_d1(
     opportunity: dict[str, Any],
     *,
     prior_d1: dict[str, Any] | None = None,
+    ai_book: dict[str, Any] | None = None,
+    recommendation: dict[str, Any] | None = None,
     batch_size: int = D1_BATCH_SIZE,
     d2_capacity: int = D2_CAPACITY,
     now: datetime | None = None,
@@ -290,30 +420,56 @@ def build_d1(
     if len(candidates) < batch_size:
         candidates = list(opportunity.get("rows", []))
         served = []
-    selected = candidates[:batch_size]
+
+    selected = list(candidates[:batch_size])
+    near_gate_ids = _ai_book_near_gate_refresh_ids(
+        opportunity,
+        ai_book=ai_book,
+        recommendation=recommendation,
+    )
+    opportunity_by_id = {
+        str(row.get("security_id") or ""): row
+        for row in opportunity.get("rows", [])
+        if row.get("security_id")
+    }
+    # High-cash feedback is allowed to replace only the last D1 slot, preserving
+    # the bounded batch size and avoiding a new unbounded research queue.
+    for sid in near_gate_ids:
+        if sid in {str(row.get("security_id") or "") for row in selected}:
+            break
+        row = opportunity_by_id.get(sid)
+        if row is not None:
+            if selected:
+                selected[-1] = row
+            else:
+                selected.append(row)
+            break
+
+    route_ids = _diversified_d2_route_ids(
+        selected,
+        preferred_ids=near_gate_ids,
+        capacity=d2_capacity,
+    )
+    route_set = set(route_ids)
+    near_gate_set = set(near_gate_ids)
+
     research_objects: list[dict[str, Any]] = []
-    advance_count = 0
     for rank, row in enumerate(selected, start=1):
         priority = str(row.get("research_priority") or "")
-        signal = row.get("market_signal", {})
-        r60 = _num(signal.get("return_60d"))
-        vol = _num(signal.get("volatility_60d"))
-        extreme = (r60 is not None and r60 > 1.0) or (
-            vol is not None and vol > 0.80
-        )
-        if (
-            priority == "A_IMMEDIATE_RESEARCH"
-            and not extreme
-            and advance_count < d2_capacity
-        ):
-            disposition = "ADVANCE_TO_D2_FAST_TRIAGE"
-            advance_count += 1
+        sid = str(row.get("security_id") or "")
+        if sid in route_set:
+            if sid in near_gate_set:
+                disposition = "ADVANCE_TO_D2_AI_BOOK_AUTO_REUNDERWRITE"
+            else:
+                disposition = "ADVANCE_TO_D2_FAST_TRIAGE"
         elif priority == "A_IMMEDIATE_RESEARCH":
             disposition = "WATCH_FOR_FUNDAMENTAL_CONFIRMATION"
         elif priority == "B_WATCH_OR_TRIGGER":
             disposition = "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION"
         else:
             disposition = "REJECT_FOR_NOW_LOW_RESEARCH_PRIORITY"
+
+        ai_refresh = sid in near_gate_set and sid in route_set
         research_objects.append(
             {
                 "security_id": row.get("security_id"),
@@ -323,7 +479,7 @@ def build_d1(
                 "archetype": row.get("primary_sleeve"),
                 "source_opportunity_rank": row.get("overall_rank"),
                 "research_priority": priority,
-                "market_signal": signal,
+                "market_signal": row.get("market_signal", {}),
                 "fundamental_context": row.get("fundamental_context"),
                 "variant_wedge": (
                     "D1 fast triage only: test whether the observed market signal is "
@@ -331,6 +487,13 @@ def build_d1(
                 ),
                 "first_rejection": _first_rejection(row),
                 "d2_questions": _d2_questions(row),
+                "semantic_refresh_required": ai_refresh,
+                "fresh_d2_required": ai_refresh,
+                "ai_book_auto_reunderwrite": ai_refresh,
+                "ai_book_reunderwrite_reason": (
+                    "HIGH_CASH_BUY_BELOW_NEAR_FORMAL_10PCT_GATE"
+                    if ai_refresh else None
+                ),
                 "candidate_membership_required": False,
                 "trade_authority": TRADE_AUTHORITY,
             }
@@ -353,6 +516,7 @@ def build_d1(
                 {
                     "security_id": r["security_id"],
                     "d1_disposition": r["d1_disposition"],
+                    "ai_book_auto_reunderwrite": r["ai_book_auto_reunderwrite"],
                 }
                 for r in research_objects
             ],
@@ -360,7 +524,7 @@ def build_d1(
         }
     )
     return {
-        "schema_version": "2.0.0",
+        "schema_version": "2.1.0",
         "state_id": f"RESEARCH_QUEUE_D1_CURRENT_{state_hash[:16]}",
         "as_of": now.replace(microsecond=0).isoformat(),
         "status": "D1_FAST_TRIAGE_COMPLETE",
@@ -374,6 +538,12 @@ def build_d1(
                 str(r["d1_disposition"]).startswith("ADVANCE_TO_D2")
                 for r in research_objects
             ),
+            "ai_book_auto_reunderwrite_count": sum(
+                bool(r.get("ai_book_auto_reunderwrite"))
+                for r in research_objects
+            ),
+            "route_security_ids": route_ids,
+            "research_slot_policy": "ONE_VALUE_OR_RECOVERY_ONE_MOMENTUM_ONE_BEST_REMAINING_WITH_AI_HIGH_CASH_NEAR_GATE_PRIORITY",
             "watch_count": sum(
                 "WATCH" in str(r["d1_disposition"]) for r in research_objects
             ),
@@ -391,7 +561,6 @@ def build_d1(
             "trade_authority": TRADE_AUTHORITY,
         },
     }
-
 
 def rejection_triggered(value: Any) -> bool:
     """Return True only for thesis invalidation, not promotion/price gates."""
@@ -682,9 +851,16 @@ def _underwriting_metrics(
     fair = sum(values[k] * probs[k] for k in ("BEAR", "BASE", "BULL"))
     expected = fair / current - 1.0
     downside = values["BEAR"] / current - 1.0
+    formal_expected_entry = fair / (1.0 + CAPITAL_HURDLE)
+    formal_bear_entry = values["BEAR"] / (1.0 + MAX_ACCEPTABLE_BEAR_DOWNSIDE)
+    formal_buy_entry = min(formal_expected_entry, formal_bear_entry)
     return {
         "current_price": current,
         "entry_price": entry,
+        "preferred_entry_price": entry,
+        "preferred_entry_hurdle": PREFERRED_ENTRY_HURDLE,
+        "formal_buy_entry_price": formal_buy_entry,
+        "formal_buy_hurdle": CAPITAL_HURDLE,
         "bear_value": values["BEAR"],
         "base_value": values["BASE"],
         "bull_value": values["BULL"],
@@ -731,13 +907,13 @@ def build_capital_comparison(
             comp = "UNDERWRITING_INCOMPLETE"
         elif metrics["expected_return"] <= 0:
             comp = "AVOID_NEGATIVE_EXPECTED_RETURN"
-        elif metrics["current_price"] > metrics["entry_price"]:
-            comp = "PRICE_BLOCKED"
         elif (
             metrics["expected_return"] >= CAPITAL_HURDLE
             and metrics["bear_downside"] >= MAX_ACCEPTABLE_BEAR_DOWNSIDE
         ):
             comp = "PASS_NEW_CAPITAL"
+        elif metrics["current_price"] > metrics["formal_buy_entry_price"]:
+            comp = "PRICE_BLOCKED"
         else:
             comp = "CAPITAL_NOT_COMPETITIVE"
         rows.append(
@@ -874,6 +1050,10 @@ def build_recommendations(
                 "action": action,
                 "current_price": metrics.get("current_price"),
                 "entry_price": metrics.get("entry_price"),
+                "preferred_entry_price": metrics.get("preferred_entry_price"),
+                "preferred_entry_hurdle": metrics.get("preferred_entry_hurdle"),
+                "formal_buy_entry_price": metrics.get("formal_buy_entry_price"),
+                "formal_buy_hurdle": metrics.get("formal_buy_hurdle"),
                 "base_value": metrics.get("base_value"),
                 "probability_weighted_value": metrics.get(
                     "probability_weighted_value"
@@ -962,6 +1142,8 @@ def main() -> int:
     p1.add_argument("--screen-source", required=True)
     p1.add_argument("--prior-d1")
     p1.add_argument("--financial-score")
+    p1.add_argument("--ai-book")
+    p1.add_argument("--recommendation")
     p1.add_argument("--output-dir", required=True)
 
     p2 = sub.add_parser("decision")
@@ -992,6 +1174,12 @@ def main() -> int:
             opportunity,
             prior_d1=load_json(Path(args.prior_d1))
             if args.prior_d1
+            else {},
+            ai_book=load_json(Path(args.ai_book))
+            if args.ai_book
+            else {},
+            recommendation=load_json(Path(args.recommendation))
+            if args.recommendation
             else {},
         )
         write_json(out / "OPPORTUNITY_CURRENT.json", opportunity)

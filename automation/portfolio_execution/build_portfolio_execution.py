@@ -705,6 +705,16 @@ def update_ai_deployment_discipline(
         if rec.get("portfolio_implication") == "NEW_CAPITAL_CANDIDATE"
         and rec.get("action") == "BUY_BELOW"
     )
+    auto_reunderwrite_candidate_ids: list[str] = []
+    if cash_weight > 0.80:
+        for sid in buy_below_ids:
+            rec = recs[sid]
+            current = num(rec.get("current_price"))
+            formal = num(rec.get("formal_buy_entry_price"))
+            if current is None or formal is None or formal <= 0 or current <= formal:
+                continue
+            if current / formal - 1.0 <= 0.03:
+                auto_reunderwrite_candidate_ids.append(sid)
 
     triggered: list[str] = []
     if trading_day >= 10 and cash_weight > 0.80:
@@ -760,6 +770,7 @@ def update_ai_deployment_discipline(
         "current_decision_grade_d2_ids": sorted(current_d2),
         "current_eligible_buy_ids": eligible_buy_ids,
         "current_buy_below_ids": buy_below_ids,
+        "current_auto_reunderwrite_candidate_ids": auto_reunderwrite_candidate_ids,
         "high_cash_reason": high_cash_reason,
         "rules": {
             "day10_cash_gt_80pct": "AI_BOOK_DEPLOYMENT_REVIEW",
@@ -768,6 +779,10 @@ def update_ai_deployment_discipline(
             "day30_cash_gt_70pct": "OPPORTUNITY_STARVATION_REVIEW_REQUIRED",
             "day40_cash_gt_50pct": "EXPERIMENT_INSUFFICIENT_DEPLOYMENT_POLICY_PROPOSAL_ONLY",
             "buy_below_direct_buy_authorized": False,
+            "high_cash_feedback_to_d2_enabled": True,
+            "near_formal_buy_gate_pct": 0.03,
+            "formal_buy_hurdle": 0.10,
+            "preferred_entry_hurdle": 0.15,
             "forced_buying": False,
             "policy_auto_effective": False,
         },
