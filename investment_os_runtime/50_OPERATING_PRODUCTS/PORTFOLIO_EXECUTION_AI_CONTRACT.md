@@ -44,6 +44,9 @@ LLM不得输出可直接执行的原始股数。
 - 固定10bps虚拟滑点。
 - 持续记录NAV、累计收益、最大回撤、换手、已实现/未实现贡献。
 - Deployment Discipline：第10个完整交易日若现金>80%触发部署复核；第20个交易日前累计跟踪至少5个适用于AI Book的正式 decision-grade D2，新机会若已有正式 BUY 则期望部署约30%-50%，但不得强制交易；第30日现金>70%触发 OPPORTUNITY_STARVATION_REVIEW_REQUIRED；第40日现金>50%触发 EXPERIMENT_INSUFFICIENT_DEPLOYMENT，仅形成 Policy Proposal。
+- 正式新资本 BUY 门槛统一为概率加权预期收益至少10%且 Bear downside 不劣于-35%；15%只作为 preferred-entry 价格，不得隐性覆盖10%正式门槛。
+- D1→D2 的3个研究槽位使用 bounded diversification：至少覆盖 value/recovery 与 momentum/breakout 两类，再用一个 best-remaining 槽位；不再允许三个槽位长期由同一种市场信号占满。
+- 当 AI_AUTONOMOUS_1M 现金>80%时，距离 formal 10% BUY gate 3%以内、但尚未达到正式 BUY 条件的 BUY_BELOW 标的可自动反馈到下一轮 D1/D2，形成 bounded fresh semantic re-underwrite 请求；不等于直接买入，也不改变 Real/legacy Simulation 的人工执行边界。
 - BUY_BELOW 达价仍不得直接买入，必须 fresh D2 后成为正式 BUY；Deployment Gate 不改变这一规则。
 - Deployment Discipline 以AI账本 NAV history 的唯一完整交易日为观察时钟，同日重跑不重复计日；累计记录已观察到的 formal new-capital decision-grade D2 标的。
 
