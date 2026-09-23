@@ -17,13 +17,13 @@ def test_final_runtime_uses_clock_wakeups_for_data_and_event_driven_investment_c
     for path, marker in expected_clock_wakeups.items():
         assert marker in text(path), (path, marker)
 
-    for path in (
-        ".github/workflows/s2-investment-pipeline.yml",
-        ".github/workflows/research-queue-d2-auto-consumer.yml",
-    ):
-        on_block = text(path).split("permissions:", 1)[0]
-        assert "workflow_dispatch:" in on_block
-        assert "schedule:" not in on_block
+    s2_on_block = text(".github/workflows/s2-investment-pipeline.yml").split("permissions:", 1)[0]
+    assert "workflow_dispatch:" in s2_on_block
+    assert "schedule:" not in s2_on_block
+
+    d2_on_block = text(".github/workflows/research-queue-d2-auto-consumer.yml").split("permissions:", 1)[0]
+    assert "workflow_dispatch:" in d2_on_block
+    assert 'cron: "35 0 * * 1-5"' in d2_on_block
 
 
 def test_cross_market_uses_previous_shanghai_date_before_controller() -> None:
@@ -92,11 +92,11 @@ def test_obsolete_p4_4_p4_5_schedules_are_retired() -> None:
         assert "workflow_run:" not in on_block
 
 
-def test_d2_runtime_has_only_bounded_semantic_main_push_trigger() -> None:
+def test_d2_runtime_has_bounded_recovery_schedule_and_semantic_main_push_trigger() -> None:
     workflow = text(".github/workflows/research-queue-d2-auto-consumer.yml")
     on_block = workflow.split("permissions:", 1)[0]
     assert "workflow_dispatch:" in on_block
-    assert "schedule:" not in on_block
+    assert 'cron: "35 0 * * 1-5"' in on_block
     assert "push:" in on_block
     push_block = on_block.split("  push:", 1)[1].split("  workflow_dispatch:", 1)[0]
     assert "branches: [main]" in push_block

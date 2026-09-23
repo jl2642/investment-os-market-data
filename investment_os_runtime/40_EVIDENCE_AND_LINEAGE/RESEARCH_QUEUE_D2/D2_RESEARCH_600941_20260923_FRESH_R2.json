@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260923_FRESH_R2_600941",
+  "security_id": "600941.SH",
+  "security_name": "中国移动",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "TRIM_FRESH_D2_COMPLETE_FUNDAMENTALS_INTACT_BUT_TOTAL_RETURN_BELOW_PORTFOLIO_HURDLE",
+  "research_update_type": "VALUATION_EXHAUSTION_REUNDERWRITE_20260923",
+  "valuation_horizon": "12_MONTH",
+  "thesis": {
+    "core": "2026H1 cash generation and dividend capacity remain resilient despite reported earnings pressure, so the thesis is not broken; however, at RMB96.45 the probability-weighted price value is roughly flat and expected 12-month total return including dividend carry is only about 4.6%, below the system's capital hurdle.",
+    "variant_wedge": "The reported revenue/profit decline overstates operating deterioration because VAT classification changes create comparability noise and operating cash flow improved sharply; the investable issue is opportunity cost rather than solvency or franchise impairment.",
+    "normalized_earnings_basis": "2026H1 revenue RMB538.0bn, attributable net profit RMB78.9bn, EBITDA RMB173.6bn, operating cash flow RMB114.9bn, interim dividend RMB2.51/share; normalize 2026E EPS at bear/base/bull RMB5.85/6.20/6.65."
+  },
+  "underwriting": {
+    "current_price": 96.45,
+    "price_as_of": "2026-09-22",
+    "entry_price": 92.09,
+    "confidence": "MEDIUM_HIGH",
+    "normalized_earnings_basis": {
+      "metric": "2026E_NORMALIZED_EPS",
+      "bear": 5.85,
+      "base": 6.2,
+      "bull": 6.65,
+      "rationale": "H1 EPS was RMB3.64; scenarios normalize VAT comparability noise, legacy communications pressure, application/information-service growth, cash conversion and ongoing AI/cloud investment."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 5.85,
+        "valuation_multiple_pe": 13,
+        "value_per_share": 76.05,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "eps": 6.2,
+        "valuation_multiple_pe": 15.5,
+        "value_per_share": 96.1,
+        "probability": 0.55
+      },
+      {
+        "name": "BULL",
+        "eps": 6.65,
+        "valuation_multiple_pe": 18,
+        "value_per_share": 119.7,
+        "probability": 0.2
+      }
+    ],
+    "probability_weighted_value": 95.8075,
+    "dividend_carry_assumption": 5.05,
+    "probability_weighted_total_value": 100.8575,
+    "expected_return": -0.0066614826,
+    "expected_return_total": 0.0456972525,
+    "bear_downside": -0.2115085537,
+    "hurdle_entry_price_10pct_total_return": 92.09,
+    "research_reopen_price_15pct_total_return": 87.7,
+    "action": "TRIM",
+    "catalysts": [
+      "Comparable-basis core service revenue stabilizes and application/information-service growth reaccelerates.",
+      "AI/cloud/compute investments translate into measurable incremental profit and ROIC rather than only capex intensity.",
+      "Operating cash flow and free-cash-flow improvement persists through the second half.",
+      "Dividend growth remains intact while payout sustainability and balance-sheet strength are preserved."
+    ],
+    "kill_thesis": [
+      "Comparable-basis core service revenue continues to contract without offsetting digital-service growth.",
+      "EBITDA decline persists while AI/cloud capex fails to generate acceptable returns.",
+      "Operating cash-flow improvement reverses materially.",
+      "Dividend policy or dividend-paying capacity is reduced materially."
+    ]
+  },
+  "first_rejection_test": "NOT_THESIS_KILL; VALUATION_AND_CAPITAL_EFFICIENCY_SUPPORT_TRIM_NOT_EXIT",
+  "next_gate": "REUNDERWRITE_ON_MATERIAL_EARNINGS_OR_DIVIDEND_CHANGE; REENTRY_RESEARCH_AT_OR_BELOW_RMB92_AND_STRONGER_BUY_CASE_NEAR_RMB88",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "中国移动2026年半年度报告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-14/1225472195.PDF",
+      "as_of": "2026-08-13"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "中国移动A股历史行情",
+      "url": "https://cn.investing.com/equities/china-mobile-ltd-historical-data",
+      "as_of": "2026-09-22"
+    }
+  ],
+  "source_quality_note": "Financials and dividend are from the filed 2026 interim report; 2026-09-22 close is reconciled to public historical market data. Scenario EPS, multiples, probabilities and dividend carry are analytical assumptions.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "price_at_or_below_92_09",
+      "material_eps_or_dividend_change",
+      "comparable_core_service_growth_break",
+      "ai_cloud_roic_evidence",
+      "cash_flow_or_dividend_capacity_deterioration"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "semantic_completed_at": "2026-09-23T01:55:00+00:00",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
