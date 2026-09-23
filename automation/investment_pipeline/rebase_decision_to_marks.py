@@ -83,10 +83,23 @@ def _recompute_comparison_status(row: dict[str, Any], metrics: dict[str, Any]) -
         return "UNDERWRITING_INCOMPLETE"
     if expected <= 0:
         return "AVOID_NEGATIVE_EXPECTED_RETURN"
-    if current > entry:
-        return "PRICE_BLOCKED"
     if expected >= CAPITAL_HURDLE and bear_downside >= MAX_ACCEPTABLE_BEAR_DOWNSIDE:
         return "PASS_NEW_CAPITAL"
+    formal_entry = _num(metrics.get("formal_buy_entry_price"))
+    if formal_entry is None:
+        fair = _num(metrics.get("probability_weighted_value"))
+        bear_value = _num(metrics.get("bear_value"))
+        if fair is not None and fair > 0 and bear_value is not None and bear_value > 0:
+            formal_entry = min(
+                fair / (1.0 + CAPITAL_HURDLE),
+                bear_value / (1.0 + MAX_ACCEPTABLE_BEAR_DOWNSIDE),
+            )
+            metrics["formal_buy_entry_price"] = formal_entry
+            metrics["formal_buy_hurdle"] = CAPITAL_HURDLE
+    if formal_entry is not None and current > formal_entry:
+        return "PRICE_BLOCKED"
+    if current > entry:
+        return "PRICE_BLOCKED"
     return "CAPITAL_NOT_COMPETITIVE"
 
 
@@ -209,6 +222,10 @@ def rebase_decisions(
             rec["expected_return"] = metrics.get("expected_return")
             rec["bear_downside"] = metrics.get("bear_downside")
             rec["probability_weighted_value"] = metrics.get("probability_weighted_value")
+            rec["formal_buy_entry_price"] = metrics.get("formal_buy_entry_price")
+            rec["formal_buy_hurdle"] = metrics.get("formal_buy_hurdle", CAPITAL_HURDLE)
+            rec["preferred_entry_price"] = metrics.get("preferred_entry_price", metrics.get("entry_price"))
+            rec["preferred_entry_hurdle"] = metrics.get("preferred_entry_hurdle", 0.15)
             rec["price_basis"] = metrics.get("price_basis", "D2_UNDERWRITING_SNAPSHOT")
         status = str(comp.get("comparison_status") or "UNDERWRITING_PENDING")
         existing = bool(comp.get("existing_position"))

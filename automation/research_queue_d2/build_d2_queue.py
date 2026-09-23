@@ -391,6 +391,13 @@ def build_state(
             "attempt_count": attempts,
             "last_attempt_at": now_iso if discover_primary_sources else previous.get("last_attempt_at"),
             "semantic_research_required": semantic_required,
+            "ai_book_auto_reunderwrite": bool(obj.get("ai_book_auto_reunderwrite")),
+            "ai_book_reunderwrite_reason": obj.get("ai_book_reunderwrite_reason"),
+            "semantic_research_owner": (
+                "CHATGPT_NATIVE_AUTONOMOUS_AI_BOOK_D2"
+                if obj.get("ai_book_auto_reunderwrite")
+                else "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER"
+            ),
             "candidate_membership_mutation_authorized": False,
             "real_account_mutation_authorized": False,
             "simulation_mutation_authorized": False,
@@ -421,6 +428,9 @@ def build_state(
     holds = [row for row in queue if row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
     blocked = [row for row in queue if row["status"].startswith("AUTO_RESEARCH_BLOCKED") or row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
     provider_incident = provider_incident_summary(discovery_errors, len(routed))
+    ai_book_auto_pending = [
+        row for row in active_pending if row.get("ai_book_auto_reunderwrite")
+    ]
 
     semantic_projection = [
         {
@@ -454,6 +464,7 @@ def build_state(
             "idempotence": "COMPLETED_DECISION_GRADE_D2_PERSISTS_ACROSS_ROUTINE_D1_ROLLS_UNTIL_EXPLICIT_MATERIAL_REFRESH",
             "fail_closed": True,
             "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
+            "ai_book_near_gate_refresh": "AUTO_ROUTED_TO_CHATGPT_NATIVE_SEMANTIC_D2_WITHOUT_MANUAL_D1_D2_DISPATCH",
         },
         "queue": queue,
         "summary": {
@@ -466,6 +477,7 @@ def build_state(
             "batch_capacity": BATCH_SIZE,
             "manual_trigger_required": False,
             "provider_incident_active": bool(provider_incident.get("active")),
+            "ai_book_auto_reunderwrite_pending_count": len(ai_book_auto_pending),
         },
         "controls": {
             "candidate_membership_mutations": 0,
@@ -498,6 +510,9 @@ def build_state(
         "manual_trigger_required": False,
         "blocked_items": [row["security_id"] for row in blocked],
         "completed_items": [row["security_id"] for row in completed],
+        "ai_book_auto_reunderwrite_pending_items": [
+            row["security_id"] for row in ai_book_auto_pending
+        ],
         "provider_incident": provider_incident,
         "trade_authority": TRADE_AUTHORITY,
     }
