@@ -3,25 +3,25 @@
     "as_of_date": "2026-09-22",
     "attribution": [
       {
-        "market_value": 99773.99999999999,
+        "market_value": 99704.0,
         "risk_group": "A_SHARE_STOCK",
         "security_id": "002807.SZ",
         "security_name": "江阴银行",
-        "unrealized_pnl": -1071.735916547517,
-        "weight": 0.09988522319487972
+        "unrealized_pnl": -1554.1479165474946,
+        "weight": 0.09993286635044867
       },
       {
-        "market_value": 99176.0,
+        "market_value": 99762.0,
         "risk_group": "A_SHARE_STOCK",
         "security_id": "301109.SZ",
         "security_name": "军信股份",
-        "unrealized_pnl": -99.1759999999795,
-        "weight": 0.09928655657361028
+        "unrealized_pnl": -793.4550000000005,
+        "weight": 0.09999099948701616
       }
     ],
     "book_id": "AI_AUTONOMOUS_1M",
-    "cash": 799936.49,
-    "cash_weight": 0.80082822023151,
+    "cash": 798243.799,
+    "cash_weight": 0.8000761341625352,
     "controls": {
       "buy_lot": 100,
       "cash_floor": 0.2,
@@ -35,9 +35,9 @@
       "slippage_bps": 10.0,
       "trade_authority": "NONE"
     },
-    "current_nav": 998886.49,
+    "current_nav": 997709.799,
     "deployment_discipline": {
-      "cash_weight": 0.80082822023151,
+      "cash_weight": 0.8000761341625352,
       "cumulative_decision_grade_d2_count": 16,
       "cumulative_decision_grade_d2_ids": [
         "000900.SZ",
@@ -88,7 +88,7 @@
       "current_eligible_buy_ids": [
         "301109.SZ"
       ],
-      "deployed_weight": 0.19917177976849,
+      "deployed_weight": 0.1999238658374648,
       "deployment_status": "THROUGHPUT_AND_GATE_REVIEW",
       "experiment_trading_day": 16,
       "high_cash_reason": "PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE",
@@ -119,16 +119,39 @@
       ]
     },
     "diagnostics": [],
-    "new_transaction_count": 0,
-    "new_transactions": [],
+    "new_transaction_count": 2,
+    "new_transactions": [
+      {
+        "as_of_date": "2026-09-22",
+        "execution_price": 4.12412,
+        "notional": 412.412,
+        "quantity": 100,
+        "realized_pnl": 0.0,
+        "reason": "AI_TARGET_WEIGHT_REBALANCE",
+        "security_id": "002807.SZ",
+        "security_name": "江阴银行",
+        "side": "BUY"
+      },
+      {
+        "as_of_date": "2026-09-22",
+        "execution_price": 12.802789999999998,
+        "notional": 1280.2789999999998,
+        "quantity": 100,
+        "realized_pnl": 0.0,
+        "reason": "AI_TARGET_WEIGHT_REBALANCE",
+        "security_id": "301109.SZ",
+        "security_name": "军信股份",
+        "side": "BUY"
+      }
+    ],
     "performance": {
-      "cumulative_return": -0.0011135100000000397,
-      "max_drawdown": -0.0037668527078207337,
+      "cumulative_return": -0.0022902009999999917,
+      "max_drawdown": -0.004799117353165849,
       "realized_pnl": 57.401916547498914,
-      "turnover_since_inception": 0.20780402609506332
+      "turnover_since_inception": 0.20950059972077148
     },
     "position_count": 2,
-    "prior_nav": 998886.49,
+    "prior_nav": 997711.49,
     "target_weights": {
       "002807.SZ": {
         "action": "HOLD",
@@ -161,10 +184,10 @@
     "target_weight_engine": true,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-23T10:09:35+00:00",
+  "generated_at_utc": "2026-09-23T15:05:54+00:00",
   "orders": 0,
-  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_55826e2737b3d095",
-  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_c5ac0a5eca147075",
+  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_d03645eead0d5f47",
+  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_677319bd9b7b08ba",
   "protected_execution_episode_guard": {
     "ai_autonomous_1m_affected": false,
     "diagnostics": [
