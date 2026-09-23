@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-22T16:04:26+00:00",
+  "as_of": "2026-09-23T01:55:00+00:00",
   "consumer_policy": {
     "bounded_batch_size": 3,
     "event_trigger": "PUSH_TO_MAIN_WHEN_D1_CURRENT_OR_D1_EVIDENCE_CHANGES",
@@ -220,33 +220,100 @@
       "decision_mutation_authorized": false,
       "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
       "input_watermark": "c6e2e4c651bfe5296da90f391ee76588e78f9424ab2faa93521681db7e8e84de",
-      "last_attempt_at": "2026-09-22T16:04:26+00:00",
+      "last_attempt_at": "2026-09-23T01:55:00+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
       "security_id": "301189.SZ",
       "security_name": "奥尼电子",
       "semantic_input_watermark": "2aeb3371a39df016bcb14edaea4e9e515a2ea8bc3b76a927fd8efc2c15e541f3",
-      "semantic_research_required": true,
+      "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_AI_COMPUTE_REVENUE_INFLECTION_REAL_BUT_WORKING_CAPITAL_LEVERAGE_AND_VALUATION_FAIL",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_301189_20260923_R1.json",
+      "first_rejection_test": "FUNDAMENTAL_REVENUE_INFLECTION_CONFIRMED_BUT_CASH_CONVERSION_LEVERAGE_AND_VALUATION_GATE_FAIL",
+      "next_gate": "REOPEN_ONLY_ON_DISCLOSED_DOWNSTREAM_DEMAND_POSITIVE_CFO_DELEVERAGING_AND_MATERIAL_NORMALIZED_EPS_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB26_09",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false
+      },
+      "manual_user_input_required": false,
+      "underwriting": {
+        "current_price": 74.25,
+        "price_as_of": "2026-09-22",
+        "entry_price": 26.09,
+        "confidence": "MEDIUM",
+        "normalized_earnings_basis": {
+          "metric": "2026E_NORMALIZED_EPS",
+          "bear": 0.1,
+          "base": 0.5,
+          "bull": 1.2,
+          "rationale": "H1 attributable profit was only RMB16.8m despite RMB906.9m revenue. Base assumes H2 scale-up with modest net-margin recovery; bull requires a major improvement in sell-through, financing cost and working-capital conversion."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "eps": 0.1,
+            "valuation_multiple_pe": 30,
+            "value_per_share": 3,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "eps": 0.5,
+            "valuation_multiple_pe": 45,
+            "value_per_share": 22.5,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "eps": 1.2,
+            "valuation_multiple_pe": 60,
+            "value_per_share": 72,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 30,
+        "expected_return": -0.595959596,
+        "bear_downside": -0.9595959596,
+        "hurdle_entry_price_15pct": 26.087,
+        "action": "AVOID",
+        "catalysts": [
+          "Disclosed downstream AI-compute sales contracts or prepayments validate sell-through of GPU inventory.",
+          "H2 operating cash flow turns positive while inventory and receivables growth normalizes.",
+          "Short-term debt declines materially despite continued AI-compute revenue growth.",
+          "High-performance computing gross margin and company-level net margin improve enough to support materially higher normalized EPS."
+        ],
+        "kill_thesis": [
+          "GPU procurement and inventory continue to expand without matching disclosed downstream demand or customer cash collection.",
+          "Operating cash flow remains deeply negative while short-term borrowing rises further.",
+          "High-performance computing gross margin falls materially below the current mid-teens level or Q3/Q4 profit conversion remains near break-even.",
+          "Receivables, inventory and financing costs grow faster than sustainable gross profit."
+        ]
+      },
+      "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH_AFTER_EXPLICIT_USER_START",
+      "semantic_completed_at": "2026-09-23T01:55:00+00:00"
     }
   ],
   "schema_version": "1.1.0",
   "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_9ae91ade5237a526",
-  "state_id": "RESEARCH_QUEUE_D2_CURRENT_5d51e865f8a7a9a3",
-  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_20260923_SEMANTIC_COMPLETE",
+  "status": "D2_AUTO_CONSUMER_LIVE_SEMANTIC_COMPLETE",
   "summary": {
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 2,
+    "completed_count": 3,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 1,
+    "pending_count": 0,
     "provider_incident_active": false,
     "reused_completed_count": 2,
-    "routed_count": 3
-  }
+    "routed_count": 3,
+    "user_input_required": false
+  },
+  "semantic_batch_id": "D2_SEMANTIC_RESEARCH_20260923_301189_R1_PLUS_600941_REUNDERWRITE"
 }
