@@ -7,7 +7,7 @@ def _controls() -> dict:
     return {"orders": 0, "trade_authority": "NONE"}
 
 
-def test_mark_rebase_clears_stale_price_blocker_when_existing_position_crosses_entry_gate() -> None:
+def test_mark_rebase_clears_price_blocker_but_preserves_existing_hold_without_explicit_add() -> None:
     comparison = {
         "controls": _controls(),
         "rows": [
@@ -64,14 +64,14 @@ def test_mark_rebase_clears_stale_price_blocker_when_existing_position_crosses_e
 
     assert rebased_comparison["rows"][0]["comparison_status"] == "PASS_NEW_CAPITAL"
     record = rebased_recommendation["records"][0]
-    assert record["action"] == "ADD"
-    assert record["ready_for_user_decision"] is True
+    assert record["action"] == "HOLD"
+    assert record["ready_for_user_decision"] is False
     assert record["top_blocker"] is None
     assert "PASS_NEW_CAPITAL" in record["top_reasons"]
     assert "PRICE_BLOCKED" not in record["top_reasons"]
-    assert "D2_EXPLICIT_POSITION_ACTION_HOLD" not in record["top_reasons"]
-    assert not any(str(reason).startswith("HOLD_") for reason in record["top_reasons"])
-    assert "MARK_REBASE_ACTION_HOLD_TO_ADD" in record["top_reasons"]
+    assert "D2_EXPLICIT_POSITION_ACTION_HOLD" in record["top_reasons"]
+    assert any(str(reason).startswith("HOLD_") for reason in record["top_reasons"])
+    assert not any(str(reason).startswith("MARK_REBASE_ACTION_") for reason in record["top_reasons"])
 
 
 def test_mark_rebase_preserves_price_blocker_when_gate_is_not_crossed() -> None:
