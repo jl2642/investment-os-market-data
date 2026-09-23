@@ -95,6 +95,104 @@ def test_opportunity_bypasses_candidate_and_d1_processes_ten() -> None:
     assert d1["controls"]["trade_authority"] == "NONE"
 
 
+
+def test_d1_routes_diversified_value_and_momentum_slots() -> None:
+    longlist = [screen_row(i) for i in range(1, 11)]
+    for row in longlist[:3]:
+        row["primary_sleeve"] = "TREND_PERSISTENCE"
+    longlist[3]["primary_sleeve"] = "DEFENSIVE_STABILITY"
+    opportunity = build_opportunity_queue(
+        longlist,
+        screen_source={
+            "qc_status": "PASS_CHAIN_COHERENT",
+            "data_watermark": "2026-09-22",
+        },
+        now=NOW,
+    )
+    d1 = build_d1(opportunity, now=NOW)
+    routed = [
+        row for row in d1["research_objects"]
+        if row["d1_disposition"].startswith("ADVANCE_TO_D2")
+    ]
+    sleeves = {row["archetype"] for row in routed}
+    assert len(routed) == 3
+    assert sleeves & {"DEFENSIVE_STABILITY", "RECOVERY_WATCH"}
+    assert sleeves & {"TREND_PERSISTENCE", "LIQUID_BREAKOUT"}
+    assert d1["routing_summary"]["research_slot_policy"].startswith(
+        "ONE_VALUE_OR_RECOVERY"
+    )
+
+
+def test_ai_high_cash_near_gate_buy_below_is_auto_routed_for_fresh_d2() -> None:
+    longlist = [screen_row(i) for i in range(1, 16)]
+    opportunity = build_opportunity_queue(
+        longlist,
+        screen_source={
+            "qc_status": "PASS_CHAIN_COHERENT",
+            "data_watermark": "2026-09-22",
+        },
+        now=NOW,
+    )
+    sid = "000015.SZ"
+    recommendation = {
+        "records": [{
+            "security_id": sid,
+            "security_name": "NearGate",
+            "portfolio_implication": "NEW_CAPITAL_CANDIDATE",
+            "action": "BUY_BELOW",
+            "current_price": 10.20,
+            "probability_weighted_value": 11.00,
+            "bear_downside": -0.20,
+        }]
+    }
+    ai_book = {
+        "cash": 900_000.0,
+        "current_nav": 1_000_000.0,
+        "deployment_discipline": {"cash_weight": 0.90},
+    }
+    d1 = build_d1(
+        opportunity,
+        ai_book=ai_book,
+        recommendation=recommendation,
+        now=NOW,
+    )
+    row = next(x for x in d1["research_objects"] if x["security_id"] == sid)
+    assert row["d1_disposition"] == "ADVANCE_TO_D2_AI_BOOK_AUTO_REUNDERWRITE"
+    assert row["semantic_refresh_required"] is True
+    assert row["fresh_d2_required"] is True
+    assert row["ai_book_auto_reunderwrite"] is True
+    assert d1["routing_summary"]["ai_book_auto_reunderwrite_count"] == 1
+
+
+def test_formal_10pct_buy_gate_is_not_blocked_by_15pct_preferred_entry() -> None:
+    d2 = {
+        "state_id": "D2_10PCT_GATE",
+        "queue": [{
+            "security_id": "301109.SZ",
+            "security_name": "FormalGate",
+            "status": "D2_RESEARCH_COMPLETE",
+            "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE",
+            "first_rejection_test": "NOT_TRIGGERED",
+            "underwriting": uw(12.75, 12.40, 9.50, 14.50, 18.56, "MEDIUM_HIGH"),
+        }],
+    }
+    comparison = build_capital_comparison(
+        d2,
+        real_positions={},
+        simulation_positions={},
+        now=NOW,
+    )
+    row = comparison["rows"][0]
+    assert row["comparison_status"] == "PASS_NEW_CAPITAL"
+    assert row["metrics"]["preferred_entry_price"] == 12.40
+    assert row["metrics"]["formal_buy_entry_price"] > 12.75
+    recommendation = build_recommendations(d2, comparison, now=NOW)
+    rec = recommendation["records"][0]
+    assert rec["action"] == "BUY"
+    assert rec["formal_buy_hurdle"] == 0.10
+    assert rec["preferred_entry_hurdle"] == 0.15
+
+
 def test_s2_json_contract_normalizes_nonfinite_financial_values() -> None:
     opportunity = build_opportunity_queue(
         [screen_row(1)],
@@ -136,7 +234,7 @@ def test_all_s2_actions_are_reachable_from_underwriting_not_boolean_gates() -> N
                 "status": "D2_RESEARCH_COMPLETE",
                 "research_disposition": "COMPLETE",
                 "first_rejection_test": "NOT_TRIGGERED",
-                "underwriting": uw(15, 12, 10, 18, 24),
+                "underwriting": uw(15, 12, 10, 16.5, 18),
             },
             {
                 "security_id": "000003.SZ",
@@ -168,7 +266,7 @@ def test_all_s2_actions_are_reachable_from_underwriting_not_boolean_gates() -> N
                 "status": "D2_RESEARCH_COMPLETE",
                 "research_disposition": "COMPLETE",
                 "first_rejection_test": "NOT_TRIGGERED",
-                "underwriting": uw(15, 12, 10, 18, 24),
+                "underwriting": uw(15, 12, 10, 16.5, 18),
             },
             {
                 "security_id": "000007.SZ",
@@ -374,7 +472,7 @@ def test_promotion_gate_does_not_equal_thesis_invalidation() -> None:
                 "status": "D2_RESEARCH_COMPLETE",
                 "research_disposition": "HOLD_RESEARCH_COMPLETE_VALUATION_FULL",
                 "first_rejection_test": "VALUATION_LEG_TRIGGERED_FOR_PROMOTION",
-                "underwriting": uw(15, 12, 10, 18, 24),
+                "underwriting": uw(15, 12, 10, 16.5, 18),
             }
         ],
     }
