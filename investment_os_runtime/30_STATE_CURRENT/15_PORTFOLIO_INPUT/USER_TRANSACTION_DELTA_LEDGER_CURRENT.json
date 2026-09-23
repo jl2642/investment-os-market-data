@@ -1,7 +1,7 @@
 {
-  "applied_delta_count": 11,
-  "as_of": "2026-09-18T09:34:00+08:00",
-  "continuity_confirmed_through": "2026-09-18T09:34:00+08:00",
+  "applied_delta_count": 12,
+  "as_of": "2026-09-23T13:02:00+08:00",
+  "continuity_confirmed_through": "2026-09-23T13:02:00+08:00",
   "entries": [
     {
       "account": "REAL",
@@ -355,9 +355,37 @@
       "rejection_reason": "Economic event is materialized in the canonical Real source baseline; reapplying it would double count the trade.",
       "status": "REJECTED",
       "trade_authority": "NONE"
+    },
+    {
+      "account": "SIMULATION",
+      "action": "SELL",
+      "application_decision": "ALREADY_APPLIED_TO_POSITION_CURRENT_DO_NOT_REAPPLY",
+      "applied_run_id": "POSITION_UPDATE_20260923_USER_SIMULATION_CHINA_MOBILE_TRIM_INTRADAY",
+      "confirmation_authority": "USER",
+      "delta_id": "SIM_20260923_SELL_600941_200",
+      "event_type": "SIMULATION_TRADE",
+      "evidence_status": "USER_SCREENSHOT_CONFIRMED",
+      "execution_time": "2026-09-23T13:00:03+08:00",
+      "gross_amount": 19314,
+      "cash_after_trade": 259687.49,
+      "position_after_trade": 100,
+      "available_after_trade": 100,
+      "note": "User-executed China Mobile Simulation TRIM recorded from transaction and holdings screenshots; canonical Simulation source and Position Current already include this delta.",
+      "orders": 0,
+      "position_engine_treatment": "SOURCE_BASELINE_ALREADY_CONTAINS_DELTA",
+      "price": 96.57,
+      "quantity": 200,
+      "quantity_delta": -200,
+      "rejection_reason": "Economic event is materialized in the canonical Simulation source baseline; reapplying it would double count the trade.",
+      "security_code": "600941",
+      "security_id": "600941.SH",
+      "security_name": "中国移动",
+      "status": "REJECTED",
+      "trade_authority": "NONE",
+      "trade_date": "2026-09-23"
     }
   ],
-  "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260918",
+  "ledger_id": "USER_TRANSACTION_DELTA_LEDGER_CURRENT_20260923",
   "materialized_delta_ids": [
     "REAL_605090_SECOND_4950_SETTLEMENT_20260806",
     "SIM_20260806_BUY_300012_1000",
@@ -369,7 +397,8 @@
     "SIM_20260916_BUY_601138_200",
     "SIM_20260916_BUY_601899_300",
     "SIM_20260917_BUY_600309_100",
-    "REAL_20260918_BUY_002807_2000"
+    "REAL_20260918_BUY_002807_2000",
+    "SIM_20260923_SELL_600941_200"
   ],
   "orders": 0,
   "policy": {
@@ -384,7 +413,7 @@
     "unconfirmed_delta_action": "REJECT_AND_BLOCK_POSITION_MUTATION",
     "user_reports_only_economic_transactions": true
   },
-  "rejected_for_position_engine_count": 14,
+  "rejected_for_position_engine_count": 17,
   "schema_version": "1.0.0",
   "snapshot_type": "USER_CONFIRMED_CONTINUITY_AND_TRANSACTION_DELTA",
   "status": "USER_CONFIRMED_CONTINUITY_CURRENT_NO_UNAPPLIED_DELTAS",
