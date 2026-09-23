@@ -103,7 +103,11 @@ def _recompute_comparison_status(row: dict[str, Any], metrics: dict[str, Any]) -
     return "CAPITAL_NOT_COMPETITIVE"
 
 
-def _action_for_status(status: str, existing: bool) -> str:
+def _action_for_status(
+    status: str,
+    existing: bool,
+    previous_action: str | None = None,
+) -> str:
     if status == "RESEARCH_REFRESH_PENDING":
         return "HOLD" if existing else "WATCH"
     if status == "AVOID_INVALIDATION_TRIGGERED":
@@ -115,7 +119,9 @@ def _action_for_status(status: str, existing: bool) -> str:
     if status == "AVOID_NEGATIVE_EXPECTED_RETURN":
         return "TRIM" if existing else "AVOID"
     if status == "PASS_NEW_CAPITAL":
-        return "ADD" if existing else "BUY"
+        if existing:
+            return "ADD" if str(previous_action or "").upper() == "ADD" else "HOLD"
+        return "BUY"
     if status == "PRICE_BLOCKED":
         return "HOLD" if existing else "BUY_BELOW"
     return "HOLD" if existing else "WATCH"
@@ -230,7 +236,11 @@ def rebase_decisions(
         status = str(comp.get("comparison_status") or "UNDERWRITING_PENDING")
         existing = bool(comp.get("existing_position"))
         previous_action = str(rec.get("action") or "")
-        new_action = _action_for_status(status, existing)
+        new_action = _action_for_status(
+            status,
+            existing,
+            previous_action=previous_action,
+        )
         action_changed = bool(previous_action and previous_action != new_action)
         rec["action"] = new_action
         rec["ready_for_user_decision"] = rec["action"] in {"BUY", "ADD", "TRIM", "EXIT"}
