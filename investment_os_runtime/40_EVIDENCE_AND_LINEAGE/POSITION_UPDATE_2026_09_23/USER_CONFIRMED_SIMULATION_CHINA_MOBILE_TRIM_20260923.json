@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "account": "SIMULATION",
+  "as_of": "2026-09-23T13:02:00+08:00",
+  "authority": "USER_UPLOADED_SCREENSHOTS",
+  "status": "PASS_USER_CONFIRMED_SIMULATION_TRADE",
+  "trade_authority": "NONE",
+  "orders": 0,
+  "trade": {
+    "action": "SELL",
+    "delta_id": "SIM_20260923_SELL_600941_200",
+    "execution_time": "2026-09-23T13:00:03+08:00",
+    "trade_date": "2026-09-23",
+    "security_code": "600941",
+    "security_id": "600941.SH",
+    "security_name": "中国移动",
+    "price": 96.57,
+    "quantity": 200,
+    "gross_amount": 19314
+  },
+  "decision_context": {
+    "source": "PHASE3_CURRENT",
+    "action": "TRIM",
+    "validated_quantity": 200,
+    "system_reference_price": 96.45,
+    "execution_status": "USER_EXECUTED"
+  },
+  "position_after_trade": {
+    "security_id": "600941.SH",
+    "security_name": "中国移动",
+    "quantity": 100,
+    "available_quantity": 100,
+    "broker_display_cost_price": 26.69,
+    "economic_cost_price": 86.97,
+    "current_intraday_price_observed_range": [
+      96.58,
+      96.59
+    ]
+  },
+  "account_after_trade": {
+    "screenshot_total_assets": 994701.39,
+    "screenshot_market_value": 735013.9,
+    "available_cash": 259687.49,
+    "screenshot_position_ratio": 0.7389,
+    "screenshot_total_pnl": -5298.61,
+    "screenshot_day_reference_pnl": -2107.95,
+    "note": "A second holdings screenshot seconds apart showed total assets CNY 994830.49 and market value CNY 735143.00 as intraday prices moved. These intraday totals are evidence only, not completed-session decision marks."
+  },
+  "cash_reconciliation": {
+    "prior_stored_cash": 240388.34,
+    "gross_sale_proceeds": 19314,
+    "arithmetic_cash_before_unattributed_difference": 259702.34,
+    "confirmed_cash_after_trade": 259687.49,
+    "unattributed_difference": 14.85,
+    "treatment": "DISCLOSE_ONLY; DO_NOT INFER FEE OR TAX COMPONENTS WITHOUT EXPLICIT BROKER BREAKDOWN"
+  },
+  "valuation_policy": "INTRADAY_SCREENSHOT_MARKS_ARE_EVIDENCE_ONLY; COMPLETED-SESSION GOVERNED MARKS REMAIN DECISION AUTHORITY"
+}
