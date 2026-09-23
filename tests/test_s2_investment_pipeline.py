@@ -258,7 +258,7 @@ def test_all_s2_actions_are_reachable_from_underwriting_not_boolean_gates() -> N
                 "status": "D2_RESEARCH_COMPLETE",
                 "research_disposition": "COMPLETE",
                 "first_rejection_test": "NOT_TRIGGERED",
-                "underwriting": uw(10, 11, 8, 13, 18),
+                "underwriting": {**uw(10, 11, 8, 13, 18), "action": "ADD"},
             },
             {
                 "security_id": "000006.SZ",
@@ -322,6 +322,31 @@ def test_all_s2_actions_are_reachable_from_underwriting_not_boolean_gates() -> N
         row["orders"] == 0 and row["trade_authority"] == "NONE"
         for row in recommendation["records"]
     )
+
+
+
+def test_existing_position_formal_buy_pass_preserves_hold_without_explicit_add() -> None:
+    d2 = {
+        "state_id": "D2_EXISTING_HOLD_GUARD",
+        "queue": [{
+            "security_id": "000099.SZ",
+            "security_name": "ExistingHold",
+            "status": "D2_RESEARCH_COMPLETE",
+            "research_disposition": "COMPLETE",
+            "first_rejection_test": "NOT_TRIGGERED",
+            "underwriting": uw(10, 9, 8, 13, 18),
+        }],
+    }
+    real = {"holdings": [{"security_id": "000099.SZ"}]}
+    comparison = build_capital_comparison(
+        d2,
+        real_positions=real,
+        simulation_positions={},
+        now=NOW,
+    )
+    assert comparison["rows"][0]["comparison_status"] == "PASS_NEW_CAPITAL"
+    recommendation = build_recommendations(d2, comparison, now=NOW)
+    assert recommendation["records"][0]["action"] == "HOLD"
 
 
 def test_missing_underwriting_fails_closed_to_watch() -> None:
