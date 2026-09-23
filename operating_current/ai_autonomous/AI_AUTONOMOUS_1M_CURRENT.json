@@ -1,8 +1,8 @@
 {
   "book_id": "AI_AUTONOMOUS_1M",
-  "cash": 899211.666,
-  "cumulative_return": -0.0010143340000000611,
-  "current_nav": 998985.666,
+  "cash": 799936.49,
+  "cumulative_return": -0.0011135100000000397,
+  "current_nav": 998886.49,
   "decision_grade_d2_seen": [
     "000900.SZ",
     "002807.SZ",
@@ -22,7 +22,7 @@
     "603995.SH"
   ],
   "deployment_discipline": {
-    "cash_weight": 0.9001246930804311,
+    "cash_weight": 0.80082822023151,
     "cumulative_decision_grade_d2_count": 16,
     "cumulative_decision_grade_d2_ids": [
       "000900.SZ",
@@ -46,8 +46,6 @@
     "current_buy_below_ids": [
       "002832.SZ",
       "300230.SZ",
-      "301109.SZ",
-      "301175.SZ",
       "600428.SH",
       "601886.SH",
       "603995.SH"
@@ -69,14 +67,16 @@
       "603268.SH",
       "603995.SH"
     ],
-    "current_eligible_buy_ids": [],
-    "deployed_weight": 0.09987530691956892,
+    "current_eligible_buy_ids": [
+      "301109.SZ"
+    ],
+    "deployed_weight": 0.19917177976849,
     "deployment_status": "THROUGHPUT_AND_GATE_REVIEW",
     "experiment_trading_day": 16,
-    "high_cash_reason": "BUY_BELOW_REQUIRES_FRESH_D2_TO_BECOME_BUY",
+    "high_cash_reason": "PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE",
     "next_gate_trading_day": 20,
     "orders": 0,
-    "position_count": 1,
+    "position_count": 2,
     "rules": {
       "buy_below_direct_buy_authorized": false,
       "day10_cash_gt_80pct": "AI_BOOK_DEPLOYMENT_REVIEW",
@@ -195,9 +195,9 @@
     },
     {
       "as_of_date": "2026-09-22",
-      "cash": 899211.666,
-      "nav": 998985.666,
-      "position_market_value": 99774.0
+      "cash": 799936.49,
+      "nav": 998886.49,
+      "position_market_value": 198950.0
     }
   ],
   "orders": 0,
@@ -212,6 +212,16 @@
       "security_id": "002807.SZ",
       "security_name": "江阴银行",
       "source_action": "ADD"
+    },
+    {
+      "average_cost": 12.892879999999998,
+      "last_price": 12.88,
+      "market_value": 99176.0,
+      "quantity": 7700.0,
+      "risk_group": "A_SHARE_STOCK",
+      "security_id": "301109.SZ",
+      "security_name": "军信股份",
+      "source_action": "BUY"
     }
   ],
   "realized_pnl": 57.401916547498914,
@@ -327,7 +337,18 @@
       "security_id": "002807.SZ",
       "security_name": "江阴银行",
       "side": "BUY"
+    },
+    {
+      "as_of_date": "2026-09-22",
+      "execution_price": 12.89288,
+      "notional": 99275.17599999999,
+      "quantity": 7700,
+      "realized_pnl": 0.0,
+      "reason": "AI_TARGET_WEIGHT_REBALANCE",
+      "security_id": "301109.SZ",
+      "security_name": "军信股份",
+      "side": "BUY"
     }
   ],
-  "turnover_since_inception": 0.10842804966338548
+  "turnover_since_inception": 0.20780402609506332
 }

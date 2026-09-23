@@ -8,12 +8,20 @@
         "security_id": "002807.SZ",
         "security_name": "江阴银行",
         "unrealized_pnl": -1071.735916547517,
-        "weight": 0.09987530691956895
+        "weight": 0.09988522319487972
+      },
+      {
+        "market_value": 99176.0,
+        "risk_group": "A_SHARE_STOCK",
+        "security_id": "301109.SZ",
+        "security_name": "军信股份",
+        "unrealized_pnl": -99.1759999999795,
+        "weight": 0.09928655657361028
       }
     ],
     "book_id": "AI_AUTONOMOUS_1M",
-    "cash": 899211.666,
-    "cash_weight": 0.9001246930804311,
+    "cash": 799936.49,
+    "cash_weight": 0.80082822023151,
     "controls": {
       "buy_lot": 100,
       "cash_floor": 0.2,
@@ -27,9 +35,9 @@
       "slippage_bps": 10.0,
       "trade_authority": "NONE"
     },
-    "current_nav": 998985.666,
+    "current_nav": 998886.49,
     "deployment_discipline": {
-      "cash_weight": 0.9001246930804311,
+      "cash_weight": 0.80082822023151,
       "cumulative_decision_grade_d2_count": 16,
       "cumulative_decision_grade_d2_ids": [
         "000900.SZ",
@@ -53,8 +61,6 @@
       "current_buy_below_ids": [
         "002832.SZ",
         "300230.SZ",
-        "301109.SZ",
-        "301175.SZ",
         "600428.SH",
         "601886.SH",
         "603995.SH"
@@ -76,14 +82,16 @@
         "603268.SH",
         "603995.SH"
       ],
-      "current_eligible_buy_ids": [],
-      "deployed_weight": 0.09987530691956892,
+      "current_eligible_buy_ids": [
+        "301109.SZ"
+      ],
+      "deployed_weight": 0.19917177976849,
       "deployment_status": "THROUGHPUT_AND_GATE_REVIEW",
       "experiment_trading_day": 16,
-      "high_cash_reason": "BUY_BELOW_REQUIRES_FRESH_D2_TO_BECOME_BUY",
+      "high_cash_reason": "PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE",
       "next_gate_trading_day": 20,
       "orders": 0,
-      "position_count": 1,
+      "position_count": 2,
       "rules": {
         "buy_below_direct_buy_authorized": false,
         "day10_cash_gt_80pct": "AI_BOOK_DEPLOYMENT_REVIEW",
@@ -108,15 +116,27 @@
       ]
     },
     "diagnostics": [],
-    "new_transaction_count": 0,
-    "new_transactions": [],
+    "new_transaction_count": 1,
+    "new_transactions": [
+      {
+        "as_of_date": "2026-09-22",
+        "execution_price": 12.89288,
+        "notional": 99275.17599999999,
+        "quantity": 7700,
+        "realized_pnl": 0.0,
+        "reason": "AI_TARGET_WEIGHT_REBALANCE",
+        "security_id": "301109.SZ",
+        "security_name": "军信股份",
+        "side": "BUY"
+      }
+    ],
     "performance": {
-      "cumulative_return": -0.0010143340000000611,
+      "cumulative_return": -0.0011135100000000397,
       "max_drawdown": -0.0037668527078207337,
       "realized_pnl": 57.401916547498914,
-      "turnover_since_inception": 0.10842804966338548
+      "turnover_since_inception": 0.20780402609506332
     },
-    "position_count": 1,
+    "position_count": 2,
     "prior_nav": 998985.666,
     "target_weights": {
       "002807.SZ": {
@@ -124,6 +144,13 @@
         "risk_group": "A_SHARE_STOCK",
         "score": 0.1570242012649072,
         "security_name": "江阴银行",
+        "target_weight": 0.1
+      },
+      "301109.SZ": {
+        "action": "BUY",
+        "risk_group": "A_SHARE_STOCK",
+        "score": 0.07968166089965403,
+        "security_name": "军信股份",
         "target_weight": 0.1
       }
     }
@@ -143,10 +170,10 @@
     "target_weight_engine": true,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-23T09:27:57+00:00",
+  "generated_at_utc": "2026-09-23T09:51:07+00:00",
   "orders": 0,
-  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_68096b263ad6e8be",
-  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_5bed86b5ca4fa2de",
+  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_65f2e69c36ec87cc",
+  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_5d80bc984ba2c07b",
   "protected_execution_episode_guard": {
     "ai_autonomous_1m_affected": false,
     "diagnostics": [
@@ -331,17 +358,17 @@
           "validated_quantity": 0
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 9900.0,
           "current_weight": 0.41243311216212475,
           "orders": 0,
           "price": 32.49,
-          "reason": "CURRENT_RECOMMENDATION_DOES_NOT_AUTHORIZE_POSITION_CHANGE",
+          "reason": "CURRENT_QUANTITY_ALREADY_MATCHES_ROUNDED_TARGET",
           "security_id": "605090.SH",
           "security_name": "九丰能源",
           "side": "HOLD",
-          "status": "NO_ACTION_REVIEW_ONLY",
+          "status": "NO_ACTION",
           "target_quantity": 9900.0,
           "target_weight": 0.41243311216212475,
           "trade_authority": "NONE",
@@ -495,7 +522,7 @@
           ]
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "available_quantity": 9900.0,
           "bear_downside": -0.13819636811326563,
@@ -510,9 +537,9 @@
           "security_name": "九丰能源",
           "target_weight": 0.41243311216212475,
           "target_weight_reasons": [
-            "CURRENT_DECISION_HOLD_PRESERVE",
-            "SINGLE_NAME_CAP_10PCT_RISK_REVIEW_ONLY",
-            "CONCENTRATION_REVIEW_DIAGNOSTIC_ONLY"
+            "CURRENT_DECISION_ADD_BLOCKED_BY_EXISTING_SINGLE_NAME_CAP",
+            "SINGLE_NAME_CAP_10PCT_ACTION_SIZING",
+            "RISK_GROUP_CAP_A_SHARE_STOCK_30PCT_LIMITS_ADD_ONLY"
           ]
         }
       ],
@@ -533,41 +560,42 @@
         "single_name_cap": 0.1,
         "trade_authority": "NONE"
       },
-      "ending_cash_if_all_validated_actions_executed": 259687.49,
+      "ending_cash_if_all_validated_actions_executed": 243331.49,
       "rows": [
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 800.0,
           "current_weight": 0.06624275197784503,
           "orders": 0,
           "price": 82.54,
-          "reason": "CURRENT_RECOMMENDATION_DOES_NOT_AUTHORIZE_POSITION_CHANGE",
+          "reason": "ADD_CANNOT_AUTHORIZE_SELL",
           "security_id": "000333.SZ",
           "security_name": "美的集团",
           "side": "HOLD",
-          "status": "NO_ACTION_REVIEW_ONLY",
+          "status": "NO_ACTION_DIRECTION_BLOCKED",
           "target_quantity": 800.0,
           "target_weight": 0.06624275197784503,
           "trade_authority": "NONE",
           "validated_quantity": 0
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 1000.0,
           "current_weight": 0.014777013215314655,
+          "estimated_notional": 11784.0,
           "orders": 0,
           "price": 14.73,
-          "reason": "CURRENT_RECOMMENDATION_DOES_NOT_AUTHORIZE_POSITION_CHANGE",
+          "reason": "BUY_QUANTITY_VALIDATED",
           "security_id": "300012.SZ",
           "security_name": "华测检测",
-          "side": "HOLD",
-          "status": "NO_ACTION_REVIEW_ONLY",
-          "target_quantity": 1000.0,
-          "target_weight": 0.014777013215314655,
+          "side": "BUY",
+          "status": "READY_FOR_USER_OR_VIRTUAL_EXECUTION",
+          "target_quantity": 1800.0,
+          "target_weight": 0.027425044374966373,
           "trade_authority": "NONE",
-          "validated_quantity": 0
+          "validated_quantity": 800
         },
         {
           "action": "ADD",
@@ -623,38 +651,39 @@
           "validated_quantity": 0
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 1600.0,
           "current_weight": 0.06552045397954046,
           "orders": 0,
           "price": 40.82,
-          "reason": "CURRENT_RECOMMENDATION_DOES_NOT_AUTHORIZE_POSITION_CHANGE",
+          "reason": "CURRENT_QUANTITY_ALREADY_MATCHES_ROUNDED_TARGET",
           "security_id": "600036.SH",
           "security_name": "招商银行",
           "side": "HOLD",
-          "status": "NO_ACTION_REVIEW_ONLY",
+          "status": "NO_ACTION",
           "target_quantity": 1600.0,
           "target_weight": 0.06552045397954046,
           "trade_authority": "NONE",
           "validated_quantity": 0
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 800.0,
           "current_weight": 0.03669273831387297,
+          "estimated_notional": 4572.0,
           "orders": 0,
           "price": 45.72,
-          "reason": "CURRENT_RECOMMENDATION_DOES_NOT_AUTHORIZE_POSITION_CHANGE",
+          "reason": "BUY_QUANTITY_VALIDATED",
           "security_id": "600276.SH",
           "security_name": "恒瑞医药",
-          "side": "HOLD",
-          "status": "NO_ACTION_REVIEW_ONLY",
-          "target_quantity": 800.0,
-          "target_weight": 0.03669273831387297,
+          "side": "BUY",
+          "status": "READY_FOR_USER_OR_VIRTUAL_EXECUTION",
+          "target_quantity": 900.0,
+          "target_weight": 0.04582589238265025,
           "trade_authority": "NONE",
-          "validated_quantity": 0
+          "validated_quantity": 100
         },
         {
           "action": "ADD",
@@ -710,34 +739,34 @@
           "validated_quantity": 0
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 1800.0,
           "current_weight": 0.036476048914381595,
           "orders": 0,
           "price": 20.2,
-          "reason": "CURRENT_RECOMMENDATION_DOES_NOT_AUTHORIZE_POSITION_CHANGE",
+          "reason": "CURRENT_QUANTITY_ALREADY_MATCHES_ROUNDED_TARGET",
           "security_id": "600690.SH",
           "security_name": "海尔智家",
           "side": "HOLD",
-          "status": "NO_ACTION_REVIEW_ONLY",
+          "status": "NO_ACTION",
           "target_quantity": 1800.0,
           "target_weight": 0.036476048914381595,
           "trade_authority": "NONE",
           "validated_quantity": 0
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 2200.0,
           "current_weight": 0.06184074695484431,
           "orders": 0,
           "price": 28.02,
-          "reason": "CURRENT_RECOMMENDATION_DOES_NOT_AUTHORIZE_POSITION_CHANGE",
+          "reason": "CURRENT_QUANTITY_ALREADY_MATCHES_ROUNDED_TARGET",
           "security_id": "600900.SH",
           "security_name": "长江电力",
           "side": "HOLD",
-          "status": "NO_ACTION_REVIEW_ONLY",
+          "status": "NO_ACTION",
           "target_quantity": 2200.0,
           "target_weight": 0.06184074695484431,
           "trade_authority": "NONE",
@@ -824,7 +853,7 @@
       "current_cash_weight": 0.26051632529408636,
       "rows": [
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "available_quantity": 800.0,
           "bear_downside": -0.1034649866731282,
@@ -839,11 +868,12 @@
           "security_name": "美的集团",
           "target_weight": 0.06624275197784503,
           "target_weight_reasons": [
-            "CURRENT_DECISION_HOLD_PRESERVE"
+            "CURRENT_DECISION_ADD_SCORE_SIZED",
+            "RISK_GROUP_CAP_CORE_30PCT_LIMITS_ADD_ONLY"
           ]
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "available_quantity": 0.0,
           "bear_downside": -0.144602851323829,
@@ -856,9 +886,9 @@
           "risk_group": "QUALITY_GROWTH",
           "security_id": "300012.SZ",
           "security_name": "华测检测",
-          "target_weight": 0.014777013215314655,
+          "target_weight": 0.027425044374966373,
           "target_weight_reasons": [
-            "CURRENT_DECISION_HOLD_PRESERVE"
+            "CURRENT_DECISION_ADD_SCORE_SIZED"
           ]
         },
         {
@@ -922,7 +952,7 @@
           ]
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "available_quantity": 1600.0,
           "bear_downside": -0.16707496325330717,
@@ -937,11 +967,12 @@
           "security_name": "招商银行",
           "target_weight": 0.06552045397954046,
           "target_weight_reasons": [
-            "CURRENT_DECISION_HOLD_PRESERVE"
+            "CURRENT_DECISION_ADD_SCORE_SIZED",
+            "RISK_GROUP_CAP_CORE_30PCT_LIMITS_ADD_ONLY"
           ]
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "available_quantity": 800.0,
           "bear_downside": -0.1688538932633421,
@@ -954,9 +985,9 @@
           "risk_group": "GROWTH",
           "security_id": "600276.SH",
           "security_name": "恒瑞医药",
-          "target_weight": 0.03669273831387297,
+          "target_weight": 0.04582589238265025,
           "target_weight_reasons": [
-            "CURRENT_DECISION_HOLD_PRESERVE"
+            "CURRENT_DECISION_ADD_SCORE_SIZED"
           ]
         },
         {
@@ -1021,7 +1052,7 @@
           ]
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "available_quantity": 1800.0,
           "bear_downside": -0.15841584158415833,
@@ -1036,11 +1067,12 @@
           "security_name": "海尔智家",
           "target_weight": 0.036476048914381595,
           "target_weight_reasons": [
-            "CURRENT_DECISION_HOLD_PRESERVE"
+            "CURRENT_DECISION_ADD_SCORE_SIZED",
+            "RISK_GROUP_CAP_CORE_30PCT_LIMITS_ADD_ONLY"
           ]
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "available_quantity": 2200.0,
           "bear_downside": -0.1638115631691649,
@@ -1055,7 +1087,8 @@
           "security_name": "长江电力",
           "target_weight": 0.06184074695484431,
           "target_weight_reasons": [
-            "CURRENT_DECISION_HOLD_PRESERVE"
+            "CURRENT_DECISION_ADD_SCORE_SIZED",
+            "RISK_GROUP_CAP_CORE_30PCT_LIMITS_ADD_ONLY"
           ]
         },
         {
@@ -1141,7 +1174,7 @@
           ]
         }
       ],
-      "target_cash_weight": 0.2355163252940864,
+      "target_cash_weight": 0.21373514006565741,
       "total_assets": 996818.49
     }
   },
