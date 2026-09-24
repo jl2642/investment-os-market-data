@@ -669,6 +669,106 @@ def current_decision_grade_ai_d2_ids(recommendation: dict[str, Any]) -> set[str]
     return out
 
 
+def eligible_ai_deployable_capacity(
+    *,
+    state: dict[str, Any],
+    recommendation: dict[str, Any],
+) -> dict[str, Any]:
+    """Estimate incremental AI-book deployment capacity under current hard caps.
+
+    This is a diagnostic only.  It does not authorize trades or relax the
+    formal BUY gate.  Capacity is allocated in research-score order across
+    current formal new-capital BUYs, subject to the single-name cap, risk-group
+    cap and minimum cash floor.
+    """
+    nav = float(state.get("current_nav") or AI_INITIAL_CAPITAL)
+    if nav <= 0:
+        return {
+            "incremental_capacity_weight": 0.0,
+            "capacity_constrained_max_deployed_weight": 0.0,
+            "by_security": [],
+        }
+
+    cash = float(state.get("cash") or 0.0)
+    cash_weight = cash / nav
+    deployed_weight = max(0.0, 1.0 - cash_weight)
+    remaining_cash_capacity = max(0.0, cash_weight - AI_CASH_FLOOR)
+    positions = ai_position_map(state)
+    recs = recommendation_map(recommendation)
+
+    group_used: dict[str, float] = {}
+    current_weights: dict[str, float] = {}
+    for sid, pos in positions.items():
+        market_value = num(pos.get("market_value"))
+        if market_value is None:
+            market_value = (
+                float(pos.get("quantity") or 0.0)
+                * float(pos.get("last_price") or 0.0)
+            )
+        weight = max(0.0, float(market_value) / nav)
+        current_weights[sid] = weight
+        group = str(
+            pos.get("risk_group")
+            or risk_group(pos, recs.get(sid, {}))
+            or "UNKNOWN"
+        )
+        group_used[group] = group_used.get(group, 0.0) + weight
+
+    eligible = [
+        rec for rec in recs.values()
+        if rec.get("portfolio_implication") == "NEW_CAPITAL_CANDIDATE"
+        and rec.get("action") == "BUY"
+    ]
+    eligible.sort(
+        key=lambda rec: (
+            -research_score(rec),
+            str(rec.get("security_id") or ""),
+        )
+    )
+
+    by_security: list[dict[str, Any]] = []
+    incremental = 0.0
+    for rec in eligible:
+        sid = str(rec.get("security_id") or "")
+        pos = positions.get(sid)
+        current_weight = current_weights.get(sid, 0.0)
+        group = str(
+            (pos or {}).get("risk_group")
+            or risk_group(pos, rec)
+            or "UNKNOWN"
+        )
+        single_headroom = max(0.0, DEFAULT_SINGLE_NAME_CAP - current_weight)
+        group_headroom = max(0.0, DEFAULT_GROUP_CAP - group_used.get(group, 0.0))
+        allocatable = min(
+            single_headroom,
+            group_headroom,
+            remaining_cash_capacity,
+        )
+        allocatable = max(0.0, allocatable)
+        incremental += allocatable
+        remaining_cash_capacity = max(0.0, remaining_cash_capacity - allocatable)
+        group_used[group] = group_used.get(group, 0.0) + allocatable
+        by_security.append({
+            "security_id": sid,
+            "security_name": rec.get("security_name"),
+            "risk_group": group,
+            "current_weight": current_weight,
+            "single_name_headroom": single_headroom,
+            "risk_group_headroom_before": group_headroom,
+            "allocatable_incremental_weight": allocatable,
+        })
+
+    max_deployed = min(
+        1.0 - AI_CASH_FLOOR,
+        deployed_weight + incremental,
+    )
+    return {
+        "incremental_capacity_weight": incremental,
+        "capacity_constrained_max_deployed_weight": max_deployed,
+        "by_security": by_security,
+    }
+
+
 def update_ai_deployment_discipline(
     *,
     state: dict[str, Any],
@@ -705,6 +805,16 @@ def update_ai_deployment_discipline(
         if rec.get("portfolio_implication") == "NEW_CAPITAL_CANDIDATE"
         and rec.get("action") == "BUY_BELOW"
     )
+
+    capacity = eligible_ai_deployable_capacity(
+        state=state,
+        recommendation=recommendation,
+    )
+    incremental_capacity = float(capacity["incremental_capacity_weight"])
+    capacity_max_deployed = float(
+        capacity["capacity_constrained_max_deployed_weight"]
+    )
+
     auto_reunderwrite_candidate_ids: list[str] = []
     if cash_weight > 0.80:
         for sid in buy_below_ids:
@@ -725,7 +835,12 @@ def update_ai_deployment_discipline(
         if cash_weight > 0.50:
             triggered.append("DAY20_DEPLOYMENT_REVIEW")
         if eligible_buy_ids and deployed_weight < 0.30:
-            triggered.append("DEPLOYMENT_BELOW_30PCT_WITH_ELIGIBLE_BUY")
+            if capacity_max_deployed >= 0.30 - 1e-12:
+                triggered.append(
+                    "DEPLOYMENT_BELOW_30PCT_WITH_SUFFICIENT_ELIGIBLE_CAPACITY"
+                )
+            else:
+                triggered.append("DAY20_CAPACITY_CONSTRAINED")
     if trading_day >= 30 and cash_weight > 0.70:
         triggered.append("OPPORTUNITY_STARVATION_REVIEW_REQUIRED")
     if trading_day >= 40 and cash_weight > 0.50:
@@ -737,6 +852,8 @@ def update_ai_deployment_discipline(
         status = "OPPORTUNITY_RESEARCH_REVIEW_REQUIRED"
     elif "D2_THROUGHPUT_SHORTFALL" in triggered:
         status = "D2_THROUGHPUT_REVIEW_REQUIRED"
+    elif "DAY20_CAPACITY_CONSTRAINED" in triggered:
+        status = "OPPORTUNITY_CAPACITY_REVIEW_REQUIRED"
     elif "DAY20_DEPLOYMENT_REVIEW" in triggered:
         status = "DECISION_GRADE_D2_AND_ELIGIBLE_BUY_REVIEW"
     elif "AI_BOOK_DEPLOYMENT_REVIEW" in triggered:
@@ -748,6 +865,10 @@ def update_ai_deployment_discipline(
         high_cash_reason = None
     elif len(seen) < DAY20_MIN_DECISION_GRADE_D2:
         high_cash_reason = "INSUFFICIENT_CUMULATIVE_DECISION_GRADE_D2"
+    elif eligible_buy_ids and capacity_max_deployed < 0.30 - 1e-12:
+        high_cash_reason = (
+            "INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS"
+        )
     elif not eligible_buy_ids and buy_below_ids:
         high_cash_reason = "BUY_BELOW_REQUIRES_FRESH_D2_TO_BECOME_BUY"
     elif not eligible_buy_ids:
@@ -771,11 +892,15 @@ def update_ai_deployment_discipline(
         "current_eligible_buy_ids": eligible_buy_ids,
         "current_buy_below_ids": buy_below_ids,
         "current_auto_reunderwrite_candidate_ids": auto_reunderwrite_candidate_ids,
+        "eligible_incremental_deployable_capacity_weight": incremental_capacity,
+        "capacity_constrained_max_deployed_weight": capacity_max_deployed,
+        "eligible_deployable_capacity_by_security": capacity["by_security"],
         "high_cash_reason": high_cash_reason,
         "rules": {
             "day10_cash_gt_80pct": "AI_BOOK_DEPLOYMENT_REVIEW",
             "day20_min_cumulative_decision_grade_d2": DAY20_MIN_DECISION_GRADE_D2,
             "day20_deployment_target_if_eligible_buys_exist": [0.30, 0.50],
+            "day20_target_requires_sufficient_eligible_deployable_capacity": True,
             "day30_cash_gt_70pct": "OPPORTUNITY_STARVATION_REVIEW_REQUIRED",
             "day40_cash_gt_50pct": "EXPERIMENT_INSUFFICIENT_DEPLOYMENT_POLICY_PROPOSAL_ONLY",
             "buy_below_direct_buy_authorized": False,
