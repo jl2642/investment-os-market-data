@@ -3,25 +3,25 @@
     "as_of_date": "2026-09-23",
     "attribution": [
       {
-        "market_value": 99704.0,
+        "market_value": 99424.0,
         "risk_group": "A_SHARE_STOCK",
         "security_id": "002807.SZ",
         "security_name": "江阴银行",
-        "unrealized_pnl": -1554.1479165474946,
-        "weight": 0.09993286635044867
+        "unrealized_pnl": -578.8816200613678,
+        "weight": 0.09962578695055321
       },
       {
-        "market_value": 99762.0,
+        "market_value": 99060.0,
         "risk_group": "A_SHARE_STOCK",
         "security_id": "301109.SZ",
         "security_name": "军信股份",
-        "unrealized_pnl": -793.4550000000005,
-        "weight": 0.09999099948701616
+        "unrealized_pnl": -1495.4549999999995,
+        "weight": 0.09926104819079701
       }
     ],
     "book_id": "AI_AUTONOMOUS_1M",
-    "cash": 798243.799,
-    "cash_weight": 0.8000761341625352,
+    "cash": 799490.551,
+    "cash_weight": 0.8011131648586498,
     "controls": {
       "buy_lot": 100,
       "cash_floor": 0.2,
@@ -35,10 +35,10 @@
       "slippage_bps": 10.0,
       "trade_authority": "NONE"
     },
-    "current_nav": 997709.799,
+    "current_nav": 997974.551,
     "deployment_discipline": {
-      "capacity_constrained_max_deployed_weight": 0.19993286635044866,
-      "cash_weight": 0.8000761341625352,
+      "capacity_constrained_max_deployed_weight": 0.1996257869505532,
+      "cash_weight": 0.8011131648586498,
       "cumulative_decision_grade_d2_count": 17,
       "cumulative_decision_grade_d2_ids": [
         "000900.SZ",
@@ -91,20 +91,20 @@
       "current_eligible_buy_ids": [
         "301109.SZ"
       ],
-      "deployed_weight": 0.1999238658374648,
+      "deployed_weight": 0.1988868351413502,
       "deployment_status": "THROUGHPUT_AND_GATE_REVIEW",
       "eligible_deployable_capacity_by_security": [
         {
-          "allocatable_incremental_weight": 9.000512983844966e-06,
-          "current_weight": 0.09999099948701616,
+          "allocatable_incremental_weight": 0.0007389518092029979,
+          "current_weight": 0.09926104819079701,
           "risk_group": "A_SHARE_STOCK",
-          "risk_group_headroom_before": 0.10007613416253516,
+          "risk_group_headroom_before": 0.10111316485864977,
           "security_id": "301109.SZ",
           "security_name": "军信股份",
-          "single_name_headroom": 9.000512983844966e-06
+          "single_name_headroom": 0.0007389518092029979
         }
       ],
-      "eligible_incremental_deployable_capacity_weight": 9.000512983844966e-06,
+      "eligible_incremental_deployable_capacity_weight": 0.0007389518092029979,
       "experiment_trading_day": 17,
       "high_cash_reason": "INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS",
       "next_gate_trading_day": 20,
@@ -135,16 +135,28 @@
       ]
     },
     "diagnostics": [],
-    "new_transaction_count": 0,
-    "new_transactions": [],
+    "new_transaction_count": 1,
+    "new_transactions": [
+      {
+        "as_of_date": "2026-09-23",
+        "execution_price": 4.15584,
+        "notional": 1246.7520000000002,
+        "quantity": 300.0,
+        "realized_pnl": -8.514296486125872,
+        "reason": "AI_TARGET_WEIGHT_REBALANCE",
+        "security_id": "002807.SZ",
+        "security_name": "江阴银行",
+        "side": "SELL"
+      }
+    ],
     "performance": {
-      "cumulative_return": -0.0022902009999999917,
+      "cumulative_return": -0.0020254490000000125,
       "max_drawdown": -0.004799117353165849,
-      "realized_pnl": 57.401916547498914,
-      "turnover_since_inception": 0.20950059972077148
+      "realized_pnl": 48.88762006137304,
+      "turnover_since_inception": 0.21074988051620688
     },
     "position_count": 2,
-    "prior_nav": 997709.799,
+    "prior_nav": 997975.799,
     "target_weights": {
       "002807.SZ": {
         "action": "HOLD",
@@ -177,10 +189,10 @@
     "target_weight_engine": true,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-24T01:41:00+00:00",
+  "generated_at_utc": "2026-09-24T15:26:36+00:00",
   "orders": 0,
-  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_63c9f3f5b3ef0732",
-  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_cc2119c25684e2a4",
+  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_7fd358ef6c193281",
+  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_08f193a14d12f5ac",
   "protected_execution_episode_guard": {
     "ai_autonomous_1m_affected": false,
     "diagnostics": [
