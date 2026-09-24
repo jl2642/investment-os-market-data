@@ -37,6 +37,7 @@
     },
     "current_nav": 997709.799,
     "deployment_discipline": {
+      "capacity_constrained_max_deployed_weight": 0.19993286635044866,
       "cash_weight": 0.8000761341625352,
       "cumulative_decision_grade_d2_count": 16,
       "cumulative_decision_grade_d2_ids": [
@@ -90,8 +91,20 @@
       ],
       "deployed_weight": 0.1999238658374648,
       "deployment_status": "THROUGHPUT_AND_GATE_REVIEW",
+      "eligible_deployable_capacity_by_security": [
+        {
+          "allocatable_incremental_weight": 9.000512983844966e-06,
+          "current_weight": 0.09999099948701616,
+          "risk_group": "A_SHARE_STOCK",
+          "risk_group_headroom_before": 0.10007613416253516,
+          "security_id": "301109.SZ",
+          "security_name": "军信股份",
+          "single_name_headroom": 9.000512983844966e-06
+        }
+      ],
+      "eligible_incremental_deployable_capacity_weight": 9.000512983844966e-06,
       "experiment_trading_day": 17,
-      "high_cash_reason": "PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE",
+      "high_cash_reason": "INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS",
       "next_gate_trading_day": 20,
       "orders": 0,
       "position_count": 2,
@@ -103,6 +116,7 @@
           0.5
         ],
         "day20_min_cumulative_decision_grade_d2": 5,
+        "day20_target_requires_sufficient_eligible_deployable_capacity": true,
         "day30_cash_gt_70pct": "OPPORTUNITY_STARVATION_REVIEW_REQUIRED",
         "day40_cash_gt_50pct": "EXPERIMENT_INSUFFICIENT_DEPLOYMENT_POLICY_PROPOSAL_ONLY",
         "forced_buying": false,
@@ -161,10 +175,10 @@
     "target_weight_engine": true,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-23T18:47:28+00:00",
+  "generated_at_utc": "2026-09-24T01:25:44+00:00",
   "orders": 0,
-  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_1c5871c6bd39db9a",
-  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_51dc6910b2ac9646",
+  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_55abba8d0ea31fbd",
+  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_4b819acd649039d4",
   "protected_execution_episode_guard": {
     "ai_autonomous_1m_affected": false,
     "diagnostics": [

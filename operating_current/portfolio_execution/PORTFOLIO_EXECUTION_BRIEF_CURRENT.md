@@ -11,7 +11,7 @@
 - AI部署阶段：第 17 个完整观察交易日 / THROUGHPUT_AND_GATE_REVIEW
 - AI累计 decision-grade D2：16
 - 距下一 deployment gate：3 个交易日
-- 高现金原因：PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE
+- 高现金原因：INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS
 - Real / legacy Simulation 自动改仓：false
 - Orders：0；trade_authority：NONE
 
