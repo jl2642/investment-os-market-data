@@ -5,6 +5,7 @@ from automation.portfolio_execution.build_portfolio_execution import (
     apply_ai_virtual_rebalance,
     build_account_target_plan,
     build_execution_plan,
+    update_ai_deployment_discipline,
 )
 
 
@@ -372,3 +373,104 @@ def test_ai_cash_floor_and_risk_group_cap_hold() -> None:
         "positions": state["positions"],
         "current_nav": state["current_nav"],
     }
+
+
+def test_day20_does_not_claim_30pct_deployment_when_eligible_capacity_is_exhausted() -> None:
+    buy = rec("301109.SZ", "BUY", price=12.8, expected=0.12, name="军信股份")
+    buy["portfolio_implication"] = "NEW_CAPITAL_CANDIDATE"
+    buy["base_value"] = 14.0
+    buy["probability_weighted_value"] = 14.3
+
+    state = {
+        "current_nav": 1_000_000.0,
+        "cash": 800_000.0,
+        "positions": [
+            {
+                "security_id": "002807.SZ",
+                "security_name": "江阴银行",
+                "quantity": 25_000,
+                "last_price": 4.0,
+                "market_value": 100_000.0,
+                "risk_group": "A_SHARE_STOCK",
+            },
+            {
+                "security_id": "301109.SZ",
+                "security_name": "军信股份",
+                "quantity": 7_812.5,
+                "last_price": 12.8,
+                "market_value": 100_000.0,
+                "risk_group": "A_SHARE_STOCK",
+            },
+        ],
+        "nav_history": [
+            {"as_of_date": f"2026-09-{day:02d}"}
+            for day in range(1, 21)
+        ],
+        "decision_grade_d2_seen": [
+            "000900.SZ",
+            "002807.SZ",
+            "002936.SZ",
+            "300230.SZ",
+            "301109.SZ",
+        ],
+    }
+
+    discipline = update_ai_deployment_discipline(
+        state=state,
+        recommendation=recommendation(buy),
+        as_of_date="2026-09-20",
+    )
+
+    assert discipline["experiment_trading_day"] == 20
+    assert discipline["eligible_incremental_deployable_capacity_weight"] <= 1e-12
+    assert discipline["capacity_constrained_max_deployed_weight"] < 0.30
+    assert "DAY20_CAPACITY_CONSTRAINED" in discipline["triggered_gates"]
+    assert (
+        "DEPLOYMENT_BELOW_30PCT_WITH_SUFFICIENT_ELIGIBLE_CAPACITY"
+        not in discipline["triggered_gates"]
+    )
+    assert (
+        discipline["high_cash_reason"]
+        == "INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS"
+    )
+
+
+def test_day20_flags_underdeployment_when_formal_buys_have_enough_capacity() -> None:
+    rows = []
+    for sid in ["000001.SZ", "000002.SZ", "000003.SZ"]:
+        row = rec(sid, "BUY", price=10.0, expected=0.20)
+        row["portfolio_implication"] = "NEW_CAPITAL_CANDIDATE"
+        row["base_value"] = 12.0
+        row["probability_weighted_value"] = 12.0
+        rows.append(row)
+
+    state = {
+        "current_nav": 1_000_000.0,
+        "cash": 1_000_000.0,
+        "positions": [],
+        "nav_history": [
+            {"as_of_date": f"2026-09-{day:02d}"}
+            for day in range(1, 21)
+        ],
+        "decision_grade_d2_seen": [
+            "000001.SZ",
+            "000002.SZ",
+            "000003.SZ",
+            "000004.SZ",
+            "000005.SZ",
+        ],
+    }
+
+    discipline = update_ai_deployment_discipline(
+        state=state,
+        recommendation=recommendation(*rows),
+        as_of_date="2026-09-20",
+    )
+
+    assert discipline["eligible_incremental_deployable_capacity_weight"] >= 0.30 - 1e-12
+    assert discipline["capacity_constrained_max_deployed_weight"] >= 0.30 - 1e-12
+    assert (
+        "DEPLOYMENT_BELOW_30PCT_WITH_SUFFICIENT_ELIGIBLE_CAPACITY"
+        in discipline["triggered_gates"]
+    )
+    assert "DAY20_CAPACITY_CONSTRAINED" not in discipline["triggered_gates"]
