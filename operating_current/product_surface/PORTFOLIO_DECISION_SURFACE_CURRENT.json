@@ -25,7 +25,8 @@
       "BUY": 1,
       "BUY_BELOW": 6,
       "HOLD": 19,
-      "TRIM": 1
+      "TRIM": 1,
+      "WATCH": 3
     },
     "automatic_position_change_allowed": false,
     "automatic_rebalance_allowed": false,
@@ -33,7 +34,7 @@
     "holding_reunderwriting_backlog_count": 0,
     "holding_reunderwriting_queue_count": 0,
     "implementation_ready": false,
-    "new_opportunity_count": 16,
+    "new_opportunity_count": 19,
     "portfolio_holding_count": 23,
     "portfolio_performance_monitoring_line_count": 24,
     "portfolio_performance_monitoring_unique_count": 23,
@@ -246,6 +247,63 @@
       "security_id": "603995.SH",
       "security_name": "甬金股份",
       "top_blocker": "PRICE_BLOCKED",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "WATCH",
+      "bear_downside": null,
+      "catalysts": [],
+      "confidence": null,
+      "current_price": null,
+      "entry_price": null,
+      "expected_return": null,
+      "kill_thesis": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
+      "orders": 0,
+      "original_recommendation_action": "WATCH",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "000993.SZ",
+      "security_name": "闽东电力",
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "WATCH",
+      "bear_downside": null,
+      "catalysts": [],
+      "confidence": null,
+      "current_price": null,
+      "entry_price": null,
+      "expected_return": null,
+      "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+      "orders": 0,
+      "original_recommendation_action": "WATCH",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "001227.SZ",
+      "security_name": "兰州银行",
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "WATCH",
+      "bear_downside": null,
+      "catalysts": [],
+      "confidence": null,
+      "current_price": null,
+      "entry_price": null,
+      "expected_return": null,
+      "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+      "orders": 0,
+      "original_recommendation_action": "WATCH",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "300909.SZ",
+      "security_name": "汇创达",
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -1634,30 +1692,16 @@
       "reject_count": 0,
       "research_slot_policy": "ONE_VALUE_OR_RECOVERY_ONE_MOMENTUM_ONE_BEST_REMAINING_WITH_AI_HIGH_CASH_NEAR_GATE_PRIORITY",
       "route_security_ids": [
-        "300230.SZ",
-        "603268.SH",
-        "301189.SZ"
+        "001227.SZ",
+        "300909.SZ",
+        "000993.SZ"
       ],
       "watch_count": 7
     },
     "rows": [
       {
-        "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-        "d1_rank": 1,
-        "d2_questions": [
-          "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
-          "Test whether the expected return remains attractive after normalizing current momentum.",
-          "Normalize earnings and cash flow using the latest primary financial disclosures.",
-          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-          "Define the first-rejection test and the evidence that would invalidate the thesis."
-        ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "603268.SH",
-        "security_name": "松发股份"
-      },
-      {
         "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
-        "d1_rank": 2,
+        "d1_rank": 1,
         "d2_questions": [
           "Separate cyclical/base-effect recovery from durable operating improvement.",
           "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
@@ -1666,27 +1710,27 @@
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
         "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "601086.SH",
-        "security_name": "国芳集团"
+        "security_id": "300741.SZ",
+        "security_name": "华宝股份"
+      },
+      {
+        "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+        "d1_rank": 2,
+        "d2_questions": [
+          "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
+          "Test whether the expected return remains attractive after normalizing current momentum.",
+          "Normalize earnings and cash flow using the latest primary financial disclosures.",
+          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+          "Define the first-rejection test and the evidence that would invalidate the thesis."
+        ],
+        "research_priority": "A_IMMEDIATE_RESEARCH",
+        "security_id": "300909.SZ",
+        "security_name": "汇创达"
       },
       {
         "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
         "d1_rank": 3,
         "d2_questions": [
-          "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
-          "Test whether the expected return remains attractive after normalizing current momentum.",
-          "Normalize earnings and cash flow using the latest primary financial disclosures.",
-          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-          "Define the first-rejection test and the evidence that would invalidate the thesis."
-        ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "301189.SZ",
-        "security_name": "奥尼电子"
-      },
-      {
-        "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-        "d1_rank": 4,
-        "d2_questions": [
           "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
           "Compare the opportunity with lower-risk defensive and cash alternatives.",
           "Normalize earnings and cash flow using the latest primary financial disclosures.",
@@ -1694,12 +1738,12 @@
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
         "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "300230.SZ",
-        "security_name": "永利股份"
+        "security_id": "001227.SZ",
+        "security_name": "兰州银行"
       },
       {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
-        "d1_rank": 5,
+        "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+        "d1_rank": 4,
         "d2_questions": [
           "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
           "Measure how much growth or margin improvement the current valuation already discounts.",
@@ -1708,12 +1752,54 @@
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
         "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "600127.SH",
-        "security_name": "金健米业"
+        "security_id": "000993.SZ",
+        "security_name": "闽东电力"
+      },
+      {
+        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_rank": 5,
+        "d2_questions": [
+          "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
+          "Test whether the expected return remains attractive after normalizing current momentum.",
+          "Normalize earnings and cash flow using the latest primary financial disclosures.",
+          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+          "Define the first-rejection test and the evidence that would invalidate the thesis."
+        ],
+        "research_priority": "A_IMMEDIATE_RESEARCH",
+        "security_id": "603373.SH",
+        "security_name": "安邦护卫集团股份"
       },
       {
         "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 6,
+        "d2_questions": [
+          "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
+          "Compare the opportunity with lower-risk defensive and cash alternatives.",
+          "Normalize earnings and cash flow using the latest primary financial disclosures.",
+          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+          "Define the first-rejection test and the evidence that would invalidate the thesis."
+        ],
+        "research_priority": "A_IMMEDIATE_RESEARCH",
+        "security_id": "600874.SH",
+        "security_name": "创业环保"
+      },
+      {
+        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_rank": 7,
+        "d2_questions": [
+          "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
+          "Measure how much growth or margin improvement the current valuation already discounts.",
+          "Normalize earnings and cash flow using the latest primary financial disclosures.",
+          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+          "Define the first-rejection test and the evidence that would invalidate the thesis."
+        ],
+        "research_priority": "A_IMMEDIATE_RESEARCH",
+        "security_id": "301008.SZ",
+        "security_name": "宏昌科技"
+      },
+      {
+        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+        "d1_rank": 8,
         "d2_questions": [
           "Separate cyclical/base-effect recovery from durable operating improvement.",
           "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
@@ -1722,50 +1808,22 @@
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
         "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "601579.SH",
-        "security_name": "会稽山"
-      },
-      {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
-        "d1_rank": 7,
-        "d2_questions": [
-          "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
-          "Compare the opportunity with lower-risk defensive and cash alternatives.",
-          "Normalize earnings and cash flow using the latest primary financial disclosures.",
-          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-          "Define the first-rejection test and the evidence that would invalidate the thesis."
-        ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "002936.SZ",
-        "security_name": "郑州银行"
-      },
-      {
-        "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
-        "d1_rank": 8,
-        "d2_questions": [
-          "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
-          "Measure how much growth or margin improvement the current valuation already discounts.",
-          "Normalize earnings and cash flow using the latest primary financial disclosures.",
-          "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-          "Define the first-rejection test and the evidence that would invalidate the thesis."
-        ],
-        "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "002815.SZ",
-        "security_name": "崇达技术"
+        "security_id": "003006.SZ",
+        "security_name": "百亚股份"
       },
       {
         "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
         "d1_rank": 9,
         "d2_questions": [
-          "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
-          "Test whether the expected return remains attractive after normalizing current momentum.",
+          "Separate cyclical/base-effect recovery from durable operating improvement.",
+          "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
           "Normalize earnings and cash flow using the latest primary financial disclosures.",
           "Build an explicit valuation range and identify what expectations are embedded in the current price.",
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
         "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "601886.SH",
-        "security_name": "江河集团"
+        "security_id": "300829.SZ",
+        "security_name": "金丹科技"
       },
       {
         "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
@@ -1778,19 +1836,19 @@
           "Define the first-rejection test and the evidence that would invalidate the thesis."
         ],
         "research_priority": "A_IMMEDIATE_RESEARCH",
-        "security_id": "000900.SZ",
-        "security_name": "现代投资"
+        "security_id": "300185.SZ",
+        "security_name": "通裕重工"
       }
     ]
   },
   "schema_version": "1.0.0",
   "source_bindings": {
     "investment_pipeline": {
-      "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_3c2dea399ef4d947",
+      "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_787d33d21e5902cb",
       "domain": "INVESTMENT_PIPELINE",
-      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_0041243fe9e3fdf2",
+      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_10f7f5dc867fb01d",
       "source_commit": "c9a54b3b84ad98b9ecb6dda386467426da5cfa36",
-      "watermark": "2026-09-25T14:56:49+00:00"
+      "watermark": "2026-09-25T15:27:01+00:00"
     },
     "portfolio_marks": {
       "domain": "PORTFOLIO_MARKS",
@@ -1799,6 +1857,6 @@
     }
   },
   "status": "PASS_S3_PORTFOLIO_PRODUCT_SURFACE",
-  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_0075f1219d48f291",
+  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_bbfd4127bb2cbb96",
   "trade_authority": "NONE"
 }
