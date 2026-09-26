@@ -1,9 +1,27 @@
 {
   "as_of_date": "2026-09-24",
-  "generated_at_utc": "2026-09-25T18:59:23+00:00",
+  "generated_at_utc": "2026-09-26T03:18:33+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_f91cfd27ab098f6a",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_c9baf1b99880e237",
   "records": [
+    {
+      "accounts": [],
+      "current_action": "BUY",
+      "entry_price": 2.1319480631,
+      "latest_price": 2.07,
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
+      "orders": 0,
+      "price_as_of": "2026-09-24",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "HIGH",
+      "reason": "Current decision-grade new-capital action is BUY.",
+      "review_type": "USER_ACTION_REVIEW",
+      "security_id": "001227.SZ",
+      "security_name": "兰州银行",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "NEW_CAPITAL_ACTION_BUY"
+    },
     {
       "accounts": [],
       "current_action": "BUY",
@@ -126,25 +144,25 @@
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "HOLD",
-      "entry_price": 62.43,
+      "current_action": "ADD",
+      "entry_price": 63.4565217391,
       "latest_price": 61.0,
-      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-09-24",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "MEDIUM_HIGH",
-      "reason": "Holding price 61.0000 is at/below research entry threshold 62.4300.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade holding action is ADD.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "601138.SH",
       "security_name": "工业富联",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
-  "review_count": 7,
+  "review_count": 8,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_1480a675b0ed7df2",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_9ff5ddebf1f8fc3f",
   "trade_authority": "NONE"
 }
