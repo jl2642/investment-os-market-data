@@ -1,7 +1,7 @@
 # 股票投资助手｜Daily Investment Brief
 
 - 数据日期：2026-09-24
-- Recommendation 人工复核项（非执行待办）：5
+- Recommendation 人工复核项（非执行待办）：7
 - 持仓绩效监控：23 / 23（账户持仓行 24）
 - 当前投资判断覆盖：23 / 23
 - 新机会：19
@@ -15,6 +15,7 @@
 | 300124.SZ 汇川技术 | SIMULATION | ADD | 51.88 | 36.1% | — |
 | 600309.SH 万华化学 | SIMULATION | ADD | 69.45 | 20.4% | — |
 | 600660.SH 福耀玻璃 | SIMULATION | ADD | 52.47 | 20.6% | — |
+| 601138.SH 工业富联 | SIMULATION | ADD | 61.00 | 19.6% | — |
 | 000333.SZ 美的集团 | SIMULATION | HOLD | 82.65 | 17.4% | — |
 | 002807.SZ 江阴银行 | REAL | HOLD | 4.16 | 22.8% | — |
 | 017534.OF 富国天利增长债券C | REAL | HOLD | 1.40 | 3.4% | PRICE_BLOCKED |
@@ -31,7 +32,6 @@
 | 600690.SH 海尔智家 | SIMULATION | HOLD | 20.14 | 16.7% | — |
 | 600900.SH 长江电力 | SIMULATION | HOLD | 28.36 | 9.5% | PRICE_BLOCKED |
 | 600938.SH 中国海油 | SIMULATION | HOLD | 32.80 | 9.8% | PRICE_BLOCKED |
-| 601138.SH 工业富联 | SIMULATION | HOLD | 61.00 | 17.7% | PRICE_BLOCKED |
 | 601899.SH 紫金矿业 | SIMULATION | HOLD | 30.01 | 23.4% | — |
 | 605090.SH 九丰能源 | REAL | HOLD | 31.39 | 19.5% | — |
 
@@ -42,6 +42,7 @@
 
 ## 3. 新资本机会
 
+- BUY｜001227.SZ 兰州银行｜当前价 2.07｜预期收益 18.4%｜阻断 无
 - BUY｜301109.SZ 军信股份｜当前价 12.75｜预期收益 11.9%｜阻断 无
 - BUY_BELOW｜002832.SZ 比音勒芬｜当前价 25.55｜预期收益 5.1%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜300230.SZ 永利股份｜当前价 4.30｜预期收益 5.3%｜阻断 PRICE_BLOCKED
@@ -49,14 +50,13 @@
 - BUY_BELOW｜600428.SH 中远海特｜当前价 11.67｜预期收益 2.8%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜601886.SH 江河集团｜当前价 13.56｜预期收益 2.9%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜603995.SH 甬金股份｜当前价 25.34｜预期收益 1.9%｜阻断 PRICE_BLOCKED
-- WATCH｜000993.SZ 闽东电力｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
-- WATCH｜001227.SZ 兰州银行｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
-- WATCH｜300909.SZ 汇创达｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
 - AVOID｜000900.SZ 现代投资｜当前价 3.57｜预期收益 -0.9%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
+- AVOID｜000993.SZ 闽东电力｜当前价 19.32｜预期收益 -74.4%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜002815.SZ 崇达技术｜当前价 24.86｜预期收益 -37.9%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜002936.SZ 郑州银行｜当前价 1.76｜预期收益 -0.2%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜003040.SZ 楚天龙｜当前价 21.12｜预期收益 -67.1%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜300647.SZ 超频三｜当前价 7.82｜预期收益 -71.0%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
+- AVOID｜300909.SZ 汇创达｜当前价 64.71｜预期收益 -56.0%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜301122.SZ 采纳股份｜当前价 49.69｜预期收益 -61.7%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜301189.SZ 奥尼电子｜当前价 74.25｜预期收益 -59.6%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜600737.SH 中粮糖业｜当前价 19.80｜预期收益 -40.5%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
