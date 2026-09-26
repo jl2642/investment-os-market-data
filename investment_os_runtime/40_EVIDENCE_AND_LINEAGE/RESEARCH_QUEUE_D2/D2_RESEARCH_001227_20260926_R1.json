@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260926_R1_001227",
+  "security_id": "001227.SZ",
+  "security_name": "兰州银行",
+  "d1_rank": 3,
+  "archetype": "DEFENSIVE_STABILITY",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "BUY_RESEARCH_COMPLETE_LOW_PB_CAPITAL_IMPROVEMENT_AND_STABLE_ASSET_QUALITY_CLEAR_RETURN_HURDLE",
+  "research_update_type": "AUTO_SEMANTIC_D2_BACKLOG_CLOSURE_20260926",
+  "valuation_horizon": "12_TO_18_MONTH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_787d33d21e5902cb",
+  "thesis": {
+    "core": "The defensive case is supported by stable reported asset quality, improved core capital ratios and a large discount to common book value. Earnings quality is mixed because headline attributable profit declined and net interest margin remains compressed, but recurring profit and capital resilience are sufficient for a value-oriented underwriting.",
+    "variant_wedge": "The market prices the bank at roughly 0.38x estimated common book value while NPL ratio and provision coverage remain stable and core Tier-1 capital improved. The key debate is not near-term growth but whether low ROA/NIM and local credit concentration justify a permanently distressed multiple.",
+    "normalized_earnings_basis": "For a bank, use common-book-value/PB scenario underwriting rather than a cash-flow multiple. Estimated common BVPS is RMB5.448 after excluding the roughly RMB5.0bn perpetual capital instrument from parent equity."
+  },
+  "operating_and_financial_quality": {
+    "h1_2026_revenue_rmb_bn": 4.179,
+    "h1_2026_revenue_yoy": 0.066,
+    "h1_2026_attributable_np_rmb_m": 866.45,
+    "h1_2026_attributable_np_yoy": -0.0895,
+    "h1_2026_deduct_np_rmb_m": 960.137,
+    "h1_2026_deduct_np_yoy": 0.0714,
+    "loans_rmb_bn": 259.063,
+    "deposits_rmb_bn": 374.834,
+    "npl_ratio": 0.0178,
+    "provision_coverage_ratio": 1.9169,
+    "net_interest_margin": 0.013,
+    "annualized_roa": 0.0034,
+    "core_tier1_ratio": 0.0875,
+    "tier1_ratio": 0.1019,
+    "total_capital_ratio": 0.1228,
+    "parent_equity_rmb_bn": 36.0314713517,
+    "perpetual_equity_rmb_bn": 4.99953773585,
+    "common_bvps": 5.4483117168,
+    "judgment": "Capital and reported asset quality support the defensive label, but weak ROA and NIM cap the justified PB multiple."
+  },
+  "underwriting": {
+    "current_price": 2.07,
+    "price_as_of": "2026-09-24",
+    "entry_price": 2.1319480631,
+    "preferred_entry_price_15pct": 2.1319480631,
+    "formal_buy_entry_price_10pct": 2.2288547932,
+    "confidence": "MEDIUM",
+    "valuation_method": "COMMON_BOOK_VALUE_PB_SCENARIO",
+    "normalized_earnings_basis": {
+      "metric": "COMMON_BVPS",
+      "common_bvps": 5.4483117168,
+      "rationale": "Parent equity less perpetual capital divided by common shares; PB is more appropriate than PE for this low-ROE regional bank."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "pb_multiple": 0.3,
+        "value_per_share": 1.634493515,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "pb_multiple": 0.45,
+        "value_per_share": 2.4517402726,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "pb_multiple": 0.6,
+        "value_per_share": 3.2689870301,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 2.4517402726,
+    "expected_return": 0.1844155906,
+    "bear_downside": -0.2103896063,
+    "hurdle_entry_price_15pct": 2.1319480631,
+    "action": "BUY",
+    "catalysts": [
+      "Net interest margin stabilizes as deposit costs reprice lower.",
+      "NPL ratio and provision coverage remain stable while problem-loan migration improves.",
+      "Core Tier-1 capital remains above current levels and supports measured balance-sheet growth.",
+      "Dividend distributions remain sustainable without weakening capital."
+    ],
+    "kill_thesis": [
+      "NPL formation or migration deteriorates materially, especially in concentrated regional or property-related exposures.",
+      "Provision coverage falls sharply or credit costs consume normalized earnings.",
+      "Net interest margin continues structural compression without offsetting fee or volume growth.",
+      "Core Tier-1 capital falls toward a level that constrains growth or shareholder distributions."
+    ]
+  },
+  "first_rejection_test": "DEFENSIVE_BALANCE_SHEET_AND_ASSET_QUALITY_PASS; CURRENT_PRICE_CLEARS_15PCT_COMMON_BOOK_VALUE_RETURN_HURDLE",
+  "next_gate": "BUY_SUBJECT_TO_PORTFOLIO_CAPS; REUNDERWRITE_ON_MATERIAL_ASSET_QUALITY_NIM_CAPITAL_OR_DIVIDEND_CHANGE",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "兰州银行2026年半年度报告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=001227&announcementId=1225531410&orgId=9900021964&announcementTime=2026-08-29",
+      "as_of": "2026-08-29"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "兰州银行2025年度利润分配预案",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=001227&announcementId=1225219129&orgId=9900021964&announcementTime=2026-04-28",
+      "as_of": "2026-04-28"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "兰州银行历史行情",
+      "url": "https://cn.investing.com/equities/bank-of-lanzhou-historical-data",
+      "as_of": "2026-09-24"
+    }
+  ],
+  "source_quality_note": "Balance-sheet, capital and asset-quality facts are anchored to the formal interim report. Common BVPS is an internal calculation from reported equity and perpetual capital. PB multiples and scenario probabilities are analytical assumptions.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "material_npl_or_provision_change",
+      "material_nim_change",
+      "core_tier1_capital_change",
+      "dividend_policy_change",
+      "price_above_or_below_entry_band"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
