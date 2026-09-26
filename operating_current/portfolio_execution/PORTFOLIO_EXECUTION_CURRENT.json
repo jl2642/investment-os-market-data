@@ -3,12 +3,20 @@
     "as_of_date": "2026-09-24",
     "attribution": [
       {
+        "market_value": 99773.99999999999,
+        "risk_group": "A_SHARE_STOCK",
+        "security_id": "001227.SZ",
+        "security_name": "兰州银行",
+        "unrealized_pnl": -99.77399999999008,
+        "weight": 0.0999864935958793
+      },
+      {
         "market_value": 99424.0,
         "risk_group": "A_SHARE_STOCK",
         "security_id": "002807.SZ",
         "security_name": "江阴银行",
         "unrealized_pnl": -578.8816200613678,
-        "weight": 0.09962578695055321
+        "weight": 0.09963574818366212
       },
       {
         "market_value": 99060.0,
@@ -16,12 +24,12 @@
         "security_id": "301109.SZ",
         "security_name": "军信股份",
         "unrealized_pnl": -1495.4549999999995,
-        "weight": 0.09926104819079701
+        "weight": 0.09927097295495625
       }
     ],
     "book_id": "AI_AUTONOMOUS_1M",
-    "cash": 799490.551,
-    "cash_weight": 0.8011131648586498,
+    "cash": 699616.777,
+    "cash_weight": 0.7011067852655023,
     "controls": {
       "buy_lot": 100,
       "cash_floor": 0.2,
@@ -35,13 +43,15 @@
       "slippage_bps": 10.0,
       "trade_authority": "NONE"
     },
-    "current_nav": 997974.551,
+    "current_nav": 997874.777,
     "deployment_discipline": {
-      "capacity_constrained_max_deployed_weight": 0.1996257869505532,
-      "cash_weight": 0.8011131648586498,
-      "cumulative_decision_grade_d2_count": 17,
+      "capacity_constrained_max_deployed_weight": 0.2996357481836622,
+      "cash_weight": 0.7011067852655023,
+      "cumulative_decision_grade_d2_count": 20,
       "cumulative_decision_grade_d2_ids": [
         "000900.SZ",
+        "000993.SZ",
+        "001227.SZ",
         "002807.SZ",
         "002815.SZ",
         "002832.SZ",
@@ -49,6 +59,7 @@
         "003040.SZ",
         "300230.SZ",
         "300647.SZ",
+        "300909.SZ",
         "301109.SZ",
         "301122.SZ",
         "301175.SZ",
@@ -59,9 +70,7 @@
         "603268.SH",
         "603995.SH"
       ],
-      "current_auto_reunderwrite_candidate_ids": [
-        "301175.SZ"
-      ],
+      "current_auto_reunderwrite_candidate_ids": [],
       "current_buy_below_ids": [
         "002832.SZ",
         "300230.SZ",
@@ -72,12 +81,15 @@
       ],
       "current_decision_grade_d2_ids": [
         "000900.SZ",
+        "000993.SZ",
+        "001227.SZ",
         "002815.SZ",
         "002832.SZ",
         "002936.SZ",
         "003040.SZ",
         "300230.SZ",
         "300647.SZ",
+        "300909.SZ",
         "301109.SZ",
         "301122.SZ",
         "301175.SZ",
@@ -89,27 +101,37 @@
         "603995.SH"
       ],
       "current_eligible_buy_ids": [
+        "001227.SZ",
         "301109.SZ"
       ],
-      "deployed_weight": 0.1988868351413502,
-      "deployment_status": "THROUGHPUT_AND_GATE_REVIEW",
+      "deployed_weight": 0.2988932147344977,
+      "deployment_status": "NORMAL_ACCUMULATION",
       "eligible_deployable_capacity_by_security": [
         {
-          "allocatable_incremental_weight": 0.0007389518092029979,
-          "current_weight": 0.09926104819079701,
+          "allocatable_incremental_weight": 1.3506404120705584e-05,
+          "current_weight": 0.0999864935958793,
           "risk_group": "A_SHARE_STOCK",
-          "risk_group_headroom_before": 0.10111316485864977,
+          "risk_group_headroom_before": 0.0011067852655023414,
+          "security_id": "001227.SZ",
+          "security_name": "兰州银行",
+          "single_name_headroom": 1.3506404120705584e-05
+        },
+        {
+          "allocatable_incremental_weight": 0.0007290270450437536,
+          "current_weight": 0.09927097295495625,
+          "risk_group": "A_SHARE_STOCK",
+          "risk_group_headroom_before": 0.001093278861381608,
           "security_id": "301109.SZ",
           "security_name": "军信股份",
-          "single_name_headroom": 0.0007389518092029979
+          "single_name_headroom": 0.0007290270450437536
         }
       ],
-      "eligible_incremental_deployable_capacity_weight": 0.0007389518092029979,
+      "eligible_incremental_deployable_capacity_weight": 0.0007425334491644592,
       "experiment_trading_day": 18,
       "high_cash_reason": "INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS",
       "next_gate_trading_day": 20,
       "orders": 0,
-      "position_count": 2,
+      "position_count": 3,
       "rules": {
         "buy_below_direct_buy_authorized": false,
         "day10_cash_gt_80pct": "AI_BOOK_DEPLOYMENT_REVIEW",
@@ -130,22 +152,39 @@
       },
       "trade_authority": "NONE",
       "trading_days_to_next_gate": 2,
-      "triggered_gates": [
-        "AI_BOOK_DEPLOYMENT_REVIEW"
-      ]
+      "triggered_gates": []
     },
     "diagnostics": [],
-    "new_transaction_count": 0,
-    "new_transactions": [],
+    "new_transaction_count": 1,
+    "new_transactions": [
+      {
+        "as_of_date": "2026-09-24",
+        "execution_price": 2.0720699999999996,
+        "notional": 99873.77399999998,
+        "quantity": 48200,
+        "realized_pnl": 0.0,
+        "reason": "AI_TARGET_WEIGHT_REBALANCE",
+        "security_id": "001227.SZ",
+        "security_name": "兰州银行",
+        "side": "BUY"
+      }
+    ],
     "performance": {
-      "cumulative_return": -0.0020254490000000125,
+      "cumulative_return": -0.002125222999999954,
       "max_drawdown": -0.004799117353165849,
       "realized_pnl": 48.88762006137304,
-      "turnover_since_inception": 0.21074988051620688
+      "turnover_since_inception": 0.31082635430997596
     },
-    "position_count": 2,
+    "position_count": 3,
     "prior_nav": 997974.551,
     "target_weights": {
+      "001227.SZ": {
+        "action": "BUY",
+        "risk_group": "A_SHARE_STOCK",
+        "score": 0.11649317369145984,
+        "security_name": "兰州银行",
+        "target_weight": 0.1
+      },
       "002807.SZ": {
         "action": "HOLD",
         "risk_group": "A_SHARE_STOCK",
@@ -158,7 +197,7 @@
         "risk_group": "A_SHARE_STOCK",
         "score": 0.07968166089965403,
         "security_name": "军信股份",
-        "target_weight": 0.1
+        "target_weight": 0.09999999999999998
       }
     }
   },
@@ -177,10 +216,10 @@
     "target_weight_engine": true,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-09-25T19:02:07+00:00",
+  "generated_at_utc": "2026-09-26T03:21:08+00:00",
   "orders": 0,
-  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_e379709db5c5c005",
-  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_29a4d8b60c894b68",
+  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_3869ef6a454b7beb",
+  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_af6c9aaf927ae62e",
   "protected_execution_episode_guard": {
     "ai_autonomous_1m_affected": false,
     "diagnostics": [
@@ -203,7 +242,7 @@
       {
         "account": "SIMULATION",
         "action": "TRIM",
-        "episode_key": "5af28056ea1f0754db58",
+        "episode_key": "66dc45055607a630456a",
         "guard_result": "SUPPRESS_REPEAT_ADD_TRIM",
         "matched_user_delta_id": "SIM_20260923_SELL_600941_200",
         "security_id": "600941.SH"
@@ -547,7 +586,7 @@
         "single_name_cap": 0.1,
         "trade_authority": "NONE"
       },
-      "ending_cash_if_all_validated_actions_executed": 259687.49,
+      "ending_cash_if_all_validated_actions_executed": 247487.49,
       "rows": [
         {
           "action": "HOLD",
@@ -779,7 +818,7 @@
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 100.0,
           "current_weight": 0.009887132573177032,
-          "execution_episode_key": "5af28056ea1f0754db58",
+          "execution_episode_key": "66dc45055607a630456a",
           "matched_user_delta_id": "SIM_20260923_SELL_600941_200",
           "orders": 0,
           "price": 97.45,
@@ -794,21 +833,22 @@
           "validated_quantity": 0
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 800.0,
           "current_weight": 0.049511756754339574,
+          "estimated_notional": 12200.0,
           "orders": 0,
           "price": 61.0,
-          "reason": "CURRENT_RECOMMENDATION_DOES_NOT_AUTHORIZE_POSITION_CHANGE",
+          "reason": "BUY_QUANTITY_VALIDATED",
           "security_id": "601138.SH",
           "security_name": "工业富联",
-          "side": "HOLD",
-          "status": "NO_ACTION_REVIEW_ONLY",
-          "target_quantity": 800.0,
-          "target_weight": 0.049511756754339574,
+          "side": "BUY",
+          "status": "READY_FOR_USER_OR_VIRTUAL_EXECUTION",
+          "target_quantity": 1000.0,
+          "target_weight": 0.06410960679465132,
           "trade_authority": "NONE",
-          "validated_quantity": 0
+          "validated_quantity": 200
         },
         {
           "action": "HOLD",
@@ -1098,7 +1138,7 @@
           "current_price": 97.45,
           "current_quantity": 100.0,
           "current_weight": 0.009887132573177032,
-          "execution_episode_key": "5af28056ea1f0754db58",
+          "execution_episode_key": "66dc45055607a630456a",
           "expected_return": -0.016854797331965043,
           "matched_user_delta_id": "SIM_20260923_SELL_600941_200",
           "research_score": 0.0,
@@ -1112,22 +1152,22 @@
           ]
         },
         {
-          "action": "HOLD",
+          "action": "ADD",
           "asset_class": "A_SHARE_STOCK",
           "available_quantity": 600.0,
-          "bear_downside": -0.3655737704918033,
+          "bear_downside": -0.17377049180327875,
           "confidence": "MEDIUM_HIGH",
           "current_price": 61.0,
           "current_quantity": 800.0,
           "current_weight": 0.049511756754339574,
-          "expected_return": 0.17704918032786887,
-          "research_score": 0.10109217952163399,
+          "expected_return": 0.19631147540983607,
+          "research_score": 0.14597850040311744,
           "risk_group": "GROWTH",
           "security_id": "601138.SH",
           "security_name": "工业富联",
-          "target_weight": 0.049511756754339574,
+          "target_weight": 0.06410960679465132,
           "target_weight_reasons": [
-            "CURRENT_DECISION_HOLD_PRESERVE"
+            "CURRENT_DECISION_ADD_SCORE_SIZED"
           ]
         },
         {
@@ -1150,7 +1190,7 @@
           ]
         }
       ],
-      "target_cash_weight": 0.26347507862756125,
+      "target_cash_weight": 0.2488772285872496,
       "total_assets": 985624.49
     }
   },
