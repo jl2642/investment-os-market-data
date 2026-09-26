@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260926_FRESH_R4_601138",
+  "security_id": "601138.SH",
+  "security_name": "工业富联",
+  "account_context": "SIMULATION_EXISTING_HOLDING",
+  "archetype": "AI_INFRASTRUCTURE_GROWTH",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "ADD_RESEARCH_COMPLETE_PRICE_REOPEN_CLEAR_WITH_AI_EARNINGS_INFLECTION_INTACT",
+  "research_update_type": "LIFECYCLE_TRIGGERED_FRESH_D2_20260926",
+  "valuation_horizon": "12_MONTH",
+  "thesis": {
+    "core": "AI server, rack and high-speed networking demand continues to support a genuine earnings step-up. 2026H1 revenue and attributable profit reached record levels; the current re-underwrite tests whether the lower completed-session mark now provides enough expected-return margin for incremental capital.",
+    "variant_wedge": "The company remains partly valued through a lower-margin EMS lens while AI infrastructure mix is lifting profit faster than revenue. The 2026-09-24 mark has fallen below the prior 15% add hurdle without a disclosed fundamental break in the AI server/rack thesis.",
+    "normalized_earnings_basis": "Retain RMB3.15 2026E normalized EPS from the prior decision-grade D2. The fresh review finds no post-H1 primary disclosure requiring a downward reset of normalized earnings."
+  },
+  "financial_quality": {
+    "facts": {
+      "h1_2026_revenue_rmb_bn": 557.861,
+      "h1_2026_revenue_yoy": 0.5463,
+      "h1_2026_attributable_np_rmb_bn": 23.74,
+      "h1_2026_attributable_np_yoy": 0.9599,
+      "h1_2026_deduct_np_rmb_bn": 22.984,
+      "h1_2026_cfo_rmb_bn": 7.391,
+      "h1_2026_eps": 1.2,
+      "h1_2026_roe": 0.1336,
+      "normalized_2026_eps": 3.15
+    },
+    "judgment": "The AI earnings inflection remains strong; cash conversion remains the main quality watch because operating cash flow still trails accounting profit."
+  },
+  "underwriting": {
+    "current_price": 61,
+    "price_as_of": "2026-09-24",
+    "entry_price": 63.4565217391,
+    "preferred_entry_price_15pct": 63.4565217391,
+    "formal_buy_entry_price_10pct": 66.3409090909,
+    "confidence": "MEDIUM_HIGH",
+    "valuation_method": "NORMALIZED_EARNINGS_PE_SCENARIO",
+    "normalized_earnings_basis": {
+      "metric": "2026E_NORMALIZED_EPS",
+      "eps": 3.15,
+      "rationale": "Retained from the 2026-09-11 fresh D2 after checking current post-H1 disclosure state."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 2.8,
+        "valuation_multiple_pe": 18,
+        "value_per_share": 50.4,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "eps": 3.15,
+        "valuation_multiple_pe": 23,
+        "value_per_share": 72.45,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "eps": 3.45,
+        "valuation_multiple_pe": 28,
+        "value_per_share": 96.6,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 72.975,
+    "expected_return": 0.1963114754,
+    "bear_downside": -0.1737704918,
+    "hurdle_entry_price_15pct": 63.4565217391,
+    "action": "ADD",
+    "catalysts": [
+      "Cloud-service-provider AI server revenue and GPU/ASIC rack shipments remain on a high-growth trajectory through H2.",
+      "Higher-value AI server and high-speed networking mix sustains profit growth above revenue growth.",
+      "Operating cash conversion and free cash flow improve relative to net profit without disproportionate working-capital absorption."
+    ],
+    "kill_thesis": [
+      "AI server or rack shipment growth decelerates sharply because customer capex weakens, technology transitions disrupt delivery, or market share is lost.",
+      "Gross or net margin reverses despite continued revenue growth, showing the mix upgrade is not durable.",
+      "Working capital and capex persistently absorb cash such that free-cash-flow growth materially lags earnings.",
+      "Customer concentration, export controls or geopolitical supply-chain disruption materially impair delivery or economics."
+    ]
+  },
+  "first_rejection_test": "NO_FUNDAMENTAL_REJECTION; COMPLETED_SESSION_MARK_NOW_CLEARS_15PCT_ADD_HURDLE",
+  "next_gate": "ADD_SUBJECT_TO_PORTFOLIO_FIT_AND_PHASE3_EPISODE_VALIDATION; REUNDERWRITE_ON_MATERIAL_AI_ORDER_MARGIN_CASH_CONVERSION_OR_EXPORT_CONTROL_CHANGE",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "工业富联2026年半年度报告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-12/1225468066.PDF",
+      "as_of": "2026-08-12"
+    },
+    {
+      "type": "EXCHANGE_SUMMARY",
+      "title": "上交所2026年半年报业绩综述",
+      "url": "https://www.sse.com.cn/aboutus/mediacenter/hotandd/c/c_20260830_10830362.shtml",
+      "as_of": "2026-08-30"
+    },
+    {
+      "type": "SYSTEM_CURRENT",
+      "title": "Decision Lifecycle / Portfolio Marks Current",
+      "path": "operating_current/decision_lifecycle/TRIGGER_REVIEW_QUEUE_CURRENT.json",
+      "as_of": "2026-09-24",
+      "mark": 61
+    }
+  ],
+  "source_quality_note": "H1 financial facts are anchored to the formal interim report; current price is the governed completed-session system mark. Scenario EPS, multiples and probabilities are analytical assumptions carried forward from the prior accepted fresh D2.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "material_ai_order_or_margin_change",
+      "cash_conversion_deterioration",
+      "material_export_control_or_customer_share_change",
+      "price_or_portfolio_fit_change"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
