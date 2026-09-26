@@ -1,0 +1,142 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260926_R1_000993",
+  "security_id": "000993.SZ",
+  "security_name": "闽东电力",
+  "d1_rank": 4,
+  "archetype": "LIQUID_BREAKOUT",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "AVOID_RESEARCH_COMPLETE_PRICE_BREAKOUT_SEVERELY_DETACHED_FROM_EARNINGS_AND_DISCLOSED_FUNDAMENTALS",
+  "research_update_type": "AUTO_SEMANTIC_D2_BACKLOG_CLOSURE_20260926",
+  "valuation_horizon": "12_TO_18_MONTH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_787d33d21e5902cb",
+  "thesis": {
+    "core": "The breakout lacks a matching earnings or cash-flow inflection. 2026H1 revenue and profit fell sharply, and the company explicitly disclosed that the recent share-price surge is seriously detached from fundamentals and that several market themes have not yet generated operating contribution.",
+    "variant_wedge": "Hydropower earnings can normalize with better water conditions and longer-term renewable projects may add optionality, but the current market price capitalizes those possibilities far in advance of current earnings and project realization.",
+    "normalized_earnings_basis": "Use 2026E normalized EPS bear/base/bull RMB0.10/RMB0.18/RMB0.30, above/b around the recent annual earnings run-rate but without capitalizing unbuilt offshore-wind or unproven thematic businesses."
+  },
+  "operating_and_financial_quality": {
+    "h1_2026_revenue_rmb_m": 237.474,
+    "h1_2026_revenue_yoy": -0.1765,
+    "h1_2026_attributable_np_rmb_m": 29.415,
+    "h1_2026_attributable_np_yoy": -0.5868,
+    "h1_2026_deduct_np_rmb_m": 22.423,
+    "h1_2026_deduct_np_yoy": -0.6448,
+    "h1_2026_cfo_rmb_m": 30.159,
+    "h1_2026_cfo_yoy": -0.502,
+    "fy2025_revenue_rmb_m": 598.151,
+    "fy2025_attributable_np_rmb_m": 58.877,
+    "disclosed_no_current_compute_coordination_business": true,
+    "disclosed_no_current_green_power_direct_connection_business": true,
+    "disclosed_offshore_wind_not_operating": true,
+    "judgment": "Current earnings are cyclical and weak; there is no disclosed fundamental inflection commensurate with the price breakout."
+  },
+  "underwriting": {
+    "current_price": 19.32,
+    "price_as_of": "2026-09-24",
+    "entry_price": 4.3043478261,
+    "preferred_entry_price_15pct": 4.3043478261,
+    "formal_buy_entry_price_10pct": 4.5,
+    "confidence": "HIGH",
+    "valuation_method": "NORMALIZED_EARNINGS_PE_SCENARIO",
+    "normalized_earnings_basis": {
+      "metric": "2026E_NORMALIZED_EPS",
+      "bear": 0.1,
+      "base": 0.18,
+      "bull": 0.3,
+      "rationale": "2025 attributable profit was RMB58.9m and 2026H1 attributable profit RMB29.4m; scenarios allow hydrology recovery but exclude unbuilt/unproven thematic projects."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 0.1,
+        "valuation_multiple_pe": 18,
+        "value_per_share": 1.8,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "eps": 0.18,
+        "valuation_multiple_pe": 25,
+        "value_per_share": 4.5,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "eps": 0.3,
+        "valuation_multiple_pe": 30,
+        "value_per_share": 9,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 4.95,
+    "expected_return": -0.7437888199,
+    "bear_downside": -0.9068322981,
+    "hurdle_entry_price_15pct": 4.3043478261,
+    "action": "AVOID",
+    "catalysts": [
+      "Hydrology normalizes and generation materially exceeds the weak H1 base.",
+      "Operating renewable projects with contracted economics move from optionality to attributable cash flow.",
+      "A durable earnings upgrade occurs without relying on thematic market narratives."
+    ],
+    "kill_thesis": [
+      "Water inflows remain weak or generation falls below normalized assumptions.",
+      "Renewable project rights fail to reach construction/operation or returns are diluted by capex and financing costs.",
+      "The share price continues to discount unproven themes without a matching audited earnings step-up.",
+      "Regulatory or market-power pricing changes reduce normalized utility returns."
+    ]
+  },
+  "first_rejection_test": "FAIL_FUNDAMENTAL_INFLECTION_AND_VALUATION; COMPANY_RISK_DISCLOSURE_CONFIRMS_PRICE_DETACHMENT",
+  "next_gate": "REOPEN_ONLY_ON_MATERIAL_AUDITED_EARNINGS_PROJECT_CASH_FLOW_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB4_50; PREFERRED_ENTRY_RMB4_30",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "闽东电力2026年半年度报告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000993&announcementId=1225487359&orgId=gssz0000993&announcementTime=2026-08-21",
+      "as_of": "2026-08-21"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "闽东电力2025年年度报告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000993&announcementId=1225055320&orgId=gssz0000993&announcementTime=2026-03-31",
+      "as_of": "2026-03-31"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "关于股票交易严重异常波动暨风险提示的公告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-09-23/1225577490.PDF",
+      "as_of": "2026-09-23"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "闽东电力历史行情",
+      "url": "https://cn.investing.com/equities/mindong-elect-a-historical-data",
+      "as_of": "2026-09-24"
+    }
+  ],
+  "source_quality_note": "Operating and risk-warning facts are anchored to company filings. The completed-session price is public market data. Normalized EPS and valuation multiples are analytical assumptions; the valuation gap is large enough that reasonable sensitivity does not alter the AVOID conclusion.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "material_hydrology_and_generation_change",
+      "operating_project_cashflow_commences",
+      "audited_normalized_eps_upgrade",
+      "price_at_or_below_formal_gate"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
