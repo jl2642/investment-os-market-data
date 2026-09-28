@@ -3,11 +3,11 @@
 - 数据水位：2026-09-24
 - Target Weight Engine：true
 - Execution Validator：true
-- AI_AUTONOMOUS_1M NAV：997874.78
-- AI现金：699616.78（70.1%）
+- AI_AUTONOMOUS_1M NAV：996059.90
+- AI现金：697737.90（70.0%）
 - AI持仓数：3
-- AI累计收益：-0.21%
-- AI最大回撤：-0.48%
+- AI累计收益：-0.39%
+- AI最大回撤：-0.64%
 - AI部署阶段：第 18 个完整观察交易日 / NORMAL_ACCUMULATION
 - AI累计 decision-grade D2：20
 - 距下一 deployment gate：2 个交易日
