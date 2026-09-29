@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260929_R1_603819",
+  "security_id": "603819.SH",
+  "security_name": "神力股份",
+  "d1_rank": 2,
+  "archetype": "TREND_PERSISTENCE",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "AVOID_RESEARCH_COMPLETE_REAL_MARGIN_RECOVERY_BUT_CURRENT_VALUATION_PRICES_IN_FAR_MORE_THAN_H1_EARNINGS_INFLECTION",
+  "research_update_type": "AUTO_SEMANTIC_D2_BACKLOG_CLOSURE_20260929",
+  "valuation_horizon": "12_MONTH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_92e99ec8482a368e",
+  "source_primary_discovery_commit": "c9b1730b7a7de495c6b6a56f43dd72aa0ee6f9db",
+  "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH",
+  "thesis": {
+    "core": "The 2026H1 earnings recovery is real: revenue grew modestly while attributable profit, deduct profit and operating cash flow improved sharply. However, the absolute profitability base remains small and ROE remains low, so the current share price requires a much larger and more durable margin/earnings step-up than is yet evidenced.",
+    "variant_wedge": "The market signal correctly detects an earnings inflection, but it appears to capitalize the recovery far ahead of normalized fundamentals. At the 2026-09-28 close the company trades at roughly 4.5x H1 book value and around 91x simple annualized H1 EPS, while H1 ROE is only 2.47%.",
+    "normalized_earnings_basis": "Use 2026E normalized EPS scenarios of RMB0.16/RMB0.22/RMB0.32. The base case allows continued improvement beyond the H1 annualized run rate, while the bull case requires a substantial additional margin and volume uplift."
+  },
+  "operating_and_financial_quality": {
+    "h1_2026_revenue_rmb_m": 765.0985973,
+    "revenue_yoy": 0.0532,
+    "h1_2026_attributable_np_rmb_m": 20.08869415,
+    "attributable_np_yoy": 1.5503,
+    "h1_2026_deduct_np_rmb_m": 16.19755038,
+    "deduct_np_yoy": 5.9784,
+    "h1_2026_cfo_rmb_m": 124.55384461,
+    "prior_h1_cfo_rmb_m": -54.1669542,
+    "h1_eps": 0.0923,
+    "h1_roe": 0.0247,
+    "total_assets_rmb_bn": 1.640704086,
+    "parent_equity_rmb_m": 816.64985541,
+    "estimated_bvps": 3.7507431158,
+    "current_pb_approx": 4.471085,
+    "simple_annualized_h1_eps": 0.1846,
+    "current_pe_on_simple_annualized_h1_eps_approx": 90.845,
+    "judgment": "Profit conversion improved materially, but the low absolute ROE and modest revenue growth mean the equity valuation requires further margin expansion and earnings compounding rather than merely maintaining the H1 run rate."
+  },
+  "ownership_update": {
+    "judicial_auction_shares": 17450700,
+    "pct_total_shares": 0.0801,
+    "prior_holder": "中物一方",
+    "completion_date": "2026-09-04",
+    "control_change": false,
+    "judgment": "The transfer removes the distressed 8.01% holder from the register and does not change control. It is not treated as an operating thesis driver, though the new ownership structure remains a monitoring item."
+  },
+  "underwriting": {
+    "current_price": 16.77,
+    "price_as_of": "2026-09-28",
+    "entry_price": 7.347826087,
+    "preferred_entry_price_15pct": 7.347826087,
+    "formal_buy_entry_price_10pct": 7.6818181818,
+    "confidence": "MEDIUM_HIGH",
+    "valuation_method": "NORMALIZED_EARNINGS_PE_SCENARIO",
+    "normalized_earnings_basis": {
+      "metric": "2026E_NORMALIZED_EPS",
+      "bear": 0.16,
+      "base": 0.22,
+      "bull": 0.32,
+      "rationale": "H1 EPS was RMB0.0923. The scenarios already allow meaningful further recovery, so valuation does not rely on the depressed prior-year earnings base."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "eps": 0.16,
+        "valuation_multiple_pe": 25,
+        "value_per_share": 4,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "eps": 0.22,
+        "valuation_multiple_pe": 35,
+        "value_per_share": 7.7,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "eps": 0.32,
+        "valuation_multiple_pe": 45,
+        "value_per_share": 14.4,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 8.45,
+    "expected_return": -0.496124031,
+    "bear_downside": -0.7614788312,
+    "hurdle_entry_price_15pct": 7.347826087,
+    "action": "AVOID",
+    "catalysts": [
+      "Revenue growth accelerates materially while gross margin and operating efficiency continue to improve.",
+      "Normalized EPS moves clearly above the current bull-case path through durable customer demand rather than one-off working-capital effects.",
+      "ROE rises to a level consistent with the premium valuation without material balance-sheet expansion."
+    ],
+    "kill_thesis": [
+      "Margin recovery stalls or reverses while the stock continues to trade at a premium multiple.",
+      "Operating cash flow normalization proves temporary and receivables or working capital again absorb cash.",
+      "End-market demand in motors, wind or new-energy applications weakens and volume growth fails to offset cost pressure.",
+      "The market continues to capitalize thematic expectations that are not visible in audited segment earnings."
+    ]
+  },
+  "first_rejection_test": "FUNDAMENTAL_RECOVERY_PASS_BUT_VALUATION_FAIL; H1_PROFIT_INFLECTION_IS_REAL_YET_CURRENT_PRICE_REQUIRES_EARNINGS_AND_ROE_FAR_ABOVE_THE_EVIDENCED_RUN_RATE",
+  "next_gate": "REOPEN_ON_MATERIAL_NORMALIZED_EPS_AND_ROE_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB7_68; PREFERRED_ENTRY_RMB7_35",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "神力股份2026年半年度报告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=603819&announcementId=1225528652&orgId=9900028909&announcementTime=2026-08-29",
+      "as_of": "2026-08-29"
+    },
+    {
+      "type": "FORMAL_DISCLOSURE_MIRROR",
+      "title": "神力股份2026年半年度报告全文（公告镜像）",
+      "url": "https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12568997&stockid=603819",
+      "as_of": "2026-08-29"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE_REPRINT",
+      "title": "持股5%以上股东司法拍卖完成过户暨权益变动公告",
+      "url": "https://paper.cnstock.com/html/2026-09/08/content_2266128.htm",
+      "as_of": "2026-09-08"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "神力股份历史行情",
+      "url": "https://hk.investing.com/equities/changzhou-shenli-electrical-machine-historical-data",
+      "as_of": "2026-09-28"
+    }
+  ],
+  "source_quality_note": "H1 operating facts are taken from the formal half-year report and a full-text disclosure mirror; the shareholder transfer is from the formal announcement reprint. Scenario EPS, multiples and probabilities are analytical assumptions.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "material_normalized_eps_upgrade",
+      "material_margin_or_roe_change",
+      "working_capital_or_cash_conversion_deterioration",
+      "ownership_or_control_change",
+      "price_at_or_below_entry_band"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "semantic_completed_at": "2026-09-29T04:00:00+00:00",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
