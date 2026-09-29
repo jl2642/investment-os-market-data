@@ -1,6 +1,6 @@
 # 股票投资助手｜Daily Investment Brief
 
-- 数据日期：2026-09-28
+- 数据日期：2026-09-29
 - Recommendation 人工复核项（非执行待办）：7
 - 持仓绩效监控：23 / 23（账户持仓行 24）
 - 当前投资判断覆盖：23 / 23
@@ -11,34 +11,34 @@
 
 | 标的 | 账户 | 动作 | 当前价 | 预期收益 | 关键阻断 |
 |---|---|---|---:|---:|---|
-| 600941.SH 中国移动 | SIMULATION | TRIM | 97.71 | -1.9% | AVOID_NEGATIVE_EXPECTED_RETURN |
-| 300124.SZ 汇川技术 | SIMULATION | ADD | 52.29 | 35.0% | — |
-| 600309.SH 万华化学 | SIMULATION | ADD | 69.40 | 20.5% | — |
-| 600660.SH 福耀玻璃 | SIMULATION | ADD | 52.91 | 19.6% | — |
-| 601138.SH 工业富联 | SIMULATION | ADD | 58.92 | 23.9% | — |
-| 000333.SZ 美的集团 | SIMULATION | HOLD | 82.00 | 18.4% | — |
-| 002807.SZ 江阴银行 | REAL | HOLD | 4.15 | 23.1% | — |
+| 600941.SH 中国移动 | SIMULATION | TRIM | 97.36 | -1.9% | AVOID_NEGATIVE_EXPECTED_RETURN |
+| 300124.SZ 汇川技术 | SIMULATION | ADD | 52.49 | 35.0% | — |
+| 600309.SH 万华化学 | SIMULATION | ADD | 67.66 | 20.5% | — |
+| 600660.SH 福耀玻璃 | SIMULATION | ADD | 53.00 | 19.6% | — |
+| 601138.SH 工业富联 | SIMULATION | ADD | 58.42 | 23.9% | — |
+| 000333.SZ 美的集团 | SIMULATION | HOLD | 81.66 | 18.4% | — |
+| 002807.SZ 江阴银行 | REAL | HOLD | 4.16 | 23.1% | — |
 | 017534.OF 富国天利增长债券C | REAL | HOLD | 1.40 | 3.4% | PRICE_BLOCKED |
-| 159352.SZ A500ETF南方 | REAL | HOLD | 1.19 | 13.6% | — |
+| 159352.SZ A500ETF南方 | REAL | HOLD | 1.20 | 13.6% | — |
 | 159612.SZ 标普500ETF国泰 | REAL | HOLD | 2.07 | 5.5% | PRICE_BLOCKED |
 | 159655.SZ 标普500ETF华夏 | REAL | HOLD | 2.00 | 6.4% | PRICE_BLOCKED |
 | 217003.OF 招商安泰债券A | REAL | HOLD | 1.38 | 3.6% | PRICE_BLOCKED |
-| 300012.SZ 华测检测 | SIMULATION | HOLD | 13.78 | 24.5% | — |
-| 300750.SZ 宁德时代 | SIMULATION | HOLD | 291.99 | 49.8% | — |
-| 510500.SH 中证500ETF南方 | REAL/SIMULATION | HOLD | 7.44 | 13.4% | — |
-| 600036.SH 招商银行 | SIMULATION | HOLD | 40.64 | 10.7% | — |
-| 600276.SH 恒瑞医药 | SIMULATION | HOLD | 44.47 | 16.9% | — |
-| 600406.SH 国电南瑞 | SIMULATION | HOLD | 22.64 | 6.4% | PRICE_BLOCKED |
-| 600690.SH 海尔智家 | SIMULATION | HOLD | 20.16 | 16.6% | — |
-| 600900.SH 长江电力 | SIMULATION | HOLD | 28.55 | 8.7% | PRICE_BLOCKED |
-| 600938.SH 中国海油 | SIMULATION | HOLD | 33.50 | 7.5% | PRICE_BLOCKED |
-| 601899.SH 紫金矿业 | SIMULATION | HOLD | 29.42 | 25.9% | — |
-| 605090.SH 九丰能源 | REAL | HOLD | 30.95 | 21.2% | — |
+| 300012.SZ 华测检测 | SIMULATION | HOLD | 13.61 | 24.5% | — |
+| 300750.SZ 宁德时代 | SIMULATION | HOLD | 286.80 | 49.8% | — |
+| 510500.SH 中证500ETF南方 | REAL/SIMULATION | HOLD | 7.48 | 13.4% | — |
+| 600036.SH 招商银行 | SIMULATION | HOLD | 40.51 | 10.7% | — |
+| 600276.SH 恒瑞医药 | SIMULATION | HOLD | 45.62 | 16.9% | — |
+| 600406.SH 国电南瑞 | SIMULATION | HOLD | 22.21 | 6.4% | PRICE_BLOCKED |
+| 600690.SH 海尔智家 | SIMULATION | HOLD | 20.21 | 16.6% | — |
+| 600900.SH 长江电力 | SIMULATION | HOLD | 28.38 | 8.7% | PRICE_BLOCKED |
+| 600938.SH 中国海油 | SIMULATION | HOLD | 33.36 | 7.5% | PRICE_BLOCKED |
+| 601899.SH 紫金矿业 | SIMULATION | HOLD | 29.46 | 25.9% | — |
+| 605090.SH 九丰能源 | REAL | HOLD | 30.33 | 21.2% | — |
 
 ## 2. 组合表现与再承销队列
 
-- REAL：总资产 758,255.47；账户累计收益 —；持仓数 8。
-- SIMULATION：总资产 983,314.49；账户累计收益 -17,746.36；持仓数 16。
+- REAL：总资产 752,558.08；账户累计收益 —；持仓数 8。
+- SIMULATION：总资产 980,480.09；账户累计收益 -20,580.76；持仓数 16。
 
 ## 3. 新资本机会
 
