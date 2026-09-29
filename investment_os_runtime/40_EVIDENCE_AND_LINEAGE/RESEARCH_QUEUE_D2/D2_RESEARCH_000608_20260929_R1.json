@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20260929_R1_000608",
+  "security_id": "000608.SZ",
+  "security_name": "阳光股份",
+  "d1_rank": 1,
+  "archetype": "TREND_PERSISTENCE",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "AVOID_RESEARCH_COMPLETE_FINANCED_AI_PIVOT_CAPITAL_MISMATCH_AND_LOSSMAKING_LEGACY_BUSINESS_DO_NOT_SUPPORT_TREND",
+  "research_update_type": "AUTO_SEMANTIC_D2_BACKLOG_CLOSURE_20260929",
+  "valuation_horizon": "12_TO_18_MONTH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_92e99ec8482a368e",
+  "source_primary_discovery_commit": "c9b1730b7a7de495c6b6a56f43dd72aa0ee6f9db",
+  "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH",
+  "thesis": {
+    "core": "The share-price trend is not supported by normalized current earnings. The legacy property business remained loss-making in 2026H1, while the new computing-power pivot requires a very large financed server purchase before sufficient contracted demand and project-level cash returns have been demonstrated.",
+    "variant_wedge": "The AI-computing narrative can create optionality, but the disclosed economics are asymmetric: H1 attributable profit and operating cash flow were negative, while the September server purchase is at least RMB2.2931bn and the disclosed initial five-year service contract totals RMB633m. Financing, depreciation, utilization and customer expansion therefore dominate the equity outcome.",
+    "normalized_earnings_basis": "Current earnings are negative, so use H1 parent common book value as a conservative valuation anchor and apply scenario PB multiples that explicitly limit credit for the unproven computing-power pivot."
+  },
+  "operating_and_financial_quality": {
+    "h1_2026_revenue_rmb_m": 120.19701223,
+    "revenue_yoy": -0.1083,
+    "h1_2026_attributable_np_rmb_m": -51.92985102,
+    "attributable_np_yoy": -0.325,
+    "h1_2026_deduct_np_rmb_m": -57.98903755,
+    "h1_2026_cfo_rmb_m": -82.49948263,
+    "total_assets_rmb_bn": 4.68562439803,
+    "parent_equity_rmb_bn": 2.02453179427,
+    "share_count_m": 749.913309,
+    "common_bvps": 2.6996888614,
+    "judgment": "Legacy operations do not provide an earnings floor. Negative profit and negative operating cash flow materially reduce the balance-sheet capacity available to absorb execution errors in the new capital-intensive business."
+  },
+  "financed_growth_gate": {
+    "initial_service_contract_rmb_m": 633,
+    "initial_service_contract_term_years": 5,
+    "disclosed_expected_gross_margin_range": [
+      0.1,
+      0.21
+    ],
+    "server_purchase_commitment_rmb_bn": 2.2931,
+    "server_purchase_pct_latest_audited_assets": 0.5122,
+    "expected_self_or_shareholder_funding_pct_range": [
+      0.2,
+      0.3
+    ],
+    "expected_financial_institution_funding_pct_range": [
+      0.7,
+      0.8
+    ],
+    "disclosed_server_purchase_to_initial_service_contract_ratio": 3.6225908373,
+    "judgment": "FAIL. The purchase commitment is much larger than currently disclosed contracted service revenue and is predominantly expected to be externally financed. The ratio is only an underwriting-gap indicator because capex and service-contract periods are not economically identical; additional customers could change the economics. Until contracted utilization, financing cost, depreciation and project cash return are demonstrated, a positive financed-growth conclusion is not supportable."
+  },
+  "underwriting": {
+    "current_price": 7,
+    "price_as_of": "2026-09-28",
+    "entry_price": 2.40624442,
+    "preferred_entry_price_15pct": 2.40624442,
+    "formal_buy_entry_price_10pct": 2.5156191664,
+    "confidence": "MEDIUM_HIGH",
+    "valuation_method": "ADJUSTED_COMMON_BOOK_VALUE_PB_SCENARIO",
+    "normalized_earnings_basis": {
+      "metric": "H1_2026_PARENT_COMMON_BVPS",
+      "common_bvps": 2.6996888614,
+      "rationale": "Earnings and CFO are negative; book value is used as the conservative anchor while the new AI-computing business remains unproven."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "pb_multiple": 0.6,
+        "value_per_share": 1.6198133169,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "pb_multiple": 1,
+        "value_per_share": 2.6996888614,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "pb_multiple": 1.5,
+        "value_per_share": 4.0495332922,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 2.767181083,
+    "expected_return": -0.6046884167,
+    "bear_downside": -0.7685980976,
+    "hurdle_entry_price_15pct": 2.40624442,
+    "action": "AVOID",
+    "catalysts": [
+      "Additional creditworthy multi-year computing-service contracts materially increase contracted utilization beyond the initial RMB633m agreement.",
+      "Financing closes on terms that leave project-level ROIC and free cash flow clearly positive after interest, depreciation and maintenance capex.",
+      "Legacy property operations stop consuming cash and consolidated operating cash flow turns sustainably positive."
+    ],
+    "kill_thesis": [
+      "Server utilization or customer expansion falls short, leaving material idle assets.",
+      "Financing cost, refinancing tenor or customer collection creates a cash-cycle mismatch.",
+      "Depreciation, impairment or operating costs cause the computing-power business to remain loss-making despite revenue growth.",
+      "Continued legacy losses or shareholder-funding dependence weakens liquidity further."
+    ]
+  },
+  "first_rejection_test": "FAIL_FINANCED_GROWTH_GATE_AND_VALUATION; NEGATIVE_NORMALIZED_EARNINGS_AND_CFO_PLUS_RMB2_2931BN_SERVER_COMMITMENT_ARE_NOT_SUPPORTED_BY_CURRENTLY_DISCLOSED_CONTRACTED_CASH_ECONOMICS",
+  "next_gate": "REOPEN_ONLY_ON_MATERIAL_CONTRACTED_AI_SERVICE_BACKLOG_AND_PROJECT_LEVEL_CASH_RETURN_EVIDENCE_OR_PRICE_AT_OR_BELOW_RMB2_52; PREFERRED_ENTRY_RMB2_41",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "阳光股份2026年半年度报告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-27/1225514859.PDF",
+      "as_of": "2026-08-27"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "关于签署日常经营重大合同的公告（服务合同）",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000608&announcementId=1225542534&orgId=gssz0000608&announcementTime=2026-09-02",
+      "as_of": "2026-09-02"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "关于签署日常经营重大合同的公告（服务器采购）",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=000608&announcementId=1225575801&orgId=gssz0000608&announcementTime=2026-09-22",
+      "as_of": "2026-09-22"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "阳光股份历史行情",
+      "url": "https://cn.investing.com/equities/yang-guang-a-historical-data",
+      "as_of": "2026-09-28"
+    }
+  ],
+  "source_quality_note": "H1 accounting data and the server/service contract terms are anchored to formal company disclosures. PB multiples, scenario probabilities and the financed-growth interpretation are analytical assumptions. The currently disclosed service contract is not assumed to represent all future customer demand.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "material_new_computing_service_contract",
+      "financing_terms_and_project_cash_return_disclosure",
+      "server_utilization_or_impairment_change",
+      "legacy_cash_flow_turnaround",
+      "price_at_or_below_entry_band"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "semantic_completed_at": "2026-09-29T04:00:00+00:00",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
