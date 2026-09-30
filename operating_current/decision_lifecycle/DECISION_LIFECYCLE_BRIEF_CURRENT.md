@@ -1,8 +1,8 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
 - 数据水位：`2026-09-29`
-- Thesis subjects：`48`
-- 持仓 / 非持仓：`23 / 25`
+- Thesis subjects：`45`
+- 持仓 / 非持仓：`23 / 22`
 - 当前复核队列：`10`
 - 需要重新D2：`1`
 - 需要用户动作复核：`7`
