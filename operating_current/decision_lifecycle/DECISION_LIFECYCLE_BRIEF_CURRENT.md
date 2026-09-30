@@ -1,20 +1,18 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
-- 数据水位：`2026-09-29`
+- 数据水位：`2026-09-30`
 - Thesis subjects：`45`
 - 持仓 / 非持仓：`23 / 22`
-- 当前复核队列：`10`
-- 需要重新D2：`1`
+- 当前复核队列：`8`
+- 需要重新D2：`0`
 - 需要用户动作复核：`7`
-- 组合风险复核：`2`
+- 组合风险复核：`1`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
 
 ## 当前复核队列
 
 - **兰州银行 (001227.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **富国天利增长债券C (017534.OF)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **军信股份 (301109.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **中远海特 (600428.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 10.4200 is at/below entry threshold 10.4300. 下一步：`FRESH_D2_BEFORE_ANY_BUY`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
