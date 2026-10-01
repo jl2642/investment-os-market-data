@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path\n\nfrom automation.operating_current.publish_operating_current import build_index
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -83,3 +83,24 @@ def test_failure_receipt_maps_current_cross_market_run_name() -> None:
 def test_daily_runner_accepts_workflow_run_trigger() -> None:
     daily = (ROOT / "pipeline/run_daily.py").read_text(encoding="utf-8")
     assert '"workflow_run"' in daily
+
+
+def test_cross_market_domains_are_explicit_non_blocking_support(tmp_path: Path) -> None:
+    index = build_index(tmp_path)
+    by_domain = {row["domain_id"]: row for row in index["domains"]}
+    for domain in (
+        "CROSS_MARKET_LIMITED",
+        "US_BOUNDED_COVERAGE",
+        "SEC_QUEUE_CONSUMER",
+        "SEC_OFFICIAL_RETRIEVAL",
+    ):
+        assert by_domain[domain]["runtime_role"] == "SUPPORTING_NON_BLOCKING"
+        assert by_domain[domain]["blocks_primary_investment_chain"] is False
+
+
+def test_cross_market_us_bounded_coverage_fails_closed_when_capture_quality_is_blocked() -> None:
+    workflow = (ROOT / ".github/workflows/round3-cross-market-limited-production.yml").read_text(encoding="utf-8")
+    assert 'if [[ "${{ steps.operate.outputs.us_bounded_capture_quality }}" == BLOCKED* ]]' in workflow
+    assert '--status "$US_STATUS"' in workflow
+    assert '"${US_ADVANCE[@]}"' in workflow
+    assert "runtime_role: SUPPORTING_NON_BLOCKING" in workflow
