@@ -126,6 +126,7 @@ jobs:
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
 
       - name: Bootstrap accepted A-share chain baseline from Operating Current
+        id: baseline
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -200,6 +201,18 @@ jobs:
           print(x.get('source_commit_sha') or '')
           PY
           )"
+          SOURCE_WORKFLOW="$(python - <<'PY'
+          import json
+          x=json.load(open('/tmp/FMDL_ACCEPTED_BASELINE.json',encoding='utf-8'))
+          print(x.get('source_workflow') or '')
+          PY
+          )"
+          RECOVERY_HANDOFF=false
+          if [[ "${{ github.event_name }}" == "workflow_run" && "$SOURCE_WORKFLOW" == "FMDL 2B-4 Multi-Session Recovery" ]]; then
+            RECOVERY_HANDOFF=true
+          fi
+          echo "source_workflow=$SOURCE_WORKFLOW" >> "$GITHUB_OUTPUT"
+          echo "recovery_handoff=$RECOVERY_HANDOFF" >> "$GITHUB_OUTPUT"
           if [[ -z "$SOURCE_BRANCH" || -z "$SOURCE_COMMIT" ]]; then
             echo "NO_ACCEPTED_HISTORY_FACTOR_BASELINE_USING_CANONICAL_MAIN"
             exit 0
@@ -208,6 +221,8 @@ jobs:
           git cat-file -e "$SOURCE_COMMIT^{commit}"
           git merge-base --is-ancestor "$SOURCE_COMMIT" refs/remotes/origin/fmdl-operating-baseline
           for path in \
+            outputs/current \
+            outputs/investment_os \
             outputs/history/current \
             outputs/factors/current \
             outputs/screens/current \
@@ -258,6 +273,7 @@ jobs:
             --verify
 
       - name: Run latest completed-session market Current
+        if: steps.baseline.outputs.recovery_handoff != 'true'
         id: market
         shell: bash
         run: |
@@ -275,21 +291,34 @@ jobs:
       - name: Resolve transaction mode
         id: mode
         shell: bash
+        env:
+          RECOVERY_HANDOFF: ${{ steps.baseline.outputs.recovery_handoff }}
         run: |
           python - <<'PY'
           import json
           import os
           from pathlib import Path
 
-          status_path = Path("outputs/status/LAST_RUN.json")
-          payload = json.loads(status_path.read_text(encoding="utf-8"))
-          status = str(payload.get("status", ""))
-          action = str(payload.get("action", ""))
-          no_op = status == "NO_OP" or action.startswith("NO_OP_")
+          recovery_handoff = os.environ.get("RECOVERY_HANDOFF", "").lower() == "true"
+          if recovery_handoff:
+              status = "RECOVERY_HANDOFF_SCREENING_REFRESH"
+              action = status
+              no_op = False
+          else:
+              status_path = Path("outputs/status/LAST_RUN.json")
+              payload = json.loads(status_path.read_text(encoding="utf-8"))
+              status = str(payload.get("status", ""))
+              action = str(payload.get("action", ""))
+              no_op = status == "NO_OP" or action.startswith("NO_OP_")
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
               handle.write(f"proceed={'false' if no_op else 'true'}\n")
               handle.write(f"status={status or action}\n")
-          print({"status": status, "action": action, "proceed": not no_op})
+          print({
+              "status": status,
+              "action": action,
+              "proceed": not no_op,
+              "recovery_handoff": recovery_handoff,
+          })
           PY
 
       - name: Refresh and validate Investment OS interface
@@ -303,7 +332,7 @@ jobs:
         run: python -m scripts.validate_fmdl2b4_freshness
 
       - name: Publish validated market Current independently of downstream history
-        if: steps.mode.outputs.proceed == 'true' && github.ref == 'refs/heads/main'
+        if: steps.mode.outputs.proceed == 'true' && steps.baseline.outputs.recovery_handoff != 'true' && github.ref == 'refs/heads/main'
         shell: bash
         env:
           MARKET_RESULT_BRANCH: automation/fmdl-market-current-${{ github.run_id }}-a${{ github.run_attempt }}
@@ -352,7 +381,7 @@ jobs:
           echo "A_SHARE_MARKET_CURRENT_PUBLISHED=$WATERMARK"
 
       - name: Run incremental history and factor chain
-        if: steps.mode.outputs.proceed == 'true'
+        if: steps.mode.outputs.proceed == 'true' && steps.baseline.outputs.recovery_handoff != 'true'
         run: python -m scripts.run_fmdl2b4_operating
 
       - name: Build and independently validate screening candidate
