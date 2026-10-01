@@ -28,6 +28,17 @@ QC_QUALITY_RANK = {
     "PASS_S2_SIMPLIFIED_PIPELINE": 100,
     "PASS_S3_PORTFOLIO_PRODUCT_SURFACE": 100,
 }
+PRIMARY_CHAIN_DOMAINS = {
+    "A_SHARE_FULL_MARKET",
+    "OPPORTUNITY_RESEARCH",
+    "RESEARCH_D2",
+    "INVESTMENT_PIPELINE",
+    "PORTFOLIO_MARKS",
+    "PORTFOLIO_PRODUCT_SURFACE",
+    "DECISION_LIFECYCLE",
+    "PORTFOLIO_EXECUTION_SIMULATION",
+}
+
 NON_BLOCKING_SUPPORT_DOMAINS = {
     "CROSS_MARKET_LIMITED",
     "US_BOUNDED_COVERAGE",
@@ -196,7 +207,15 @@ def build_index(root: Path) -> dict[str, Any]:
             health="STALE_BY_CALENDAR_HEURISTIC"
         else:
             health="CURRENT"
-        non_blocking_support = domain in NON_BLOCKING_SUPPORT_DOMAINS
+        if domain in PRIMARY_CHAIN_DOMAINS:
+            runtime_role = "PRIMARY_CHAIN"
+            blocks_primary = True
+        elif domain in NON_BLOCKING_SUPPORT_DOMAINS:
+            runtime_role = "SUPPORTING_NON_BLOCKING"
+            blocks_primary = False
+        else:
+            runtime_role = "AUXILIARY_OR_LEGACY"
+            blocks_primary = False
         entries.append({
             "domain_id": domain,
             "current": current,
@@ -204,12 +223,8 @@ def build_index(root: Path) -> dict[str, Any]:
             "watermark_age_calendar_days": age,
             "stale_threshold_calendar_days": threshold,
             "health": health,
-            "runtime_role": (
-                "SUPPORTING_NON_BLOCKING"
-                if non_blocking_support
-                else "GOVERNED_DOMAIN"
-            ),
-            "blocks_primary_investment_chain": not non_blocking_support,
+            "runtime_role": runtime_role,
+            "blocks_primary_investment_chain": blocks_primary,
         })
     return {
         "schema_version":"1.0.0",
