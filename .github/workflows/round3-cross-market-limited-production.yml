@@ -327,9 +327,15 @@ jobs:
             --watermark-sort-key "$WATERMARK" \
             --qc-status "${{ steps.operate.outputs.status }}:${{ steps.operate.outputs.capture_status }}" \
             "${ADVANCE_ARGS[@]}"
+          US_STATUS="PASS"
+          US_ADVANCE=(--advance-current)
+          if [[ "${{ steps.operate.outputs.us_bounded_capture_quality }}" == BLOCKED* ]]; then
+            US_STATUS="BLOCKED"
+            US_ADVANCE=()
+          fi
           python automation/operating_current/publish_operating_current.py \
             --domain US_BOUNDED_COVERAGE \
-            --status PASS \
+            --status "$US_STATUS" \
             --source-workflow "Round 3 HK and US Limited Production" \
             --source-run-id "${{ github.run_id }}" \
             --source-run-attempt "${{ github.run_attempt }}" \
@@ -338,7 +344,7 @@ jobs:
             --watermark "$WATERMARK" \
             --watermark-sort-key "$WATERMARK" \
             --qc-status "${{ steps.operate.outputs.us_bounded_capture_quality }}:rotation_ratio=${{ steps.operate.outputs.us_rotation_success_ratio }}:benchmark_success=${{ steps.operate.outputs.us_benchmark_success }}" \
-            --advance-current
+            "${US_ADVANCE[@]}"
           python automation/operating_current/publish_operating_current.py \
             --domain SEC_QUEUE_CONSUMER \
             --status PASS \
@@ -387,6 +393,8 @@ jobs:
             echo "- sec_operating_current_domain: SEC_OFFICIAL_RETRIEVAL"
             echo "- SEC queue consumer: ${{ steps.sec_consumer.outputs.consumer_status }}"
             echo "- SEC official successes/failures this run: ${{ steps.sec_consumer.outputs.official_success_count }}/${{ steps.sec_consumer.outputs.official_failure_count }}"
+            echo "- runtime_role: SUPPORTING_NON_BLOCKING"
+            echo "- blocks_primary_investment_chain: false"
             echo "- formal investment-state promotion remains separate"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Record no-op or observation state
@@ -400,6 +408,7 @@ jobs:
           - operating_state: ${{ steps.operate.outputs.operating_state }}
           - stale or missing completed sessions remain retryable and do not close a bucket
           - no full-HKEX or full-US weekly coverage claim
+          - runtime role: SUPPORTING_NON_BLOCKING; does not block the A-share investment chain
           - no Candidate, simulation, real-account, decision or order authority
           - trade_authority: NONE
           EOF
