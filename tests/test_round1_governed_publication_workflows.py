@@ -82,3 +82,12 @@ def test_daily_bootstrap_accepts_occ_r1_screening_recovery_provenance() -> None:
     text = _text("daily")
     marker = '"OCC-R1 A-share Screening Recovery"'
     assert text.count(marker) == 2
+
+
+def test_daily_recovery_handoff_skips_redundant_market_and_history_refetch() -> None:
+    text = _text("daily")
+    assert "id: baseline" in text
+    assert "RECOVERY_HANDOFF_SCREENING_REFRESH" in text
+    assert "steps.baseline.outputs.recovery_handoff != 'true'" in text
+    assert "outputs/current \\" in text
+    assert 'github.event_name }}" == "workflow_run"' in text
