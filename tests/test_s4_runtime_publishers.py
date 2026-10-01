@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from pathlib import Path\n\nfrom automation.operating_current.publish_operating_current import build_index
+from pathlib import Path
+
+from automation.operating_current.publish_operating_current import build_index
 
 ROOT = Path(__file__).resolve().parents[1]
 
