@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-28T18:42:08+00:00",
+  "as_of": "2026-10-02T16:36:56+00:00",
   "consumer_policy": {
     "ai_book_near_gate_refresh": "AUTO_ROUTED_TO_CHATGPT_NATIVE_SEMANTIC_D2_WITHOUT_MANUAL_D1_D2_DISPATCH",
     "bounded_batch_size": 3,
@@ -23,7 +23,7 @@
       "ai_book_auto_reunderwrite": false,
       "ai_book_reunderwrite_reason": null,
       "archetype": "TREND_PERSISTENCE",
-      "attempt_count": 1,
+      "attempt_count": 0,
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
@@ -36,79 +36,81 @@
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
       "decision_mutation_authorized": false,
+      "evidence_gap": {
+        "manual_user_input_required": false,
+        "material": false,
+        "missing": null
+      },
       "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-      "input_watermark": "87cf84b5e9c65c472299f267ba0721d7c5b13ae075d8b502833661e2a1b7f19e",
-      "last_attempt_at": "2026-09-28T18:42:08+00:00",
+      "first_rejection_test": "VALUATION_AND_FINANCED_GROWTH_GATE_MORE_SEVERE_AT_RMB208_DESPITE_CONFIRMED_FUNDAMENTAL_INFLECTION",
+      "input_watermark": "2a47d5fc9c850ff8886da936928e66db8697e588da4547f84cc7f6dddcc292f3",
+      "last_attempt_at": "2026-10-02T16:36:56+00:00",
+      "manual_user_input_required": false,
+      "next_gate": "REOPEN_ON_MATERIAL_NORMALIZED_EARNINGS_ROIC_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB120_43_WITH_ORDER_MARGIN_EVIDENCE_INTACT",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "000608.SZ",
-      "security_name": "阳光股份",
-      "semantic_input_watermark": "7748625c9838cd3722ee963f70dfbe752f1c7f3642164b2134b71138a5266d07",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_FUNDAMENTAL_INFLECTION_REAL_BUT_9_18_RERATING_WIDENS_VALUATION_AND_FINANCED_GROWTH_GAP",
+      "security_id": "603268.SH",
+      "security_name": "松发股份",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_603268_20260921_R4.json",
+      "semantic_input_watermark": "6c047b736bd86d53aab16a2dba75fb506786eb72833e08a1527de6d557ad0bb3",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
       "semantic_research_required": false,
-      "semantic_reuse_source": "FRESH_SEMANTIC_ARTIFACT",
+      "semantic_reuse_source": "DURABLE_SEMANTIC_ARTIFACT",
       "simulation_mutation_authorized": false,
       "status": "D2_RESEARCH_COMPLETE",
       "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_000608_20260929_R1.json",
-      "research_disposition": "AVOID_RESEARCH_COMPLETE_FINANCED_AI_PIVOT_CAPITAL_MISMATCH_AND_LOSSMAKING_LEGACY_BUSINESS_DO_NOT_SUPPORT_TREND",
-      "first_rejection_test": "FAIL_FINANCED_GROWTH_GATE_AND_VALUATION; NEGATIVE_NORMALIZED_EARNINGS_AND_CFO_PLUS_RMB2_2931BN_SERVER_COMMITMENT_ARE_NOT_SUPPORTED_BY_CURRENTLY_DISCLOSED_CONTRACTED_CASH_ECONOMICS",
-      "next_gate": "REOPEN_ONLY_ON_MATERIAL_CONTRACTED_AI_SERVICE_BACKLOG_AND_PROJECT_LEVEL_CASH_RETURN_EVIDENCE_OR_PRICE_AT_OR_BELOW_RMB2_52; PREFERRED_ENTRY_RMB2_41",
-      "evidence_gap": {
-        "material": false,
-        "missing": null,
-        "manual_user_input_required": false
-      },
-      "manual_user_input_required": false,
       "underwriting": {
-        "current_price": 7,
-        "price_as_of": "2026-09-28",
-        "entry_price": 2.40624442,
-        "preferred_entry_price_15pct": 2.40624442,
-        "formal_buy_entry_price_10pct": 2.5156191664,
-        "confidence": "MEDIUM_HIGH",
-        "valuation_method": "ADJUSTED_COMMON_BOOK_VALUE_PB_SCENARIO",
+        "action": "AVOID",
+        "bear_downside": -0.6298076923,
+        "catalysts": [
+          "High-value ship orders convert into deliveries at or above H1 margins.",
+          "New yard and engine capacity reaches high utilization without material cost overruns.",
+          "Normalized earnings or ROIC upgrades enough to offset the substantially higher market price.",
+          "Financing flexibility improves without debt, finance expense and capex outrunning sustainable free cash generation."
+        ],
+        "confidence": "MEDIUM",
+        "current_price": 208,
+        "entry_price": 120.43,
+        "expected_return": -0.3341346154,
+        "hurdle_entry_price_15pct": 120.4348,
+        "kill_thesis": [
+          "Newbuild pricing or orders roll over before expanded capacity matures.",
+          "Delivery delays, cancellations, steel/FX pressure or mix deterioration compress normalized margin.",
+          "Debt, finance expense and capex continue to grow faster than sustainable free cash generation."
+        ],
         "normalized_earnings_basis": {
-          "metric": "H1_2026_PARENT_COMMON_BVPS",
-          "common_bvps": 2.6996888614,
-          "rationale": "Earnings and CFO are negative; book value is used as the conservative anchor while the new AI-computing business remains unproven."
+          "base": 7.5,
+          "bear": 5.5,
+          "bull": 9,
+          "metric": "2026E_NORMALIZED_EPS",
+          "rationale": "No material post-H1 operating disclosure changes the prior normalized earnings range."
         },
+        "price_as_of": "2026-09-18",
+        "probability_weighted_value": 138.5,
         "scenarios": [
           {
+            "eps": 5.5,
             "name": "BEAR",
-            "pb_multiple": 0.6,
-            "value_per_share": 1.6198133169,
-            "probability": 0.25
+            "probability": 0.25,
+            "valuation_multiple_pe": 14,
+            "value_per_share": 77
           },
           {
+            "eps": 7.5,
             "name": "BASE",
-            "pb_multiple": 1,
-            "value_per_share": 2.6996888614,
-            "probability": 0.5
+            "probability": 0.5,
+            "valuation_multiple_pe": 18,
+            "value_per_share": 135
           },
           {
+            "eps": 9,
             "name": "BULL",
-            "pb_multiple": 1.5,
-            "value_per_share": 4.0495332922,
-            "probability": 0.25
+            "probability": 0.25,
+            "valuation_multiple_pe": 23,
+            "value_per_share": 207
           }
-        ],
-        "probability_weighted_value": 2.767181083,
-        "expected_return": -0.6046884167,
-        "bear_downside": -0.7685980976,
-        "hurdle_entry_price_15pct": 2.40624442,
-        "action": "AVOID",
-        "catalysts": [
-          "Additional creditworthy multi-year computing-service contracts materially increase contracted utilization beyond the initial RMB633m agreement.",
-          "Financing closes on terms that leave project-level ROIC and free cash flow clearly positive after interest, depreciation and maintenance capex.",
-          "Legacy property operations stop consuming cash and consolidated operating cash flow turns sustainably positive."
-        ],
-        "kill_thesis": [
-          "Server utilization or customer expansion falls short, leaving material idle assets.",
-          "Financing cost, refinancing tenor or customer collection creates a cash-cycle mismatch.",
-          "Depreciation, impairment or operating costs cause the computing-power business to remain loss-making despite revenue growth.",
-          "Continued legacy losses or shareholder-funding dependence weakens liquidity further."
         ]
       }
     },
@@ -116,7 +118,7 @@
       "ai_book_auto_reunderwrite": false,
       "ai_book_reunderwrite_reason": null,
       "archetype": "TREND_PERSISTENCE",
-      "attempt_count": 1,
+      "attempt_count": 0,
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
@@ -129,84 +131,83 @@
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
       "decision_mutation_authorized": false,
+      "evidence_gap": {
+        "manual_user_input_required": false,
+        "material": false,
+        "missing": null
+      },
       "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-      "input_watermark": "7b87cf0bafba7a59e86e2b482264167290e09b34c52657fdeb37445775de784f",
-      "last_attempt_at": "2026-09-28T18:42:08+00:00",
+      "first_rejection_test": "FUNDAMENTAL_REVENUE_INFLECTION_CONFIRMED_BUT_CASH_CONVERSION_LEVERAGE_AND_VALUATION_GATE_FAIL",
+      "input_watermark": "0c5e05043220cf2726a687ee8e232b1c81d31c6dfea2b2a8baf66c5807d69278",
+      "last_attempt_at": "2026-10-02T16:36:56+00:00",
+      "manual_user_input_required": false,
+      "next_gate": "REOPEN_ONLY_ON_DISCLOSED_DOWNSTREAM_DEMAND_POSITIVE_CFO_DELEVERAGING_AND_MATERIAL_NORMALIZED_EPS_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB26_09",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "603819.SH",
-      "security_name": "神力股份",
-      "semantic_input_watermark": "f1c8fd81074f6d8f8473af8b3bcfe4dcaa4eb1cd09b9b3c3e2da129b3389bca0",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_AI_COMPUTE_REVENUE_INFLECTION_REAL_BUT_WORKING_CAPITAL_LEVERAGE_AND_VALUATION_FAIL",
+      "security_id": "301189.SZ",
+      "security_name": "奥尼电子",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_301189_20260923_R1.json",
+      "semantic_input_watermark": "2aeb3371a39df016bcb14edaea4e9e515a2ea8bc3b76a927fd8efc2c15e541f3",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
       "semantic_research_required": false,
-      "semantic_reuse_source": "FRESH_SEMANTIC_ARTIFACT",
+      "semantic_reuse_source": "DURABLE_SEMANTIC_ARTIFACT",
       "simulation_mutation_authorized": false,
       "status": "D2_RESEARCH_COMPLETE",
       "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_603819_20260929_R1.json",
-      "research_disposition": "AVOID_RESEARCH_COMPLETE_REAL_MARGIN_RECOVERY_BUT_CURRENT_VALUATION_PRICES_IN_FAR_MORE_THAN_H1_EARNINGS_INFLECTION",
-      "first_rejection_test": "FUNDAMENTAL_RECOVERY_PASS_BUT_VALUATION_FAIL; H1_PROFIT_INFLECTION_IS_REAL_YET_CURRENT_PRICE_REQUIRES_EARNINGS_AND_ROE_FAR_ABOVE_THE_EVIDENCED_RUN_RATE",
-      "next_gate": "REOPEN_ON_MATERIAL_NORMALIZED_EPS_AND_ROE_UPGRADE_OR_PRICE_AT_OR_BELOW_RMB7_68; PREFERRED_ENTRY_RMB7_35",
-      "evidence_gap": {
-        "material": false,
-        "missing": null,
-        "manual_user_input_required": false
-      },
-      "manual_user_input_required": false,
       "underwriting": {
-        "current_price": 16.77,
-        "price_as_of": "2026-09-28",
-        "entry_price": 7.347826087,
-        "preferred_entry_price_15pct": 7.347826087,
-        "formal_buy_entry_price_10pct": 7.6818181818,
-        "confidence": "MEDIUM_HIGH",
-        "valuation_method": "NORMALIZED_EARNINGS_PE_SCENARIO",
+        "action": "AVOID",
+        "bear_downside": -0.9595959596,
+        "catalysts": [
+          "Disclosed downstream AI-compute sales contracts or prepayments validate sell-through of GPU inventory.",
+          "H2 operating cash flow turns positive while inventory and receivables growth normalizes.",
+          "Short-term debt declines materially despite continued AI-compute revenue growth.",
+          "High-performance computing gross margin and company-level net margin improve enough to support materially higher normalized EPS."
+        ],
+        "confidence": "MEDIUM",
+        "current_price": 74.25,
+        "entry_price": 26.09,
+        "expected_return": -0.595959596,
+        "hurdle_entry_price_15pct": 26.087,
+        "kill_thesis": [
+          "GPU procurement and inventory continue to expand without matching disclosed downstream demand or customer cash collection.",
+          "Operating cash flow remains deeply negative while short-term borrowing rises further.",
+          "High-performance computing gross margin falls materially below the current mid-teens level or Q3/Q4 profit conversion remains near break-even.",
+          "Receivables, inventory and financing costs grow faster than sustainable gross profit."
+        ],
+        "market_cap_rmb_bn": 12.15,
         "normalized_earnings_basis": {
+          "base": 0.5,
+          "bear": 0.1,
+          "bull": 1.2,
           "metric": "2026E_NORMALIZED_EPS",
-          "bear": 0.16,
-          "base": 0.22,
-          "bull": 0.32,
-          "rationale": "H1 EPS was RMB0.0923. The scenarios already allow meaningful further recovery, so valuation does not rely on the depressed prior-year earnings base."
+          "rationale": "H1 attributable profit was only RMB16.8m despite RMB906.9m revenue. Base assumes H2 scale-up with modest net-margin recovery; bull requires a major improvement in sell-through, financing cost and working-capital conversion."
         },
+        "price_as_of": "2026-09-22",
+        "probability_weighted_value": 30,
         "scenarios": [
           {
+            "eps": 0.1,
             "name": "BEAR",
-            "eps": 0.16,
-            "valuation_multiple_pe": 25,
-            "value_per_share": 4,
-            "probability": 0.25
+            "probability": 0.25,
+            "valuation_multiple_pe": 30,
+            "value_per_share": 3
           },
           {
+            "eps": 0.5,
             "name": "BASE",
-            "eps": 0.22,
-            "valuation_multiple_pe": 35,
-            "value_per_share": 7.7,
-            "probability": 0.5
+            "probability": 0.5,
+            "valuation_multiple_pe": 45,
+            "value_per_share": 22.5
           },
           {
+            "eps": 1.2,
             "name": "BULL",
-            "eps": 0.32,
-            "valuation_multiple_pe": 45,
-            "value_per_share": 14.4,
-            "probability": 0.25
+            "probability": 0.25,
+            "valuation_multiple_pe": 60,
+            "value_per_share": 72
           }
-        ],
-        "probability_weighted_value": 8.45,
-        "expected_return": -0.496124031,
-        "bear_downside": -0.7614788312,
-        "hurdle_entry_price_15pct": 7.347826087,
-        "action": "AVOID",
-        "catalysts": [
-          "Revenue growth accelerates materially while gross margin and operating efficiency continue to improve.",
-          "Normalized EPS moves clearly above the current bull-case path through durable customer demand rather than one-off working-capital effects.",
-          "ROE rises to a level consistent with the premium valuation without material balance-sheet expansion."
-        ],
-        "kill_thesis": [
-          "Margin recovery stalls or reverses while the stock continues to trade at a premium multiple.",
-          "Operating cash flow normalization proves temporary and receivables or working capital again absorb cash.",
-          "End-market demand in motors, wind or new-energy applications weakens and volume growth fails to offset cost pressure.",
-          "The market continues to capitalize thematic expectations that are not visible in audited segment earnings."
         ]
       }
     },
@@ -214,11 +215,11 @@
       "ai_book_auto_reunderwrite": false,
       "ai_book_reunderwrite_reason": null,
       "archetype": "DEFENSIVE_STABILITY",
-      "attempt_count": 1,
+      "attempt_count": 0,
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-      "d1_rank": 4,
+      "d1_rank": 3,
       "d2_questions": [
         "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
         "Compare the opportunity with lower-risk defensive and cash alternatives.",
@@ -227,88 +228,87 @@
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
       "decision_mutation_authorized": false,
+      "evidence_gap": {
+        "manual_user_input_required": false,
+        "material": false,
+        "missing": null
+      },
       "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-      "input_watermark": "d7b9ba61ee57508eaab247eeb704661e3afe53feda41dbf6b990e23911f19bc9",
-      "last_attempt_at": "2026-09-28T18:42:08+00:00",
+      "first_rejection_test": "CAPITAL_NIM_AND_SHAREHOLDER_RETURN_GATE_REMAINS_TRIGGERED; CURRENT_PRICE_ONLY_REACHES_APPROXIMATE_FAIR_VALUE_NOT_15PCT_HURDLE",
+      "input_watermark": "530299787407111cd402573c301347e3a5e9042b8065d5869ed9459428415fbb",
+      "last_attempt_at": "2026-10-02T16:36:56+00:00",
+      "manual_user_input_required": false,
+      "next_gate": "CORE_TIER1_NIM_PAYOUT_IMPROVEMENT_OR_PRICE_AT_OR_BELOW_RMB1_53",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "600919.SH",
-      "security_name": "江苏银行",
-      "semantic_input_watermark": "ecc5bf8cc0a3966c0ca272d74c51e41bc1066563e257bbee20b34d92f681c10a",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_DEFENSIVE_LABEL_NOT_CLEARED_CAPITAL_NIM_PAYOUT_GATE",
+      "security_id": "002936.SZ",
+      "security_name": "郑州银行",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_002936_20260916_R3.json",
+      "semantic_input_watermark": "c5b80ca5432d7b74076304594a68ee225d8fe6f93bac43975aa8039fa00b8905",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
       "semantic_research_required": false,
-      "semantic_reuse_source": "FRESH_SEMANTIC_ARTIFACT",
+      "semantic_reuse_source": "DURABLE_SEMANTIC_ARTIFACT",
       "simulation_mutation_authorized": false,
       "status": "D2_RESEARCH_COMPLETE",
       "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_600919_20260929_R1.json",
-      "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_STRONG_ROE_ASSET_QUALITY_AND_GROWTH_BUT_CURRENT_PRICE_JUST_ABOVE_FORMAL_RETURN_HURDLE",
-      "first_rejection_test": "DEFENSIVE_ASSET_QUALITY_AND_PROFITABILITY_PASS; CURRENT_PRICE_RMB12_22_IS_JUST_ABOVE_THE_10PCT_COMMON_BOOK_VALUE_RETURN_GATE_RMB12_10",
-      "next_gate": "BUY_BELOW_RMB12_10_FORMAL_GATE; PREFERRED_ENTRY_RMB11_57; REUNDERWRITE_ON_MATERIAL_NPL_PROVISION_NIM_OR_CORE_TIER1_CHANGE",
-      "evidence_gap": {
-        "material": false,
-        "missing": null,
-        "manual_user_input_required": false
-      },
-      "manual_user_input_required": false,
       "underwriting": {
-        "current_price": 12.22,
-        "price_as_of": "2026-09-28",
-        "entry_price": 11.5747826087,
-        "preferred_entry_price_15pct": 11.5747826087,
-        "formal_buy_entry_price_10pct": 12.1009090909,
+        "action": "AVOID",
+        "bear_downside": -0.2670454545,
+        "catalysts": [
+          "Core Tier-1 capital ratio stabilizes and rebuilds without dilutive capital raising.",
+          "Net interest margin stabilizes as deposit repricing and asset mix improve.",
+          "Ordinary-share cash dividends resume at a sustainable payout level while asset quality remains stable."
+        ],
         "confidence": "MEDIUM_HIGH",
-        "valuation_method": "COMMON_BOOK_VALUE_PB_SCENARIO",
+        "current_price": 1.76,
+        "entry_price": 1.53,
+        "expected_return": -0.0022727273,
+        "hurdle_entry_price_15pct": 1.527,
+        "kill_thesis": [
+          "Core Tier-1 capital ratio moves materially closer to the regulatory floor or requires dilutive replenishment.",
+          "NIM continues to compress while ROE remains structurally below the cost of equity.",
+          "Asset-quality improvement reverses or ordinary-share payout remains structurally absent."
+        ],
         "normalized_earnings_basis": {
-          "metric": "H1_2026_COMMON_BVPS",
-          "common_bvps": 14.79,
-          "rationale": "PB is the primary anchor for a profitable bank with observable asset-quality and capital metrics. Expected return below excludes future dividends, which are not assumed in the price target."
+          "common_bvps_2026_h1": 5.16,
+          "metric": "COMMON_EQUITY_BVPS_AND_NORMALIZED_EPS",
+          "normalized_eps_range": [
+            0.34,
+            0.36
+          ],
+          "rationale": "Fresh review finds no post-H1 evidence that changes the capital/NIM/payout framework."
         },
+        "price_as_of": "2026-09-15",
+        "probability_weighted_value": 1.756,
         "scenarios": [
           {
+            "common_pb": 0.25,
             "name": "BEAR",
-            "pb_multiple": 0.7,
-            "value_per_share": 10.353,
-            "probability": 0.25
+            "probability": 0.3,
+            "value_per_share": 1.29
           },
           {
+            "common_pb": 0.35,
             "name": "BASE",
-            "pb_multiple": 0.9,
-            "value_per_share": 13.311,
-            "probability": 0.5
+            "probability": 0.5,
+            "value_per_share": 1.81
           },
           {
+            "common_pb": 0.45,
             "name": "BULL",
-            "pb_multiple": 1.1,
-            "value_per_share": 16.269,
-            "probability": 0.25
+            "probability": 0.2,
+            "value_per_share": 2.32
           }
-        ],
-        "probability_weighted_value": 13.311,
-        "expected_return": 0.0892798691,
-        "bear_downside": -0.1527823241,
-        "hurdle_entry_price_15pct": 11.5747826087,
-        "action": "BUY_BELOW",
-        "catalysts": [
-          "Net interest margin stabilizes or improves as deposit repricing offsets asset-yield pressure.",
-          "NPL ratio stays near current levels while provision coverage remains comfortably above required risk buffers.",
-          "Profit growth and retained earnings rebuild core Tier-1 capital faster than risk-weighted assets expand.",
-          "Sustainable shareholder distributions add to total return without weakening capital adequacy."
-        ],
-        "kill_thesis": [
-          "Core Tier-1 capital continues to decline enough to constrain growth or distributions.",
-          "Provision coverage and asset-quality indicators deteriorate materially, especially if NPL formation accelerates.",
-          "Net interest margin compresses materially below the H1 level without fee or volume offsets.",
-          "Rapid balance-sheet growth produces weaker risk-adjusted returns or a material increase in credit concentration."
         ]
       }
     }
   ],
   "schema_version": "1.1.0",
-  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_92e99ec8482a368e",
-  "state_id": "RESEARCH_QUEUE_D2_CURRENT_20260929_BACKLOG_R1",
-  "status": "D2_AUTO_CONSUMER_LIVE_SEMANTIC_COMPLETE",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_325614f4c18c921f",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_784a37cbe821098a",
+  "status": "D2_AUTO_CONSUMER_ACTIVE_NO_PENDING_WORK",
   "summary": {
     "ai_book_auto_reunderwrite_pending_count": 0,
     "batch_capacity": 3,
@@ -318,8 +318,7 @@
     "manual_trigger_required": false,
     "pending_count": 0,
     "provider_incident_active": false,
-    "reused_completed_count": 0,
+    "reused_completed_count": 3,
     "routed_count": 3
-  },
-  "semantic_batch_id": "D2_SEMANTIC_RESEARCH_20260929_BACKLOG_R1"
+  }
 }
