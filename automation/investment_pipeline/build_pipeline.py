@@ -21,6 +21,7 @@ AI_NEAR_FORMAL_BUY_GATE_PCT = 0.03
 VALUE_RESEARCH_SLEEVES = {"DEFENSIVE_STABILITY", "RECOVERY_WATCH"}
 MOMENTUM_RESEARCH_SLEEVES = {"TREND_PERSISTENCE", "LIQUID_BREAKOUT"}
 VALID_CONFIDENCE = {"HIGH", "MEDIUM", "MEDIUM_HIGH", "HIGH_MEDIUM"}
+DECISION_GRADE_ACTIONS = {"BUY", "BUY_BELOW", "AVOID", "ADD", "HOLD", "TRIM", "EXIT"}
 
 
 def load_json(path: Path | None) -> dict[str, Any]:
@@ -302,6 +303,23 @@ def _formal_buy_entry_from_recommendation(rec: dict[str, Any]) -> float | None:
     return min(expected_entry, bear_entry)
 
 
+def _decision_grade_terminal_ids(recommendation: dict[str, Any] | None) -> set[str]:
+    """Return subjects with a current terminal decision-grade recommendation.
+
+    WATCH/WATCH_FOR_EVIDENCE are intentionally excluded because they can be
+    produced by fail-closed incomplete underwriting. A terminal capital action
+    proves that the subject already has decision-grade D2 and should not consume
+    a new D2 research slot unless an explicit refresh route reopens it.
+    """
+    recommendation = recommendation or {}
+    return {
+        str(row.get("security_id") or "")
+        for row in recommendation.get("records", [])
+        if row.get("security_id")
+        and str(row.get("action") or "") in DECISION_GRADE_ACTIONS
+    }
+
+
 def _ai_book_near_gate_refresh_ids(
     opportunity: dict[str, Any],
     *,
@@ -355,12 +373,19 @@ def _diversified_d2_route_ids(
     selected: list[dict[str, Any]],
     *,
     preferred_ids: list[str] | None = None,
+    completed_ids: set[str] | None = None,
     capacity: int = D2_CAPACITY,
 ) -> list[str]:
+    preferred_set = set(preferred_ids or [])
+    completed_set = set(completed_ids or set())
     eligible = [
         row for row in selected
         if str(row.get("research_priority") or "") == "A_IMMEDIATE_RESEARCH"
         and not _is_extreme_d1_signal(row)
+        and (
+            str(row.get("security_id") or "") not in completed_set
+            or str(row.get("security_id") or "") in preferred_set
+        )
     ]
     if not eligible or capacity <= 0:
         return []
@@ -445,9 +470,11 @@ def build_d1(
                 selected.append(row)
             break
 
+    completed_d2_ids = _decision_grade_terminal_ids(recommendation)
     route_ids = _diversified_d2_route_ids(
         selected,
         preferred_ids=near_gate_ids,
+        completed_ids=completed_d2_ids,
         capacity=d2_capacity,
     )
     route_set = set(route_ids)
@@ -462,6 +489,8 @@ def build_d1(
                 disposition = "ADVANCE_TO_D2_AI_BOOK_AUTO_REUNDERWRITE"
             else:
                 disposition = "ADVANCE_TO_D2_FAST_TRIAGE"
+        elif sid in completed_d2_ids:
+            disposition = "WATCH_EXISTING_D2_NO_REFRESH"
         elif priority == "A_IMMEDIATE_RESEARCH":
             disposition = "WATCH_FOR_FUNDAMENTAL_CONFIRMATION"
         elif priority == "B_WATCH_OR_TRIGGER":
@@ -490,6 +519,7 @@ def build_d1(
                 "semantic_refresh_required": ai_refresh,
                 "fresh_d2_required": ai_refresh,
                 "ai_book_auto_reunderwrite": ai_refresh,
+                "existing_decision_grade_d2": sid in completed_d2_ids,
                 "ai_book_reunderwrite_reason": (
                     "HIGH_CASH_BUY_BELOW_NEAR_FORMAL_10PCT_GATE"
                     if ai_refresh else None
@@ -543,7 +573,12 @@ def build_d1(
                 for r in research_objects
             ),
             "route_security_ids": route_ids,
-            "research_slot_policy": "ONE_VALUE_OR_RECOVERY_ONE_MOMENTUM_ONE_BEST_REMAINING_WITH_AI_HIGH_CASH_NEAR_GATE_PRIORITY",
+            "completed_d2_excluded_from_new_slots_count": sum(
+                str(r.get("security_id") or "") in completed_d2_ids
+                and str(r.get("security_id") or "") not in route_set
+                for r in research_objects
+            ),
+            "research_slot_policy": "ONE_VALUE_OR_RECOVERY_ONE_MOMENTUM_ONE_BEST_REMAINING_EXCLUDING_COMPLETED_D2_UNLESS_REFRESH_REQUIRED",
             "watch_count": sum(
                 "WATCH" in str(r["d1_disposition"]) for r in research_objects
             ),

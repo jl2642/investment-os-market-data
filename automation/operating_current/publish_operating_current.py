@@ -46,6 +46,16 @@ NON_BLOCKING_SUPPORT_DOMAINS = {
     "SEC_OFFICIAL_RETRIEVAL",
 }
 
+A_SHARE_SESSION_DERIVED_DOMAINS = {
+    "FINANCIAL_VALUATION_CONTEXT",
+    "PORTFOLIO_MARKS",
+    "PORTFOLIO_PRODUCT_SURFACE",
+    "DECISION_LIFECYCLE",
+    "PORTFOLIO_EXECUTION_SIMULATION",
+}
+EXCHANGE_SESSION_CONFIRMATION_QC = "NO_OP_EXCHANGE_SESSION_CONFIRMED"
+EXCHANGE_SESSION_CONFIRMATION_MAX_AGE_DAYS = 3
+
 DOMAIN_STALE_DAYS = {
     "A_SHARE_FULL_MARKET": 5,
     "PORTFOLIO_MARKS": 5,
@@ -182,7 +192,22 @@ def _watermark_age_days(value: str, now: datetime) -> int | None:
         return None
 
 
-def build_index(root: Path) -> dict[str, Any]:
+def _watermark_date(value: str) -> str | None:
+    if not value:
+        return None
+    try:
+        normalized = value.replace("Z", "+00:00")
+        if len(normalized) == 10:
+            return datetime.fromisoformat(normalized).date().isoformat()
+        dt = datetime.fromisoformat(normalized)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc).date().isoformat()
+    except Exception:
+        return None
+
+
+def build_index(root: Path, now: datetime | None = None) -> dict[str, Any]:
     domains_dir = root / "domains"
     runs_dir = root / "runs"
     entries=[]
@@ -191,20 +216,98 @@ def build_index(root: Path) -> dict[str, Any]:
         domain_ids.update(path.stem for path in domains_dir.glob("*.json"))
     if runs_dir.exists():
         domain_ids.update(path.name for path in runs_dir.iterdir() if path.is_dir())
-    now=datetime.now(timezone.utc)
+    now = now or datetime.now(timezone.utc)
+
+    currents: dict[str, dict[str, Any] | None] = {}
+    latest_by_domain: dict[str, dict[str, Any] | None] = {}
+    for domain in domain_ids:
+        pointer_path = domains_dir / f"{domain}.json"
+        currents[domain] = (
+            json.loads(pointer_path.read_text(encoding="utf-8"))
+            if pointer_path.exists()
+            else None
+        )
+        receipt_paths = (
+            list((runs_dir / domain).glob("*.json"))
+            if (runs_dir / domain).exists()
+            else []
+        )
+        latest_by_domain[domain] = latest_receipt_for_domain(receipt_paths)
+
+    market_current = currents.get("A_SHARE_FULL_MARKET")
+    market_latest = latest_by_domain.get("A_SHARE_FULL_MARKET")
+    market_age = (
+        _watermark_age_days(str(market_current.get("watermark_sort_key", "")), now)
+        if market_current
+        else None
+    )
+    market_latest_age = (
+        _watermark_age_days(str(market_latest.get("published_at_utc", "")), now)
+        if market_latest
+        else None
+    )
+    market_threshold = DOMAIN_STALE_DAYS.get("A_SHARE_FULL_MARKET")
+    market_failed = bool(
+        market_latest and market_latest.get("status") in {"FAIL", "BLOCKED"}
+    )
+    market_noop_confirmed = bool(
+        market_current
+        and market_latest
+        and market_latest.get("status") == "NO_OP"
+        and market_latest.get("qc_status") == EXCHANGE_SESSION_CONFIRMATION_QC
+        and _watermark_date(str(market_latest.get("watermark_sort_key", "")))
+        == _watermark_date(str(market_current.get("watermark_sort_key", "")))
+        and market_latest_age is not None
+        and market_latest_age <= EXCHANGE_SESSION_CONFIRMATION_MAX_AGE_DAYS
+    )
+    market_session_current = bool(
+        market_current
+        and not market_failed
+        and (
+            market_age is None
+            or market_threshold is None
+            or market_age <= market_threshold
+            or market_noop_confirmed
+        )
+    )
+    market_session_date = (
+        _watermark_date(str(market_current.get("watermark_sort_key", "")))
+        if market_current
+        else None
+    )
+
     for domain in sorted(domain_ids):
-        pointer_path=domains_dir / f"{domain}.json"
-        current=json.loads(pointer_path.read_text(encoding="utf-8")) if pointer_path.exists() else None
-        receipt_paths=list((runs_dir/domain).glob("*.json")) if (runs_dir/domain).exists() else []
-        latest=latest_receipt_for_domain(receipt_paths)
-        age=_watermark_age_days(str(current.get("watermark_sort_key","")),now) if current else None
-        threshold=DOMAIN_STALE_DAYS.get(domain)
+        current = currents.get(domain)
+        latest = latest_by_domain.get(domain)
+        age = (
+            _watermark_age_days(str(current.get("watermark_sort_key", "")), now)
+            if current
+            else None
+        )
+        latest_age = (
+            _watermark_age_days(str(latest.get("published_at_utc", "")), now)
+            if latest
+            else None
+        )
+        threshold = DOMAIN_STALE_DAYS.get(domain)
+        session_aligned = bool(
+            domain in A_SHARE_SESSION_DERIVED_DOMAINS
+            and current
+            and market_session_current
+            and market_session_date
+            and _watermark_date(str(current.get("watermark_sort_key", "")))
+            == market_session_date
+        )
         if current is None:
             health="MISSING_CURRENT"
         elif latest and latest.get("status") in {"FAIL","BLOCKED"}:
             health="LATEST_ATTEMPT_FAILED_CURRENT_PRESERVED"
+        elif domain == "A_SHARE_FULL_MARKET" and market_session_current:
+            health="CURRENT"
+        elif session_aligned:
+            health="CURRENT"
         elif age is not None and threshold is not None and age > threshold:
-            health="STALE_BY_CALENDAR_HEURISTIC"
+            health="STALE_BY_CALENDAR_FALLBACK"
         else:
             health="CURRENT"
         if domain in PRIMARY_CHAIN_DOMAINS:
@@ -221,7 +324,10 @@ def build_index(root: Path) -> dict[str, Any]:
             "current": current,
             "latest_attempt": latest,
             "watermark_age_calendar_days": age,
+            "latest_attempt_age_calendar_days": latest_age,
             "stale_threshold_calendar_days": threshold,
+            "exchange_session_reference_date": market_session_date,
+            "exchange_session_aligned": session_aligned,
             "health": health,
             "runtime_role": runtime_role,
             "blocks_primary_investment_chain": blocks_primary,
@@ -230,7 +336,7 @@ def build_index(root: Path) -> dict[str, Any]:
         "schema_version":"1.0.0",
         "generated_at_utc":utc_now(),
         "authority":"OPERATING_CURRENT_BRANCH_POINTER_SURFACE",
-        "staleness_basis":"CALENDAR_DAY_HEURISTIC_NOT_EXCHANGE_SESSION_TRUTH",
+        "staleness_basis":"EXCHANGE_SESSION_REFERENCE_WITH_CALENDAR_FALLBACK",
         "domains":entries,
         "orders":0,
         "trade_authority":"NONE",
