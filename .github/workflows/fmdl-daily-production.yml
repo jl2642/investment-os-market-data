@@ -321,6 +321,33 @@ jobs:
           })
           PY
 
+      - name: Publish exchange-session no-op confirmation
+        if: steps.mode.outputs.proceed == 'false' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
+          if ! git cat-file -e origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json 2>/dev/null; then
+            echo "A_SHARE_CURRENT_MISSING_NO_NOOP_CONFIRMATION"
+            exit 0
+          fi
+          WATERMARK="$(git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json | python -c 'import json,sys; row=json.load(sys.stdin); print(row.get("watermark_sort_key") or row.get("data_watermark") or "")')"
+          test -n "$WATERMARK"
+          SOURCE_COMMIT="$(git rev-parse HEAD)"
+          python automation/operating_current/publish_operating_current.py \
+            --domain A_SHARE_FULL_MARKET \
+            --status NO_OP \
+            --source-workflow "FMDL Daily A-share Governed Production" \
+            --source-run-id "${{ github.run_id }}" \
+            --source-run-attempt "${{ github.run_attempt }}" \
+            --source-branch main \
+            --source-commit "$SOURCE_COMMIT" \
+            --watermark "$WATERMARK" \
+            --watermark-sort-key "$WATERMARK" \
+            --qc-status NO_OP_EXCHANGE_SESSION_CONFIRMED \
+            --note "${{ steps.mode.outputs.status }}"
+          echo "A_SHARE_EXCHANGE_SESSION_NOOP_CONFIRMED=$WATERMARK"
+
       - name: Refresh and validate Investment OS interface
         if: steps.mode.outputs.proceed == 'true'
         run: |

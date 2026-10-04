@@ -928,3 +928,28 @@ def test_phase1_completed_nonholding_semantic_d2_remains_in_thesis_register() ->
     assert merged["supplemental_semantic_d2_count"] == 1
     assert merged["supplemental_nonholding_d2_count"] == 1
     assert merged["supplemental_holding_d2_count"] == 0
+
+
+def test_completed_d2_does_not_consume_new_d2_slots() -> None:
+    longlist = [screen_row(i) for i in range(1, 11)]
+    opportunity = build_opportunity_queue(
+        longlist,
+        screen_source={"qc_status": "PASS_CHAIN_COHERENT", "data_watermark": "2026-09-30"},
+        now=NOW,
+    )
+    recommendation = {
+        "records": [
+            {"security_id": "000001.SZ", "action": "AVOID"},
+            {"security_id": "000002.SZ", "action": "AVOID"},
+            {"security_id": "000003.SZ", "action": "AVOID"},
+        ]
+    }
+    d1 = build_d1(opportunity, recommendation=recommendation, now=NOW)
+    routed = [
+        row["security_id"]
+        for row in d1["research_objects"]
+        if row["d1_disposition"].startswith("ADVANCE_TO_D2")
+    ]
+    assert len(routed) == 3
+    assert set(routed).isdisjoint({"000001.SZ", "000002.SZ", "000003.SZ"})
+    assert d1["routing_summary"]["completed_d2_excluded_from_new_slots_count"] == 3
