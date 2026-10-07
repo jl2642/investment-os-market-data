@@ -1,5 +1,6 @@
 {
   "blocked_or_exception_count": 1,
+  "duplicate_replaced_on_latest_build": false,
   "entries": [
     {
       "compatibility_workflow_run_id": 30968030681,
@@ -42,16 +43,44 @@
       "validation_status": "REMOTE_PR_GATES_PASS_MERGED_TO_MAIN",
       "workflow_name": "Canonical Position Update / User-Confirmed Intraday / WP2-R Compatible",
       "workflow_run_attempt": 1
+    },
+    {
+      "canonical_source_commit": "d3b3630a7b4ee1c46f0d0eca51ddcdf1f924a6f6",
+      "exceptions": [
+        "NO_EOD_SNAPSHOT_CREATED",
+        "OBSERVATION_BUILD_FAILED",
+        "UPSTREAM_WORKFLOW_NOT_SUCCESS"
+      ],
+      "idempotency_key": "R2 WP2-R tracked price and NAV refresh:37679709070:1",
+      "market_data_watermark": null,
+      "observed_at": "2026-10-07T20:10:48Z",
+      "position_watermark": null,
+      "report_ids": {
+        "DAILY": "DAILY_e7b4d2041715ec4aadaa",
+        "STATUS": "STATUS_0edc1cd21f5a42c08998"
+      },
+      "run_id": "RUN_815f2d35180c02617a6a",
+      "run_manifest": "investment_os_runtime/80_PRODUCTION_ACCEPTANCE/P0_I1/RUN_MANIFESTS/WP2R_37679709070_a1_FALLBACK.json",
+      "snapshot_ids": {},
+      "status": "FAIL",
+      "trade_authority": "NONE",
+      "upstream_conclusion": "failure",
+      "upstream_run_attempt": 1,
+      "upstream_run_id": "37679709070"
     }
   ],
-  "failure_count": 0,
+  "failure_count": 2,
+  "latest_observed_at": "2026-10-07T20:10:48Z",
+  "latest_run_id": "RUN_815f2d35180c02617a6a",
   "ledger_id": "P0_I1_OPERATING_RUN_LEDGER_CURRENT",
+  "missed_run_detection": "PARTIAL_REQUIRES_EXCHANGE_CALENDAR_INTEGRATION",
   "operating_activation": false,
   "orders": 0,
   "post_merge_closure_id": "POSITION_UPDATE_20260804_POST_MERGE_CLOSURE",
-  "run_count": 1,
+  "recovery_sla": "PENDING_R6_EVIDENCE",
+  "run_count": 2,
   "schema_version": "1.0.0",
-  "status": "PASS_WITH_EXCEPTIONS_CANONICAL_ON_MAIN",
-  "success_count": 1,
+  "status": "OBSERVATION_ACTIVE_NOT_PRODUCTION_ACCEPTED",
+  "success_count": 0,
   "trade_authority": "NONE"
 }
