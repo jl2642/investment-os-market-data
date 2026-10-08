@@ -1,6 +1,6 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
-- 数据水位：`2026-09-30`
+- 数据水位：`2026-10-08`
 - Thesis subjects：`48`
 - 持仓 / 非持仓：`23 / 25`
 - 当前复核队列：`8`
@@ -13,7 +13,7 @@
 
 - **兰州银行 (001227.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **军信股份 (301109.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **中国移动 (600941.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 95.8000 has exhausted the current valuation margin; mark-to-weighted-value expected return is 0.01%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
+- **中国移动 (600941.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 97.9600 has exhausted the current valuation margin; mark-to-weighted-value expected return is -2.20%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **万华化学 (600309.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
