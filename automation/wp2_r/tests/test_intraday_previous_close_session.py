@@ -64,3 +64,71 @@ class _FakeDateTime:
     @classmethod
     def now(cls, tz=None):
         return _FakeNow("2026-08-11")
+
+
+def test_holiday_marks_are_session_fresh(monkeypatch) -> None:
+    from datetime import datetime
+
+    calls = []
+    def completed_session(before_date: str) -> str:
+        calls.append(before_date)
+        return "2026-09-30"
+
+    monkeypatch.setattr(mod, "latest_completed_listed_session", completed_session)
+    marks = [
+        {"security_id": "600000.SH", "as_of_date": "2026-09-30", "freshness_status": "STALE"},
+        {"security_id": "017534.OF", "as_of_date": "2026-09-30", "freshness_status": "STALE"},
+        {"security_id": "000001.SZ", "as_of_date": "2026-09-29", "freshness_status": "STALE"},
+    ]
+    reference = mod.apply_exchange_session_freshness(
+        marks, now=datetime(2026, 10, 7, 22, 45, tzinfo=mod.CN)
+    )
+    assert reference == "2026-09-30"
+    assert calls == ["2026-10-08"]
+    assert [m["freshness_status"] for m in marks] == ["FRESH", "FRESH", "STALE"]
+    assert marks[0]["freshness_basis"] == "CONFIRMED_COMPLETED_EXCHANGE_SESSION"
+
+
+def test_newly_completed_session_rejects_old_holiday_marks(monkeypatch) -> None:
+    from datetime import datetime
+
+    monkeypatch.setattr(
+        mod, "latest_completed_listed_session", lambda before_date: "2026-10-08"
+    )
+    marks = [{"security_id": "600000.SH", "as_of_date": "2026-09-30", "freshness_status": "STALE"}]
+    reference = mod.apply_exchange_session_freshness(
+        marks, now=datetime(2026, 10, 8, 22, 45, tzinfo=mod.CN)
+    )
+    assert reference == "2026-10-08"
+    assert marks[0]["freshness_status"] == "STALE"
+
+
+def test_exchange_calendar_unavailable_fails_closed(monkeypatch) -> None:
+    from datetime import datetime
+
+    def outage(before_date: str) -> str:
+        raise RuntimeError("upstream unavailable")
+
+    monkeypatch.setattr(mod, "latest_completed_listed_session", outage)
+    marks = [{"security_id": "600000.SH", "as_of_date": "2026-09-30", "freshness_status": "STALE"}]
+    assert mod.apply_exchange_session_freshness(
+        marks, now=datetime(2026, 10, 7, 22, 45, tzinfo=mod.CN)
+    ) is None
+    assert marks[0]["freshness_status"] == "STALE"
+
+
+def test_intraday_exchange_reference_never_includes_current_session(monkeypatch) -> None:
+    from datetime import datetime
+
+    seen = []
+    def confirmed_session(before_date: str) -> str:
+        seen.append(before_date)
+        return "2026-09-30"
+
+    monkeypatch.setattr(mod, "latest_completed_listed_session", confirmed_session)
+    marks = [{"security_id": "600000.SH", "as_of_date": "2026-09-30", "freshness_status": "STALE"}]
+    assert mod.apply_exchange_session_freshness(
+        marks, now=datetime(2026, 10, 8, 9, 35, tzinfo=mod.CN)
+    ) == "2026-09-30"
+    assert seen == ["2026-10-08"]
+    assert marks[0]["freshness_status"] == "FRESH"

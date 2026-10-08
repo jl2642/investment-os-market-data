@@ -374,7 +374,18 @@ jobs:
             exit 0
           fi
           git commit -m "data: stage governed A-share market Current"
-          git push origin "HEAD:refs/heads/$MARKET_RESULT_BRANCH"
+          # A transient GitHub 5xx must not strand an otherwise QC-passed
+          # market publication. Retry this idempotent result-ref push only.
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:refs/heads/$MARKET_RESULT_BRANCH"; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "MARKET_CURRENT_PUSH_FAILED_AFTER_BOUNDED_RETRIES" >&2
+              exit 1
+            fi
+            sleep "$((attempt * 10))"
+          done
           SOURCE_COMMIT="$(git rev-parse HEAD)"
           WATERMARK="$(python - <<'PY'
           import json
