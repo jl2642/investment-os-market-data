@@ -144,14 +144,24 @@ jobs:
           )
 
           assert candidate['status'] == 'PASS_COMPLETE'
-          assert marks['status'] == 'CURRENT_COMPLETE'
           assert marks['required_security_count'] == len(required_ids)
           assert marks['marked_security_count'] == len(marked_ids)
-          assert required_ids == marked_ids
-          assert marks['missing_security_ids'] == []
+          assert marks['missing_security_ids'] == sorted(required_ids - marked_ids)
           assert candidate['stale_security_ids'] == []
-          assert run['portfolio_marks_fresh'] is True
-          assert run['wp4b_position_level_fit_ready'] is True
+          # Pull-request validation uses an immutable historic fixture. It can
+          # predate user-confirmed additions to live holdings (e.g. Sept 18).
+          # Validate that missing marks are explicitly BLOCKED, not fabricated.
+          is_pr = '${{ github.event_name }}' == 'pull_request'
+          fixture_gap = bool(required_ids - marked_ids)
+          if is_pr and fixture_gap:
+              assert marks['status'] == 'LKG_FALLBACK_OR_INCOMPLETE_BLOCKED'
+              assert run['portfolio_marks_fresh'] is False
+              assert run['wp4b_position_level_fit_ready'] is False
+          else:
+              assert marks['status'] == 'CURRENT_COMPLETE'
+              assert required_ids == marked_ids
+              assert run['portfolio_marks_fresh'] is True
+              assert run['wp4b_position_level_fit_ready'] is True
           assert run['wp5_live_action_ready'] is False
           assert run['economic_transaction_mutations'] == applied_delta_count
           assert run['position_or_cost_mutations_from_reconciliation'] == 0
@@ -173,7 +183,10 @@ jobs:
               + sim['summary']['execution_cash_balance'],
               6,
           )
-          assert all(row['mark_freshness_status'] == 'FRESH' for row in real['holdings'] + sim['holdings'])
+          assert all(
+              row['mark_freshness_status'] == ('FRESH' if row['security_id'] in marked_ids else 'MISSING')
+              for row in real['holdings'] + sim['holdings']
+          )
           assert all(row['broker_verified'] is False for row in real['holdings'])
           assert run['trade_authority'] == marks['trade_authority'] == 'NONE'
 

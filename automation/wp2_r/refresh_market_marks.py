@@ -6,7 +6,7 @@ import json
 import re
 import time
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -117,6 +117,39 @@ def latest_completed_listed_session(before_date: str) -> str:
         raise ValueError(f"PRIOR_COMPLETED_SESSION_UNRESOLVED:{before_date}")
     return max(dates)
 
+
+
+def apply_exchange_session_freshness(
+    marks: list[dict[str, Any]], now: datetime | None = None
+) -> str | None:
+    """Reconcile long holidays against actual completed A-share sessions.
+
+    A calendar-day threshold can wrongly expire September 30 marks during
+    the October exchange closure. Only rescue marks dated exactly to the
+    independently confirmed latest completed index session. If the reference
+    cannot be retrieved, retain STALE and fail closed.
+    """
+    if not any(mark.get("freshness_status") == "STALE" for mark in marks):
+        return None
+    now = now or datetime.now(CN)
+    today = now.date()
+    before_date = (
+        today.isoformat()
+        if now.strftime("%H:%M:%S") < COMPLETED_CLOSE_CUTOFF
+        else (today + timedelta(days=1)).isoformat()
+    )
+    try:
+        confirmed_session = latest_completed_listed_session(before_date)
+    except Exception:
+        return None
+    for mark in marks:
+        if (
+            mark.get("freshness_status") == "STALE"
+            and mark.get("as_of_date") == confirmed_session
+        ):
+            mark["freshness_status"] = "FRESH"
+            mark["freshness_basis"] = "CONFIRMED_COMPLETED_EXCHANGE_SESSION"
+    return confirmed_session
 
 def listed_marks(
     rows: list[dict[str, Any]],
@@ -240,6 +273,7 @@ def main() -> None:
         except Exception as exc:
             errors.append(f"{row['security_id']}:{type(exc).__name__}:{exc}")
 
+    confirmed_session = apply_exchange_session_freshness(all_marks)
     required_ids = {x["security_id"] for x in rows}
     marked_ids = {x["security_id"] for x in all_marks}
     missing = sorted(required_ids - marked_ids)
@@ -255,6 +289,7 @@ def main() -> None:
         "marked_security_count": len(marked_ids),
         "missing_security_ids": missing,
         "stale_security_ids": stale,
+        "exchange_session_freshness_reference_date": confirmed_session,
         "errors": errors,
         "latest_completed_listed_close_date": max(listed_dates) if listed_dates else None,
         "intraday_session_date_authority": "EASTMONEY_SHANGHAI_COMPOSITE_DAILY_BAR" if intraday_observations else None,
