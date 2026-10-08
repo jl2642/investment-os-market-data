@@ -4,7 +4,7 @@
 - Recommendation 人工复核项（非执行待办）：6
 - 持仓绩效监控：23 / 23（账户持仓行 24）
 - 当前投资判断覆盖：23 / 23
-- 新机会：24
+- 新机会：25
 - 自动交易：关闭；orders = 0；trade_authority = NONE
 
 ## 1. 当前持仓决策面
@@ -51,8 +51,9 @@
 - BUY_BELOW｜600919.SH 江苏银行｜当前价 12.22｜预期收益 8.9%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜601886.SH 江河集团｜当前价 13.56｜预期收益 2.9%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜603995.SH 甬金股份｜当前价 25.34｜预期收益 1.9%｜阻断 PRICE_BLOCKED
+- WATCH｜003006.SZ 百亚股份｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
 - WATCH｜300599.SZ 雄塑科技｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
-- WATCH｜605177.SH 东亚药业｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
+- WATCH｜300770.SZ 新媒股份｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
 - AVOID｜000608.SZ 阳光股份｜当前价 7.00｜预期收益 -60.5%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜000900.SZ 现代投资｜当前价 3.57｜预期收益 -0.9%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜000993.SZ 闽东电力｜当前价 19.32｜预期收益 -74.4%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
