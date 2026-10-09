@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-10-09",
-  "generated_at_utc": "2026-10-09T17:10:23+00:00",
+  "generated_at_utc": "2026-10-09T20:02:51+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_2e1ce44f6fca9215",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_9ba5ae10a6993f18",
   "records": [
     {
       "accounts": [],
@@ -21,6 +21,26 @@
       "trade_authority": "NONE",
       "transition": "PERSISTING",
       "trigger_key": "NEW_CAPITAL_ACTION_BUY"
+    },
+    {
+      "accounts": [
+        "REAL"
+      ],
+      "current_action": "HOLD",
+      "entry_price": 1.38,
+      "latest_price": 1.3971,
+      "next_step": "PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW",
+      "orders": 0,
+      "price_as_of": null,
+      "price_source": "S3_PORTFOLIO_MARK",
+      "priority": "HIGH",
+      "reason": "Current account weight is at/above the governed 15% concentration flag.",
+      "review_type": "PORTFOLIO_REVIEW_REQUIRED",
+      "security_id": "017534.OF",
+      "security_name": "富国天利增长债券C",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "PORTFOLIO_CONCENTRATION_ACTIVE"
     },
     {
       "accounts": [],
@@ -161,8 +181,8 @@
       "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
-  "review_count": 8,
+  "review_count": 9,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_7e9fd98f022000db",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_da8356f4d9b9d7ad",
   "trade_authority": "NONE"
 }

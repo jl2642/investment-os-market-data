@@ -3,15 +3,16 @@
 - 数据水位：`2026-10-09`
 - Thesis subjects：`48`
 - 持仓 / 非持仓：`23 / 25`
-- 当前复核队列：`8`
+- 当前复核队列：`9`
 - 需要重新D2：`0`
 - 需要用户动作复核：`7`
-- 组合风险复核：`1`
+- 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
 
 ## 当前复核队列
 
 - **兰州银行 (001227.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
+- **富国天利增长债券C (017534.OF)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **军信股份 (301109.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
