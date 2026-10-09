@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-10-08",
-  "generated_at_utc": "2026-10-08T20:16:16+00:00",
+  "generated_at_utc": "2026-10-09T06:47:24+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_5dfe9171583db6df",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_175e97b6792f3b82",
   "records": [
     {
       "accounts": [],
@@ -44,21 +44,21 @@
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "HOLD",
+      "current_action": "TRIM",
       "entry_price": 92.09,
       "latest_price": 97.96,
-      "next_step": "FRESH_D2_FOR_HOLD_TRIM_OR_EXIT",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-10-08",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "HIGH",
-      "reason": "Latest price 97.9600 has exhausted the current valuation margin; mark-to-weighted-value expected return is -2.20%.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade holding action is TRIM.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "600941.SH",
       "security_name": "中国移动",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "VALUATION_EXHAUSTION_REUNDERWRITE"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "POSITION_ACTION_TRIM"
     },
     {
       "accounts": [
@@ -163,6 +163,6 @@
   ],
   "review_count": 8,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_498afbb57ce98674",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_9fffed31c6ba912c",
   "trade_authority": "NONE"
 }
