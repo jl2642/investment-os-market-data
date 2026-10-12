@@ -28,32 +28,32 @@
       "domain_id": "A_SHARE_FULL_MARKET",
       "exchange_session_aligned": false,
       "exchange_session_reference_date": "2026-10-09",
-      "health": "CURRENT",
+      "health": "LATEST_ATTEMPT_FAILED_CURRENT_PRESERVED",
       "latest_attempt": {
-        "advance_current_requested": true,
-        "data_watermark": "2026-10-09",
+        "advance_current_requested": false,
+        "data_watermark": "",
         "domain_id": "A_SHARE_FULL_MARKET",
         "fail_closed": true,
-        "note": null,
+        "note": "Workflow failed before a QC-passed Current pointer could advance",
         "orders": 0,
         "protected_mutations": {
           "candidate_membership": 0,
           "real_account": 0,
           "simulation": 0
         },
-        "published_at_utc": "2026-10-09T16:51:18Z",
-        "qc_status": "PASS_CHAIN_COHERENT",
+        "published_at_utc": "2026-10-12T17:37:41Z",
+        "qc_status": "skipped",
         "schema_version": "1.0.0",
-        "source_branch": "automation/fmdl-daily-37961586406-a1",
-        "source_commit_sha": "6c5e749729aa30b8b04a7e0a6971208a32da6eab",
+        "source_branch": "main",
+        "source_commit_sha": "10adaf210fc4abddeba9b7434113db5050ef3288",
         "source_run_attempt": 1,
-        "source_run_id": "37961586406",
-        "source_workflow": "FMDL Daily A-share Governed Production",
-        "status": "PASS",
+        "source_run_id": "38285300920",
+        "source_workflow": "FMDL daily market, factor and screening transaction",
+        "status": "FAIL",
         "trade_authority": "NONE",
-        "watermark_sort_key": "2026-10-09"
+        "watermark_sort_key": ""
       },
-      "latest_attempt_age_calendar_days": 3,
+      "latest_attempt_age_calendar_days": 0,
       "runtime_role": "PRIMARY_CHAIN",
       "stale_threshold_calendar_days": 5,
       "watermark_age_calendar_days": 3
@@ -197,7 +197,7 @@
         "watermark_sort_key": "2026-10-09"
       },
       "domain_id": "DECISION_LIFECYCLE",
-      "exchange_session_aligned": true,
+      "exchange_session_aligned": false,
       "exchange_session_reference_date": "2026-10-09",
       "health": "CURRENT",
       "latest_attempt": {
@@ -311,7 +311,7 @@
         "watermark_sort_key": "2026-10-09"
       },
       "domain_id": "FINANCIAL_VALUATION_CONTEXT",
-      "exchange_session_aligned": true,
+      "exchange_session_aligned": false,
       "exchange_session_reference_date": "2026-10-09",
       "health": "CURRENT",
       "latest_attempt": {
@@ -653,7 +653,7 @@
         "watermark_sort_key": "2026-10-09"
       },
       "domain_id": "PORTFOLIO_EXECUTION_SIMULATION",
-      "exchange_session_aligned": true,
+      "exchange_session_aligned": false,
       "exchange_session_reference_date": "2026-10-09",
       "health": "CURRENT",
       "latest_attempt": {
@@ -710,7 +710,7 @@
         "watermark_sort_key": "2026-10-09"
       },
       "domain_id": "PORTFOLIO_MARKS",
-      "exchange_session_aligned": true,
+      "exchange_session_aligned": false,
       "exchange_session_reference_date": "2026-10-09",
       "health": "CURRENT",
       "latest_attempt": {
@@ -767,7 +767,7 @@
         "watermark_sort_key": "2026-10-09"
       },
       "domain_id": "PORTFOLIO_PRODUCT_SURFACE",
-      "exchange_session_aligned": true,
+      "exchange_session_aligned": false,
       "exchange_session_reference_date": "2026-10-09",
       "health": "CURRENT",
       "latest_attempt": {
@@ -1178,7 +1178,7 @@
       "watermark_age_calendar_days": 4
     }
   ],
-  "generated_at_utc": "2026-10-12T06:47:14Z",
+  "generated_at_utc": "2026-10-12T17:37:41Z",
   "orders": 0,
   "schema_version": "1.0.0",
   "staleness_basis": "EXCHANGE_SESSION_REFERENCE_WITH_CALENDAR_FALLBACK",
