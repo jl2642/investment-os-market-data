@@ -1,27 +1,28 @@
 {
-  "run_id": "FMDL1BC_20260807T162152+0800",
-  "as_of_date": "2026-08-07",
-  "generated_at": "2026-08-07T16:21:52+08:00",
-  "adapter_version": "1.18.83",
-  "market_wide_source_function": "stock_zh_a_spot",
-  "market_wide_provider": "sina_public",
-  "market_wide_volume_unit": "SHARES",
+  "run_id": "FMDL1BC_20261014T010929+0800",
+  "as_of_date": "2026-10-13",
+  "generated_at": "2026-10-14T01:09:29+08:00",
+  "adapter_version": "1.19.1",
+  "market_wide_source_function": "stock_zh_a_spot_em",
+  "market_wide_provider": "eastmoney_public",
+  "market_wide_volume_unit": "LOTS",
   "universe": {
     "dataset_id": "a_share_universe",
     "qa_status": "PASS_WITH_WARNINGS",
     "publication_status": "DEGRADED",
     "hard_failures": [],
     "soft_warnings": [
-      "industry_fill_ratio"
+      "industry_fill_ratio",
+      "listing_date_fill_ratio"
     ],
     "metrics": {
-      "row_count": 5539,
+      "row_count": 5923,
       "duplicate_count": 0,
       "symbol_valid_ratio": 1.0,
       "identity_fill_ratio": 1.0,
-      "industry_fill_ratio": 0.5827766744899802,
-      "listing_date_fill_ratio": 1.0,
-      "lkg_row_ratio": 1.0,
+      "industry_fill_ratio": 0.5493837582306264,
+      "listing_date_fill_ratio": 0.5493837582306264,
+      "lkg_row_ratio": 1.0628027992104792,
       "schema_error_examples": []
     },
     "gate_results": [
@@ -35,7 +36,7 @@
       {
         "gate_id": "minimum_row_count",
         "severity": "HARD",
-        "actual": 5539,
+        "actual": 5923,
         "expected": ">=4000",
         "passed": true
       },
@@ -63,23 +64,23 @@
       {
         "gate_id": "minimum_lkg_row_ratio",
         "severity": "HARD",
-        "actual": 1.0,
+        "actual": 1.0628027992104792,
         "expected": ">=0.97",
         "passed": true
       },
       {
         "gate_id": "industry_fill_ratio",
         "severity": "SOFT",
-        "actual": 0.5827766744899802,
+        "actual": 0.5493837582306264,
         "expected": ">=0.9",
         "passed": false
       },
       {
         "gate_id": "listing_date_fill_ratio",
         "severity": "SOFT",
-        "actual": 1.0,
+        "actual": 0.5493837582306264,
         "expected": ">=0.95",
-        "passed": true
+        "passed": false
       }
     ]
   },
@@ -89,22 +90,20 @@
     "publication_status": "DEGRADED",
     "hard_failures": [],
     "soft_warnings": [
-      "market_cap_fill_ratio",
-      "valuation_fill_ratio",
       "maximum_unexplained_absolute_return_pct"
     ],
     "metrics": {
-      "row_count": 5539,
+      "row_count": 5923,
       "universe_coverage_ratio": 1.0,
-      "traded_row_count": 5534,
+      "traded_row_count": 5562,
       "positive_close_ratio_for_traded_rows": 1.0,
       "negative_volume_rows": 0,
       "negative_turnover_rows": 0,
-      "maximum_return_reconciliation_difference_pp": 0.0004999999999963922,
-      "market_cap_fill_ratio": 0.0,
-      "valuation_fill_ratio": 0.0,
-      "zero_turnover_ratio": 0.0009026900162484203,
-      "maximum_absolute_return_pct": 396.887,
+      "maximum_return_reconciliation_difference_pp": 0.005000000000006555,
+      "market_cap_fill_ratio": 0.9414148235691373,
+      "valuation_fill_ratio": 0.9414148235691373,
+      "zero_turnover_ratio": 0.06111767685294614,
+      "maximum_absolute_return_pct": 223.06,
       "schema_error_examples": []
     },
     "gate_results": [
@@ -153,46 +152,49 @@
       {
         "gate_id": "return_reconciliation",
         "severity": "HARD",
-        "actual": 0.0004999999999963922,
+        "actual": 0.005000000000006555,
         "expected": "<=0.05",
         "passed": true
       },
       {
         "gate_id": "market_cap_fill_ratio",
         "severity": "SOFT",
-        "actual": 0.0,
+        "actual": 0.9414148235691373,
         "expected": ">=0.9",
-        "passed": false
+        "passed": true
       },
       {
         "gate_id": "valuation_fill_ratio",
         "severity": "SOFT",
-        "actual": 0.0,
+        "actual": 0.9414148235691373,
         "expected": ">=0.7",
-        "passed": false
+        "passed": true
       },
       {
         "gate_id": "maximum_unexplained_absolute_return_pct",
         "severity": "SOFT",
-        "actual": 396.887,
+        "actual": 223.06,
         "expected": "<=35.0",
         "passed": false
       },
       {
         "gate_id": "maximum_zero_turnover_ratio",
         "severity": "SOFT",
-        "actual": 0.0009026900162484203,
+        "actual": 0.06111767685294614,
         "expected": "<=0.15",
         "passed": true
       }
     ]
   },
   "source_warnings": [
-    "primary_provider_unavailable: stock_zh_a_spot_em",
-    "attempt_1: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+    "attempt_1: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+    "attempt_2: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+    "attempt_3: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
     "optional_source_unavailable",
-    "volume_unit_source=SHARES; no lot multiplier applied",
-    "source_zero_price_rows_classified_as_suspended=000838.SZ,300246.SZ,300333.SZ,300862.SZ"
+    "attempt_1: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+    "attempt_2: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+    "attempt_3: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+    "optional_source_unavailable"
   ],
   "candidate_files": [
     "outputs/candidate/A_SHARE_UNIVERSE.csv",
