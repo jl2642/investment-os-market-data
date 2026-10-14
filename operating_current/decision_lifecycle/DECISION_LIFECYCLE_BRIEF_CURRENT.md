@@ -1,10 +1,10 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
-- 数据水位：`2026-10-13`
+- 数据水位：`2026-10-14`
 - Thesis subjects：`48`
 - 持仓 / 非持仓：`23 / 25`
-- 当前复核队列：`10`
-- 需要重新D2：`1`
+- 当前复核队列：`11`
+- 需要重新D2：`2`
 - 需要用户动作复核：`7`
 - 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
@@ -13,8 +13,9 @@
 
 - **兰州银行 (001227.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **富国天利增长债券C (017534.OF)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
+- **A500ETF南方 (159352.SZ)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Holding newly crossed the 15% drawdown review threshold; loss is not an automatic exit but thesis must be refreshed once. 下一步：`FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT`。
 - **军信股份 (301109.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **中国海油 (600938.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 34.2900 has exhausted the current valuation margin; mark-to-weighted-value expected return is 4.99%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
+- **中国海油 (600938.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 35.7500 has exhausted the current valuation margin; mark-to-weighted-value expected return is 0.70%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
