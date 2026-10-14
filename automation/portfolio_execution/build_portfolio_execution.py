@@ -1227,6 +1227,14 @@ def apply_ai_virtual_rebalance(
         traded_notional / prior_nav if prior_nav > 0 else 0.0
     )
     history = list(state.get("nav_history", []))
+    # The initialization row is merely starting capital, not a settled
+    # valuation. Replace it with the first actual session's closing NAV.
+    if (
+        not prior_state and len(history) == 1
+        and history[0].get("as_of_date") == as_of_date
+        and abs(float(history[0].get("nav") or 0.0) - AI_INITIAL_CAPITAL) < 0.01
+    ):
+        history = []
     history.append({
         "as_of_date": as_of_date,
         "nav": ending_nav,
