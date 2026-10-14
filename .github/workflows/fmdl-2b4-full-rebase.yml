@@ -85,12 +85,34 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
       - name: Require settled post-close market window
+        id: recovery_window
         run: |
           python - <<'PY'
+          import os
           from scripts.validate_fmdl2b4_freshness import validate_manual_recovery_window
-          validate_manual_recovery_window()
+          try:
+              validate_manual_recovery_window()
+          except RuntimeError as exc:
+              # An automatically delayed/early cron wakeup is not a data loss.
+              # No recovery work can safely start before A-share post-close.
+              # Manual dispatch still fails closed on an unsafe window.
+              if (
+                  os.environ.get("GITHUB_EVENT_NAME") == "schedule"
+                  and str(exc) == "FULL_REBASE_REQUIRES_POST_CLOSE_1530_ON_TRADING_DAY"
+              ):
+                  with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+                      handle.write("skip=true\n")
+                  print("NO_OP_DEFERRED_PRE_CLOSE: automatic recovery waits for a settled session")
+              else:
+                  raise
           PY
+      - name: Record safe pre-close recovery no-op
+        if: steps.recovery_window.outputs.skip == 'true'
+        run: |
+          echo "## FMDL Recovery: NO_OP_DEFERRED_PRE_CLOSE" >> "$GITHUB_STEP_SUMMARY"
+          echo "No market rebase attempted; pre-close quote contamination prevented." >> "$GITHUB_STEP_SUMMARY"
       - name: Assess multi-session recovery need
+        if: steps.recovery_window.outputs.skip != 'true'
         id: assess
         shell: bash
         run: |
@@ -127,7 +149,7 @@ jobs:
               handle.write(f"gap_count={len(sessions)}\n")
           PY
       - name: Record no-op recovery watch
-        if: steps.assess.outputs.required != 'true'
+        if: steps.recovery_window.outputs.skip != 'true' && steps.assess.outputs.required != 'true'
         run: |
           {
             echo "## FMDL 2B-4 Auto-Recovery Watch"
