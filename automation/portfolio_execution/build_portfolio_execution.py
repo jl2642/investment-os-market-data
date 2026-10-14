@@ -633,11 +633,25 @@ def ai_target_weights(
     return out
 
 
-def lifecycle_prices(lifecycle: dict[str, Any]) -> dict[str, float]:
+def lifecycle_prices(
+    lifecycle: dict[str, Any], *, as_of_date: str | None = None,
+) -> dict[str, float]:
+    """Reject cross-session listed quotes before they can change the virtual book."""
     out = {}
     for row in lifecycle.get("subjects", []):
         sid = str(row.get("security_id") or "")
         price = num(row.get("latest_price"))
+        source_date = row.get("price_as_of")
+        # Non-listed funds and ETF S3 marks have separate NAV/mark watermarks.
+        # Only A-share official completed-session rows carry strict dated prices.
+        if (
+            as_of_date and row.get("price_source") == "A_SHARE_FULL_MARKET"
+            and sid.endswith((".SH", ".SZ", ".BJ"))
+            and source_date != as_of_date
+        ):
+            raise ValueError(
+                f"AI_LISTED_PRICE_SESSION_MISMATCH:{sid}:{source_date}:{as_of_date}"
+            )
         if sid and price is not None and price > 0:
             out[sid] = price
     return out
@@ -931,7 +945,78 @@ def apply_ai_virtual_rebalance(
         state = initial_ai_state(as_of_date)
     if state.get("book_id") != AI_BOOK_ID:
         raise ValueError("AI_BOOK_ID_MISMATCH")
-    prices = lifecycle_prices(lifecycle)
+    prices = lifecycle_prices(lifecycle, as_of_date=as_of_date)
+    history = sorted(
+        (row for row in state.get("nav_history", []) if row.get("as_of_date")),
+        key=lambda row: row["as_of_date"],
+    )
+    if history and as_of_date < history[-1]["as_of_date"]:
+        raise ValueError(
+            f"AI_SETTLED_SESSION_BACKDATE:{as_of_date}:{history[-1]['as_of_date']}"
+        )
+    if history and as_of_date == history[-1]["as_of_date"] and prior_state:
+        # Multiple push/callback runs can target the same market session.
+        # A settled session is write-once: do not simulate a second transaction
+        # or overwrite its historical NAV with revised/stale input prices.
+        prior_nav = float(state.get("current_nav") or 0.0)
+        if abs(prior_nav - float(history[-1].get("nav") or 0.0)) > 0.01:
+            raise ValueError("AI_SETTLED_NAV_STATE_HISTORY_CONFLICT")
+        existing_positions = ai_position_map(state)
+        attribution = []
+        for sid, pos in sorted(existing_positions.items()):
+            quantity = float(pos.get("quantity") or 0.0)
+            price = float(pos.get("last_price") or 0.0)
+            value = quantity * price
+            attribution.append({
+                "security_id": sid,
+                "security_name": pos.get("security_name"),
+                "market_value": value,
+                "unrealized_pnl": quantity * (
+                    price - float(pos.get("average_cost") or 0.0)
+                ),
+                "weight": value / prior_nav if prior_nav > 0 else 0.0,
+                "risk_group": pos.get("risk_group"),
+            })
+        discipline = update_ai_deployment_discipline(
+            state=state, recommendation=recommendation, as_of_date=as_of_date
+        )
+        return state, {
+            "book_id": AI_BOOK_ID,
+            "as_of_date": as_of_date,
+            "prior_nav": prior_nav,
+            "current_nav": prior_nav,
+            "cash": state["cash"],
+            "cash_weight": state["cash"] / prior_nav if prior_nav > 0 else 1.0,
+            "position_count": len(existing_positions),
+            "new_transaction_count": 0,
+            "new_transactions": [],
+            "diagnostics": [{
+                "status": "NO_OP_SETTLED_SESSION_IMMUTABLE",
+                "as_of_date": as_of_date,
+            }],
+            "deployment_discipline": discipline,
+            "target_weights": ai_target_weights(recommendation, lifecycle, state),
+            "attribution": attribution,
+            "performance": {
+                "cumulative_return": state["cumulative_return"],
+                "max_drawdown": state["max_drawdown"],
+                "realized_pnl": state["realized_pnl"],
+                "turnover_since_inception": state["turnover_since_inception"],
+            },
+            "controls": {
+                "initial_capital": AI_INITIAL_CAPITAL,
+                "max_positions": MAX_AI_POSITIONS,
+                "single_name_cap": DEFAULT_SINGLE_NAME_CAP,
+                "risk_group_cap": DEFAULT_GROUP_CAP,
+                "cash_floor": AI_CASH_FLOOR,
+                "buy_lot": LISTED_LOT,
+                "slippage_bps": slippage_bps,
+                "real_account_mutations": 0,
+                "legacy_simulation_mutations": 0,
+                "orders": 0,
+                "trade_authority": TRADE_AUTHORITY,
+            },
+        }
     positions = ai_position_map(state)
 
     prior_nav = float(state.get("cash") or 0.0)
@@ -1142,14 +1227,24 @@ def apply_ai_virtual_rebalance(
         traded_notional / prior_nav if prior_nav > 0 else 0.0
     )
     history = list(state.get("nav_history", []))
+    # The initialization row is merely starting capital, not a settled
+    # valuation. Replace it with the first actual session's closing NAV.
+    if (
+        not prior_state and len(history) == 1
+        and history[0].get("as_of_date") == as_of_date
+        and abs(float(history[0].get("nav") or 0.0) - AI_INITIAL_CAPITAL) < 0.01
+    ):
+        history = []
     history.append({
         "as_of_date": as_of_date,
         "nav": ending_nav,
         "cash": state["cash"],
         "position_market_value": ending_nav - state["cash"],
     })
-    by_date = {row["as_of_date"]: row for row in history}
-    state["nav_history"] = [by_date[k] for k in sorted(by_date)]
+    dates = [row["as_of_date"] for row in history]
+    if len(dates) != len(set(dates)):
+        raise ValueError("AI_NAV_HISTORY_DUPLICATE_SESSION")
+    state["nav_history"] = sorted(history, key=lambda row: row["as_of_date"])
     state["orders"] = 0
     state["trade_authority"] = TRADE_AUTHORITY
 

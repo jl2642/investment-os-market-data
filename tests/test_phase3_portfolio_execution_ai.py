@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import copy
+import pytest
+
 from automation.portfolio_execution.build_portfolio_execution import (
     AI_INITIAL_CAPITAL,
     apply_ai_virtual_rebalance,
@@ -474,3 +477,71 @@ def test_day20_flags_underdeployment_when_formal_buys_have_enough_capacity() -> 
         in discipline["triggered_gates"]
     )
     assert "DAY20_CAPACITY_CONSTRAINED" not in discipline["triggered_gates"]
+
+
+def test_ai_same_session_replay_preserves_immutable_nav_and_transactions() -> None:
+    first, _ = apply_ai_virtual_rebalance(
+        recommendation=recommendation(rec("001227.SZ", "BUY", price=2.10)),
+        lifecycle=lifecycle(life_row("001227.SZ", 2.10, "FLAT_BUY_REVIEW")),
+        prior_state=None,
+        as_of_date="2026-10-12",
+    )
+    before = copy.deepcopy(first)
+    # A late callback tries to rerun the same session at a different price.
+    second, receipt = apply_ai_virtual_rebalance(
+        recommendation=recommendation(rec("001227.SZ", "BUY", price=2.50)),
+        lifecycle=lifecycle(life_row("001227.SZ", 2.50, "FLAT_BUY_REVIEW")),
+        prior_state=first,
+        as_of_date="2026-10-12",
+    )
+    assert second["nav_history"] == before["nav_history"]
+    assert second["transactions"] == before["transactions"]
+    assert second["cash"] == before["cash"]
+    assert second["current_nav"] == before["current_nav"]
+    assert receipt["new_transaction_count"] == 0
+    assert receipt["diagnostics"][0]["status"] == "NO_OP_SETTLED_SESSION_IMMUTABLE"
+
+
+def test_ai_refuses_out_of_order_market_session() -> None:
+    first, _ = apply_ai_virtual_rebalance(
+        recommendation=recommendation(rec("001227.SZ", "BUY", price=2.10)),
+        lifecycle=lifecycle(life_row("001227.SZ", 2.10)),
+        prior_state=None,
+        as_of_date="2026-10-13",
+    )
+    with pytest.raises(ValueError, match="AI_SETTLED_SESSION_BACKDATE"):
+        apply_ai_virtual_rebalance(
+            recommendation=recommendation(rec("001227.SZ", "HOLD", price=2.10)),
+            lifecycle=lifecycle(life_row("001227.SZ", 2.10)),
+            prior_state=first,
+            as_of_date="2026-10-12",
+        )
+
+
+def test_ai_rejects_cross_session_official_listed_price() -> None:
+    bad_price = life_row("001227.SZ", 2.12)
+    bad_price.update({"price_as_of": "2026-10-13", "price_source": "A_SHARE_FULL_MARKET"})
+    with pytest.raises(ValueError, match="AI_LISTED_PRICE_SESSION_MISMATCH"):
+        apply_ai_virtual_rebalance(
+            recommendation=recommendation(rec("001227.SZ", "BUY", price=2.12)),
+            lifecycle=lifecycle(bad_price),
+            prior_state=None,
+            as_of_date="2026-10-12",
+        )
+
+
+def test_ai_rejects_inconsistent_prior_nav_history() -> None:
+    first, _ = apply_ai_virtual_rebalance(
+        recommendation=recommendation(rec("001227.SZ", "BUY", price=2.10)),
+        lifecycle=lifecycle(life_row("001227.SZ", 2.10)),
+        prior_state=None,
+        as_of_date="2026-10-12",
+    )
+    first["nav_history"][-1]["nav"] += 3100.0
+    with pytest.raises(ValueError, match="AI_SETTLED_NAV_STATE_HISTORY_CONFLICT"):
+        apply_ai_virtual_rebalance(
+            recommendation=recommendation(rec("001227.SZ", "BUY", price=2.12)),
+            lifecycle=lifecycle(life_row("001227.SZ", 2.12)),
+            prior_state=first,
+            as_of_date="2026-10-12",
+        )
