@@ -101,7 +101,7 @@ jobs:
                   and str(exc) == "FULL_REBASE_REQUIRES_POST_CLOSE_1530_ON_TRADING_DAY"
               ):
                   with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
-                      handle.write("skip=true\\n")
+                      handle.write("skip=true\n")
                   print("NO_OP_DEFERRED_PRE_CLOSE: automatic recovery waits for a settled session")
               else:
                   raise
