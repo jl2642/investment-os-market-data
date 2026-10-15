@@ -429,3 +429,46 @@ def test_reunderwriting_surface_keeps_all_high_priority_rows_visible() -> None:
     queue = surface["portfolio_monitoring"]["reunderwriting_queue"]
     assert len(queue) == 4
     assert all(row["priority"] == "HIGH" for row in queue)
+
+
+def test_holding_expected_return_uses_same_latest_mark_as_display_price():
+    rec = recommendation()
+    held = rec["records"][0]
+    held["probability_weighted_value"] = 24.0
+    held["current_price"] = 18.0
+    held["expected_return"] = 24.0 / 18.0 - 1.0
+    latest_marks = marks()
+    latest_marks["marks"][0]["mark_price"] = 20.0
+
+    surface = build_surface(
+        marks_domain=marks_domain(),
+        investment_domain=investment_domain(),
+        marks=latest_marks,
+        real_positions=positions(True),
+        simulation_positions=positions(False),
+        recommendation=rec,
+        d1=d1(),
+    )
+    row = next(x for x in surface["portfolio_decisions"] if x["security_id"] == "000005.SZ")
+    assert row["action"] == "TRIM"  # no recommendation mutation
+    assert row["current_price"] == 20.0
+    assert row["expected_return"] == pytest.approx(0.20)
+    assert row["source_underwriting_expected_return"] == pytest.approx(1/3)
+    assert row["expected_return_basis"] == "LATEST_MARK_TO_UNCHANGED_D2_WEIGHTED_VALUE"
+    assert "| 20.00 | 20.0% |" in render_daily_brief(surface)
+
+
+def test_holding_return_fails_closed_when_weighted_value_missing():
+    surface = build_surface(
+        marks_domain=marks_domain(),
+        investment_domain=investment_domain(),
+        marks=marks(),
+        real_positions=positions(True),
+        simulation_positions=positions(False),
+        recommendation=recommendation(),
+        d1=d1(),
+    )
+    row = next(x for x in surface["portfolio_decisions"] if x["security_id"] == "000005.SZ")
+    assert row["current_price"] == 20.0
+    assert row["expected_return"] is None
+    assert row["expected_return_basis"] == "NOT_CALCULABLE_NO_D2_WEIGHTED_VALUE"

@@ -331,6 +331,32 @@ def build_surface(
             "trade_authority": TRADE_AUTHORITY,
         }
         if accounts:
+            # S2 actions and valuation assumptions remain authoritative, but their
+            # expected-return snapshot may predate the latest portfolio mark.
+            # Never display the snapshot return beside a different mark price.
+            latest_mark = marks_by_id.get(sid, {})
+            mark_price = next(
+                (
+                    latest_mark[key]
+                    for key in ("mark", "mark_price", "price")
+                    if isinstance(latest_mark.get(key), (int, float))
+                    and not isinstance(latest_mark.get(key), bool)
+                    and latest_mark[key] > 0
+                ),
+                None,
+            )
+            weighted_value = rec.get("probability_weighted_value")
+            if mark_price is not None:
+                row["source_underwriting_expected_return"] = rec.get("expected_return")
+                row["current_price"] = mark_price
+                if isinstance(weighted_value, (int, float)) and not isinstance(weighted_value, bool):
+                    row["expected_return"] = weighted_value / mark_price - 1.0
+                    row["expected_return_basis"] = "LATEST_MARK_TO_UNCHANGED_D2_WEIGHTED_VALUE"
+                else:
+                    row["expected_return"] = None
+                    row["expected_return_basis"] = "NOT_CALCULABLE_NO_D2_WEIGHTED_VALUE"
+            else:
+                row["expected_return_basis"] = "S2_SNAPSHOT_NO_VALID_PORTFOLIO_MARK"
             covered.add(sid)
             portfolio_rows.append(row)
         else:
