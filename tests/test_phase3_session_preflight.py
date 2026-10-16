@@ -16,7 +16,7 @@ def coherent_inputs():
         "trade_authority": "NONE",
     }
     lifecycle = {
-        "status": "PASS",
+        "status": "PASS_DECISION_LIFECYCLE",
         "as_of_date": "2026-10-15",
         "orders": 0,
         "trade_authority": "NONE",
