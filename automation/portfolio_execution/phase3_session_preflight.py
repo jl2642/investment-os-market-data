@@ -69,7 +69,7 @@ def main() -> None:
             summary.write("- no Phase 3 build, publication or economic mutation attempted\n")
             summary.write("- later Phase 2 publication dispatches a new Phase 3 attempt\n")
             for issue in issues[:30]:
-                summary.write(f"- mismatch: \`{issue}\`\n")
+                summary.write(f"- mismatch: `{issue}`\n")
             if len(issues) > 30:
                 summary.write(f"- additional mismatches: {len(issues) - 30}\n")
     print(json.dumps({"phase3_session_preflight": status, "date": date, "mismatches": issues}, ensure_ascii=False))
