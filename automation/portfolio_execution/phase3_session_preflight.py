@@ -17,8 +17,8 @@ def session_readiness(
     marks: dict[str, Any], lifecycle: dict[str, Any],
 ) -> tuple[bool, list[str]]:
     """Return whether Phase 3 may use its listed closing prices without lookahead."""
-    for label, doc in (("PORTFOLIO_MARKS", marks), ("DECISION_LIFECYCLE", lifecycle)):
-        if doc.get("status") != "PASS":
+    for label, doc, accepted in (("PORTFOLIO_MARKS", marks, "PASS"), ("DECISION_LIFECYCLE", lifecycle, "PASS_DECISION_LIFECYCLE")):
+        if doc.get("status") != accepted:
             raise ValueError(f"PHASE3_INVALID_UPSTREAM_STATUS:{label}:{doc.get('status')}")
         if doc.get("orders") != 0 or doc.get("trade_authority") != "NONE":
             raise ValueError(f"PHASE3_UPSTREAM_AUTHORITY_VIOLATION:{label}")
