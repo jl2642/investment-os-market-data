@@ -8,6 +8,7 @@ on:
     paths:
       - "automation/portfolio_execution/**"
       - "tests/test_phase3_portfolio_execution_ai.py"
+      - "tests/test_phase3_session_preflight.py"
       - "tests/test_phase3_execution_episode_guard.py"
       - "tests/test_bounded_last_mile_policy.py"
       - ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml"
@@ -21,6 +22,7 @@ on:
     paths:
       - "automation/portfolio_execution/**"
       - "tests/test_phase3_portfolio_execution_ai.py"
+      - "tests/test_phase3_session_preflight.py"
       - "tests/test_phase3_execution_episode_guard.py"
       - "tests/test_bounded_last_mile_policy.py"
       - ".github/workflows/final-closure-phase3-portfolio-execution-ai.yml"
@@ -57,6 +59,7 @@ jobs:
         run: |
           python -m py_compile \
             automation/portfolio_execution/build_portfolio_execution.py \
+            automation/portfolio_execution/phase3_session_preflight.py \
             automation/portfolio_execution/apply_protected_execution_episode_guard.py \
             automation/portfolio_execution/publish_portfolio_execution.py \
             automation/operating_current/publish_operating_current.py
@@ -65,6 +68,7 @@ jobs:
         run: |
           pytest -q \
             tests/test_phase3_portfolio_execution_ai.py \
+            tests/test_phase3_session_preflight.py \
             tests/test_phase3_execution_episode_guard.py \
             tests/test_bounded_last_mile_policy.py \
             tests/test_phase2_decision_lifecycle.py \
@@ -145,8 +149,20 @@ jobs:
           print(f"mark_commit={marks['source_commit_sha']}")
           print(f"as_of_date={marks['data_watermark']}")
           PY
+          python automation/portfolio_execution/phase3_session_preflight.py \
+            --marks /tmp/marks-domain.json \
+            --lifecycle /tmp/lifecycle.json \
+            --github-output "$GITHUB_OUTPUT" \
+            --github-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Record deferred upstream handoff
+        if: steps.authority.outputs.ready != 'true'
+        run: |
+          echo "Phase 3 is intentionally deferred: not all source products belong to the same completed trading session." >> "$GITHUB_STEP_SUMMARY"
+          echo "No economic ledger was built or published. Phase 2 will dispatch Phase 3 after a coherent lifecycle promotion." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Restore exact current account states
+        if: steps.authority.outputs.ready == 'true'
         shell: bash
         env:
           MARK_BRANCH: ${{ steps.authority.outputs.mark_branch }}
@@ -160,6 +176,7 @@ jobs:
           git show "$MARK_COMMIT:investment_os_runtime/30_STATE_CURRENT/15_PORTFOLIO_INPUT/USER_TRANSACTION_DELTA_LEDGER_CURRENT.json" > /tmp/user-transactions.json 2>/dev/null || echo '{"entries":[]}' > /tmp/user-transactions.json
 
       - name: Build Portfolio Construction Execution and AI Autonomous
+        if: steps.authority.outputs.ready == 'true'
         run: |
           python automation/portfolio_execution/build_portfolio_execution.py \
             --recommendation /tmp/recommendation.json \
@@ -173,6 +190,7 @@ jobs:
             --output-md /tmp/PORTFOLIO_EXECUTION_BRIEF_CURRENT.md
 
       - name: Apply protected-account execution episode guard
+        if: steps.authority.outputs.ready == 'true'
         run: |
           python automation/portfolio_execution/apply_protected_execution_episode_guard.py \
             --phase3-json /tmp/PORTFOLIO_EXECUTION_CURRENT.json \
@@ -181,6 +199,7 @@ jobs:
             --output-json /tmp/PORTFOLIO_EXECUTION_CURRENT.json
 
       - name: Validate Phase 3 boundary
+        if: steps.authority.outputs.ready == 'true'
         run: |
           python - <<'PY'
           import json
@@ -210,6 +229,7 @@ jobs:
           PY
 
       - name: Publish Phase 3 to Operating Current
+        if: steps.authority.outputs.ready == 'true'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -225,6 +245,7 @@ jobs:
             --source-commit "$MAIN_HEAD"
 
       - name: Record Phase 3 summary
+        if: steps.authority.outputs.ready == 'true'
         run: |
           {
             echo "## Final Closure Phase 3"
