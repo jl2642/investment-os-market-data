@@ -1,8 +1,8 @@
 {
   "book_id": "AI_AUTONOMOUS_1M",
-  "cash": 703043.9579999998,
-  "cumulative_return": 0.0028339579999998588,
-  "current_nav": 1002833.9579999998,
+  "cash": 706273.7249999997,
+  "cumulative_return": 0.006669724999999849,
+  "current_nav": 1006669.7249999997,
   "decision_grade_d2_seen": [
     "000608.SZ",
     "000900.SZ",
@@ -29,8 +29,8 @@
     "603995.SH"
   ],
   "deployment_discipline": {
-    "capacity_constrained_max_deployed_weight": 0.29975729202420964,
-    "cash_weight": 0.7010571913640762,
+    "capacity_constrained_max_deployed_weight": 0.2995917504124801,
+    "cash_weight": 0.701594284063723,
     "cumulative_decision_grade_d2_count": 23,
     "cumulative_decision_grade_d2_ids": [
       "000608.SZ",
@@ -95,30 +95,30 @@
       "001227.SZ",
       "301109.SZ"
     ],
-    "deployed_weight": 0.2989428086359238,
+    "deployed_weight": 0.29840571593627696,
     "deployment_status": "OPPORTUNITY_CAPACITY_REVIEW_REQUIRED",
     "eligible_deployable_capacity_by_security": [
       {
-        "allocatable_incremental_weight": 5.823077642527763e-05,
-        "current_weight": 0.09994176922357473,
+        "allocatable_incremental_weight": 0.00013010473718177984,
+        "current_weight": 0.09986989526281823,
         "risk_group": "A_SHARE_STOCK",
-        "risk_group_headroom_before": 0.001057191364076171,
+        "risk_group_headroom_before": 0.0015942840637230282,
         "security_id": "001227.SZ",
         "security_name": "兰州银行",
-        "single_name_headroom": 5.823077642527763e-05
+        "single_name_headroom": 0.00013010473718177984
       },
       {
-        "allocatable_incremental_weight": 0.000756252611860575,
-        "current_weight": 0.09924374738813943,
+        "allocatable_incremental_weight": 0.0010559297390213829,
+        "current_weight": 0.09894407026097862,
         "risk_group": "A_SHARE_STOCK",
-        "risk_group_headroom_before": 0.0009989605876508656,
+        "risk_group_headroom_before": 0.0014641793265412484,
         "security_id": "301109.SZ",
         "security_name": "军信股份",
-        "single_name_headroom": 0.000756252611860575
+        "single_name_headroom": 0.0010559297390213829
       }
     ],
-    "eligible_incremental_deployable_capacity_weight": 0.0008144833882858526,
-    "experiment_trading_day": 28,
+    "eligible_incremental_deployable_capacity_weight": 0.0011860344762031627,
+    "experiment_trading_day": 29,
     "high_cash_reason": "INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS",
     "next_gate_trading_day": 30,
     "orders": 0,
@@ -142,7 +142,7 @@
       "preferred_entry_hurdle": 0.15
     },
     "trade_authority": "NONE",
-    "trading_days_to_next_gate": 2,
+    "trading_days_to_next_gate": 1,
     "triggered_gates": [
       "DAY20_DEPLOYMENT_REVIEW",
       "DAY20_CAPACITY_CONSTRAINED"
@@ -318,6 +318,12 @@
       "cash": 703043.9579999998,
       "nav": 1002833.9579999998,
       "position_market_value": 299790.0
+    },
+    {
+      "as_of_date": "2026-10-19",
+      "cash": 706273.7249999997,
+      "nav": 1006669.7249999997,
+      "position_market_value": 300396.0
     }
   ],
   "orders": 0,
@@ -325,9 +331,9 @@
   "positions": [
     {
       "average_cost": 2.0726989684872943,
-      "last_price": 2.11,
-      "market_value": 100225.0,
-      "quantity": 47500.0,
+      "last_price": 2.13,
+      "market_value": 100536.0,
+      "quantity": 47200.0,
       "risk_group": "A_SHARE_STOCK",
       "security_id": "001227.SZ",
       "security_name": "兰州银行",
@@ -335,9 +341,9 @@
     },
     {
       "average_cost": 4.182787028852843,
-      "last_price": 4.1,
-      "market_value": 100039.99999999999,
-      "quantity": 24400.0,
+      "last_price": 4.16,
+      "market_value": 100256.0,
+      "quantity": 24100.0,
       "risk_group": "A_SHARE_STOCK",
       "security_id": "002807.SZ",
       "security_name": "江阴银行",
@@ -345,16 +351,16 @@
     },
     {
       "average_cost": 12.895539679533815,
-      "last_price": 13.27,
-      "market_value": 99525.0,
-      "quantity": 7500.0,
+      "last_price": 13.46,
+      "market_value": 99604.0,
+      "quantity": 7400.0,
       "risk_group": "A_SHARE_STOCK",
       "security_id": "301109.SZ",
       "security_name": "军信股份",
       "source_action": "BUY"
     }
   ],
-  "realized_pnl": 273.71010365948484,
+  "realized_pnl": 337.27733650406225,
   "schema_version": "1.0.0",
   "trade_authority": "NONE",
   "transactions": [
@@ -819,7 +825,40 @@
       "security_id": "301109.SZ",
       "security_name": "军信股份",
       "side": "SELL"
+    },
+    {
+      "as_of_date": "2026-10-19",
+      "execution_price": 2.1278699999999997,
+      "notional": 638.3609999999999,
+      "quantity": 300.0,
+      "realized_pnl": 16.551309453811626,
+      "reason": "AI_TARGET_WEIGHT_REBALANCE",
+      "security_id": "001227.SZ",
+      "security_name": "兰州银行",
+      "side": "SELL"
+    },
+    {
+      "as_of_date": "2026-10-19",
+      "execution_price": 4.15584,
+      "notional": 1246.7520000000002,
+      "quantity": 300.0,
+      "realized_pnl": -8.084108655852784,
+      "reason": "AI_TARGET_WEIGHT_REBALANCE",
+      "security_id": "002807.SZ",
+      "security_name": "江阴银行",
+      "side": "SELL"
+    },
+    {
+      "as_of_date": "2026-10-19",
+      "execution_price": 13.44654,
+      "notional": 1344.654,
+      "quantity": 100.0,
+      "realized_pnl": 55.10003204661853,
+      "reason": "AI_TARGET_WEIGHT_REBALANCE",
+      "security_id": "301109.SZ",
+      "security_name": "军信股份",
+      "side": "SELL"
     }
   ],
-  "turnover_since_inception": 0.33655665913758537
+  "turnover_since_inception": 0.33976501690098126
 }
