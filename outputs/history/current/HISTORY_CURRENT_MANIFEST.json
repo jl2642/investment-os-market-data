@@ -1,10 +1,10 @@
 {
   "manifest_version": "1.0.0",
-  "release_id": "FMDL2B4_20261020T004329+0800",
-  "generated_at": "2026-10-20T00:43:29+08:00",
-  "as_of_date": "2026-10-19",
-  "previous_release_id": "FMDL2B4_REBASE_38904640214_A1",
-  "previous_as_of_date": "2026-10-16",
+  "release_id": "FMDL2B4_20261020T223438+0800",
+  "generated_at": "2026-10-20T22:34:38+08:00",
+  "as_of_date": "2026-10-20",
+  "previous_release_id": "FMDL2B4_20261020T004329+0800",
+  "previous_as_of_date": "2026-10-19",
   "base_release_id": "FMDL2B2_29556547410_1",
   "base_manifest_path": "outputs/history/candidate/HISTORICAL_STORE_MANIFEST.json",
   "base_manifest_sha256": "8c37ed8bb4fd4d87764ab2463db255e9832010d9e62cf663067cce98a7172bf8",
@@ -39,6 +39,16 @@
       "symbol_count": 5549,
       "symbol_set_sha256": "1ba32e4fb59bf41562eb0736a0a323bc24fe47f42c40bd107bfa4fff145ed747",
       "as_of_date": "2026-10-19"
+    },
+    {
+      "kind": "DAILY_DELTA",
+      "path": "datasets/history/incremental/FMDL2B4_20261020T223438+0800/daily_delta.parquet",
+      "sha256": "9f3b917f698f457a5044a00f3d4c96437abce22d4902ff86a81292d0246a6285",
+      "bytes": 364477,
+      "row_count": 5553,
+      "symbol_count": 5553,
+      "symbol_set_sha256": "2840bdc0c7213b81b10f9c4a1a912bfc0d852b2882eebe24b6fab28acb7490ca",
+      "as_of_date": "2026-10-20"
     }
   ],
   "repair_files": [
@@ -647,17 +657,27 @@
       "symbol_count": 19,
       "symbol_set_sha256": "89bbaffc1364d2c950e62c532713b116dd5803419fa159af4262973094b0e7bb",
       "as_of_date": "2026-10-19"
+    },
+    {
+      "kind": "FULL_SERIES_REPAIR",
+      "path": "datasets/history/repair/FMDL2B4_20261020T223438+0800/full_series_repairs.parquet",
+      "sha256": "912fb9a73f328b0ce36f429687de2e21d5570d8c1f51e28f59854faeebec504f",
+      "bytes": 427462,
+      "row_count": 6926,
+      "symbol_count": 15,
+      "symbol_set_sha256": "2eb787f6b32d8c72b73332b57190b5c26729bd2e831403f97345ce859599e1cc",
+      "as_of_date": "2026-10-20"
     }
   ],
   "status_path": "outputs/history/current/HISTORY_CURRENT_STATUS.csv",
-  "status_sha256": "36e8778ad0729950e159a57cf3a28013139aed76b4706ba199f37236e7bc06d6",
+  "status_sha256": "99bf5ad425b60185e7f0293505e6d605067e160be5767e211da2cb864071154b",
   "continuity_diagnostics_path": "outputs/history/current/HISTORY_CONTINUITY_DIAGNOSTICS.csv",
-  "continuity_diagnostics_sha256": "62151dd23e518e7aec2740dd7b48174e76ed3b8f97d42ac905f2b3a25de06ece",
-  "component_aggregate_sha256": "4f4e301044df71a836459a7b937df63163be0c6e5609ed940afa050b11b74695",
+  "continuity_diagnostics_sha256": "677c6a5334d75bfd4242461341a55b54d54dea58c9596dbb6871ef29a0dbd1d9",
+  "component_aggregate_sha256": "4022eae6909e03d25182eac07c305ff1331435fca49a78ebb9bf23053d9e8fe4",
   "status": "PUBLISHED_CURRENT",
   "authority": "HISTORICAL_AND_FACTOR_EVIDENCE_ONLY_NO_TRADE_AUTHORITY",
   "quality_path": "outputs/history/current/HISTORY_REFRESH_QUALITY.json",
-  "quality_sha256": "bd21882d965e22457b06716ebbc1b473f6f80b2aecd1490c53cdbfcb6da8e88e",
+  "quality_sha256": "37115eb11b127ba03b46dcf999b469b3a99b3c9038dd23b33fce404a2071d8bc",
   "component_hash_finalization": {
     "status": "PASS",
     "current_run_components_rehashed": 2
