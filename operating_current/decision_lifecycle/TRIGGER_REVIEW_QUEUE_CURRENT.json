@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-10-27",
-  "generated_at_utc": "2026-10-28T02:06:45+00:00",
+  "generated_at_utc": "2026-10-28T12:15:22+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_e53c0dc21c160639",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_13efc9a8eafc4319",
   "records": [
     {
       "accounts": [],
@@ -45,8 +45,8 @@
     {
       "accounts": [],
       "current_action": "BUY",
-      "entry_price": 12.4,
-      "latest_price": 13.83,
+      "entry_price": 5.33,
+      "latest_price": 5.26,
       "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-10-27",
@@ -54,29 +54,11 @@
       "priority": "HIGH",
       "reason": "Current decision-grade new-capital action is BUY.",
       "review_type": "USER_ACTION_REVIEW",
-      "security_id": "301109.SZ",
-      "security_name": "军信股份",
-      "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "NEW_CAPITAL_ACTION_BUY"
-    },
-    {
-      "accounts": [],
-      "current_action": "BUY_BELOW",
-      "entry_price": 5.33,
-      "latest_price": 5.26,
-      "next_step": "FRESH_D2_BEFORE_ANY_BUY",
-      "orders": 0,
-      "price_as_of": "2026-10-27",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "priority": "HIGH",
-      "reason": "Latest price 5.2600 is at/below entry threshold 5.3300.",
-      "review_type": "REUNDERWRITE_REQUIRED",
       "security_id": "301175.SZ",
       "security_name": "中科环保",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "BUY_BELOW_PRICE_CONDITION_MET"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "NEW_CAPITAL_ACTION_BUY"
     },
     {
       "accounts": [
@@ -120,21 +102,21 @@
     },
     {
       "accounts": [],
-      "current_action": "BUY_BELOW",
+      "current_action": "BUY",
       "entry_price": 10.43,
       "latest_price": 10.27,
-      "next_step": "FRESH_D2_BEFORE_ANY_BUY",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-10-27",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "HIGH",
-      "reason": "Latest price 10.2700 is at/below entry threshold 10.4300.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade new-capital action is BUY.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "600428.SH",
       "security_name": "中远海特",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "BUY_BELOW_PRICE_CONDITION_MET"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "NEW_CAPITAL_ACTION_BUY"
     },
     {
       "accounts": [
@@ -198,21 +180,39 @@
     },
     {
       "accounts": [],
-      "current_action": "BUY_BELOW",
+      "current_action": "BUY",
       "entry_price": 12.13,
       "latest_price": 11.42,
-      "next_step": "FRESH_D2_BEFORE_ANY_BUY",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-10-27",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "HIGH",
-      "reason": "Latest price 11.4200 is at/below entry threshold 12.1300.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade new-capital action is BUY.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "601886.SH",
       "security_name": "江河集团",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "BUY_BELOW_PRICE_CONDITION_MET"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "NEW_CAPITAL_ACTION_BUY"
+    },
+    {
+      "accounts": [],
+      "current_action": "BUY",
+      "entry_price": 21.5,
+      "latest_price": 21.63,
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
+      "orders": 0,
+      "price_as_of": "2026-10-27",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "HIGH",
+      "reason": "Current decision-grade new-capital action is BUY.",
+      "review_type": "USER_ACTION_REVIEW",
+      "security_id": "603995.SH",
+      "security_name": "甬金股份",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "NEW_CAPITAL_ACTION_BUY"
     },
     {
       "accounts": [
@@ -317,6 +317,6 @@
   ],
   "review_count": 16,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_d632ac8a026fa5c6",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_919c3a634422dc56",
   "trade_authority": "NONE"
 }
