@@ -266,3 +266,80 @@ def test_new_capital_missing_or_mismatched_full_market_close_fails_closed():
         assert item["action"] == "WATCH"
         assert item["top_blocker"] == "PRICE_FRESHNESS_BLOCKED"
         assert item["ready_for_user_decision"] is False
+
+
+def test_price_triggered_old_buy_below_requires_fresh_d2_before_any_buy():
+    comparison = {
+        "controls": {"orders": 0, "trade_authority": "NONE"},
+        "rows": [
+            {
+                "security_id": sid, "existing_position": False,
+                "comparison_status": "PRICE_BLOCKED",
+                "metrics": {
+                    "current_price": 12.5, "price_as_of": "2026-09-15",
+                    "entry_price": 10.8, "bear_value": 8.0,
+                    "probability_weighted_value": 12.0,
+                    "expected_return": -0.04, "bear_downside": -0.36,
+                },
+            }
+            for sid in ("301175.SZ", "600428.SH", "601886.SH")
+        ],
+    }
+    recommendation = {
+        "controls": {"orders": 0, "trade_authority": "NONE"},
+        "records": [
+            {"security_id": sid, "action": "BUY_BELOW",
+             "ready_for_user_decision": False, "top_reasons": ["PRICE_BLOCKED"]}
+            for sid in ("301175.SZ", "600428.SH", "601886.SH")
+        ],
+    }
+    rows = {
+        sid: {"resolved_mark": 10.0, "as_of_date": "2026-10-27"}
+        for sid in ("301175.SZ", "600428.SH", "601886.SH")
+    }
+    comp, rec = rebase_decisions(
+        comparison, recommendation, {"data_watermark": {"latest_mark_date": "2026-10-27"}, "marks": []},
+        {"queue": []}, market_rows=rows, market_watermark="2026-10-27",
+    )
+    assert all(
+        row["comparison_status"] == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+        for row in comp["rows"]
+    )
+    for row in rec["records"]:
+        assert row["action"] == "BUY_BELOW"
+        assert row["ready_for_user_decision"] is False
+        assert row["top_blocker"] == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+        assert row["research_freshness"] == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+        assert row["current_price"] == 10.0
+        assert row["price_basis"] == "A_SHARE_FULL_MARKET"
+
+
+def test_fresh_buy_action_is_not_downgraded_by_price_cross_guard():
+    comparison = {
+        "controls": {"orders": 0, "trade_authority": "NONE"},
+        "rows": [{
+            "security_id": "001227.SZ", "existing_position": False,
+            "comparison_status": "PASS_NEW_CAPITAL",
+            "metrics": {
+                "current_price": 2.07, "entry_price": 2.02,
+                "bear_value": 1.7, "probability_weighted_value": 2.45,
+                "expected_return": 2.45 / 2.07 - 1,
+                "bear_downside": 1.7 / 2.07 - 1,
+            },
+        }],
+    }
+    recommendation = {
+        "controls": {"orders": 0, "trade_authority": "NONE"},
+        "records": [{"security_id": "001227.SZ", "action": "BUY",
+                     "ready_for_user_decision": True, "top_reasons": []}],
+    }
+    _, rec = rebase_decisions(
+        comparison, recommendation, {"data_watermark": {"latest_mark_date": "2026-10-27"}, "marks": []},
+        {"queue": []},
+        market_rows={"001227.SZ": {"resolved_mark": 2.11, "as_of_date": "2026-10-27"}},
+        market_watermark="2026-10-27",
+    )
+    row = rec["records"][0]
+    assert row["action"] == "BUY"
+    assert row["ready_for_user_decision"] is True
+    assert row["top_blocker"] is None
