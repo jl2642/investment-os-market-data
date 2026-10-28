@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-28T12:18:22+00:00",
+  "as_of": "2026-10-28T18:41:41+00:00",
   "batch_size": 10,
   "controls": {
     "candidate_membership_mutations": 0,
@@ -10,16 +10,16 @@
     "trade_authority": "NONE"
   },
   "priority_order": [
-    "601939.SH",
-    "688425.SH",
-    "003006.SZ",
-    "301190.SZ",
-    "603278.SH",
-    "000089.SZ",
-    "601328.SH",
-    "300234.SZ",
-    "002507.SZ",
-    "300369.SZ"
+    "688646.SH",
+    "605488.SH",
+    "688536.SH",
+    "002696.SZ",
+    "600511.SH",
+    "000538.SZ",
+    "301218.SZ",
+    "301560.SZ",
+    "300473.SZ",
+    "600020.SH"
   ],
   "research_objects": [
     {
@@ -27,7 +27,7 @@
       "ai_book_reunderwrite_reason": null,
       "archetype": "TREND_PERSISTENCE",
       "candidate_membership_required": false,
-      "d1_disposition": "WATCH_EXISTING_D2_NO_REFRESH",
+      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
       "d1_rank": 1,
       "d2_questions": [
         "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
@@ -36,30 +36,153 @@
         "Build an explicit valuation range and identify what expectations are embedded in the current price.",
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
-      "existing_decision_grade_d2": true,
+      "existing_decision_grade_d2": false,
       "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
       "fresh_d2_required": false,
       "fundamental_context": {
-        "financial_confidence": "UNAVAILABLE",
-        "financial_score": null,
+        "financial_confidence": "LOW",
+        "financial_score": 38.39925311697038,
         "financial_status": null
       },
       "market_signal": {
-        "aggregate_score": 0.93085864,
-        "avg_turnover_cny_20d": 1252154905.1,
+        "aggregate_score": 0.96372245,
+        "avg_turnover_cny_20d": 164930023.4,
         "confidence_grade": "A",
         "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.11259541984732824,
-        "return_120d": 0.2270833333333333,
-        "return_20d": 0.07776761207685268,
-        "return_60d": 0.13706563706563712,
-        "volatility_60d": 0.22623200719658293
+        "max_drawdown_120d": -0.3220772576106422,
+        "return_120d": 0.2335350658597366,
+        "return_20d": -0.1308165057067604,
+        "return_60d": 0.1569282136894825,
+        "volatility_60d": 0.6392573085819379
       },
       "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "601939.SH",
-      "security_name": "建设银行",
+      "security_id": "688646.SH",
+      "security_name": "逸飞激光",
       "semantic_refresh_required": false,
-      "source_opportunity_rank": 11,
+      "source_opportunity_rank": 6,
+      "trade_authority": "NONE",
+      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
+    },
+    {
+      "ai_book_auto_reunderwrite": false,
+      "ai_book_reunderwrite_reason": null,
+      "archetype": "LIQUID_BREAKOUT",
+      "candidate_membership_required": false,
+      "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+      "d1_rank": 2,
+      "d2_questions": [
+        "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
+        "Measure how much growth or margin improvement the current valuation already discounts.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "existing_decision_grade_d2": false,
+      "first_rejection": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
+      "fresh_d2_required": false,
+      "fundamental_context": {
+        "financial_confidence": "HIGH",
+        "financial_score": 48.47811857806048,
+        "financial_status": null
+      },
+      "market_signal": {
+        "aggregate_score": 0.94498161,
+        "avg_turnover_cny_20d": 653190797.35,
+        "confidence_grade": "A",
+        "factor_record_quality": "VALID",
+        "max_drawdown_120d": -0.4470328592447278,
+        "return_120d": 0.4815604998476073,
+        "return_20d": 0.6203333333333334,
+        "return_60d": 1.0773504273504275,
+        "volatility_60d": 0.7340164555956822
+      },
+      "research_priority": "A_IMMEDIATE_RESEARCH",
+      "security_id": "605488.SH",
+      "security_name": "福莱新材",
+      "semantic_refresh_required": false,
+      "source_opportunity_rank": 10,
+      "trade_authority": "NONE",
+      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
+    },
+    {
+      "ai_book_auto_reunderwrite": false,
+      "ai_book_reunderwrite_reason": null,
+      "archetype": "TREND_PERSISTENCE",
+      "candidate_membership_required": false,
+      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+      "d1_rank": 3,
+      "d2_questions": [
+        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
+        "Test whether the expected return remains attractive after normalizing current momentum.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "existing_decision_grade_d2": false,
+      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+      "fresh_d2_required": false,
+      "fundamental_context": {
+        "financial_confidence": "MEDIUM",
+        "financial_score": 68.9331777718776,
+        "financial_status": null
+      },
+      "market_signal": {
+        "aggregate_score": 0.92727113,
+        "avg_turnover_cny_20d": 966684946.65,
+        "confidence_grade": "A",
+        "factor_record_quality": "VALID",
+        "max_drawdown_120d": -0.40448790134307444,
+        "return_120d": 0.21405387177001223,
+        "return_20d": -0.1903235781957212,
+        "return_60d": 0.23081196581196584,
+        "volatility_60d": 0.731124869677229
+      },
+      "research_priority": "A_IMMEDIATE_RESEARCH",
+      "security_id": "688536.SH",
+      "security_name": "思瑞浦",
+      "semantic_refresh_required": false,
+      "source_opportunity_rank": 12,
+      "trade_authority": "NONE",
+      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
+    },
+    {
+      "ai_book_auto_reunderwrite": false,
+      "ai_book_reunderwrite_reason": null,
+      "archetype": "LIQUID_BREAKOUT",
+      "candidate_membership_required": false,
+      "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
+      "d1_rank": 4,
+      "d2_questions": [
+        "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
+        "Measure how much growth or margin improvement the current valuation already discounts.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "existing_decision_grade_d2": false,
+      "first_rejection": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
+      "fresh_d2_required": false,
+      "fundamental_context": {
+        "financial_confidence": "HIGH",
+        "financial_score": 34.99471543166467,
+        "financial_status": null
+      },
+      "market_signal": {
+        "aggregate_score": 0.92716327,
+        "avg_turnover_cny_20d": 577362411.7,
+        "confidence_grade": "A",
+        "factor_record_quality": "VALID",
+        "max_drawdown_120d": -0.3113069016152715,
+        "return_120d": 0.7619760479041917,
+        "return_20d": 0.6766381766381766,
+        "return_60d": 1.3446215139442232,
+        "volatility_60d": 0.8588205021830395
+      },
+      "research_priority": "A_IMMEDIATE_RESEARCH",
+      "security_id": "002696.SZ",
+      "security_name": "百洋股份",
+      "semantic_refresh_required": false,
+      "source_opportunity_rank": 13,
       "trade_authority": "NONE",
       "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
     },
@@ -69,7 +192,7 @@
       "archetype": "DEFENSIVE_STABILITY",
       "candidate_membership_required": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-      "d1_rank": 2,
+      "d1_rank": 5,
       "d2_questions": [
         "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
         "Compare the opportunity with lower-risk defensive and cash alternatives.",
@@ -82,148 +205,25 @@
       "fresh_d2_required": false,
       "fundamental_context": {
         "financial_confidence": "HIGH",
-        "financial_score": 54.21489492470589,
+        "financial_score": 48.95820098431898,
         "financial_status": null
       },
       "market_signal": {
-        "aggregate_score": 0.92807653,
-        "avg_turnover_cny_20d": 59867722.25,
+        "aggregate_score": 0.8906644,
+        "avg_turnover_cny_20d": 125325268.95,
         "confidence_grade": "A",
         "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.1716101694915253,
-        "return_120d": -0.13888888888888873,
-        "return_20d": 0.007500000000000062,
-        "return_60d": -0.01707317073170722,
-        "volatility_60d": 0.13043053549085978
+        "max_drawdown_120d": -0.0959241040056219,
+        "return_120d": -0.002866356144751059,
+        "return_20d": 0.06546707503828464,
+        "return_60d": 0.02316176470588238,
+        "volatility_60d": 0.1579999966531719
       },
       "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "688425.SH",
-      "security_name": "铁建重工",
+      "security_id": "600511.SH",
+      "security_name": "国药股份",
       "semantic_refresh_required": false,
-      "source_opportunity_rank": 12,
-      "trade_authority": "NONE",
-      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
-    },
-    {
-      "ai_book_auto_reunderwrite": false,
-      "ai_book_reunderwrite_reason": null,
-      "archetype": "LIQUID_BREAKOUT",
-      "candidate_membership_required": false,
-      "d1_disposition": "WATCH_EXISTING_D2_NO_REFRESH",
-      "d1_rank": 3,
-      "d2_questions": [
-        "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
-        "Measure how much growth or margin improvement the current valuation already discounts.",
-        "Normalize earnings and cash flow using the latest primary financial disclosures.",
-        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-        "Define the first-rejection test and the evidence that would invalidate the thesis."
-      ],
-      "existing_decision_grade_d2": true,
-      "first_rejection": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
-      "fresh_d2_required": false,
-      "fundamental_context": {
-        "financial_confidence": "HIGH",
-        "financial_score": 65.52058097320958,
-        "financial_status": null
-      },
-      "market_signal": {
-        "aggregate_score": 0.92694608,
-        "avg_turnover_cny_20d": 1123950462.25,
-        "confidence_grade": "A",
-        "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.29046321525885566,
-        "return_120d": 0.29836435420191765,
-        "return_20d": 0.08533710513908521,
-        "return_60d": 0.6561151079136689,
-        "volatility_60d": 0.48961353148075193
-      },
-      "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "003006.SZ",
-      "security_name": "百亚股份",
-      "semantic_refresh_required": false,
-      "source_opportunity_rank": 13,
-      "trade_authority": "NONE",
-      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
-    },
-    {
-      "ai_book_auto_reunderwrite": false,
-      "ai_book_reunderwrite_reason": null,
-      "archetype": "RECOVERY_WATCH",
-      "candidate_membership_required": false,
-      "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
-      "d1_rank": 4,
-      "d2_questions": [
-        "Separate cyclical/base-effect recovery from durable operating improvement.",
-        "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
-        "Normalize earnings and cash flow using the latest primary financial disclosures.",
-        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-        "Define the first-rejection test and the evidence that would invalidate the thesis."
-      ],
-      "existing_decision_grade_d2": false,
-      "first_rejection": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
-      "fresh_d2_required": false,
-      "fundamental_context": {
-        "financial_confidence": "HIGH",
-        "financial_score": 56.16481285349755,
-        "financial_status": null
-      },
-      "market_signal": {
-        "aggregate_score": 0.92584049,
-        "avg_turnover_cny_20d": 788975443.65,
-        "confidence_grade": "A",
-        "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.42879622344610546,
-        "return_120d": 0.4993614303959133,
-        "return_20d": 0.7539840637450199,
-        "return_60d": 1.0102739726027399,
-        "volatility_60d": 1.1727933977477942
-      },
-      "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "301190.SZ",
-      "security_name": "善水科技",
-      "semantic_refresh_required": false,
-      "source_opportunity_rank": 14,
-      "trade_authority": "NONE",
-      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
-    },
-    {
-      "ai_book_auto_reunderwrite": false,
-      "ai_book_reunderwrite_reason": null,
-      "archetype": "RECOVERY_WATCH",
-      "candidate_membership_required": false,
-      "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
-      "d1_rank": 5,
-      "d2_questions": [
-        "Separate cyclical/base-effect recovery from durable operating improvement.",
-        "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
-        "Normalize earnings and cash flow using the latest primary financial disclosures.",
-        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-        "Define the first-rejection test and the evidence that would invalidate the thesis."
-      ],
-      "existing_decision_grade_d2": false,
-      "first_rejection": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
-      "fresh_d2_required": false,
-      "fundamental_context": {
-        "financial_confidence": "MEDIUM",
-        "financial_score": 32.7213071415547,
-        "financial_status": null
-      },
-      "market_signal": {
-        "aggregate_score": 0.91944415,
-        "avg_turnover_cny_20d": 572265674.7,
-        "confidence_grade": "A",
-        "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.5266549502050382,
-        "return_120d": 0.5209790209790208,
-        "return_20d": 0.8995633187772925,
-        "return_60d": 1.0543093270365995,
-        "volatility_60d": 0.6796957365647365
-      },
-      "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "603278.SH",
-      "security_name": "大业股份",
-      "semantic_refresh_required": false,
-      "source_opportunity_rank": 15,
+      "source_opportunity_rank": 20,
       "trade_authority": "NONE",
       "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
     },
@@ -232,7 +232,7 @@
       "ai_book_reunderwrite_reason": null,
       "archetype": "DEFENSIVE_STABILITY",
       "candidate_membership_required": false,
-      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+      "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
       "d1_rank": 6,
       "d2_questions": [
         "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
@@ -246,25 +246,25 @@
       "fresh_d2_required": false,
       "fundamental_context": {
         "financial_confidence": "HIGH",
-        "financial_score": 61.2257179147648,
+        "financial_score": 66.25479504399812,
         "financial_status": null
       },
       "market_signal": {
-        "aggregate_score": 0.90982408,
-        "avg_turnover_cny_20d": 103300818.4,
+        "aggregate_score": 0.87307749,
+        "avg_turnover_cny_20d": 515604125.95,
         "confidence_grade": "A",
         "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.13237410071942446,
-        "return_120d": -0.06456241032998566,
-        "return_20d": -0.019548872180451204,
-        "return_60d": 0.003076923076922977,
-        "volatility_60d": 0.17697258997785917
+        "max_drawdown_120d": -0.11408233936129286,
+        "return_120d": 0.020011545122185836,
+        "return_20d": 0.05429594272076366,
+        "return_60d": 0.05199444334193282,
+        "volatility_60d": 0.13728383723946938
       },
-      "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "000089.SZ",
-      "security_name": "深圳机场",
+      "research_priority": "B_WATCH_OR_TRIGGER",
+      "security_id": "000538.SZ",
+      "security_name": "云南白药",
       "semantic_refresh_required": false,
-      "source_opportunity_rank": 16,
+      "source_opportunity_rank": 21,
       "trade_authority": "NONE",
       "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
     },
@@ -273,7 +273,7 @@
       "ai_book_reunderwrite_reason": null,
       "archetype": "LIQUID_BREAKOUT",
       "candidate_membership_required": false,
-      "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+      "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
       "d1_rank": 7,
       "d2_questions": [
         "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
@@ -286,108 +286,67 @@
       "first_rejection": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
       "fresh_d2_required": false,
       "fundamental_context": {
+        "financial_confidence": "MEDIUM",
+        "financial_score": 22.93147769866418,
+        "financial_status": null
+      },
+      "market_signal": {
+        "aggregate_score": 0.87282778,
+        "avg_turnover_cny_20d": 1029544783.8,
+        "confidence_grade": "A",
+        "factor_record_quality": "VALID",
+        "max_drawdown_120d": -0.26043317485472794,
+        "return_120d": 0.8534285714285716,
+        "return_20d": 0.35739694496756647,
+        "return_60d": 0.6514765784114054,
+        "volatility_60d": 1.1115254413819995
+      },
+      "research_priority": "B_WATCH_OR_TRIGGER",
+      "security_id": "301218.SZ",
+      "security_name": "华是科技",
+      "semantic_refresh_required": false,
+      "source_opportunity_rank": 22,
+      "trade_authority": "NONE",
+      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
+    },
+    {
+      "ai_book_auto_reunderwrite": false,
+      "ai_book_reunderwrite_reason": null,
+      "archetype": "RECOVERY_WATCH",
+      "candidate_membership_required": false,
+      "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
+      "d1_rank": 8,
+      "d2_questions": [
+        "Separate cyclical/base-effect recovery from durable operating improvement.",
+        "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "existing_decision_grade_d2": false,
+      "first_rejection": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
+      "fresh_d2_required": false,
+      "fundamental_context": {
         "financial_confidence": "UNAVAILABLE",
         "financial_score": null,
         "financial_status": null
       },
       "market_signal": {
-        "aggregate_score": 0.89485819,
-        "avg_turnover_cny_20d": 1809695335.25,
+        "aggregate_score": 0.87113154,
+        "avg_turnover_cny_20d": 280892660.7,
         "confidence_grade": "A",
         "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.09913793103448276,
-        "return_120d": 0.2264705882352942,
-        "return_20d": 0.10463576158940402,
-        "return_60d": 0.18972895863052774,
-        "volatility_60d": 0.1929652957099659
+        "max_drawdown_120d": -0.5537417850328599,
+        "return_120d": -0.21103008204193263,
+        "return_20d": 0.4073170731707316,
+        "return_60d": 0.5851648351648351,
+        "volatility_60d": 0.6632890717187081
       },
-      "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "601328.SH",
-      "security_name": "交通银行",
+      "research_priority": "B_WATCH_OR_TRIGGER",
+      "security_id": "301560.SZ",
+      "security_name": "众捷股份",
       "semantic_refresh_required": false,
-      "source_opportunity_rank": 17,
-      "trade_authority": "NONE",
-      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
-    },
-    {
-      "ai_book_auto_reunderwrite": false,
-      "ai_book_reunderwrite_reason": null,
-      "archetype": "TREND_PERSISTENCE",
-      "candidate_membership_required": false,
-      "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
-      "d1_rank": 8,
-      "d2_questions": [
-        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
-        "Test whether the expected return remains attractive after normalizing current momentum.",
-        "Normalize earnings and cash flow using the latest primary financial disclosures.",
-        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-        "Define the first-rejection test and the evidence that would invalidate the thesis."
-      ],
-      "existing_decision_grade_d2": false,
-      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-      "fresh_d2_required": false,
-      "fundamental_context": {
-        "financial_confidence": "MEDIUM",
-        "financial_score": 44.5955949500077,
-        "financial_status": null
-      },
-      "market_signal": {
-        "aggregate_score": 0.89268283,
-        "avg_turnover_cny_20d": 168690970.85,
-        "confidence_grade": "A",
-        "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.44075021312872986,
-        "return_120d": 0.5950540958268935,
-        "return_20d": -0.15061728395061724,
-        "return_60d": 0.44134078212290495,
-        "volatility_60d": 0.6453572125613691
-      },
-      "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "300234.SZ",
-      "security_name": "开尔新材",
-      "semantic_refresh_required": false,
-      "source_opportunity_rank": 18,
-      "trade_authority": "NONE",
-      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
-    },
-    {
-      "ai_book_auto_reunderwrite": false,
-      "ai_book_reunderwrite_reason": null,
-      "archetype": "DEFENSIVE_STABILITY",
-      "candidate_membership_required": false,
-      "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
-      "d1_rank": 9,
-      "d2_questions": [
-        "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
-        "Compare the opportunity with lower-risk defensive and cash alternatives.",
-        "Normalize earnings and cash flow using the latest primary financial disclosures.",
-        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
-        "Define the first-rejection test and the evidence that would invalidate the thesis."
-      ],
-      "existing_decision_grade_d2": false,
-      "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-      "fresh_d2_required": false,
-      "fundamental_context": {
-        "financial_confidence": "LOW",
-        "financial_score": 66.71043709972648,
-        "financial_status": null
-      },
-      "market_signal": {
-        "aggregate_score": 0.8917315,
-        "avg_turnover_cny_20d": 87659569.6,
-        "confidence_grade": "A",
-        "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.13183279742765264,
-        "return_120d": -0.09661835748792269,
-        "return_20d": 0.007181328545780907,
-        "return_60d": -0.017513134851138257,
-        "volatility_60d": 0.16324443698742908
-      },
-      "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "002507.SZ",
-      "security_name": "涪陵榨菜",
-      "semantic_refresh_required": false,
-      "source_opportunity_rank": 19,
+      "source_opportunity_rank": 23,
       "trade_authority": "NONE",
       "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
     },
@@ -396,8 +355,8 @@
       "ai_book_reunderwrite_reason": null,
       "archetype": "LIQUID_BREAKOUT",
       "candidate_membership_required": false,
-      "d1_disposition": "WATCH_FOR_FUNDAMENTAL_CONFIRMATION",
-      "d1_rank": 10,
+      "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
+      "d1_rank": 9,
       "d2_questions": [
         "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
         "Measure how much growth or margin improvement the current valuation already discounts.",
@@ -409,26 +368,67 @@
       "first_rejection": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
       "fresh_d2_required": false,
       "fundamental_context": {
-        "financial_confidence": "MEDIUM",
-        "financial_score": 46.936888315405035,
+        "financial_confidence": "HIGH",
+        "financial_score": 61.016275283450554,
         "financial_status": null
       },
       "market_signal": {
-        "aggregate_score": 0.89109039,
-        "avg_turnover_cny_20d": 1160478560.2,
+        "aggregate_score": 0.85739128,
+        "avg_turnover_cny_20d": 422069316.1,
         "confidence_grade": "A",
         "factor_record_quality": "VALID",
-        "max_drawdown_120d": -0.3286445012787724,
-        "return_120d": 0.4176245210727969,
-        "return_20d": 0.17212249208025332,
-        "return_60d": 0.7619047619047619,
-        "volatility_60d": 0.9517700090828275
+        "max_drawdown_120d": -0.47180156657963446,
+        "return_120d": 0.2678571428571428,
+        "return_20d": 0.2181870174435232,
+        "return_60d": 1.052023121387283,
+        "volatility_60d": 0.6565937204301304
       },
-      "research_priority": "A_IMMEDIATE_RESEARCH",
-      "security_id": "300369.SZ",
-      "security_name": "绿盟科技",
+      "research_priority": "B_WATCH_OR_TRIGGER",
+      "security_id": "300473.SZ",
+      "security_name": "德尔股份",
       "semantic_refresh_required": false,
-      "source_opportunity_rank": 20,
+      "source_opportunity_rank": 24,
+      "trade_authority": "NONE",
+      "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
+    },
+    {
+      "ai_book_auto_reunderwrite": false,
+      "ai_book_reunderwrite_reason": null,
+      "archetype": "DEFENSIVE_STABILITY",
+      "candidate_membership_required": false,
+      "d1_disposition": "WATCH_D1_TRIGGER_OR_FUNDAMENTAL_CONFIRMATION",
+      "d1_rank": 10,
+      "d2_questions": [
+        "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
+        "Compare the opportunity with lower-risk defensive and cash alternatives.",
+        "Normalize earnings and cash flow using the latest primary financial disclosures.",
+        "Build an explicit valuation range and identify what expectations are embedded in the current price.",
+        "Define the first-rejection test and the evidence that would invalidate the thesis."
+      ],
+      "existing_decision_grade_d2": false,
+      "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+      "fresh_d2_required": false,
+      "fundamental_context": {
+        "financial_confidence": "HIGH",
+        "financial_score": 51.359579967033795,
+        "financial_status": null
+      },
+      "market_signal": {
+        "aggregate_score": 0.85557458,
+        "avg_turnover_cny_20d": 51771628.7,
+        "confidence_grade": "A",
+        "factor_record_quality": "VALID",
+        "max_drawdown_120d": -0.09620253164556969,
+        "return_120d": 0.03504043126684642,
+        "return_20d": 0.005235602094240788,
+        "return_60d": 0.018567639257294433,
+        "volatility_60d": 0.162220998631183
+      },
+      "research_priority": "B_WATCH_OR_TRIGGER",
+      "security_id": "600020.SH",
+      "security_name": "中原高速",
+      "semantic_refresh_required": false,
+      "source_opportunity_rank": 25,
       "trade_authority": "NONE",
       "variant_wedge": "D1 fast triage only: test whether the observed market signal is supported by normalized fundamentals and an attractive valuation."
     }
@@ -436,14 +436,14 @@
   "routing_summary": {
     "advance_to_d2_count": 3,
     "ai_book_auto_reunderwrite_count": 0,
-    "completed_d2_excluded_from_new_slots_count": 2,
+    "completed_d2_excluded_from_new_slots_count": 0,
     "ready_for_user_decision": 0,
     "reject_count": 0,
     "research_slot_policy": "ONE_VALUE_OR_RECOVERY_ONE_MOMENTUM_ONE_BEST_REMAINING_EXCLUDING_COMPLETED_D2_UNLESS_REFRESH_REQUIRED",
     "route_security_ids": [
-      "688425.SH",
-      "601328.SH",
-      "000089.SZ"
+      "600511.SH",
+      "688646.SH",
+      "688536.SH"
     ],
     "watch_count": 7
   },
@@ -468,9 +468,19 @@
     "601328.SH",
     "300234.SZ",
     "002507.SZ",
-    "300369.SZ"
+    "300369.SZ",
+    "688646.SH",
+    "605488.SH",
+    "688536.SH",
+    "002696.SZ",
+    "600511.SH",
+    "000538.SZ",
+    "301218.SZ",
+    "301560.SZ",
+    "300473.SZ",
+    "600020.SH"
   ],
-  "source_opportunity_state_id": "OPPORTUNITY_CURRENT_036ba011f6b940f5",
-  "state_id": "RESEARCH_QUEUE_D1_CURRENT_44c7b46417b08deb",
+  "source_opportunity_state_id": "OPPORTUNITY_CURRENT_738134b3849cca10",
+  "state_id": "RESEARCH_QUEUE_D1_CURRENT_e1ebfbb2c95915c1",
   "status": "D1_FAST_TRIAGE_COMPLETE"
 }
