@@ -1,0 +1,148 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "D2_SEMANTIC_RESEARCH_20261028_R1_601939",
+  "security_id": "601939.SH",
+  "security_name": "建设银行",
+  "d1_rank": 5,
+  "archetype": "TREND_PERSISTENCE",
+  "status": "D2_RESEARCH_COMPLETE",
+  "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_STRONG_ASSET_QUALITY_AND_CAPITAL_BUT_PRICE_ABOVE_10PCT_RETURN_GATE",
+  "research_update_type": "AUTO_SEMANTIC_D2_BACKLOG_CLOSURE_20261028",
+  "valuation_horizon": "12_TO_18_MONTH",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_8ce11c320ca1525a",
+  "source_primary_discovery_commit": "389a813c59cce38ae13cc5e9474adad1f37f3d5d",
+  "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH",
+  "thesis": {
+    "core": "Construction Bank is a profitable, well-capitalized systemic bank with H1 2026 net interest margin stabilization and modestly improving reported asset quality. However, risk-weighted asset growth reduced CET1 by 39bp, while the October price rally leaves insufficient capital appreciation versus the current 10% new-capital hurdle.",
+    "variant_wedge": "Price strength is supported by a stable banking franchise, not an earnings breakout. H1 attributable profit growth of 4.62%, 1.37% NIM and 9.52% annualized ROE justify a reasonable PB, but do not by themselves justify paying materially above normalized book value.",
+    "normalized_earnings_basis": "Use 2026H1 common BVPS RMB13.69 and annualized reported ROE 9.52% to underwrite sustainable capital generation. FY normalized EPS cross-check approximately RMB1.30 from 2026H1 EPS RMB0.65 times two; not a mechanical forecast or valuation anchor."
+  },
+  "operating_and_financial_quality": {
+    "h1_2026_revenue_rmb_bn": 436.529,
+    "reported_revenue_yoy": 0.1072,
+    "h1_2026_attributable_np_rmb_bn": 169.564,
+    "attributable_np_yoy": 0.0462,
+    "h1_eps": 0.65,
+    "normalized_annual_eps_cross_check": 1.3,
+    "annualized_roe": 0.0952,
+    "annualized_roa": 0.0074,
+    "common_bvps": 13.69,
+    "total_assets_rmb_tn": 47.328244,
+    "loans_gross_rmb_tn": 29.34,
+    "deposits_rmb_tn": 31.818419,
+    "npl_ratio": 0.0129,
+    "provision_coverage_ratio": 2.3869,
+    "net_interest_margin": 0.0137,
+    "core_tier1_ratio": 0.1424,
+    "prior_year_end_core_tier1_ratio": 0.1463,
+    "total_capital_ratio": 0.1942,
+    "h1_proposed_interim_dividend_per_share": 0.201,
+    "judgment": "Franchise and capital buffers pass the fundamental quality gate. Risks: CET1 fell 39bp from year-end as RWA expanded; NIM remains low despite stabilization; credit risk is cyclical. Proposed H1 dividend requires final approval/implementation and is not counted as realized total return."
+  },
+  "underwriting": {
+    "current_price": 11.78,
+    "price_as_of": "2026-10-27",
+    "entry_price": 10.7139,
+    "preferred_entry_price_15pct": 10.7139,
+    "formal_buy_entry_price_10pct": 11.2009,
+    "confidence": "MEDIUM_HIGH",
+    "valuation_method": "COMMON_BOOK_VALUE_PB_SCENARIO_WITH_ROE_ASSET_QUALITY_CAPITAL_CROSS_CHECK",
+    "normalized_earnings_basis": {
+      "metric": "H1_2026_COMMON_BVPS",
+      "common_bvps": 13.69,
+      "annualized_roe": 0.0952,
+      "annualized_eps_cross_check": 1.3,
+      "rationale": "P/B is primary because bank capital, asset quality and sustainable ROE are observable; price-target expected return excludes future dividends and prospective BVPS growth to avoid unsupported optimism."
+    },
+    "scenarios": [
+      {
+        "name": "BEAR",
+        "pb_multiple": 0.7,
+        "value_per_share": 9.583,
+        "probability": 0.25
+      },
+      {
+        "name": "BASE",
+        "pb_multiple": 0.9,
+        "value_per_share": 12.321,
+        "probability": 0.5
+      },
+      {
+        "name": "BULL",
+        "pb_multiple": 1.1,
+        "value_per_share": 15.059,
+        "probability": 0.25
+      }
+    ],
+    "probability_weighted_value": 12.321,
+    "expected_return": 0.045925,
+    "bear_downside": -0.186503,
+    "action": "BUY_BELOW",
+    "catalysts": [
+      "2026Q3 report confirms stable or improving NIM without adverse credit migration.",
+      "Core Tier-1 capital ratio stabilizes or rebuilds while maintaining prudent credit growth.",
+      "Sustainable common dividends are approved and implemented without capital dilution.",
+      "Deposit funding costs fall faster than asset yields and fee income remains resilient."
+    ],
+    "kill_thesis": [
+      "NPL formation and credit costs accelerate or provision coverage materially weakens.",
+      "Core Tier-1 capital falls persistently despite retained earnings, limiting dividends or growth.",
+      "Net interest margin resumes structural compression with no cost/fee offsets.",
+      "New capital issuance or regulatory requirements materially dilute common shareholder economics."
+    ]
+  },
+  "first_rejection_test": "PASS_ASSET_QUALITY_AND_CAPITAL_2026H1; FAIL_CURRENT_PRICE_EXPECTED_RETURN_GATE_RMB11_78_GT_FORMAL_BUY_BELOW_RMB11_20",
+  "next_gate": "BUY_BELOW_RMB11_20_ONLY_AFTER_FRESH_D2_AND_PORTFOLIO_FIT; PREFERRED_ENTRY_RMB10_71; REUNDERWRITE_ON_2026Q3_DISCLOSURE_OR_MATERIAL_NPL_NIM_CET1_CHANGE",
+  "evidence_gap": {
+    "material": false,
+    "missing": null,
+    "manual_user_input_required": false
+  },
+  "sources": [
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "中国建设银行2026年半年度报告（官网）",
+      "url": "https://cl.ccb.com/chn/2026-08/28/article_2026082819533550252.shtml",
+      "as_of": "2026-08-28"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "建设银行2026年半年度报告（巨潮资讯）",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=601939&announcementId=1225531678&orgId=9900003682&announcementTime=2026-08-29",
+      "as_of": "2026-08-29"
+    },
+    {
+      "type": "PRIMARY_DISCLOSURE",
+      "title": "建设银行2026年中期利润分配方案公告",
+      "url": "http://www.cninfo.com.cn/new/disclosure/detail?stockCode=601939&announcementId=1225531666&orgId=9900003682&announcementTime=2026-08-29",
+      "as_of": "2026-08-29"
+    },
+    {
+      "type": "MARKET_DATA",
+      "title": "建设银行A股历史收盘价2026-10-27",
+      "url": "https://cn.investing.com/equities/constr-bank-historical-data",
+      "as_of": "2026-10-27"
+    }
+  ],
+  "source_quality_note": "H1 earnings, NIM, ROE, NPL, capital and interim dividend are tied to issuer/regulated disclosure; scenario PB and probabilities are analyst assumptions. 2026Q3 report is scheduled for 2026-10-30/31 and not yet available at analysis time; a new report requires material refresh check. Dividends excluded from target expected return.",
+  "continuous_monitoring": {
+    "daily_full_d2": false,
+    "fresh_d2_triggers": [
+      "2026Q3_report_material_change",
+      "price_at_or_below_11_20_fresh_d2_required",
+      "material_npl_provision_or_nim_change",
+      "core_tier1_or_dividend_policy_change"
+    ],
+    "semantic_keyword_triggering": false
+  },
+  "semantic_completed_at": "2026-10-28T01:22:00+00:00",
+  "controls": {
+    "candidate_membership_mutations": 0,
+    "real_account_mutations": 0,
+    "simulation_mutations": 0,
+    "decision_mutations": 0,
+    "policy_mutations": 0,
+    "orders": 0,
+    "trade_authority": "NONE"
+  }
+}
