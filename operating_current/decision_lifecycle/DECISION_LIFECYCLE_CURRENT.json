@@ -15,21 +15,51 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-10-28T12:15:22+00:00",
+  "generated_at_utc": "2026-10-28T12:35:12+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-10-27",
-    "recommendation_generated_at_utc": "2026-10-28T12:08:18+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_cfc91af25a6c971c",
+    "recommendation_generated_at_utc": "2026-10-28T12:27:30+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_41b70c69106a77d6",
     "surface_as_of_date": "2026-10-27",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_d9250eeec71878d9"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_e6e527cf6c49f9db"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_919c3a634422dc56",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_924c9cef78adb872",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
   "subjects": [
+    {
+      "accounts": [],
+      "base_value": null,
+      "cleared_trigger_keys": [],
+      "current_action": "WATCH",
+      "entry_price": null,
+      "expected_return": null,
+      "latest_price": 6.52,
+      "lifecycle_state": "FLAT_WATCH",
+      "mark_expected_return": null,
+      "mechanical_trigger_keys": [],
+      "monitoring_flags": [],
+      "new_trigger_keys": [],
+      "orders": 0,
+      "position_state": "FLAT",
+      "price_as_of": "2026-10-27",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "probability_weighted_value": null,
+      "ready_for_user_decision": false,
+      "security_id": "000089.SZ",
+      "security_name": "深圳机场",
+      "semantic_watch": {
+        "automatic_keyword_inference_authorized": false,
+        "catalysts": [],
+        "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+        "semantic_reunderwrite_required_before_state_change": true
+      },
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "trade_authority": "NONE"
+    },
     {
       "accounts": [
         "SIMULATION"
@@ -68,36 +98,6 @@
         "semantic_reunderwrite_required_before_state_change": true
       },
       "top_blocker": null,
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
-      "base_value": null,
-      "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
-      "latest_price": 8.2,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
-      "mechanical_trigger_keys": [],
-      "monitoring_flags": [],
-      "new_trigger_keys": [],
-      "orders": 0,
-      "position_state": "FLAT",
-      "price_as_of": "2026-10-27",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
-      "ready_for_user_decision": false,
-      "security_id": "000530.SZ",
-      "security_name": "冰山冷热",
-      "semantic_watch": {
-        "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
-        "semantic_reunderwrite_required_before_state_change": true
-      },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -988,9 +988,7 @@
     {
       "accounts": [],
       "base_value": 14.3,
-      "cleared_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
-      ],
+      "cleared_trigger_keys": [],
       "current_action": "BUY_BELOW",
       "entry_price": 12.4,
       "expected_return": 0.0314533622559654,
@@ -1071,27 +1069,27 @@
       "accounts": [],
       "base_value": 6.08,
       "cleared_trigger_keys": [
-        "BUY_BELOW_PRICE_CONDITION_MET"
+        "NEW_CAPITAL_ACTION_BUY"
       ],
-      "current_action": "BUY",
+      "current_action": "BUY_BELOW",
       "entry_price": 5.33,
       "expected_return": 0.164448669201521,
       "latest_price": 5.26,
-      "lifecycle_state": "FLAT_BUY_REVIEW",
+      "lifecycle_state": "FLAT_PRICE_REUNDERWRITE",
       "mark_expected_return": 0.164448669201521,
       "mechanical_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
+        "BUY_BELOW_PRICE_CONDITION_MET"
       ],
       "monitoring_flags": [],
       "new_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
+        "BUY_BELOW_PRICE_CONDITION_MET"
       ],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-10-27",
       "price_source": "A_SHARE_FULL_MARKET",
       "probability_weighted_value": 6.125,
-      "ready_for_user_decision": true,
+      "ready_for_user_decision": false,
       "security_id": "301175.SZ",
       "security_name": "中科环保",
       "semantic_watch": {
@@ -1111,7 +1109,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
       "trade_authority": "NONE"
     },
     {
@@ -1363,27 +1361,27 @@
       "accounts": [],
       "base_value": 11.99,
       "cleared_trigger_keys": [
-        "BUY_BELOW_PRICE_CONDITION_MET"
+        "NEW_CAPITAL_ACTION_BUY"
       ],
-      "current_action": "BUY",
+      "current_action": "BUY_BELOW",
       "entry_price": 10.43,
       "expected_return": 0.1684518013631937,
       "latest_price": 10.27,
-      "lifecycle_state": "FLAT_BUY_REVIEW",
+      "lifecycle_state": "FLAT_PRICE_REUNDERWRITE",
       "mark_expected_return": 0.1684518013631937,
       "mechanical_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
+        "BUY_BELOW_PRICE_CONDITION_MET"
       ],
       "monitoring_flags": [],
       "new_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
+        "BUY_BELOW_PRICE_CONDITION_MET"
       ],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-10-27",
       "price_source": "A_SHARE_FULL_MARKET",
       "probability_weighted_value": 12.0,
-      "ready_for_user_decision": true,
+      "ready_for_user_decision": false,
       "security_id": "600428.SH",
       "security_name": "中远海特",
       "semantic_watch": {
@@ -1403,7 +1401,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
       "trade_authority": "NONE"
     },
     {
@@ -1749,7 +1747,7 @@
       "current_action": "WATCH",
       "entry_price": null,
       "expected_return": null,
-      "latest_price": 13.2,
+      "latest_price": 8.34,
       "lifecycle_state": "FLAT_WATCH",
       "mark_expected_return": null,
       "mechanical_trigger_keys": [],
@@ -1761,8 +1759,8 @@
       "price_source": "A_SHARE_FULL_MARKET",
       "probability_weighted_value": null,
       "ready_for_user_decision": false,
-      "security_id": "601857.SH",
-      "security_name": "中国石油",
+      "security_id": "601328.SH",
+      "security_name": "交通银行",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
         "catalysts": [],
@@ -1776,27 +1774,27 @@
       "accounts": [],
       "base_value": 13.68,
       "cleared_trigger_keys": [
-        "BUY_BELOW_PRICE_CONDITION_MET"
+        "NEW_CAPITAL_ACTION_BUY"
       ],
-      "current_action": "BUY",
+      "current_action": "BUY_BELOW",
       "entry_price": 12.13,
       "expected_return": 0.2217600700525395,
       "latest_price": 11.42,
-      "lifecycle_state": "FLAT_BUY_REVIEW",
+      "lifecycle_state": "FLAT_PRICE_REUNDERWRITE",
       "mark_expected_return": 0.2217600700525395,
       "mechanical_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
+        "BUY_BELOW_PRICE_CONDITION_MET"
       ],
       "monitoring_flags": [],
       "new_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
+        "BUY_BELOW_PRICE_CONDITION_MET"
       ],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-10-27",
       "price_source": "A_SHARE_FULL_MARKET",
       "probability_weighted_value": 13.9525,
-      "ready_for_user_decision": true,
+      "ready_for_user_decision": false,
       "security_id": "601886.SH",
       "security_name": "江河集团",
       "semantic_watch": {
@@ -1816,7 +1814,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
       "trade_authority": "NONE"
     },
     {
@@ -1903,36 +1901,6 @@
     },
     {
       "accounts": [],
-      "base_value": null,
-      "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
-      "latest_price": 7.02,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
-      "mechanical_trigger_keys": [],
-      "monitoring_flags": [],
-      "new_trigger_keys": [],
-      "orders": 0,
-      "position_state": "FLAT",
-      "price_as_of": "2026-10-27",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
-      "ready_for_user_decision": false,
-      "security_id": "601988.SH",
-      "security_name": "中国银行",
-      "semantic_watch": {
-        "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-        "semantic_reunderwrite_required_before_state_change": true
-      },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
       "base_value": 135.0,
       "cleared_trigger_keys": [],
       "current_action": "AVOID",
@@ -2012,26 +1980,24 @@
     {
       "accounts": [],
       "base_value": 25.63,
-      "cleared_trigger_keys": [],
-      "current_action": "BUY",
+      "cleared_trigger_keys": [
+        "NEW_CAPITAL_ACTION_BUY"
+      ],
+      "current_action": "BUY_BELOW",
       "entry_price": 21.5,
       "expected_return": 0.19348127600554776,
       "latest_price": 21.63,
-      "lifecycle_state": "FLAT_BUY_REVIEW",
+      "lifecycle_state": "FLAT_WAIT_BUY_BELOW",
       "mark_expected_return": 0.19348127600554776,
-      "mechanical_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
-      ],
+      "mechanical_trigger_keys": [],
       "monitoring_flags": [],
-      "new_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-10-27",
       "price_source": "A_SHARE_FULL_MARKET",
       "probability_weighted_value": 25.814999999999998,
-      "ready_for_user_decision": true,
+      "ready_for_user_decision": false,
       "security_id": "603995.SH",
       "security_name": "甬金股份",
       "semantic_watch": {
@@ -2050,7 +2016,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
       "trade_authority": "NONE"
     },
     {
@@ -2096,6 +2062,36 @@
       },
       "top_blocker": null,
       "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "base_value": null,
+      "cleared_trigger_keys": [],
+      "current_action": "WATCH",
+      "entry_price": null,
+      "expected_return": null,
+      "latest_price": 4.03,
+      "lifecycle_state": "FLAT_WATCH",
+      "mark_expected_return": null,
+      "mechanical_trigger_keys": [],
+      "monitoring_flags": [],
+      "new_trigger_keys": [],
+      "orders": 0,
+      "position_state": "FLAT",
+      "price_as_of": "2026-10-27",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "probability_weighted_value": null,
+      "ready_for_user_decision": false,
+      "security_id": "688425.SH",
+      "security_name": "铁建重工",
+      "semantic_watch": {
+        "automatic_keyword_inference_authorized": false,
+        "catalysts": [],
+        "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+        "semantic_reunderwrite_required_before_state_change": true
+      },
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "trade_authority": "NONE"
     }
   ],
   "summary": {
@@ -2105,11 +2101,11 @@
     "held_subject_count": 23,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 2,
-    "reunderwrite_required_count": 4,
-    "review_queue_count": 16,
-    "semantic_watch_clause_count": 711,
+    "reunderwrite_required_count": 7,
+    "review_queue_count": 15,
+    "semantic_watch_clause_count": 702,
     "subject_count": 51,
-    "user_action_review_count": 10,
+    "user_action_review_count": 6,
     "valuation_reunderwrite_count": 4
   },
   "trade_authority": "NONE"
