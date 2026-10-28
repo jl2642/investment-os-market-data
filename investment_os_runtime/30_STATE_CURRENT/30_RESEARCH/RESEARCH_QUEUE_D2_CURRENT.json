@@ -227,7 +227,7 @@
       "decision_mutation_authorized": false,
       "first_rejection": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
       "input_watermark": "5b31108324df2d38bf7d72ee0b589343bc5bf273080b14aae5b8375a106dff42",
-      "last_attempt_at": "2026-10-27T16:19:43+00:00",
+      "last_attempt_at": "2026-10-28T01:48:00+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
@@ -235,25 +235,91 @@
       "security_name": "百亚股份",
       "semantic_input_watermark": "2e82fa8587db925f0e2952c5184b02ed7e98d6f12611e65798fd794a4415133e",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
-      "semantic_research_required": true,
-      "semantic_reuse_source": null,
+      "semantic_research_required": false,
+      "semantic_reuse_source": "DURABLE_SEMANTIC_ARTIFACT",
       "simulation_mutation_authorized": false,
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_003006_20261028_R1.json",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_2026Q3_LOSS_AND_CHANNEL_SPEND_OUTRUN_BRAND_REVENUE_PRICE_OVERDISCOUNTS_RECOVERY",
+      "first_rejection_test": "FAIL_LIQUID_BREAKOUT_PRIMARY_SOURCE_FUNDAMENTAL_INFLECTION_2026Q3_ATTRIBUTABLE_LOSS_AND_9M_SELLING_EXPENSE_GROWTH_GT_REVENUE; FAIL_20261027_VALUATION_EXPECTED_RETURN_GATE",
+      "next_gate": "AVOID_NO_BUY_ON_PRICE_ALONE; REUNDERWRITE_AFTER_TWO_QUARTERS_CORE_CHANNEL_SELL_THROUGH_AND_INCREMENTAL_PROFIT_RECOVERY_PLUS_POSITIVE_OWNER_CASH; PRICE_BELOW_VALUATION_HURDLE_REQUIRES_FRESH_D2_AND_PORTFOLIO_FIT",
+      "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH_WITH_2026Q3_DISCLOSURE_AND_20261023_MANAGEMENT_CALL",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false
+      },
+      "underwriting": {
+        "current_price": 23.02,
+        "price_as_of": "2026-10-27",
+        "entry_price": 13.8435,
+        "formal_buy_entry_price_10pct": 14.4727,
+        "confidence": "MEDIUM",
+        "valuation_method": "NORMALIZED_2027_ATTRIBUTABLE_EARNINGS_PE_SCENARIOS_WITH_2026Q3_RECOVERY_GATE",
+        "normalized_earnings_basis": {
+          "metric": "2027_SUSTAINABLE_ATTRIBUTABLE_NET_PROFIT_RMB_M",
+          "bear": 150,
+          "base": 260,
+          "bull": 360,
+          "prior_fy2025_approx_rmb_m": 208,
+          "prior_fy2024_approx_rmb_m": 288,
+          "rationale": "Scenarios are analyst recovery assumptions rather than issuer guidance. Base requires regained core-region sales and materially better selling-expense productivity; bull exceeds prior peak and needs evidence. Valuation excludes uncertain growth beyond the explicit 12-18 month horizon."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "normalized_attributable_profit_rmb_m": 150,
+            "pe_multiple": 18,
+            "probability": 0.3,
+            "value_per_share": 6.2842
+          },
+          {
+            "name": "BASE",
+            "normalized_attributable_profit_rmb_m": 260,
+            "pe_multiple": 27,
+            "probability": 0.5,
+            "value_per_share": 16.339
+          },
+          {
+            "name": "BULL",
+            "normalized_attributable_profit_rmb_m": 360,
+            "pe_multiple": 35,
+            "probability": 0.2,
+            "value_per_share": 29.3263
+          }
+        ],
+        "probability_weighted_value": 15.92,
+        "expected_return": -0.308427,
+        "bear_downside": -0.727011,
+        "action": "AVOID",
+        "catalysts": [
+          "Two consecutive quarters of core five-province sell-through and shipments normalizing without channel stuffing.",
+          "Non-core provinces maintain profitable double-digit expansion while incremental marketing spend produces positive incremental operating profit.",
+          "Gross-margin gains survive promotion competition and quarterly attributable earnings return sustainably positive.",
+          "Operating cash flow less maintenance capex remains positive without receivables or platform settlement deterioration."
+        ],
+        "kill_thesis": [
+          "Core-province inventory/channel transition lasts beyond the planned normalization period or local brand share declines.",
+          "Selling expense ratio remains above 40% without corresponding revenue and normalized EBIT growth.",
+          "Further negative attributable quarters, persistent net working-capital consumption or increased receivable impairments.",
+          "Marketing spend and product innovation fail to deliver a defendable premium as channel price competition intensifies."
+        ]
+      }
     }
   ],
   "schema_version": "1.1.0",
   "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_8ce11c320ca1525a",
   "state_id": "RESEARCH_QUEUE_D2_CURRENT_c346f53d3f14f190",
-  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
+  "status": "D2_AUTO_CONSUMER_COMPLETE",
   "summary": {
     "ai_book_auto_reunderwrite_pending_count": 0,
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 2,
+    "completed_count": 3,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 1,
+    "pending_count": 0,
     "provider_incident_active": false,
     "reused_completed_count": 2,
     "routed_count": 3
