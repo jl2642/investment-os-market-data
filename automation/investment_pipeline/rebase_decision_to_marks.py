@@ -145,7 +145,7 @@ def _action_for_status(
         if existing:
             return "ADD" if str(previous_action or "").upper() == "ADD" else "HOLD"
         return "BUY"
-    if status == "PRICE_BLOCKED":
+    if status in {"PRICE_BLOCKED", "FRESH_D2_REQUIRED_ON_PRICE_CROSS"}:
         return "HOLD" if existing else "BUY_BELOW"
     return "HOLD" if existing else "WATCH"
 
@@ -162,6 +162,7 @@ def _blocker_for_status(status: str) -> str | None:
         "UNDERWRITING_INCOMPLETE",
         "RESEARCH_REFRESH_PENDING",
         "PRICE_FRESHNESS_BLOCKED",
+        "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
         "CAPITAL_NOT_COMPETITIVE",
     }:
         return status
@@ -181,6 +182,10 @@ def rebase_decisions(
 
     comparison = json.loads(json.dumps(comparison))
     recommendation = json.loads(json.dumps(recommendation))
+    previous_actions = {
+        str(rec.get("security_id") or ""): str(rec.get("action") or "").upper()
+        for rec in recommendation.get("records", []) or []
+    }
 
     comp_by_id: dict[str, dict[str, Any]] = {}
     for row in comparison.get("rows", []) or []:
@@ -217,12 +222,23 @@ def rebase_decisions(
                     "A_SHARE_FULL_MARKET" if market_rows is not None else "PORTFOLIO_MARKS_CURRENT"
                 )
                 row["comparison_status"] = _recompute_comparison_status(row, metrics)
+                # A legacy BUY_BELOW crossing its price gate is a research
+                # trigger, never a new decision-grade BUY authorization.
+                if (
+                    market_rows is not None
+                    and not existing
+                    and previous_actions.get(sid) == "BUY_BELOW"
+                    and row["comparison_status"] == "PASS_NEW_CAPITAL"
+                ):
+                    row["comparison_status"] = "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
                 repriced = True
         if missing_current_market or (market_rows is not None and not existing and not repriced):
             row["comparison_status"] = "PRICE_FRESHNESS_BLOCKED"
         if sid in pending:
             row["comparison_status"] = "RESEARCH_REFRESH_PENDING"
             row["research_freshness"] = "RESEARCH_REFRESH_PENDING"
+        elif row.get("comparison_status") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS":
+            row["research_freshness"] = "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
         else:
             row["research_freshness"] = "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH"
         comp_by_id[sid] = row
@@ -303,6 +319,7 @@ def rebase_decisions(
             "UNDERWRITING_INCOMPLETE",
             "RESEARCH_REFRESH_PENDING",
             "PRICE_FRESHNESS_BLOCKED",
+            "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
             "CAPITAL_NOT_COMPETITIVE",
         }
         reasons = [
