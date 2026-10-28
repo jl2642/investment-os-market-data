@@ -197,6 +197,7 @@ def rebase_decisions(
                 not mark or (market_watermark and str(mark.get("as_of_date") or "") != market_watermark)
             )
         )
+        repriced = False
         if metrics and mark and not missing_current_market:
             current = _num(metrics.get("current_price"))
             fair = _num(metrics.get("probability_weighted_value"))
@@ -216,7 +217,8 @@ def rebase_decisions(
                     "A_SHARE_FULL_MARKET" if market_rows is not None else "PORTFOLIO_MARKS_CURRENT"
                 )
                 row["comparison_status"] = _recompute_comparison_status(row, metrics)
-        if missing_current_market:
+                repriced = True
+        if missing_current_market or (market_rows is not None and not existing and not repriced):
             row["comparison_status"] = "PRICE_FRESHNESS_BLOCKED"
         if sid in pending:
             row["comparison_status"] = "RESEARCH_REFRESH_PENDING"
