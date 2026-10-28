@@ -32,7 +32,7 @@
     "603995.SH"
   ],
   "deployment_discipline": {
-    "capacity_constrained_max_deployed_weight": 0.3,
+    "capacity_constrained_max_deployed_weight": 0.2987895034133467,
     "cash_weight": 0.701346424322178,
     "cumulative_decision_grade_d2_count": 26,
     "cumulative_decision_grade_d2_ids": [
@@ -70,8 +70,12 @@
       "002936.SZ",
       "300230.SZ",
       "301109.SZ",
+      "301175.SZ",
+      "600428.SH",
       "600919.SH",
-      "601939.SH"
+      "601886.SH",
+      "601939.SH",
+      "603995.SH"
     ],
     "current_decision_grade_d2_ids": [
       "000608.SZ",
@@ -101,64 +105,24 @@
       "603995.SH"
     ],
     "current_eligible_buy_ids": [
-      "001227.SZ",
-      "301175.SZ",
-      "600428.SH",
-      "601886.SH",
-      "603995.SH"
+      "001227.SZ"
     ],
     "deployed_weight": 0.298653575677822,
     "deployment_status": "OPPORTUNITY_RESEARCH_REVIEW_REQUIRED",
     "eligible_deployable_capacity_by_security": [
       {
-        "allocatable_incremental_weight": 0.0013464243221779637,
-        "current_weight": 0.0,
-        "risk_group": "A_SHARE_STOCK",
-        "risk_group_headroom_before": 0.0013464243221779637,
-        "security_id": "601886.SH",
-        "security_name": "江河集团",
-        "single_name_headroom": 0.1
-      },
-      {
-        "allocatable_incremental_weight": 0.0,
-        "current_weight": 0.0,
-        "risk_group": "A_SHARE_STOCK",
-        "risk_group_headroom_before": 0.0,
-        "security_id": "301175.SZ",
-        "security_name": "中科环保",
-        "single_name_headroom": 0.1
-      },
-      {
-        "allocatable_incremental_weight": 0.0,
-        "current_weight": 0.0,
-        "risk_group": "A_SHARE_STOCK",
-        "risk_group_headroom_before": 0.0,
-        "security_id": "600428.SH",
-        "security_name": "中远海特",
-        "single_name_headroom": 0.1
-      },
-      {
-        "allocatable_incremental_weight": 0.0,
-        "current_weight": 0.0,
-        "risk_group": "A_SHARE_STOCK",
-        "risk_group_headroom_before": 0.0,
-        "security_id": "603995.SH",
-        "security_name": "甬金股份",
-        "single_name_headroom": 0.1
-      },
-      {
-        "allocatable_incremental_weight": 0.0,
+        "allocatable_incremental_weight": 0.00013592773552467685,
         "current_weight": 0.09986407226447533,
         "risk_group": "A_SHARE_STOCK",
-        "risk_group_headroom_before": 0.0,
+        "risk_group_headroom_before": 0.0013464243221779637,
         "security_id": "001227.SZ",
         "security_name": "兰州银行",
         "single_name_headroom": 0.00013592773552467685
       }
     ],
-    "eligible_incremental_deployable_capacity_weight": 0.0013464243221779637,
+    "eligible_incremental_deployable_capacity_weight": 0.00013592773552467685,
     "experiment_trading_day": 35,
-    "high_cash_reason": "PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE",
+    "high_cash_reason": "INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS",
     "next_gate_trading_day": 40,
     "orders": 0,
     "position_count": 3,
@@ -184,7 +148,7 @@
     "trading_days_to_next_gate": 5,
     "triggered_gates": [
       "DAY20_DEPLOYMENT_REVIEW",
-      "DEPLOYMENT_BELOW_30PCT_WITH_SUFFICIENT_ELIGIBLE_CAPACITY",
+      "DAY20_CAPACITY_CONSTRAINED",
       "OPPORTUNITY_STARVATION_REVIEW_REQUIRED"
     ]
   },
