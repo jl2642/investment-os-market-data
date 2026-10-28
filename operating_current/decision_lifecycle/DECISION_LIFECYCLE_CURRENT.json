@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-10-28T01:42:59+00:00",
+  "generated_at_utc": "2026-10-28T02:06:45+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-10-27",
-    "recommendation_generated_at_utc": "2026-10-28T01:37:09+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_30203aabfdd244ba",
+    "recommendation_generated_at_utc": "2026-10-28T02:00:24+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_5e19b4e736b91e2b",
     "surface_as_of_date": "2026-10-27",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_6a73d7a804ba4fa7"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_21bde5f10080f54f"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_c45e7dd520c034e2",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_d632ac8a026fa5c6",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -393,14 +393,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 16.339,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "AVOID",
+      "entry_price": 13.8435,
+      "expected_return": -0.3084265855777585,
       "latest_price": 23.02,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_AVOID",
+      "mark_expected_return": -0.3084265855777585,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -408,17 +408,27 @@
       "position_state": "FLAT",
       "price_as_of": "2026-10-27",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 15.92002,
       "ready_for_user_decision": false,
       "security_id": "003006.SZ",
       "security_name": "百亚股份",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
+        "catalysts": [
+          "Two consecutive quarters of core five-province sell-through and shipments normalizing without channel stuffing.",
+          "Non-core provinces maintain profitable double-digit expansion while incremental marketing spend produces positive incremental operating profit.",
+          "Gross-margin gains survive promotion competition and quarterly attributable earnings return sustainably positive.",
+          "Operating cash flow less maintenance capex remains positive without receivables or platform settlement deterioration."
+        ],
+        "kill_thesis": [
+          "Core-province inventory/channel transition lasts beyond the planned normalization period or local brand share declines.",
+          "Selling expense ratio remains above 40% without corresponding revenue and normalized EBIT growth.",
+          "Further negative attributable quarters, persistent net working-capital consumption or increased receivable impairments.",
+          "Marketing spend and product innovation fail to deliver a defendable premium as channel price competition intensifies."
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -1991,7 +2001,7 @@
     "portfolio_review_required_count": 2,
     "reunderwrite_required_count": 7,
     "review_queue_count": 16,
-    "semantic_watch_clause_count": 452,
+    "semantic_watch_clause_count": 324,
     "subject_count": 48,
     "user_action_review_count": 7,
     "valuation_reunderwrite_count": 4
