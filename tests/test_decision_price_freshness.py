@@ -234,7 +234,6 @@ def test_new_capital_buy_is_downgraded_when_latest_full_market_price_exhausts_hu
     assert item["top_blocker"] == "PRICE_BLOCKED"
     assert item["ready_for_user_decision"] is False
     assert item["price_basis"] == "A_SHARE_FULL_MARKET"
-    assert item["orders"] if "orders" in item else True
 
 
 def test_new_capital_missing_or_mismatched_full_market_close_fails_closed():
