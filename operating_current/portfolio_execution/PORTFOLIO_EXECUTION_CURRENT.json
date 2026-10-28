@@ -45,7 +45,7 @@
     },
     "current_nav": 1007839.9339999995,
     "deployment_discipline": {
-      "capacity_constrained_max_deployed_weight": 0.2999880998960298,
+      "capacity_constrained_max_deployed_weight": 0.3,
       "cash_weight": 0.701346424322178,
       "cumulative_decision_grade_d2_count": 26,
       "cumulative_decision_grade_d2_ids": [
@@ -78,14 +78,13 @@
       ],
       "current_auto_reunderwrite_candidate_ids": [],
       "current_buy_below_ids": [
+        "000900.SZ",
         "002832.SZ",
+        "002936.SZ",
         "300230.SZ",
-        "301175.SZ",
-        "600428.SH",
+        "301109.SZ",
         "600919.SH",
-        "601886.SH",
-        "601939.SH",
-        "603995.SH"
+        "601939.SH"
       ],
       "current_decision_grade_d2_ids": [
         "000608.SZ",
@@ -116,33 +115,63 @@
       ],
       "current_eligible_buy_ids": [
         "001227.SZ",
-        "301109.SZ"
+        "301175.SZ",
+        "600428.SH",
+        "601886.SH",
+        "603995.SH"
       ],
       "deployed_weight": 0.298653575677822,
       "deployment_status": "OPPORTUNITY_RESEARCH_REVIEW_REQUIRED",
       "eligible_deployable_capacity_by_security": [
         {
-          "allocatable_incremental_weight": 0.00013592773552467685,
-          "current_weight": 0.09986407226447533,
+          "allocatable_incremental_weight": 0.0013464243221779637,
+          "current_weight": 0.0,
           "risk_group": "A_SHARE_STOCK",
           "risk_group_headroom_before": 0.0013464243221779637,
+          "security_id": "601886.SH",
+          "security_name": "江河集团",
+          "single_name_headroom": 0.1
+        },
+        {
+          "allocatable_incremental_weight": 0.0,
+          "current_weight": 0.0,
+          "risk_group": "A_SHARE_STOCK",
+          "risk_group_headroom_before": 0.0,
+          "security_id": "301175.SZ",
+          "security_name": "中科环保",
+          "single_name_headroom": 0.1
+        },
+        {
+          "allocatable_incremental_weight": 0.0,
+          "current_weight": 0.0,
+          "risk_group": "A_SHARE_STOCK",
+          "risk_group_headroom_before": 0.0,
+          "security_id": "600428.SH",
+          "security_name": "中远海特",
+          "single_name_headroom": 0.1
+        },
+        {
+          "allocatable_incremental_weight": 0.0,
+          "current_weight": 0.0,
+          "risk_group": "A_SHARE_STOCK",
+          "risk_group_headroom_before": 0.0,
+          "security_id": "603995.SH",
+          "security_name": "甬金股份",
+          "single_name_headroom": 0.1
+        },
+        {
+          "allocatable_incremental_weight": 0.0,
+          "current_weight": 0.09986407226447533,
+          "risk_group": "A_SHARE_STOCK",
+          "risk_group_headroom_before": 0.0,
           "security_id": "001227.SZ",
           "security_name": "兰州银行",
           "single_name_headroom": 0.00013592773552467685
-        },
-        {
-          "allocatable_incremental_weight": 0.001198596482683098,
-          "current_weight": 0.09880140351731691,
-          "risk_group": "A_SHARE_STOCK",
-          "risk_group_headroom_before": 0.0012104965866532869,
-          "security_id": "301109.SZ",
-          "security_name": "军信股份",
-          "single_name_headroom": 0.001198596482683098
         }
       ],
-      "eligible_incremental_deployable_capacity_weight": 0.001334524218207775,
+      "eligible_incremental_deployable_capacity_weight": 0.0013464243221779637,
       "experiment_trading_day": 35,
-      "high_cash_reason": "INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS",
+      "high_cash_reason": "PORTFOLIO_CONSTRAINTS_CASH_FLOOR_OR_LOT_SIZE",
       "next_gate_trading_day": 40,
       "orders": 0,
       "position_count": 3,
@@ -168,7 +197,7 @@
       "trading_days_to_next_gate": 5,
       "triggered_gates": [
         "DAY20_DEPLOYMENT_REVIEW",
-        "DAY20_CAPACITY_CONSTRAINED",
+        "DEPLOYMENT_BELOW_30PCT_WITH_SUFFICIENT_ELIGIBLE_CAPACITY",
         "OPPORTUNITY_STARVATION_REVIEW_REQUIRED"
       ]
     },
@@ -192,7 +221,7 @@
       "001227.SZ": {
         "action": "BUY",
         "risk_group": "A_SHARE_STOCK",
-        "score": 0.11649317369145984,
+        "score": 0.1003701191506336,
         "security_name": "兰州银行",
         "target_weight": 0.1
       },
@@ -204,11 +233,39 @@
         "target_weight": 0.1
       },
       "301109.SZ": {
+        "action": "NO_CURRENT_ELIGIBLE_THESIS",
+        "risk_group": "A_SHARE_STOCK",
+        "score": 0.0,
+        "security_name": "军信股份",
+        "target_weight": 0.0
+      },
+      "301175.SZ": {
         "action": "BUY",
         "risk_group": "A_SHARE_STOCK",
-        "score": 0.07968166089965403,
-        "security_name": "军信股份",
+        "score": 0.11423867628561934,
+        "security_name": "中科环保",
         "target_weight": 0.09999999999999998
+      },
+      "600428.SH": {
+        "action": "BUY",
+        "risk_group": "A_SHARE_STOCK",
+        "score": 0.10761560552521071,
+        "security_name": "中远海特",
+        "target_weight": 0.0
+      },
+      "601886.SH": {
+        "action": "BUY",
+        "risk_group": "A_SHARE_STOCK",
+        "score": 0.13544452614855193,
+        "security_name": "江河集团",
+        "target_weight": 0.0
+      },
+      "603995.SH": {
+        "action": "BUY",
+        "risk_group": "A_SHARE_STOCK",
+        "score": 0.10376249660954019,
+        "security_name": "甬金股份",
+        "target_weight": 0.0
       }
     }
   },
@@ -227,10 +284,10 @@
     "target_weight_engine": true,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-10-28T02:10:02+00:00",
+  "generated_at_utc": "2026-10-28T12:18:43+00:00",
   "orders": 0,
-  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_7524eb387754bd2a",
-  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_fe7b1436affa6667",
+  "phase3_id": "PORTFOLIO_EXECUTION_CURRENT_7ca5d77c6513e6fc",
+  "phase3_id_before_execution_episode_guard": "PORTFOLIO_EXECUTION_CURRENT_a022fa973bde82bc",
   "protected_execution_episode_guard": {
     "ai_autonomous_1m_affected": false,
     "diagnostics": [
@@ -245,7 +302,7 @@
       {
         "account": "SIMULATION",
         "action": "ADD",
-        "episode_key": "c7d10d642a910efe6613",
+        "episode_key": "c844181ec9e85eaedf8f",
         "guard_result": "SUPPRESS_REPEAT_ADD_TRIM",
         "matched_user_delta_id": "SIM_20260917_BUY_600309_100",
         "security_id": "600309.SH"
@@ -253,7 +310,7 @@
       {
         "account": "SIMULATION",
         "action": "TRIM",
-        "episode_key": "c83f377a945279f7f91a",
+        "episode_key": "f7a5eda65cfaecac835f",
         "guard_result": "SUPPRESS_REPEAT_ADD_TRIM",
         "matched_user_delta_id": "SIM_20260923_SELL_600941_200",
         "security_id": "600941.SH"
@@ -726,7 +783,7 @@
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 800.0,
           "current_weight": 0.05771423226259024,
-          "execution_episode_key": "c7d10d642a910efe6613",
+          "execution_episode_key": "c844181ec9e85eaedf8f",
           "matched_user_delta_id": "SIM_20260917_BUY_600309_100",
           "orders": 0,
           "price": 70.33,
@@ -830,7 +887,7 @@
           "asset_class": "A_SHARE_STOCK",
           "current_quantity": 100.0,
           "current_weight": 0.010329559200986133,
-          "execution_episode_key": "c83f377a945279f7f91a",
+          "execution_episode_key": "f7a5eda65cfaecac835f",
           "matched_user_delta_id": "SIM_20260923_SELL_600941_200",
           "orders": 0,
           "price": 100.7,
@@ -1032,7 +1089,7 @@
           "current_price": 70.33,
           "current_quantity": 800.0,
           "current_weight": 0.05771423226259024,
-          "execution_episode_key": "c7d10d642a910efe6613",
+          "execution_episode_key": "c844181ec9e85eaedf8f",
           "expected_return": 0.18868192805346218,
           "matched_user_delta_id": "SIM_20260917_BUY_600309_100",
           "research_score": 0.11589733103809992,
@@ -1150,7 +1207,7 @@
           "current_price": 100.7,
           "current_quantity": 100.0,
           "current_weight": 0.010329559200986133,
-          "execution_episode_key": "c83f377a945279f7f91a",
+          "execution_episode_key": "f7a5eda65cfaecac835f",
           "expected_return": -0.04858490566037732,
           "matched_user_delta_id": "SIM_20260923_SELL_600941_200",
           "research_score": 0.0,
