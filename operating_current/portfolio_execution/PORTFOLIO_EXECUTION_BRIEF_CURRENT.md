@@ -9,7 +9,7 @@
 - AI累计收益：0.78%
 - AI最大回撤：-1.11%
 - AI部署阶段：第 35 个完整观察交易日 / OPPORTUNITY_RESEARCH_REVIEW_REQUIRED
-- AI累计 decision-grade D2：23
+- AI累计 decision-grade D2：25
 - 距下一 deployment gate：5 个交易日
 - 高现金原因：INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS
 - Real / legacy Simulation 自动改仓：false
