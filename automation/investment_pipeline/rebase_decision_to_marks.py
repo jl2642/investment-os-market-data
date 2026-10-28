@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 from pathlib import Path
@@ -53,6 +54,28 @@ def _mark_map(marks: dict[str, Any]) -> tuple[dict[str, dict[str, Any]], str | N
             continue
         rows[sid] = {**row, "resolved_mark": price}
     return rows, str(watermark) if watermark else None
+
+
+def load_full_market_snapshot(path: str | Path, watermark: str) -> dict[str, dict[str, Any]]:
+    """Completed-session market close; never substitute a D2 snapshot for missing prices."""
+    if not watermark:
+        raise ValueError("FULL_MARKET_WATERMARK_MISSING")
+    rows: dict[str, dict[str, Any]] = {}
+    with Path(path).open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            sid = str(row.get("symbol") or row.get("security_id") or "").strip()
+            price = _num(row.get("close") or row.get("last") or row.get("price"))
+            as_of = str(row.get("as_of_date") or row.get("date") or watermark)
+            if not sid or price is None or price <= 0 or as_of != watermark:
+                continue
+            rows[sid] = {
+                "resolved_mark": price,
+                "as_of_date": as_of,
+                "price_source": "A_SHARE_FULL_MARKET",
+            }
+    if not rows:
+        raise ValueError("FULL_MARKET_SNAPSHOT_EMPTY_OR_DATE_MISMATCH")
+    return rows
 
 
 def _pending_ids(raw_d2: dict[str, Any]) -> set[str]:
@@ -108,7 +131,7 @@ def _action_for_status(
     existing: bool,
     previous_action: str | None = None,
 ) -> str:
-    if status == "RESEARCH_REFRESH_PENDING":
+    if status in {"RESEARCH_REFRESH_PENDING", "PRICE_FRESHNESS_BLOCKED"}:
         return "HOLD" if existing else "WATCH"
     if status == "AVOID_INVALIDATION_TRIGGERED":
         return "EXIT" if existing else "AVOID"
@@ -138,6 +161,7 @@ def _blocker_for_status(status: str) -> str | None:
         "UNDERWRITING_PENDING",
         "UNDERWRITING_INCOMPLETE",
         "RESEARCH_REFRESH_PENDING",
+        "PRICE_FRESHNESS_BLOCKED",
         "CAPITAL_NOT_COMPETITIVE",
     }:
         return status
@@ -149,6 +173,8 @@ def rebase_decisions(
     recommendation: dict[str, Any],
     marks: dict[str, Any],
     raw_d2: dict[str, Any],
+    market_rows: dict[str, dict[str, Any]] | None = None,
+    market_watermark: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     marks_by_id, watermark = _mark_map(marks)
     pending = _pending_ids(raw_d2)
@@ -160,8 +186,18 @@ def rebase_decisions(
     for row in comparison.get("rows", []) or []:
         sid = str(row.get("security_id") or "")
         metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else None
-        mark = marks_by_id.get(sid)
-        if metrics and mark:
+        # Holdings use exact Portfolio Marks; unheld new-capital candidates MUST
+        # be independently priced from the completed-session full-market snapshot.
+        existing = bool(row.get("existing_position"))
+        mark = marks_by_id.get(sid) if existing else (
+            market_rows.get(sid) if market_rows is not None else marks_by_id.get(sid)
+        )
+        missing_current_market = (
+            market_rows is not None and not existing and (
+                not mark or (market_watermark and str(mark.get("as_of_date") or "") != market_watermark)
+            )
+        )
+        if metrics and mark and not missing_current_market:
             current = _num(metrics.get("current_price"))
             fair = _num(metrics.get("probability_weighted_value"))
             bear = _num(metrics.get("bear_value"))
@@ -176,8 +212,12 @@ def rebase_decisions(
                 metrics["current_price"] = latest
                 metrics["expected_return"] = fair / latest - 1.0
                 metrics["bear_downside"] = bear / latest - 1.0
-                metrics["price_basis"] = "PORTFOLIO_MARKS_CURRENT"
+                metrics["price_basis"] = "PORTFOLIO_MARKS_CURRENT" if existing else (
+                    "A_SHARE_FULL_MARKET" if market_rows is not None else "PORTFOLIO_MARKS_CURRENT"
+                )
                 row["comparison_status"] = _recompute_comparison_status(row, metrics)
+        if missing_current_market:
+            row["comparison_status"] = "PRICE_FRESHNESS_BLOCKED"
         if sid in pending:
             row["comparison_status"] = "RESEARCH_REFRESH_PENDING"
             row["research_freshness"] = "RESEARCH_REFRESH_PENDING"
@@ -211,6 +251,8 @@ def rebase_decisions(
         "portfolio_decisions_rebased_to_latest_marks": True,
         "latest_mark_date": watermark,
         "active_semantic_refresh_fails_closed": True,
+        "new_capital_full_market_watermark": market_watermark,
+        "new_capital_price_freshness_fail_closed": market_rows is not None,
     }
     comparison["state_id"] = "CAPITAL_COMPARISON_CURRENT_MARK_REBASED_" + canonical_hash(comparison.get("rows", []))[:16]
 
@@ -258,6 +300,7 @@ def rebase_decisions(
             "UNDERWRITING_PENDING",
             "UNDERWRITING_INCOMPLETE",
             "RESEARCH_REFRESH_PENDING",
+            "PRICE_FRESHNESS_BLOCKED",
             "CAPITAL_NOT_COMPETITIVE",
         }
         reasons = [
@@ -303,13 +346,20 @@ def main() -> int:
     parser.add_argument("--recommendation", required=True)
     parser.add_argument("--portfolio-marks", required=True)
     parser.add_argument("--raw-d2", required=True)
+    parser.add_argument("--market-snapshot")
+    parser.add_argument("--market-watermark")
     args = parser.parse_args()
+    if bool(args.market_snapshot) != bool(args.market_watermark):
+        raise SystemExit("FULL_MARKET_SNAPSHOT_AND_WATERMARK_MUST_BE_SUPPLIED_TOGETHER")
 
     comparison, recommendation = rebase_decisions(
         read_json(args.comparison),
         read_json(args.recommendation),
         read_json(args.portfolio_marks),
         read_json(args.raw_d2),
+        market_rows=load_full_market_snapshot(args.market_snapshot, args.market_watermark)
+        if args.market_snapshot else None,
+        market_watermark=args.market_watermark,
     )
     write_json(args.comparison, comparison)
     write_json(args.recommendation, recommendation)
