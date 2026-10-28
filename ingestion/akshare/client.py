@@ -92,7 +92,8 @@ def _fetch_market_wide_spot() -> SourceCall:
     eastmoney = _call_with_retry(
         "stock_zh_a_spot_em",
         ak.stock_zh_a_spot_em,
-        attempts=1,
+        attempts=2,
+        base_sleep_seconds=2.0,
         optional=True,
         volume_unit="LOTS",
     )
@@ -102,8 +103,8 @@ def _fetch_market_wide_spot() -> SourceCall:
     sina = _call_with_retry(
         "stock_zh_a_spot",
         ak.stock_zh_a_spot,
-        attempts=2,
-        base_sleep_seconds=5.0,
+        attempts=3,
+        base_sleep_seconds=3.0,
         optional=True,
         volume_unit="SHARES",
     )
