@@ -4,7 +4,7 @@
 - Recommendation 人工复核项（非执行待办）：6
 - 持仓绩效监控：23 / 23（账户持仓行 24）
 - 当前投资判断覆盖：23 / 23
-- 新机会：28
+- 新机会：31
 - 自动交易：关闭；orders = 0；trade_authority = NONE
 
 ## 1. 当前持仓决策面
@@ -27,7 +27,7 @@
 | 300750.SZ 宁德时代 | SIMULATION | HOLD | 229.14 | 90.8% | — |
 | 510500.SH 中证500ETF南方 | REAL/SIMULATION | HOLD | 6.67 | 26.5% | — |
 | 600036.SH 招商银行 | SIMULATION | HOLD | 42.13 | 6.8% | PRICE_BLOCKED |
-| 600276.SH 恒瑞医药 | SIMULATION | HOLD | 48.36 | 7.5% | — |
+| 600276.SH 恒瑞医药 | SIMULATION | HOLD | 48.36 | 7.5% | PRICE_BLOCKED |
 | 600406.SH 国电南瑞 | SIMULATION | HOLD | 23.34 | 3.3% | PRICE_BLOCKED |
 | 600690.SH 海尔智家 | SIMULATION | HOLD | 19.47 | 20.7% | — |
 | 600900.SH 长江电力 | SIMULATION | HOLD | 29.40 | 5.6% | PRICE_BLOCKED |
@@ -54,6 +54,9 @@
 - BUY_BELOW｜601886.SH 江河集团｜当前价 11.21｜预期收益 24.5%｜阻断 FRESH_D2_REQUIRED_ON_PRICE_CROSS
 - BUY_BELOW｜601939.SH 建设银行｜当前价 11.77｜预期收益 4.7%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜603995.SH 甬金股份｜当前价 22.35｜预期收益 15.5%｜阻断 PRICE_BLOCKED
+- WATCH｜600511.SH 国药股份｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
+- WATCH｜688536.SH 思瑞浦｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
+- WATCH｜688646.SH 逸飞激光｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
 - AVOID｜000089.SZ 深圳机场｜当前价 6.63｜预期收益 -14.8%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜000608.SZ 阳光股份｜当前价 5.97｜预期收益 -53.6%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜000993.SZ 闽东电力｜当前价 11.70｜预期收益 -57.7%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
