@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-28T01:27:00+00:00",
+  "as_of": "2026-10-28T12:24:35+00:00",
   "consumer_policy": {
     "ai_book_near_gate_refresh": "AUTO_ROUTED_TO_CHATGPT_NATIVE_SEMANTIC_D2_WITHOUT_MANUAL_D1_D2_DISPATCH",
     "bounded_batch_size": 3,
@@ -27,7 +27,7 @@
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-      "d1_rank": 3,
+      "d1_rank": 2,
       "d2_questions": [
         "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
         "Compare the opportunity with lower-risk defensive and cash alternatives.",
@@ -36,177 +36,180 @@
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
       "decision_mutation_authorized": false,
-      "evidence_gap": {
-        "manual_user_input_required": false,
-        "material": false,
-        "missing": null
-      },
       "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-      "first_rejection_test": "FAIL_DEFENSIVE_STABILITY_2026Q3_ATTRIBUTABLE_AND_DEDUCTED_LOSSES_POST_CAPEX_CASH_NEGATIVE; DISCOUNT_TO_BOOK_ALONE_NOT_SUFFICIENT",
-      "input_watermark": "b1ac1dcfdd4f6c14c30deae20fd3fe4ceb11ddb124e67ebcedad080852bd49d4",
-      "last_attempt_at": "2026-10-27T16:19:43+00:00",
-      "manual_user_input_required": false,
-      "next_gate": "NO_BUY_ON_PRICE_ONLY; REUNDERWRITE_AFTER_2_CONSECUTIVE_QUARTERS_SUSTAINABLE_ATTRIBUTABLE_PROFIT_AND_POSITIVE_POST_CAPEX_OWNER_CASH_PLUS_PROJECT_ASSET_RECOVERABILITY_VERIFICATION",
+      "input_watermark": "a7c825dcf25cf6e812ed0b20f9363ee57e72bb993c72245af97509e24656b264",
+      "last_attempt_at": "2026-10-28T12:24:35+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "research_disposition": "AVOID_RESEARCH_COMPLETE_DEFENSIVE_LABEL_REJECTED_BY_NEAR_ZERO_ROE_AND_NEGATIVE_POST_CAPEX_CASH",
-      "security_id": "300070.SZ",
-      "security_name": "碧水源",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_300070_20261028_R1.json",
-      "semantic_input_watermark": "3fd730f27c0b0418fd53dd21c82f505b4fc1a248cafc5c24b6d4313fa1d04978",
+      "security_id": "688425.SH",
+      "security_name": "铁建重工",
+      "semantic_input_watermark": "cc089b11a8e945fbf7e86c95e49bd93288731863174476fe430a578333cdc1c2",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
       "semantic_research_required": false,
-      "semantic_reuse_source": "DURABLE_SEMANTIC_ARTIFACT",
+      "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
-      "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH_WITH_NEW_2026Q3_DISCLOSURE",
       "status": "D2_RESEARCH_COMPLETE",
       "trade_authority": "NONE",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_688425_20261029_R1.json",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_DEFENSIVE_LABEL_REJECTED_BY_WEAK_CASH_CONVERSION_AND_DECLINING_NORMALIZED_RETURN",
+      "first_rejection_test": "FAIL_DEFENSIVE_STABILITY_2026Q3_9M_CFO_NEGATIVE_ROE_3_95PCT_AND_RECEIVABLES_INVENTORY_RISING; PRICE_RMB4_05_ABOVE_UNDERWRITTEN_WEIGHTED_VALUE",
+      "next_gate": "NO_PRICE_ONLY_BUY; REUNDERWRITE_ON_MATERIAL_CASH_COLLECTION_ROE_MARGIN_OR_ORDER_QUALITY_CHANGE; FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ANY_BUY",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false
+      },
+      "manual_user_input_required": false,
       "underwriting": {
-        "action": "AVOID",
-        "bear_downside": -0.431299,
-        "catalysts": [
-          "Verified sustained attributable operating profit and positive post-maintenance-capex owner cash flow, not merely receivable collection timing.",
-          "Reduction of leverage and related-party/guarantee exposure with transparent project-level cash distribution.",
-          "Successful asset disposals at or above independently verified recoverable value with meaningful debt reduction."
-        ],
+        "current_price": 4.05,
+        "price_as_of": "2026-10-28",
+        "entry_price": 2.5868,
+        "formal_buy_entry_price_10pct": 2.7044,
         "confidence": "MEDIUM",
-        "current_price": 3.31,
-        "entry_price": 2.5208,
-        "expected_return": -0.124205,
-        "formal_buy_entry_price_10pct": 2.6353,
-        "kill_thesis": [
-          "Persistent attributable or deducted losses despite reported group profit.",
-          "CFO improvement fails to cover maintenance and growth capex or is primarily working-capital timing.",
-          "Credit impairments, project receivable recoverability or refinancing costs deteriorate.",
-          "Disposal of subsidiary equity leaves material residual guarantees or loss of cash-generating assets without adequate consideration."
-        ],
+        "valuation_method": "COMMON_BVPS_PB_SCENARIOS_CROSS_CHECKED_BY_NORMALIZED_EPS_ROE_AND_CASH_CONVERSION",
         "normalized_earnings_basis": {
-          "common_bvps": 7.5296,
-          "metric": "2026Q3_ATTRIBUTABLE_BVPS_WITH_NEGATIVE_NORMALIZED_EARNINGS_GATE",
-          "nine_month_deducted_np_rmb_m": -23.21937556,
-          "rationale": "PB is a conditional asset-recovery sensitivity only; no positive normalized earnings is underwritten given nine-month attributable and deducted losses. No automatic promotion if valuation-only entry threshold is crossed."
+          "metric": "2026Q3_COMMON_BVPS_AND_9M_DEDUCTED_EPS",
+          "common_bvps": 3.5414,
+          "nine_month_deducted_np_rmb_bn": 0.7033004,
+          "annualized_deducted_eps_cross_check": 0.1758,
+          "normalized_eps_range": [
+            0.18,
+            0.22
+          ],
+          "rationale": "Scenario PB multiples are analyst assumptions calibrated conservatively for roughly 4-6% normalized ROE and persistent collection risk; values are sensitivities rather than independent market targets."
         },
-        "price_as_of": "2026-10-27",
-        "probability_weighted_value": 2.8989,
         "scenarios": [
           {
             "name": "BEAR",
-            "pb_multiple": 0.25,
-            "probability": 0.3,
-            "value_per_share": 1.8824
+            "pb_multiple": 0.65,
+            "value_per_share": 2.3019,
+            "probability": 0.3
           },
           {
             "name": "BASE",
-            "pb_multiple": 0.4,
-            "probability": 0.5,
-            "value_per_share": 3.0118
+            "pb_multiple": 0.85,
+            "value_per_share": 3.0102,
+            "probability": 0.5
           },
           {
             "name": "BULL",
-            "pb_multiple": 0.55,
-            "probability": 0.2,
-            "value_per_share": 4.1413
+            "pb_multiple": 1.1,
+            "value_per_share": 3.8956,
+            "probability": 0.2
           }
         ],
-        "valuation_method": "ATTRIBUTABLE_BOOK_VALUE_DISCOUNTED_PB_WITH_ROE_RECOVERY_TEST"
-      }
+        "probability_weighted_value": 2.9748,
+        "expected_return": -0.265481,
+        "bear_downside": -0.43163,
+        "action": "AVOID",
+        "catalysts": [
+          "Two consecutive quarters of sustained positive CFO with receivables growth below revenue growth and reduced overdue collection risk.",
+          "Recovery in core equipment orders translates into higher recurring margins and ROE, not just revenue rebound.",
+          "Material improvement in project delivery, customer collection and distributable free cash flow."
+        ],
+        "kill_thesis": [
+          "Receivables and inventory continue rising while CFO stays negative despite accounting profits.",
+          "Normalized ROE remains below cost of equity and pricing/margins continue deteriorating.",
+          "Large customer credit impairment, related-party concentration or material deterioration in contract execution emerges."
+        ]
+      },
+      "source_discovery_mode": "CHATGPT_NATIVE_PRIMARY_2026Q3_ISSUER_DISCLOSURE_AND_MARKET_PRICE_CROSS_CHECK"
     },
     {
       "ai_book_auto_reunderwrite": false,
       "ai_book_reunderwrite_reason": null,
-      "archetype": "TREND_PERSISTENCE",
+      "archetype": "DEFENSIVE_STABILITY",
       "attempt_count": 1,
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-      "d1_rank": 5,
+      "d1_rank": 6,
       "d2_questions": [
-        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
-        "Test whether the expected return remains attractive after normalizing current momentum.",
+        "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
+        "Compare the opportunity with lower-risk defensive and cash alternatives.",
         "Normalize earnings and cash flow using the latest primary financial disclosures.",
         "Build an explicit valuation range and identify what expectations are embedded in the current price.",
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
       "decision_mutation_authorized": false,
-      "evidence_gap": {
-        "manual_user_input_required": false,
-        "material": false,
-        "missing": null
-      },
-      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-      "first_rejection_test": "PASS_ASSET_QUALITY_AND_CAPITAL_2026H1; FAIL_CURRENT_PRICE_EXPECTED_RETURN_GATE_RMB11_78_GT_FORMAL_BUY_BELOW_RMB11_20",
-      "input_watermark": "6407e3f4dacdab9748a06ef21c578b7243b80a079efe0f9a82027fe93e7699f2",
-      "last_attempt_at": "2026-10-27T16:19:43+00:00",
-      "manual_user_input_required": false,
-      "next_gate": "BUY_BELOW_RMB11_20_ONLY_AFTER_FRESH_D2_AND_PORTFOLIO_FIT; PREFERRED_ENTRY_RMB10_71; REUNDERWRITE_ON_2026Q3_DISCLOSURE_OR_MATERIAL_NPL_NIM_CET1_CHANGE",
+      "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+      "input_watermark": "536e5c32f56cc7c83be15c7b368e312b00a28d27099aba07512c7d0d9aee64a6",
+      "last_attempt_at": "2026-10-28T12:24:35+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_STRONG_ASSET_QUALITY_AND_CAPITAL_BUT_PRICE_ABOVE_10PCT_RETURN_GATE",
-      "security_id": "601939.SH",
-      "security_name": "建设银行",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_601939_20261028_R1.json",
-      "semantic_input_watermark": "1ecdfb79d81091c2683e2d977b6344d956c40dd30d316ab1a2666276890a369a",
+      "security_id": "000089.SZ",
+      "security_name": "深圳机场",
+      "semantic_input_watermark": "80e19bc840725d8efb6f50845154f4ad9a98c808cbef0d3ca0db827d28e67abb",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
       "semantic_research_required": false,
-      "semantic_reuse_source": "DURABLE_SEMANTIC_ARTIFACT",
+      "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
-      "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH",
       "status": "D2_RESEARCH_COMPLETE",
       "trade_authority": "NONE",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_000089_20261029_R1.json",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_RECURRING_ROE_TOO_LOW_FOR_PRICE_AND_2026_PROFIT_DOMINATED_BY_NONRECURRING_ITEMS",
+      "first_rejection_test": "FAIL_DEFENSIVE_STABILITY_2026Q3_DEDUCTED_PROFIT_FLAT_AND_55PCT_OF_REPORTED_PROFIT_NONRECURRING; NORMALIZED_ROE_APPROX_4_4PCT_VS_PRICE_1_11X_BVPS",
+      "next_gate": "NO_PRICE_ONLY_BUY; REUNDERWRITE_AFTER_SUSTAINED_RECURRING_ROE_AND_CASH_DISTRIBUTION_IMPROVEMENT; FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ANY_BUY",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false
+      },
+      "manual_user_input_required": false,
       "underwriting": {
-        "action": "BUY_BELOW",
-        "bear_downside": -0.186503,
-        "catalysts": [
-          "2026Q3 report confirms stable or improving NIM without adverse credit migration.",
-          "Core Tier-1 capital ratio stabilizes or rebuilds while maintaining prudent credit growth.",
-          "Sustainable common dividends are approved and implemented without capital dilution.",
-          "Deposit funding costs fall faster than asset yields and fee income remains resilient."
-        ],
+        "current_price": 6.63,
+        "price_as_of": "2026-10-28",
+        "entry_price": 4.9139,
+        "formal_buy_entry_price_10pct": 5.1373,
         "confidence": "MEDIUM_HIGH",
-        "current_price": 11.78,
-        "entry_price": 10.7139,
-        "expected_return": 0.045925,
-        "formal_buy_entry_price_10pct": 11.2009,
-        "kill_thesis": [
-          "NPL formation and credit costs accelerate or provision coverage materially weakens.",
-          "Core Tier-1 capital falls persistently despite retained earnings, limiting dividends or growth.",
-          "Net interest margin resumes structural compression with no cost/fee offsets.",
-          "New capital issuance or regulatory requirements materially dilute common shareholder economics."
-        ],
+        "valuation_method": "COMMON_BVPS_PB_SCENARIOS_CROSS_CHECKED_BY_DEDUCTED_EPS_AND_RECURRING_ROE",
         "normalized_earnings_basis": {
-          "annualized_eps_cross_check": 1.3,
-          "annualized_roe": 0.0952,
-          "common_bvps": 13.69,
-          "metric": "H1_2026_COMMON_BVPS",
-          "rationale": "P/B is primary because bank capital, asset quality and sustainable ROE are observable; price-target expected return excludes future dividends and prospective BVPS growth to avoid unsupported optimism."
+          "metric": "2026Q3_PARENT_BVPS_AND_9M_DEDUCTED_EARNINGS",
+          "common_bvps": 5.9484,
+          "nine_month_deducted_np_rmb_bn": 0.4036329,
+          "annualized_deducted_eps_cross_check": 0.2624,
+          "normalized_annual_roe_cross_check": 0.0441,
+          "rationale": "P/B scenarios reflect scarce airport infrastructure, liquidity, and recurring ROE below typical equity cost of capital; price targets exclude future dividends and one-off gains."
         },
-        "preferred_entry_price_15pct": 10.7139,
-        "price_as_of": "2026-10-27",
-        "probability_weighted_value": 12.321,
         "scenarios": [
           {
             "name": "BEAR",
-            "pb_multiple": 0.7,
-            "probability": 0.25,
-            "value_per_share": 9.583
+            "pb_multiple": 0.75,
+            "value_per_share": 4.4613,
+            "probability": 0.25
           },
           {
             "name": "BASE",
-            "pb_multiple": 0.9,
-            "probability": 0.5,
-            "value_per_share": 12.321
+            "pb_multiple": 0.95,
+            "value_per_share": 5.651,
+            "probability": 0.55
           },
           {
             "name": "BULL",
-            "pb_multiple": 1.1,
-            "probability": 0.25,
-            "value_per_share": 15.059
+            "pb_multiple": 1.2,
+            "value_per_share": 7.1381,
+            "probability": 0.2
           }
         ],
-        "valuation_method": "COMMON_BOOK_VALUE_PB_SCENARIO_WITH_ROE_ASSET_QUALITY_CAPITAL_CROSS_CHECK"
-      }
+        "probability_weighted_value": 5.651,
+        "expected_return": -0.147662,
+        "bear_downside": -0.327104,
+        "action": "AVOID",
+        "catalysts": [
+          "Sustained increase in passenger, aircraft and high-margin non-aeronautical revenue with recurring deducted profit growth.",
+          "Two or more quarters of stronger recurring ROE supported by cash generation after maintenance and lease obligations.",
+          "Transparent cash distribution and disciplined airport infrastructure capex improve shareholder economics."
+        ],
+        "kill_thesis": [
+          "Recurring deducted profit fails to improve despite traffic recovery and higher reported revenue.",
+          "Material airport lease, concession or capital expenditure commitments erode owner-distributable cash.",
+          "Reported profit growth continues to depend on asset disposals, investment fair-value remeasurement or other nonrecurring items.",
+          "Adverse traffic, tariff regulation, retail concession or related-party cost changes reduce normalized returns."
+        ]
+      },
+      "source_discovery_mode": "CHATGPT_NATIVE_2026Q3_ISSUER_DISCLOSURE_AND_MARKET_PRICE_CROSS_CHECK"
     },
     {
       "ai_book_auto_reunderwrite": false,
@@ -216,7 +219,7 @@
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-      "d1_rank": 6,
+      "d1_rank": 7,
       "d2_questions": [
         "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
         "Measure how much growth or margin improvement the current valuation already discounts.",
@@ -226,102 +229,36 @@
       ],
       "decision_mutation_authorized": false,
       "first_rejection": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
-      "input_watermark": "5b31108324df2d38bf7d72ee0b589343bc5bf273080b14aae5b8375a106dff42",
-      "last_attempt_at": "2026-10-28T01:48:00+00:00",
+      "input_watermark": "e6447a5d36b1d6139b52693f20b321e78efa1dbcdae5795bb1b13c3401bd35c0",
+      "last_attempt_at": "2026-10-28T12:24:35+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "003006.SZ",
-      "security_name": "百亚股份",
-      "semantic_input_watermark": "2e82fa8587db925f0e2952c5184b02ed7e98d6f12611e65798fd794a4415133e",
+      "security_id": "601328.SH",
+      "security_name": "交通银行",
+      "semantic_input_watermark": "a6e9b6a2da8ac2f6ff0f2972626509fb78b14692f9752cfb37df98875779490b",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
-      "semantic_research_required": false,
-      "semantic_reuse_source": "DURABLE_SEMANTIC_ARTIFACT",
+      "semantic_research_required": true,
+      "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
-      "status": "D2_RESEARCH_COMPLETE",
-      "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_003006_20261028_R1.json",
-      "research_disposition": "AVOID_RESEARCH_COMPLETE_2026Q3_LOSS_AND_CHANNEL_SPEND_OUTRUN_BRAND_REVENUE_PRICE_OVERDISCOUNTS_RECOVERY",
-      "first_rejection_test": "FAIL_LIQUID_BREAKOUT_PRIMARY_SOURCE_FUNDAMENTAL_INFLECTION_2026Q3_ATTRIBUTABLE_LOSS_AND_9M_SELLING_EXPENSE_GROWTH_GT_REVENUE; FAIL_20261027_VALUATION_EXPECTED_RETURN_GATE",
-      "next_gate": "AVOID_NO_BUY_ON_PRICE_ALONE; REUNDERWRITE_AFTER_TWO_QUARTERS_CORE_CHANNEL_SELL_THROUGH_AND_INCREMENTAL_PROFIT_RECOVERY_PLUS_POSITIVE_OWNER_CASH; PRICE_BELOW_VALUATION_HURDLE_REQUIRES_FRESH_D2_AND_PORTFOLIO_FIT",
-      "source_discovery_mode": "CHATGPT_NATIVE_GOVERNED_PRIMARY_SOURCE_RESEARCH_WITH_2026Q3_DISCLOSURE_AND_20261023_MANAGEMENT_CALL",
-      "evidence_gap": {
-        "material": false,
-        "missing": null,
-        "manual_user_input_required": false
-      },
-      "underwriting": {
-        "current_price": 23.02,
-        "price_as_of": "2026-10-27",
-        "entry_price": 13.8435,
-        "formal_buy_entry_price_10pct": 14.4727,
-        "confidence": "MEDIUM",
-        "valuation_method": "NORMALIZED_2027_ATTRIBUTABLE_EARNINGS_PE_SCENARIOS_WITH_2026Q3_RECOVERY_GATE",
-        "normalized_earnings_basis": {
-          "metric": "2027_SUSTAINABLE_ATTRIBUTABLE_NET_PROFIT_RMB_M",
-          "bear": 150,
-          "base": 260,
-          "bull": 360,
-          "prior_fy2025_approx_rmb_m": 208,
-          "prior_fy2024_approx_rmb_m": 288,
-          "rationale": "Scenarios are analyst recovery assumptions rather than issuer guidance. Base requires regained core-region sales and materially better selling-expense productivity; bull exceeds prior peak and needs evidence. Valuation excludes uncertain growth beyond the explicit 12-18 month horizon."
-        },
-        "scenarios": [
-          {
-            "name": "BEAR",
-            "normalized_attributable_profit_rmb_m": 150,
-            "pe_multiple": 18,
-            "probability": 0.3,
-            "value_per_share": 6.2842
-          },
-          {
-            "name": "BASE",
-            "normalized_attributable_profit_rmb_m": 260,
-            "pe_multiple": 27,
-            "probability": 0.5,
-            "value_per_share": 16.339
-          },
-          {
-            "name": "BULL",
-            "normalized_attributable_profit_rmb_m": 360,
-            "pe_multiple": 35,
-            "probability": 0.2,
-            "value_per_share": 29.3263
-          }
-        ],
-        "probability_weighted_value": 15.92,
-        "expected_return": -0.308427,
-        "bear_downside": -0.727011,
-        "action": "AVOID",
-        "catalysts": [
-          "Two consecutive quarters of core five-province sell-through and shipments normalizing without channel stuffing.",
-          "Non-core provinces maintain profitable double-digit expansion while incremental marketing spend produces positive incremental operating profit.",
-          "Gross-margin gains survive promotion competition and quarterly attributable earnings return sustainably positive.",
-          "Operating cash flow less maintenance capex remains positive without receivables or platform settlement deterioration."
-        ],
-        "kill_thesis": [
-          "Core-province inventory/channel transition lasts beyond the planned normalization period or local brand share declines.",
-          "Selling expense ratio remains above 40% without corresponding revenue and normalized EBIT growth.",
-          "Further negative attributable quarters, persistent net working-capital consumption or increased receivable impairments.",
-          "Marketing spend and product innovation fail to deliver a defendable premium as channel price competition intensifies."
-        ]
-      }
+      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+      "trade_authority": "NONE"
     }
   ],
   "schema_version": "1.1.0",
-  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_8ce11c320ca1525a",
-  "state_id": "RESEARCH_QUEUE_D2_CURRENT_c346f53d3f14f190",
-  "status": "D2_AUTO_CONSUMER_COMPLETE",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_44c7b46417b08deb",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_3c06441cd81e9491",
+  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
   "summary": {
     "ai_book_auto_reunderwrite_pending_count": 0,
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 3,
+    "completed_count": 2,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 0,
+    "pending_count": 1,
     "provider_incident_active": false,
-    "reused_completed_count": 2,
+    "reused_completed_count": 0,
     "routed_count": 3
   }
 }
