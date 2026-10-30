@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-28T12:24:35+00:00",
+  "as_of": "2026-10-29T17:22:18+00:00",
   "consumer_policy": {
     "ai_book_near_gate_refresh": "AUTO_ROUTED_TO_CHATGPT_NATIVE_SEMANTIC_D2_WITHOUT_MANUAL_D1_D2_DISPATCH",
     "bounded_batch_size": 3,
@@ -22,316 +22,253 @@
     {
       "ai_book_auto_reunderwrite": false,
       "ai_book_reunderwrite_reason": null,
-      "archetype": "DEFENSIVE_STABILITY",
+      "archetype": "TREND_PERSISTENCE",
       "attempt_count": 1,
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-      "d1_rank": 2,
+      "d1_rank": 3,
       "d2_questions": [
-        "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
-        "Compare the opportunity with lower-risk defensive and cash alternatives.",
+        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
+        "Test whether the expected return remains attractive after normalizing current momentum.",
         "Normalize earnings and cash flow using the latest primary financial disclosures.",
         "Build an explicit valuation range and identify what expectations are embedded in the current price.",
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
       "decision_mutation_authorized": false,
-      "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-      "input_watermark": "a7c825dcf25cf6e812ed0b20f9363ee57e72bb993c72245af97509e24656b264",
-      "last_attempt_at": "2026-10-28T12:24:35+00:00",
+      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+      "input_watermark": "cb815f3c418e68ee36d17f0f97aaed1200a622300516387e963d9c05844d4e94",
+      "last_attempt_at": "2026-10-29T17:22:18+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "688425.SH",
-      "security_name": "铁建重工",
-      "semantic_input_watermark": "cc089b11a8e945fbf7e86c95e49bd93288731863174476fe430a578333cdc1c2",
+      "security_id": "601857.SH",
+      "security_name": "中国石油",
+      "semantic_input_watermark": "184448d0a337ec96568006c13f76694475b022fec454d686791465c7f7262e00",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
       "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
       "status": "D2_RESEARCH_COMPLETE",
       "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_688425_20261029_R1.json",
-      "research_disposition": "AVOID_RESEARCH_COMPLETE_DEFENSIVE_LABEL_REJECTED_BY_WEAK_CASH_CONVERSION_AND_DECLINING_NORMALIZED_RETURN",
-      "first_rejection_test": "FAIL_DEFENSIVE_STABILITY_2026Q3_9M_CFO_NEGATIVE_ROE_3_95PCT_AND_RECEIVABLES_INVENTORY_RISING; PRICE_RMB4_05_ABOVE_UNDERWRITTEN_WEIGHTED_VALUE",
-      "next_gate": "NO_PRICE_ONLY_BUY; REUNDERWRITE_ON_MATERIAL_CASH_COLLECTION_ROE_MARGIN_OR_ORDER_QUALITY_CHANGE; FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ANY_BUY",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_601857_20261030_R1.json",
+      "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_STRONG_CASH_GENERATION_BUT_2026_HIGH_OIL_CYCLE_AND_A_SHARE_VALUATION_FAIL_NEW_CAPITAL_HURDLE",
+      "first_rejection_test": "PASS_FRANCHISE_AND_CASH_CONVERSION_2026Q3; FAIL_CURRENT_PRICE_HURDLE_RMB13_69_GT_FORMAL_RMB9_78; PEAK_OIL_PRICE_NORMALIZATION_REQUIRED",
+      "next_gate": "BUY_BELOW_IS_NOT_A_BUY_ORDER; PRICE_CROSS_ONLY_REOPENS_FRESH_DECISION_GRADE_D2_AND_PORTFOLIO_ENERGY_CONCENTRATION_REVIEW_BEFORE_ANY_BUY; REUNDERWRITE_ON_MATERIAL_OIL_PRICE_CAPEX_DIVIDEND_OR_EARNINGS_CHANGE",
       "evidence_gap": {
         "material": false,
         "missing": null,
-        "manual_user_input_required": false
+        "manual_user_input_required": false,
+        "monitoring": "2026Q3 is unaudited; oil-cycle normalized earnings and valuation multiples are explicit analyst assumptions."
       },
-      "manual_user_input_required": false,
       "underwriting": {
-        "current_price": 4.05,
-        "price_as_of": "2026-10-28",
-        "entry_price": 2.5868,
-        "formal_buy_entry_price_10pct": 2.7044,
+        "current_price": 13.69,
+        "price_as_of": "2026-10-29",
+        "entry_price": 9.3587,
+        "preferred_entry_price_15pct": 9.3587,
+        "formal_buy_entry_price_10pct": 9.7841,
         "confidence": "MEDIUM",
-        "valuation_method": "COMMON_BVPS_PB_SCENARIOS_CROSS_CHECKED_BY_NORMALIZED_EPS_ROE_AND_CASH_CONVERSION",
+        "valuation_method": "THROUGH_CYCLE_NORMALIZED_COMMON_EPS_PE_SCENARIOS_CROSS_CHECKED_BY_BVPS_ROE_CASH_FLOW_AND_OIL_CYCLE",
         "normalized_earnings_basis": {
-          "metric": "2026Q3_COMMON_BVPS_AND_9M_DEDUCTED_EPS",
-          "common_bvps": 3.5414,
-          "nine_month_deducted_np_rmb_bn": 0.7033004,
-          "annualized_deducted_eps_cross_check": 0.1758,
+          "metric": "THROUGH_CYCLE_COMMON_EPS",
+          "nine_month_eps_2026": 0.85,
+          "estimated_ttm_eps_using_2025Q4": 1.01,
+          "base_normalized_eps": 0.95,
           "normalized_eps_range": [
-            0.18,
-            0.22
+            0.8,
+            1.15
           ],
-          "rationale": "Scenario PB multiples are analyst assumptions calibrated conservatively for roughly 4-6% normalized ROE and persistent collection risk; values are sensitivities rather than independent market targets."
+          "nine_month_cfo_less_capex_rmb_bn": 214.099,
+          "common_bvps_approx": 8.92,
+          "rationale": "2026 oil-price gains are cyclical; 9M annualized EPS about RMB1.13 is not used as a perpetual run rate. Base RMB0.95 is an analyst midcycle assumption; scenario PE 9-13x embeds uncertainty about future Brent, refining margins, gas demand and required reinvestment. H-share discount is not mechanically imported into A-share value."
         },
         "scenarios": [
           {
             "name": "BEAR",
-            "pb_multiple": 0.65,
-            "value_per_share": 2.3019,
-            "probability": 0.3
+            "normalized_eps": 0.8,
+            "pe_multiple": 9,
+            "value_per_share": 7.2,
+            "probability": 0.25
           },
           {
             "name": "BASE",
-            "pb_multiple": 0.85,
-            "value_per_share": 3.0102,
+            "normalized_eps": 0.95,
+            "pe_multiple": 11,
+            "value_per_share": 10.45,
             "probability": 0.5
           },
           {
             "name": "BULL",
-            "pb_multiple": 1.1,
-            "value_per_share": 3.8956,
-            "probability": 0.2
+            "normalized_eps": 1.15,
+            "pe_multiple": 13,
+            "value_per_share": 14.95,
+            "probability": 0.25
           }
         ],
-        "probability_weighted_value": 2.9748,
-        "expected_return": -0.265481,
-        "bear_downside": -0.43163,
-        "action": "AVOID",
+        "probability_weighted_value": 10.7625,
+        "expected_return": -0.213842,
+        "bear_downside": -0.474069,
+        "current_pb_approx": 1.5348,
+        "annualized_recent_cash_dividend_yield_indicative": 0.03725,
+        "action": "BUY_BELOW",
         "catalysts": [
-          "Two consecutive quarters of sustained positive CFO with receivables growth below revenue growth and reduced overdue collection risk.",
-          "Recovery in core equipment orders translates into higher recurring margins and ROE, not just revenue rebound.",
-          "Material improvement in project delivery, customer collection and distributable free cash flow."
+          "Sustained gas-sales margin and chemical-product profitability support normalized EPS despite a retreat from 2026 elevated oil prices.",
+          "Positive group operating cash after cash capex persists and dividends are supported by recurring, not windfall, cash generation.",
+          "Oil-price normalization lowers market valuation toward formal entry hurdle without a corresponding structural deterioration in asset quality.",
+          "Incremental integrated gas and storage returns prove attractive without an excessive capital spending cycle."
         ],
         "kill_thesis": [
-          "Receivables and inventory continue rising while CFO stays negative despite accounting profits.",
-          "Normalized ROE remains below cost of equity and pricing/margins continue deteriorating.",
-          "Large customer credit impairment, related-party concentration or material deterioration in contract execution emerges."
+          "Brent and realized oil prices normalize while recurring upstream cash margins fall below midcycle assumptions and group CFO cannot cover maintenance and committed growth capex.",
+          "Refining and marketing profitability structurally weakens due to fuel demand displacement, impairments or price-control pressure.",
+          "Material deterioration in group leverage, dividend coverage or minority-interest leakage reduces cash distributable to common shareholders.",
+          "A material increase in required capex or asset impairments undermines the modeled normalized common EPS range."
         ]
-      },
-      "source_discovery_mode": "CHATGPT_NATIVE_PRIMARY_2026Q3_ISSUER_DISCLOSURE_AND_MARKET_PRICE_CROSS_CHECK"
+      }
     },
     {
       "ai_book_auto_reunderwrite": false,
       "ai_book_reunderwrite_reason": null,
-      "archetype": "DEFENSIVE_STABILITY",
+      "archetype": "RECOVERY_WATCH",
       "attempt_count": 1,
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
       "d1_rank": 6,
       "d2_questions": [
-        "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
-        "Compare the opportunity with lower-risk defensive and cash alternatives.",
+        "Separate cyclical/base-effect recovery from durable operating improvement.",
+        "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
         "Normalize earnings and cash flow using the latest primary financial disclosures.",
         "Build an explicit valuation range and identify what expectations are embedded in the current price.",
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
       "decision_mutation_authorized": false,
-      "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-      "input_watermark": "536e5c32f56cc7c83be15c7b368e312b00a28d27099aba07512c7d0d9aee64a6",
-      "last_attempt_at": "2026-10-28T12:24:35+00:00",
+      "first_rejection": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
+      "input_watermark": "a68f7920c3b848f0459d91e356848c8bd336af13b3d0d238c8d7723c3a2917d5",
+      "last_attempt_at": "2026-10-29T17:22:18+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "000089.SZ",
-      "security_name": "深圳机场",
-      "semantic_input_watermark": "80e19bc840725d8efb6f50845154f4ad9a98c808cbef0d3ca0db827d28e67abb",
+      "security_id": "000530.SZ",
+      "security_name": "冰山冷热",
+      "semantic_input_watermark": "481ca3c1d8eb46f92389bba181dedf82d02bb1acdcfd6cefdcc7560b55c90919",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
       "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
       "status": "D2_RESEARCH_COMPLETE",
       "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_000089_20261029_R1.json",
-      "research_disposition": "AVOID_RESEARCH_COMPLETE_RECURRING_ROE_TOO_LOW_FOR_PRICE_AND_2026_PROFIT_DOMINATED_BY_NONRECURRING_ITEMS",
-      "first_rejection_test": "FAIL_DEFENSIVE_STABILITY_2026Q3_DEDUCTED_PROFIT_FLAT_AND_55PCT_OF_REPORTED_PROFIT_NONRECURRING; NORMALIZED_ROE_APPROX_4_4PCT_VS_PRICE_1_11X_BVPS",
-      "next_gate": "NO_PRICE_ONLY_BUY; REUNDERWRITE_AFTER_SUSTAINED_RECURRING_ROE_AND_CASH_DISTRIBUTION_IMPROVEMENT; FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ANY_BUY",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_000530_20261030_R1.json",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_2026Q3_REVENUE_AND_RECURRING_PROFIT_DECLINE_LIQUID_COOLING_REVENUE_IMMATERIAL_AND_HIGH_PRICE_MULTIPLE",
+      "first_rejection_test": "FAIL_RECOVERY_WATCH_2026_9M_REVENUE_MINUS8_98PCT_DEDUCTED_PROFIT_MINUS50_99PCT_ROE1_94PCT; LIQUID_COOLING_ISSUER_CONFIRMED_SPORADIC_REVENUE; PRICE_RMB8_23_VS_PW_RMB4_50",
+      "next_gate": "AVOID_NEW_CAPITAL; NO_PRICE_ONLY_AUTOMATIC_BUY; REUNDERWRITE_ONLY_AFTER_VERIFIED_RECURRING_PROFIT_CASH_CONVERSION_OR_COMMERCIAL_LIQUID_COOLING_MATERIAL_CHANGE_AND_FRESH_PORTFOLIO_FIT",
       "evidence_gap": {
         "material": false,
         "missing": null,
-        "manual_user_input_required": false
+        "manual_user_input_required": false,
+        "monitoring": "Future commercial liquid-cooling revenue/margins remain uncertain, and cannot be assumed in base earnings."
       },
-      "manual_user_input_required": false,
       "underwriting": {
-        "current_price": 6.63,
-        "price_as_of": "2026-10-28",
-        "entry_price": 4.9139,
-        "formal_buy_entry_price_10pct": 5.1373,
+        "current_price": 8.23,
+        "price_as_of": "2026-10-29",
+        "entry_price": 3.913,
+        "preferred_entry_price_15pct": 3.913,
+        "formal_buy_entry_price_10pct": 4.0909,
         "confidence": "MEDIUM_HIGH",
-        "valuation_method": "COMMON_BVPS_PB_SCENARIOS_CROSS_CHECKED_BY_DEDUCTED_EPS_AND_RECURRING_ROE",
+        "valuation_method": "COMMON_BOOK_EQUITY_PB_SCENARIOS_CROSS_CHECKED_BY_RECURRING_EPS_ROE_CFO_RECEIVABLES_AND_OFFICIAL_OPTIONALITY_WARNING",
         "normalized_earnings_basis": {
-          "metric": "2026Q3_PARENT_BVPS_AND_9M_DEDUCTED_EARNINGS",
-          "common_bvps": 5.9484,
-          "nine_month_deducted_np_rmb_bn": 0.4036329,
-          "annualized_deducted_eps_cross_check": 0.2624,
-          "normalized_annual_roe_cross_check": 0.0441,
-          "rationale": "P/B scenarios reflect scarce airport infrastructure, liquidity, and recurring ROE below typical equity cost of capital; price targets exclude future dividends and one-off gains."
+          "metric": "2026_9M_DEDUCTED_EARNINGS_AND_COMMON_BVPS",
+          "nine_month_deducted_attributable_profit_rmb_mn": 38.808,
+          "annualized_deducted_profit_rmb_mn": 51.744,
+          "annualized_deducted_eps_approx": 0.0614,
+          "annualized_reported_eps_approx": 0.097,
+          "common_bvps_approx": 3.764,
+          "rationale": "Low recurring ROE and an explicit issuer warning against capitalizing liquid cooling as a material 2026 business support book-value-based scenarios rather than a growth PE. Multiples 0.85-1.70x are analyst assumptions contingent on recovery; bull case is not a forecast of booked liquid-cooling sales."
         },
         "scenarios": [
           {
             "name": "BEAR",
-            "pb_multiple": 0.75,
-            "value_per_share": 4.4613,
-            "probability": 0.25
+            "pb_multiple": 0.85,
+            "value_per_share": 3.2,
+            "probability": 0.3
           },
           {
             "name": "BASE",
-            "pb_multiple": 0.95,
-            "value_per_share": 5.651,
-            "probability": 0.55
+            "pb_multiple": 1.2,
+            "value_per_share": 4.52,
+            "probability": 0.5
           },
           {
             "name": "BULL",
-            "pb_multiple": 1.2,
-            "value_per_share": 7.1381,
+            "pb_multiple": 1.7,
+            "value_per_share": 6.4,
             "probability": 0.2
           }
         ],
-        "probability_weighted_value": 5.651,
-        "expected_return": -0.147662,
-        "bear_downside": -0.327104,
+        "probability_weighted_value": 4.5,
+        "expected_return": -0.45322,
+        "bear_downside": -0.611179,
+        "current_pb_approx": 2.1865,
         "action": "AVOID",
         "catalysts": [
-          "Sustained increase in passenger, aircraft and high-margin non-aeronautical revenue with recurring deducted profit growth.",
-          "Two or more quarters of stronger recurring ROE supported by cash generation after maintenance and lease obligations.",
-          "Transparent cash distribution and disciplined airport infrastructure capex improve shareholder economics."
+          "Two or more quarters of recurring revenue and deducted profit growth with rising normalized ROE.",
+          "Liquid-cooling customer orders and revenue are disclosed with meaningful commercial gross margin and cash conversion, rather than R&D/early promotion.",
+          "Receivable collection improves while operating cash flow after capex remains positive without reliance on working-capital timing.",
+          "Specialized industrial refrigeration and compressor businesses win profitable projects with stable repeat customers."
         ],
         "kill_thesis": [
-          "Recurring deducted profit fails to improve despite traffic recovery and higher reported revenue.",
-          "Material airport lease, concession or capital expenditure commitments erode owner-distributable cash.",
-          "Reported profit growth continues to depend on asset disposals, investment fair-value remeasurement or other nonrecurring items.",
-          "Adverse traffic, tariff regulation, retail concession or related-party cost changes reduce normalized returns."
+          "Liquid-cooling revenue remains immaterial while the market capitalizes a full commercial scale-up.",
+          "Receivables continue rising despite flat or declining revenue, or new credit impairments consume cash and equity.",
+          "Normalized ROE remains below the required cost of equity and recurring profit continues to decline.",
+          "Cash flow recovery reverses or margin compression from input costs and competition persists."
         ]
-      },
-      "source_discovery_mode": "CHATGPT_NATIVE_2026Q3_ISSUER_DISCLOSURE_AND_MARKET_PRICE_CROSS_CHECK"
+      }
     },
     {
       "ai_book_auto_reunderwrite": false,
       "ai_book_reunderwrite_reason": null,
-      "archetype": "LIQUID_BREAKOUT",
+      "archetype": "TREND_PERSISTENCE",
       "attempt_count": 1,
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
       "d1_rank": 7,
       "d2_questions": [
-        "Determine whether the price breakout is supported by a fundamental earnings or cash-flow inflection.",
-        "Measure how much growth or margin improvement the current valuation already discounts.",
+        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
+        "Test whether the expected return remains attractive after normalizing current momentum.",
         "Normalize earnings and cash flow using the latest primary financial disclosures.",
         "Build an explicit valuation range and identify what expectations are embedded in the current price.",
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
       "decision_mutation_authorized": false,
-      "first_rejection": "Reject D2 promotion if the price move lacks a primary-source fundamental inflection or valuation already discounts the plausible upside.",
-      "input_watermark": "e6447a5d36b1d6139b52693f20b321e78efa1dbcdae5795bb1b13c3401bd35c0",
-      "last_attempt_at": "2026-10-28T12:24:35+00:00",
+      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+      "input_watermark": "228466cf65320327e51d1a387a71cc1cb2900037d076720e4804db64d4ad8510",
+      "last_attempt_at": "2026-10-29T17:22:18+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "601328.SH",
-      "security_name": "交通银行",
-      "semantic_input_watermark": "a6e9b6a2da8ac2f6ff0f2972626509fb78b14692f9752cfb37df98875779490b",
+      "security_id": "601988.SH",
+      "security_name": "中国银行",
+      "semantic_input_watermark": "79005482f83d45bd956d07fcddc11df4dac75a06f44ec20f0e29726447806491",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
-      "semantic_research_required": false,
+      "semantic_research_required": true,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
-      "status": "D2_RESEARCH_COMPLETE",
-      "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_601328_20261029_R1.json",
-      "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_2026H1_PROFIT_AND_CAPITAL_SUPPORT_DEFENSIVE_LABEL_BUT_RETAIL_CREDIT_AND_PRICE_HURDLE_LIMIT_NEW_CAPITAL",
-      "first_rejection_test": "PASS_BANK_FRANCHISE_AND_RECURRING_EARNINGS_2026H1; RETAIL_NPL_2_02PCT_AND_CET1_11_25PCT_REQUIRE_MONITORING; FAIL_CURRENT_PRICE_10PCT_HURDLE_RMB8_26_GT_RMB8_14; 2026Q3_DUE_20261031_REFRESH_ON_MATERIAL_CHANGE",
-      "next_gate": "CURRENT_RMB8_26_ABOVE_FORMAL_BUY_BELOW_RMB8.14; PRICE_CROSS_ONLY_REOPENS_FRESH_D2_NOT_AUTOMATIC_BUY; REASSESS_ON_2026Q3_RELEASE_EXPECTED_20261031_AND_PORTFOLIO_BANK_CONCENTRATION_BEFORE_ANY_NEW_CAPITAL",
-      "evidence_gap": {
-        "material": false,
-        "missing": null,
-        "manual_user_input_required": false,
-        "near_term_update": "2026Q3 report scheduled for 2026-10-31; not available as of 2026-10-29 morning; material credit/capital/earnings changes require fresh D2."
-      },
-      "manual_user_input_required": false,
-      "underwriting": {
-        "current_price": 8.26,
-        "price_as_of": "2026-10-28",
-        "entry_price": 7.7883,
-        "preferred_entry_price_15pct": 7.7883,
-        "formal_buy_entry_price_10pct": 8.1423,
-        "confidence": "MEDIUM_HIGH",
-        "valuation_method": "COMMON_BOOK_VALUE_PB_SCENARIOS_CROSS_CHECKED_BY_2026H1_NORMALIZED_EPS_ROE_RETAIL_CREDIT_AND_CAPITAL",
-        "normalized_earnings_basis": {
-          "metric": "2026H1_COMMON_BVPS_AND_RECURRING_COMMON_EPS",
-          "common_bvps": 13.22,
-          "h1_deducted_attributable_profit_rmb_bn": 47.6,
-          "h1_reported_attributable_profit_rmb_bn": 47.874,
-          "h1_common_eps": 0.52,
-          "annualized_common_eps_cross_check": 1.04,
-          "normalized_annual_common_eps_range": [
-            1,
-            1.08
-          ],
-          "annualized_reported_roe": 0.0809,
-          "annualized_deducted_roe": 0.0804,
-          "rationale": "H1 2026 reported attributable earnings RMB47.874bn are largely recurring (deducted RMB47.600bn). EPS annualization is a sensitivity, not a forecast; 2025 A-share issuance changes the per-share denominator. PB rather than mechanical PE is primary because ROE, common equity, credit costs, and capital adequacy determine bank equity economics. H1 2026 common BVPS RMB13.22 excludes preferred/other equity instruments. P/B multiples and probabilities are analyst assumptions; no speculative 2026Q3 numbers included."
-        },
-        "scenarios": [
-          {
-            "name": "BEAR",
-            "pb_multiple": 0.5,
-            "value_per_share": 6.61,
-            "probability": 0.25
-          },
-          {
-            "name": "BASE",
-            "pb_multiple": 0.68,
-            "value_per_share": 8.9896,
-            "probability": 0.5
-          },
-          {
-            "name": "BULL",
-            "pb_multiple": 0.85,
-            "value_per_share": 11.237,
-            "probability": 0.25
-          }
-        ],
-        "probability_weighted_value": 8.95655,
-        "expected_return": 0.084328,
-        "bear_downside": -0.199758,
-        "current_pb": 0.6248,
-        "annualized_proposed_interim_dividend_yield_cross_check": 0.04068,
-        "action": "BUY_BELOW",
-        "catalysts": [
-          "2026Q3 report expected 2026-10-31 confirms stable NIM and recurring earnings, without further retail credit migration.",
-          "Lower deposit costs continue to offset loan repricing and support net interest margin above 2025H1 1.21%.",
-          "Retail NPL formation stabilizes and provision coverage remains near or above 200%, preserving capital and payout capacity.",
-          "CET1 stabilizes above the H1 2026 11.25% level while sustainable ordinary-share dividends are approved and implemented."
-        ],
-        "kill_thesis": [
-          "Retail credit deterioration continues: personal NPL rate rises materially above H1 2.02% or credit-card NPL above H1 3.80%, with higher loss formation and credit costs.",
-          "Group NPL ratio rises materially above 1.30% while provision coverage falls materially below H1 203.80%, impairing normalized ROE.",
-          "Net interest margin falls materially below H1 1.23% without fee, deposit-cost or cost-control offsets.",
-          "Core Tier-1 capital continues to decline from 11.25% or a new dilutive capital raise weakens ordinary-share returns.",
-          "Ordinary-share cash payout becomes unsustainable or materially below the 2026H1 proposed 31% payout."
-        ]
-      },
-      "source_discovery_mode": "CHATGPT_NATIVE_2026H1_OFFICIAL_PRIMARY_DISCLOSURE_AND_20261028_PRICE_CROSS_CHECK"
+      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+      "trade_authority": "NONE"
     }
   ],
   "schema_version": "1.1.0",
-  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_44c7b46417b08deb",
-  "state_id": "RESEARCH_QUEUE_D2_CURRENT_3c06441cd81e9491",
-  "status": "D2_AUTO_CONSUMER_ACTIVE_NO_PENDING_WORK",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_54274710f13096c4",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_c11c9888d80342ce",
+  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
   "summary": {
     "ai_book_auto_reunderwrite_pending_count": 0,
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 3,
+    "completed_count": 2,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 0,
+    "pending_count": 1,
     "provider_incident_active": false,
     "reused_completed_count": 0,
     "routed_count": 3
