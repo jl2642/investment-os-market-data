@@ -1,38 +1,39 @@
 {
   "manifest_version": "1.0.0",
   "dataset_id": "a_share_universe",
-  "dataset_version": "a_share_universe-2026-08-07-FMDL1BC_20260807T162152+0800",
+  "dataset_version": "a_share_universe-2026-10-30-FMDL1BC_20261030T230126+0800",
   "schema_id": "a_share_universe.schema.json",
   "schema_version": "1.0.0",
-  "run_id": "FMDL1BC_20260807T162152+0800",
-  "as_of_date": "2026-08-07",
-  "generated_at": "2026-08-07T16:21:52+08:00",
+  "run_id": "FMDL1BC_20261030T230126+0800",
+  "as_of_date": "2026-10-30",
+  "generated_at": "2026-10-30T23:01:26+08:00",
   "business_timezone": "Asia/Shanghai",
   "publication_status": "PUBLISHED",
   "qa_status": "PASS_WITH_WARNINGS",
   "sources": [
     {
       "adapter_id": "akshare",
-      "adapter_version": "1.18.83",
+      "adapter_version": "1.20.18",
       "adapter_function": "stock_zh_a_spot",
       "provider_id": "sina_public",
-      "retrieved_at": "2026-08-07T16:21:52+08:00",
+      "retrieved_at": "2026-10-30T23:01:26+08:00",
       "source_as_of_date": null,
-      "raw_hash_sha256": "0c4cd366c34bab482378409a7f31e8ea239103a87c1f260070fdd60c6e30e3a7",
+      "raw_hash_sha256": "f7cd6c221e33fa5d5f043eb63fe74efb1d58c40daf97a93b66501fce722dc009",
       "retries": 0,
       "warnings": [
         "primary_provider_unavailable: stock_zh_a_spot_em",
-        "attempt_1: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+        "attempt_1: Push2RateLimitError: 东方财富 push2 行情服务器断开了连接，通常是短时间内请求过多，当前 IP 被临时限流。首次限流一般约 5 分钟后恢复，反复触发后可能需要 40 分钟以上；等待期间不要重复调用东方财富的行情接口，否则会延长限流。",
+        "attempt_2: Push2RateLimitError: 东方财富 push2 行情服务器断开了连接，通常是短时间内请求过多，当前 IP 被临时限流。首次限流一般约 5 分钟后恢复，反复触发后可能需要 40 分钟以上；等待期间不要重复调用东方财富的行情接口，否则会延长限流。",
         "optional_source_unavailable",
         "volume_unit=SHARES"
       ]
     },
     {
       "adapter_id": "akshare",
-      "adapter_version": "1.18.83",
+      "adapter_version": "1.20.18",
       "adapter_function": "stock_info_sh_name_code:主板A股",
       "provider_id": "sse_public",
-      "retrieved_at": "2026-08-07T16:21:52+08:00",
+      "retrieved_at": "2026-10-30T23:01:26+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 0,
@@ -40,10 +41,10 @@
     },
     {
       "adapter_id": "akshare",
-      "adapter_version": "1.18.83",
+      "adapter_version": "1.20.18",
       "adapter_function": "stock_info_sh_name_code:科创板",
       "provider_id": "sse_public",
-      "retrieved_at": "2026-08-07T16:21:52+08:00",
+      "retrieved_at": "2026-10-30T23:01:26+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 0,
@@ -51,10 +52,10 @@
     },
     {
       "adapter_id": "akshare",
-      "adapter_version": "1.18.83",
+      "adapter_version": "1.20.18",
       "adapter_function": "stock_info_sz_name_code:A股列表",
       "provider_id": "szse_public",
-      "retrieved_at": "2026-08-07T16:21:52+08:00",
+      "retrieved_at": "2026-10-30T23:01:26+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 1,
@@ -64,10 +65,10 @@
     },
     {
       "adapter_id": "akshare",
-      "adapter_version": "1.18.83",
+      "adapter_version": "1.20.18",
       "adapter_function": "stock_info_bj_name_code",
       "provider_id": "bse_public",
-      "retrieved_at": "2026-08-07T16:21:52+08:00",
+      "retrieved_at": "2026-10-30T23:01:26+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 0,
@@ -75,22 +76,22 @@
     },
     {
       "adapter_id": "akshare",
-      "adapter_version": "1.18.83",
+      "adapter_version": "1.20.18",
       "adapter_function": "tool_trade_date_hist_sina",
       "provider_id": "sina_public",
-      "retrieved_at": "2026-08-07T16:21:52+08:00",
+      "retrieved_at": "2026-10-30T23:01:26+08:00",
       "source_as_of_date": null,
       "raw_hash_sha256": null,
       "retries": 0,
       "warnings": []
     }
   ],
-  "row_count": 5539,
+  "row_count": 5577,
   "column_count": 22,
   "file": {
     "path": "outputs/current/A_SHARE_UNIVERSE.csv",
-    "size_bytes": 1479344,
-    "sha256": "506154d24390eea75ef1ff7e4d948a5f3d09e96483d24d488a8df24e7e08ab4d"
+    "size_bytes": 1489898,
+    "sha256": "bd1ac59c69e617093175618187ae2015bc5e32324ce73b09df453b43cf0c1cec"
   },
   "quality": {
     "hard_failures": [],
@@ -100,8 +101,8 @@
     "gate_results_path": "outputs/current/A_SHARE_UNIVERSE_QUALITY.json"
   },
   "lineage": {
-    "parent_dataset_version": "a_share_universe-2026-08-06-FMDL1BC_20260807T121133+0800",
-    "last_known_good_dataset_version": "a_share_universe-2026-08-06-FMDL1BC_20260807T121133+0800"
+    "parent_dataset_version": "a_share_universe-2026-08-07-FMDL1BC_20260807T162152+0800",
+    "last_known_good_dataset_version": "a_share_universe-2026-08-07-FMDL1BC_20260807T162152+0800"
   },
   "known_limitations": [
     "Industry and listing-date enrichment depends on optional free exchange endpoints.",
