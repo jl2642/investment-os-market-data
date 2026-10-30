@@ -250,25 +250,100 @@
       "security_name": "中国银行",
       "semantic_input_watermark": "79005482f83d45bd956d07fcddc11df4dac75a06f44ec20f0e29726447806491",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
-      "semantic_research_required": true,
+      "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_601988_20261030_R1.json",
+      "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_STABLE_SYSTEMIC_BANK_EARNINGS_BUT_CET1_DECLINE_AND_A_SHARE_PRICE_FAIL_NEW_CAPITAL_HURDLE",
+      "first_rejection_test": "PASS_BANK_FRANCHISE_RECURRING_EARNINGS_AND_CREDIT_QUALITY_2026H1; WATCH_CET1_12_04PCT_DOWN49BP_AND_ROE_8_66PCT; FAIL_CURRENT_PRICE_HURDLE_RMB7_16_GT_FORMAL_RMB6_06; 2026Q3_EXPECTED_20261031_REQUIRES_MATERIAL_REFRESH",
+      "next_gate": "BUY_BELOW_IS_NOT_A_BUY_ORDER; RMB7_16_ABOVE_FORMAL_RMB6_06; PRICE_CROSS_ONLY_REOPENS_FRESH_DECISION_GRADE_D2_AND_BANK_PORTFOLIO_CONCENTRATION_REVIEW; REFRESH_AFTER_2026Q3_IF_CREDIT_CET1_EPS_NIM_MATERIAL_CHANGE",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false,
+        "near_term_update": "Issuer 2026Q3 report listed for 2026-10-31; not available at research cutoff 2026-10-30 09:30 CST. Material results require fresh D2."
+      },
+      "underwriting": {
+        "current_price": 7.16,
+        "price_as_of": "2026-10-29",
+        "entry_price": 5.7923,
+        "preferred_entry_price_15pct": 5.7923,
+        "formal_buy_entry_price_10pct": 6.0556,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "COMMON_BVPS_PB_SCENARIOS_CROSS_CHECKED_BY_NORMALIZED_COMMON_EPS_ROE_CREDIT_COST_CET1_AND_DIVIDEND_CAPACITY",
+        "normalized_earnings_basis": {
+          "metric": "2026H1_COMMON_BVPS_AND_NORMALIZED_COMMON_EPS",
+          "common_bvps": 8.54,
+          "h1_attributable_profit_rmb_bn": 123.594,
+          "h1_deducted_attributable_profit_rmb_bn": 123.479,
+          "h1_common_eps": 0.36,
+          "annualized_common_eps_cross_check": 0.72,
+          "normalized_annual_common_eps_range": [
+            0.68,
+            0.77
+          ],
+          "annualized_reported_roe": 0.0866,
+          "h1_net_interest_margin": 0.0127,
+          "h1_credit_cost": 0.0058,
+          "rationale": "2026H1 attributable earnings are largely recurring but ordinary EPS remains RMB0.36 despite 5.10% reported attributable profit growth, following 2025 A-share issuance. Annualizing H1 common EPS is only a sensitivity, not forward guidance. Common BVPS RMB8.54 excludes other equity instruments. Bank CFO is distorted by deposit and loan flows and is not industrial free cash flow. PB 0.60/0.78/0.96x and scenario probabilities are analyst assumptions calibrated to ~8.66% ROE, 12.04% CET1, 1.22% NPL and expected credit-cost/interest-rate pressure; no 2026Q3 results are assumed."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "pb_multiple": 0.6,
+            "value_per_share": 5.124,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "pb_multiple": 0.78,
+            "value_per_share": 6.6612,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "pb_multiple": 0.96,
+            "value_per_share": 8.1984,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 6.6612,
+        "expected_return": -0.069665,
+        "bear_downside": -0.284358,
+        "current_pb": 0.8384,
+        "annualized_proposed_interim_dividend_yield_cross_check": 0.03324,
+        "action": "BUY_BELOW",
+        "catalysts": [
+          "2026Q3 results confirm recurring earnings and NIM stability without deterioration in credit cost or CET1.",
+          "Lower deposit funding costs continue to offset loan repricing, sustaining NIM near or above H1 1.27%.",
+          "Overseas and cross-border banking franchise generates profitable fee and settlement growth without undue FX or geopolitical credit losses.",
+          "Common-share payout is approved and funded by sustainable earnings and regulatory capital headroom, not incremental dilutive equity."
+        ],
+        "kill_thesis": [
+          "CET1 declines materially below H1 12.04% without a credible organic rebuild, or ordinary shareholders face another dilutive capital raise.",
+          "NPL ratio materially exceeds H1 1.22% or coverage falls materially below H1 200.85% as real-estate, retail or overseas credit costs accelerate.",
+          "NIM falls materially below H1 1.27% and recurring common ROE drops below the modeled 8%-9% range without a credible offset.",
+          "Credit impairment growth outpaces recurring pre-provision income, constraining distributable common earnings or dividends.",
+          "Material geopolitical, foreign-exchange or overseas credit losses impair the international franchise."
+        ]
+      },
+      "source_discovery_mode": "CHATGPT_NATIVE_2026H1_OFFICIAL_ISSUER_PRIMARY_DISCLOSURE_AND_20261029_A_SHARE_CLOSE"
     }
   ],
   "schema_version": "1.1.0",
   "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_54274710f13096c4",
-  "state_id": "RESEARCH_QUEUE_D2_CURRENT_c11c9888d80342ce",
-  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_c11c9888d80342ce_SEMANTIC_601988_20261030_R1",
+  "status": "D2_AUTO_CONSUMER_ACTIVE_NO_PENDING_WORK",
   "summary": {
     "ai_book_auto_reunderwrite_pending_count": 0,
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 2,
+    "completed_count": 3,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 1,
+    "pending_count": 0,
     "provider_incident_active": false,
     "reused_completed_count": 0,
     "routed_count": 3
