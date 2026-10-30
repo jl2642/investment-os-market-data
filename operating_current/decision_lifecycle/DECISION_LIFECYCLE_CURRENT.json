@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-10-30T01:19:49+00:00",
+  "generated_at_utc": "2026-10-30T06:36:36+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-10-29",
-    "recommendation_generated_at_utc": "2026-10-30T01:12:15+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_d28b7d4177dcccf4",
+    "recommendation_generated_at_utc": "2026-10-30T06:28:11+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_6291955f8b36db2f",
     "surface_as_of_date": "2026-10-29",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_78dc532b839fc95b"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_d0192f546d84c483"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_223da71a56c56afe",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_eb0b77e52fcdfad7",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -1985,14 +1985,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 6.6612,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "AVOID",
+      "entry_price": 5.7923,
+      "expected_return": -0.06966480446927381,
       "latest_price": 7.16,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_AVOID",
+      "mark_expected_return": -0.06966480446927381,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -2000,17 +2000,28 @@
       "position_state": "FLAT",
       "price_as_of": "2026-10-29",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 6.6612,
       "ready_for_user_decision": false,
       "security_id": "601988.SH",
       "security_name": "中国银行",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+        "catalysts": [
+          "2026Q3 results confirm recurring earnings and NIM stability without deterioration in credit cost or CET1.",
+          "Lower deposit funding costs continue to offset loan repricing, sustaining NIM near or above H1 1.27%.",
+          "Overseas and cross-border banking franchise generates profitable fee and settlement growth without undue FX or geopolitical credit losses.",
+          "Common-share payout is approved and funded by sustainable earnings and regulatory capital headroom, not incremental dilutive equity."
+        ],
+        "kill_thesis": [
+          "CET1 declines materially below H1 12.04% without a credible organic rebuild, or ordinary shareholders face another dilutive capital raise.",
+          "NPL ratio materially exceeds H1 1.22% or coverage falls materially below H1 200.85% as real-estate, retail or overseas credit costs accelerate.",
+          "NIM falls materially below H1 1.27% and recurring common ROE drops below the modeled 8%-9% range without a credible offset.",
+          "Credit impairment growth outpaces recurring pre-provision income, constraining distributable common earnings or dividends.",
+          "Material geopolitical, foreign-exchange or overseas credit losses impair the international franchise."
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -2223,7 +2234,7 @@
     "portfolio_review_required_count": 2,
     "reunderwrite_required_count": 5,
     "review_queue_count": 13,
-    "semantic_watch_clause_count": 496,
+    "semantic_watch_clause_count": 371,
     "subject_count": 54,
     "user_action_review_count": 6,
     "valuation_reunderwrite_count": 4
