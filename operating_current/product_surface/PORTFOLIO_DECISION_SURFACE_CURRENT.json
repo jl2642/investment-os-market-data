@@ -21,12 +21,11 @@
   "executive": {
     "action_counts": {
       "ADD": 4,
-      "AVOID": 18,
+      "AVOID": 19,
       "BUY": 1,
       "BUY_BELOW": 11,
       "HOLD": 18,
-      "TRIM": 1,
-      "WATCH": 1
+      "TRIM": 1
     },
     "automatic_position_change_allowed": false,
     "automatic_rebalance_allowed": false,
@@ -391,25 +390,6 @@
       "security_id": "603995.SH",
       "security_name": "甬金股份",
       "top_blocker": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
-      "action": "WATCH",
-      "bear_downside": null,
-      "catalysts": [],
-      "confidence": null,
-      "current_price": null,
-      "entry_price": null,
-      "expected_return": null,
-      "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-      "orders": 0,
-      "original_recommendation_action": "WATCH",
-      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
-      "ready_for_user_decision": false,
-      "security_id": "601988.SH",
-      "security_name": "中国银行",
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -837,6 +817,36 @@
       "ready_for_user_decision": false,
       "security_id": "601857.SH",
       "security_name": "中国石油",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "AVOID",
+      "bear_downside": -0.2843575418994414,
+      "catalysts": [
+        "2026Q3 results confirm recurring earnings and NIM stability without deterioration in credit cost or CET1.",
+        "Lower deposit funding costs continue to offset loan repricing, sustaining NIM near or above H1 1.27%.",
+        "Overseas and cross-border banking franchise generates profitable fee and settlement growth without undue FX or geopolitical credit losses.",
+        "Common-share payout is approved and funded by sustainable earnings and regulatory capital headroom, not incremental dilutive equity."
+      ],
+      "confidence": "MEDIUM_HIGH",
+      "current_price": 7.16,
+      "entry_price": 5.7923,
+      "expected_return": -0.06966480446927381,
+      "kill_thesis": [
+        "CET1 declines materially below H1 12.04% without a credible organic rebuild, or ordinary shareholders face another dilutive capital raise.",
+        "NPL ratio materially exceeds H1 1.22% or coverage falls materially below H1 200.85% as real-estate, retail or overseas credit costs accelerate.",
+        "NIM falls materially below H1 1.27% and recurring common ROE drops below the modeled 8%-9% range without a credible offset.",
+        "Credit impairment growth outpaces recurring pre-provision income, constraining distributable common earnings or dividends.",
+        "Material geopolitical, foreign-exchange or overseas credit losses impair the international franchise."
+      ],
+      "orders": 0,
+      "original_recommendation_action": "AVOID",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "601988.SH",
+      "security_name": "中国银行",
       "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
@@ -2261,9 +2271,9 @@
     "investment_pipeline": {
       "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_54274710f13096c4",
       "domain": "INVESTMENT_PIPELINE",
-      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_d28b7d4177dcccf4",
-      "source_commit": "4c18651219d75a001fd5d802e44713631b1589cb",
-      "watermark": "2026-10-30T01:12:15+00:00"
+      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_6291955f8b36db2f",
+      "source_commit": "f5e019f8f66eb39347797d487047270cb1afe322",
+      "watermark": "2026-10-30T06:28:11+00:00"
     },
     "portfolio_marks": {
       "domain": "PORTFOLIO_MARKS",
@@ -2272,6 +2282,6 @@
     }
   },
   "status": "PASS_S3_PORTFOLIO_PRODUCT_SURFACE",
-  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_78dc532b839fc95b",
+  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_d0192f546d84c483",
   "trade_authority": "NONE"
 }
