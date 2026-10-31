@@ -8,12 +8,12 @@
   },
   "coverage": {
     "d2_subject_count": 57,
-    "decision_grade_underwriting_count": 56,
+    "decision_grade_underwriting_count": 57,
     "portfolio_comparison_boundary": "Current D2 subjects are ranked explicitly; holdings without D2 underwriting remain outside expected-return comparison rather than receiving invented returns.",
     "real_position_state_bound": true,
     "simulation_position_state_bound": true
   },
-  "generated_at_utc": "2026-10-31T01:16:58+00:00",
+  "generated_at_utc": "2026-10-31T01:44:36+00:00",
   "price_freshness_policy": {
     "active_semantic_refresh_fails_closed": true,
     "latest_mark_date": "2026-10-30",
@@ -85,9 +85,9 @@
         "underwriting_price_as_of": "2026-10-30"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 56,
+      "rank_among_current_d2": 57,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "300234.SZ",
       "security_name": "开尔新材",
@@ -157,9 +157,9 @@
         "underwriting_price_as_of": "2026-10-30"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 55,
+      "rank_among_current_d2": 56,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "603976.SH",
       "security_name": "正川股份",
@@ -168,25 +168,72 @@
     {
       "capital_hurdle": 0.1,
       "cash_hurdle": 0.04,
-      "comparison_status": "RESEARCH_REFRESH_PENDING",
+      "comparison_status": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "comparison_vector": {
-        "bear_downside": null,
+        "bear_downside": -0.32586558044806513,
         "capital_hurdle": 0.1,
         "cash_hurdle": 0.04,
-        "confidence": null,
+        "confidence": "MEDIUM_HIGH",
         "existing_position": false,
-        "expected_return": null
+        "expected_return": -0.10957230142566199
       },
-      "d2_status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+      "d2_status": "D2_RESEARCH_COMPLETE",
       "existing_position": false,
-      "metrics": null,
-      "missing_requirements": [
-        "UNDERWRITING_OBJECT_ABSENT"
-      ],
-      "peer_expected_return_median": 0.033295063145809545,
+      "metrics": {
+        "base_value": 4.49,
+        "bear_downside": -0.32586558044806513,
+        "bear_value": 3.31,
+        "bull_value": 5.67,
+        "catalysts": [
+          "铁路信号系统更新改造订单转化为连续两季度以上收入与扣非利润恢复，新签合同同比转正。",
+          "应收账款和合同资产回收、剔除财务公司吸收关联方存款后的经营现金流持续转正并覆盖资本开支和分红。",
+          "城轨与海外项目收入止跌，轨道交通高毛利核心设备占比提高并带动正常化ROE达到或超过资金成本。"
+        ],
+        "confidence": "MEDIUM_HIGH",
+        "current_market_price": 4.91,
+        "current_market_price_as_of": "2026-10-30",
+        "current_price": 4.91,
+        "entry_price": 3.8,
+        "expected_return": -0.10957230142566199,
+        "formal_buy_entry_price": 3.974545454545454,
+        "formal_buy_hurdle": 0.1,
+        "kill_thesis": [
+          "剔除财务公司客户存款影响后的核心经营现金流持续为负，回款和合同资产减值恶化。",
+          "铁路/城轨订单持续下降且项目结算回款拖延，利润依赖非现金应计。",
+          "智能低空等新业务合同增长但绝对规模过小，不能对冲传统业务下滑。",
+          "正常化ROE长期低于股权资金成本且分红现金覆盖不足，PB溢价失去依据。"
+        ],
+        "normalized_earnings_basis": {
+          "annualized_2026_normalized_attributable_np_rmb_mn_approx": 3260,
+          "attributable_bvps_approx": 4.7273,
+          "metric": "2026_9M_RECURRING_EARNINGS_2025_Q4_SEASONALITY_AND_ATTRIBUTABLE_BVPS",
+          "nine_month_attributable_np_rmb_mn": 2020.8632,
+          "nine_month_deducted_np_rmb_mn": 1962.8879,
+          "normalized_eps_approx": 0.308,
+          "normalized_roe_approx": 0.0651,
+          "rationale": "2026年前三季度归母20.21亿元同比下降11.53%；2025全年归母36.86亿元、2025前三季度约22.84亿元，推算2025Q4约14.02亿元。保守假设2026Q4同比下滑约11.5%，全年归母约32.6亿元/每股0.308元，属分析情景非公司指引。2026Q3归母权益500.61亿元/105.90亿股得每股净资产约4.727元。正常化ROE约6.5%低于9%-10%股权资金成本假设，PB基准0.95x已包含轨交控制业务的稳健特许属性；现金转化不达标限制估值溢价。"
+        },
+        "original_bear_downside": -0.32586558044806513,
+        "original_expected_return": -0.10957230142566199,
+        "portfolio_role": null,
+        "preferred_entry_hurdle": 0.15,
+        "preferred_entry_price": 3.8,
+        "price_as_of": "2026-10-30",
+        "price_basis": "A_SHARE_FULL_MARKET",
+        "probability_weighted_value": 4.372,
+        "scenario_probabilities": {
+          "BASE": 0.5,
+          "BEAR": 0.3,
+          "BULL": 0.2
+        },
+        "underwriting_price": 4.91,
+        "underwriting_price_as_of": "2026-10-30"
+      },
+      "missing_requirements": [],
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": null,
-      "research_freshness": "RESEARCH_REFRESH_PENDING",
+      "rank_among_current_d2": 42,
+      "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "688009.SH",
       "security_name": "中国通号",
       "trade_authority": "NONE"
@@ -254,9 +301,9 @@
         "underwriting_price_as_of": "2026-10-28"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 42,
+      "rank_among_current_d2": 43,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "000089.SZ",
       "security_name": "深圳机场",
@@ -320,7 +367,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -395,9 +442,9 @@
         "underwriting_price_as_of": "2026-10-29"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 50,
+      "rank_among_current_d2": 51,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "000530.SZ",
       "security_name": "冰山冷热",
@@ -463,9 +510,9 @@
         "underwriting_price_as_of": "2026-09-28"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 51,
+      "rank_among_current_d2": 52,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "000608.SZ",
       "security_name": "阳光股份",
@@ -533,7 +580,7 @@
         "underwriting_price_as_of": "2026-09-16"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 37,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -603,9 +650,9 @@
         "underwriting_price_as_of": "2026-09-24"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 52,
+      "rank_among_current_d2": 53,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "000993.SZ",
       "security_name": "闽东电力",
@@ -672,7 +719,7 @@
         "underwriting_price_as_of": "2026-09-24"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 13,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -746,7 +793,7 @@
         "underwriting_price_as_of": "2026-09-03"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "REAL"
       ],
@@ -820,7 +867,7 @@
         "underwriting_price_as_of": "2026-09-23"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 36,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -890,7 +937,7 @@
         "underwriting_price_as_of": "2026-09-15"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 35,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -961,7 +1008,7 @@
         "underwriting_price_as_of": "2026-09-15"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 34,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -1034,9 +1081,9 @@
         "underwriting_price_as_of": "2026-10-27"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 45,
+      "rank_among_current_d2": 46,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "003006.SZ",
       "security_name": "百亚股份",
@@ -1107,9 +1154,9 @@
         "underwriting_price_as_of": "2026-09-04"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 49,
+      "rank_among_current_d2": 50,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "003040.SZ",
       "security_name": "楚天龙",
@@ -1171,7 +1218,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "REAL"
       ],
@@ -1237,7 +1284,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "REAL"
       ],
@@ -1301,7 +1348,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "REAL"
       ],
@@ -1367,7 +1414,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "REAL"
       ],
@@ -1432,7 +1479,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "REAL"
       ],
@@ -1498,7 +1545,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1569,7 +1616,7 @@
         "underwriting_price_as_of": "2026-10-27"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 40,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -1639,7 +1686,7 @@
         "underwriting_price_as_of": "2026-09-09"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1712,7 +1759,7 @@
         "underwriting_price_as_of": "2026-09-18"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 25,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -1781,9 +1828,9 @@
         "underwriting_price_as_of": "2026-09-15"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 54,
+      "rank_among_current_d2": 55,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "300647.SZ",
       "security_name": "超频三",
@@ -1852,7 +1899,7 @@
         "underwriting_price_as_of": "2026-08-31"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -1924,9 +1971,9 @@
         "underwriting_price_as_of": "2026-09-24"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 47,
+      "rank_among_current_d2": 48,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "300909.SZ",
       "security_name": "汇创达",
@@ -1994,7 +2041,7 @@
         "underwriting_price_as_of": "2026-09-15"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 31,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -2067,9 +2114,9 @@
         "underwriting_price_as_of": "2026-09-18"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 53,
+      "rank_among_current_d2": 54,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "301122.SZ",
       "security_name": "采纳股份",
@@ -2139,7 +2186,7 @@
         "underwriting_price_as_of": "2026-09-22"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 16,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -2210,9 +2257,9 @@
         "underwriting_price_as_of": "2026-09-22"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 48,
+      "rank_among_current_d2": 49,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "301189.SZ",
       "security_name": "奥尼电子",
@@ -2274,7 +2321,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "REAL",
         "SIMULATION"
@@ -2341,7 +2388,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -2407,7 +2454,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -2479,7 +2526,7 @@
         "underwriting_price_as_of": "2026-09-16"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -2545,7 +2592,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -2620,7 +2667,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 22,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -2694,7 +2741,7 @@
         "underwriting_price_as_of": "2026-09-18"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -2760,7 +2807,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -2832,7 +2879,7 @@
         "underwriting_price_as_of": "2026-09-09"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 32,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -2906,7 +2953,7 @@
         "underwriting_price_as_of": "2026-09-02"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -2977,7 +3024,7 @@
         "underwriting_price_as_of": "2026-09-28"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 30,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -3042,7 +3089,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -3115,7 +3162,7 @@
         "underwriting_price_as_of": "2026-09-22"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -3185,7 +3232,7 @@
         "underwriting_price_as_of": "2026-09-24"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -3267,7 +3314,7 @@
         "underwriting_price_as_of": "2026-10-28"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 26,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -3344,9 +3391,9 @@
         "underwriting_price_as_of": "2026-10-29"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 43,
+      "rank_among_current_d2": 44,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "601857.SH",
       "security_name": "中国石油",
@@ -3416,7 +3463,7 @@
         "underwriting_price_as_of": "2026-09-21"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 8,
       "research_freshness": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
@@ -3486,7 +3533,7 @@
         "underwriting_price_as_of": "2026-09-10"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "SIMULATION"
       ],
@@ -3559,7 +3606,7 @@
         "underwriting_price_as_of": "2026-10-27"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 29,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -3640,7 +3687,7 @@
         "underwriting_price_as_of": "2026-10-29"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 38,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -3710,7 +3757,7 @@
         "underwriting_price_as_of": "2026-09-18"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 41,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
@@ -3780,9 +3827,9 @@
         "underwriting_price_as_of": "2026-09-28"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 46,
+      "rank_among_current_d2": 47,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "603819.SH",
       "security_name": "神力股份",
@@ -3851,7 +3898,7 @@
         "underwriting_price_as_of": "2026-09-03"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
       "rank_among_current_d2": 10,
       "research_freshness": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
@@ -3917,7 +3964,7 @@
         "underwriting_price_as_of": "2026-09-01"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [
         "REAL"
       ],
@@ -3992,9 +4039,9 @@
         "underwriting_price_as_of": "2026-10-28"
       },
       "missing_requirements": [],
-      "peer_expected_return_median": 0.033295063145809545,
+      "peer_expected_return_median": 0.0284641068447411,
       "position_accounts": [],
-      "rank_among_current_d2": 44,
+      "rank_among_current_d2": 45,
       "research_freshness": "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH",
       "security_id": "688425.SH",
       "security_name": "铁建重工",
@@ -4003,6 +4050,6 @@
   ],
   "schema_version": "2.0.0",
   "source_d2_state_id": "RESEARCH_QUEUE_D2_CURRENT_f360253c4cfd4d7b_SEMANTIC_2a7bd8faafa8",
-  "state_id": "CAPITAL_COMPARISON_CURRENT_MARK_REBASED_cec70917d18cdcfa",
+  "state_id": "CAPITAL_COMPARISON_CURRENT_MARK_REBASED_dd7edc59674eb860",
   "status": "PASS_LIVE_CAPITAL_COMPARISON"
 }
