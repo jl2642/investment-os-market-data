@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-31T00:56:16Z",
+  "as_of": "2026-10-31T01:32:55Z",
   "consumer_policy": {
     "ai_book_near_gate_refresh": "AUTO_ROUTED_TO_CHATGPT_NATIVE_SEMANTIC_D2_WITHOUT_MANUAL_D1_D2_DISPATCH",
     "bounded_batch_size": 3,
@@ -238,25 +238,93 @@
       "security_name": "中国通号",
       "semantic_input_watermark": "ad2a9568af6c1225c9489784f706ca6dfcf99c0d568626627948f7e4660ba7cb",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
-      "semantic_research_required": true,
+      "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_688009_20261031_R1.json",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_2026Q3_WEAK_CORE_CASH_CONVERSION_LOW_ROE_CONTRACT_DECLINE_INADEQUATE_EXPECTED_RETURN",
+      "first_rejection_test": "FAIL_DEFENSIVE_STABILITY_CASH_CONVERSION_2026_9M_REVENUE_DOWN3_28PCT_DEDUCTED_NP_DOWN10_91PCT_EX_FINCO_DEPOSITS_CFO_MINUS_RMB593_6MN_FCF_AFTER_CAPEX_MINUS_RMB869_8MN_ROE4_02PCT_9M; PRICE_RMB4_91_VS_PW_RMB4_37",
+      "next_gate": "AVOID_NEW_CAPITAL; CASH_CONVERSION_AND_ROE_RECOVERY_REQUIRED_BEFORE_REUNDERWRITE; PRICE_THRESHOLD_ALONE_ONLY_OPENS_FRESH_D2_AND_PORTFOLIO_FIT_NOT_AUTOMATIC_BUY",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false,
+        "monitoring": "2026Q3未经审计；财务公司关联方存款导致报表经营现金流和核心业务现金流不同。2026全年盈利为保守季节性假设，未来分红、现金回款及订单兑现须持续验证；A/H股价格不可混用。"
+      },
+      "underwriting": {
+        "current_price": 4.91,
+        "price_as_of": "2026-10-30",
+        "entry_price": 3.8,
+        "preferred_entry_price_15pct": 3.8,
+        "formal_buy_entry_price_10pct": 3.97,
+        "confidence": "MEDIUM_HIGH",
+        "valuation_method": "2026Q3_ATTRIBUTABLE_BVPS_PB_SCENARIOS_ROE_COST_OF_EQUITY_CROSS_CHECKED_WITH_NORMALIZED_EPS_AND_CASH_CONVERSION",
+        "normalized_earnings_basis": {
+          "metric": "2026_9M_RECURRING_EARNINGS_2025_Q4_SEASONALITY_AND_ATTRIBUTABLE_BVPS",
+          "nine_month_attributable_np_rmb_mn": 2020.8632,
+          "nine_month_deducted_np_rmb_mn": 1962.8879,
+          "annualized_2026_normalized_attributable_np_rmb_mn_approx": 3260,
+          "normalized_eps_approx": 0.308,
+          "attributable_bvps_approx": 4.7273,
+          "normalized_roe_approx": 0.0651,
+          "rationale": "2026年前三季度归母20.21亿元同比下降11.53%；2025全年归母36.86亿元、2025前三季度约22.84亿元，推算2025Q4约14.02亿元。保守假设2026Q4同比下滑约11.5%，全年归母约32.6亿元/每股0.308元，属分析情景非公司指引。2026Q3归母权益500.61亿元/105.90亿股得每股净资产约4.727元。正常化ROE约6.5%低于9%-10%股权资金成本假设，PB基准0.95x已包含轨交控制业务的稳健特许属性；现金转化不达标限制估值溢价。"
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "pb_multiple": 0.7,
+            "value_per_share": 3.31,
+            "probability": 0.3
+          },
+          {
+            "name": "BASE",
+            "pb_multiple": 0.95,
+            "value_per_share": 4.49,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "pb_multiple": 1.2,
+            "value_per_share": 5.67,
+            "probability": 0.2
+          }
+        ],
+        "probability_weighted_value": 4.372,
+        "expected_return": -0.109572,
+        "bear_downside": -0.325866,
+        "current_pb_approx": 1.0387,
+        "normalized_pe_approx": 15.95,
+        "dividend_per_share_2025_rmb": 0.17,
+        "reference_dividend_yield_approx": 0.0346,
+        "action": "AVOID",
+        "catalysts": [
+          "铁路信号系统更新改造订单转化为连续两季度以上收入与扣非利润恢复，新签合同同比转正。",
+          "应收账款和合同资产回收、剔除财务公司吸收关联方存款后的经营现金流持续转正并覆盖资本开支和分红。",
+          "城轨与海外项目收入止跌，轨道交通高毛利核心设备占比提高并带动正常化ROE达到或超过资金成本。"
+        ],
+        "kill_thesis": [
+          "剔除财务公司客户存款影响后的核心经营现金流持续为负，回款和合同资产减值恶化。",
+          "铁路/城轨订单持续下降且项目结算回款拖延，利润依赖非现金应计。",
+          "智能低空等新业务合同增长但绝对规模过小，不能对冲传统业务下滑。",
+          "正常化ROE长期低于股权资金成本且分红现金覆盖不足，PB溢价失去依据。"
+        ]
+      }
     }
   ],
   "schema_version": "1.1.0",
   "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_296df0183f0c8505",
   "state_id": "RESEARCH_QUEUE_D2_CURRENT_f360253c4cfd4d7b",
-  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
+  "status": "D2_AUTO_CONSUMER_ACTIVE_NO_PENDING_WORK",
   "summary": {
     "ai_book_auto_reunderwrite_pending_count": 0,
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 2,
+    "completed_count": 3,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 1,
+    "pending_count": 0,
     "provider_incident_active": false,
     "reused_completed_count": 0,
     "routed_count": 3
