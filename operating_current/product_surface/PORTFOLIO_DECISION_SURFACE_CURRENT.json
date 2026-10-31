@@ -21,12 +21,11 @@
   "executive": {
     "action_counts": {
       "ADD": 4,
-      "AVOID": 22,
+      "AVOID": 23,
       "BUY": 1,
       "BUY_BELOW": 10,
       "HOLD": 18,
-      "TRIM": 1,
-      "WATCH": 1
+      "TRIM": 1
     },
     "automatic_position_change_allowed": false,
     "automatic_rebalance_allowed": false,
@@ -362,25 +361,6 @@
       "security_id": "603995.SH",
       "security_name": "甬金股份",
       "top_blocker": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
-      "action": "WATCH",
-      "bear_downside": null,
-      "catalysts": [],
-      "confidence": null,
-      "current_price": null,
-      "entry_price": null,
-      "expected_return": null,
-      "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-      "orders": 0,
-      "original_recommendation_action": "WATCH",
-      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
-      "ready_for_user_decision": false,
-      "security_id": "688009.SH",
-      "security_name": "中国通号",
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -979,6 +959,34 @@
       "ready_for_user_decision": false,
       "security_id": "603976.SH",
       "security_name": "正川股份",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "AVOID",
+      "bear_downside": -0.32586558044806513,
+      "catalysts": [
+        "铁路信号系统更新改造订单转化为连续两季度以上收入与扣非利润恢复，新签合同同比转正。",
+        "应收账款和合同资产回收、剔除财务公司吸收关联方存款后的经营现金流持续转正并覆盖资本开支和分红。",
+        "城轨与海外项目收入止跌，轨道交通高毛利核心设备占比提高并带动正常化ROE达到或超过资金成本。"
+      ],
+      "confidence": "MEDIUM_HIGH",
+      "current_price": 4.91,
+      "entry_price": 3.8,
+      "expected_return": -0.10957230142566199,
+      "kill_thesis": [
+        "剔除财务公司客户存款影响后的核心经营现金流持续为负，回款和合同资产减值恶化。",
+        "铁路/城轨订单持续下降且项目结算回款拖延，利润依赖非现金应计。",
+        "智能低空等新业务合同增长但绝对规模过小，不能对冲传统业务下滑。",
+        "正常化ROE长期低于股权资金成本且分红现金覆盖不足，PB溢价失去依据。"
+      ],
+      "orders": 0,
+      "original_recommendation_action": "AVOID",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "688009.SH",
+      "security_name": "中国通号",
       "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
@@ -2347,9 +2355,9 @@
     "investment_pipeline": {
       "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_296df0183f0c8505",
       "domain": "INVESTMENT_PIPELINE",
-      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_8d4520abba77e7d7",
-      "source_commit": "5bae51011aec63f6563ad4741736fe1772c4149d",
-      "watermark": "2026-10-31T01:16:58+00:00"
+      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_a36a6f320d7ea33c",
+      "source_commit": "cfa70b7b35baaad89dd2f615e326cee047a22ca9",
+      "watermark": "2026-10-31T01:44:36+00:00"
     },
     "portfolio_marks": {
       "domain": "PORTFOLIO_MARKS",
@@ -2358,6 +2366,6 @@
     }
   },
   "status": "PASS_S3_PORTFOLIO_PRODUCT_SURFACE",
-  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_5c68b34c01dac7e0",
+  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_e0b256bd82c1ed1e",
   "trade_authority": "NONE"
 }
