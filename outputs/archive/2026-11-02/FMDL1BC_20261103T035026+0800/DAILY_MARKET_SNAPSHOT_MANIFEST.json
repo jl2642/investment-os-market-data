@@ -1,0 +1,57 @@
+{
+  "manifest_version": "1.0.0",
+  "dataset_id": "daily_market_snapshot",
+  "dataset_version": "daily_market_snapshot-2026-11-02-FMDL1BC_20261103T035026+0800",
+  "schema_id": "daily_market_snapshot.schema.json",
+  "schema_version": "1.0.0",
+  "run_id": "FMDL1BC_20261103T035026+0800",
+  "as_of_date": "2026-11-02",
+  "generated_at": "2026-11-03T03:50:26+08:00",
+  "business_timezone": "Asia/Shanghai",
+  "publication_status": "DEGRADED",
+  "qa_status": "PASS_WITH_WARNINGS",
+  "sources": [
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.20.22",
+      "adapter_function": "stock_zh_a_spot",
+      "provider_id": "sina_public",
+      "retrieved_at": "2026-11-03T03:50:26+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": "ecfc7a09952da536a6158844825326a96e0bdaf7f187cb078ca3aea8dca65f80",
+      "retries": 0,
+      "warnings": [
+        "primary_provider_unavailable: stock_zh_a_spot_em",
+        "attempt_1: Push2RateLimitError: 东方财富 push2 行情服务器断开了连接，通常是短时间内请求过多，当前 IP 被临时限流。首次限流一般约 5 分钟后恢复，反复触发后可能需要 40 分钟以上；等待期间不要重复调用东方财富的行情接口，否则会延长限流。",
+        "attempt_2: Push2RateLimitError: 东方财富 push2 行情服务器断开了连接，通常是短时间内请求过多，当前 IP 被临时限流。首次限流一般约 5 分钟后恢复，反复触发后可能需要 40 分钟以上；等待期间不要重复调用东方财富的行情接口，否则会延长限流。",
+        "optional_source_unavailable",
+        "volume_unit=SHARES"
+      ]
+    }
+  ],
+  "row_count": 5577,
+  "column_count": 21,
+  "file": {
+    "path": "outputs/candidate/DAILY_MARKET_SNAPSHOT.csv",
+    "size_bytes": 1173313,
+    "sha256": "82412a75488cf674acbd9e64561cce3c7dfb48ae5b4a504fdd77eb3945a584b9"
+  },
+  "quality": {
+    "hard_failures": [],
+    "soft_warnings": [
+      "market_cap_fill_ratio",
+      "valuation_fill_ratio"
+    ],
+    "gate_results_path": "outputs/candidate/DAILY_MARKET_SNAPSHOT_QUALITY.json"
+  },
+  "lineage": {
+    "parent_dataset_version": null,
+    "last_known_good_dataset_version": null
+  },
+  "known_limitations": [
+    "AKShare/Sina 成交量 is supplied in shares and is preserved without a lot multiplier.",
+    "Sina fallback does not provide market-cap or valuation fields in this interface; those fields remain null and are hardened in FMDL-3.",
+    "Candidate data is not a stable Investment OS current output until FMDL-1F promotion."
+  ],
+  "notes": "FMDL-1B/C candidate output. Not yet promoted to outputs/current."
+}
