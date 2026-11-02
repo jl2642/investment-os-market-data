@@ -18,8 +18,8 @@
 - **中国海油 (600938.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 35.2600 has exhausted the current valuation margin; mark-to-weighted-value expected return is 2.10%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **江河集团 (601886.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 11.2800 is at/below entry threshold 12.1300. 下一步：`FRESH_D2_BEFORE_ANY_BUY`。
+- **九丰能源 (605090.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Holding newly crossed the 15% drawdown review threshold; loss is not an automatic exit but thesis must be refreshed once. 下一步：`FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
-- **招商安泰债券A (217003.OF)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Holding price 1.3699 is at/below research entry threshold 1.3700. 下一步：`FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD`。
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **万华化学 (600309.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **福耀玻璃 (600660.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
