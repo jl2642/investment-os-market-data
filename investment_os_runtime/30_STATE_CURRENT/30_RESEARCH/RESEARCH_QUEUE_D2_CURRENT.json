@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-31T01:32:55Z",
+  "as_of": "2026-11-03T01:02:12Z",
   "consumer_policy": {
     "ai_book_near_gate_refresh": "AUTO_ROUTED_TO_CHATGPT_NATIVE_SEMANTIC_D2_WITHOUT_MANUAL_D1_D2_DISPATCH",
     "bounded_batch_size": 3,
@@ -27,7 +27,7 @@
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-      "d1_rank": 1,
+      "d1_rank": 7,
       "d2_questions": [
         "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
         "Test whether the expected return remains attractive after normalizing current momentum.",
@@ -37,177 +37,194 @@
       ],
       "decision_mutation_authorized": false,
       "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-      "input_watermark": "63db7c735a19ab8c6c61ddff860053d65108dadf3f8ac380b9c7302a48095778",
-      "last_attempt_at": "2026-10-30T17:07:33+00:00",
+      "input_watermark": "0aa9a717981a8e2dae9277ca7e5a5318d32bd1b120ed96535bd7b700789e76db",
+      "last_attempt_at": "2026-11-02T19:59:51+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "300234.SZ",
-      "security_name": "开尔新材",
-      "semantic_input_watermark": "1a96982bd94d22c7c0d03f4fc68657fe6a696533c1a0a82a59c0f4d064aeaab5",
+      "security_id": "601088.SH",
+      "security_name": "中国神华",
+      "semantic_input_watermark": "d35f831b4cada586a53eb97366ebc0948f5653765a1ebc16d36bd5db9f6ecf8f",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
       "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
       "status": "D2_RESEARCH_COMPLETE",
       "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_300234_20261031_R1.json",
-      "research_disposition": "AVOID_RESEARCH_COMPLETE_2026Q3_RECURRING_LOSS_NEGATIVE_ROE_CFO_COLLAPSE_HIGH_PB_TREND_NOT_FUNDAMENTAL",
-      "first_rejection_test": "FAIL_TREND_PERSISTENCE_FUNDAMENTALS_2026_9M_REVENUE_DOWN9_18PCT_DEDUCTED_LOSS_RMB18_18MN_CFO_DOWN98_45PCT; PRICE_RMB11_03_VS_PW_RMB2_54",
-      "next_gate": "AVOID_NEW_CAPITAL; ANY_PRICE_THRESHOLD_ONLY_REOPENS_FRESH_D2_AFTER_PROVEN_NORMALIZED_EARNINGS_AND_CASH_CONVERSION; NO_AUTOMATIC_BUY",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_601088_20261103_R1.json",
+      "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_2026Q3_CASH_GENERATION_STRONG_BUT_ACQUISITION_DILUTION_COAL_CYCLE_AND_CURRENT_A_SHARE_VALUATION_FAIL_MARGIN",
+      "first_rejection_test": "PASS_CASH_GENERATION_CFO_RMB92_7BN_MINUS_CAPEX_RMB47_181BN; FAIL_CURRENT_A_SHARE_MARGIN_RMB51_84_GT_PW_RMB43_80; POST_MERGER_EPS_AND_COAL_CYCLE_NORMALIZATION_REQUIRED",
+      "next_gate": "BUY_BELOW_RMB39_82_ONLY_REOPENS_FRESH_D2; RECHECK_COAL_PRICE_ACQUISITION_CASH_FLOW_AND_PORTFOLIO_ENERGY_EXPOSURE; NO_AUTOMATIC_BUY",
       "evidence_gap": {
         "material": false,
         "missing": null,
         "manual_user_input_required": false,
-        "monitoring": "2026Q3未经审计；未来经营复苏与新订单经济性尚待后续公告验证，不纳入基准利润。"
+        "monitoring": "2026Q3未经审计；正常化EPS和情景估值为分析假设，后续实质变化须重新D2。"
       },
       "underwriting": {
-        "current_price": 11.03,
-        "price_as_of": "2026-10-30",
-        "entry_price": 2.21,
-        "preferred_entry_price_15pct": 2.21,
-        "formal_buy_entry_price_10pct": 2.31,
-        "confidence": "MEDIUM_HIGH",
-        "valuation_method": "ATTRIBUTABLE_BVPS_PB_SCENARIOS_CROSS_CHECKED_WITH_DEDUCTED_LOSSES_CFO_RECEIVABLES_AND_NO_DIVIDEND",
+        "current_price": 51.84,
+        "price_as_of": "2026-11-02",
+        "entry_price": 37.23,
+        "preferred_entry_price_15pct": 37.23,
+        "formal_buy_entry_price_10pct": 39.86,
+        "confidence": "MEDIUM",
+        "valuation_method": "THROUGH_CYCLE_POST_ACQUISITION_COMMON_EPS_PE_SCENARIOS_CROSS_CHECKED_WITH_CFO_CAPEX_AND_ATTRIBUTABLE_BVPS",
         "normalized_earnings_basis": {
-          "metric": "2026_9M_DEDUCTED_LOSS_AND_ATTRIBUTABLE_BVPS",
-          "nine_month_deducted_np_rmb_mn": -18.181,
-          "annualized_deducted_np_rmb_mn": -24.242,
-          "attributable_bvps_approx": 2.2265,
-          "rationale": "主营扣非持续亏损，PE不可用。0.75/1.15/1.80倍PB为研究假设；bull反映恢复可能而非已确认利润。账面理财资产不另行重复加值。"
+          "metric": "POST_MERGER_THROUGH_CYCLE_COMMON_EPS",
+          "nine_month_eps": 2.062,
+          "normalized_base_eps": 2.75,
+          "normalized_eps_range": [
+            2.2,
+            3.2
+          ],
+          "cfo_less_capex_rmb_bn": 45.519,
+          "attributable_bvps": 20.497,
+          "rationale": "2026Q3 9M EPS2.062和归母扣非428.08亿元为事实；216.89亿股为并购后股本，正常化EPS2.20/2.75/3.20为考虑煤价周期、并购资产、摊薄和增量资本支出的情景假设，不能把2025未重述财务数据或9M年化机械当成未来EPS。"
         },
         "scenarios": [
           {
             "name": "BEAR",
-            "pb_multiple": 0.75,
-            "value_per_share": 1.67,
-            "probability": 0.35
+            "normalized_eps": 2.2,
+            "pe_multiple": 12,
+            "value_per_share": 26.4,
+            "probability": 0.25
           },
           {
             "name": "BASE",
-            "pb_multiple": 1.15,
-            "value_per_share": 2.56,
-            "probability": 0.45
+            "normalized_eps": 2.75,
+            "pe_multiple": 16,
+            "value_per_share": 44,
+            "probability": 0.5
           },
           {
             "name": "BULL",
-            "pb_multiple": 1.8,
-            "value_per_share": 4.01,
-            "probability": 0.2
+            "normalized_eps": 3.2,
+            "pe_multiple": 19,
+            "value_per_share": 60.8,
+            "probability": 0.25
           }
         ],
-        "probability_weighted_value": 2.5385,
-        "expected_return": -0.769855,
-        "bear_downside": -0.848595,
-        "current_pb_approx": 4.954,
-        "action": "AVOID",
+        "probability_weighted_value": 43.8,
+        "expected_return": -0.155093,
+        "bear_downside": -0.490741,
+        "current_pb_approx": 2.5292,
+        "action": "BUY_BELOW",
         "catalysts": [
-          "连续至少两个季度主营收入、扣非利润和经营现金流同步改善，且回款优先项目形成可验证利润。",
-          "新产品或高毛利订单实现实质性收入及现金利润，而非仅有市场主题和股价趋势。",
-          "应收及合同资产周转显著改善，分红恢复且资本回报超过资金机会成本。"
+          "同控收购资产完成整合后归母每股现金盈利稳定、关联交易和资本开支可核验。",
+          "自产煤成本、煤电与运输协同改善，现金流减CAPEX持续覆盖股息与偿债。",
+          "A股价格回落至估值门槛同时煤价、归母现金流与组合能源集中度未恶化。"
         ],
         "kill_thesis": [
-          "扣非持续亏损且现金流继续接近零或转负。",
-          "应收和合同资产减值进一步吞噬股东权益。",
-          "高估值继续依赖未经证实的转型预期，新增业务未形成经常性盈利。",
-          "资产管理收益或非经常性转回持续掩盖主营回报不足。"
+          "煤价持续下行导致正常化EPS跌破2.20元，煤炭分部现金利润与分红覆盖显著恶化。",
+          "并购后短借和在建项目资本开支抬升、现金分红不能由可分配现金持续覆盖。",
+          "新增煤制气项目CAPEX或关联交易使归母每股回报被摊薄。",
+          "煤炭长期需求和电力市场机制变化造成一体化ROIC长期低于资本成本。"
         ]
       }
     },
     {
       "ai_book_auto_reunderwrite": false,
       "ai_book_reunderwrite_reason": null,
-      "archetype": "TREND_PERSISTENCE",
+      "archetype": "RECOVERY_WATCH",
       "attempt_count": 1,
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-      "d1_rank": 2,
+      "d1_rank": 9,
       "d2_questions": [
-        "Determine whether trend persistence is supported by durable fundamental change rather than expectations alone.",
-        "Test whether the expected return remains attractive after normalizing current momentum.",
+        "Separate cyclical/base-effect recovery from durable operating improvement.",
+        "Identify the operational catalyst that would make the recovery investable rather than merely observable.",
         "Normalize earnings and cash flow using the latest primary financial disclosures.",
         "Build an explicit valuation range and identify what expectations are embedded in the current price.",
         "Define the first-rejection test and the evidence that would invalidate the thesis."
       ],
       "decision_mutation_authorized": false,
-      "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-      "input_watermark": "365bfdab2451ce506b70a06fe6b6691d8f26306bef9248a7e89f857a33282351",
-      "last_attempt_at": "2026-10-30T17:07:33+00:00",
+      "first_rejection": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
+      "input_watermark": "a960de9cb2b34ce6959e4862595382dc2e391f35bce5a40c4942ce812be3e32d",
+      "last_attempt_at": "2026-11-02T19:59:51+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "603976.SH",
-      "security_name": "正川股份",
-      "semantic_input_watermark": "1913b30e90565279e4b2e2f8676022d4477d345ebb428d34596d0510b550bf09",
+      "security_id": "920663.BJ",
+      "security_name": "明阳科技",
+      "semantic_input_watermark": "c6f4b01253c065042ec69c75cb121b45ae971be9d82e686f76f224dec4e19a95",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
       "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
       "status": "D2_RESEARCH_COMPLETE",
       "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_603976_20261031_R1.json",
-      "research_disposition": "AVOID_RESEARCH_COMPLETE_2026Q3_LOW_RECURRING_ROE_HIGH_PB_AND_PE_EVEN_AFTER_QUARTERLY_RECOVERY",
-      "first_rejection_test": "FAIL_TREND_PERSISTENCE_VALUATION_2026_9M_DEDUCTED_PROFIT_UP_ONLY2_02PCT_LOW_ROE; PRICE_RMB29_22_VS_PW_RMB10_00; 2024_BETTER_EPS_STILL_IMPLIES_PE_ABOUT94X",
-      "next_gate": "AVOID_NEW_CAPITAL; REUNDERWRITE_ONLY_AFTER_MATERIAL_VERIFIED_HIGH_END_PRODUCT_EARNINGS_AND_ROE_CHANGE; PRICE_ONLY_CROSS_REQUIRES_FRESH_D2_AND_PORTFOLIO_FIT_NOT_AUTOMATIC_BUY",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_920663_20261103_R1.json",
+      "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_2026Q3_REAL_EARNINGS_CASH_RECOVERY_BUT_4_9X_PB_SMALL_CAP_GOVERNANCE_AND_MARGIN_OF_SAFETY",
+      "first_rejection_test": "PASS_2026_9M_REVENUE_UP12_32PCT_DEDUCTED_PROFIT_UP34_32PCT_CFO_RMB91_95MN; FAIL_PRICE_MARGIN_RMB15_00_GT_PW_RMB14_37; GOVERNANCE_AND_DIVIDEND_COVERAGE_WATCH",
+      "next_gate": "BUY_BELOW_RMB13_06_ONLY_REOPENS_FRESH_D2; VERIFY_CUSTOMER_ORDERS_CASH_DIVIDEND_COVERAGE_AND_BJ_LIQUIDITY; NO_AUTOMATIC_BUY",
       "evidence_gap": {
         "material": false,
         "missing": null,
         "manual_user_input_required": false,
-        "monitoring": "2026Q3报告原件索引可核，但最新股本和归母BVPS有转债转股口径差异；以近似9.46元/股估值，结论对合理误差不敏感。未来高端产品客户转化和资本开支未按已实现利润处理。"
+        "monitoring": "2026Q3未经审计；正常化EPS和情景估值为分析假设，后续实质变化须重新D2。"
       },
       "underwriting": {
-        "current_price": 29.22,
-        "price_as_of": "2026-10-30",
-        "entry_price": 8.69,
-        "preferred_entry_price_15pct": 8.69,
-        "formal_buy_entry_price_10pct": 9.09,
+        "current_price": 15,
+        "price_as_of": "2026-11-02",
+        "entry_price": 12.21,
+        "preferred_entry_price_15pct": 12.21,
+        "formal_buy_entry_price_10pct": 13.07,
         "confidence": "MEDIUM",
-        "valuation_method": "LATEST_ATTRIBUTABLE_BOOK_EQUITY_PB_SCENARIOS_CROSS_CHECKED_BY_2026_9M_DEDUCTED_EPS_AND_2024_RECOVERY_EPS",
+        "valuation_method": "NORMALIZED_2026_2027_COMMON_EPS_PE_SCENARIOS_CROSS_CHECKED_WITH_CFO_CAPEX_BVPS_ROE_AND_INSIDER_SUPPLY",
         "normalized_earnings_basis": {
-          "metric": "2026_9M_DEDUCTED_EARNINGS_AND_APPROX_LATEST_ATTRIBUTABLE_BVPS",
-          "nine_month_deducted_np_rmb_mn": 10.3608,
-          "annualized_deducted_np_rmb_mn": 13.8144,
-          "annualized_deducted_eps_approx": 0.0803,
-          "annualized_reported_eps_approx": 0.1396,
-          "approx_bvps": 9.459,
-          "rationale": "2026年三季报数据未经审计；期末股本和转债转股导致EPS与BVPS口径易变，采用约1.72亿股估算。0.70/1.05/1.60倍PB为分析假设，分别代表低回报持续、有限复苏、产品升级兑现。若按2024年较好年度约0.31元EPS计算，现价仍约94倍PE，远超盈利基础。"
+          "metric": "2025_Q4_SEASONALITY_2026_9M_RECURRING_EARNINGS",
+          "nine_month_eps": 0.54,
+          "base_normalized_eps": 0.78,
+          "normalized_eps_range": [
+            0.58,
+            0.95
+          ],
+          "estimated_2026_eps_if_q4_grows_20_30pct": [
+            0.823,
+            0.847
+          ],
+          "attributable_bvps": 3.0525,
+          "rationale": "2025年净利8537万元、2025年前三季度5413万元，Q4约3124万元；2026年前三季度7253万元，若Q4同比+20%~30%，2026全年约1.10~1.13亿元、EPS约0.82~0.85元。基准EPS0.78元低于季节性外推，以覆盖客户集中、盈利回落和小市值流动性风险。"
         },
         "scenarios": [
           {
             "name": "BEAR",
-            "pb_multiple": 0.7,
-            "value_per_share": 6.62,
-            "probability": 0.3
+            "normalized_eps": 0.58,
+            "pe_multiple": 13,
+            "value_per_share": 7.54,
+            "probability": 0.25
           },
           {
             "name": "BASE",
-            "pb_multiple": 1.05,
-            "value_per_share": 9.93,
+            "normalized_eps": 0.78,
+            "pe_multiple": 18,
+            "value_per_share": 14.04,
             "probability": 0.5
           },
           {
             "name": "BULL",
-            "pb_multiple": 1.6,
-            "value_per_share": 15.14,
-            "probability": 0.2
+            "normalized_eps": 0.95,
+            "pe_multiple": 23,
+            "value_per_share": 21.85,
+            "probability": 0.25
           }
         ],
-        "probability_weighted_value": 9.979,
-        "expected_return": -0.658487,
-        "bear_downside": -0.773443,
-        "current_pb_approx": 3.089,
-        "action": "AVOID",
+        "probability_weighted_value": 14.3675,
+        "expected_return": -0.042167,
+        "bear_downside": -0.497333,
+        "current_pb_approx": 4.914,
+        "action": "BUY_BELOW",
         "catalysts": [
-          "高端药用玻璃产品由送样、验证和小批量供货转为可核验规模订单，并带来净利润与现金流同步提升。",
-          "连续多个季度扣非利润增速显著高于收入，毛利率恢复且销售费用增量取得正回报。",
-          "可转债转股后的每股盈利、净资产回报及分红能力稳定改善。"
+          "2026Q4及2027年订单和高毛利MIM、座椅调节机构业务收入兑现，扣非净利和现金流同步增长。",
+          "经营现金流在应收账款增速受控前提下覆盖CAPEX与现金分红。",
+          "价格回落至正式门槛且实际控制人关联主体减持结束、核心客户需求稳定。"
         ],
         "kill_thesis": [
-          "高端产品认证与客户转化迟缓，新增订单无法提升单位毛利。",
-          "天然气、硼砂、铝带等成本上升无法传导，扣非利润率持续低位。",
-          "转股摊薄与资本开支使每股盈利改善落空，现金流改善主要来自一次性营运资金释放。",
-          "高PB和高PE持续依赖市场情绪，正常化ROE仍明显低于资本成本。"
+          "汽车座椅零部件新项目未达目标、客户降价导致毛利率和扣非净利连续两个季度恶化。",
+          "应收账款与票据增长显著快于收入，CFO改善由暂时性营运资金释放驱动。",
+          "分红持续高于经营现金流减维持CAPEX，削弱研发和扩产资金。",
+          "实际控制人相关股东继续显著减持或出现治理、关联交易或客户集中度实质性恶化。"
         ]
       }
     },
@@ -219,7 +236,7 @@
       "baseline_source_count": 0,
       "candidate_membership_mutation_authorized": false,
       "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
-      "d1_rank": 5,
+      "d1_rank": 10,
       "d2_questions": [
         "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
         "Compare the opportunity with lower-risk defensive and cash alternatives.",
@@ -229,102 +246,34 @@
       ],
       "decision_mutation_authorized": false,
       "first_rejection": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-      "input_watermark": "bfe373bc0ac548a02eb29310a23091aeaac3b137b8da4e9813581731db98d9c1",
-      "last_attempt_at": "2026-10-30T17:07:33+00:00",
+      "input_watermark": "f1839001b91bf42365a7d1099830968d73b9b4cec91d4fe7ff174d6af705a5d4",
+      "last_attempt_at": "2026-11-02T19:59:51+00:00",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
-      "security_id": "688009.SH",
-      "security_name": "中国通号",
-      "semantic_input_watermark": "ad2a9568af6c1225c9489784f706ca6dfcf99c0d568626627948f7e4660ba7cb",
+      "security_id": "002507.SZ",
+      "security_name": "涪陵榨菜",
+      "semantic_input_watermark": "5298d2b2599d6d8b658bd274263d97e18d4c76bdc74b1d68c2ff85b4796f0e39",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
-      "semantic_research_required": false,
+      "semantic_research_required": true,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
-      "status": "D2_RESEARCH_COMPLETE",
-      "trade_authority": "NONE",
-      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_688009_20261031_R1.json",
-      "research_disposition": "AVOID_RESEARCH_COMPLETE_2026Q3_WEAK_CORE_CASH_CONVERSION_LOW_ROE_CONTRACT_DECLINE_INADEQUATE_EXPECTED_RETURN",
-      "first_rejection_test": "FAIL_DEFENSIVE_STABILITY_CASH_CONVERSION_2026_9M_REVENUE_DOWN3_28PCT_DEDUCTED_NP_DOWN10_91PCT_EX_FINCO_DEPOSITS_CFO_MINUS_RMB593_6MN_FCF_AFTER_CAPEX_MINUS_RMB869_8MN_ROE4_02PCT_9M; PRICE_RMB4_91_VS_PW_RMB4_37",
-      "next_gate": "AVOID_NEW_CAPITAL; CASH_CONVERSION_AND_ROE_RECOVERY_REQUIRED_BEFORE_REUNDERWRITE; PRICE_THRESHOLD_ALONE_ONLY_OPENS_FRESH_D2_AND_PORTFOLIO_FIT_NOT_AUTOMATIC_BUY",
-      "evidence_gap": {
-        "material": false,
-        "missing": null,
-        "manual_user_input_required": false,
-        "monitoring": "2026Q3未经审计；财务公司关联方存款导致报表经营现金流和核心业务现金流不同。2026全年盈利为保守季节性假设，未来分红、现金回款及订单兑现须持续验证；A/H股价格不可混用。"
-      },
-      "underwriting": {
-        "current_price": 4.91,
-        "price_as_of": "2026-10-30",
-        "entry_price": 3.8,
-        "preferred_entry_price_15pct": 3.8,
-        "formal_buy_entry_price_10pct": 3.97,
-        "confidence": "MEDIUM_HIGH",
-        "valuation_method": "2026Q3_ATTRIBUTABLE_BVPS_PB_SCENARIOS_ROE_COST_OF_EQUITY_CROSS_CHECKED_WITH_NORMALIZED_EPS_AND_CASH_CONVERSION",
-        "normalized_earnings_basis": {
-          "metric": "2026_9M_RECURRING_EARNINGS_2025_Q4_SEASONALITY_AND_ATTRIBUTABLE_BVPS",
-          "nine_month_attributable_np_rmb_mn": 2020.8632,
-          "nine_month_deducted_np_rmb_mn": 1962.8879,
-          "annualized_2026_normalized_attributable_np_rmb_mn_approx": 3260,
-          "normalized_eps_approx": 0.308,
-          "attributable_bvps_approx": 4.7273,
-          "normalized_roe_approx": 0.0651,
-          "rationale": "2026年前三季度归母20.21亿元同比下降11.53%；2025全年归母36.86亿元、2025前三季度约22.84亿元，推算2025Q4约14.02亿元。保守假设2026Q4同比下滑约11.5%，全年归母约32.6亿元/每股0.308元，属分析情景非公司指引。2026Q3归母权益500.61亿元/105.90亿股得每股净资产约4.727元。正常化ROE约6.5%低于9%-10%股权资金成本假设，PB基准0.95x已包含轨交控制业务的稳健特许属性；现金转化不达标限制估值溢价。"
-        },
-        "scenarios": [
-          {
-            "name": "BEAR",
-            "pb_multiple": 0.7,
-            "value_per_share": 3.31,
-            "probability": 0.3
-          },
-          {
-            "name": "BASE",
-            "pb_multiple": 0.95,
-            "value_per_share": 4.49,
-            "probability": 0.5
-          },
-          {
-            "name": "BULL",
-            "pb_multiple": 1.2,
-            "value_per_share": 5.67,
-            "probability": 0.2
-          }
-        ],
-        "probability_weighted_value": 4.372,
-        "expected_return": -0.109572,
-        "bear_downside": -0.325866,
-        "current_pb_approx": 1.0387,
-        "normalized_pe_approx": 15.95,
-        "dividend_per_share_2025_rmb": 0.17,
-        "reference_dividend_yield_approx": 0.0346,
-        "action": "AVOID",
-        "catalysts": [
-          "铁路信号系统更新改造订单转化为连续两季度以上收入与扣非利润恢复，新签合同同比转正。",
-          "应收账款和合同资产回收、剔除财务公司吸收关联方存款后的经营现金流持续转正并覆盖资本开支和分红。",
-          "城轨与海外项目收入止跌，轨道交通高毛利核心设备占比提高并带动正常化ROE达到或超过资金成本。"
-        ],
-        "kill_thesis": [
-          "剔除财务公司客户存款影响后的核心经营现金流持续为负，回款和合同资产减值恶化。",
-          "铁路/城轨订单持续下降且项目结算回款拖延，利润依赖非现金应计。",
-          "智能低空等新业务合同增长但绝对规模过小，不能对冲传统业务下滑。",
-          "正常化ROE长期低于股权资金成本且分红现金覆盖不足，PB溢价失去依据。"
-        ]
-      }
+      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+      "trade_authority": "NONE"
     }
   ],
   "schema_version": "1.1.0",
-  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_296df0183f0c8505",
-  "state_id": "RESEARCH_QUEUE_D2_CURRENT_f360253c4cfd4d7b",
-  "status": "D2_AUTO_CONSUMER_ACTIVE_NO_PENDING_WORK",
+  "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_c195ac58fbda892f",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_eee81a92d8772114",
+  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
   "summary": {
     "ai_book_auto_reunderwrite_pending_count": 0,
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 3,
+    "completed_count": 2,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 0,
+    "pending_count": 1,
     "provider_incident_active": false,
     "reused_completed_count": 0,
     "routed_count": 3
