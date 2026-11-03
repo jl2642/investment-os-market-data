@@ -3,8 +3,8 @@
 - 数据水位：`2026-11-02`
 - Thesis subjects：`60`
 - 持仓 / 非持仓：`23 / 37`
-- 当前复核队列：`13`
-- 需要重新D2：`5`
+- 当前复核队列：`12`
+- 需要重新D2：`4`
 - 需要用户动作复核：`6`
 - 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
@@ -18,7 +18,6 @@
 - **中国海油 (600938.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 35.2600 has exhausted the current valuation margin; mark-to-weighted-value expected return is 2.10%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **江河集团 (601886.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 11.2800 is at/below entry threshold 12.1300. 下一步：`FRESH_D2_BEFORE_ANY_BUY`。
-- **九丰能源 (605090.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Holding newly crossed the 15% drawdown review threshold; loss is not an automatic exit but thesis must be refreshed once. 下一步：`FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **万华化学 (600309.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
