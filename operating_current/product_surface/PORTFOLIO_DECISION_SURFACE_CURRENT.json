@@ -21,12 +21,12 @@
   "executive": {
     "action_counts": {
       "ADD": 4,
-      "AVOID": 25,
+      "AVOID": 27,
       "BUY": 1,
       "BUY_BELOW": 8,
       "HOLD": 18,
       "TRIM": 1,
-      "WATCH": 3
+      "WATCH": 1
     },
     "automatic_position_change_allowed": false,
     "automatic_rebalance_allowed": false,
@@ -324,44 +324,6 @@
       "ready_for_user_decision": false,
       "security_id": "002507.SZ",
       "security_name": "涪陵榨菜",
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
-      "action": "WATCH",
-      "bear_downside": null,
-      "catalysts": [],
-      "confidence": null,
-      "current_price": null,
-      "entry_price": null,
-      "expected_return": null,
-      "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-      "orders": 0,
-      "original_recommendation_action": "WATCH",
-      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
-      "ready_for_user_decision": false,
-      "security_id": "601088.SH",
-      "security_name": "中国神华",
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
-      "action": "WATCH",
-      "bear_downside": null,
-      "catalysts": [],
-      "confidence": null,
-      "current_price": null,
-      "entry_price": null,
-      "expected_return": null,
-      "kill_thesis": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
-      "orders": 0,
-      "original_recommendation_action": "WATCH",
-      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
-      "ready_for_user_decision": false,
-      "security_id": "920663.BJ",
-      "security_name": "明阳科技",
       "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
@@ -880,6 +842,34 @@
     {
       "accounts": [],
       "action": "AVOID",
+      "bear_downside": -0.4907407407407408,
+      "catalysts": [
+        "同控收购资产完成整合后归母每股现金盈利稳定、关联交易和资本开支可核验。",
+        "自产煤成本、煤电与运输协同改善，现金流减CAPEX持续覆盖股息与偿债。",
+        "A股价格回落至估值门槛同时煤价、归母现金流与组合能源集中度未恶化。"
+      ],
+      "confidence": "MEDIUM",
+      "current_price": 51.84,
+      "entry_price": 37.23,
+      "expected_return": -0.15509259259259267,
+      "kill_thesis": [
+        "煤价持续下行导致正常化EPS跌破2.20元，煤炭分部现金利润与分红覆盖显著恶化。",
+        "并购后短借和在建项目资本开支抬升、现金分红不能由可分配现金持续覆盖。",
+        "新增煤制气项目CAPEX或关联交易使归母每股回报被摊薄。",
+        "煤炭长期需求和电力市场机制变化造成一体化ROIC长期低于资本成本。"
+      ],
+      "orders": 0,
+      "original_recommendation_action": "AVOID",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "601088.SH",
+      "security_name": "中国神华",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "AVOID",
       "bear_downside": -0.4864479315263909,
       "catalysts": [
         "Sustained gas-sales margin and chemical-product profitability support normalized EPS despite a retreat from 2026 elevated oil prices.",
@@ -1074,6 +1064,34 @@
       "security_name": "铁建重工",
       "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "AVOID",
+      "bear_downside": -0.4973333333333333,
+      "catalysts": [
+        "2026Q4及2027年订单和高毛利MIM、座椅调节机构业务收入兑现，扣非净利和现金流同步增长。",
+        "经营现金流在应收账款增速受控前提下覆盖CAPEX与现金分红。",
+        "价格回落至正式门槛且实际控制人关联主体减持结束、核心客户需求稳定。"
+      ],
+      "confidence": "MEDIUM",
+      "current_price": 15.0,
+      "entry_price": 12.21,
+      "expected_return": -0.042166666666666686,
+      "kill_thesis": [
+        "汽车座椅零部件新项目未达目标、客户降价导致毛利率和扣非净利连续两个季度恶化。",
+        "应收账款与票据增长显著快于收入，CFO改善由暂时性营运资金释放驱动。",
+        "分红持续高于经营现金流减维持CAPEX，削弱研发和扩产资金。",
+        "实际控制人相关股东继续显著减持或出现治理、关联交易或客户集中度实质性恶化。"
+      ],
+      "orders": 0,
+      "original_recommendation_action": "AVOID",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "920663.BJ",
+      "security_name": "明阳科技",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "trade_authority": "NONE"
     }
   ],
   "orders": 0,
@@ -1083,7 +1101,7 @@
         "SIMULATION"
       ],
       "action": "TRIM",
-      "bear_downside": -0.25536081464799765,
+      "bear_downside": -0.2605017502917153,
       "catalysts": [
         "Comparable-basis core service revenue stabilizes and application/information-service growth reaccelerates.",
         "AI/cloud/compute investments translate into measurable incremental profit and ROIC rather than only capex intensity.",
@@ -1109,7 +1127,7 @@
       "ready_for_user_decision": true,
       "security_id": "600941.SH",
       "security_name": "中国移动",
-      "source_underwriting_expected_return": -0.0619063938118084,
+      "source_underwriting_expected_return": -0.0683829249319331,
       "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
@@ -1118,7 +1136,7 @@
         "SIMULATION"
       ],
       "action": "ADD",
-      "bear_downside": -0.09730998375157973,
+      "bear_downside": -0.09354604786076859,
       "catalysts": [
         "General automation orders and market share continue to grow as AI equipment investment and domestic substitution support demand.",
         "Automotive power-system gross margin stabilizes or recovers after the H1 pressure.",
@@ -1144,7 +1162,7 @@
       "ready_for_user_decision": true,
       "security_id": "300124.SZ",
       "security_name": "汇川技术",
-      "source_underwriting_expected_return": 0.27459830294276966,
+      "source_underwriting_expected_return": 0.27991298042059487,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1153,7 +1171,7 @@
         "SIMULATION"
       ],
       "action": "ADD",
-      "bear_downside": -0.3162393162393162,
+      "bear_downside": -0.31740614334470985,
       "catalysts": [
         "Polyurethane global share and margins remain resilient as industry supply stays rational.",
         "Ethane-feed and integrated petrochemical optimization sustain the H1 cost advantage.",
@@ -1179,7 +1197,7 @@
       "ready_for_user_decision": true,
       "security_id": "600309.SH",
       "security_name": "万华化学",
-      "source_underwriting_expected_return": 0.19088319088319072,
+      "source_underwriting_expected_return": 0.18885096700796367,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1188,7 +1206,7 @@
         "SIMULATION"
       ],
       "action": "ADD",
-      "bear_downside": -0.18582912693961495,
+      "bear_downside": -0.18598130841121496,
       "catalysts": [
         "High-value-added glass penetration continues to lift ASP and gross margin without sacrificing share.",
         "Domestic auto demand stabilizes while new domestic capacity and U.S. production optimization support H2 shipment growth.",
@@ -1214,7 +1232,7 @@
       "ready_for_user_decision": true,
       "security_id": "600660.SH",
       "security_name": "福耀玻璃",
-      "source_underwriting_expected_return": 0.1826977005047672,
+      "source_underwriting_expected_return": 0.18247663551401883,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1223,7 +1241,7 @@
         "SIMULATION"
       ],
       "action": "ADD",
-      "bear_downside": 0.11999999999999988,
+      "bear_downside": 0.13539085379589988,
       "catalysts": [
         "Cloud-service-provider AI server revenue and GPU/ASIC rack shipments remain on a high-growth trajectory through H2.",
         "Higher-value AI server and high-speed networking mix sustains profit growth above revenue growth.",
@@ -1248,7 +1266,7 @@
       "ready_for_user_decision": true,
       "security_id": "601138.SH",
       "security_name": "工业富联",
-      "source_underwriting_expected_return": 0.6216666666666666,
+      "source_underwriting_expected_return": 0.6439513403919801,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1257,7 +1275,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": -0.17021753756447644,
+      "bear_downside": -0.1558293406342688,
       "catalysts": [
         "海外与ToB业务恢复增长",
         "汇率扰动正常化",
@@ -1281,8 +1299,8 @@
       "ready_for_user_decision": false,
       "security_id": "000333.SZ",
       "security_name": "美的集团",
-      "source_underwriting_expected_return": 0.08824848620766979,
-      "top_blocker": "PRICE_BLOCKED",
+      "source_underwriting_expected_return": 0.10711841204654338,
+      "top_blocker": null,
       "trade_authority": "NONE"
     },
     {
@@ -1290,7 +1308,7 @@
         "REAL"
       ],
       "action": "HOLD",
-      "bear_downside": -0.20412844036697253,
+      "bear_downside": -0.20046082949308752,
       "catalysts": [
         "NIM stabilizes around or above current levels as deposit costs reprice down.",
         "Watch and overdue loan ratios stabilize without translating into higher NPL formation.",
@@ -1316,7 +1334,7 @@
       "ready_for_user_decision": false,
       "security_id": "002807.SZ",
       "security_name": "江阴银行",
-      "source_underwriting_expected_return": 0.17190366972477067,
+      "source_underwriting_expected_return": 0.177304147465438,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1325,7 +1343,7 @@
         "REAL"
       ],
       "action": "HOLD",
-      "bear_downside": -0.01869493589284421,
+      "bear_downside": -0.01855433770327375,
       "catalysts": [
         "债券收益率下行或信用利差改善",
         "基金持续获得稳定正收益"
@@ -1347,7 +1365,7 @@
       "ready_for_user_decision": false,
       "security_id": "017534.OF",
       "security_name": "富国天利增长债券C",
-      "source_underwriting_expected_return": 0.034309863190315815,
+      "source_underwriting_expected_return": 0.03445805573465144,
       "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
@@ -1356,7 +1374,7 @@
         "REAL"
       ],
       "action": "HOLD",
-      "bear_downside": 0.006523765144454963,
+      "bear_downside": -0.001848428835489857,
       "catalysts": [
         "A股盈利预期改善",
         "市场风险溢价回落"
@@ -1378,7 +1396,7 @@
       "ready_for_user_decision": false,
       "security_id": "159352.SZ",
       "security_name": "A500ETF南方",
-      "source_underwriting_expected_return": 0.26188257222739986,
+      "source_underwriting_expected_return": 0.25138632162661745,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1416,7 +1434,7 @@
         "REAL"
       ],
       "action": "HOLD",
-      "bear_downside": -0.16330645161290325,
+      "bear_downside": -0.16246215943491427,
       "catalysts": [
         "美股企业盈利增长",
         "人民币资产与美元资产分散化价值"
@@ -1438,7 +1456,7 @@
       "ready_for_user_decision": false,
       "security_id": "159655.SZ",
       "security_name": "标普500ETF华夏",
-      "source_underwriting_expected_return": 0.07459677419354849,
+      "source_underwriting_expected_return": 0.07568113017154388,
       "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
@@ -1447,7 +1465,7 @@
         "REAL"
       ],
       "action": "HOLD",
-      "bear_downside": -0.007226804876268145,
+      "bear_downside": -0.007661437431594309,
       "catalysts": [
         "债券市场利率环境改善"
       ],
@@ -1468,7 +1486,7 @@
       "ready_for_user_decision": false,
       "security_id": "217003.OF",
       "security_name": "招商安泰债券A",
-      "source_underwriting_expected_return": 0.0467917366231112,
+      "source_underwriting_expected_return": 0.04633345494345131,
       "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
@@ -1477,7 +1495,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": -0.18340894361633187,
+      "bear_downside": -0.17539267015706805,
       "catalysts": [
         "生命科学与工业测试增长",
         "现金转换持续改善"
@@ -1499,7 +1517,7 @@
       "ready_for_user_decision": false,
       "security_id": "300012.SZ",
       "security_name": "华测检测",
-      "source_underwriting_expected_return": 0.11147116007777047,
+      "source_underwriting_expected_return": 0.1223821989528795,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1508,7 +1526,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": 0.21071612570839782,
+      "bear_downside": 0.17407052749906327,
       "catalysts": [
         "动力电池全球份额维持约40%及以上并继续提升",
         "储能收入高增长延续且海外高毛利业务占比提升",
@@ -1535,7 +1553,7 @@
       "ready_for_user_decision": false,
       "security_id": "300750.SZ",
       "security_name": "宁德时代",
-      "source_underwriting_expected_return": 0.8773183925811441,
+      "source_underwriting_expected_return": 0.8204962737832551,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1545,7 +1563,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": 0.030927835051546504,
+      "bear_downside": 0.006815365551424923,
       "catalysts": [
         "中盘盈利周期改善",
         "小中盘风险溢价修复"
@@ -1567,7 +1585,7 @@
       "ready_for_user_decision": false,
       "security_id": "510500.SH",
       "security_name": "中证500ETF南方",
-      "source_underwriting_expected_return": 0.338620142743854,
+      "source_underwriting_expected_return": 0.3073110285006193,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1576,7 +1594,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": -0.21928817451205507,
+      "bear_downside": -0.21259842519685035,
       "catalysts": [
         "净息差企稳",
         "财富管理与非息收入改善"
@@ -1598,7 +1616,7 @@
       "ready_for_user_decision": false,
       "security_id": "600036.SH",
       "security_name": "招商银行",
-      "source_underwriting_expected_return": 0.033295063145809545,
+      "source_underwriting_expected_return": 0.042149143121815724,
       "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
@@ -1607,7 +1625,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": -0.2158481221626084,
+      "bear_downside": -0.21955226945984796,
       "catalysts": [
         "创新药获批/放量",
         "海外授权与商业化兑现"
@@ -1629,7 +1647,7 @@
       "ready_for_user_decision": false,
       "security_id": "600276.SH",
       "security_name": "恒瑞医药",
-      "source_underwriting_expected_return": 0.07304993809327276,
+      "source_underwriting_expected_return": 0.06798110494968168,
       "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
@@ -1638,7 +1656,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": -0.19689119170984448,
+      "bear_downside": -0.20985556499575186,
       "catalysts": [
         "电网投资持续",
         "海外和新业务盈利改善"
@@ -1660,7 +1678,7 @@
       "ready_for_user_decision": false,
       "security_id": "600406.SH",
       "security_name": "国电南瑞",
-      "source_underwriting_expected_return": 0.040587219343696024,
+      "source_underwriting_expected_return": 0.023789294817332385,
       "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
@@ -1669,7 +1687,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": -0.180327868852459,
+      "bear_downside": -0.17274939172749393,
       "catalysts": [
         "Q2改善延续",
         "AI/高端产品提升效率与结构"
@@ -1691,7 +1709,7 @@
       "ready_for_user_decision": false,
       "security_id": "600690.SH",
       "security_name": "海尔智家",
-      "source_underwriting_expected_return": 0.133076181292189,
+      "source_underwriting_expected_return": 0.14355231143552305,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1700,7 +1718,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": -0.21217215870880968,
+      "bear_downside": -0.20576271186440676,
       "catalysts": [
         "正常或偏好的来水/发电量继续支持盈利",
         "融资成本下降",
@@ -1727,7 +1745,7 @@
       "ready_for_user_decision": false,
       "security_id": "600900.SH",
       "security_name": "长江电力",
-      "source_underwriting_expected_return": 0.04384667114996632,
+      "source_underwriting_expected_return": 0.05233898305084739,
       "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
@@ -1736,7 +1754,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": -0.24937447873227692,
+      "bear_downside": -0.23425978445830964,
       "catalysts": [
         "产量增长",
         "新项目投产",
@@ -1759,7 +1777,7 @@
       "ready_for_user_decision": false,
       "security_id": "600938.SH",
       "security_name": "中国海油",
-      "source_underwriting_expected_return": 0.0008340283569641116,
+      "source_underwriting_expected_return": 0.020986954055587148,
       "top_blocker": "PRICE_BLOCKED",
       "trade_authority": "NONE"
     },
@@ -1768,7 +1786,7 @@
         "SIMULATION"
       ],
       "action": "HOLD",
-      "bear_downside": -0.10507246376811596,
+      "bear_downside": -0.07973174366616986,
       "catalysts": [
         "Gold and copper realized pricing stays supportive while mined output continues to grow.",
         "Kamoa and other major expansion projects recover or ramp production without persistent execution slippage.",
@@ -1794,7 +1812,7 @@
       "ready_for_user_decision": false,
       "security_id": "601899.SH",
       "security_name": "紫金矿业",
-      "source_underwriting_expected_return": 0.34193840579710133,
+      "source_underwriting_expected_return": 0.3799366616989568,
       "top_blocker": null,
       "trade_authority": "NONE"
     },
@@ -1803,7 +1821,7 @@
         "REAL"
       ],
       "action": "HOLD",
-      "bear_downside": -0.014431538190777915,
+      "bear_downside": 0.00035727045373357136,
       "catalysts": [
         "LPG盈利保持韧性",
         "LNG资源与服务恢复",
@@ -1827,7 +1845,7 @@
       "ready_for_user_decision": false,
       "security_id": "605090.SH",
       "security_name": "九丰能源",
-      "source_underwriting_expected_return": 0.31995776135163667,
+      "source_underwriting_expected_return": 0.339764201500536,
       "top_blocker": null,
       "trade_authority": "NONE"
     }
@@ -2414,9 +2432,9 @@
     "investment_pipeline": {
       "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_c195ac58fbda892f",
       "domain": "INVESTMENT_PIPELINE",
-      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_f931570bda7761fb",
-      "source_commit": "cfa70b7b35baaad89dd2f615e326cee047a22ca9",
-      "watermark": "2026-11-02T20:07:21+00:00"
+      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_2241f8ed03fa2065",
+      "source_commit": "10961b15fbc212ec2a0014514e24980613004eef",
+      "watermark": "2026-11-03T01:15:45+00:00"
     },
     "portfolio_marks": {
       "domain": "PORTFOLIO_MARKS",
@@ -2425,6 +2443,6 @@
     }
   },
   "status": "PASS_S3_PORTFOLIO_PRODUCT_SURFACE",
-  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_64eadd327dacf875",
+  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_23ee402a1dcc7a59",
   "trade_authority": "NONE"
 }
