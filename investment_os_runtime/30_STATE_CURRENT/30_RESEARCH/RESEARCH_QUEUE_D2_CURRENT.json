@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-03T01:02:12Z",
+  "as_of": "2026-11-03T01:29:43Z",
   "consumer_policy": {
     "ai_book_near_gate_refresh": "AUTO_ROUTED_TO_CHATGPT_NATIVE_SEMANTIC_D2_WITHOUT_MANUAL_D1_D2_DISPATCH",
     "bounded_batch_size": 3,
@@ -255,25 +255,98 @@
       "security_name": "涪陵榨菜",
       "semantic_input_watermark": "5298d2b2599d6d8b658bd274263d97e18d4c76bdc74b1d68c2ff85b4796f0e39",
       "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
-      "semantic_research_required": true,
+      "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_002507_20261103_R1.json",
+      "research_disposition": "BUY_BELOW_RESEARCH_COMPLETE_STRONG_BALANCE_SHEET_BUT_WEAK_PROFIT_TREND_AND_CAPEX_MARGIN_OF_SAFETY",
+      "first_rejection_test": "PASS_LOW_LEVERAGE_AND_POSITIVE_CFO; FAIL_NORMALIZED_RETURN_AND_CURRENT_MARGIN_OF_SAFETY; RECEIVABLES_UP392PCT_AND_CAPEX_RISING",
+      "next_gate": "BUY_BELOW_RMB10.17_ONLY_REOPENS_FRESH_D2; VERIFY_Q4_RECEIVABLES_COLLECTION_CASH_FLOW_AND_CAPEX; NO_AUTOMATIC_BUY",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false,
+        "monitoring": "2026Q3未经审计；应收款年末回款和项目投资回报须随2026年报验证；情景EPS、PE与概率是分析假设。"
+      },
+      "underwriting": {
+        "current_price": 11.73,
+        "price_as_of": "2026-11-02",
+        "entry_price": 9.73,
+        "preferred_entry_price_15pct": 9.73,
+        "formal_buy_entry_price_10pct": 10.17,
+        "confidence": "MEDIUM",
+        "valuation_method": "NORMALIZED_RECURRING_EPS_PE_WITH_NET_CASH_BALANCE_SHEET_AND_CAPEX_CROSS_CHECK",
+        "normalized_earnings_basis": {
+          "metric": "2026_2027_THROUGH_CYCLE_RECURRING_EPS",
+          "nine_month_reported_eps": 0.532,
+          "nine_month_deducted_profit_rmb_bn": 0.581904,
+          "normalized_base_eps": 0.68,
+          "normalized_eps_range": [
+            0.55,
+            0.82
+          ],
+          "cfo_9m_rmb_bn": 0.691282,
+          "cash_capex_9m_rmb_bn": 0.398688,
+          "cfo_less_cash_capex_9m_rmb_bn": 0.292594,
+          "attributable_bvps": 7.895,
+          "rationale": "2026年9M扣非净利5.819亿元同比-5.40%，Q3单季扣非1.944亿元同比-2.91%；2025全年扣非6.98亿元。以11.539亿股计，2025扣非EPS约0.605，2026九个月扣非EPS约0.504；2026/27正常化EPS 0.55/0.68/0.82为分析假设而非业绩指引。经营现金流增长主要由原料采购款下降驱动，不机械年化。"
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "normalized_eps": 0.55,
+            "pe_multiple": 12,
+            "value_per_share": 6.6,
+            "probability": 0.25
+          },
+          {
+            "name": "BASE",
+            "normalized_eps": 0.68,
+            "pe_multiple": 16,
+            "value_per_share": 10.88,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "normalized_eps": 0.82,
+            "pe_multiple": 20,
+            "value_per_share": 16.4,
+            "probability": 0.25
+          }
+        ],
+        "probability_weighted_value": 11.19,
+        "expected_return": -0.046036,
+        "bear_downside": -0.43734,
+        "current_pb_approx": 1.486,
+        "action": "BUY_BELOW",
+        "catalysts": [
+          "新品及渠道结构改善带来持续的销量增长、费用率下降和扣非利润恢复。",
+          "乌江智能化基地投资逐步转化为产能效率而非闲置资本。",
+          "价格回落至安全边际门槛，同时2026Q4现金转化和应收账款回款验证通过。"
+        ],
+        "kill_thesis": [
+          "营收增长持续低于费用增长，扣非净利润连续季度下滑且正常化EPS跌破0.55元。",
+          "应收账款授信扩大后年末不能按公司披露的周期回收，现金流改善逆转。",
+          "新增基地CAPEX持续超过经营现金创造，资产回报率下降。",
+          "渠道变革或品牌竞争导致价格与毛利率长期下行。"
+        ]
+      }
     }
   ],
   "schema_version": "1.1.0",
   "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_c195ac58fbda892f",
   "state_id": "RESEARCH_QUEUE_D2_CURRENT_eee81a92d8772114",
-  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
+  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_CLEAR",
   "summary": {
     "ai_book_auto_reunderwrite_pending_count": 0,
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 2,
+    "completed_count": 3,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 1,
+    "pending_count": 0,
     "provider_incident_active": false,
     "reused_completed_count": 0,
     "routed_count": 3
