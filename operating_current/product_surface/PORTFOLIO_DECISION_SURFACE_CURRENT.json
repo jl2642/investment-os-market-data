@@ -21,12 +21,11 @@
   "executive": {
     "action_counts": {
       "ADD": 4,
-      "AVOID": 27,
+      "AVOID": 28,
       "BUY": 1,
       "BUY_BELOW": 8,
       "HOLD": 18,
-      "TRIM": 1,
-      "WATCH": 1
+      "TRIM": 1
     },
     "automatic_position_change_allowed": false,
     "automatic_rebalance_allowed": false,
@@ -310,25 +309,6 @@
     },
     {
       "accounts": [],
-      "action": "WATCH",
-      "bear_downside": null,
-      "catalysts": [],
-      "confidence": null,
-      "current_price": null,
-      "entry_price": null,
-      "expected_return": null,
-      "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-      "orders": 0,
-      "original_recommendation_action": "WATCH",
-      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
-      "ready_for_user_decision": false,
-      "security_id": "002507.SZ",
-      "security_name": "涪陵榨菜",
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
       "action": "AVOID",
       "bear_downside": -0.33313901345291486,
       "catalysts": [
@@ -466,6 +446,34 @@
       "ready_for_user_decision": false,
       "security_id": "000993.SZ",
       "security_name": "闽东电力",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "action": "AVOID",
+      "bear_downside": -0.4373401534526855,
+      "catalysts": [
+        "新品及渠道结构改善带来持续的销量增长、费用率下降和扣非利润恢复。",
+        "乌江智能化基地投资逐步转化为产能效率而非闲置资本。",
+        "价格回落至安全边际门槛，同时2026Q4现金转化和应收账款回款验证通过。"
+      ],
+      "confidence": "MEDIUM",
+      "current_price": 11.73,
+      "entry_price": 9.73,
+      "expected_return": -0.04603580562659859,
+      "kill_thesis": [
+        "营收增长持续低于费用增长，扣非净利润连续季度下滑且正常化EPS跌破0.55元。",
+        "应收账款授信扩大后年末不能按公司披露的周期回收，现金流改善逆转。",
+        "新增基地CAPEX持续超过经营现金创造，资产回报率下降。",
+        "渠道变革或品牌竞争导致价格与毛利率长期下行。"
+      ],
+      "orders": 0,
+      "original_recommendation_action": "AVOID",
+      "position_identity_alignment": "ALIGNED_OR_NOT_DECLARED",
+      "ready_for_user_decision": false,
+      "security_id": "002507.SZ",
+      "security_name": "涪陵榨菜",
       "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
@@ -2432,9 +2440,9 @@
     "investment_pipeline": {
       "d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_c195ac58fbda892f",
       "domain": "INVESTMENT_PIPELINE",
-      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_2241f8ed03fa2065",
-      "source_commit": "10961b15fbc212ec2a0014514e24980613004eef",
-      "watermark": "2026-11-03T01:15:45+00:00"
+      "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_45cd61680758e320",
+      "source_commit": "94ecf5113118a0d0f7e7a6236123fec9fe988a78",
+      "watermark": "2026-11-04T01:05:22+00:00"
     },
     "portfolio_marks": {
       "domain": "PORTFOLIO_MARKS",
@@ -2443,6 +2451,6 @@
     }
   },
   "status": "PASS_S3_PORTFOLIO_PRODUCT_SURFACE",
-  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_23ee402a1dcc7a59",
+  "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_9ae5b6e1661ef353",
   "trade_authority": "NONE"
 }
