@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-03T01:22:45+00:00",
+  "generated_at_utc": "2026-11-04T01:19:56+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-11-02",
-    "recommendation_generated_at_utc": "2026-11-03T01:15:45+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_2241f8ed03fa2065",
+    "recommendation_generated_at_utc": "2026-11-04T01:05:22+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_45cd61680758e320",
     "surface_as_of_date": "2026-11-02",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_23ee402a1dcc7a59"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_9ae5b6e1661ef353"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_81a52043832fa7b0",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_b18f037c3a394d32",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -311,14 +311,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 10.88,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "AVOID",
+      "entry_price": 9.73,
+      "expected_return": -0.04603580562659859,
       "latest_price": 11.73,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_AVOID",
+      "mark_expected_return": -0.04603580562659859,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -326,17 +326,26 @@
       "position_state": "FLAT",
       "price_as_of": "2026-11-02",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 11.19,
       "ready_for_user_decision": false,
       "security_id": "002507.SZ",
       "security_name": "涪陵榨菜",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+        "catalysts": [
+          "新品及渠道结构改善带来持续的销量增长、费用率下降和扣非利润恢复。",
+          "乌江智能化基地投资逐步转化为产能效率而非闲置资本。",
+          "价格回落至安全边际门槛，同时2026Q4现金转化和应收账款回款验证通过。"
+        ],
+        "kill_thesis": [
+          "营收增长持续低于费用增长，扣非净利润连续季度下滑且正常化EPS跌破0.55元。",
+          "应收账款授信扩大后年末不能按公司披露的周期回收，现金流改善逆转。",
+          "新增基地CAPEX持续超过经营现金创造，资产回报率下降。",
+          "渠道变革或品牌竞争导致价格与毛利率长期下行。"
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -2459,7 +2468,7 @@
     "portfolio_review_required_count": 2,
     "reunderwrite_required_count": 4,
     "review_queue_count": 12,
-    "semantic_watch_clause_count": 527,
+    "semantic_watch_clause_count": 413,
     "subject_count": 60,
     "user_action_review_count": 6,
     "valuation_reunderwrite_count": 3
