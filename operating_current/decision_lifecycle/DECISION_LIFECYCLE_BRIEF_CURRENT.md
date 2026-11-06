@@ -3,8 +3,8 @@
 - 数据水位：`2026-11-05`
 - Thesis subjects：`60`
 - 持仓 / 非持仓：`23 / 37`
-- 当前复核队列：`12`
-- 需要重新D2：`4`
+- 当前复核队列：`11`
+- 需要重新D2：`3`
 - 需要用户动作复核：`6`
 - 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
@@ -21,7 +21,6 @@
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **万华化学 (600309.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **福耀玻璃 (600660.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **中国海油 (600938.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Holding price 30.9800 is at/below research entry threshold 31.0000. 下一步：`FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD`。
 - **工业富联 (601138.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 
 ## 语义触发边界
