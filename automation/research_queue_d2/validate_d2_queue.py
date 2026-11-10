@@ -20,26 +20,56 @@ SEMANTIC_TERMINAL_STATUSES = {
 
 
 def underwriting_complete(row: dict) -> bool:
-    underwriting = row.get("underwriting")
-    if not isinstance(underwriting, dict):
+    """Require decision-grade economics, not merely three scenario labels."""
+    import math
+
+    uw = row.get("underwriting")
+    if not isinstance(uw, dict):
         return False
-    if underwriting.get("current_price") in (None, ""):
+    try:
+        price = float(uw["current_price"])
+        entry = float(uw["entry_price"])
+        weighted = float(uw["probability_weighted_value"])
+        expected_return = float(uw["expected_return"])
+        scenarios = uw["scenarios"]
+        if not all(math.isfinite(v) for v in (price, entry, weighted, expected_return)):
+            return False
+        if price <= 0 or entry <= 0 or weighted < 0:
+            return False
+        if not uw.get("price_as_of") or not uw.get("normalized_earnings_basis"):
+            return False
+        if str(uw.get("confidence") or "").upper() not in {
+            "HIGH", "MEDIUM", "MEDIUM_HIGH", "HIGH_MEDIUM"
+        }:
+            return False
+        if uw.get("action") not in {
+            "BUY", "BUY_BELOW", "WATCH_FOR_EVIDENCE", "WATCH", "AVOID",
+            "ADD", "HOLD", "TRIM", "EXIT",
+        }:
+            return False
+        if not uw.get("kill_thesis") or not uw.get("catalysts"):
+            return False
+        if not isinstance(scenarios, list) or len(scenarios) != 3:
+            return False
+        by_name = {str(s["name"]).upper(): s for s in scenarios}
+        if set(by_name) != {"BEAR", "BASE", "BULL"}:
+            return False
+        probabilities = [float(s["probability"]) for s in scenarios]
+        values = [float(s["value_per_share"]) for s in scenarios]
+        if not all(math.isfinite(v) for v in probabilities + values):
+            return False
+        if any(p < 0 or p > 1 for p in probabilities) or any(v < 0 for v in values):
+            return False
+        if abs(sum(probabilities) - 1) > 1e-6:
+            return False
+        calc_weighted = sum(p * value for p, value in zip(probabilities, values))
+        if abs(calc_weighted - weighted) > max(0.01, calc_weighted * 0.001):
+            return False
+        if abs((weighted / price - 1) - expected_return) > 0.001:
+            return False
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
         return False
-    if underwriting.get("entry_price") in (None, ""):
-        return False
-    if str(underwriting.get("confidence") or "").upper() not in {
-        "HIGH", "MEDIUM", "MEDIUM_HIGH", "HIGH_MEDIUM"
-    }:
-        return False
-    scenarios = underwriting.get("scenarios")
-    if not isinstance(scenarios, list):
-        return False
-    names = {
-        str(x.get("name") or "").upper()
-        for x in scenarios
-        if isinstance(x, dict)
-    }
-    return {"BEAR", "BASE", "BULL"}.issubset(names)
+    return True
 
 
 def load(path: Path) -> dict:
