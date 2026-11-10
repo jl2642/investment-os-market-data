@@ -953,3 +953,56 @@ def test_completed_d2_does_not_consume_new_d2_slots() -> None:
     assert len(routed) == 3
     assert set(routed).isdisjoint({"000001.SZ", "000002.SZ", "000003.SZ"})
     assert d1["routing_summary"]["completed_d2_excluded_from_new_slots_count"] == 3
+
+def test_ai_price_cross_reunderwrite_routes_outside_screen_without_buy_permission() -> None:
+    opportunity = build_opportunity_queue(
+        [screen_row(i) for i in range(1, 16)],
+        screen_source={"qc_status": "PASS_CHAIN_COHERENT", "data_watermark": "2026-11-09"},
+        now=NOW,
+    )
+    recommendation = {"records": [{
+        "security_id": "601886.SH", "security_name": "江河集团",
+        "portfolio_implication": "NEW_CAPITAL_CANDIDATE",
+        "action": "BUY_BELOW", "current_price": 11.86,
+        "formal_buy_entry_price": 11.923076923,
+        "current_market_price_as_of": "2026-11-09",
+        "underwriting_price_as_of": "2026-09-21",
+        "price_basis": "A_SHARE_FULL_MARKET",
+        "research_freshness": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
+    }]}
+    ai_book = {"cash": 815345.89, "current_nav": 1018541.89,
+               "deployment_discipline": {"cash_weight": 0.8005}}
+    d1 = build_d1(opportunity, recommendation=recommendation, ai_book=ai_book, now=NOW)
+    rows = [r for r in d1["research_objects"] if r["security_id"] == "601886.SH"]
+    assert len(rows) == 1
+    assert len(d1["research_objects"]) == 10
+    assert rows[0]["d1_disposition"] == "ADVANCE_TO_D2_AI_BOOK_AUTO_REUNDERWRITE"
+    assert rows[0]["archetype"] == "PRICE_CROSS_REUNDERWRITE"
+    assert rows[0]["ai_book_auto_reunderwrite"] is True
+    assert rows[0]["fresh_d2_required"] is True
+    assert rows[0]["ai_book_reunderwrite_reason"] == "HIGH_CASH_FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+    assert rows[0]["fundamental_context"]["no_buy_promotion_without_fresh_d2"] is True
+    assert d1["routing_summary"]["ai_book_auto_reunderwrite_count"] == 1
+    assert d1["controls"]["orders"] == 0
+
+
+def test_outside_screen_price_cross_does_not_route_stale_market_marks() -> None:
+    opportunity = build_opportunity_queue(
+        [screen_row(i) for i in range(1, 16)],
+        screen_source={"qc_status": "PASS_CHAIN_COHERENT", "data_watermark": "2026-11-09"},
+        now=NOW,
+    )
+    for stale_date in ("2026-11-06", None):
+        recommendation = {"records": [{
+            "security_id": "601886.SH", "security_name": "江河集团",
+            "portfolio_implication": "NEW_CAPITAL_CANDIDATE",
+            "action": "BUY_BELOW", "current_price": 11.86,
+            "formal_buy_entry_price": 11.923076923,
+            "current_market_price_as_of": stale_date,
+            "price_basis": "A_SHARE_FULL_MARKET",
+            "research_freshness": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
+        }]}
+        ai_book = {"deployment_discipline": {"cash_weight": 0.8005}}
+        d1 = build_d1(opportunity, recommendation=recommendation, ai_book=ai_book, now=NOW)
+        assert all(row["security_id"] != "601886.SH" for row in d1["research_objects"])
+        assert d1["routing_summary"]["ai_book_auto_reunderwrite_count"] == 0
