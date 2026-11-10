@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-11-09",
-  "generated_at_utc": "2026-11-09T23:44:03+00:00",
+  "generated_at_utc": "2026-11-10T06:59:24+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_141426ea8806df4b",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_b7ddcd44fccc5657",
   "records": [
     {
       "accounts": [],
@@ -162,6 +162,26 @@
     },
     {
       "accounts": [
+        "REAL"
+      ],
+      "current_action": "HOLD",
+      "entry_price": 1.95,
+      "latest_price": 1.949,
+      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "orders": 0,
+      "price_as_of": null,
+      "price_source": "S3_PORTFOLIO_MARK",
+      "priority": "MEDIUM_HIGH",
+      "reason": "Holding price 1.9490 is at/below research entry threshold 1.9500.",
+      "review_type": "REUNDERWRITE_REQUIRED",
+      "security_id": "159655.SZ",
+      "security_name": "标普500ETF华夏",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
+    },
+    {
+      "accounts": [
         "SIMULATION"
       ],
       "current_action": "ADD",
@@ -241,8 +261,8 @@
       "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
-  "review_count": 12,
+  "review_count": 13,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_3a796059673b677e",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_4383f1ee585c3e94",
   "trade_authority": "NONE"
 }
