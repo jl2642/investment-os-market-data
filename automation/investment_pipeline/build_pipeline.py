@@ -228,7 +228,12 @@ def _d2_questions(row: dict[str, Any]) -> list[str]:
         "Build an explicit valuation range and identify what expectations are embedded in the current price.",
         "Define the first-rejection test and the evidence that would invalidate the thesis.",
     ]
-    if sleeve == "DEFENSIVE_STABILITY":
+    if sleeve == "PRICE_CROSS_REUNDERWRITE":
+        specific = [
+            "Validate the original thesis against fresh issuer disclosures after the formal price gate was crossed.",
+            "Recalculate normalized earnings, scenarios and risk-adjusted margin of safety before BUY promotion.",
+        ]
+    elif sleeve == "DEFENSIVE_STABILITY":
         specific = [
             "Test balance-sheet resilience, cash conversion and sustainable shareholder return.",
             "Compare the opportunity with lower-risk defensive and cash alternatives.",
@@ -253,6 +258,11 @@ def _d2_questions(row: dict[str, Any]) -> list[str]:
 
 def _first_rejection(row: dict[str, Any]) -> str:
     sleeve = str(row.get("primary_sleeve") or "")
+    if sleeve == "PRICE_CROSS_REUNDERWRITE":
+        return (
+            "Reject renewed BUY promotion unless new primary evidence supports normalized earnings, "
+            "at least 10% expected return and the formal downside gate."
+        )
     if sleeve == "RECOVERY_WATCH":
         return (
             "Reject D2 promotion if the apparent recovery is mainly base effect, "
@@ -326,12 +336,11 @@ def _ai_book_near_gate_refresh_ids(
     ai_book: dict[str, Any] | None,
     recommendation: dict[str, Any] | None,
 ) -> list[str]:
-    """Return BUY_BELOW names just above the formal 10% gate while AI cash is high.
+    """Choose bounded fresh-D2 opportunities while AI cash remains unusually high.
 
-    Already-at-or-below formal BUY price is deliberately not reopened here: the
-    decision layer can promote it using the still-valid D2 underwriting.  This
-    bounded refresh route is for near-gate names where a small market move or
-    changed fundamentals could make them investable.
+    A formally decision-grade BUY_BELOW price-cross candidate may have fallen
+    outside the rolling top-30 screen. It still needs a fresh D2 gate, not BUY.
+    Outside-screen recovery must match the accepted market session precisely.
     """
     ai_book = ai_book or {}
     recommendation = recommendation or {}
@@ -349,22 +358,34 @@ def _ai_book_near_gate_refresh_ids(
         for row in opportunity.get("rows", [])
         if row.get("security_id")
     }
+    market_date = str((opportunity.get("source_snapshot") or {}).get("data_watermark") or "")
     ranked: list[tuple[float, str]] = []
     for rec in recommendation.get("records", []):
         sid = str(rec.get("security_id") or "")
-        if sid not in opportunity_ids:
-            continue
         if rec.get("portfolio_implication") != "NEW_CAPITAL_CANDIDATE":
             continue
         if str(rec.get("action") or "") != "BUY_BELOW":
             continue
         current = _num(rec.get("current_price"))
         formal = _formal_buy_entry_from_recommendation(rec)
-        if current is None or formal is None or current <= formal:
+        if current is None or current <= 0 or formal is None or formal <= 0:
             continue
         gap = current / formal - 1.0
-        if gap <= AI_NEAR_FORMAL_BUY_GATE_PCT:
-            ranked.append((gap, sid))
+        crossed = (
+            gap <= 0
+            and str(rec.get("research_freshness") or "") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+        )
+        near_above = 0 < gap <= AI_NEAR_FORMAL_BUY_GATE_PCT
+        if not (crossed or near_above):
+            continue
+        if sid not in opportunity_ids:
+            if not crossed or not market_date:
+                continue
+            if str(rec.get("current_market_price_as_of") or "") != market_date:
+                continue
+            if str(rec.get("price_basis") or "") != "A_SHARE_FULL_MARKET":
+                continue
+        ranked.append((gap, sid))
     ranked.sort()
     return [sid for _gap, sid in ranked]
 
@@ -457,12 +478,48 @@ def build_d1(
         for row in opportunity.get("rows", [])
         if row.get("security_id")
     }
+    recommendation_by_id = {
+        str(rec.get("security_id") or ""): rec
+        for rec in (recommendation or {}).get("records", [])
+        if rec.get("security_id")
+    }
     # High-cash feedback is allowed to replace only the last D1 slot, preserving
     # the bounded batch size and avoiding a new unbounded research queue.
     for sid in near_gate_ids:
         if sid in {str(row.get("security_id") or "") for row in selected}:
             break
         row = opportunity_by_id.get(sid)
+        if row is None:
+            rec = recommendation_by_id.get(sid, {})
+            market_date = str((opportunity.get("source_snapshot") or {}).get("data_watermark") or "")
+            # Explicit evidence-backed recovery; never pretend it was screened
+            # into the current market top-30 or reuse old D2 as new BUY.
+            if (
+                rec.get("research_freshness") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+                and str(rec.get("current_market_price_as_of") or "") == market_date
+                and str(rec.get("price_basis") or "") == "A_SHARE_FULL_MARKET"
+                and rec.get("action") == "BUY_BELOW"
+                and rec.get("portfolio_implication") == "NEW_CAPITAL_CANDIDATE"
+            ):
+                row = {
+                    "security_id": sid,
+                    "security_name": rec.get("security_name"),
+                    "as_of_date": market_date,
+                    "overall_rank": None,
+                    "research_priority": "A_IMMEDIATE_RESEARCH",
+                    "primary_sleeve": "PRICE_CROSS_REUNDERWRITE",
+                    "market_signal": {
+                        "source": "FORMAL_RECOMMENDATION_MARK_SESSION",
+                        "price_as_of": market_date,
+                        "current_price": rec.get("current_price"),
+                        "formal_buy_entry_price": rec.get("formal_buy_entry_price"),
+                    },
+                    "fundamental_context": {
+                        "source": "PERSISTED_DECISION_GRADE_D2_REQUIRES_FRESH_REUNDERWRITE",
+                        "original_underwriting_price_as_of": rec.get("underwriting_price_as_of"),
+                        "no_buy_promotion_without_fresh_d2": True,
+                    },
+                }
         if row is not None:
             if selected:
                 selected[-1] = row
@@ -521,7 +578,9 @@ def build_d1(
                 "ai_book_auto_reunderwrite": ai_refresh,
                 "existing_decision_grade_d2": sid in completed_d2_ids,
                 "ai_book_reunderwrite_reason": (
-                    "HIGH_CASH_BUY_BELOW_NEAR_FORMAL_10PCT_GATE"
+                    "HIGH_CASH_FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+                    if ai_refresh and row.get("primary_sleeve") == "PRICE_CROSS_REUNDERWRITE"
+                    else "HIGH_CASH_BUY_BELOW_NEAR_FORMAL_10PCT_GATE"
                     if ai_refresh else None
                 ),
                 "candidate_membership_required": False,
