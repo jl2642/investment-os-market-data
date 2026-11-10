@@ -329,3 +329,44 @@ def test_build_state_recovers_completed_semantic_artifact_after_rolling_current_
     assert state["summary"]["reused_completed_count"] == 1
     assert liveness["d2_pending_count"] == 0
     assert liveness["d2_reused_completed_count"] == 1
+
+
+def test_semantic_gate_requires_reconciled_underwriting_economics():
+    from automation.research_queue_d2 import validate_d2_queue as gate
+
+    good = {"underwriting": {
+        "current_price": 10.0,
+        "price_as_of": "2026-11-09",
+        "entry_price": 8.0,
+        "confidence": "MEDIUM",
+        "normalized_earnings_basis": "Reported 2026Q3 earnings adjusted for one-offs.",
+        "action": "WATCH",
+        "kill_thesis": ["Cash conversion fails"],
+        "catalysts": ["Cash conversion improves"],
+        "scenarios": [
+            {"name": "BEAR", "value_per_share": 5.0, "probability": 0.25},
+            {"name": "BASE", "value_per_share": 10.0, "probability": 0.50},
+            {"name": "BULL", "value_per_share": 15.0, "probability": 0.25},
+        ],
+        "probability_weighted_value": 10.0,
+        "expected_return": 0.0,
+    }}
+    assert gate.underwriting_complete(good)
+    import copy
+    bad_probability = copy.deepcopy(good)
+    bad_probability["underwriting"]["scenarios"][0]["probability"] = 0.15
+    assert not gate.underwriting_complete(bad_probability)
+    bad_valuation = copy.deepcopy(good)
+    bad_valuation["underwriting"]["probability_weighted_value"] = 15.0
+    assert not gate.underwriting_complete(bad_valuation)
+    missing_return = copy.deepcopy(good)
+    del missing_return["underwriting"]["expected_return"]
+    assert not gate.underwriting_complete(missing_return)
+    bad_action = copy.deepcopy(good)
+    bad_action["underwriting"]["action"] = "BUY_WITHOUT_UNDERWRITING"
+    assert not gate.underwriting_complete(bad_action)
+    fake_labels_only = {"underwriting": {
+        "current_price": 10, "entry_price": 8, "confidence": "HIGH",
+        "scenarios": [{"name": name} for name in ("BEAR", "BASE", "BULL")]
+    }}
+    assert not gate.underwriting_complete(fake_labels_only)
