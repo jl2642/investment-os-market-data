@@ -329,7 +329,34 @@ def build_state(
     queue: list[dict[str, Any]] = []
     run_sources: list[dict[str, Any]] = []
     discovery_errors: list[dict[str, str]] = []
-    routed = routed_objects(d1)
+    routed_all = routed_objects(d1)
+
+    # D1 is a rolling top-10 snapshot. A code-only callback or daily reranking must
+    # not silently erase a previously discovered, unfinished semantic D2 obligation.
+    # Preserve at most two evidence-ready older tasks when fresh D1 routes exist,
+    # reserving at least one slot for current D1 opportunities.
+    routed_ids = {str(obj.get("security_id")) for obj in routed_all}
+    older_pending = [
+        dict(row)
+        for row in prior.get("queue", [])
+        if row.get("status") in {
+            "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+            "D2_UNDERWRITING_PENDING",
+        }
+        and row.get("semantic_research_required") is True
+        and int(row.get("primary_source_count", 0)) > 0
+        and row.get("security_id") not in routed_ids
+    ]
+    older_pending.sort(
+        key=lambda row: (str(row.get("last_attempt_at") or ""), str(row.get("security_id") or ""))
+    )
+    reserved_for_fresh = 1 if routed_all else 0
+    for previous in older_pending[:max(0, BATCH_SIZE - reserved_for_fresh)]:
+        previous["carried_forward_from_d1_state_id"] = prior.get("source_d1_state_id")
+        previous["backlog_reason"] = "UNFINISHED_EVIDENCE_READY_SEMANTIC_D2"
+        queue.append(previous)
+
+    routed = routed_all[:max(0, BATCH_SIZE - len(queue))]
 
     for obj in routed:
         security_id = str(obj["security_id"])

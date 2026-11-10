@@ -370,3 +370,85 @@ def test_semantic_gate_requires_reconciled_underwriting_economics():
         "scenarios": [{"name": name} for name in ("BEAR", "BASE", "BULL")]
     }}
     assert not gate.underwriting_complete(fake_labels_only)
+
+
+def test_evidence_ready_pending_d2_survives_d1_rerank_with_fresh_slot(tmp_path, monkeypatch):
+    d1 = tmp_path / "D1.json"
+    d1.write_text(json.dumps({
+        "state_id": "D1-NEW",
+        "research_objects": [
+            {"security_id": s, "security_name": s, "d1_rank": idx,
+             "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE", "d2_questions": ["verify"],
+             "first_rejection": "reject weak earnings"}
+            for idx, s in enumerate(["NEW1.SZ", "NEW2.SZ", "NEW3.SZ"], 1)
+        ],
+    }), encoding="utf-8")
+    evidence_dir = tmp_path / "evidence"
+    evidence_dir.mkdir()
+    (evidence_dir / "RESEARCH_QUEUE_D1_EVIDENCE_1.json").write_text(
+        '{"sources":[]}', encoding="utf-8"
+    )
+    prior = {
+        "source_d1_state_id": "D1-OLD",
+        "queue": [
+            {"security_id": symbol, "security_name": symbol, "status":
+             "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+             "semantic_research_required": True, "primary_source_count": 20,
+             "last_attempt_at": timestamp, "d2_questions": ["verify"],
+             "candidate_membership_mutation_authorized": False,
+             "real_account_mutation_authorized": False,
+             "simulation_mutation_authorized": False,
+             "decision_mutation_authorized": False,
+             "order_generation_authorized": False, "trade_authority": "NONE"}
+            for symbol, timestamp in [
+                ("OLD1.SH", "2026-11-08T12:00:00Z"),
+                ("OLD2.SZ", "2026-11-09T12:00:00Z"),
+                ("OLD3.SH", "2026-11-10T12:00:00Z"),
+            ]
+        ],
+    }
+    existing = tmp_path / "D2.json"
+    existing.write_text(json.dumps(prior), encoding="utf-8")
+    monkeypatch.setattr(d2, "D1_CURRENT", d1)
+    monkeypatch.setattr(d2, "D1_EVIDENCE_DIR", evidence_dir)
+    monkeypatch.setattr(d2, "D2_CURRENT", existing)
+    monkeypatch.setattr(d2, "D2_LIVENESS", tmp_path / "LIVE.json")
+    monkeypatch.setattr(d2, "D2_EVIDENCE_DIR", tmp_path / "d2e")
+    state, live, _ = d2.build_state(
+        discover_primary_sources=False,
+        now=datetime(2026, 11, 10, 13, 0, tzinfo=timezone.utc),
+    )
+    assert [x["security_id"] for x in state["queue"]] == [
+        "OLD1.SH", "OLD2.SZ", "NEW1.SZ"
+    ]
+    assert state["source_d1_state_id"] == "D1-NEW"
+    assert state["queue"][0]["carried_forward_from_d1_state_id"] == "D1-OLD"
+    assert state["summary"]["pending_count"] == 3
+    assert live["d2_pending_count"] == 3
+    assert state["controls"]["orders"] == 0
+
+
+def test_pending_backlog_without_evidence_not_carried_forever(tmp_path, monkeypatch):
+    d1 = tmp_path / "D1.json"
+    d1.write_text('{"state_id":"D1-N","research_objects":[]}', encoding="utf-8")
+    evidence_dir = tmp_path / "evidence"
+    evidence_dir.mkdir()
+    (evidence_dir / "RESEARCH_QUEUE_D1_EVIDENCE_1.json").write_text(
+        '{"sources":[]}', encoding="utf-8"
+    )
+    old = tmp_path / "D2.json"
+    old.write_text(json.dumps({"source_d1_state_id": "D1-OLD", "queue": [
+        {"security_id":"OLD.SZ", "status":"AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+         "semantic_research_required":True, "primary_source_count":0}
+    ]}), encoding="utf-8")
+    monkeypatch.setattr(d2, "D1_CURRENT", d1)
+    monkeypatch.setattr(d2, "D1_EVIDENCE_DIR", evidence_dir)
+    monkeypatch.setattr(d2, "D2_CURRENT", old)
+    monkeypatch.setattr(d2, "D2_LIVENESS", tmp_path / "LIVE.json")
+    monkeypatch.setattr(d2, "D2_EVIDENCE_DIR", tmp_path / "d2e")
+    state, live, _ = d2.build_state(
+        discover_primary_sources=False,
+        now=datetime(2026, 11, 10, 13, 0, tzinfo=timezone.utc),
+    )
+    assert state["queue"] == []
+    assert live["d2_pending_count"] == 0
