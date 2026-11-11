@@ -17,17 +17,32 @@ CONFIG = ROOT / "config/fmdl3b2_matrix.json"
 PILOT_CONFIG = ROOT / "config/fmdl3b_statement_store.json"
 
 
-def _parse_source_notes(value: object) -> tuple[str, int]:
-    text = str(value or "")
-    status_match = re.search(r"status=([^;]+)", text)
-    rows_match = re.search(r"rows=(\d+)", text)
-    return (status_match.group(1).strip() if status_match else "UNKNOWN", int(rows_match.group(1)) if rows_match else 0)
+def _parse_source_notes(value: object) -> tuple[str, int, str | None]:
+    """Preserve adapter outcome: EMPTY is a completed zero-row call, ERROR is not."""
+    text = value if isinstance(value, str) else ""
+    status_match = re.search(r"(?:^|;\s*)status=([^;]+)", text)
+    rows_match = re.search(r"(?:^|;\s*)rows=(\d+)", text)
+    error_match = re.search(r"(?:^|;\s*)error=([^;]*)", text)
+    if not (status_match and rows_match and error_match):
+        return "UNKNOWN", 0, None
+    return status_match.group(1).strip(), int(rows_match.group(1)), error_match.group(1).strip()
+
+
+def _completed_cninfo_query(adapter_status: str, rows: int, error: str | None) -> bool:
+    """A valid empty DataFrame is not an exception; malformed/errored evidence fails closed."""
+    return error == "" and (
+        (adapter_status == "SUCCESS" and rows > 0)
+        or (adapter_status == "EMPTY" and rows == 0)
+    )
 
 
 def enrich_official_query_resolution(support: pd.DataFrame, sources: pd.DataFrame) -> pd.DataFrame:
     support = support.copy()
     by_source = sources.set_index("source_id") if len(sources) and "source_id" in sources.columns else pd.DataFrame()
     statuses: list[str] = []
+    adapter_statuses: list[str] = []
+    adapter_errors: list[str] = []
+    resolution_basis: list[str] = []
     raw_rows: list[int] = []
     document_states: list[str] = []
     reasons: list[str] = []
@@ -36,11 +51,15 @@ def enrich_official_query_resolution(support: pd.DataFrame, sources: pd.DataFram
         source_id = f"SRC-CNINFO-{code}"
         source = by_source.loc[source_id] if len(by_source) and source_id in by_source.index else None
         notes = source.get("notes") if source is not None else ""
-        query_status, query_rows = _parse_source_notes(notes)
+        adapter_status, query_rows, adapter_error = _parse_source_notes(notes)
+        resolved = _completed_cninfo_query(adapter_status, query_rows, adapter_error)
+        # Source Index retains the raw EMPTY/SUCCESS/ERROR adapter evidence. The
+        # derived SUCCESS status means *query completed*, not *filings exist*.
+        query_status = "SUCCESS" if resolved else adapter_status
         filing_count = int(pd.to_numeric(pd.Series([row.get("official_filing_count", 0)]), errors="coerce").fillna(0).iloc[0])
-        if filing_count > 0:
+        if resolved and filing_count > 0:
             document_state = "INDEXED_CLASSIFIED_PERIODIC_REPORTS"
-        elif query_status == "SUCCESS":
+        elif resolved:
             document_state = "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY"
         else:
             document_state = "CNINFO_QUERY_UNRESOLVED"
@@ -53,10 +72,20 @@ def enrich_official_query_resolution(support: pd.DataFrame, sources: pd.DataFram
             else:
                 reason = "BSE_CNINFO_QUERY_UNRESOLVED"
         statuses.append(query_status)
+        adapter_statuses.append(adapter_status)
+        adapter_errors.append(adapter_error if adapter_error is not None else "MISSING_SOURCE_EVIDENCE")
+        resolution_basis.append(
+            "COMPLETED_NONEMPTY_CNINFO_RESPONSE" if resolved and adapter_status == "SUCCESS"
+            else "COMPLETED_EMPTY_CNINFO_RESPONSE" if resolved
+            else "UNRESOLVED_CNINFO_QUERY"
+        )
         raw_rows.append(query_rows)
         document_states.append(document_state)
         reasons.append(reason)
     support["official_query_status"] = statuses
+    support["official_query_adapter_status"] = adapter_statuses
+    support["official_query_adapter_error"] = adapter_errors
+    support["official_query_resolution_basis"] = resolution_basis
     support["official_query_raw_row_count"] = raw_rows
     support["official_document_status"] = document_states
     support["status_reason"] = reasons
@@ -89,6 +118,16 @@ def postprocess(shard_id: int, config_path: Path) -> int:
     flags = pd.read_csv(root / "SHARD_QA_FLAGS.csv", encoding="utf-8-sig")
 
     support = enrich_official_query_resolution(support, sources)
+    # Include the exact BSE code and adapter outcome in failed-job logs. No
+    # decision-grade data or unvalidated artifact is published by this trace.
+    bse_review = support.loc[
+        support["board"].astype(str).eq("BSE")
+        & support["official_query_resolution_basis"].ne("COMPLETED_NONEMPTY_CNINFO_RESPONSE"),
+        ["symbol", "official_query_adapter_status", "official_query_adapter_error",
+         "official_query_resolution_basis", "official_query_raw_row_count"],
+    ]
+    if len(bse_review):
+        print(json.dumps({"bse_cninfo_query_evidence": bse_review.to_dict(orient="records")}, ensure_ascii=False))
     normalized, checks, flags, controlled_evidence = hardening.harden_statement_validation(
         normalized,
         checks,
