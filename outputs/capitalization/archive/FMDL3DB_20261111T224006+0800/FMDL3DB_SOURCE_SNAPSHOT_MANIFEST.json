@@ -1,0 +1,52 @@
+{
+  "manifest_version": "1.0.0",
+  "dataset_id": "daily_market_snapshot",
+  "dataset_version": "daily_market_snapshot-2026-11-10-FMDL1BC_20261111T011833+0800",
+  "schema_id": "daily_market_snapshot.schema.json",
+  "schema_version": "1.0.0",
+  "run_id": "FMDL1BC_20261111T011833+0800",
+  "as_of_date": "2026-11-10",
+  "generated_at": "2026-11-11T01:18:33+08:00",
+  "business_timezone": "Asia/Shanghai",
+  "publication_status": "PUBLISHED",
+  "qa_status": "PASS_WITH_WARNINGS",
+  "sources": [
+    {
+      "adapter_id": "akshare",
+      "adapter_version": "1.20.37",
+      "adapter_function": "stock_zh_a_spot_em",
+      "provider_id": "eastmoney_public",
+      "retrieved_at": "2026-11-11T01:18:33+08:00",
+      "source_as_of_date": null,
+      "raw_hash_sha256": "bcc8ce55b0d9592fc7a9039c40cf6df089a6b808e27667109ba13f439a3117b8",
+      "retries": 0,
+      "warnings": [
+        "volume_unit=LOTS"
+      ]
+    }
+  ],
+  "row_count": 5928,
+  "column_count": 21,
+  "file": {
+    "path": "outputs/current/DAILY_MARKET_SNAPSHOT.csv",
+    "size_bytes": 1481987,
+    "sha256": "66ccc34b2b3050b378dfa9ec02086a498dd31a4c6e612733fc4fb52894e97c26"
+  },
+  "quality": {
+    "hard_failures": [],
+    "soft_warnings": [
+      "maximum_unexplained_absolute_return_pct"
+    ],
+    "gate_results_path": "outputs/current/DAILY_MARKET_SNAPSHOT_QUALITY.json"
+  },
+  "lineage": {
+    "parent_dataset_version": "daily_market_snapshot-2026-11-10-FMDL1BC_20261111T001757+0800",
+    "last_known_good_dataset_version": "daily_market_snapshot-2026-11-10-FMDL1BC_20261111T001757+0800"
+  },
+  "known_limitations": [
+    "AKShare/Eastmoney 成交量 is converted from lots to shares using 100 shares per lot.",
+    "pe_ttm temporarily maps the free-source dynamic PE field; valuation semantics are hardened in FMDL-3.",
+    "Candidate data is not a stable Investment OS current output until FMDL-1F promotion."
+  ],
+  "notes": "Published by FMDL-1D last-known-good controls."
+}

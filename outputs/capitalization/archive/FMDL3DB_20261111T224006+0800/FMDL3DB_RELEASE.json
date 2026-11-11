@@ -1,0 +1,101 @@
+{
+  "release_version": "1.0.0",
+  "release_id": "FMDL3DB_20261111T224006+0800",
+  "published_at": "2026-11-11T22:40:30+08:00",
+  "program_id": "FMDL-3D-B",
+  "status": "FMDL3DB_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE_ACCEPTED",
+  "exit_gate": "EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE_ACCEPTED",
+  "release_root": "datasets/capitalization/releases/FMDL3DB_20261111T224006+0800",
+  "current_root": "outputs/capitalization/current",
+  "archive_path": "outputs/capitalization/archive/FMDL3DB_20261111T224006+0800",
+  "capitalization_current_path": "outputs/capitalization/current/FMDL3DB_CAPITALIZATION_CURRENT.parquet",
+  "effective_share_ledger_path": "outputs/capitalization/current/FMDL3DB_EFFECTIVE_SHARE_LEDGER.parquet",
+  "coverage_path": "outputs/capitalization/current/FMDL3DB_COVERAGE.csv",
+  "quarantine_path": "outputs/capitalization/current/FMDL3DB_QUARANTINE.csv",
+  "retry_ledger_path": "outputs/capitalization/current/FMDL3DB_RETRY_LEDGER.csv",
+  "decision_path": "outputs/capitalization/current/FMDL3DB_DECISION.json",
+  "validation_path": "outputs/capitalization/current/FMDL3DB_VALIDATION.json",
+  "source_release": {
+    "run_id": "FMDL1BC_20261111T011833+0800",
+    "as_of_date": "2026-11-10",
+    "universe_dataset_version": "a_share_universe-2026-11-10-FMDL1BC_20261111T011833+0800",
+    "snapshot_dataset_version": "daily_market_snapshot-2026-11-10-FMDL1BC_20261111T011833+0800",
+    "universe_sha256": "45c6829a5967ce45957ce7da3103c4dc257570e7137fdc9183d88f272a4038ec",
+    "snapshot_sha256": "66ccc34b2b3050b378dfa9ec02086a498dd31a4c6e612733fc4fb52894e97c26"
+  },
+  "metrics": {
+    "source_market_release_id": "FMDL1BC_20261111T011833+0800",
+    "source_as_of_date": "2026-11-10",
+    "universe_symbol_count": 5928,
+    "snapshot_row_count": 5928,
+    "shard_count": 16,
+    "capitalization_current_row_count": 5928,
+    "effective_share_ledger_row_count": 167566,
+    "retry_ledger_row_count": 5928,
+    "accepted_price_count": 5577,
+    "accepted_price_coverage_ratio": 1.0,
+    "raw_full_universe_price_coverage_ratio": 0.9407894736842105,
+    "valid_or_warning_capitalization_count": 5577,
+    "effective_share_coverage_ratio": 1.0,
+    "raw_full_universe_share_coverage_ratio": 0.9407894736842105,
+    "non_bse_effective_share_coverage_ratio": 1.0,
+    "price_eligible_symbol_count": 5577,
+    "source_confirmed_suspended_unpriced_count": 351,
+    "coverage_denominator_semantics": "PRICE_ELIGIBLE_WITH_SOURCE_CONFIRMED_UNPRICED_SUSPENSIONS_QUARANTINED",
+    "controlled_quarantine_count": 351,
+    "future_source_ledger_row_count": 66,
+    "future_selected_share_row_count": 0,
+    "future_current_share_row_count": 0,
+    "non_positive_selected_share_row_count": 0,
+    "duplicate_current_key_count": 0,
+    "duplicate_ledger_key_count": 0,
+    "maximum_attempt_count": 3,
+    "total_source_attempt_count": 5934,
+    "source_elapsed_seconds_sum": 2406.70147,
+    "automatic_action_authorized_count": 0,
+    "state_counts": {
+      "VALID": 5577,
+      "PRICE_UNAVAILABLE": 351
+    },
+    "board_coverage": {
+      "SH_MAIN": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.97,
+        "gate_status": "PASS"
+      },
+      "SZ_MAIN": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.97,
+        "gate_status": "PASS"
+      },
+      "STAR": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.95,
+        "gate_status": "PASS"
+      },
+      "CHINEXT": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.97,
+        "gate_status": "PASS"
+      },
+      "BSE": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.7,
+        "gate_status": "PASS"
+      }
+    }
+  },
+  "controlled_limitations": [
+    "EFFECTIVE_SHARE_COUNT_PRIMARY_ROUTE_IS_SINGLE_FREE_PROVIDER_WITH_RETRY_AND_EXPLICIT_QUARANTINE",
+    "SOURCE_CONFIRMED_UNPRICED_SUSPENSIONS_REMAIN_IN_FULL_INVENTORY_AND_QUARANTINE_NOT_PRICE_ELIGIBLE",
+    "CURRENT_CAPITALIZATION_USES_LATEST_COMPLETED_SESSION_CLOSE_NOT_INTRADAY_PRICE",
+    "FUTURE_PROVIDER_SHARE_ROWS_ARE_PRESERVED_AS_LEDGER_EVIDENCE_BUT_NEVER_SELECTED",
+    "PROVIDER_MARKET_CAP_AND_VALUATION_FIELDS_ARE_NOT_DECISION_GRADE",
+    "VALUATION_RATIOS_REMAIN_FMDL_3D_C_WORK",
+    "DIVIDEND_BUYBACK_AND_DILUTION_EVENT_CURRENT_REMAINS_FMDL_3D_D_WORK",
+    "NO_SCORE_TARGET_PRICE_PORTFOLIO_ACTION_OR_TRADE_AUTHORITY"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3D-C_VALUATION_ENGINE_CURRENT"
+}

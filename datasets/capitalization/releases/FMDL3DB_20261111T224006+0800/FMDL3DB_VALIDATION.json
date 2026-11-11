@@ -1,0 +1,252 @@
+{
+  "validation_version": "1.0.0",
+  "release_id": "FMDL3DB_20261111T224006+0800",
+  "program_id": "FMDL-3D-B",
+  "status": "PASS",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "SOURCE_SUSPENDED_NO_PRICE_EXACTLY_CLASSIFIED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SOURCE_SUSPENSIONS_MATCH_UNIVERSE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NO_ACTIVE_SECURITY_EXCLUDED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PRICE_ELIGIBLE_UNIVERSE_NOT_EMPTY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "DECISION_ELIGIBLE_COUNT_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "DECISION_SUSPENDED_COUNT_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "DECISION_PRICE_COVERAGE_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "DECISION_SHARE_COVERAGE_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SOURCE_UNIVERSE_SHA_MATCH",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SOURCE_SNAPSHOT_SHA_MATCH",
+      "status": "PASS"
+    },
+    {
+      "check_id": "DECISION_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "DECISION_HARD_FAILURES_EMPTY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "MANIFEST_VALID",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ROW_SCHEMAS_VALID",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CURRENT_EXACT_UNIVERSE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "CURRENT_KEYS_UNIQUE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "RETRY_EXACT_UNIVERSE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "QUARANTINE_EQUALS_INVALID_CURRENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "LEDGER_KEYS_UNIQUE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "PRICE_COVERAGE_GATE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SHARE_COVERAGE_GATE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NON_BSE_COVERAGE_GATE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "BOARD_COVERAGE_GATES",
+      "status": "PASS"
+    },
+    {
+      "check_id": "VALID_ROWS_COMPLETE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "INVALID_ROWS_NULL_CAPITALIZATION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ONE_SELECTED_LEDGER_ROW_PER_VALID_CURRENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SELECTED_LINEAGE_EXACT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_FUTURE_SELECTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_FUTURE_CURRENT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SELECTED_SHARES_POSITIVE",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FLOAT_SHARES_WITHIN_TOTAL",
+      "status": "PASS"
+    },
+    {
+      "check_id": "TOTAL_MARKET_CAP_REPLAYS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "FLOAT_MARKET_CAP_REPLAYS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "SOURCE_RELEASE_BOUND",
+      "status": "PASS"
+    },
+    {
+      "check_id": "COVERAGE_HAS_ALL_BOARDS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "INVALID_ROWS_EXPLICIT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NO_VALUATION_SCORE_TARGET_OR_ACTION",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    },
+    {
+      "check_id": "NEXT_GATE_FMDL3DC",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "source_market_release_id": "FMDL1BC_20261111T011833+0800",
+    "source_as_of_date": "2026-11-10",
+    "universe_symbol_count": 5928,
+    "snapshot_row_count": 5928,
+    "shard_count": 16,
+    "capitalization_current_row_count": 5928,
+    "effective_share_ledger_row_count": 167566,
+    "retry_ledger_row_count": 5928,
+    "accepted_price_count": 5577,
+    "accepted_price_coverage_ratio": 1.0,
+    "raw_full_universe_price_coverage_ratio": 0.9407894736842105,
+    "valid_or_warning_capitalization_count": 5577,
+    "effective_share_coverage_ratio": 1.0,
+    "raw_full_universe_share_coverage_ratio": 0.9407894736842105,
+    "non_bse_effective_share_coverage_ratio": 1.0,
+    "price_eligible_symbol_count": 5577,
+    "source_confirmed_suspended_unpriced_count": 351,
+    "coverage_denominator_semantics": "PRICE_ELIGIBLE_WITH_SOURCE_CONFIRMED_UNPRICED_SUSPENSIONS_QUARANTINED",
+    "controlled_quarantine_count": 351,
+    "future_source_ledger_row_count": 66,
+    "future_selected_share_row_count": 0,
+    "future_current_share_row_count": 0,
+    "non_positive_selected_share_row_count": 0,
+    "duplicate_current_key_count": 0,
+    "duplicate_ledger_key_count": 0,
+    "maximum_attempt_count": 3,
+    "total_source_attempt_count": 5934,
+    "source_elapsed_seconds_sum": 2406.70147,
+    "automatic_action_authorized_count": 0,
+    "state_counts": {
+      "VALID": 5577,
+      "PRICE_UNAVAILABLE": 351
+    },
+    "board_coverage": {
+      "SH_MAIN": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.97,
+        "gate_status": "PASS"
+      },
+      "SZ_MAIN": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.97,
+        "gate_status": "PASS"
+      },
+      "STAR": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.95,
+        "gate_status": "PASS"
+      },
+      "CHINEXT": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.97,
+        "gate_status": "PASS"
+      },
+      "BSE": {
+        "valid_capitalization_ratio": 1.0,
+        "minimum_required": 0.7,
+        "gate_status": "PASS"
+      }
+    },
+    "manifest_error_count": 0,
+    "schema_error_count": 0,
+    "price_eligible_symbol_count_independent": 5577,
+    "source_confirmed_suspended_unpriced_count_independent": 351,
+    "raw_full_universe_price_coverage_ratio_independent": 0.9407894736842105,
+    "price_coverage_ratio_independent": 1.0,
+    "effective_share_coverage_ratio_independent": 1.0,
+    "non_bse_effective_share_coverage_ratio_independent": 1.0,
+    "future_selected_share_count_independent": 0,
+    "future_current_share_count_independent": 0,
+    "total_market_cap_max_absolute_replay_difference_cny": 0.0,
+    "float_market_cap_max_absolute_replay_difference_cny": 0.0,
+    "board_coverage_independent": {
+      "BSE": 1.0,
+      "CHINEXT": 1.0,
+      "SH_MAIN": 1.0,
+      "STAR": 1.0,
+      "SZ_MAIN": 1.0,
+      "UNKNOWN": 1.0
+    }
+  },
+  "manifest_errors": [],
+  "schema_errors": [],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3D-C_VALUATION_ENGINE_CURRENT"
+}
