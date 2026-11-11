@@ -1,0 +1,77 @@
+{
+  "decision_version": "1.0.0",
+  "release_id": "FMDL3B3_20261111T212046+0800",
+  "generated_at": "2026-11-11T21:20:46+08:00",
+  "program_id": "FMDL-3B-3",
+  "status": "FMDL3B3_COMPARABILITY_AND_RESTATEMENT_HARDENING_ACCEPTED",
+  "hard_failures": [],
+  "checks": [
+    {
+      "check_id": "ENTRY_RELEASE_ACCEPTED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "EXACT_32_INPUT_SHARDS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_DOCUMENTS_CLASSIFIED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_DUPLICATE_REVISION_IDS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_NORMALIZED_PERIODS_CLASSIFIED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_PERIODS_CONTROLLED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_FACT_EXCEPTIONS_EXPLICIT",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ALL_COMPARABILITY_STATUSES_CONTROLLED",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_DUPLICATE_COMPARISON_IDS",
+      "status": "PASS"
+    },
+    {
+      "check_id": "ZERO_TRADE_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "input_revision_row_count": 84316,
+    "classified_document_count": 84316,
+    "normalized_period_key_count": 56704,
+    "period_status_count": 66019,
+    "canonical_periodic_document_count": 68295,
+    "noncanonical_document_count": 16021,
+    "original_only_period_count": 63169,
+    "restated_or_corrected_period_count": 2580,
+    "unresolved_no_canonical_period_count": 270,
+    "normalized_fact_count_replayed": 2296152,
+    "fact_exception_count": 66247,
+    "comparison_count_replayed": 1434785,
+    "comparison_exception_count": 70245,
+    "comparable_with_warning_count": 69473,
+    "not_comparable_count": 772
+  },
+  "input_release_id": "FMDL3B2M_20261111T212024+0800",
+  "controlled_limitations": [
+    "HISTORICAL_STRUCTURED_VALUES_BEFORE_CORRECTION_ARE_NOT_AVAILABLE_FROM_THE_CURRENT_PROVIDER_EXPORT",
+    "PRE_RESTATEMENT_NUMERIC_REPLAY_IS_BLOCKED_WHEN_ONLY_DOCUMENT_LINEAGE_EXISTS",
+    "ABSENCE_FROM_EXCEPTION_TABLES_MEANS_COMPARABLE_UNDER_THE_FROZEN_DEFAULT_RULES",
+    "BSE_AND_OTHER_UNSUPPORTED_STATEMENT_FACTS_REMAIN_CONTROLLED_BY_FMDL3B2_QUARANTINE"
+  ],
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE",
+  "next_gate": "FMDL-3B-4_STATEMENT_CURRENT_AND_ACCEPTANCE"
+}
