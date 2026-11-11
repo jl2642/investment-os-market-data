@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-11T09:04:43+00:00",
+  "generated_at_utc": "2026-11-11T09:29:29+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-11-10",
-    "recommendation_generated_at_utc": "2026-11-11T08:54:16+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_60ad4e8813b0cffb",
+    "recommendation_generated_at_utc": "2026-11-11T09:22:55+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_6cd4095a2a91438a",
     "surface_as_of_date": "2026-11-10",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_dae217c34e96b1a0"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_697070083dced143"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_badc894b1b235ced",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_db7eb3455ee4e1de",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -350,14 +350,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 29.4,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "AVOID",
+      "entry_price": 26.24,
+      "expected_return": -0.1390214797136039,
       "latest_price": 33.52,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_AVOID",
+      "mark_expected_return": -0.1390214797136039,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -365,17 +365,27 @@
       "position_state": "FLAT",
       "price_as_of": "2026-11-10",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 28.86,
       "ready_for_user_decision": false,
       "security_id": "001228.SZ",
       "security_name": "永泰运",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+        "catalysts": [
+          "汽车贸易业务的应收、预付和存货增速明显低于收入增速，资金周转率改善。",
+          "财务费用和汇兑损失回落，信用减值损失恢复至正常水平。",
+          "跨境化工物流箱量、仓储和关务服务收入保持增长且毛利率提升。",
+          "经营现金流连续两个报告期显著高于归母净利润，净负债与现金占用下降。"
+        ],
+        "kill_thesis": [
+          "汽车贸易继续推高应收、预付款和存货，经营现金流再度转负或持续显著低于净利润。",
+          "汇率波动和借款规模导致财务费用继续维持高位，信用减值持续扩大。",
+          "化工物流主业箱量或单位毛利下降，增长主要依赖低毛利贸易收入。",
+          "实际控制人及关联方融资、股权质押或资本运作显著提高治理风险。"
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -1344,14 +1354,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 18.44,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "AVOID",
+      "entry_price": 16.15,
+      "expected_return": -0.6014468371467026,
       "latest_price": 44.58,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_AVOID",
+      "mark_expected_return": -0.6014468371467026,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -1359,17 +1369,27 @@
       "position_state": "FLAT",
       "price_as_of": "2026-11-10",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 17.767500000000002,
       "ready_for_user_decision": false,
       "security_id": "301273.SZ",
       "security_name": "瑞晨环保",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+        "catalysts": [
+          "连续两个季度收入恢复并实现单季扣非盈利转正。",
+          "信用减值损失显著下降，主要应收款回款和账龄结构改善。",
+          "经营现金流转正且库存增长明显低于收入增长。",
+          "高效风机、陶瓷泵、热能系统及合同能源管理业务形成可验证的订单和利润贡献。"
+        ],
+        "kill_thesis": [
+          "收入持续下降或Q3单季收入降幅扩大，扣非亏损继续恶化。",
+          "应收款坏账、合同资产或存货跌价继续大额计提。",
+          "订单增长依赖高垫资或长账期，经营现金流持续为负。",
+          "实际盈利改善无法支撑远低于当前5倍PB的估值预期。"
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -2565,7 +2585,7 @@
     "portfolio_review_required_count": 2,
     "reunderwrite_required_count": 4,
     "review_queue_count": 12,
-    "semantic_watch_clause_count": 688,
+    "semantic_watch_clause_count": 436,
     "subject_count": 63,
     "user_action_review_count": 6,
     "valuation_reunderwrite_count": 3
