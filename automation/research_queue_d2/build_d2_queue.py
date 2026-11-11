@@ -158,7 +158,9 @@ def discover_cninfo(security_id: str, *, start_date: str, end_date: str) -> tupl
     records: list[dict[str, Any]] = []
     for row in frame.to_dict(orient="records"):
         title = str(row.get("公告标题") or "")
-        url = str(row.get("公告链接") or "")
+        url = str(row.get("公告链接") or "").strip()
+        if not url.startswith(("http://", "https://")):
+            continue
         when = row.get("公告时间")
         if hasattr(when, "isoformat"):
             when = when.isoformat()
@@ -428,13 +430,14 @@ def build_state(
                     })
                 previous["attempt_count"] = int(previous.get("attempt_count", 0)) + 1
                 previous["last_attempt_at"] = now_iso
-                if cninfo:
+                cninfo_urls = {
+                    str(source.get("url") or "").strip()
+                    for source in cninfo
+                    if str(source.get("url") or "").strip().startswith(("http://", "https://"))
+                }
+                if cninfo_urls:
                     previous["status"] = "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
-                    previous["primary_source_count"] = len({
-                        str(source.get("url") or "").strip()
-                        for source in cninfo
-                        if str(source.get("url") or "").strip()
-                    })
+                    previous["primary_source_count"] = len(cninfo_urls)
                     previous["source_inventory_status"] = "DISCOVERY_RECORDS_WRITTEN_THIS_RUN"
                     previous["source_inventory_evidence_files"] = [evidence_path_ref]
                 elif previous.get("status") != "D2_UNDERWRITING_PENDING":
@@ -494,9 +497,8 @@ def build_state(
             status = "D2_UNDERWRITING_PENDING"
         elif previous_status in SEMANTIC_TERMINAL_STATUSES:
             status = str(previous_status)
-        elif cninfo:
+        elif current_urls:
             status = "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
-            attempts += 1
         elif source_count > 0:
             status = str(
                 previous_status
@@ -507,9 +509,11 @@ def build_state(
             status = "D2_UNDERWRITING_PENDING"
         elif discover_primary_sources:
             status = "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY"
-            attempts += 1
         else:
             status = str(previous_status or "PENDING_AUTO_RESEARCH")
+
+        if discover_primary_sources and status not in SEMANTIC_TERMINAL_STATUSES:
+            attempts += 1
 
         semantic_required = status != "D2_RESEARCH_COMPLETE"
         row: dict[str, Any] = {
