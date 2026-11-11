@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-11T08:42:36.305Z",
+  "as_of": "2026-11-11T09:15:00Z",
   "consumer_policy": {
     "ai_book_near_gate_refresh": "AUTO_ROUTED_TO_CHATGPT_NATIVE_SEMANTIC_D2_WITHOUT_MANUAL_D1_D2_DISPATCH",
     "bounded_batch_size": 3,
@@ -138,23 +138,91 @@
       "decision_mutation_authorized": false,
       "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
       "input_watermark": "db45a2387239fb47ed42822d662a9685d1f3f7afd937527fc70403f8c814151d",
-      "last_attempt_at": "2026-11-11T08:29:30+00:00",
+      "last_attempt_at": "2026-11-11T09:15:00Z",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
       "security_id": "001228.SZ",
       "security_name": "永泰运",
       "semantic_input_watermark": "a9aa0098fd908d28cfd0d63dec16376f38f8e46ee11fcfb30846468b63132d6e",
-      "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
-      "semantic_research_required": true,
+      "semantic_research_owner": "CHATGPT_NATIVE_SEMANTIC_D2_UNDERWRITING",
+      "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
       "source_inventory_evidence_files": [
         "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/RESEARCH_QUEUE_D2_EVIDENCE_20261111T082930Z.json"
       ],
       "source_inventory_status": "DISCOVERY_RECORDS_WRITTEN_THIS_RUN",
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_REVENUE_GROWTH_DRIVEN_BY_LOW_MARGIN_AUTO_TRADE_WITH_WORKING_CAPITAL_AND_FX_CREDIT_COST_RISK",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_001228_20261111_R1.json",
+      "first_rejection_test": "FAIL_AT_RMB35.18__PW_VALUE_RMB28.86__EXPECTED_RETURN_MINUS18PCT__9M_ADJUSTED_PROFIT_MINUS2.19PCT__FINANCIAL_EXPENSE_RMB107M__WORKING_CAPITAL_SURGE",
+      "next_gate": "AVOID_AT_CURRENT_PRICE; REUNDERWRITE_IF_PRICE_BELOW_RMB26.24_FOR_10PCT_EXPECTED_RETURN_OR_TWO_REPORTING_PERIODS_SHOW_SUSTAINABLE_CFO_AND_LOWER_AUTO_TRADE_WORKING_CAPITAL_INTENSITY",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false,
+        "monitoring": "Need segment-level gross profit/capital employed for auto trade versus chemical logistics, aging of receivables and customer concentration; Q4 2026 earnings and FX impact remain unreported."
+      },
+      "underwriting": {
+        "current_price": 35.18,
+        "price_as_of": "2026-11-11 11:30 Asia/Shanghai",
+        "entry_price": 26.24,
+        "preferred_entry_price_15pct": 25.1,
+        "formal_buy_entry_price_10pct": 26.24,
+        "confidence": "MEDIUM",
+        "valuation_method": "NORMALIZED_EPS_PE_SCENARIOS_CROSS_CHECKED_BY_WORKING_CAPITAL_FINANCING_COST_AND_LOW_MARGIN_AUTO_TRADE_MIX",
+        "normalized_earnings_basis": {
+          "metric": "FY2026E_DEDUCTED_ATTRIBUTABLE_PROFIT",
+          "fy2025_deducted_np_rmb_mn": 104.438,
+          "nine_month_2026_deducted_np_rmb_mn": 91.23,
+          "analyst_estimated_q4_2026_deducted_np_rmb_mn": 30,
+          "analyst_estimated_fy2026_deducted_np_rmb_mn": 121.23,
+          "post_placement_shares_bn_approx": 0.1154,
+          "normalized_eps": 1.05,
+          "rationale": "Q3 2026 adjusted profit improved, but 9M adjusted profit remained down 2.19%; higher financing cost, FX and credit impairment offset scale. Base case assumes moderate Q4 profit, not straight-line extrapolation."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "normalized_eps": 0.9,
+            "pe_multiple": 24,
+            "value_per_share": 21.6,
+            "probability": 0.3
+          },
+          {
+            "name": "BASE",
+            "normalized_eps": 1.05,
+            "pe_multiple": 28,
+            "value_per_share": 29.4,
+            "probability": 0.5
+          },
+          {
+            "name": "BULL",
+            "normalized_eps": 1.2,
+            "pe_multiple": 32,
+            "value_per_share": 38.4,
+            "probability": 0.2
+          }
+        ],
+        "probability_weighted_value": 28.86,
+        "expected_return": -0.1799,
+        "bear_downside": -0.386,
+        "action": "AVOID",
+        "catalysts": [
+          "汽车贸易业务的应收、预付和存货增速明显低于收入增速，资金周转率改善。",
+          "财务费用和汇兑损失回落，信用减值损失恢复至正常水平。",
+          "跨境化工物流箱量、仓储和关务服务收入保持增长且毛利率提升。",
+          "经营现金流连续两个报告期显著高于归母净利润，净负债与现金占用下降。"
+        ],
+        "kill_thesis": [
+          "汽车贸易继续推高应收、预付款和存货，经营现金流再度转负或持续显著低于净利润。",
+          "汇率波动和借款规模导致财务费用继续维持高位，信用减值持续扩大。",
+          "化工物流主业箱量或单位毛利下降，增长主要依赖低毛利贸易收入。",
+          "实际控制人及关联方融资、股权质押或资本运作显著提高治理风险。"
+        ]
+      }
     },
     {
       "ai_book_auto_reunderwrite": false,
@@ -175,37 +243,99 @@
       "decision_mutation_authorized": false,
       "first_rejection": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
       "input_watermark": "75ff7b92f1d1a2888036133daa9fd6acc7534e3c0211ca20f4aaf4ced50a290a",
-      "last_attempt_at": "2026-11-11T08:29:30+00:00",
+      "last_attempt_at": "2026-11-11T09:15:00Z",
       "order_generation_authorized": false,
       "primary_source_count": 20,
       "real_account_mutation_authorized": false,
       "security_id": "301273.SZ",
       "security_name": "瑞晨环保",
       "semantic_input_watermark": "84e4b8e402aee4fd4329632a65cbe359471046deaea692ce6ce528210c1e4a49",
-      "semantic_research_owner": "CHATGPT_NATIVE_D2_RESEARCH_AND_UNDERWRITING_CONSUMER",
-      "semantic_research_required": true,
+      "semantic_research_owner": "CHATGPT_NATIVE_SEMANTIC_D2_UNDERWRITING",
+      "semantic_research_required": false,
       "semantic_reuse_source": null,
       "simulation_mutation_authorized": false,
       "source_inventory_evidence_files": [
         "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/RESEARCH_QUEUE_D2_EVIDENCE_20261111T082930Z.json"
       ],
       "source_inventory_status": "DISCOVERY_RECORDS_WRITTEN_THIS_RUN",
-      "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-      "trade_authority": "NONE"
+      "status": "D2_RESEARCH_COMPLETE",
+      "trade_authority": "NONE",
+      "research_disposition": "AVOID_RESEARCH_COMPLETE_LOSS_ACCELERATING_HIGH_CREDIT_IMPAIRMENT_AND_EXTREME_PRICE_TO_BOOK",
+      "semantic_artifact": "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/D2_RESEARCH_301273_20261111_R1.json",
+      "first_rejection_test": "FAIL_AT_RMB44.58__PB5.32X__PW_VALUE_RMB17.76__EXPECTED_RETURN_MINUS60PCT__9M_LOSS_RMB52M__CFO_NEGATIVE_RMB45M",
+      "next_gate": "AVOID; REUNDERWRITE_ONLY_AFTER_TWO_CONSECUTIVE_QUARTERS_OF_POSITIVE_ADJUSTED_PROFIT_AND_CFO_TURNAROUND_OR_PRICE_BELOW_RMB16.15_WITH_FRESH_EVIDENCE",
+      "evidence_gap": {
+        "material": false,
+        "missing": null,
+        "manual_user_input_required": false,
+        "monitoring": "Need customer concentration, receivable aging, order backlog and contract-level gross margin; latest verified market quote is prior close 2026-11-10, re-mark before any future action."
+      },
+      "underwriting": {
+        "current_price": 44.58,
+        "price_as_of": "2026-11-10 close",
+        "entry_price": 16.15,
+        "preferred_entry_price_15pct": 15.44,
+        "formal_buy_entry_price_10pct": 16.15,
+        "confidence": "MEDIUM",
+        "valuation_method": "COMMON_BOOK_VALUE_PB_SCENARIOS_WITH_EXPLICIT_LOSS_AND_CREDIT_RISK_DISCOUNT",
+        "normalized_earnings_basis": {
+          "metric": "COMMON_BOOK_VALUE_PER_SHARE_NOT_PE",
+          "parent_equity_rmb_mn": 840.504,
+          "shares_mn": 100.299,
+          "common_bvps": 8.38,
+          "rationale": "2025 and 2026 9M earnings are negative and CFO is negative; PB is used as a conservative cross-check, not as a claim that book value is fully recoverable. Credit and inventory risks warrant a discount to book."
+        },
+        "scenarios": [
+          {
+            "name": "BEAR",
+            "pb_multiple": 1.4,
+            "value_per_share": 11.73,
+            "probability": 0.35
+          },
+          {
+            "name": "BASE",
+            "pb_multiple": 2.2,
+            "value_per_share": 18.44,
+            "probability": 0.45
+          },
+          {
+            "name": "BULL",
+            "pb_multiple": 3.2,
+            "value_per_share": 26.82,
+            "probability": 0.2
+          }
+        ],
+        "probability_weighted_value": 17.76,
+        "expected_return": -0.6016,
+        "bear_downside": -0.7369,
+        "action": "AVOID",
+        "catalysts": [
+          "连续两个季度收入恢复并实现单季扣非盈利转正。",
+          "信用减值损失显著下降，主要应收款回款和账龄结构改善。",
+          "经营现金流转正且库存增长明显低于收入增长。",
+          "高效风机、陶瓷泵、热能系统及合同能源管理业务形成可验证的订单和利润贡献。"
+        ],
+        "kill_thesis": [
+          "收入持续下降或Q3单季收入降幅扩大，扣非亏损继续恶化。",
+          "应收款坏账、合同资产或存货跌价继续大额计提。",
+          "订单增长依赖高垫资或长账期，经营现金流持续为负。",
+          "实际盈利改善无法支撑远低于当前5倍PB的估值预期。"
+        ]
+      }
     }
   ],
   "schema_version": "1.1.0",
   "source_d1_state_id": "RESEARCH_QUEUE_D1_CURRENT_31ac738dd8f09820",
-  "state_id": "RESEARCH_QUEUE_D2_CURRENT_1391b66fe06c1838",
-  "status": "D2_AUTO_CONSUMER_ACTIVE_BACKLOG_PENDING",
+  "state_id": "RESEARCH_QUEUE_D2_CURRENT_325fc5d9f70ed06c",
+  "status": "D2_BACKLOG_CLOSED_ALL_THREE_DECISION_GRADE_UNDERWRITING_COMPLETE",
   "summary": {
     "ai_book_auto_reunderwrite_pending_count": 0,
     "batch_capacity": 3,
     "blocked_count": 0,
-    "completed_count": 1,
+    "completed_count": 3,
     "hold_evidence_gap_count": 0,
     "manual_trigger_required": false,
-    "pending_count": 2,
+    "pending_count": 0,
     "provider_incident_active": false,
     "reused_completed_count": 0,
     "routed_count": 3
