@@ -121,7 +121,7 @@ jobs:
     needs: preflight
     # This legacy full-build route must not duplicate the governed five-shard
     # OCC-R2B1 BSE recovery. Other push/scheduled/manual runs are unchanged.
-    if: github.event_name != 'pull_request' && !contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]')
+    if: github.event_name != 'pull_request' && !contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]') && !contains(github.event.head_commit.message, '[BSE-BOND-CLASSIFICATION-RECOVERY-20261111]')
     runs-on: ubuntu-latest
     timeout-minutes: 75
     strategy:
@@ -178,7 +178,7 @@ jobs:
 
   aggregate:
     needs: shards
-    if: always() && github.event_name != 'pull_request' && !contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]')
+    if: always() && github.event_name != 'pull_request' && !contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]') && !contains(github.event.head_commit.message, '[BSE-BOND-CLASSIFICATION-RECOVERY-20261111]')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
