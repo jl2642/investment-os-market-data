@@ -194,8 +194,22 @@ def main() -> int:
         if len(core_rows)
         else 0.0
     )
-    capitalization_coverage = float(
-        current["capitalization_state"].astype(str).isin(core.VALID_STATES).mean()
+    # The capitalisation release preserves all source securities. Only its
+    # immutable, independently validated price-eligible cohort is the denominator.
+    cap_metrics = cap_release["metrics"]
+    price_eligible_count = int(cap_metrics["price_eligible_symbol_count"])
+    suspended_unpriced_count = int(cap_metrics["source_confirmed_suspended_unpriced_count"])
+    cap_valid_count = int(current["capitalization_state"].astype(str).isin(core.VALID_STATES).sum())
+    capitalization_population_reconciled = (
+        price_eligible_count > 0
+        and price_eligible_count + suspended_unpriced_count == len(current)
+        and cap_valid_count == int(cap_metrics["valid_or_warning_capitalization_count"])
+        and cap_valid_count <= price_eligible_count
+        and int(cap_metrics["controlled_quarantine_count"]) >= suspended_unpriced_count
+    )
+    capitalization_coverage = (
+        float(cap_valid_count / price_eligible_count)
+        if capitalization_population_reconciled else 0.0
     )
 
     metrics = {
@@ -213,6 +227,9 @@ def main() -> int:
         "decision_grade_metric_count": decision_grade_count,
         "controlled_capitalization_quarantine_count": int(len(quarantine)),
         "capitalization_coverage_ratio": capitalization_coverage,
+        "capitalization_raw_full_universe_coverage_ratio": float(cap_valid_count / len(current)) if len(current) else 0.0,
+        "price_eligible_symbol_count": price_eligible_count,
+        "source_confirmed_suspended_unpriced_count": suspended_unpriced_count,
         "core_resolved_ratio": core_resolved_ratio,
         "future_denominator_blocked_count": future_denominator_count,
         "future_selected_denominator_count": future_selected_count,
@@ -253,6 +270,7 @@ def main() -> int:
             ~detail["quality_state"].isin(core.VALID_STATES), "metric_value"
         ].isna().all(),
         "ZERO_FUTURE_SELECTED_DENOMINATOR": future_selected_count == 0,
+        "CAPITALIZATION_ELIGIBILITY_COHORT_RECONCILED": capitalization_population_reconciled,
         "CAPITALIZATION_COVERAGE_GATE": capitalization_coverage
         >= float(cfg["engine"]["minimum_capitalization_coverage"]),
         "CORE_RESOLVED_RATIO_GATE": core_resolved_ratio

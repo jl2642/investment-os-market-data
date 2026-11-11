@@ -18,13 +18,20 @@ def _valid_payloads():
         "releases": {"financial_factor_release_id": "FMDL3CB_TEST"},
         "trade_authority": "NONE",
     }
+    cohort = {
+        "universe_symbol_count": 110,
+        "price_eligible_symbol_count": 100,
+        "source_confirmed_suspended_unpriced_count": 10,
+    }
     cap_release = {
         "release_id": "FMDL3DB_TEST",
         "source_release": {"as_of_date": "2026-08-28"},
+        "metrics": cohort,
     }
     cap_decision = {
         "status": "FMDL3DB_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE_ACCEPTED",
         "trade_authority": "NONE",
+        "metrics": cohort,
     }
     valuation_release = {"release_id": "FMDL3DC_TEST"}
     valuation_decision = {
@@ -34,6 +41,8 @@ def _valid_payloads():
             "market_as_of_date": "2026-08-28",
             "factor_engine_release_id": "FMDL3CB_TEST",
             "future_selected_denominator_count": 0,
+            "price_eligible_symbol_count": 100,
+            "source_confirmed_suspended_unpriced_count": 10,
             "metric_valid_counts": {
                 "VAL_EV_SALES_TTM": 100,
                 "VAL_EV_OPERATING_INCOME_TTM": 50,
@@ -116,3 +125,21 @@ def test_occ_r2b2_push_does_not_race_the_r2b1_handoff():
     push_block = text.split("  push:", 1)[1].split("  workflow_dispatch:", 1)[0]
     assert ".github/workflows/occ-r2b2-capitalization-valuation-rebuild.yml" not in push_block
     assert "tests/test_occ_r2b2_workflow_contract.py" not in push_block
+
+def test_r2b2_summary_fails_closed_on_population_drift():
+    payloads = list(_valid_payloads())
+    payloads[5]["metrics"]["price_eligible_symbol_count"] = 99
+    summary = build_summary(
+        market_context=payloads[0],
+        financial_context=payloads[1],
+        capitalization_release=payloads[2],
+        capitalization_decision=payloads[3],
+        valuation_release=payloads[4],
+        valuation_decision=payloads[5],
+        market_source_branch="market-branch",
+        market_source_commit="market-commit",
+        financial_source_branch="financial-branch",
+        financial_source_commit="financial-commit",
+    )
+    assert summary["status"] == "FAIL"
+    assert "CAPITALIZATION_ELIGIBILITY_COHORT_RECONCILED" in summary["hard_failures"]
