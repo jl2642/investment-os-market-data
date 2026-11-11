@@ -18,6 +18,7 @@ D2_EVIDENCE_DIR = ROOT / "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH
 BATCH_SIZE = 3
 TRADE_AUTHORITY = "NONE"
 CNINFO_MAX_ATTEMPTS = 2
+MAX_PRIMARY_SOURCE_DISCOVERY_ATTEMPTS = 3
 SEMANTIC_TERMINAL_STATUSES = {"D2_RESEARCH_COMPLETE", "D2_RESEARCH_HOLD_EVIDENCE_GAP"}
 SEMANTIC_COMPLETE_STATUS = "D2_RESEARCH_COMPLETE"
 EXPLICIT_SEMANTIC_REFRESH_FLAGS = ("semantic_refresh_required", "fresh_d2_required", "reunderwrite_required")
@@ -85,6 +86,70 @@ def baseline_sources(evidence: dict[str, Any], security_id: str) -> list[dict[st
     return [source for source in evidence.get("sources", []) if source.get("security_id") == security_id]
 
 
+def durable_primary_sources_by_security() -> dict[str, dict[str, dict[str, Any]]]:
+    """Index durable CNINFO discovery metadata by security and URL.
+
+    A queue count is not evidence provenance. Only source rows present in a
+    persisted D2 evidence snapshot are counted; stale counts carried in D2
+    Current are deliberately ignored.
+    """
+    inventory: dict[str, dict[str, dict[str, Any]]] = {}
+    if not D2_EVIDENCE_DIR.exists():
+        return inventory
+
+    for path in sorted(D2_EVIDENCE_DIR.glob("RESEARCH_QUEUE_D2_EVIDENCE_*.json")):
+        try:
+            payload = load_json(path)
+        except Exception:
+            continue
+        captured_at = str(payload.get("captured_at") or "")
+        try:
+            evidence_file = path.relative_to(ROOT).as_posix()
+        except ValueError:
+            evidence_file = str(path)
+
+        for source in payload.get("primary_sources", []):
+            if not isinstance(source, dict) or source.get("primary_source") is not True:
+                continue
+            security_id = str(source.get("security_id") or "").strip()
+            url = str(source.get("url") or "").strip()
+            if not security_id or not url.startswith(("http://", "https://")):
+                continue
+            inventory.setdefault(security_id, {})[url] = {
+                "source": source,
+                "evidence_file": evidence_file,
+                "captured_at": captured_at,
+            }
+    return inventory
+
+
+def should_preserve_older_pending(
+    row: dict[str, Any],
+    durable_inventory: dict[str, dict[str, dict[str, Any]]],
+) -> bool:
+    """Keep semantic obligations, but bound retries for source-discovery-only failures."""
+    status = str(row.get("status") or "")
+    if status in {
+        "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+        "D2_UNDERWRITING_PENDING",
+    }:
+        return True
+    if status not in {
+        "PENDING_AUTO_RESEARCH",
+        "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+    }:
+        return False
+
+    security_id = str(row.get("security_id") or "")
+    if durable_inventory.get(security_id):
+        return True
+    try:
+        attempts = int(row.get("attempt_count", 0))
+    except (TypeError, ValueError):
+        return False
+    return bool(row.get("last_attempt_at")) and 0 < attempts < MAX_PRIMARY_SOURCE_DISCOVERY_ATTEMPTS
+
+
 def _cninfo_error(exc: Exception) -> str:
     return f"CNINFO_DISCOVERY_FAILED:{type(exc).__name__}:ATTEMPTS_{CNINFO_MAX_ATTEMPTS}"
 
@@ -121,7 +186,9 @@ def discover_cninfo(security_id: str, *, start_date: str, end_date: str) -> tupl
     records: list[dict[str, Any]] = []
     for row in frame.to_dict(orient="records"):
         title = str(row.get("公告标题") or "")
-        url = str(row.get("公告链接") or "")
+        url = str(row.get("公告链接") or "").strip()
+        if not url.startswith(("http://", "https://")):
+            continue
         when = row.get("公告时间")
         if hasattr(when, "isoformat"):
             when = when.isoformat()
@@ -329,22 +396,27 @@ def build_state(
     queue: list[dict[str, Any]] = []
     run_sources: list[dict[str, Any]] = []
     discovery_errors: list[dict[str, str]] = []
+    discovery_attempt_count = 0
     routed_all = routed_objects(d1)
+    durable_source_inventory = durable_primary_sources_by_security()
+    evidence_run_id = f"RESEARCH_QUEUE_D2_EVIDENCE_{now.strftime('%Y%m%dT%H%M%SZ')}"
+    evidence_path = D2_EVIDENCE_DIR / f"{evidence_run_id}.json"
+    try:
+        evidence_path_ref = evidence_path.relative_to(ROOT).as_posix()
+    except ValueError:
+        evidence_path_ref = str(evidence_path)
 
     # D1 is a rolling top-10 snapshot. A code-only callback or daily reranking must
-    # not silently erase a previously discovered, unfinished semantic D2 obligation.
-    # Preserve at most two evidence-ready older tasks when fresh D1 routes exist,
-    # reserving at least one slot for current D1 opportunities.
+    # not silently erase a previously unfinished semantic D2 obligation.
+    # Preserve at most two older tasks when fresh D1 routes exist, reserving one slot
+    # for current D1 opportunities. Revalidate their source inventory from persisted
+    # evidence files; a carried-forward count alone is never treated as provenance.
     routed_ids = {str(obj.get("security_id")) for obj in routed_all}
     older_pending = [
         dict(row)
         for row in prior.get("queue", [])
-        if row.get("status") in {
-            "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-            "D2_UNDERWRITING_PENDING",
-        }
+        if should_preserve_older_pending(row, durable_source_inventory)
         and row.get("semantic_research_required") is True
-        and int(row.get("primary_source_count", 0)) > 0
         and row.get("security_id") not in routed_ids
     ]
     older_pending.sort(
@@ -352,8 +424,53 @@ def build_state(
     )
     reserved_for_fresh = 1 if routed_all else 0
     for previous in older_pending[:max(0, BATCH_SIZE - reserved_for_fresh)]:
+        security_id = str(previous.get("security_id") or "")
+        inventory = durable_source_inventory.get(security_id, {})
+        previous["primary_source_count"] = len(inventory)
+        previous["source_inventory_status"] = (
+            "DURABLE_DISCOVERY_RECORDS_PRESENT" if inventory else "MISSING_DURABLE_DISCOVERY_RECORDS"
+        )
+        previous["source_inventory_evidence_files"] = sorted({
+            str(item["evidence_file"]) for item in inventory.values()
+        })
         previous["carried_forward_from_d1_state_id"] = prior.get("source_d1_state_id")
-        previous["backlog_reason"] = "UNFINISHED_EVIDENCE_READY_SEMANTIC_D2"
+
+        if inventory:
+            previous["backlog_reason"] = "UNFINISHED_EVIDENCE_READY_SEMANTIC_D2"
+            if previous.get("status") != "D2_UNDERWRITING_PENDING":
+                previous["status"] = "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
+        else:
+            previous["backlog_reason"] = "UNFINISHED_SEMANTIC_D2_SOURCE_PROVENANCE_MISSING"
+            if previous.get("status") != "D2_UNDERWRITING_PENDING":
+                previous["status"] = "PENDING_AUTO_RESEARCH"
+            if discover_primary_sources:
+                discovery_attempt_count += 1
+                cninfo, discovery_error = discover_cninfo(
+                    security_id, start_date=start_date, end_date=today
+                )
+                run_sources.extend(cninfo)
+                if discovery_error:
+                    discovery_errors.append({
+                        "provider": "CNINFO_VIA_AKSHARE",
+                        "security_id": security_id,
+                        "error": discovery_error,
+                    })
+                previous["attempt_count"] = int(previous.get("attempt_count", 0)) + 1
+                previous["last_attempt_at"] = now_iso
+                cninfo_urls = {
+                    str(source.get("url") or "").strip()
+                    for source in cninfo
+                    if str(source.get("url") or "").strip().startswith(("http://", "https://"))
+                }
+                if cninfo_urls:
+                    previous["status"] = "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
+                    previous["primary_source_count"] = len(cninfo_urls)
+                    previous["source_inventory_status"] = "DISCOVERY_RECORDS_WRITTEN_THIS_RUN"
+                    previous["source_inventory_evidence_files"] = [evidence_path_ref]
+                elif previous.get("status") != "D2_UNDERWRITING_PENDING":
+                    previous["status"] = "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY"
+                    previous["source_inventory_status"] = "NO_DURABLE_DISCOVERY_RECORDS"
+
         queue.append(previous)
 
     routed = routed_all[:max(0, BATCH_SIZE - len(queue))]
@@ -376,9 +493,11 @@ def build_state(
         attempts = int(previous.get("attempt_count", 0)) if same_input else 0
 
         baseline = baseline_sources(evidence, security_id)
+        durable_inventory = durable_source_inventory.get(security_id, {})
         cninfo: list[dict[str, Any]] = []
         discovery_error: str | None = None
         if discover_primary_sources:
+            discovery_attempt_count += 1
             cninfo, discovery_error = discover_cninfo(security_id, start_date=start_date, end_date=today)
             run_sources.extend(cninfo)
             if discovery_error:
@@ -388,18 +507,40 @@ def build_state(
                     "error": discovery_error,
                 })
 
+        durable_urls = set(durable_inventory)
+        current_urls = {
+            str(source.get("url") or "").strip()
+            for source in cninfo
+            if str(source.get("url") or "").strip()
+        }
+        source_count = len(durable_urls | current_urls)
+        source_files = {
+            str(item["evidence_file"]) for item in durable_inventory.values()
+        }
+        if current_urls:
+            source_files.add(evidence_path_ref)
+
         if previous_status == "D2_RESEARCH_COMPLETE" and not underwriting_complete(previous):
             status = "D2_UNDERWRITING_PENDING"
         elif previous_status in SEMANTIC_TERMINAL_STATUSES:
             status = str(previous_status)
-        elif cninfo:
+        elif current_urls:
             status = "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
-            attempts += 1
+        elif source_count > 0:
+            status = str(
+                previous_status
+                if previous_status in {"PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING", "D2_UNDERWRITING_PENDING"}
+                else "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
+            )
+        elif previous_status == "D2_UNDERWRITING_PENDING":
+            status = "D2_UNDERWRITING_PENDING"
         elif discover_primary_sources:
             status = "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY"
-            attempts += 1
         else:
             status = str(previous_status or "PENDING_AUTO_RESEARCH")
+
+        if discover_primary_sources and status not in SEMANTIC_TERMINAL_STATUSES:
+            attempts += 1
 
         semantic_required = status != "D2_RESEARCH_COMPLETE"
         row: dict[str, Any] = {
@@ -413,7 +554,24 @@ def build_state(
             "d2_questions": obj.get("d2_questions", []),
             "first_rejection": obj.get("first_rejection"),
             "baseline_source_count": len(baseline),
-            "primary_source_count": max(int(previous.get("primary_source_count", 0)), len(cninfo)) if discover_primary_sources else int(previous.get("primary_source_count", 0)),
+            "primary_source_count": (
+                int(previous.get("primary_source_count", 0))
+                if status in SEMANTIC_TERMINAL_STATUSES
+                else source_count
+            ),
+            "source_inventory_status": (
+                previous.get("source_inventory_status")
+                if status in SEMANTIC_TERMINAL_STATUSES
+                else (
+                    "DISCOVERY_RECORDS_WRITTEN_THIS_RUN" if current_urls
+                    else ("DURABLE_DISCOVERY_RECORDS_PRESENT" if source_count else "MISSING_DURABLE_DISCOVERY_RECORDS")
+                )
+            ),
+            "source_inventory_evidence_files": (
+                previous.get("source_inventory_evidence_files", [])
+                if status in SEMANTIC_TERMINAL_STATUSES
+                else sorted(source_files)
+            ),
             "status": status,
             "attempt_count": attempts,
             "last_attempt_at": now_iso if discover_primary_sources else previous.get("last_attempt_at"),
@@ -454,7 +612,7 @@ def build_state(
     reused_completed = [row for row in completed if row.get("semantic_reuse_source")]
     holds = [row for row in queue if row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
     blocked = [row for row in queue if row["status"].startswith("AUTO_RESEARCH_BLOCKED") or row["status"] == "D2_RESEARCH_HOLD_EVIDENCE_GAP"]
-    provider_incident = provider_incident_summary(discovery_errors, len(routed))
+    provider_incident = provider_incident_summary(discovery_errors, discovery_attempt_count)
     ai_book_auto_pending = [
         row for row in active_pending if row.get("ai_book_auto_reunderwrite")
     ]
@@ -546,7 +704,7 @@ def build_state(
 
     evidence_run = {
         "schema_version": "1.0.0",
-        "run_id": f"RESEARCH_QUEUE_D2_EVIDENCE_{now.strftime('%Y%m%dT%H%M%SZ')}",
+        "run_id": evidence_run_id,
         "captured_at": now_iso,
         "source_d1_state_id": d1.get("state_id"),
         "discovery_enabled": discover_primary_sources,
@@ -558,6 +716,9 @@ def build_state(
             "semantic_completion_prohibited": True,
             "semantic_fallback": "CHATGPT_NATIVE_D2_MAY_USE_GOVERNED_EXCHANGE_OR_COMPANY_PRIMARY_DISCLOSURES_WITH_PROVENANCE",
             "purpose": "AUTOMATIC_PRIMARY_EVIDENCE_DISCOVERY_FOR_D2_SEMANTIC_RESEARCH",
+            "discovery_records_are_metadata_only": True,
+            "document_body_retrieval": "NOT_PERFORMED_BY_THIS_DISCOVERY_STEP",
+            "semantic_completion_requires_full_document_review": True,
         },
         "controls": state["controls"],
     }

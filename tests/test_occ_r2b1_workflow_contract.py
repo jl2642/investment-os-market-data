@@ -1,5 +1,11 @@
 from pathlib import Path
 
+from scripts.summarize_occ_r2b_financial_context import (
+    expected_latest_report_period,
+    report_period_is_current,
+    report_period_coverage_is_current,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -38,3 +44,22 @@ def test_occ_r2b1_injects_source_watermark_as_pit_cutoff() -> None:
     assert "pit_cutoff_as_of_date" in text
     assert "SOURCE_WATERMARK" in text
     assert "--config /tmp/occ-r2b1-fmdl3b2-matrix.json" in text
+
+
+
+def test_occ_r2b1_financial_report_period_freshness_gate() -> None:
+    assert expected_latest_report_period("2026-11-10") == "2026-09-30"
+    assert expected_latest_report_period("2026-09-05") == "2026-06-30"
+    assert expected_latest_report_period("2026-05-05") == "2026-03-31"
+    assert expected_latest_report_period("2026-04-30") == "2025-09-30"
+    assert report_period_is_current("2026-11-10", "2026-09-30")
+    assert not report_period_is_current("2026-11-10", "2026-06-30")
+    assert not report_period_is_current("2026-11-10", None)
+    assert report_period_coverage_is_current(100, 90)
+    assert not report_period_coverage_is_current(100, 89)
+    assert not report_period_coverage_is_current(0, 0)
+
+
+def test_occ_r2b1_has_post_filing_quarterly_refresh_schedule() -> None:
+    text = (ROOT / ".github/workflows/occ-r2b1-financial-baseline-rebuild.yml").read_text(encoding="utf-8")
+    assert 'cron: "30 2 5 5,9,11 *"' in text
