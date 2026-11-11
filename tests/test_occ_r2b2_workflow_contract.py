@@ -103,3 +103,6 @@ def test_occ_r2b2_workflow_is_governed_and_does_not_reopen_methodology():
     assert "financial_event_propagation=COMPLETE" in text
     assert "git push origin HEAD:main" not in text
     assert "TRADE_AUTHORITY: NONE" in text
+    assert "workflow_run:" in text
+    assert '"OCC-R2B1 Financial Baseline Rebuild"' in text
+    assert "github.event.workflow_run.conclusion == 'success'" in text
