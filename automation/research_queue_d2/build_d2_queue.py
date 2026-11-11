@@ -108,7 +108,7 @@ def durable_primary_sources_by_security() -> dict[str, dict[str, dict[str, Any]]
             evidence_file = str(path)
 
         for source in payload.get("primary_sources", []):
-            if not isinstance(source, dict) or source.get("primary_source") is False:
+            if not isinstance(source, dict) or source.get("primary_source") is not True:
                 continue
             security_id = str(source.get("security_id") or "").strip()
             url = str(source.get("url") or "").strip()
@@ -388,7 +388,9 @@ def build_state(
         dict(row)
         for row in prior.get("queue", [])
         if row.get("status") in {
+            "PENDING_AUTO_RESEARCH",
             "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+            "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
             "D2_UNDERWRITING_PENDING",
         }
         and row.get("semantic_research_required") is True
