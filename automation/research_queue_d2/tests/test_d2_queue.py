@@ -690,16 +690,18 @@ def test_unresolved_old_pending_items_are_preserved_and_retried(tmp_path, monkey
     assert state["summary"]["pending_count"] == 3
     assert state["controls"]["orders"] == 0
 
-
-
-def test_consumer_runs_after_its_code_or_workflow_is_merged_to_main():
+def test_push_event_is_reserved_for_semantic_d2_publication():
     workflow = (
         d2.ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml"
     ).read_text(encoding="utf-8")
     push_block = workflow.split("  push:", 1)[1].split("  workflow_dispatch:", 1)[0]
-    assert '"automation/research_queue_d2/**"' in push_block
-    assert '".github/workflows/research-queue-d2-auto-consumer.yml"' in push_block
+    assert '"automation/research_queue_d2/**"' not in push_block
+    assert '".github/workflows/research-queue-d2-auto-consumer.yml"' not in push_block
     fetch_step = workflow.split(
         "- name: Fetch S2 rolling D1 Current and prior D2 authority", 1
     )[1].split("      - name:", 1)[0]
-    assert "if: github.event_name != 'pull_request'" in fetch_step
+    assert "if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'" in fetch_step
+    semantic_step = workflow.split(
+        "- name: Publish semantic D2 completion to Operating Current", 1
+    )[1].split("      - name:", 1)[0]
+    assert "if: github.event_name == 'push'" in semantic_step
