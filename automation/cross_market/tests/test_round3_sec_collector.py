@@ -164,7 +164,7 @@ def test_ticker_map_outage_is_recorded_per_issuer_and_direct_cik_can_continue(tm
     )
 
     assert manifest["ticker_map_status"] == "SEC_DATA_GAP"
-    assert "controlled ticker-map outage" in manifest["ticker_map_failure_reason"]
+    assert any("controlled ticker-map outage" in reason for reason in manifest["ticker_map_failure_reason"])
     assert len(inbox["issuers"]) == 1
     assert inbox["issuers"][0]["symbol"] == "XYZ"
     assert len(inbox["failures"]) == 1
