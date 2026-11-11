@@ -9,6 +9,7 @@ import pandas as pd
 from scripts import aggregate_fmdl3b2_matrix as base
 from scripts import fmdl3b2_matrix_core as matrix
 from scripts import fmdl3b2_validation_hardening as hardening
+from scripts import fmdl3b2_non_equity as instruments
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config/fmdl3b2_matrix.json"
@@ -39,11 +40,7 @@ def postprocess(config_path: Path) -> int:
 
     bse = support[support["board"] == "BSE"] if len(support) else support
     allowed = {"INDEXED_CLASSIFIED_PERIODIC_REPORTS", "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY"}
-    bse_query_resolved = bool(
-        len(bse) > 0
-        and bse["official_query_status"].astype(str).eq("SUCCESS").all()
-        and bse["official_document_status"].astype(str).isin(allowed).all()
-    )
+    bse_query_resolved = bool(len(bse) > 0 and instruments.bse_gate_passes(bse))
     classified_ok, classification_errors = hardening.controlled_exclusions_are_classified(checks, flags)
     controlled_count = int((checks["result"].astype(str) == hardening.CONTROLLED_RESULT).sum()) if len(checks) else 0
     performed_failures = int((checks["result"].astype(str) == "FAIL").sum()) if len(checks) else 0
@@ -63,7 +60,8 @@ def postprocess(config_path: Path) -> int:
         "controlled_validation_classification_error_count": len(classification_errors),
         "bse_indexed_periodic_report_count": int((bse["official_document_status"] == "INDEXED_CLASSIFIED_PERIODIC_REPORTS").sum()) if len(bse) else 0,
         "bse_no_classified_periodic_report_count": int((bse["official_document_status"] == "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY").sum()) if len(bse) else 0,
-        "bse_query_unresolved_count": int((bse["official_query_status"] != "SUCCESS").sum()) if len(bse) else 0,
+        "bse_query_unresolved_count": instruments.bse_unresolved_count(bse),
+        "bse_verified_non_equity_bond_count": int((bse["official_document_status"] == instruments.BOND_EXCLUSION_STATUS).sum()) if len(bse) else 0,
         "accepted_shard_count": int((shard_summary["status"] == "FMDL3B2_SHARD_ACCEPTED").sum()) if len(shard_summary) else 0,
         "validated_shard_count": int((shard_summary["validation_status"] == "PASS").sum()) if len(shard_summary) else 0,
     })

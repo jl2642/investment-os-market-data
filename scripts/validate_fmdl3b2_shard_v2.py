@@ -9,6 +9,7 @@ import pandas as pd
 
 from scripts import fmdl3b2_matrix_core as matrix
 from scripts import fmdl3b2_validation_hardening as hardening
+from scripts import fmdl3b2_non_equity as instruments
 from scripts import validate_fmdl3b2_shard as base
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,18 +68,23 @@ def postprocess(shard_id: int) -> int:
     check_map.pop("BSE_DOCUMENT_INDEX", None)
     bse = support[support["board"] == "BSE"]
     allowed = {"INDEXED_CLASSIFIED_PERIODIC_REPORTS", "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY"}
-    bse_ok = bool(
-        bse["official_query_status"].astype(str).eq("SUCCESS").all()
-        and bse["official_document_status"].astype(str).isin(allowed).all()
-    ) if len(bse) else True
+    bse_ok = instruments.bse_gate_passes(bse)
     check_map["BSE_OFFICIAL_QUERY_RESOLUTION"] = {
         "check_id": "BSE_OFFICIAL_QUERY_RESOLUTION",
         "status": "PASS" if bse_ok else "FAIL",
         "detail": {
             "bse_rows": len(bse),
-            "query_unresolved": int((bse["official_query_status"].astype(str) != "SUCCESS").sum()) if len(bse) else 0,
+            "query_unresolved": instruments.bse_unresolved_count(bse),
+            "verified_non_equity_bonds": int((bse["official_document_status"] == instruments.BOND_EXCLUSION_STATUS).sum()) if len(bse) else 0,
             "document_status": bse["official_document_status"].value_counts().to_dict() if len(bse) else {},
         },
+    }
+    # Never allow a verified bond in equity financial fact outputs.
+    excluded = set(bse.loc[bse["official_document_status"].eq(instruments.BOND_EXCLUSION_STATUS), "symbol"].astype(str))
+    leaked = sorted(excluded & set(normalized["symbol"].dropna().astype(str))) if len(normalized) else []
+    check_map["NON_EQUITY_NO_STOCK_FACTS"] = {
+        "check_id": "NON_EQUITY_NO_STOCK_FACTS",
+        "status": "PASS" if not leaked else "FAIL", "detail": leaked,
     }
     classified_ok, classification_errors = hardening.controlled_exclusions_are_classified(checks_frame, flags)
     check_map["CONTROLLED_VALIDATION_EXCLUSIONS_CLASSIFIED"] = {

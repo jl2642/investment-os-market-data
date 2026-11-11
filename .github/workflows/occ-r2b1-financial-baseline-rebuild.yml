@@ -93,7 +93,7 @@ jobs:
       matrix:
         # One-shot recovery only on the explicitly marked merge commit. Normal
         # scheduled/dispatch and later push runs still rebuild all 32 shards.
-        shard_id: ${{ fromJSON(github.event_name == 'push' && contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]') && '["04","08","09","13","29"]' || '["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"]') }}
+        shard_id: ${{ fromJSON(github.event_name == 'push' && contains(github.event.head_commit.message, '[BSE-BOND-CLASSIFICATION-RECOVERY-20261111]') && '["04","29"]' || github.event_name == 'push' && contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]') && '["04","08","09","13","29"]' || '["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"]') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -170,7 +170,7 @@ jobs:
           path: downloaded-shards
           merge-multiple: false
       - name: Verify original source identity for one-shot recovery
-        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]') }}
+        if: ${{ github.event_name == 'push' && (contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]') || contains(github.event.head_commit.message, '[BSE-BOND-CLASSIFICATION-RECOVERY-20261111]')) }}
         env:
           SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
           SOURCE_WATERMARK: ${{ needs.preflight.outputs.source_watermark }}
@@ -179,7 +179,7 @@ jobs:
           test "$SOURCE_COMMIT" = "3adc3d3e911f6495111e73ca6c0087b0c9d732c5"
           test "$SOURCE_WATERMARK" = "2026-11-10"
       - name: Restore 27 previously validated shards for bounded recovery
-        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]') }}
+        if: ${{ github.event_name == 'push' && (contains(github.event.head_commit.message, '[BSE-CNINFO-RECOVERY-20261111]') || contains(github.event.head_commit.message, '[BSE-BOND-CLASSIFICATION-RECOVERY-20261111]')) }}
         uses: actions/download-artifact@v4
         with:
           run-id: 42983277029
@@ -188,6 +188,34 @@ jobs:
           pattern: occ-r2b1-statement-shard-*
           path: downloaded-shards
           merge-multiple: false
+      - name: Restore three certified shards from the second repair pass
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[BSE-BOND-CLASSIFICATION-RECOVERY-20261111]') }}
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43012994700
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          pattern: occ-r2b1-statement-shard-*
+          path: downloaded-shards
+          merge-multiple: false
+      - name: Assert exact carry-forward source and shard identities
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[BSE-BOND-CLASSIFICATION-RECOVERY-20261111]') }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("downloaded-shards")
+          expected={f"occ-r2b1-statement-shard-{i:02d}" for i in range(32)}
+          found={p.name for p in root.iterdir() if p.is_dir()}
+          assert found==expected, {"missing":sorted(expected-found),"unexpected":sorted(found-expected)}
+          for n in range(32):
+              shard=root/f"occ-r2b1-statement-shard-{n:02d}"
+              decision=json.loads((shard/"SHARD_DECISION.json").read_text(encoding="utf-8"))
+              validation=json.loads((shard/"SHARD_VALIDATION.json").read_text(encoding="utf-8"))
+              assert int(decision["shard_id"])==n
+              assert decision["status"]=="FMDL3B2_SHARD_ACCEPTED", n
+              assert validation["status"]=="PASS", n
+          PY
       - name: Assert exact 32 uniquely named shard packages
         run: |
           python - <<'PY'

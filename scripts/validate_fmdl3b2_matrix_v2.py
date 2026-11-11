@@ -9,6 +9,7 @@ import pandas as pd
 
 from scripts import fmdl3b2_matrix_core as matrix
 from scripts import fmdl3b2_validation_hardening as hardening
+from scripts import fmdl3b2_non_equity as instruments
 from scripts import validate_fmdl3b2_matrix as base
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -76,19 +77,29 @@ def postprocess(root: Path) -> int:
 
     bse = support[support["board"] == "BSE"] if len(support) else support
     allowed = {"INDEXED_CLASSIFIED_PERIODIC_REPORTS", "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY"}
-    bse_ok = bool(
-        len(bse) > 0
-        and bse["official_query_status"].astype(str).eq("SUCCESS").all()
-        and bse["official_document_status"].astype(str).isin(allowed).all()
-    )
+    bse_ok = bool(len(bse) > 0 and instruments.bse_gate_passes(bse))
     check_map["BSE_OFFICIAL_QUERY_RESOLUTION"] = {
         "check_id": "BSE_OFFICIAL_QUERY_RESOLUTION",
         "status": "PASS" if bse_ok else "FAIL",
         "detail": {
             "bse_rows": len(bse),
-            "query_unresolved": int((bse["official_query_status"].astype(str) != "SUCCESS").sum()) if len(bse) else 0,
+            "query_unresolved": instruments.bse_unresolved_count(bse),
+            "verified_non_equity_bonds": int((bse["official_document_status"] == instruments.BOND_EXCLUSION_STATUS).sum()) if len(bse) else 0,
             "document_status": bse["official_document_status"].value_counts().to_dict() if len(bse) else {},
         },
+    }
+    # Verify excluded non-equities carry no equity normalized fundamentals in
+    # any of the 32 retained/new shard outputs.
+    excluded = set(bse.loc[bse["official_document_status"].eq(instruments.BOND_EXCLUSION_STATUS), "symbol"].astype(str))
+    leaks = []
+    if excluded:
+        for path in sorted((root / "normalized").glob("shard-*.parquet")):
+            frame = pd.read_parquet(path, columns=["symbol"])
+            present = excluded & set(frame["symbol"].dropna().astype(str))
+            leaks.extend(sorted(present))
+    check_map["NON_EQUITY_NO_STOCK_FACTS"] = {
+        "check_id": "NON_EQUITY_NO_STOCK_FACTS",
+        "status": "PASS" if not leaks else "FAIL", "detail": sorted(set(leaks)),
     }
     classified_ok, classification_errors = hardening.controlled_exclusions_are_classified(checks_frame, flags)
     check_map["CONTROLLED_VALIDATION_EXCLUSIONS_CLASSIFIED"] = {
