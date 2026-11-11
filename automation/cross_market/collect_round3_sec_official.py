@@ -193,7 +193,7 @@ def collect(
                         ticker_source_by_symbol.setdefault(symbol, []).append(ticker_url)
             except Exception as exc:  # noqa: BLE001
                 ticker_map_errors.append(f"{ticker_url}:{type(exc).__name__}:{exc}"[:500])
-        raw_manifest["ticker_map_status"] = "PASS" if symbol_records else "SEC_DATA_GAP"
+        raw_manifest["ticker_map_status"] = "PASS" if (ticker_raw is not None or exchange_raw is not None) else "SEC_DATA_GAP"
         raw_manifest["ticker_map_sources_attempted"] = [TICKER_URL, TICKER_EXCHANGE_URL]
         raw_manifest["ticker_map_failure_reason"] = ticker_map_errors
     else:
