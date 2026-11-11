@@ -646,6 +646,13 @@ def test_unresolved_old_pending_items_are_preserved_and_retried(tmp_path, monkey
                 "attempt_count": 2, "last_attempt_at": "2026-11-09T12:00:00Z",
                 "d2_questions": ["verify"], "trade_authority": "NONE",
             },
+            {
+                "security_id": "OLD_EXHAUSTED.SZ", "security_name": "OLD_EXHAUSTED",
+                "status": "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+                "semantic_research_required": True, "primary_source_count": 0,
+                "attempt_count": 3, "last_attempt_at": "2026-11-07T12:00:00Z",
+                "d2_questions": ["verify"], "trade_authority": "NONE",
+            },
         ],
     }
     d2_current = tmp_path / "D2.json"
@@ -672,6 +679,7 @@ def test_unresolved_old_pending_items_are_preserved_and_retried(tmp_path, monkey
     queued = {row["security_id"]: row for row in state["queue"]}
     assert "OLD_PENDING.SZ" in queued
     assert "OLD_BLOCKED.SZ" in queued
+    assert "OLD_EXHAUSTED.SZ" not in queued
     assert queued["OLD_PENDING.SZ"]["status"] == "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY"
     assert queued["OLD_BLOCKED.SZ"]["status"] == "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY"
     assert queued["OLD_PENDING.SZ"]["attempt_count"] == 2
