@@ -9,6 +9,7 @@ import pandas as pd
 
 from scripts import fmdl3b2_matrix_core as matrix
 from scripts import fmdl3b2_validation_hardening as hardening
+from scripts import fmdl3b2_non_equity as instruments
 from scripts import fmdl3b_core as core
 from scripts import run_fmdl3b2_shard as base
 
@@ -17,17 +18,38 @@ CONFIG = ROOT / "config/fmdl3b2_matrix.json"
 PILOT_CONFIG = ROOT / "config/fmdl3b_statement_store.json"
 
 
-def _parse_source_notes(value: object) -> tuple[str, int]:
-    text = str(value or "")
-    status_match = re.search(r"status=([^;]+)", text)
-    rows_match = re.search(r"rows=(\d+)", text)
-    return (status_match.group(1).strip() if status_match else "UNKNOWN", int(rows_match.group(1)) if rows_match else 0)
+def _parse_source_notes(value: object) -> tuple[str, int, str | None]:
+    """Preserve adapter outcome: EMPTY is a completed zero-row call, ERROR is not."""
+    text = value if isinstance(value, str) else ""
+    status_match = re.search(r"(?:^|;\s*)status=([^;]+)", text)
+    rows_match = re.search(r"(?:^|;\s*)rows=(\d+)", text)
+    error_match = re.search(r"(?:^|;\s*)error=([^;]*)", text)
+    if not (status_match and rows_match and error_match):
+        return "UNKNOWN", 0, None
+    return status_match.group(1).strip(), int(rows_match.group(1)), error_match.group(1).strip()
 
 
-def enrich_official_query_resolution(support: pd.DataFrame, sources: pd.DataFrame) -> pd.DataFrame:
+def _completed_cninfo_query(adapter_status: str, rows: int, error: str | None) -> bool:
+    """A valid empty DataFrame is not an exception; malformed/errored evidence fails closed."""
+    return error == "" and (
+        (adapter_status == "SUCCESS" and rows > 0)
+        or (adapter_status == "EMPTY" and rows == 0)
+    )
+
+
+def enrich_official_query_resolution(
+    support: pd.DataFrame, sources: pd.DataFrame,
+    raw: pd.DataFrame | None = None, normalized: pd.DataFrame | None = None,
+) -> pd.DataFrame:
     support = support.copy()
     by_source = sources.set_index("source_id") if len(sources) and "source_id" in sources.columns else pd.DataFrame()
     statuses: list[str] = []
+    adapter_statuses: list[str] = []
+    adapter_errors: list[str] = []
+    resolution_basis: list[str] = []
+    security_types: list[str] = []
+    evidence_urls: list[str] = []
+    issuer_equity_symbols: list[str] = []
     raw_rows: list[int] = []
     document_states: list[str] = []
     reasons: list[str] = []
@@ -36,28 +58,70 @@ def enrich_official_query_resolution(support: pd.DataFrame, sources: pd.DataFram
         source_id = f"SRC-CNINFO-{code}"
         source = by_source.loc[source_id] if len(by_source) and source_id in by_source.index else None
         notes = source.get("notes") if source is not None else ""
-        query_status, query_rows = _parse_source_notes(notes)
+        adapter_status, query_rows, adapter_error = _parse_source_notes(notes)
+        resolved = _completed_cninfo_query(adapter_status, query_rows, adapter_error)
+        # Source Index retains the raw EMPTY/SUCCESS/ERROR adapter evidence. The
+        # derived SUCCESS status means *query completed*, not *filings exist*.
+        query_status = "SUCCESS" if resolved else adapter_status
         filing_count = int(pd.to_numeric(pd.Series([row.get("official_filing_count", 0)]), errors="coerce").fillna(0).iloc[0])
-        if filing_count > 0:
+        # An 8100xx BSE bond is not a listed equity. Independently verified
+        # type evidence, rather than a fabricated successful stock API call,
+        # controls its explicit non-equity exclusion from statement research.
+        security = instruments.verified_non_equity(str(row["symbol"]), str(row.get("board") or ""))
+        has_facts = any(
+            frame is not None and len(frame) and "symbol" in frame.columns
+            and frame["symbol"].astype(str).eq(str(row["symbol"])).any()
+            for frame in (raw, normalized)
+        )
+        non_equity_ok = bool(
+            security is not None and filing_count == 0
+            and str(row.get("statement_status") or "") == "QUARANTINED"
+            and not has_facts
+        )
+        if non_equity_ok:
+            # Preserve adapter ERROR as raw evidence, but the stock query is
+            # *not applicable* to a verified bond, not a failed equity lookup.
+            query_status = instruments.BOND_QUERY_STATUS
+            document_state = instruments.BOND_EXCLUSION_STATUS
+        elif resolved and filing_count > 0:
             document_state = "INDEXED_CLASSIFIED_PERIODIC_REPORTS"
-        elif query_status == "SUCCESS":
+        elif resolved:
             document_state = "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY"
         else:
             document_state = "CNINFO_QUERY_UNRESOLVED"
         reason = str(row.get("status_reason") or "")
         if str(row.get("board")) == "BSE":
-            if document_state == "INDEXED_CLASSIFIED_PERIODIC_REPORTS":
+            if document_state == instruments.BOND_EXCLUSION_STATUS:
+                reason = "INDEPENDENTLY_VERIFIED_NON_EQUITY_BOND_EXCLUDED_FROM_STOCK_FINANCIALS"
+            elif document_state == "INDEXED_CLASSIFIED_PERIODIC_REPORTS":
                 reason = "BSE_PERIODIC_REPORT_INDEX_AVAILABLE_PENDING_STRUCTURED_EXTRACTION"
             elif document_state == "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY":
                 reason = document_state
             else:
                 reason = "BSE_CNINFO_QUERY_UNRESOLVED"
         statuses.append(query_status)
+        adapter_statuses.append(adapter_status)
+        adapter_errors.append(adapter_error if adapter_error is not None else "MISSING_SOURCE_EVIDENCE")
+        resolution_basis.append(
+            "INDEPENDENT_OFFICIAL_NON_EQUITY_CLASSIFICATION" if non_equity_ok
+            else "COMPLETED_NONEMPTY_CNINFO_RESPONSE" if resolved and adapter_status == "SUCCESS"
+            else "COMPLETED_EMPTY_CNINFO_RESPONSE" if resolved
+            else "UNRESOLVED_CNINFO_QUERY"
+        )
+        security_types.append(security["security_type"] if non_equity_ok else "")
+        evidence_urls.append(security["evidence_url"] if non_equity_ok else "")
+        issuer_equity_symbols.append(security["issuer_equity_symbol"] if non_equity_ok else "")
         raw_rows.append(query_rows)
         document_states.append(document_state)
         reasons.append(reason)
     support["official_query_status"] = statuses
+    support["official_query_adapter_status"] = adapter_statuses
+    support["official_query_adapter_error"] = adapter_errors
+    support["official_query_resolution_basis"] = resolution_basis
     support["official_query_raw_row_count"] = raw_rows
+    support["security_type"] = security_types
+    support["classification_evidence_url"] = evidence_urls
+    support["issuer_equity_symbol"] = issuer_equity_symbols
     support["official_document_status"] = document_states
     support["status_reason"] = reasons
     return support
@@ -88,7 +152,17 @@ def postprocess(shard_id: int, config_path: Path) -> int:
     checks = pd.read_csv(root / "SHARD_VALIDATION_CHECKS.csv", encoding="utf-8-sig")
     flags = pd.read_csv(root / "SHARD_QA_FLAGS.csv", encoding="utf-8-sig")
 
-    support = enrich_official_query_resolution(support, sources)
+    support = enrich_official_query_resolution(support, sources, raw=raw, normalized=normalized)
+    # Include the exact BSE code and adapter outcome in failed-job logs. No
+    # decision-grade data or unvalidated artifact is published by this trace.
+    bse_review = support.loc[
+        support["board"].astype(str).eq("BSE")
+        & support["official_query_resolution_basis"].ne("COMPLETED_NONEMPTY_CNINFO_RESPONSE"),
+        ["symbol", "official_query_adapter_status", "official_query_adapter_error",
+         "official_query_resolution_basis", "official_query_raw_row_count"],
+    ]
+    if len(bse_review):
+        print(json.dumps({"bse_cninfo_query_evidence": bse_review.to_dict(orient="records")}, ensure_ascii=False))
     normalized, checks, flags, controlled_evidence = hardening.harden_statement_validation(
         normalized,
         checks,
@@ -118,10 +192,7 @@ def postprocess(shard_id: int, config_path: Path) -> int:
     controlled_count = int((checks["result"].astype(str) == hardening.CONTROLLED_RESULT).sum()) if len(checks) else 0
     bse = support[support["board"] == "BSE"]
     allowed_bse_states = {"INDEXED_CLASSIFIED_PERIODIC_REPORTS", "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY"}
-    bse_query_resolved = bool(
-        bse["official_query_status"].astype(str).eq("SUCCESS").all()
-        and bse["official_document_status"].astype(str).isin(allowed_bse_states).all()
-    ) if len(bse) else True
+    bse_query_resolved = instruments.bse_gate_passes(bse)
 
     policy = cfg["shard_acceptance_policy"]
     symbols = pd.read_csv(root / "SHARD_SYMBOLS.csv", encoding="utf-8-sig")["symbol"].astype(str).tolist()
@@ -162,7 +233,8 @@ def postprocess(shard_id: int, config_path: Path) -> int:
         "controlled_validation_classification_error_count": len(classification_errors),
         "bse_indexed_periodic_report_count": int((bse["official_document_status"] == "INDEXED_CLASSIFIED_PERIODIC_REPORTS").sum()) if len(bse) else 0,
         "bse_no_classified_periodic_report_count": int((bse["official_document_status"] == "NO_CLASSIFIED_PERIODIC_REPORT_IN_SCOPE_AFTER_SUCCESSFUL_CNINFO_QUERY").sum()) if len(bse) else 0,
-        "bse_query_unresolved_count": int((bse["official_query_status"] != "SUCCESS").sum()) if len(bse) else 0,
+        "bse_query_unresolved_count": instruments.bse_unresolved_count(bse),
+        "bse_verified_non_equity_bond_count": int((bse["official_document_status"] == instruments.BOND_EXCLUSION_STATUS).sum()) if len(bse) else 0,
         "qa_flag_count": len(flags),
     })
     decision["controlled_validation_classification_errors"] = classification_errors
