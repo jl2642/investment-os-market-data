@@ -377,3 +377,72 @@ def create_manifest(root: Path, release_id: str, program_id: str) -> dict[str, A
         "authority": AUTHORITY,
         "trade_authority": TRADE_AUTHORITY,
     }
+
+def capitalization_coverage_population(
+    universe: pd.DataFrame,
+    snapshot: pd.DataFrame,
+    current: pd.DataFrame,
+) -> dict[str, Any]:
+    """Price-eligible denominator; keep source-confirmed unpriced suspensions quarantined.
+
+    A source snapshot is a full inventory, including non-trading/historical entries.
+    Exclusion requires agreement between the immutable universe, daily snapshot,
+    and candidate state. An ACTIVE or unclassified row is never excluded.
+    """
+    required = [
+        (universe, {"symbol", "listing_status", "is_suspended"}, "universe"),
+        (snapshot, {"symbol", "data_status", "record_quality", "close"}, "snapshot"),
+        (current, {"symbol", "capitalization_state", "state_reason", "close",
+                   "total_market_cap_cny", "float_market_cap_cny"}, "current"),
+    ]
+    for frame, fields, name in required:
+        missing = fields - set(frame.columns)
+        if missing:
+            raise ValueError(f"{name} missing coverage columns: {sorted(missing)}")
+        if frame["symbol"].astype(str).duplicated().any():
+            raise ValueError(f"{name} contains duplicate securities")
+    symbols = set(current["symbol"].astype(str))
+    if not symbols or symbols != set(universe["symbol"].astype(str)) or symbols != set(snapshot["symbol"].astype(str)):
+        raise ValueError("Universe, snapshot and current membership must be exactly equal")
+
+    order = current["symbol"].astype(str).tolist()
+    u = universe.assign(symbol=universe["symbol"].astype(str)).set_index("symbol").loc[order]
+    s = snapshot.assign(symbol=snapshot["symbol"].astype(str)).set_index("symbol").loc[order]
+    c = current.assign(symbol=current["symbol"].astype(str)).set_index("symbol").loc[order]
+    source_suspended_no_close = (
+        u["listing_status"].eq("SUSPENDED")
+        & u["is_suspended"].astype(str).str.lower().isin({"true", "1"})
+        & s["data_status"].eq("SUSPENDED")
+        & s["record_quality"].eq("PARTIAL")
+        & pd.to_numeric(s["close"], errors="coerce").isna()
+    )
+    verified_excluded = (
+        source_suspended_no_close
+        & c["capitalization_state"].eq("PRICE_UNAVAILABLE")
+        & c["state_reason"].eq("NON_POSITIVE_OR_MISSING_CLOSE")
+        & c["close"].isna()
+        & c["total_market_cap_cny"].isna()
+        & c["float_market_cap_cny"].isna()
+    )
+    source_suspended_missing_price = (
+        s["data_status"].eq("SUSPENDED")
+        & pd.to_numeric(s["close"], errors="coerce").isna()
+    )
+    checks = {
+        "SOURCE_SUSPENDED_NO_PRICE_EXACTLY_CLASSIFIED": bool(
+            source_suspended_missing_price.equals(verified_excluded)
+        ),
+        "SOURCE_SUSPENSIONS_MATCH_UNIVERSE": bool(
+            (source_suspended_missing_price == source_suspended_no_close).all()
+        ),
+        "NO_ACTIVE_SECURITY_EXCLUDED": not bool(
+            (verified_excluded & u["listing_status"].eq("ACTIVE")).any()
+        ),
+    }
+    return {
+        "eligible_mask": pd.Series((~verified_excluded).to_numpy(), index=current.index),
+        "excluded_mask": pd.Series(verified_excluded.to_numpy(), index=current.index),
+        "checks": checks,
+        "eligible_count": int((~verified_excluded).sum()),
+        "excluded_suspended_no_price_count": int(verified_excluded.sum()),
+    }
