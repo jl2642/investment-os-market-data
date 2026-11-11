@@ -437,6 +437,8 @@ def build_state(
 
         if inventory:
             previous["backlog_reason"] = "UNFINISHED_EVIDENCE_READY_SEMANTIC_D2"
+            if previous.get("status") != "D2_UNDERWRITING_PENDING":
+                previous["status"] = "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
         else:
             previous["backlog_reason"] = "UNFINISHED_SEMANTIC_D2_SOURCE_PROVENANCE_MISSING"
             if previous.get("status") != "D2_UNDERWRITING_PENDING":
