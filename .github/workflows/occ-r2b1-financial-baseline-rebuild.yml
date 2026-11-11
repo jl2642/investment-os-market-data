@@ -29,7 +29,9 @@ env:
   PYTHONPATH: .
 
 concurrency:
-  group: occ-r2b1-financial-baseline
+  # PRs only execute preflight (no state mutation); their checks should not
+  # queue behind long-running production rebuilds. Production stays serialized.
+  group: ${{ github.event_name == 'pull_request' && format('occ-r2b1-preflight-pr-run-{0}', github.run_id) || 'occ-r2b1-financial-baseline' }}
   cancel-in-progress: false
 
 jobs:
