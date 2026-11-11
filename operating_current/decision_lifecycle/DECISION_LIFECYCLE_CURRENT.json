@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-11T08:41:26+00:00",
+  "generated_at_utc": "2026-11-11T09:04:43+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-08-28",
     "market_date": "2026-11-10",
-    "recommendation_generated_at_utc": "2026-11-11T08:33:42+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_98c3340fea7dc472",
+    "recommendation_generated_at_utc": "2026-11-11T08:54:16+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_60ad4e8813b0cffb",
     "surface_as_of_date": "2026-11-10",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_c9c856517d1ef8b8"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_dae217c34e96b1a0"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_61750089671854d4",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_badc894b1b235ced",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -151,14 +151,14 @@
     },
     {
       "accounts": [],
-      "base_value": null,
+      "base_value": 3.99,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
+      "current_action": "AVOID",
+      "entry_price": 3.53,
+      "expected_return": -0.04915254237288136,
       "latest_price": 4.13,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
+      "lifecycle_state": "FLAT_AVOID",
+      "mark_expected_return": -0.04915254237288136,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -166,17 +166,26 @@
       "position_state": "FLAT",
       "price_as_of": "2026-11-10",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
+      "probability_weighted_value": 3.927,
       "ready_for_user_decision": false,
       "security_id": "000589.SZ",
       "security_name": "贵州轮胎",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+        "catalysts": [
+          "Vietnam phase-3 utilization, sales and cash contribution improve materially.",
+          "Natural rubber, synthetic rubber and carbon-black costs ease and margins recover.",
+          "CFO covers capex for two consecutive quarters while inventory and receivables grow slower than revenue."
+        ],
+        "kill_thesis": [
+          "Raw-material inflation remains unpassed through and quarterly adjusted profit continues falling.",
+          "Vietnam phase-3 ramp fails to cover depreciation, labor, logistics and working capital.",
+          "Capex remains above CFO while inventory, receivables and short-term borrowings rise together.",
+          "FX, trade barriers or overseas policy materially erode Vietnam profitability and cash repatriation."
+        ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -2556,7 +2565,7 @@
     "portfolio_review_required_count": 2,
     "reunderwrite_required_count": 4,
     "review_queue_count": 12,
-    "semantic_watch_clause_count": 802,
+    "semantic_watch_clause_count": 688,
     "subject_count": 63,
     "user_action_review_count": 6,
     "valuation_reunderwrite_count": 3
