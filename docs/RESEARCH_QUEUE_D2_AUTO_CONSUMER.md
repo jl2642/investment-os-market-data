@@ -39,3 +39,11 @@ D2 automation cannot mutate:
 - orders.
 
 `trade_authority = NONE` at every layer.
+
+
+## Evidence inventory semantics and provenance
+
+- `primary_source_count` is a count of unique source URLs present in persisted D2 discovery evidence snapshots. It is not a count of documents read or facts verified.
+- `source_inventory_status` distinguishes durable discovery records, records written in the current run, and missing provenance.
+- A carried-forward pending item whose historical count has no matching durable source rows is retained as a research obligation but its count is reset to zero. The consumer re-runs bounded source discovery rather than trusting the stale count.
+- The CNINFO discovery step records metadata (issuer code, title, publication time and URL); it does not download or parse document bodies. ChatGPT-native D2 must separately read the official documents and cite the facts used in underwriting before marking D2 complete.
