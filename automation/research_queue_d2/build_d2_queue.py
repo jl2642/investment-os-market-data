@@ -112,7 +112,7 @@ def durable_primary_sources_by_security() -> dict[str, dict[str, dict[str, Any]]
                 continue
             security_id = str(source.get("security_id") or "").strip()
             url = str(source.get("url") or "").strip()
-            if not security_id or not url:
+            if not security_id or not url.startswith(("http://", "https://")):
                 continue
             inventory.setdefault(security_id, {})[url] = {
                 "source": source,
