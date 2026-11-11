@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -9,6 +9,36 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 TZ = ZoneInfo("Asia/Shanghai")
+
+
+def expected_latest_report_period(market_date: str) -> str:
+    """Latest A-share reporting period expected after the statutory filing window.
+
+    Q1 reports are due by April 30, interim reports by August 31, and Q3
+    reports by October 31. A market date after each deadline should not keep
+    accepting a financial baseline that predates the latest completed window.
+    """
+    current = date.fromisoformat(market_date)
+    if current.month >= 11:
+        year, month, day = current.year, 9, 30
+    elif current.month >= 9:
+        year, month, day = current.year, 6, 30
+    elif current.month >= 5:
+        year, month, day = current.year, 3, 31
+    else:
+        year, month, day = current.year - 1, 9, 30
+    return date(year, month, day).isoformat()
+
+
+def report_period_is_current(market_date: str, report_period_watermark: str | None) -> bool:
+    if not report_period_watermark:
+        return False
+    try:
+        observed = date.fromisoformat(str(report_period_watermark))
+        expected = date.fromisoformat(expected_latest_report_period(market_date))
+    except (TypeError, ValueError):
+        return False
+    return observed >= expected
 OUT = ROOT / "outputs/occ_r2/financial/current"
 
 STATEMENT_RELEASE = ROOT / "outputs/financials/statements/current/FMDL3B4_RELEASE.json"
@@ -52,6 +82,7 @@ def main() -> int:
     facts = load_normalized_facts()
 
     market_date = str(market.get("as_of_date") or "")
+    expected_report_period = expected_latest_report_period(market_date)
     cutoff = pd.Timestamp(f"{market_date} 15:00:00", tz="Asia/Shanghai").tz_convert("UTC")
     if len(facts):
         available = pd.to_datetime(facts.get("available_from"), errors="coerce", utc=True)
@@ -97,6 +128,7 @@ def main() -> int:
         "HARDENING_CURRENT_ACCEPTED": observed_statuses["hardening"] == required_statuses["hardening"],
         "SCORE_CURRENT_ACCEPTED": observed_statuses["score"] == required_statuses["score"],
         "REPORT_PERIOD_WATERMARK_PRESENT": period_watermark is not None,
+        "REPORT_PERIOD_CURRENT_FOR_MARKET_DATE": report_period_is_current(market_date, period_watermark),
         "DECISION_GRADE_FACTS_PRESENT": eligible_fact_count > 0,
         "DECISION_GRADE_SYMBOLS_PRESENT": symbol_count > 0,
         "ZERO_TRADE_AUTHORITY": all(
@@ -112,6 +144,7 @@ def main() -> int:
         "qc_status": "PASS_FINANCIAL_BASELINE_REBUILT" if not failures else "FAIL",
         "market_as_of_date": market_date,
         "financial_report_period_watermark": period_watermark,
+        "expected_latest_report_period": expected_report_period,
         "decision_grade_fact_count": eligible_fact_count,
         "decision_grade_symbol_count": symbol_count,
         "releases": releases,
