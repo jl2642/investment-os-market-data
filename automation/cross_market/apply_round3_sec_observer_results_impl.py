@@ -20,7 +20,7 @@ from automation.cross_market.build_round3_limited_production import (
 )
 
 ALLOWED_RETRIEVAL_ENVIRONMENT = "CHATGPT_WEB_CONTROLLED_OFFICIAL_RETRIEVAL"
-ALLOWED_CIK_RESOLUTION_SOURCES = {"ACCEPTED_EVIDENCE", "SEC_COMPANY_TICKERS"}
+ALLOWED_CIK_RESOLUTION_SOURCES = {"ACCEPTED_EVIDENCE", "SEC_COMPANY_TICKERS", "SEC_OFFICIAL_FILING_CIK_MAP"}
 ALLOWED_SOURCE_PREFIXES = (
     "https://www.sec.gov/files/company_tickers",
     "https://www.sec.gov/Archives/edgar/data/",
@@ -47,20 +47,21 @@ def queue_key(row: dict[str, Any]) -> str:
     return str(row.get("canonical_issuer_id") or row.get("symbol") or row.get("cik") or "").strip()
 
 
-def validate_official_sources(sources: Any, source_sha256: Any, cik: str, resolution_source: str) -> tuple[list[str], dict[str, str]]:
+def validate_official_sources(sources: Any, source_sha256: Any, cik: str, resolution_source: str, security_type: str) -> tuple[list[str], dict[str, str]]:
     if not isinstance(sources, list) or not sources:
         raise SystemExit("ROUND3_SEC_OBSERVER_OFFICIAL_SOURCES_REQUIRED")
     values = sorted({str(value).strip() for value in sources if str(value).strip()})
     if not values or any(not value.startswith(ALLOWED_SOURCE_PREFIXES) for value in values):
         raise SystemExit("ROUND3_SEC_OBSERVER_NON_OFFICIAL_SOURCE")
-    required = {
-        f"https://data.sec.gov/submissions/CIK{cik}.json",
-        f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json",
-    }
+    required = {f"https://data.sec.gov/submissions/CIK{cik}.json"}
+    if security_type not in {"ETF", "ETF_SERIES", "FUND"}:
+        required.add(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json")
     if not required.issubset(set(values)):
         raise SystemExit("ROUND3_SEC_OBSERVER_REQUIRED_SEC_ENDPOINT_MISSING")
     if resolution_source == "SEC_COMPANY_TICKERS" and not any(value.startswith("https://www.sec.gov/files/company_tickers") for value in values):
         raise SystemExit("ROUND3_SEC_OBSERVER_TICKER_MAP_SOURCE_MISSING")
+    if resolution_source == "SEC_OFFICIAL_FILING_CIK_MAP" and not any(value.startswith("https://www.sec.gov/Archives/edgar/data/") for value in values):
+        raise SystemExit("ROUND3_SEC_OBSERVER_FILING_CIK_SOURCE_MISSING")
     if not isinstance(source_sha256, dict) or set(source_sha256) != set(values):
         raise SystemExit("ROUND3_SEC_OBSERVER_SOURCE_SHA256_REQUIRED_OR_MISMATCH")
     hashes = {str(source): str(source_sha256[source]).strip().lower() for source in values}
@@ -119,7 +120,7 @@ def validate_inbox(inbox: dict[str, Any], queue_payload: dict[str, Any]) -> dict
         if resolution_source not in ALLOWED_CIK_RESOLUTION_SOURCES:
             raise SystemExit("ROUND3_SEC_OBSERVER_CIK_RESOLUTION_SOURCE_INVALID")
         expected_route = str(queued.get("official_resolution_route") or "")
-        if expected_route == "SYMBOL_TO_SEC_OFFICIAL_TICKER_MAP_TO_CIK" and resolution_source != "SEC_COMPANY_TICKERS":
+        if expected_route == "SYMBOL_TO_SEC_OFFICIAL_TICKER_MAP_TO_CIK" and resolution_source not in {"SEC_COMPANY_TICKERS", "SEC_OFFICIAL_FILING_CIK_MAP"}:
             raise SystemExit("ROUND3_SEC_OBSERVER_CIK_ROUTE_MISMATCH")
         if expected_route == "CIK_DIRECT" and resolution_source != "ACCEPTED_EVIDENCE":
             raise SystemExit("ROUND3_SEC_OBSERVER_CIK_ROUTE_MISMATCH")
@@ -131,17 +132,23 @@ def validate_inbox(inbox: dict[str, Any], queue_payload: dict[str, Any]) -> dict
         taxonomy_count = int(row.get("companyfacts_taxonomy_count", 0))
         if taxonomy_count < 0:
             raise SystemExit("ROUND3_SEC_OBSERVER_TAXONOMY_COUNT_INVALID")
+        security_type = str(row.get("security_type") or "OPERATING_COMPANY").strip().upper()
+        if security_type not in {"OPERATING_COMPANY", "ETF", "ETF_SERIES", "FUND"}:
+            raise SystemExit("ROUND3_SEC_OBSERVER_SECURITY_TYPE_INVALID")
         sources, source_sha256 = validate_official_sources(
             row.get("official_sources"),
             row.get("official_source_sha256"),
             cik,
             resolution_source,
+            security_type,
         )
         normalized_issuers.append({
             "canonical_issuer_id": issuer_id,
             "symbol": symbol,
             "cik": cik,
             "cik_resolution_source": resolution_source,
+            "issuer_name": str(row.get("issuer_name") or "").strip(),
+            "security_type": security_type,
             "latest_filing_form": str(row.get("latest_filing_form") or "").strip(),
             "latest_filing_date": filing_date,
             "companyfacts_taxonomy_count": taxonomy_count,
