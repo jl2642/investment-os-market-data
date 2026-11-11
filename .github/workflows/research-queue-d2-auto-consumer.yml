@@ -15,8 +15,6 @@ on:
   push:
     branches: [main]
     paths:
-      - "automation/research_queue_d2/**"
-      - ".github/workflows/research-queue-d2-auto-consumer.yml"
       - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json"
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/**"
@@ -93,7 +91,7 @@ jobs:
       - name: Install runtime
         run: python -m pip install --retries 5 --timeout 30 -r requirements.txt
       - name: Fetch S2 rolling D1 Current and prior D2 authority
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         shell: bash
         run: |
           set -Eeuo pipefail
