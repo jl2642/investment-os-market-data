@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from automation.cross_market.apply_round3_sec_observer_results import validate_inbox
-from automation.cross_market.collect_round3_sec_official import RETRIEVAL_ENVIRONMENT, TICKER_URL, collect
+from automation.cross_market.collect_round3_sec_official import RETRIEVAL_ENVIRONMENT, TICKER_URL, TICKER_EXCHANGE_URL, ticker_map, collect
 
 
 def _queue() -> dict:
@@ -49,8 +49,10 @@ def _payloads() -> dict[str, bytes]:
     }, sort_keys=True).encode()
     facts_abc = json.dumps({"facts": {"us-gaap": {"Assets": {}}}}, sort_keys=True).encode()
     facts_xyz = json.dumps({"facts": {"dei": {"EntityPublicFloat": {}}}}, sort_keys=True).encode()
+    ticker_exchange = json.dumps({"fields": ["cik", "name", "ticker", "exchange"], "data": [[1234567, "ABC Inc.", "ABC", "Nasdaq"], [2222222, "XYZ Inc.", "XYZ", "Nasdaq"]]}, sort_keys=True).encode()
     return {
         TICKER_URL: ticker,
+        TICKER_EXCHANGE_URL: ticker_exchange,
         "https://data.sec.gov/submissions/CIK0001234567.json": submissions_abc,
         "https://data.sec.gov/api/xbrl/companyfacts/CIK0001234567.json": facts_abc,
         "https://data.sec.gov/submissions/CIK0002222222.json": submissions_xyz,
@@ -79,7 +81,7 @@ def test_collector_hashes_actual_raw_response_bytes_and_validates_inbox(tmp_path
     assert inbox["retrieval_environment"] == RETRIEVAL_ENVIRONMENT
     assert len(inbox["issuers"]) == 2
     assert inbox["failures"] == []
-    assert manifest["raw_response_count"] == 5
+    assert manifest["raw_response_count"] == 6
     assert manifest["official_success_count"] == 2
     assert manifest["raw_file_scope"] == "RELATIVE_TO_RAW_DIR"
     assert manifest["orders"] == 0
@@ -149,7 +151,7 @@ def test_ticker_map_outage_is_recorded_per_issuer_and_direct_cik_can_continue(tm
     payloads = _payloads()
 
     def fetcher(url: str, headers: dict[str, str]) -> bytes:
-        if url == TICKER_URL:
+        if url in {TICKER_URL, TICKER_EXCHANGE_URL}:
             raise OSError("controlled ticker-map outage")
         return payloads[url]
 
@@ -168,4 +170,41 @@ def test_ticker_map_outage_is_recorded_per_issuer_and_direct_cik_can_continue(tm
     assert len(inbox["failures"]) == 1
     assert inbox["failures"][0]["symbol"] == "ABC"
     assert "SEC_TICKER_MAP_UNAVAILABLE" in inbox["failures"][0]["reason"]
+    validate_inbox(inbox, queue)
+
+
+def test_exchange_ticker_map_array_schema() -> None:
+    payload = json.dumps({"fields": ["cik", "name", "ticker", "exchange"], "data": [[1301787, "BlueLinx Holdings Inc.", "BXC", "NYSE"]]}).encode()
+    assert ticker_map(payload)["BXC"] == "0001301787"
+
+
+def test_special_official_filing_maps_etf_series_and_new_issuer(tmp_path: Path) -> None:
+    from automation.cross_market.collect_round3_sec_official import SPECIAL_CIK_EVIDENCE
+    queue = {
+        "run_id": "ROUND3_TEST_SPECIAL_CIK", "as_of_date": "2026-08-07",
+        "queue": [
+            {"canonical_issuer_id": "USISS-BAIG", "symbol": "BAIG", "cik": "", "official_resolution_route": "SYMBOL_TO_SEC_OFFICIAL_TICKER_MAP_TO_CIK"},
+            {"canonical_issuer_id": "USISS-XE", "symbol": "XE", "cik": "", "official_resolution_route": "SYMBOL_TO_SEC_OFFICIAL_TICKER_MAP_TO_CIK"},
+        ], "orders": 0, "trade_authority": "NONE",
+    }
+    ticker = json.dumps({}).encode()
+    exchange = json.dumps({"fields": ["cik", "name", "ticker", "exchange"], "data": []}).encode()
+    submissions = json.dumps({"filings": {"recent": {"form": ["10-Q"], "filingDate": ["2026-08-01"]}}}).encode()
+    facts = json.dumps({"facts": {"us-gaap": {"Assets": {}}}}).encode()
+    payloads = {TICKER_URL: ticker, TICKER_EXCHANGE_URL: exchange,
+        SPECIAL_CIK_EVIDENCE["BAIG"]["url"]: b"Leverage Shares 2X Long BBAI Daily ETF Ticker Symbol: BAIG",
+        SPECIAL_CIK_EVIDENCE["XE"]["url"]: b"X-Energy, Inc. Trading Symbol: XE",
+        "https://data.sec.gov/submissions/CIK0001976322.json": submissions,
+        "https://data.sec.gov/submissions/CIK0002088896.json": submissions,
+        "https://data.sec.gov/api/xbrl/companyfacts/CIK0002088896.json": facts,
+    }
+    inbox, manifest = collect(queue, raw_dir=tmp_path / "raw", user_agent="investment-os-test contact:test@example.com", fetcher=lambda url, headers: payloads[url], retrieved_at="2026-08-08T03:00:00+00:00")
+    by_symbol = {row["symbol"]: row for row in inbox["issuers"]}
+    assert by_symbol["BAIG"]["cik"] == "0001976322"
+    assert by_symbol["BAIG"]["security_type"] == "ETF_SERIES"
+    assert by_symbol["BAIG"]["companyfacts_taxonomy_count"] == 0
+    assert not any("/companyfacts/" in source for source in by_symbol["BAIG"]["official_sources"])
+    assert by_symbol["XE"]["cik"] == "0002088896"
+    assert by_symbol["XE"]["security_type"] == "OPERATING_COMPANY"
+    assert any("/companyfacts/" in source for source in by_symbol["XE"]["official_sources"])
     validate_inbox(inbox, queue)
