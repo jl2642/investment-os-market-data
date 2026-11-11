@@ -43,6 +43,11 @@ def build_summary(
     cap_market_date = str(capitalization_release["source_release"]["as_of_date"])
     metrics = dict(valuation_decision.get("metrics") or {})
     metric_valid_counts = dict(metrics.get("metric_valid_counts") or {})
+    cap_metrics = dict(capitalization_release.get("metrics") or {})
+    cap_decision_metrics = dict(capitalization_decision.get("metrics") or {})
+    eligible = int(cap_metrics.get("price_eligible_symbol_count", -1))
+    excluded = int(cap_metrics.get("source_confirmed_suspended_unpriced_count", -1))
+    total = int(cap_metrics.get("universe_symbol_count", -1))
 
     checks = {
         "MARKET_CURRENT_ACCEPTED": market_context.get("status") == "PASS",
@@ -51,6 +56,14 @@ def build_summary(
         "CAPITALIZATION_ACCEPTED": capitalization_decision.get("status")
         == "FMDL3DB_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE_ACCEPTED",
         "CAPITALIZATION_MARKET_WATERMARK_MATCH": cap_market_date == market_watermark,
+        "CAPITALIZATION_ELIGIBILITY_COHORT_RECONCILED": eligible > 0
+        and excluded >= 0 and eligible + excluded == total
+        and cap_metrics.get("price_eligible_symbol_count")
+        == cap_decision_metrics.get("price_eligible_symbol_count")
+        and cap_metrics.get("source_confirmed_suspended_unpriced_count")
+        == cap_decision_metrics.get("source_confirmed_suspended_unpriced_count")
+        and int(metrics.get("price_eligible_symbol_count", -1)) == eligible
+        and int(metrics.get("source_confirmed_suspended_unpriced_count", -1)) == excluded,
         "VALUATION_ACCEPTED": valuation_decision.get("status")
         == "FMDL3DC_VALUATION_ENGINE_CURRENT_ACCEPTED",
         "VALUATION_MARKET_WATERMARK_MATCH": str(metrics.get("market_as_of_date"))
@@ -96,6 +109,12 @@ def build_summary(
             "financial_factor_release_id": metrics.get("factor_engine_release_id"),
         },
         "valuation_metrics": metrics,
+        "capitalization_coverage_population": {
+            "full_universe_symbol_count": total,
+            "price_eligible_symbol_count": eligible,
+            "source_confirmed_suspended_unpriced_count": excluded,
+            "excluded_price_rows_remain_non_decision_grade": True,
+        },
         "checks": checks,
         "hard_failures": failures,
         "controlled_limitations": [
