@@ -15,6 +15,8 @@ on:
   push:
     branches: [main]
     paths:
+      - "automation/research_queue_d2/**"
+      - ".github/workflows/research-queue-d2-auto-consumer.yml"
       - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json"
       - "investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_LIVENESS_CURRENT.json"
       - "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/**"
