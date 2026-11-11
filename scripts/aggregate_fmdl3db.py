@@ -16,6 +16,7 @@ from scripts.fmdl3db_core import (
     VALID_CAP_STATES,
     ROOT,
     create_manifest,
+    capitalization_coverage_population,
     load_json,
     sha256_file,
     write_json,
@@ -99,15 +100,23 @@ def main() -> int:
         & (current["close"] > 0)
         & current["price_row_hash"].notna()
     ) if len(current) else pd.Series(dtype=bool)
-    price_coverage = float(accepted_price.mean()) if len(current) else 0.0
-    share_coverage = float(len(valid) / len(current)) if len(current) else 0.0
-    non_bse = current[current["board"].ne("BSE")] if len(current) else current
-    non_bse_valid = non_bse[non_bse["capitalization_state"].isin(VALID_CAP_STATES)] if len(non_bse) else non_bse
-    non_bse_coverage = float(len(non_bse_valid) / len(non_bse)) if len(non_bse) else 0.0
+    scope = capitalization_coverage_population(universe, snapshot, current)
+    eligible = current.loc[scope["eligible_mask"]]
+    eligible_price = accepted_price.loc[scope["eligible_mask"]]
+    price_coverage = float(eligible_price.mean()) if len(eligible) else 0.0
+    share_coverage = float(eligible["capitalization_state"].isin(VALID_CAP_STATES).mean()) if len(eligible) else 0.0
+    non_bse = eligible[eligible["board"].ne("BSE")]
+    non_bse_coverage = float(non_bse["capitalization_state"].isin(VALID_CAP_STATES).mean()) if len(non_bse) else 0.0
+    raw_price_coverage = float(accepted_price.mean()) if len(current) else 0.0
+    raw_share_coverage = float(len(valid) / len(current)) if len(current) else 0.0
 
     coverage_rows: list[dict] = []
     for board, frame in current.groupby("board", dropna=False) if len(current) else []:
         valid_count = int(frame["capitalization_state"].isin(VALID_CAP_STATES).sum())
+        eligible_frame = frame.loc[scope["eligible_mask"].loc[frame.index]]
+        eligible_count = int(len(eligible_frame))
+        eligible_valid_count = int(eligible_frame["capitalization_state"].isin(VALID_CAP_STATES).sum())
+        eligible_price_count = int(accepted_price.loc[eligible_frame.index].sum())
         price_count = int(
             (
                 frame["close"].notna()
@@ -120,10 +129,14 @@ def main() -> int:
                 "dimension": "BOARD",
                 "dimension_value": str(board),
                 "symbol_count": int(len(frame)),
+                "eligible_symbol_count": eligible_count,
+                "source_confirmed_suspended_unpriced_count": int(len(frame) - eligible_count),
                 "accepted_price_count": price_count,
-                "accepted_price_ratio": float(price_count / len(frame)),
+                "accepted_price_ratio_raw": float(price_count / len(frame)),
+                "accepted_price_ratio": float(eligible_price_count / eligible_count) if eligible_count else 0.0,
                 "valid_capitalization_count": valid_count,
-                "valid_capitalization_ratio": float(valid_count / len(frame)),
+                "valid_capitalization_ratio_raw": float(valid_count / len(frame)),
+                "valid_capitalization_ratio": float(eligible_valid_count / eligible_count) if eligible_count else 0.0,
                 "controlled_quarantine_count": int(len(frame) - valid_count),
                 "authority": AUTHORITY,
                 "trade_authority": TRADE_AUTHORITY,
@@ -233,6 +246,8 @@ def main() -> int:
     )
 
     checks = {
+        **scope["checks"],
+        "PRICE_ELIGIBLE_UNIVERSE_NOT_EMPTY": scope["eligible_count"] > 0,
         "ENTRY_FMDL3DA_ACCEPTED": entry.get("status") == config["entry_gate"]["required_status"],
         "SOURCE_CURRENT_HAS_NO_HARD_FAILURES": release.get("hard_failures") == [],
         "SOURCE_DATASET_HASHES_MATCH": sha256_file(universe_path)
@@ -332,9 +347,14 @@ def main() -> int:
         "retry_ledger_row_count": len(retry),
         "accepted_price_count": int(accepted_price.sum()),
         "accepted_price_coverage_ratio": price_coverage,
+        "raw_full_universe_price_coverage_ratio": raw_price_coverage,
         "valid_or_warning_capitalization_count": len(valid),
         "effective_share_coverage_ratio": share_coverage,
+        "raw_full_universe_share_coverage_ratio": raw_share_coverage,
         "non_bse_effective_share_coverage_ratio": non_bse_coverage,
+        "price_eligible_symbol_count": scope["eligible_count"],
+        "source_confirmed_suspended_unpriced_count": scope["excluded_suspended_no_price_count"],
+        "coverage_denominator_semantics": "PRICE_ELIGIBLE_WITH_SOURCE_CONFIRMED_UNPRICED_SUSPENSIONS_QUARANTINED",
         "controlled_quarantine_count": len(invalid),
         "future_source_ledger_row_count": int(
             ledger["eligibility_state"].eq("FUTURE_EFFECTIVE").sum()
@@ -367,6 +387,7 @@ def main() -> int:
         "metrics": metrics,
         "controlled_limitations": [
             "EFFECTIVE_SHARE_COUNT_PRIMARY_ROUTE_IS_SINGLE_FREE_PROVIDER_WITH_RETRY_AND_EXPLICIT_QUARANTINE",
+            "SOURCE_CONFIRMED_UNPRICED_SUSPENSIONS_REMAIN_IN_FULL_INVENTORY_AND_QUARANTINE_NOT_PRICE_ELIGIBLE",
             "CURRENT_CAPITALIZATION_USES_LATEST_COMPLETED_SESSION_CLOSE_NOT_INTRADAY_PRICE",
             "FUTURE_PROVIDER_SHARE_ROWS_ARE_PRESERVED_AS_LEDGER_EVIDENCE_BUT_NEVER_SELECTED",
             "PROVIDER_MARKET_CAP_AND_VALUATION_FIELDS_ARE_NOT_DECISION_GRADE",
