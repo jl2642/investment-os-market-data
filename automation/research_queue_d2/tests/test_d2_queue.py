@@ -423,6 +423,9 @@ def test_evidence_ready_pending_d2_survives_d1_rerank_with_fresh_slot(tmp_path, 
     ]
     assert state["source_d1_state_id"] == "D1-NEW"
     assert state["queue"][0]["carried_forward_from_d1_state_id"] == "D1-OLD"
+    assert state["queue"][0]["primary_source_count"] == 0
+    assert state["queue"][0]["source_inventory_status"] == "MISSING_DURABLE_DISCOVERY_RECORDS"
+    assert state["queue"][0]["status"] == "PENDING_AUTO_RESEARCH"
     assert state["summary"]["pending_count"] == 3
     assert live["d2_pending_count"] == 3
     assert state["controls"]["orders"] == 0
@@ -452,3 +455,131 @@ def test_pending_backlog_without_evidence_not_carried_forever(tmp_path, monkeypa
     )
     assert state["queue"] == []
     assert live["d2_pending_count"] == 0
+
+
+
+def test_old_pending_without_durable_source_rows_is_rediscovered(tmp_path, monkeypatch):
+    d1 = tmp_path / "D1.json"
+    d1.write_text(json.dumps({
+        "state_id": "D1-NEW",
+        "research_objects": [
+            {"security_id": s, "security_name": s, "d1_rank": idx,
+             "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE", "d2_questions": ["verify"],
+             "first_rejection": "reject weak earnings"}
+            for idx, s in enumerate(["NEW1.SZ", "NEW2.SZ", "NEW3.SZ"], 1)
+        ],
+    }), encoding="utf-8")
+    d1e = tmp_path / "d1e"
+    d1e.mkdir()
+    (d1e / "RESEARCH_QUEUE_D1_EVIDENCE_1.json").write_text('{"sources":[]}', encoding="utf-8")
+    prior = {
+        "source_d1_state_id": "D1-OLD",
+        "queue": [
+            {"security_id": sid, "security_name": sid,
+             "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+             "semantic_research_required": True, "primary_source_count": 20,
+             "attempt_count": 1, "last_attempt_at": "2026-11-10T06:22:17Z",
+             "d2_questions": ["verify"], "trade_authority": "NONE"}
+            for sid in ["OLD1.SZ", "OLD2.SZ"]
+        ],
+    }
+    d2_current = tmp_path / "D2.json"
+    d2_current.write_text(json.dumps(prior), encoding="utf-8")
+    d2e = tmp_path / "d2e"
+    d2e.mkdir()
+    calls = []
+
+    def discover(security_id, **_kwargs):
+        calls.append(security_id)
+        return [
+            {"primary_source": True, "security_id": security_id,
+             "source_type": "CNINFO_DISCLOSURE", "title": f"report-{i}",
+             "publication_time": "2026-10-30", "url": f"https://cninfo.example/{security_id}/{i}"}
+            for i in (1, 2)
+        ], None
+
+    monkeypatch.setattr(d2, "D1_CURRENT", d1)
+    monkeypatch.setattr(d2, "D1_EVIDENCE_DIR", d1e)
+    monkeypatch.setattr(d2, "D2_CURRENT", d2_current)
+    monkeypatch.setattr(d2, "D2_LIVENESS", tmp_path / "LIVE.json")
+    monkeypatch.setattr(d2, "D2_EVIDENCE_DIR", d2e)
+    monkeypatch.setattr(d2, "discover_cninfo", discover)
+
+    state, _live, evidence_run = d2.build_state(
+        discover_primary_sources=True,
+        now=datetime(2026, 11, 11, 1, 0, tzinfo=timezone.utc),
+    )
+    assert [row["security_id"] for row in state["queue"]] == ["OLD1.SZ", "OLD2.SZ", "NEW1.SZ"]
+    assert calls == ["OLD1.SZ", "OLD2.SZ", "NEW1.SZ"]
+    for row in state["queue"][:2]:
+        assert row["primary_source_count"] == 2
+        assert row["source_inventory_status"] == "DISCOVERY_RECORDS_WRITTEN_THIS_RUN"
+        assert row["status"] == "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
+    assert len(evidence_run["primary_sources"]) == 6
+    assert evidence_run["policy"]["discovery_records_are_metadata_only"] is True
+    assert evidence_run["policy"]["document_body_retrieval"] == "NOT_PERFORMED_BY_THIS_DISCOVERY_STEP"
+
+
+def test_old_pending_uses_durable_source_rows_instead_of_stale_count(tmp_path, monkeypatch):
+    d1 = tmp_path / "D1.json"
+    d1.write_text(json.dumps({
+        "state_id": "D1-NEW",
+        "research_objects": [
+            {"security_id": s, "security_name": s, "d1_rank": idx,
+             "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE", "d2_questions": ["verify"],
+             "first_rejection": "reject weak earnings"}
+            for idx, s in enumerate(["NEW1.SZ", "NEW2.SZ", "NEW3.SZ"], 1)
+        ],
+    }), encoding="utf-8")
+    d1e = tmp_path / "d1e"
+    d1e.mkdir()
+    (d1e / "RESEARCH_QUEUE_D1_EVIDENCE_1.json").write_text('{"sources":[]}', encoding="utf-8")
+    prior = {
+        "source_d1_state_id": "D1-OLD",
+        "queue": [{
+            "security_id": "OLD1.SZ", "security_name": "OLD1.SZ",
+            "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+            "semantic_research_required": True, "primary_source_count": 20,
+            "attempt_count": 1, "last_attempt_at": "2026-11-10T06:22:17Z",
+            "d2_questions": ["verify"], "trade_authority": "NONE"
+        }],
+    }
+    d2_current = tmp_path / "D2.json"
+    d2_current.write_text(json.dumps(prior), encoding="utf-8")
+    d2e = tmp_path / "d2e"
+    d2e.mkdir()
+    sources = [
+        {"primary_source": True, "security_id": "OLD1.SZ",
+         "source_type": "CNINFO_DISCLOSURE", "title": f"report-{i}",
+         "publication_time": "2026-10-30", "url": f"https://cninfo.example/OLD1.SZ/{i}"}
+        for i in (1, 2)
+    ]
+    (d2e / "RESEARCH_QUEUE_D2_EVIDENCE_20261110T000000Z.json").write_text(
+        json.dumps({"captured_at": "2026-11-10T00:00:00Z", "primary_sources": sources}),
+        encoding="utf-8",
+    )
+    calls = []
+
+    def discover(security_id, **_kwargs):
+        calls.append(security_id)
+        return [], "CNINFO_DISCOVERY_EMPTY"
+
+    monkeypatch.setattr(d2, "D1_CURRENT", d1)
+    monkeypatch.setattr(d2, "D1_EVIDENCE_DIR", d1e)
+    monkeypatch.setattr(d2, "D2_CURRENT", d2_current)
+    monkeypatch.setattr(d2, "D2_LIVENESS", tmp_path / "LIVE.json")
+    monkeypatch.setattr(d2, "D2_EVIDENCE_DIR", d2e)
+    monkeypatch.setattr(d2, "discover_cninfo", discover)
+
+    state, _live, _evidence_run = d2.build_state(
+        discover_primary_sources=True,
+        now=datetime(2026, 11, 11, 1, 0, tzinfo=timezone.utc),
+    )
+    old = state["queue"][0]
+    assert old["security_id"] == "OLD1.SZ"
+    assert old["primary_source_count"] == 2
+    assert old["source_inventory_status"] == "DURABLE_DISCOVERY_RECORDS_PRESENT"
+    assert old["source_inventory_evidence_files"] == [
+        str((d2e / "RESEARCH_QUEUE_D2_EVIDENCE_20261110T000000Z.json"))
+    ]
+    assert "OLD1.SZ" not in calls
