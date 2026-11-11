@@ -68,3 +68,78 @@ def test_missing_source_evidence_remains_fail_closed():
     assert row["official_query_status"] == "UNKNOWN"
     assert row["official_document_status"] == "CNINFO_QUERY_UNRESOLVED"
     assert row["official_query_adapter_error"] == "MISSING_SOURCE_EVIDENCE"
+
+from scripts import fmdl3b2_non_equity as instruments
+
+
+def _bond(symbol, raw=None, normalized=None, filing_count=0):
+    code = symbol[:6]
+    support = pd.DataFrame([{
+        "symbol": symbol, "board": "BSE", "statement_status": "QUARANTINED",
+        "official_filing_count": filing_count,
+        "status_reason": "BSE_OFFICIAL_DOCUMENT_EXTRACTION_REQUIRED",
+    }])
+    sources = pd.DataFrame([{
+        "source_id": f"SRC-CNINFO-{code}",
+        "notes": f"status=ERROR; rows=0; error='{code}'",
+    }])
+    return enrich_official_query_resolution(support, sources, raw=raw, normalized=normalized).iloc[0]
+
+
+def test_three_officially_verified_bse_convertibles_are_not_equities():
+    for symbol, info in instruments.VERIFIED_BSE_NON_EQUITY.items():
+        row = _bond(symbol)
+        assert row["security_type"] == "PRIVATE_CONVERTIBLE_BOND"
+        assert row["issuer_equity_symbol"] == info["issuer_equity_symbol"]
+        assert row["classification_evidence_url"] == info["evidence_url"]
+        assert row["official_document_status"] == instruments.BOND_EXCLUSION_STATUS
+        assert row["official_query_status"] == instruments.BOND_QUERY_STATUS
+        assert row["official_query_adapter_status"] == "ERROR"  # Original error is retained.
+        assert row["official_query_adapter_error"] == f"'{symbol[:6]}'"
+        assert instruments.bse_query_row_passes(row)
+        assert row["status_reason"] == "INDEPENDENTLY_VERIFIED_NON_EQUITY_BOND_EXCLUDED_FROM_STOCK_FINANCIALS"
+
+
+def test_unknown_bse_code_and_spoofed_exchange_cannot_bypass_equity_query():
+    assert instruments.verified_non_equity("810012.BJ", "BSE") is None
+    assert instruments.verified_non_equity("810011.SZ", "BSE") is None
+    assert instruments.verified_non_equity("810011.BJ", "SZ_MAIN") is None
+    row = _bond("810012.BJ")
+    assert row["official_document_status"] == "CNINFO_QUERY_UNRESOLVED"
+    assert not instruments.bse_query_row_passes(row)
+
+
+def test_bond_exception_fails_if_equity_fact_or_filing_is_present():
+    symbol = "810011.BJ"
+    raw = pd.DataFrame([{"symbol": symbol, "statement": "balance_sheet"}])
+    normalized = pd.DataFrame([{"symbol": symbol, "decision_grade_eligible": True}])
+    for row in (_bond(symbol, raw=raw), _bond(symbol, normalized=normalized), _bond(symbol, filing_count=1)):
+        assert row["official_document_status"] == "CNINFO_QUERY_UNRESOLVED"
+        assert not instruments.bse_query_row_passes(row)
+
+
+def test_non_equity_claim_requires_exact_issuer_and_official_evidence():
+    original = _bond("810013.BJ")
+    assert instruments.bse_query_row_passes(original)
+    for field, altered in (
+        ("classification_evidence_url", "https://example.com/unverified.pdf"),
+        ("issuer_equity_symbol", "810013.BJ"),
+        ("security_type", "A_SHARE_EQUITY"),
+        ("official_query_status", "SUCCESS"),
+        ("official_filing_count", 3),
+    ):
+        row = original.copy()
+        row[field] = altered
+        assert not instruments.bse_query_row_passes(row), field
+
+
+def test_bse_gate_accepts_only_verified_bonds_or_successful_equity_queries():
+    valid_bond = _bond("810014.BJ")
+    valid_equity = _enrich("status=SUCCESS; rows=2; error=", filings=1)
+    invalid_equity = _enrich("status=ERROR; rows=0; error=ConnectionError")
+    bse = pd.DataFrame([valid_bond.to_dict(), valid_equity.to_dict()])
+    assert instruments.bse_gate_passes(bse)
+    assert instruments.bse_unresolved_count(bse) == 0
+    mixed = pd.DataFrame([valid_bond.to_dict(), invalid_equity.to_dict()])
+    assert not instruments.bse_gate_passes(mixed)
+    assert instruments.bse_unresolved_count(mixed) == 1
