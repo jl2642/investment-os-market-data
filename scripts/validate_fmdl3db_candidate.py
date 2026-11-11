@@ -7,7 +7,10 @@ import jsonschema
 import numpy as np
 import pandas as pd
 
-from scripts.fmdl3db_core import ROOT, VALID_CAP_STATES, load_json, sha256_file, write_json
+from scripts.fmdl3db_core import (
+    ROOT, VALID_CAP_STATES, capitalization_coverage_population,
+    load_json, sha256_file, write_json,
+)
 
 CONFIG = ROOT / "config/fmdl3db_engine.json"
 
@@ -58,6 +61,14 @@ def main() -> int:
         dtype={"symbol": str},
     )
 
+    snapshot = pd.read_csv(
+        ROOT / config["market_inputs"]["snapshot_path"],
+        encoding="utf-8-sig",
+        dtype={"symbol": str},
+    )
+    scope = capitalization_coverage_population(universe, snapshot, current)
+    eligible = current.loc[scope["eligible_mask"]]
+
     manifest_errors: list[str] = []
     for item in manifest.get("files", []):
         path = root / item["path"]
@@ -88,15 +99,15 @@ def main() -> int:
         & (current["close"] > 0)
         & current["price_row_hash"].notna()
     )
-    price_coverage = float(accepted_price.mean())
-    share_coverage = float(len(valid) / len(current))
-    non_bse = current[current["board"].ne("BSE")]
+    price_coverage = float(accepted_price.loc[scope["eligible_mask"]].mean()) if len(eligible) else 0.0
+    share_coverage = float(eligible["capitalization_state"].isin(VALID_CAP_STATES).mean()) if len(eligible) else 0.0
+    non_bse = eligible[eligible["board"].ne("BSE")]
     non_bse_coverage = float(
         non_bse["capitalization_state"].isin(VALID_CAP_STATES).mean()
     ) if len(non_bse) else 0.0
     board_coverage = {
         str(board): float(frame["capitalization_state"].isin(VALID_CAP_STATES).mean())
-        for board, frame in current.groupby("board", dropna=False)
+        for board, frame in eligible.groupby("board", dropna=False)
     }
     board_gates = {
         board: board_coverage.get(board, 0.0) >= float(threshold)
@@ -118,6 +129,16 @@ def main() -> int:
     universe_symbols = set(universe["symbol"].astype(str))
 
     checks = {
+        **scope["checks"],
+        "PRICE_ELIGIBLE_UNIVERSE_NOT_EMPTY": scope["eligible_count"] > 0,
+        "DECISION_ELIGIBLE_COUNT_REPLAY": decision.get("metrics", {}).get("price_eligible_symbol_count") == scope["eligible_count"],
+        "DECISION_SUSPENDED_COUNT_REPLAY": decision.get("metrics", {}).get("source_confirmed_suspended_unpriced_count") == scope["excluded_suspended_no_price_count"],
+        "DECISION_PRICE_COVERAGE_REPLAY": abs(decision.get("metrics", {}).get("accepted_price_coverage_ratio", -1) - price_coverage) < 1e-12,
+        "DECISION_SHARE_COVERAGE_REPLAY": abs(decision.get("metrics", {}).get("effective_share_coverage_ratio", -1) - share_coverage) < 1e-12,
+        "SOURCE_UNIVERSE_SHA_MATCH": sha256_file(ROOT / config["market_inputs"]["universe_path"])
+        == release["current_files"]["a_share_universe"]["sha256"],
+        "SOURCE_SNAPSHOT_SHA_MATCH": sha256_file(ROOT / config["market_inputs"]["snapshot_path"])
+        == release["current_files"]["daily_market_snapshot"]["sha256"],
         "DECISION_ACCEPTED": decision.get("status") == config["exit_status"],
         "DECISION_HARD_FAILURES_EMPTY": decision.get("hard_failures") == [],
         "MANIFEST_VALID": not manifest_errors,
@@ -205,6 +226,9 @@ def main() -> int:
             **decision.get("metrics", {}),
             "manifest_error_count": len(manifest_errors),
             "schema_error_count": len(schema_errors),
+            "price_eligible_symbol_count_independent": scope["eligible_count"],
+            "source_confirmed_suspended_unpriced_count_independent": scope["excluded_suspended_no_price_count"],
+            "raw_full_universe_price_coverage_ratio_independent": float(accepted_price.mean()),
             "price_coverage_ratio_independent": price_coverage,
             "effective_share_coverage_ratio_independent": share_coverage,
             "non_bse_effective_share_coverage_ratio_independent": non_bse_coverage,
