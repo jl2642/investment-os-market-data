@@ -1,10 +1,10 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
 - 数据水位：`2026-11-11`
-- Thesis subjects：`66`
-- 持仓 / 非持仓：`23 / 43`
-- 当前复核队列：`70`
-- 需要重新D2：`62`
+- Thesis subjects：`65`
+- 持仓 / 非持仓：`23 / 42`
+- 当前复核队列：`9`
+- 需要重新D2：`1`
 - 需要用户动作复核：`6`
 - 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
@@ -15,72 +15,11 @@
 - **富国天利增长债券C (017534.OF)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **国电南瑞 (600406.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 23.1000 has exhausted the current valuation margin; mark-to-weighted-value expected return is 4.33%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **甬金股份 (603995.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 21.4000 is at/below entry threshold 21.5000. 下一步：`FRESH_D2_BEFORE_ANY_BUY`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
-- **深圳机场 (000089.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **美的集团 (000333.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **冰山冷热 (000530.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **贵州轮胎 (000589.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **阳光股份 (000608.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **现代投资 (000900.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **闽东电力 (000993.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **兰州银行 (001227.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **永泰运 (001228.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **罗莱生活 (002293.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **涪陵榨菜 (002507.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中坚科技 (002779.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **江阴银行 (002807.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **崇达技术 (002815.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **比音勒芬 (002832.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **郑州银行 (002936.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **苏州银行 (002966.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **百亚股份 (003006.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **楚天龙 (003040.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **华测检测 (300012.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **碧水源 (300070.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **汇川技术 (300124.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **永利股份 (300230.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **开尔新材 (300234.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **超频三 (300647.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **宁德时代 (300750.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **汇创达 (300909.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **军信股份 (301109.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **采纳股份 (301122.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中科环保 (301175.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **奥尼电子 (301189.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **瑞晨环保 (301273.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **招商银行 (600036.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **恒瑞医药 (600276.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **万华化学 (600309.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
 - **万华化学 (600309.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **国电南瑞 (600406.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中远海特 (600428.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **福耀玻璃 (600660.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
 - **福耀玻璃 (600660.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **海尔智家 (600690.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中粮糖业 (600737.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **长江电力 (600900.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **江苏银行 (600919.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中国海油 (600938.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中国移动 (600941.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中国神华 (601088.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **工业富联 (601138.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
 - **工业富联 (601138.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **交通银行 (601328.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中国石油 (601857.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **江河集团 (601886.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **紫金矿业 (601899.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **建设银行 (601939.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中国银行 (601988.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **松发股份 (603268.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **神力股份 (603819.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **正川股份 (603976.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **甬金股份 (603995.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **九丰能源 (605090.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **中国通号 (688009.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **铁建重工 (688425.SH)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
-- **明阳科技 (920663.BJ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Financial statement context advanced from 2026-08-28 to 2026-11-10; security-level filing relevance must be triaged. 下一步：`TRIAGE_NEW_FINANCIAL_EVIDENCE_THEN_D2_IF_MATERIAL`。
 
 ## 语义触发边界
 
