@@ -554,11 +554,24 @@ def test_old_pending_uses_durable_source_rows_instead_of_stale_count(tmp_path, m
          "publication_time": "2026-10-30", "url": f"https://cninfo.example/OLD1.SZ/{i}"}
         for i in (1, 2)
     ]
-    sources.append({
-        "primary_source": True, "security_id": "OLD1.SZ",
-        "source_type": "CNINFO_DISCLOSURE", "title": "invalid-url",
-        "publication_time": "2026-10-30", "url": "not-a-url"
-    })
+    sources.extend([
+        {
+            "primary_source": True, "security_id": "OLD1.SZ",
+            "source_type": "CNINFO_DISCLOSURE", "title": "invalid-url",
+            "publication_time": "2026-10-30", "url": "not-a-url"
+        },
+        {
+            "security_id": "OLD1.SZ", "source_type": "CNINFO_DISCLOSURE",
+            "title": "missing-primary-flag", "publication_time": "2026-10-30",
+            "url": "https://cninfo.example/OLD1.SZ/missing-flag"
+        },
+        {
+            "primary_source": False, "security_id": "OLD1.SZ",
+            "source_type": "CNINFO_DISCLOSURE", "title": "non-primary",
+            "publication_time": "2026-10-30",
+            "url": "https://cninfo.example/OLD1.SZ/non-primary"
+        }
+    ])
     (d2e / "RESEARCH_QUEUE_D2_EVIDENCE_20261110T000000Z.json").write_text(
         json.dumps({"captured_at": "2026-11-10T00:00:00Z", "primary_sources": sources}),
         encoding="utf-8",
@@ -597,3 +610,73 @@ def test_consumer_restores_exact_published_d2_evidence_before_rebuild():
     ).read_text(encoding="utf-8")
     assert 'git restore --source="$D2_COMMIT" --worktree investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/' in workflow
     assert 'git show "$D2_COMMIT":investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json' in workflow
+
+
+
+def test_unresolved_old_pending_items_are_preserved_and_retried(tmp_path, monkeypatch):
+    d1 = tmp_path / "D1.json"
+    d1.write_text(json.dumps({
+        "state_id": "D1-NEW",
+        "research_objects": [
+            {"security_id": s, "security_name": s, "d1_rank": idx,
+             "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE", "d2_questions": ["verify"],
+             "first_rejection": "reject weak earnings"}
+            for idx, s in enumerate(["NEW1.SZ", "NEW2.SZ", "NEW3.SZ"], 1)
+        ],
+    }), encoding="utf-8")
+    d1e = tmp_path / "d1e"
+    d1e.mkdir()
+    (d1e / "RESEARCH_QUEUE_D1_EVIDENCE_1.json").write_text(
+        '{"sources":[]}', encoding="utf-8"
+    )
+    prior = {
+        "source_d1_state_id": "D1-OLD",
+        "queue": [
+            {
+                "security_id": "OLD_PENDING.SZ", "security_name": "OLD_PENDING",
+                "status": "PENDING_AUTO_RESEARCH", "semantic_research_required": True,
+                "primary_source_count": 0, "attempt_count": 1,
+                "last_attempt_at": "2026-11-08T12:00:00Z",
+                "d2_questions": ["verify"], "trade_authority": "NONE",
+            },
+            {
+                "security_id": "OLD_BLOCKED.SZ", "security_name": "OLD_BLOCKED",
+                "status": "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+                "semantic_research_required": True, "primary_source_count": 0,
+                "attempt_count": 2, "last_attempt_at": "2026-11-09T12:00:00Z",
+                "d2_questions": ["verify"], "trade_authority": "NONE",
+            },
+        ],
+    }
+    d2_current = tmp_path / "D2.json"
+    d2_current.write_text(json.dumps(prior), encoding="utf-8")
+    d2e = tmp_path / "d2e"
+    d2e.mkdir()
+    calls = []
+
+    def discover(security_id, **_kwargs):
+        calls.append(security_id)
+        return [], "CNINFO_DISCOVERY_EMPTY"
+
+    monkeypatch.setattr(d2, "D1_CURRENT", d1)
+    monkeypatch.setattr(d2, "D1_EVIDENCE_DIR", d1e)
+    monkeypatch.setattr(d2, "D2_CURRENT", d2_current)
+    monkeypatch.setattr(d2, "D2_LIVENESS", tmp_path / "LIVE.json")
+    monkeypatch.setattr(d2, "D2_EVIDENCE_DIR", d2e)
+    monkeypatch.setattr(d2, "discover_cninfo", discover)
+
+    state, _live, evidence_run = d2.build_state(
+        discover_primary_sources=True,
+        now=datetime(2026, 11, 11, 1, 0, tzinfo=timezone.utc),
+    )
+    queued = {row["security_id"]: row for row in state["queue"]}
+    assert "OLD_PENDING.SZ" in queued
+    assert "OLD_BLOCKED.SZ" in queued
+    assert queued["OLD_PENDING.SZ"]["status"] == "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY"
+    assert queued["OLD_BLOCKED.SZ"]["status"] == "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY"
+    assert queued["OLD_PENDING.SZ"]["attempt_count"] == 2
+    assert queued["OLD_BLOCKED.SZ"]["attempt_count"] == 3
+    assert calls == ["OLD_PENDING.SZ", "OLD_BLOCKED.SZ", "NEW1.SZ"]
+    assert len(evidence_run["discovery_errors"]) == 3
+    assert state["summary"]["pending_count"] == 3
+    assert state["controls"]["orders"] == 0
