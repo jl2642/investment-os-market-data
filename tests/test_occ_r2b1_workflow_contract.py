@@ -3,6 +3,7 @@ from pathlib import Path
 from scripts.summarize_occ_r2b_financial_context import (
     expected_latest_report_period,
     report_period_is_current,
+    report_period_coverage_is_current,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -54,6 +55,9 @@ def test_occ_r2b1_financial_report_period_freshness_gate() -> None:
     assert report_period_is_current("2026-11-10", "2026-09-30")
     assert not report_period_is_current("2026-11-10", "2026-06-30")
     assert not report_period_is_current("2026-11-10", None)
+    assert report_period_coverage_is_current(100, 90)
+    assert not report_period_coverage_is_current(100, 89)
+    assert not report_period_coverage_is_current(0, 0)
 
 
 def test_occ_r2b1_has_post_filing_quarterly_refresh_schedule() -> None:
