@@ -538,9 +538,9 @@ def test_old_pending_uses_durable_source_rows_instead_of_stale_count(tmp_path, m
         "source_d1_state_id": "D1-OLD",
         "queue": [{
             "security_id": "OLD1.SZ", "security_name": "OLD1.SZ",
-            "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+            "status": "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
             "semantic_research_required": True, "primary_source_count": 20,
-            "attempt_count": 1, "last_attempt_at": "2026-11-10T06:22:17Z",
+            "attempt_count": 3, "last_attempt_at": "2026-11-10T06:22:17Z",
             "d2_questions": ["verify"], "trade_authority": "NONE"
         }],
     }
@@ -597,6 +597,7 @@ def test_old_pending_uses_durable_source_rows_instead_of_stale_count(tmp_path, m
     assert old["security_id"] == "OLD1.SZ"
     assert old["primary_source_count"] == 2
     assert old["source_inventory_status"] == "DURABLE_DISCOVERY_RECORDS_PRESENT"
+    assert old["status"] == "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING"
     assert old["source_inventory_evidence_files"] == [
         str((d2e / "RESEARCH_QUEUE_D2_EVIDENCE_20261110T000000Z.json"))
     ]
