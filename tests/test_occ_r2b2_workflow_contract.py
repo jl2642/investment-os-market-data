@@ -103,3 +103,16 @@ def test_occ_r2b2_workflow_is_governed_and_does_not_reopen_methodology():
     assert "financial_event_propagation=COMPLETE" in text
     assert "git push origin HEAD:main" not in text
     assert "TRADE_AUTHORITY: NONE" in text
+    assert "workflow_run:" in text
+    assert '"OCC-R2B1 Financial Baseline Rebuild"' in text
+    assert "github.event.workflow_run.conclusion == 'success'" in text
+
+
+def test_occ_r2b2_push_does_not_race_the_r2b1_handoff():
+    text = (
+        ROOT
+        / ".github/workflows/occ-r2b2-capitalization-valuation-rebuild.yml"
+    ).read_text(encoding="utf-8")
+    push_block = text.split("  push:", 1)[1].split("  workflow_dispatch:", 1)[0]
+    assert ".github/workflows/occ-r2b2-capitalization-valuation-rebuild.yml" not in push_block
+    assert "tests/test_occ_r2b2_workflow_contract.py" not in push_block

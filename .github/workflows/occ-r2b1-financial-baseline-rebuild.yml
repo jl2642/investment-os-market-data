@@ -2,6 +2,9 @@ name: OCC-R2B1 Financial Baseline Rebuild
 run-name: "OCC-R2B1 full financial baseline recovery"
 
 on:
+  schedule:
+    # Refresh the full A-share financial statement baseline after Q1, H1 and Q3 filing deadlines.
+    - cron: "30 2 5 5,9,11 *"
   pull_request:
     branches: [main]
     paths:
