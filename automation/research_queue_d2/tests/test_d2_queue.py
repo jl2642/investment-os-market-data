@@ -699,3 +699,7 @@ def test_consumer_runs_after_its_code_or_workflow_is_merged_to_main():
     push_block = workflow.split("  push:", 1)[1].split("  workflow_dispatch:", 1)[0]
     assert '"automation/research_queue_d2/**"' in push_block
     assert '".github/workflows/research-queue-d2-auto-consumer.yml"' in push_block
+    fetch_step = workflow.split(
+        "- name: Fetch S2 rolling D1 Current and prior D2 authority", 1
+    )[1].split("      - name:", 1)[0]
+    assert "if: github.event_name != 'pull_request'" in fetch_step
