@@ -107,6 +107,9 @@ jobs:
             D2_COMMIT="$(python -c 'import json; print(json.load(open(".d2_runtime/RESEARCH_D2_DOMAIN.json",encoding="utf-8"))["source_commit_sha"])')"
             test -n "$D2_COMMIT"
             git fetch origin "$D2_COMMIT" --force --no-tags
+            # The queue and its discovery evidence are one provenance unit. Restore
+            # the full evidence directory from the exact commit named by RESEARCH_D2.
+            git restore --source="$D2_COMMIT" --worktree investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/
             git show "$D2_COMMIT":investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json > investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json
           fi
           python - <<'PY'
