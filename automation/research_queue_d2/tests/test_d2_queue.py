@@ -554,6 +554,11 @@ def test_old_pending_uses_durable_source_rows_instead_of_stale_count(tmp_path, m
          "publication_time": "2026-10-30", "url": f"https://cninfo.example/OLD1.SZ/{i}"}
         for i in (1, 2)
     ]
+    sources.append({
+        "primary_source": True, "security_id": "OLD1.SZ",
+        "source_type": "CNINFO_DISCLOSURE", "title": "invalid-url",
+        "publication_time": "2026-10-30", "url": "not-a-url"
+    })
     (d2e / "RESEARCH_QUEUE_D2_EVIDENCE_20261110T000000Z.json").write_text(
         json.dumps({"captured_at": "2026-11-10T00:00:00Z", "primary_sources": sources}),
         encoding="utf-8",
@@ -583,3 +588,12 @@ def test_old_pending_uses_durable_source_rows_instead_of_stale_count(tmp_path, m
         str((d2e / "RESEARCH_QUEUE_D2_EVIDENCE_20261110T000000Z.json"))
     ]
     assert "OLD1.SZ" not in calls
+
+
+
+def test_consumer_restores_exact_published_d2_evidence_before_rebuild():
+    workflow = (
+        d2.ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml"
+    ).read_text(encoding="utf-8")
+    assert 'git restore --source="$D2_COMMIT" --worktree investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/' in workflow
+    assert 'git show "$D2_COMMIT":investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json' in workflow
