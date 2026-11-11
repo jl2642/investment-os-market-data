@@ -7,6 +7,11 @@ on:
     paths:
       - ".github/workflows/occ-r2b2-capitalization-valuation-rebuild.yml"
       - "scripts/summarize_occ_r2b2_valuation_context.py"
+      - "scripts/fmdl3db_core.py"
+      - "scripts/aggregate_fmdl3db.py"
+      - "scripts/validate_fmdl3db_candidate.py"
+      - "scripts/run_fmdl3dc_valuation_engine.py"
+      - "tests/test_fmdl3db_coverage_scope.py"
       - "tests/test_occ_r2b2_workflow_contract.py"
       - "docs/OPERATIONAL_CHAIN_CLOSURE_PLAN.md"
   push:
@@ -57,7 +62,7 @@ jobs:
       - name: Deterministic OCC-R2B2 contract checks
         run: |
           python -m py_compile scripts/summarize_occ_r2b2_valuation_context.py
-          pytest -q tests/test_occ_r2b2_workflow_contract.py tests/test_fmdl3db_engine.py tests/test_fmdl3dc_engine.py
+          pytest -q tests/test_occ_r2b2_workflow_contract.py tests/test_fmdl3db_engine.py tests/test_fmdl3db_coverage_scope.py tests/test_fmdl3dc_engine.py
           python -m scripts.validate_fmdl3db_contract
           python -m scripts.validate_fmdl3dc_contract
       - name: Resolve accepted market and financial Operating Current
@@ -108,7 +113,9 @@ jobs:
 
   capitalization-shards:
     needs: preflight
-    if: github.event_name != 'pull_request'
+    # The one-shot post-failure recovery reuses the 16 already certified shards.
+    # Ordinary workflow_dispatch/workflow_run/full-refresh paths rebuild normally.
+    if: ${{ github.event_name != 'pull_request' && !(github.event_name == 'push' && contains(github.event.head_commit.message, '[CAP-ELIGIBILITY-RECOVERY-20261111]')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
@@ -152,7 +159,7 @@ jobs:
 
   valuation-chain:
     needs: [preflight, capitalization-shards]
-    if: github.event_name != 'pull_request'
+    if: ${{ always() && github.event_name != 'pull_request' && needs.preflight.result == 'success' && (needs.capitalization-shards.result == 'success' || (needs.capitalization-shards.result == 'skipped' && github.event_name == 'push' && contains(github.event.head_commit.message, '[CAP-ELIGIBILITY-RECOVERY-20261111]'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -214,11 +221,44 @@ jobs:
           assert release['trade_authority']=='NONE'
           PY
       - name: Download validated capitalization shards
+        if: ${{ !(github.event_name == 'push' && contains(github.event.head_commit.message, '[CAP-ELIGIBILITY-RECOVERY-20261111]')) }}
         uses: actions/download-artifact@v4
         with:
           pattern: occ-r2b2-cap-shard-*
           path: downloaded-cap-shards
           merge-multiple: false
+      - name: Restore previously certified 16 shards for bounded recovery
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[CAP-ELIGIBILITY-RECOVERY-20261111]') }}
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43031463004
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          pattern: occ-r2b2-cap-shard-*
+          path: downloaded-cap-shards
+          merge-multiple: false
+      - name: Assert exact certified source and shard identity in bounded recovery
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[CAP-ELIGIBILITY-RECOVERY-20261111]') }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base = Path("downloaded-cap-shards")
+          expected = {f"occ-r2b2-cap-shard-{n:02d}" for n in range(16)}
+          assert {p.name for p in base.iterdir() if p.is_dir()} == expected
+          release = json.loads(Path("outputs/current/CURRENT_RELEASE.json").read_text(encoding="utf-8"))
+          for n in range(16):
+              folder = base / f"occ-r2b2-cap-shard-{n:02d}"
+              src = json.loads((folder / "SHARD_SOURCE_RELEASE.json").read_text(encoding="utf-8"))
+              decision = json.loads((folder / "SHARD_DECISION.json").read_text(encoding="utf-8"))
+              validation = json.loads((folder / "SHARD_VALIDATION.json").read_text(encoding="utf-8"))
+              assert src["run_id"] == release["run_id"], n
+              assert src["as_of_date"] == release["as_of_date"], n
+              assert src["current_files"]["a_share_universe"]["sha256"] == release["current_files"]["a_share_universe"]["sha256"], n
+              assert src["current_files"]["daily_market_snapshot"]["sha256"] == release["current_files"]["daily_market_snapshot"]["sha256"], n
+              assert decision["status"] == "FMDL3DB_SHARD_ACCEPTED", n
+              assert validation["status"] == "PASS" and not validation["hard_failures"], n
+          PY
       - name: Aggregate validate and publish exact Capitalization Current
         run: |
           python -m scripts.aggregate_fmdl3db --input-root downloaded-cap-shards
