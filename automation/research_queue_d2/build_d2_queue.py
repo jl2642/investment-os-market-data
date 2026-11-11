@@ -18,6 +18,7 @@ D2_EVIDENCE_DIR = ROOT / "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH
 BATCH_SIZE = 3
 TRADE_AUTHORITY = "NONE"
 CNINFO_MAX_ATTEMPTS = 2
+MAX_PRIMARY_SOURCE_DISCOVERY_ATTEMPTS = 3
 SEMANTIC_TERMINAL_STATUSES = {"D2_RESEARCH_COMPLETE", "D2_RESEARCH_HOLD_EVIDENCE_GAP"}
 SEMANTIC_COMPLETE_STATUS = "D2_RESEARCH_COMPLETE"
 EXPLICIT_SEMANTIC_REFRESH_FLAGS = ("semantic_refresh_required", "fresh_d2_required", "reunderwrite_required")
@@ -120,6 +121,33 @@ def durable_primary_sources_by_security() -> dict[str, dict[str, dict[str, Any]]
                 "captured_at": captured_at,
             }
     return inventory
+
+
+def should_preserve_older_pending(
+    row: dict[str, Any],
+    durable_inventory: dict[str, dict[str, dict[str, Any]]],
+) -> bool:
+    """Keep semantic obligations, but bound retries for source-discovery-only failures."""
+    status = str(row.get("status") or "")
+    if status in {
+        "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
+        "D2_UNDERWRITING_PENDING",
+    }:
+        return True
+    if status not in {
+        "PENDING_AUTO_RESEARCH",
+        "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
+    }:
+        return False
+
+    security_id = str(row.get("security_id") or "")
+    if durable_inventory.get(security_id):
+        return True
+    try:
+        attempts = int(row.get("attempt_count", 0))
+    except (TypeError, ValueError):
+        return False
+    return bool(row.get("last_attempt_at")) and 0 < attempts < MAX_PRIMARY_SOURCE_DISCOVERY_ATTEMPTS
 
 
 def _cninfo_error(exc: Exception) -> str:
@@ -387,12 +415,7 @@ def build_state(
     older_pending = [
         dict(row)
         for row in prior.get("queue", [])
-        if row.get("status") in {
-            "PENDING_AUTO_RESEARCH",
-            "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING",
-            "AUTO_RESEARCH_BLOCKED_PRIMARY_SOURCE_DISCOVERY",
-            "D2_UNDERWRITING_PENDING",
-        }
+        if should_preserve_older_pending(row, durable_source_inventory)
         and row.get("semantic_research_required") is True
         and row.get("security_id") not in routed_ids
     ]
