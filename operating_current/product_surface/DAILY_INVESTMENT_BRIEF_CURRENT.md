@@ -4,7 +4,7 @@
 - Recommendation 人工复核项（非执行待办）：6
 - 持仓绩效监控：23 / 23（账户持仓行 24）
 - 当前投资判断覆盖：23 / 23
-- 新机会：43
+- 新机会：42
 - 自动交易：关闭；orders = 0；trade_authority = NONE
 
 ## 1. 当前持仓决策面
@@ -50,10 +50,9 @@
 - BUY_BELOW｜601328.SH 交通银行｜当前价 8.42｜预期收益 6.4%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜601886.SH 江河集团｜当前价 12.15｜预期收益 14.8%｜阻断 PRICE_BLOCKED
 - BUY_BELOW｜601939.SH 建设银行｜当前价 11.92｜预期收益 3.4%｜阻断 PRICE_BLOCKED
-- BUY_BELOW｜603995.SH 甬金股份｜当前价 21.40｜预期收益 20.6%｜阻断 FRESH_D2_REQUIRED_ON_PRICE_CROSS
 - WATCH｜002293.SZ 罗莱生活｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
 - WATCH｜002779.SZ 中坚科技｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
-- WATCH｜002966.SZ 苏州银行｜当前价 —｜预期收益 —｜阻断 RESEARCH_REFRESH_PENDING
+- WATCH｜603995.SH 甬金股份｜当前价 21.40｜预期收益 20.6%｜阻断 RESEARCH_REFRESH_PENDING
 - WATCH｜920663.BJ 明阳科技｜当前价 15.00｜预期收益 -4.2%｜阻断 PRICE_FRESHNESS_BLOCKED
 - AVOID｜000089.SZ 深圳机场｜当前价 6.67｜预期收益 -15.3%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
 - AVOID｜000530.SZ 冰山冷热｜当前价 11.28｜预期收益 -60.1%｜阻断 AVOID_NEGATIVE_EXPECTED_RETURN
