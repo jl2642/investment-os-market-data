@@ -688,3 +688,13 @@ def test_unresolved_old_pending_items_are_preserved_and_retried(tmp_path, monkey
     assert len(evidence_run["discovery_errors"]) == 3
     assert state["summary"]["pending_count"] == 3
     assert state["controls"]["orders"] == 0
+
+
+
+def test_consumer_runs_after_its_code_or_workflow_is_merged_to_main():
+    workflow = (
+        d2.ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml"
+    ).read_text(encoding="utf-8")
+    push_block = workflow.split("  push:", 1)[1].split("  workflow_dispatch:", 1)[0]
+    assert '"automation/research_queue_d2/**"' in push_block
+    assert '".github/workflows/research-queue-d2-auto-consumer.yml"' in push_block
