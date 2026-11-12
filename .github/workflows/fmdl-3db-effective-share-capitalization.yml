@@ -1,44 +1,10 @@
-name: FMDL 3D-B Effective Share Count and Capitalization Engine
+name: LEGACY MANUAL ONLY - FMDL 3D-B Effective Share Count and Capitalization Engine
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "config/fmdl3db_engine.json"
-      - "schemas/fmdl3db_effective_share_ledger_v1.schema.json"
-      - "schemas/fmdl3db_capitalization_current_v1.schema.json"
-      - "scripts/fmdl3db_core.py"
-      - "scripts/run_fmdl3db_shard.py"
-      - "scripts/validate_fmdl3db_shard.py"
-      - "scripts/aggregate_fmdl3db.py"
-      - "scripts/validate_fmdl3db_candidate.py"
-      - "scripts/validate_fmdl3db_contract.py"
-      - "scripts/publish_fmdl3db.py"
-      - "tests/test_fmdl3db_engine.py"
-      - "docs/FMDL-3DB_PRODUCT_SPEC.md"
-      - "docs/FMDL-3DB_ACCEPTANCE.md"
-      - ".github/workflows/fmdl-3db-effective-share-capitalization.yml"
-  push:
-    branches: [main]
-    paths:
-      - "config/fmdl3db_engine.json"
-      - "schemas/fmdl3db_effective_share_ledger_v1.schema.json"
-      - "schemas/fmdl3db_capitalization_current_v1.schema.json"
-      - "scripts/fmdl3db_core.py"
-      - "scripts/run_fmdl3db_shard.py"
-      - "scripts/validate_fmdl3db_shard.py"
-      - "scripts/aggregate_fmdl3db.py"
-      - "scripts/validate_fmdl3db_candidate.py"
-      - "scripts/validate_fmdl3db_contract.py"
-      - "scripts/publish_fmdl3db.py"
-      - "tests/test_fmdl3db_engine.py"
-      - "docs/FMDL-3DB_PRODUCT_SPEC.md"
-      - "docs/FMDL-3DB_ACCEPTANCE.md"
-      - ".github/workflows/fmdl-3db-effective-share-capitalization.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   actions: read
 
 concurrency:
@@ -192,18 +158,11 @@ jobs:
           assert decision["trade_authority"] == "NONE"
           PY
 
-      - name: Publish immutable Capitalization Current on main
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+      - name: Record legacy manual-only boundary
+        if: always()
         run: |
-          python -m scripts.publish_fmdl3db
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config http.postBuffer 524288000
-          git add datasets/capitalization/releases outputs/capitalization/current outputs/capitalization/archive outputs/status/FMDL3DB_LAST_SUCCESS.json
-          if git diff --cached --quiet; then
-            echo "No FMDL-3D-B publication changes"
-          else
-            git commit -m "data: publish FMDL-3D-B capitalization Current [skip ci]"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+          echo "LEGACY_MANUAL_DIAGNOSTIC_ONLY=true" >> "$GITHUB_STEP_SUMMARY"
+          echo "FORMAL_VALUATION_AUTHORITY=operating-current/FINANCIAL_VALUATION_CONTEXT" >> "$GITHUB_STEP_SUMMARY"
+          echo "MAIN_BRANCH_PUBLICATION=DISABLED" >> "$GITHUB_STEP_SUMMARY"
+          echo "TRADE_AUTHORITY=NONE" >> "$GITHUB_STEP_SUMMARY"
