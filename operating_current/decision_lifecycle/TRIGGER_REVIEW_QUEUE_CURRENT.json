@@ -1,8 +1,8 @@
 {
-  "as_of_date": "2026-11-11",
-  "generated_at_utc": "2026-11-12T02:17:09+00:00",
+  "as_of_date": "2026-11-12",
+  "generated_at_utc": "2026-11-12T21:45:06+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_e3a36548a32afba3",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_dce3456d0d33c90c",
   "records": [
     {
       "accounts": [],
@@ -28,7 +28,7 @@
       ],
       "current_action": "HOLD",
       "entry_price": 1.38,
-      "latest_price": 1.3989,
+      "latest_price": 1.3978,
       "next_step": "PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW",
       "orders": 0,
       "price_as_of": null,
@@ -81,6 +81,26 @@
       "trade_authority": "NONE",
       "transition": "PERSISTING",
       "trigger_key": "POSITION_ACTION_TRIM"
+    },
+    {
+      "accounts": [
+        "REAL"
+      ],
+      "current_action": "HOLD",
+      "entry_price": 31.0,
+      "latest_price": 28.46,
+      "next_step": "FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT",
+      "orders": 0,
+      "price_as_of": "2026-11-11",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "HIGH",
+      "reason": "Holding newly crossed the 15% drawdown review threshold; loss is not an automatic exit but thesis must be refreshed once.",
+      "review_type": "REUNDERWRITE_REQUIRED",
+      "security_id": "605090.SH",
+      "security_name": "九丰能源",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "DRAWDOWN_MONITOR_ACTIVE"
     },
     {
       "accounts": [
@@ -183,8 +203,8 @@
       "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
-  "review_count": 9,
+  "review_count": 10,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_570757bc3e5de35b",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_ccdcce4e2c3f3a19",
   "trade_authority": "NONE"
 }
