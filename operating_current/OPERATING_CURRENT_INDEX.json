@@ -28,32 +28,32 @@
       "domain_id": "A_SHARE_FULL_MARKET",
       "exchange_session_aligned": false,
       "exchange_session_reference_date": "2026-11-11",
-      "health": "LATEST_ATTEMPT_FAILED_CURRENT_PRESERVED",
+      "health": "CURRENT",
       "latest_attempt": {
         "advance_current_requested": false,
-        "data_watermark": "",
+        "data_watermark": "2026-11-11",
         "domain_id": "A_SHARE_FULL_MARKET",
         "fail_closed": true,
-        "note": "Workflow failed before a QC-passed Current pointer could advance",
+        "note": "NO_OP",
         "orders": 0,
         "protected_mutations": {
           "candidate_membership": 0,
           "real_account": 0,
           "simulation": 0
         },
-        "published_at_utc": "2026-11-12T17:52:51Z",
-        "qc_status": "failure",
+        "published_at_utc": "2026-11-13T17:25:06Z",
+        "qc_status": "NO_OP_EXCHANGE_SESSION_CONFIRMED",
         "schema_version": "1.0.0",
         "source_branch": "main",
         "source_commit_sha": "2ece7bb710ef18d270f31a68e024b72048b60e8c",
         "source_run_attempt": 1,
-        "source_run_id": "43272178944",
-        "source_workflow": "FMDL daily market, factor and screening transaction",
-        "status": "FAIL",
+        "source_run_id": "43471629466",
+        "source_workflow": "FMDL Daily A-share Governed Production",
+        "status": "NO_OP",
         "trade_authority": "NONE",
-        "watermark_sort_key": ""
+        "watermark_sort_key": "2026-11-11"
       },
-      "latest_attempt_age_calendar_days": 1,
+      "latest_attempt_age_calendar_days": 0,
       "runtime_role": "PRIMARY_CHAIN",
       "stale_threshold_calendar_days": 5,
       "watermark_age_calendar_days": 2
@@ -653,7 +653,7 @@
         "watermark_sort_key": "2026-11-11"
       },
       "domain_id": "PORTFOLIO_EXECUTION_SIMULATION",
-      "exchange_session_aligned": false,
+      "exchange_session_aligned": true,
       "exchange_session_reference_date": "2026-11-11",
       "health": "CURRENT",
       "latest_attempt": {
@@ -1178,7 +1178,7 @@
       "watermark_age_calendar_days": 4
     }
   ],
-  "generated_at_utc": "2026-11-13T07:21:16Z",
+  "generated_at_utc": "2026-11-13T17:25:06Z",
   "orders": 0,
   "schema_version": "1.0.0",
   "staleness_basis": "EXCHANGE_SESSION_REFERENCE_WITH_CALENDAR_FALLBACK",
