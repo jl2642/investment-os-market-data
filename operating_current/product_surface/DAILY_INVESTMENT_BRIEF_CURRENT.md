@@ -16,7 +16,7 @@
 | 600309.SH 万华化学 | SIMULATION | ADD | 68.09 | 22.8% | — |
 | 600660.SH 福耀玻璃 | SIMULATION | ADD | 56.86 | 11.3% | — |
 | 601138.SH 工业富联 | SIMULATION | ADD | 40.10 | 82.0% | — |
-| 000333.SZ 美的集团 | SIMULATION | HOLD | 90.55 | 7.2% | — |
+| 000333.SZ 美的集团 | SIMULATION | HOLD | 90.55 | 7.2% | PRICE_BLOCKED |
 | 002807.SZ 江阴银行 | REAL | HOLD | 4.45 | 14.8% | — |
 | 017534.OF 富国天利增长债券C | REAL | HOLD | 1.40 | 3.5% | PRICE_BLOCKED |
 | 159352.SZ A500ETF南方 | REAL | HOLD | 1.08 | 25.1% | — |
