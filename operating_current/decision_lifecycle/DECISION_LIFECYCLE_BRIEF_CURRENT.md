@@ -3,9 +3,9 @@
 - 数据水位：`2026-11-16`
 - Thesis subjects：`65`
 - 持仓 / 非持仓：`23 / 42`
-- 当前复核队列：`14`
-- 需要重新D2：`6`
-- 需要用户动作复核：`6`
+- 当前复核队列：`13`
+- 需要重新D2：`4`
+- 需要用户动作复核：`7`
 - 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
 
@@ -14,11 +14,10 @@
 - **兰州银行 (001227.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **富国天利增长债券C (017534.OF)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **招商银行 (600036.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 42.9300 has exhausted the current valuation margin; mark-to-weighted-value expected return is 4.82%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
-- **国电南瑞 (600406.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 23.2600 has exhausted the current valuation margin; mark-to-weighted-value expected return is 3.61%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
+- **国电南瑞 (600406.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **中远海特 (600428.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 10.3400 is at/below entry threshold 10.4300. 下一步：`FRESH_D2_BEFORE_ANY_BUY`。
 - **长江电力 (600900.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 29.9100 has exhausted the current valuation margin; mark-to-weighted-value expected return is 3.79%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **紫金矿业 (601899.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Holding newly crossed the 15% drawdown review threshold; loss is not an automatic exit but thesis must be refreshed once. 下一步：`FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
 - **招商安泰债券A (217003.OF)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Holding price 1.3612 is at/below research entry threshold 1.3700. 下一步：`FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD`。
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。

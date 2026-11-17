@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-11-16",
-  "generated_at_utc": "2026-11-16T23:51:10+00:00",
+  "generated_at_utc": "2026-11-17T08:39:21+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_a132554bea9e5fb4",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_9269952d6ad9e570",
   "records": [
     {
       "accounts": [],
@@ -66,21 +66,21 @@
       "accounts": [
         "SIMULATION"
       ],
-      "current_action": "HOLD",
+      "current_action": "TRIM",
       "entry_price": 21.0,
       "latest_price": 23.26,
-      "next_step": "FRESH_D2_FOR_HOLD_TRIM_OR_EXIT",
+      "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
       "orders": 0,
       "price_as_of": "2026-11-13",
       "price_source": "A_SHARE_FULL_MARKET",
       "priority": "HIGH",
-      "reason": "Latest price 23.2600 has exhausted the current valuation margin; mark-to-weighted-value expected return is 3.61%.",
-      "review_type": "REUNDERWRITE_REQUIRED",
+      "reason": "Current decision-grade holding action is TRIM.",
+      "review_type": "USER_ACTION_REVIEW",
       "security_id": "600406.SH",
       "security_name": "国电南瑞",
       "trade_authority": "NONE",
-      "transition": "PERSISTING",
-      "trigger_key": "VALUATION_EXHAUSTION_REUNDERWRITE"
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "POSITION_ACTION_TRIM"
     },
     {
       "accounts": [],
@@ -142,26 +142,6 @@
     },
     {
       "accounts": [
-        "SIMULATION"
-      ],
-      "current_action": "HOLD",
-      "entry_price": 32.21,
-      "latest_price": 26.38,
-      "next_step": "FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT",
-      "orders": 0,
-      "price_as_of": "2026-11-13",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "priority": "HIGH",
-      "reason": "Holding newly crossed the 15% drawdown review threshold; loss is not an automatic exit but thesis must be refreshed once.",
-      "review_type": "REUNDERWRITE_REQUIRED",
-      "security_id": "601899.SH",
-      "security_name": "紫金矿业",
-      "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
-      "trigger_key": "DRAWDOWN_MONITOR_ACTIVE"
-    },
-    {
-      "accounts": [
         "REAL"
       ],
       "current_action": "HOLD",
@@ -197,7 +177,7 @@
       "security_id": "217003.OF",
       "security_name": "招商安泰债券A",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
     },
     {
@@ -281,8 +261,8 @@
       "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
-  "review_count": 14,
+  "review_count": 13,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_277ed7bd52d878e2",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_717e755e352e0c56",
   "trade_authority": "NONE"
 }
