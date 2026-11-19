@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-19T01:55:56+00:00",
+  "generated_at_utc": "2026-11-19T02:31:38+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-11-10",
     "market_date": "2026-11-18",
-    "recommendation_generated_at_utc": "2026-11-19T01:49:02+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_f4e9a7a46fc6ea9a",
+    "recommendation_generated_at_utc": "2026-11-19T02:27:54+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_46c75ddb29531d8c",
     "surface_as_of_date": "2026-11-18",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_c92f3b159eb19bfa"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_0469143f94d32170"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_9c07e75463a8eb5b",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_92287430a88b7e9d",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -390,36 +390,6 @@
         "semantic_reunderwrite_required_before_state_change": true
       },
       "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
-      "base_value": null,
-      "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
-      "latest_price": 27.03,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
-      "mechanical_trigger_keys": [],
-      "monitoring_flags": [],
-      "new_trigger_keys": [],
-      "orders": 0,
-      "position_state": "FLAT",
-      "price_as_of": "2026-11-18",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
-      "ready_for_user_decision": false,
-      "security_id": "001872.SZ",
-      "security_name": "招商港口",
-      "semantic_watch": {
-        "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
-        "semantic_reunderwrite_required_before_state_change": true
-      },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -868,9 +838,7 @@
         "HOLD_PRICE_REOPEN_CONDITION_MET"
       ],
       "monitoring_flags": [],
-      "new_trigger_keys": [
-        "HOLD_PRICE_REOPEN_CONDITION_MET"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": null,
@@ -2083,6 +2051,36 @@
     },
     {
       "accounts": [],
+      "base_value": null,
+      "cleared_trigger_keys": [],
+      "current_action": "WATCH",
+      "entry_price": null,
+      "expected_return": null,
+      "latest_price": 4.12,
+      "lifecycle_state": "FLAT_WATCH",
+      "mark_expected_return": null,
+      "mechanical_trigger_keys": [],
+      "monitoring_flags": [],
+      "new_trigger_keys": [],
+      "orders": 0,
+      "position_state": "FLAT",
+      "price_as_of": "2026-11-18",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "probability_weighted_value": null,
+      "ready_for_user_decision": false,
+      "security_id": "601158.SH",
+      "security_name": "重庆水务",
+      "semantic_watch": {
+        "automatic_keyword_inference_authorized": false,
+        "catalysts": [],
+        "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
+        "semantic_reunderwrite_required_before_state_change": true
+      },
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
       "base_value": 8.9896,
       "cleared_trigger_keys": [],
       "current_action": "BUY_BELOW",
@@ -2449,14 +2447,14 @@
     },
     {
       "accounts": [],
-      "base_value": 25.63,
+      "base_value": 18.975,
       "cleared_trigger_keys": [],
       "current_action": "WATCH",
-      "entry_price": 21.5,
-      "expected_return": 0.261113825109917,
+      "entry_price": 16.4,
+      "expected_return": -0.07852955544699547,
       "latest_price": 20.47,
       "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": 0.261113825109917,
+      "mark_expected_return": -0.07852955544699547,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
@@ -2464,23 +2462,21 @@
       "position_state": "FLAT",
       "price_as_of": "2026-11-18",
       "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": 25.814999999999998,
+      "probability_weighted_value": 18.8625,
       "ready_for_user_decision": false,
       "security_id": "603995.SH",
       "security_name": "甬金股份",
       "semantic_watch": {
         "automatic_keyword_inference_authorized": false,
         "catalysts": [
-          "Q2 gross/net margin improvement persists through H2 without inventory build accelerating.",
-          "Thailand/overseas capacity reaches utilization with acceptable ROIC and cash conversion.",
-          "Industry capacity digestion improves stainless processing spreads.",
-          "Operating cash flow catches up with earnings while inventory and debt normalize."
+          "Two quarters of improved CFO after capex, normalized inventory and receivables",
+          "Overseas project reaches utilization with returns exceeding invested capital cost",
+          "2026 audited annual report clarifies sustainable EPS and dilution"
         ],
         "kill_thesis": [
-          "Gross margin mean-reverts toward or below roughly 4.5% without a temporary explanation.",
-          "Inventory, short-term funding and receivables continue rising faster than revenue while CFO remains below earnings.",
-          "New governance or related-party/control issues materially raise capital-allocation risk.",
-          "Convertible/dilution or expansion capex reduces per-share returns without a commensurate ROIC improvement."
+          "Cash flow cannot cover core maintenance and growth capex as inventory financing grows",
+          "Processing spread and overseas projects underdeliver normalized returns",
+          "Governance or convertible bond dilutes shareholders economically"
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
@@ -2659,7 +2655,7 @@
     "portfolio_review_required_count": 2,
     "reunderwrite_required_count": 6,
     "review_queue_count": 14,
-    "semantic_watch_clause_count": 706,
+    "semantic_watch_clause_count": 691,
     "subject_count": 65,
     "user_action_review_count": 6,
     "valuation_reunderwrite_count": 4
