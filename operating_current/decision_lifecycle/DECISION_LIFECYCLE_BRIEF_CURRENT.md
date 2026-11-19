@@ -1,27 +1,28 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
-- 数据水位：`2026-11-18`
+- 数据水位：`2026-11-19`
 - Thesis subjects：`66`
 - 持仓 / 非持仓：`23 / 43`
-- 当前复核队列：`14`
-- 需要重新D2：`6`
+- 当前复核队列：`15`
+- 需要重新D2：`7`
 - 需要用户动作复核：`6`
 - 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
 
 ## 当前复核队列
 
-- **美的集团 (000333.SZ)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 93.6500 has exhausted the current valuation margin; mark-to-weighted-value expected return is 3.63%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
+- **美的集团 (000333.SZ)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 95.0100 has exhausted the current valuation margin; mark-to-weighted-value expected return is 2.15%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **兰州银行 (001227.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **富国天利增长债券C (017534.OF)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
-- **招商银行 (600036.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 43.1200 has exhausted the current valuation margin; mark-to-weighted-value expected return is 4.36%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
+- **招商银行 (600036.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 43.3200 has exhausted the current valuation margin; mark-to-weighted-value expected return is 3.88%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **国电南瑞 (600406.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
-- **海尔智家 (600690.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 22.6000 has exhausted the current valuation margin; mark-to-weighted-value expected return is 3.98%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
-- **长江电力 (600900.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 30.6800 has exhausted the current valuation margin; mark-to-weighted-value expected return is 1.19%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
+- **海尔智家 (600690.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 23.1500 has exhausted the current valuation margin; mark-to-weighted-value expected return is 1.51%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
+- **长江电力 (600900.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 30.8800 has exhausted the current valuation margin; mark-to-weighted-value expected return is 0.53%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
+- **明阳科技 (920663.BJ)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 11.9200 is at/below entry threshold 12.2100. 下一步：`FRESH_D2_BEFORE_ANY_BUY`。
 - **标普500ETF华夏 (159655.SZ)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Holding price 1.9410 is at/below research entry threshold 1.9500. 下一步：`FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD`。
-- **招商安泰债券A (217003.OF)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Holding price 1.3611 is at/below research entry threshold 1.3700. 下一步：`FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD`。
+- **招商安泰债券A (217003.OF)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Holding price 1.3563 is at/below research entry threshold 1.3700. 下一步：`FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD`。
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **万华化学 (600309.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **工业富联 (601138.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
