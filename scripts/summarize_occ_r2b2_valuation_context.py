@@ -52,7 +52,7 @@ def build_summary(
     checks = {
         "MARKET_CURRENT_ACCEPTED": market_context.get("status") == "PASS",
         "FINANCIAL_CURRENT_ACCEPTED": financial_context.get("status") == "PASS",
-        "MARKET_FINANCIAL_WATERMARK_MATCH": market_watermark == financial_market_watermark,
+        "MARKET_FINANCIAL_PIT_SEQUENCE": report_watermark <= financial_market_watermark <= market_watermark,
         "CAPITALIZATION_ACCEPTED": capitalization_decision.get("status")
         == "FMDL3DB_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE_ACCEPTED",
         "CAPITALIZATION_MARKET_WATERMARK_MATCH": cap_market_date == market_watermark,
@@ -95,6 +95,7 @@ def build_summary(
         if not failures
         else "FAIL_EXACT_VALUATION_REBUILD",
         "market_as_of_date": market_watermark,
+        "financial_baseline_as_of_date": financial_market_watermark,
         "financial_report_period_watermark": report_watermark,
         "financial_event_propagation": "COMPLETE" if not failures else "INCOMPLETE",
         "source_lineage": {
