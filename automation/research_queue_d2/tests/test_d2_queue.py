@@ -711,7 +711,7 @@ def test_exact_semantic_input_and_official_evidence_guard_for_old_pending():
     old = {"security_id": "603995.SH", "security_name": "甬金股份", "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING", "semantic_input_watermark": "W", "semantic_research_required": True}
     fresh = {
         "security_id": "603995.SH", "security_name": "甬金股份", "status": "D2_RESEARCH_COMPLETE",
-        "source_d2_state_id": "S", "semantic_input_watermark": "W", "verified_official_primary_count": 1,
+        "source_d2_state_id": "S", "source_d1_state_id": "D1_S", "semantic_input_watermark": "W", "verified_official_primary_count": 1,
         "research_disposition": "WATCH", "semantic_artifact": "new.json", "evidence_gap": {"material": False},
         "underwriting": {
             "current_price": 20.47, "price_as_of": "2026-11-18", "entry_price": 16.4,
@@ -729,7 +729,11 @@ def test_exact_semantic_input_and_official_evidence_guard_for_old_pending():
     result = d2.recover_fresh_older_semantic_completion(old, fresh, "S")
     assert result["status"] == "D2_RESEARCH_COMPLETE"
     assert result["semantic_research_required"] is False
-    assert d2.recover_fresh_older_semantic_completion(old, fresh, "OTHER") is None
+    # Pure queue-version rollover is accepted only when underlying decision-grade
+    # semantic input and original D1 provenance remain intact.
+    assert d2.recover_fresh_older_semantic_completion(old, fresh, "OTHER")["status"] == "D2_RESEARCH_COMPLETE"
+    assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "source_d1_state_id": None}, "OTHER") is None
+    assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "source_d2_state_id": None}, "S") is None
     assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "verified_official_primary_count":0}, "S") is None
     assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "semantic_input_watermark":"OLD"}, "S") is None
     assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "security_name":"WRONG"}, "S") is None
