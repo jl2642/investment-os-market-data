@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-19T02:31:38+00:00",
+  "generated_at_utc": "2026-11-19T03:41:53+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-11-10",
     "market_date": "2026-11-18",
-    "recommendation_generated_at_utc": "2026-11-19T02:27:54+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_46c75ddb29531d8c",
+    "recommendation_generated_at_utc": "2026-11-19T03:40:40+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_c619471d71e11b22",
     "surface_as_of_date": "2026-11-18",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_0469143f94d32170"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_3720f608dc24e31f"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_92287430a88b7e9d",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_131838d3bd608009",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -390,6 +390,36 @@
         "semantic_reunderwrite_required_before_state_change": true
       },
       "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
+      "trade_authority": "NONE"
+    },
+    {
+      "accounts": [],
+      "base_value": null,
+      "cleared_trigger_keys": [],
+      "current_action": "WATCH",
+      "entry_price": null,
+      "expected_return": null,
+      "latest_price": 27.03,
+      "lifecycle_state": "FLAT_WATCH",
+      "mark_expected_return": null,
+      "mechanical_trigger_keys": [],
+      "monitoring_flags": [],
+      "new_trigger_keys": [],
+      "orders": 0,
+      "position_state": "FLAT",
+      "price_as_of": "2026-11-18",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "probability_weighted_value": null,
+      "ready_for_user_decision": false,
+      "security_id": "001872.SZ",
+      "security_name": "招商港口",
+      "semantic_watch": {
+        "automatic_keyword_inference_authorized": false,
+        "catalysts": [],
+        "kill_thesis": "Reject D2 promotion if normalized fundamentals do not support the market signal or valuation eliminates the expected-return advantage.",
+        "semantic_reunderwrite_required_before_state_change": true
+      },
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -2051,36 +2081,6 @@
     },
     {
       "accounts": [],
-      "base_value": null,
-      "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
-      "latest_price": 4.12,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
-      "mechanical_trigger_keys": [],
-      "monitoring_flags": [],
-      "new_trigger_keys": [],
-      "orders": 0,
-      "position_state": "FLAT",
-      "price_as_of": "2026-11-18",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
-      "ready_for_user_decision": false,
-      "security_id": "601158.SH",
-      "security_name": "重庆水务",
-      "semantic_watch": {
-        "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-        "semantic_reunderwrite_required_before_state_change": true
-      },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
       "base_value": 8.9896,
       "cleared_trigger_keys": [],
       "current_action": "BUY_BELOW",
@@ -2449,11 +2449,11 @@
       "accounts": [],
       "base_value": 18.975,
       "cleared_trigger_keys": [],
-      "current_action": "WATCH",
+      "current_action": "AVOID",
       "entry_price": 16.4,
       "expected_return": -0.07852955544699547,
       "latest_price": 20.47,
-      "lifecycle_state": "FLAT_WATCH",
+      "lifecycle_state": "FLAT_AVOID",
       "mark_expected_return": -0.07852955544699547,
       "mechanical_trigger_keys": [],
       "monitoring_flags": [],
@@ -2480,7 +2480,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
       "trade_authority": "NONE"
     },
     {
@@ -2655,7 +2655,7 @@
     "portfolio_review_required_count": 2,
     "reunderwrite_required_count": 6,
     "review_queue_count": 14,
-    "semantic_watch_clause_count": 691,
+    "semantic_watch_clause_count": 704,
     "subject_count": 65,
     "user_action_review_count": 6,
     "valuation_reunderwrite_count": 4
