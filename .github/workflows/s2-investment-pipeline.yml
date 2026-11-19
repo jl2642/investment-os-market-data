@@ -205,11 +205,6 @@ jobs:
               reverse=True,
           )
           chosen=eligible[0]
-          release_path=Path("outputs/financial_factors/score/current/FMDL3CD_RELEASE.json")
-          if release_path.exists():
-              chosen["financial_context_source"]=json.loads(
-                  release_path.read_text(encoding="utf-8")
-              )
           out=Path(os.environ["S2_RUNTIME"])/"SCREEN_SOURCE.json"
           out.write_text(
               json.dumps(chosen,ensure_ascii=False,indent=2,sort_keys=True)+"\n",
@@ -246,6 +241,56 @@ jobs:
             git show origin/operating-current:operating_current/investment_pipeline/RECOMMENDATION_CURRENT.json > "$S2_RUNTIME/PRIOR_RECOMMENDATION_CURRENT.json"
           fi
 
+      - name: Bind accepted quarterly financial score from immutable Operating Current source
+        if: >-
+          !(
+            github.event_name == 'workflow_dispatch' &&
+            inputs.mode == 'd2_callback'
+          )
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git show origin/operating-current:operating_current/domains/FINANCIAL_STATEMENT_CONTEXT.json > "$S2_RUNTIME/FINANCIAL_DOMAIN.json"
+          python - <<'PY' > "$S2_RUNTIME/FIN_SOURCE.env"
+          import json, re, os
+          from pathlib import Path
+          domain=json.loads((Path(os.environ["S2_RUNTIME"])/"FINANCIAL_DOMAIN.json").read_text(encoding="utf-8"))
+          assert domain.get("status")=="PASS", "S2_FINANCIAL_CONTEXT_NOT_ACCEPTED"
+          assert domain.get("qc_status")=="PASS_FINANCIAL_BASELINE_REBUILT", "S2_FINANCIAL_CONTEXT_QC_FAILED"
+          assert "financial_report_period_watermark=2026-09-30" in str(domain.get("note") or ""), "S2_FINANCIAL_NOT_Q3_2026"
+          branch=str(domain.get("source_branch") or "")
+          commit=str(domain.get("source_commit_sha") or "")
+          assert re.fullmatch(r"[A-Za-z0-9._/-]+",branch) and re.fullmatch(r"[0-9a-f]{40}",commit), "S2_FINANCIAL_SOURCE_IDENTITY_INVALID"
+          print(f"FIN_BRANCH={branch}")
+          print(f"FIN_COMMIT={commit}")
+          PY
+          set -a
+          source "$S2_RUNTIME/FIN_SOURCE.env"
+          set +a
+          git fetch origin "refs/heads/$FIN_BRANCH:refs/remotes/origin/s2-financial" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/s2-financial)" = "$FIN_COMMIT"
+          git show "$FIN_COMMIT":outputs/financial_factors/score/current/FMDL3CD_RELEASE.json > "$S2_RUNTIME/FINANCIAL_RELEASE.json"
+          git show "$FIN_COMMIT":outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet > "$S2_RUNTIME/FINANCIAL_SCORE_CURRENT.parquet"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ["S2_RUNTIME"])
+          release=json.loads((root/"FINANCIAL_RELEASE.json").read_text(encoding="utf-8"))
+          screen=json.loads((root/"SCREEN_SOURCE.json").read_text(encoding="utf-8"))
+          assert release.get("status")=="FMDL3CD_FINANCIAL_SCORE_AND_INVESTMENT_OS_INTERFACE_ACCEPTED", "S2_FINANCIAL_SCORE_NOT_ACCEPTED"
+          assert str(release.get("published_at") or "")[:10]>="2026-11-01", "S2_FINANCIAL_SCORE_RELEASE_STALE"
+          assert (root/"FINANCIAL_SCORE_CURRENT.parquet").stat().st_size>0, "S2_FINANCIAL_SCORE_EMPTY"
+          screen["financial_context_source"]=release
+          screen["financial_context_binding"]={
+              "domain_id":"FINANCIAL_STATEMENT_CONTEXT",
+              "source_commit_sha":os.environ["FIN_COMMIT"],
+              "source_branch":os.environ["FIN_BRANCH"],
+              "report_period_watermark":"2026-09-30",
+          }
+          (root/"SCREEN_SOURCE.json").write_text(json.dumps(screen,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          print({"financial_release_id":release.get("release_id"),"financial_source_sha":os.environ["FIN_COMMIT"],"score_count":release.get("metrics",{}).get("financial_score_row_count")})
+          PY
+
       - name: Build Opportunity Queue and D1 fast triage
         if: >-
           !(
@@ -259,10 +304,7 @@ jobs:
           if [[ -f "$S2_RUNTIME/PRIOR_D1_CURRENT.json" ]]; then
             PRIOR=(--prior-d1 "$S2_RUNTIME/PRIOR_D1_CURRENT.json")
           fi
-          FIN=()
-          if [[ -f outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet ]]; then
-            FIN=(--financial-score outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet)
-          fi
+          FIN=(--financial-score "$S2_RUNTIME/FINANCIAL_SCORE_CURRENT.parquet")
           AI_CONTEXT=()
           if [[ -f "$S2_RUNTIME/AI_AUTONOMOUS_1M_CURRENT.json" ]]; then
             AI_CONTEXT+=(--ai-book "$S2_RUNTIME/AI_AUTONOMOUS_1M_CURRENT.json")
