@@ -252,15 +252,25 @@ jobs:
           set -Eeuo pipefail
           git show origin/operating-current:operating_current/domains/FINANCIAL_STATEMENT_CONTEXT.json > "$S2_RUNTIME/FINANCIAL_DOMAIN.json"
           python - <<'PY' > "$S2_RUNTIME/FIN_SOURCE.env"
-          import json, re, os
+          import json, re, os, subprocess
           from pathlib import Path
           domain=json.loads((Path(os.environ["S2_RUNTIME"])/"FINANCIAL_DOMAIN.json").read_text(encoding="utf-8"))
           assert domain.get("status")=="PASS", "S2_FINANCIAL_CONTEXT_NOT_ACCEPTED"
           assert domain.get("qc_status")=="PASS_FINANCIAL_BASELINE_REBUILT", "S2_FINANCIAL_CONTEXT_QC_FAILED"
-          assert "financial_report_period_watermark=2026-09-30" in str(domain.get("note") or ""), "S2_FINANCIAL_NOT_Q3_2026"
           branch=str(domain.get("source_branch") or "")
           commit=str(domain.get("source_commit_sha") or "")
           assert re.fullmatch(r"[A-Za-z0-9._/-]+",branch) and re.fullmatch(r"[0-9a-f]{40}",commit), "S2_FINANCIAL_SOURCE_IDENTITY_INVALID"
+          run_id=str(domain.get("source_run_id") or "")
+          attempt=str(domain.get("source_run_attempt") or "")
+          assert run_id.isdigit() and attempt.isdigit(), "S2_FINANCIAL_RUN_ID_INVALID"
+          receipt_path=f"operating_current/runs/FINANCIAL_STATEMENT_CONTEXT/{run_id}-a{attempt}-pass.json"
+          receipt=json.loads(subprocess.check_output(
+              ["git","show",f"origin/operating-current:{receipt_path}"],text=True
+          ))
+          for key in ("source_run_id","source_run_attempt","source_branch","source_commit_sha","data_watermark","qc_status"):
+              assert str(receipt.get(key))==str(domain.get(key)), f"S2_FINANCIAL_RUN_RECEIPT_MISMATCH_{key}"
+          assert receipt.get("status")=="PASS", "S2_FINANCIAL_RUN_RECEIPT_NOT_PASS"
+          assert "financial_report_period_watermark=2026-09-30" in str(receipt.get("note") or ""), "S2_FINANCIAL_NOT_Q3_2026"
           print(f"FIN_BRANCH={branch}")
           print(f"FIN_COMMIT={commit}")
           PY
