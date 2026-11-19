@@ -1,0 +1,107 @@
+{
+  "contract_version": "1.0.0",
+  "program_id": "FMDL-3D-B",
+  "program_name": "Effective Share Count & Capitalization Engine",
+  "business_timezone": "Asia/Shanghai",
+  "cost_policy": "FREE_AND_FREE_TIER_ONLY",
+  "entry_gate": {
+    "pointer_path": "outputs/status/FMDL3DA_LAST_SUCCESS.json",
+    "required_status": "FMDL3DA_VALUATION_AND_SHAREHOLDER_RETURN_CONTRACT_ACCEPTED"
+  },
+  "market_inputs": {
+    "current_release_path": "outputs/current/CURRENT_RELEASE.json",
+    "universe_path": "outputs/current/A_SHARE_UNIVERSE.csv",
+    "universe_manifest_path": "outputs/current/A_SHARE_UNIVERSE_MANIFEST.json",
+    "snapshot_path": "outputs/current/DAILY_MARKET_SNAPSHOT.csv",
+    "snapshot_manifest_path": "outputs/current/DAILY_MARKET_SNAPSHOT_MANIFEST.json"
+  },
+  "source_route": {
+    "source_id": "EASTMONEY_EFFECTIVE_SHARE_CAPITAL",
+    "adapter": "akshare.stock_zh_a_gbjg_em",
+    "maximum_attempts": 3,
+    "retry_backoff_seconds": [
+      0.5,
+      1.5,
+      3.0
+    ],
+    "date_columns": [
+      "变更日期"
+    ],
+    "total_share_columns": [
+      "总股本"
+    ],
+    "float_a_share_columns": [
+      "已上市流通A股",
+      "已流通股份"
+    ],
+    "limited_a_share_columns": [
+      "限售A股",
+      "未流通股份"
+    ],
+    "change_reason_columns": [
+      "变更原因",
+      "变动原因"
+    ],
+    "provider_market_cap_fields_are_authoritative": false,
+    "provider_valuation_fields_are_authoritative": false
+  },
+  "sharding": {
+    "algorithm": "SHA256_SYMBOL_MOD_N",
+    "shard_count": 16,
+    "workers_per_shard": 1,
+    "maximum_parallel_shards": 8
+  },
+  "point_in_time": {
+    "price_rule": "ONE_ACCEPTED_CURRENT_SNAPSHOT_ROW_AT_LATEST_COMPLETED_SESSION",
+    "share_rule": "LATEST_POSITIVE_PROVIDER_ROW_EFFECTIVE_NOT_LATER_THAN_PRICE_AS_OF_DATE",
+    "future_share_rows": "PRESERVE_IN_LEDGER_BUT_NEVER_SELECT_FOR_CURRENT",
+    "historical_replay_rule": "SELECT_SHARE_VERSION_EFFECTIVE_AT_HISTORICAL_PRICE_DATE",
+    "current_market_cap_formula": "close * effective_share_count",
+    "missing_value_policy": "NULL_WITH_EXPLICIT_STATE_NEVER_ZERO_FILL",
+    "manual_patch_policy": "SOURCE_IDENTIFIED_IMMUTABLE_REPAIR_ONLY"
+  },
+  "quality_states": [
+    "VALID",
+    "VALID_WITH_WARNING",
+    "PRICE_UNAVAILABLE",
+    "SHARE_SOURCE_UNAVAILABLE",
+    "NO_EFFECTIVE_SHARE_ROW",
+    "FUTURE_ONLY_SHARE_ROWS",
+    "INVALID_SHARE_VALUES",
+    "UNIVERSE_OR_SNAPSHOT_CONFLICT",
+    "CONTROLLED_QUARANTINE"
+  ],
+  "acceptance": {
+    "minimum_accepted_price_coverage": 0.98,
+    "minimum_effective_share_coverage_overall": 0.95,
+    "minimum_effective_share_coverage_non_bse": 0.97,
+    "minimum_effective_share_coverage_by_board": {
+      "SH_MAIN": 0.97,
+      "SZ_MAIN": 0.97,
+      "STAR": 0.95,
+      "CHINEXT": 0.97,
+      "BSE": 0.7
+    },
+    "maximum_future_selected_share_rows": 0,
+    "maximum_non_positive_selected_share_rows": 0,
+    "maximum_duplicate_current_keys": 0,
+    "maximum_missing_current_symbols": 0,
+    "maximum_untraceable_current_share_rows": 0,
+    "capitalization_absolute_tolerance_cny": 0.001,
+    "capitalization_relative_tolerance": 1e-12,
+    "require_all_shard_validations_pass": true,
+    "require_zero_trade_authority": true
+  },
+  "publication": {
+    "shard_root": "outputs/capitalization/full_build/shards",
+    "candidate_root": "outputs/capitalization/full_build/candidate",
+    "current_root": "outputs/capitalization/current",
+    "archive_root": "outputs/capitalization/archive",
+    "release_root": "datasets/capitalization/releases",
+    "last_success_path": "outputs/status/FMDL3DB_LAST_SUCCESS.json"
+  },
+  "exit_status": "FMDL3DB_EFFECTIVE_SHARE_COUNT_AND_CAPITALIZATION_ENGINE_ACCEPTED",
+  "next_gate": "FMDL-3D-C_VALUATION_ENGINE_CURRENT",
+  "authority": "DATA_AND_RESEARCH_EVIDENCE_ONLY",
+  "trade_authority": "NONE"
+}
