@@ -705,3 +705,32 @@ def test_push_event_is_reserved_for_semantic_d2_publication():
         "- name: Publish semantic D2 completion to Operating Current", 1
     )[1].split("      - name:", 1)[0]
     assert "if: github.event_name == 'push'" in semantic_step
+
+def test_exact_semantic_input_and_official_evidence_guard_for_old_pending():
+    from automation.research_queue_d2 import validate_d2_queue
+    old = {"security_id": "603995.SH", "security_name": "甬金股份", "status": "PRIMARY_EVIDENCE_DISCOVERED_SEMANTIC_RESEARCH_PENDING", "semantic_input_watermark": "W", "semantic_research_required": True}
+    fresh = {
+        "security_id": "603995.SH", "security_name": "甬金股份", "status": "D2_RESEARCH_COMPLETE",
+        "source_d2_state_id": "S", "semantic_input_watermark": "W", "verified_official_primary_count": 1,
+        "research_disposition": "WATCH", "semantic_artifact": "new.json", "evidence_gap": {"material": False},
+        "underwriting": {
+            "current_price": 20.47, "price_as_of": "2026-11-18", "entry_price": 16.4,
+            "action": "WATCH", "confidence": "MEDIUM", "normalized_earnings_basis": "diluted EPS",
+            "kill_thesis": ["cash flow"], "catalysts": ["cash flow"],
+            "scenarios": [
+                {"name":"BEAR","probability":0.3,"value_per_share":13.05},
+                {"name":"BASE","probability":0.5,"value_per_share":18.975},
+                {"name":"BULL","probability":0.2,"value_per_share":27.3}],
+            "probability_weighted_value":18.8625,
+            "expected_return":18.8625/20.47-1,
+        },
+    }
+    assert validate_d2_queue.underwriting_complete(fresh)
+    result = d2.recover_fresh_older_semantic_completion(old, fresh, "S")
+    assert result["status"] == "D2_RESEARCH_COMPLETE"
+    assert result["semantic_research_required"] is False
+    assert d2.recover_fresh_older_semantic_completion(old, fresh, "OTHER") is None
+    assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "verified_official_primary_count":0}, "S") is None
+    assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "semantic_input_watermark":"OLD"}, "S") is None
+    assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "security_name":"WRONG"}, "S") is None
+
