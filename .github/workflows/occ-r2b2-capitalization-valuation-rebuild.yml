@@ -81,7 +81,10 @@ jobs:
           for row in (market,financial):
               assert row.get('status')=='PASS', row
               assert row.get('trade_authority')=='NONE', row
-          assert market['data_watermark']==financial['data_watermark'], (market,financial)
+          assert financial.get('qc_status') == 'PASS_FINANCIAL_BASELINE_REBUILT', financial
+          assert financial['data_watermark'] <= market['data_watermark'], (market,financial)
+          # PIT: an accepted quarterly financial baseline can precede the daily market close.
+          # Never use financial information from a future market session.
           print('market_branch='+str(market['source_branch']))
           print('market_commit='+str(market['source_commit_sha']))
           print('market_watermark='+str(market['data_watermark']))
