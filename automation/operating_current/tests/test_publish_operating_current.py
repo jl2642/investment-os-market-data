@@ -66,6 +66,27 @@ class OperatingCurrentTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(reason,"PASS_NONREGRESSING")
 
+
+    def test_quarterly_exact_valuation_is_not_overwritten_by_later_stale_denominators(self):
+        original = self.make_receipt(key="2026-11-18", qc_status="PASS_EXACT_VALUATION_REBUILT")
+        original["domain_id"] = "FINANCIAL_VALUATION_CONTEXT"
+        current = pointer_payload(original)
+        later = self.make_receipt(key="2026-11-19", qc_status="PASS_MARKET_VALUATION_REFRESH_FINANCIAL_DENOMINATOR_LKG")
+        later["domain_id"] = "FINANCIAL_VALUATION_CONTEXT"
+        ok, reason = can_advance(current, later)
+        self.assertFalse(ok)
+        self.assertEqual(reason, "EXACT_FINANCIAL_DENOMINATOR_DOWNGRADE")
+        exact = self.make_receipt(key="2026-11-19", qc_status="PASS_EXACT_VALUATION_REBUILT")
+        exact["domain_id"] = "FINANCIAL_VALUATION_CONTEXT"
+        self.assertEqual(can_advance(current, exact), (True, "PASS_NONREGRESSING"))
+
+    def test_market_only_valuation_still_advances_when_exact_not_yet_published(self):
+        old = self.make_receipt(key="2026-11-18", qc_status="PASS_MARKET_VALUATION_REFRESH_FINANCIAL_DENOMINATOR_LKG")
+        old["domain_id"] = "FINANCIAL_VALUATION_CONTEXT"
+        new = self.make_receipt(key="2026-11-19", qc_status="PASS_MARKET_VALUATION_REFRESH_FINANCIAL_DENOMINATOR_LKG")
+        new["domain_id"] = "FINANCIAL_VALUATION_CONTEXT"
+        self.assertEqual(can_advance(pointer_payload(old), new), (True, "PASS_NONREGRESSING"))
+
     def test_operating_branch_sync_is_append_only_merge_not_rebase(self):
         calls=[]
 
