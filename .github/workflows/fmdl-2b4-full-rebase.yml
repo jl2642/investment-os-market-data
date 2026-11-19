@@ -22,7 +22,8 @@ on:
       - "config/fmdl2_full_backfill_plan.json"
       - ".github/workflows/fmdl-2b4-full-rebase.yml"
   schedule:
-    # GitHub cron is UTC. Production evidence on Nov 11-18 shows the 08:00 UTC
+    # GitHub cron is UTC. 08:00 UTC = 16:00 Asia/Shanghai when delivered on time.
+    # Production evidence on Nov 11-18 shows the 08:00 UTC
     # recovery wake-up was delivered 8+ hours late, past the post-close window
     # and into the next trading day's pre-close fail-closed period.
     # The additional 00:00 UTC signal is a bounded early wake-up for delayed
