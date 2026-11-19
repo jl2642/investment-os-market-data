@@ -143,3 +143,35 @@ def test_r2b2_summary_fails_closed_on_population_drift():
     )
     assert summary["status"] == "FAIL"
     assert "CAPITALIZATION_ELIGIBILITY_COHORT_RECONCILED" in summary["hard_failures"]
+
+def test_r2b2_allows_certified_quarterly_financial_snapshot_before_later_market_session():
+    payloads = list(_valid_payloads())
+    # A certified August 28 financial baseline legitimately prices at September 2 close.
+    payloads[0]["data_watermark"] = "2026-09-02"
+    payloads[2]["source_release"]["as_of_date"] = "2026-09-02"
+    payloads[5]["metrics"]["market_as_of_date"] = "2026-09-02"
+    summary = build_summary(
+        market_context=payloads[0], financial_context=payloads[1],
+        capitalization_release=payloads[2], capitalization_decision=payloads[3],
+        valuation_release=payloads[4], valuation_decision=payloads[5],
+        market_source_branch="market-branch", market_source_commit="market-commit",
+        financial_source_branch="financial-branch", financial_source_commit="financial-commit",
+    )
+    assert summary["status"] == "PASS"
+    assert summary["financial_baseline_as_of_date"] == "2026-08-28"
+    assert summary["market_as_of_date"] == "2026-09-02"
+    assert summary["checks"]["MARKET_FINANCIAL_PIT_SEQUENCE"]
+
+
+def test_r2b2_rejects_financial_snapshot_later_than_market_session():
+    payloads = list(_valid_payloads())
+    payloads[1]["market_as_of_date"] = "2026-09-03"
+    summary = build_summary(
+        market_context=payloads[0], financial_context=payloads[1],
+        capitalization_release=payloads[2], capitalization_decision=payloads[3],
+        valuation_release=payloads[4], valuation_decision=payloads[5],
+        market_source_branch="market-branch", market_source_commit="market-commit",
+        financial_source_branch="financial-branch", financial_source_commit="financial-commit",
+    )
+    assert summary["status"] == "FAIL"
+    assert "MARKET_FINANCIAL_PIT_SEQUENCE" in summary["hard_failures"]
