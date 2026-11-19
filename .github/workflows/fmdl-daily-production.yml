@@ -187,6 +187,7 @@ jobs:
                   "source_commit_sha":row.get("source_commit_sha"),
                   "watermark":row.get("watermark_sort_key") or row.get("data_watermark"),
                   "source_workflow":row.get("source_workflow"),
+                  "source_run_id":str(row.get("source_run_id") or ""),
               }))
           PY
           cat /tmp/FMDL_ACCEPTED_BASELINE.json
@@ -208,12 +209,24 @@ jobs:
           print(x.get('source_workflow') or '')
           PY
           )"
+          SOURCE_RUN_ID="$(python - <<'PY'
+          import json
+          x=json.load(open('/tmp/FMDL_ACCEPTED_BASELINE.json',encoding='utf-8'))
+          print(x.get('source_run_id') or '')
+          PY
+          )"
           RECOVERY_HANDOFF=false
-          if [[ "${{ github.event_name }}" == "workflow_run" && "$SOURCE_WORKFLOW" == "FMDL 2B-4 Multi-Session Recovery" ]]; then
+          # Only accept exact current run, never a historic rebase after a watch NO_OP.
+          if [[ "${{ github.event_name }}" == "workflow_run" && "$SOURCE_WORKFLOW" == "FMDL 2B-4 Multi-Session Recovery" && "$SOURCE_RUN_ID" == "${{ github.event.workflow_run.id }}" ]]; then
             RECOVERY_HANDOFF=true
+          fi
+          RECOVERY_NOOP_EVENT=false
+          if [[ "${{ github.event_name }}" == "workflow_run" && "$RECOVERY_HANDOFF" != "true" ]]; then
+            RECOVERY_NOOP_EVENT=true
           fi
           echo "source_workflow=$SOURCE_WORKFLOW" >> "$GITHUB_OUTPUT"
           echo "recovery_handoff=$RECOVERY_HANDOFF" >> "$GITHUB_OUTPUT"
+          echo "recovery_noop_event=$RECOVERY_NOOP_EVENT" >> "$GITHUB_OUTPUT"
           if [[ -z "$SOURCE_BRANCH" || -z "$SOURCE_COMMIT" ]]; then
             echo "NO_ACCEPTED_HISTORY_FACTOR_BASELINE_USING_CANONICAL_MAIN"
             exit 0
@@ -252,6 +265,7 @@ jobs:
           PY
 
       - name: Materialize and verify accepted History backing dependencies
+        if: steps.baseline.outputs.recovery_noop_event != 'true'
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -274,7 +288,7 @@ jobs:
             --verify
 
       - name: Run latest completed-session market Current
-        if: steps.baseline.outputs.recovery_handoff != 'true'
+        if: steps.baseline.outputs.recovery_handoff != 'true' && steps.baseline.outputs.recovery_noop_event != 'true'
         id: market
         shell: bash
         run: |
@@ -294,6 +308,7 @@ jobs:
         shell: bash
         env:
           RECOVERY_HANDOFF: ${{ steps.baseline.outputs.recovery_handoff }}
+          RECOVERY_NOOP_EVENT: ${{ steps.baseline.outputs.recovery_noop_event }}
         run: |
           python - <<'PY'
           import json
@@ -301,7 +316,12 @@ jobs:
           from pathlib import Path
 
           recovery_handoff = os.environ.get("RECOVERY_HANDOFF", "").lower() == "true"
-          if recovery_handoff:
+          recovery_noop_event = os.environ.get("RECOVERY_NOOP_EVENT", "").lower() == "true"
+          if recovery_noop_event:
+              status = "NO_OP_RECOVERY_WITHOUT_ACCEPTED_REBASE"
+              action = status
+              no_op = True
+          elif recovery_handoff:
               status = "RECOVERY_HANDOFF_SCREENING_REFRESH"
               action = status
               no_op = False
@@ -323,7 +343,7 @@ jobs:
           PY
 
       - name: Publish exchange-session no-op confirmation
-        if: steps.mode.outputs.proceed == 'false' && github.ref == 'refs/heads/main'
+        if: steps.mode.outputs.proceed == 'false' && steps.baseline.outputs.recovery_noop_event != 'true' && github.ref == 'refs/heads/main'
         shell: bash
         run: |
           set -Eeuo pipefail
