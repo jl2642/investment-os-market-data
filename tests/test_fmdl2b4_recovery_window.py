@@ -42,3 +42,11 @@ def test_manual_full_rebase_accepts_non_trading_day(monkeypatch: pytest.MonkeyPa
     result = freshness.validate_manual_recovery_window(now)
     assert result["status"] == "PASS"
     assert result["today_is_trade_day"] is False
+
+def test_delayed_cron_recovery_has_early_guarded_wakeup_and_regular_fallback() -> None:
+    from pathlib import Path
+    workflow = Path(".github/workflows/fmdl-2b4-full-rebase.yml").read_text(encoding="utf-8")
+    assert 'cron: "0 0 * * 1-5"' in workflow
+    assert 'cron: "0 8 * * 1-5"' in workflow
+    assert "validate_manual_recovery_window()" in workflow
+    assert 'steps.recovery_window.outputs.skip' in workflow

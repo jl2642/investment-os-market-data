@@ -91,3 +91,11 @@ def test_daily_recovery_handoff_skips_redundant_market_and_history_refetch() -> 
     assert "steps.baseline.outputs.recovery_handoff != 'true'" in text
     assert "outputs/current \\" in text
     assert 'github.event_name }}" == "workflow_run"' in text
+
+def test_recovery_noop_callback_cannot_publish_market_or_rerun_failed_history() -> None:
+    text = (ROOT / ".github/workflows/fmdl-daily-production.yml").read_text(encoding="utf-8")
+    assert '"source_run_id":str(row.get("source_run_id") or "")' in text
+    assert '"$SOURCE_RUN_ID" == "${{ github.event.workflow_run.id }}"' in text
+    assert 'NO_OP_RECOVERY_WITHOUT_ACCEPTED_REBASE' in text
+    assert "steps.baseline.outputs.recovery_noop_event != 'true'" in text
+    assert 'RECOVERY_NOOP_EVENT: ${{ steps.baseline.outputs.recovery_noop_event }}' in text
