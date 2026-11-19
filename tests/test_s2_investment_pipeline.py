@@ -1020,3 +1020,13 @@ def test_s2_financial_score_binding_uses_governed_q3_source_not_main_snapshot() 
     assert 'FIN=(--financial-score "$S2_RUNTIME/FINANCIAL_SCORE_CURRENT.parquet")' in workflow
     assert 'FIN=(--financial-score outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet)' not in workflow
     assert 'release_path=Path("outputs/financial_factors/score/current/FMDL3CD_RELEASE.json")' not in workflow
+
+
+def test_s2_q3_financial_watermark_comes_from_matching_receipt_not_pointer() -> None:
+    """The Current domain pointer is intentionally smaller than its run receipt."""
+    workflow = Path(".github/workflows/s2-investment-pipeline.yml").read_text(encoding="utf-8")
+    assert "operating_current/runs/FINANCIAL_STATEMENT_CONTEXT/{run_id}-a{attempt}-pass.json" in workflow
+    assert "S2_FINANCIAL_RUN_RECEIPT_MISMATCH" in workflow
+    assert 'receipt.get("note")' in workflow
+    assert 'domain.get("note")' not in workflow
+    assert 'S2_FINANCIAL_NOT_Q3_2026' in workflow
