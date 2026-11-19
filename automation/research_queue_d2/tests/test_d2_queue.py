@@ -609,7 +609,7 @@ def test_consumer_restores_exact_published_d2_evidence_before_rebuild():
     workflow = (
         d2.ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml"
     ).read_text(encoding="utf-8")
-    assert 'git restore --source="$D2_COMMIT" --worktree investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/' in workflow
+    assert 'git restore --source="$D2_COMMIT" --worktree --overlay investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/' in workflow
     assert 'git show "$D2_COMMIT":investment_os_runtime/30_STATE_CURRENT/30_RESEARCH/RESEARCH_QUEUE_D2_CURRENT.json' in workflow
 
 
