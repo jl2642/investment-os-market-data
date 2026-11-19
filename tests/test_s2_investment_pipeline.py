@@ -1006,3 +1006,17 @@ def test_outside_screen_price_cross_does_not_route_stale_market_marks() -> None:
         d1 = build_d1(opportunity, recommendation=recommendation, ai_book=ai_book, now=NOW)
         assert all(row["security_id"] != "601886.SH" for row in d1["research_objects"])
         assert d1["routing_summary"]["ai_book_auto_reunderwrite_count"] == 0
+
+
+def test_s2_financial_score_binding_uses_governed_q3_source_not_main_snapshot() -> None:
+    """S2 must never silently relabel the old main financial score as current."""
+    workflow = Path(".github/workflows/s2-investment-pipeline.yml").read_text(encoding="utf-8")
+    assert 'origin/operating-current:operating_current/domains/FINANCIAL_STATEMENT_CONTEXT.json' in workflow
+    assert 'PASS_FINANCIAL_BASELINE_REBUILT' in workflow
+    assert 'financial_report_period_watermark=2026-09-30' in workflow
+    assert 'git fetch origin "refs/heads/$FIN_BRANCH:refs/remotes/origin/s2-financial"' in workflow
+    assert 'test "$(git rev-parse refs/remotes/origin/s2-financial)" = "$FIN_COMMIT"' in workflow
+    assert 'git show "$FIN_COMMIT":outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet' in workflow
+    assert 'FIN=(--financial-score "$S2_RUNTIME/FINANCIAL_SCORE_CURRENT.parquet")' in workflow
+    assert 'FIN=(--financial-score outputs/financial_factors/score/current/FMDL3CD_FINANCIAL_SCORE_CURRENT.parquet)' not in workflow
+    assert 'release_path=Path("outputs/financial_factors/score/current/FMDL3CD_RELEASE.json")' not in workflow
