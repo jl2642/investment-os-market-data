@@ -147,6 +147,17 @@ def can_advance(current: dict[str, Any] | None, new_receipt: dict[str, Any]) -> 
         return False, "ADVANCE_NOT_REQUESTED"
     if current is None:
         return True, "FIRST_CURRENT"
+    # An accepted exact-quarter valuation is economically stronger than a
+    # market-only refresh explicitly using old last-known-good denominators.
+    # This protection holds across later market dates as well as same-date updates.
+    # A fresh exact valuation may still advance through the normal watermark gate.
+    if (
+        current.get("domain_id") == "FINANCIAL_VALUATION_CONTEXT"
+        and new_receipt.get("domain_id") == "FINANCIAL_VALUATION_CONTEXT"
+        and current.get("qc_status") == "PASS_EXACT_VALUATION_REBUILT"
+        and new_receipt.get("qc_status") == "PASS_MARKET_VALUATION_REFRESH_FINANCIAL_DENOMINATOR_LKG"
+    ):
+        return False, "EXACT_FINANCIAL_DENOMINATOR_DOWNGRADE"
     old_key = str(current.get("watermark_sort_key") or "")
     new_key = str(new_receipt.get("watermark_sort_key") or "")
     if not new_key:
