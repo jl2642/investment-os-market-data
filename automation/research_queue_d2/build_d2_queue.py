@@ -318,6 +318,7 @@ def latest_completed_semantic_artifacts() -> dict[str, dict[str, Any]]:
             "primary_source_count": len(artifact.get("sources") or []),
             "semantic_input_watermark": artifact.get("semantic_input_watermark"),
             "source_d2_state_id": artifact.get("source_d2_state_id"),
+            "source_d1_state_id": artifact.get("source_d1_state_id"),
             "verified_official_primary_count": artifact.get("verified_official_primary_count", 0),
             "source_discovery_mode": artifact.get("source_discovery_mode"),
             "durable_semantic_recovery": True,
@@ -333,7 +334,13 @@ def recover_fresh_older_semantic_completion(pending: dict[str, Any], recovered: 
         return None
     if recovered.get("security_id") != pending.get("security_id") or recovered.get("security_name") != pending.get("security_name"):
         return None
-    if recovered.get("source_d2_state_id") != prior_id:
+    # D2 queue IDs roll as D1 reranks. A newly verified report may be bound
+    # to an earlier queue ID while the pending semantic question remains
+    # identical. Require explicit source-state provenance on every recovery;
+    # for a rolled queue also require the original D1 state identity.
+    if not recovered.get("source_d2_state_id"):
+        return None
+    if recovered.get("source_d2_state_id") != prior_id and not recovered.get("source_d1_state_id"):
         return None
     if not pending.get("semantic_input_watermark") or recovered.get("semantic_input_watermark") != pending.get("semantic_input_watermark"):
         return None
