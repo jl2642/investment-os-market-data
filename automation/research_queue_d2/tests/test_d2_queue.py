@@ -734,3 +734,35 @@ def test_exact_semantic_input_and_official_evidence_guard_for_old_pending():
     assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "semantic_input_watermark":"OLD"}, "S") is None
     assert d2.recover_fresh_older_semantic_completion(old, {**fresh, "security_name":"WRONG"}, "S") is None
 
+
+
+def test_d2_operating_evidence_restore_keeps_newly_merged_semantic_artifacts(tmp_path):
+    """Reproduce the production failure: prior evidence restore must not delete main-only D2 research."""
+    import subprocess
+
+    wf = (d2.ROOT / ".github/workflows/research-queue-d2-auto-consumer.yml").read_text(encoding="utf-8")
+    fetch_step = wf.split("- name: Fetch S2 rolling D1 Current and prior D2 authority", 1)[1].split("      - name:", 1)[0]
+    assert 'git restore --source="$D2_COMMIT" --worktree --overlay investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2/' in fetch_step
+
+    repo = tmp_path / "git"
+    repo.mkdir()
+    def git(*args):
+        return subprocess.check_output(["git", *args], cwd=repo, text=True).strip()
+    git("init", "-q")
+    git("config", "user.name", "Contract Test")
+    git("config", "user.email", "contract@example.invalid")
+    evidence = repo / "investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2"
+    evidence.mkdir(parents=True)
+    prior = evidence / "OLD_SOURCE_EVIDENCE.json"
+    prior.write_text('{"source":"old"}', encoding="utf-8")
+    git("add", ".")
+    git("commit", "-qm", "prior D2 operating evidence")
+    prior_sha = git("rev-parse", "HEAD")
+
+    verified = evidence / "D2_RESEARCH_603995_20261119_R2.json"
+    verified.write_text('{"status":"D2_RESEARCH_COMPLETE"}', encoding="utf-8")
+    git("add", ".")
+    git("commit", "-qm", "newly merged independent verified semantic report")
+    git("restore", f"--source={prior_sha}", "--worktree", "--overlay", str(evidence.relative_to(repo)))
+    assert prior.exists()
+    assert verified.exists(), "prior-authority restore erased the newer decision-grade research artifact"
