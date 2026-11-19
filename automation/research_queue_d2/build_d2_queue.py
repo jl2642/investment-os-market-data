@@ -316,10 +316,42 @@ def latest_completed_semantic_artifacts() -> dict[str, dict[str, Any]]:
             "manual_user_input_required": bool(evidence_gap.get("manual_user_input_required")),
             "underwriting": artifact.get("underwriting"),
             "primary_source_count": len(artifact.get("sources") or []),
+            "semantic_input_watermark": artifact.get("semantic_input_watermark"),
+            "source_d2_state_id": artifact.get("source_d2_state_id"),
+            "verified_official_primary_count": artifact.get("verified_official_primary_count", 0),
             "source_discovery_mode": artifact.get("source_discovery_mode"),
             "durable_semantic_recovery": True,
         }
     return recovered
+
+
+def recover_fresh_older_semantic_completion(pending: dict[str, Any], recovered: dict[str, Any] | None, prior_id: str | None) -> dict[str, Any] | None:
+    """Only an exact pending-state-bound, independently verified semantic study can close old backlog."""
+    if not recovered or not prior_id or recovered.get("status") != SEMANTIC_COMPLETE_STATUS:
+        return None
+    if not underwriting_complete(recovered):
+        return None
+    if recovered.get("security_id") != pending.get("security_id") or recovered.get("security_name") != pending.get("security_name"):
+        return None
+    if recovered.get("source_d2_state_id") != prior_id:
+        return None
+    if not pending.get("semantic_input_watermark") or recovered.get("semantic_input_watermark") != pending.get("semantic_input_watermark"):
+        return None
+    if int(recovered.get("verified_official_primary_count") or 0) < 1 or (recovered.get("evidence_gap") or {}).get("material"):
+        return None
+    out = dict(pending)
+    out.update({
+        "status": SEMANTIC_COMPLETE_STATUS,
+        "semantic_research_required": False,
+        "research_disposition": recovered.get("research_disposition"),
+        "semantic_artifact": recovered.get("semantic_artifact"),
+        "underwriting": recovered.get("underwriting"),
+        "first_rejection_test": recovered.get("first_rejection_test"),
+        "next_gate": recovered.get("next_gate"),
+        "evidence_gap": recovered.get("evidence_gap"),
+        "semantic_reuse_source": "NEW_VERIFIED_SEMANTIC_ARTIFACT_EXACT_INPUT",
+    })
+    return out
 
 
 def completed_semantic_reusable(previous: dict[str, Any], obj: dict[str, Any]) -> bool:
@@ -425,6 +457,12 @@ def build_state(
     reserved_for_fresh = 1 if routed_all else 0
     for previous in older_pending[:max(0, BATCH_SIZE - reserved_for_fresh)]:
         security_id = str(previous.get("security_id") or "")
+        fresh_semantic = recover_fresh_older_semantic_completion(
+            previous, durable_completed_by_id.get(security_id), prior.get("state_id")
+        )
+        if fresh_semantic is not None:
+            queue.append(fresh_semantic)
+            continue
         inventory = durable_source_inventory.get(security_id, {})
         previous["primary_source_count"] = len(inventory)
         previous["source_inventory_status"] = (
