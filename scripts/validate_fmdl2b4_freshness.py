@@ -18,6 +18,7 @@ from scripts.fmdl2b4_history import ROOT, read_json
 BUSINESS_TZ = ZoneInfo("Asia/Shanghai")
 MARKET_CLOSE = time(15, 0)
 POST_CLOSE_PUBLICATION_GRACE_END = time(15, 30)
+PRE_MARKET_RECOVERY_CUTOFF = time(8, 30)
 MANUAL_RECOVERY_EARLIEST = time(15, 30)
 
 
@@ -39,34 +40,45 @@ def _trade_dates() -> list:
 
 
 def validate_manual_recovery_window(current: datetime | None = None) -> dict:
-    """Fail closed when a full rebase is started before A-share data is settled.
+    """Allow recovery only when the A-share spot source cannot contain live-session quotes.
 
-    The full-rebase workflow fetches a live market-wide spot snapshot before it
-    rebuilds history. On a trading day before 15:30 Shanghai, that snapshot can
-    contain intraday values even though the logical as-of date is the previous
-    completed session. Recovery is therefore allowed only after the post-close
-    publication grace window on trading days. Non-trading days are safe because
-    the latest available spot snapshot corresponds to the prior completed close.
+    The workflow rebuilds one market-wide spot snapshot before running all 24
+    history shards. On trading days, the snapshot may be used overnight before
+    the conservative 08:30 pre-market cutoff, or after the 15:30 close-settlement
+    boundary. The 08:30-15:30 window is blocked to avoid pre-open auction,
+    intraday and unsettled-close contamination.
+
+    The snapshot as-of date is derived from the exchange calendar and 15:30
+    publication cutoff. After the snapshot is built, validate_fmdl2b4_freshness
+    independently requires its as-of date to equal the latest completed session.
+    This allows a delayed cron arriving overnight to recover safely without
+    weakening the post-refresh data-date check. Non-trading days remain safe.
     """
     local_now = _local_now(current)
     dates = _trade_dates()
     today = local_now.date()
     today_is_trade_day = today in dates
     errors: list[str] = []
-    if today_is_trade_day and local_now.time() < MANUAL_RECOVERY_EARLIEST:
-        errors.append("FULL_REBASE_REQUIRES_POST_CLOSE_1530_ON_TRADING_DAY")
+    if (
+        today_is_trade_day
+        and PRE_MARKET_RECOVERY_CUTOFF <= local_now.time() < MANUAL_RECOVERY_EARLIEST
+    ):
+        errors.append("FULL_REBASE_REQUIRES_MARKET_CLOSED_WINDOW")
     result = {
         "status": "PASS" if not errors else "FAIL",
         "business_time": local_now.isoformat(),
         "today_is_trade_day": today_is_trade_day,
-        "manual_recovery_earliest": MANUAL_RECOVERY_EARLIEST.isoformat(timespec="minutes"),
+        "market_session_guard_start": PRE_MARKET_RECOVERY_CUTOFF.isoformat(timespec="minutes"),
+        "market_session_guard_end": MANUAL_RECOVERY_EARLIEST.isoformat(timespec="minutes"),
+        "recovery_safe_windows": ["00:00-08:29", "15:30-23:59"],
+        "overnight_recovery_allowed": today_is_trade_day and local_now.time() < PRE_MARKET_RECOVERY_CUTOFF,
+        "post_close_recovery_allowed": local_now.time() >= MANUAL_RECOVERY_EARLIEST,
         "errors": errors,
     }
     print(json.dumps(result, ensure_ascii=False))
     if errors:
         raise RuntimeError(";".join(errors))
     return result
-
 
 def acceptable_completed_trade_dates(current: datetime | None = None) -> list[str]:
     """Return Current as-of dates acceptable at this wall-clock instant.
