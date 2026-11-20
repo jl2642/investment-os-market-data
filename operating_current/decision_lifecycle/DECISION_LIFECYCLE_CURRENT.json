@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-20T19:17:20+00:00",
+  "generated_at_utc": "2026-11-20T22:05:24+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-11-10",
     "market_date": "2026-11-20",
     "recommendation_generated_at_utc": "2026-11-20T19:08:50+00:00",
     "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_d7347cb1f9c582f4",
-    "surface_as_of_date": "2026-11-19",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_f1d1b71d8eda9322"
+    "surface_as_of_date": "2026-11-20",
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_61543116bedd6609"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_c3363f48db3c11df",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_4e355ebe4e140d77",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -711,9 +711,9 @@
       "current_action": "HOLD",
       "entry_price": 1.38,
       "expected_return": 0.03802746028322912,
-      "latest_price": 1.3911,
+      "latest_price": 1.3913,
       "lifecycle_state": "HELD_CONCENTRATION_REVIEW",
-      "mark_expected_return": 0.03802746028322912,
+      "mark_expected_return": 0.0378782433695104,
       "mechanical_trigger_keys": [
         "PORTFOLIO_CONCENTRATION_ACTIVE"
       ],
@@ -753,9 +753,9 @@
       "current_action": "HOLD",
       "entry_price": 1.2,
       "expected_return": 0.27255639097744355,
-      "latest_price": 1.064,
+      "latest_price": 1.047,
       "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
-      "mark_expected_return": 0.27255639097744355,
+      "mark_expected_return": 0.2932187201528178,
       "mechanical_trigger_keys": [
         "DRAWDOWN_MONITOR_ACTIVE"
       ],
@@ -795,12 +795,16 @@
       "current_action": "HOLD",
       "entry_price": 2.0,
       "expected_return": 0.08565737051792821,
-      "latest_price": 2.008,
-      "lifecycle_state": "HELD_HOLD",
-      "mark_expected_return": 0.08565737051792821,
-      "mechanical_trigger_keys": [],
+      "latest_price": 1.928,
+      "lifecycle_state": "HELD_PRICE_REUNDERWRITE",
+      "mark_expected_return": 0.13070539419087135,
+      "mechanical_trigger_keys": [
+        "HOLD_PRICE_REOPEN_CONDITION_MET"
+      ],
       "monitoring_flags": [],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "HOLD_PRICE_REOPEN_CONDITION_MET"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": null,
@@ -831,9 +835,9 @@
       "current_action": "HOLD",
       "entry_price": 1.95,
       "expected_return": 0.09840288511076767,
-      "latest_price": 1.941,
+      "latest_price": 1.854,
       "lifecycle_state": "HELD_PRICE_REUNDERWRITE",
-      "mark_expected_return": 0.09840288511076767,
+      "mark_expected_return": 0.14994606256742182,
       "mechanical_trigger_keys": [
         "HOLD_PRICE_REOPEN_CONDITION_MET"
       ],
@@ -871,9 +875,9 @@
       "current_action": "HOLD",
       "entry_price": 1.37,
       "expected_return": 0.057288210572882026,
-      "latest_price": 1.3563,
+      "latest_price": 1.3523,
       "lifecycle_state": "HELD_PRICE_REUNDERWRITE",
-      "mark_expected_return": 0.057288210572882026,
+      "mark_expected_return": 0.06041558825704341,
       "mechanical_trigger_keys": [
         "HOLD_PRICE_REOPEN_CONDITION_MET"
       ],
@@ -1440,9 +1444,9 @@
       "current_action": "HOLD",
       "entry_price": 7.4,
       "expected_return": 0.3426662424435254,
-      "latest_price": 6.286,
+      "latest_price": 6.053,
       "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
-      "mark_expected_return": 0.3426662424435254,
+      "mark_expected_return": 0.39434990913596546,
       "mechanical_trigger_keys": [
         "DRAWDOWN_MONITOR_ACTIVE"
       ],
@@ -2685,8 +2689,8 @@
     "held_subject_count": 23,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 2,
-    "reunderwrite_required_count": 7,
-    "review_queue_count": 15,
+    "reunderwrite_required_count": 8,
+    "review_queue_count": 16,
     "semantic_watch_clause_count": 827,
     "subject_count": 66,
     "user_action_review_count": 6,

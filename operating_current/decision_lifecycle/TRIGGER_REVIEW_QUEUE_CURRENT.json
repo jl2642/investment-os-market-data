@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-11-20",
-  "generated_at_utc": "2026-11-20T19:17:20+00:00",
+  "generated_at_utc": "2026-11-20T22:05:24+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_db63c52c80144224",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_45b4bb9228c46186",
   "records": [
     {
       "accounts": [
@@ -48,7 +48,7 @@
       ],
       "current_action": "HOLD",
       "entry_price": 1.38,
-      "latest_price": 1.3911,
+      "latest_price": 1.3913,
       "next_step": "PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW",
       "orders": 0,
       "price_as_of": null,
@@ -205,14 +205,34 @@
         "REAL"
       ],
       "current_action": "HOLD",
-      "entry_price": 1.95,
-      "latest_price": 1.941,
+      "entry_price": 2.0,
+      "latest_price": 1.928,
       "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
       "orders": 0,
       "price_as_of": null,
       "price_source": "S3_PORTFOLIO_MARK",
       "priority": "MEDIUM_HIGH",
-      "reason": "Holding price 1.9410 is at/below research entry threshold 1.9500.",
+      "reason": "Holding price 1.9280 is at/below research entry threshold 2.0000.",
+      "review_type": "REUNDERWRITE_REQUIRED",
+      "security_id": "159612.SZ",
+      "security_name": "标普500ETF国泰",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "HOLD_PRICE_REOPEN_CONDITION_MET"
+    },
+    {
+      "accounts": [
+        "REAL"
+      ],
+      "current_action": "HOLD",
+      "entry_price": 1.95,
+      "latest_price": 1.854,
+      "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
+      "orders": 0,
+      "price_as_of": null,
+      "price_source": "S3_PORTFOLIO_MARK",
+      "priority": "MEDIUM_HIGH",
+      "reason": "Holding price 1.8540 is at/below research entry threshold 1.9500.",
       "review_type": "REUNDERWRITE_REQUIRED",
       "security_id": "159655.SZ",
       "security_name": "标普500ETF华夏",
@@ -226,13 +246,13 @@
       ],
       "current_action": "HOLD",
       "entry_price": 1.37,
-      "latest_price": 1.3563,
+      "latest_price": 1.3523,
       "next_step": "FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD",
       "orders": 0,
       "price_as_of": null,
       "price_source": "S3_PORTFOLIO_MARK",
       "priority": "MEDIUM_HIGH",
-      "reason": "Holding price 1.3563 is at/below research entry threshold 1.3700.",
+      "reason": "Holding price 1.3523 is at/below research entry threshold 1.3700.",
       "review_type": "REUNDERWRITE_REQUIRED",
       "security_id": "217003.OF",
       "security_name": "招商安泰债券A",
@@ -301,8 +321,8 @@
       "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
-  "review_count": 15,
+  "review_count": 16,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_c3363f48db3c11df",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_4e355ebe4e140d77",
   "trade_authority": "NONE"
 }
