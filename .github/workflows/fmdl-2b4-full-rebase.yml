@@ -22,13 +22,14 @@ on:
       - "config/fmdl2_full_backfill_plan.json"
       - ".github/workflows/fmdl-2b4-full-rebase.yml"
   schedule:
-    # GitHub cron is UTC. 08:00 UTC = 16:00 Asia/Shanghai when delivered on time.
-    # Production evidence on Nov 11-18 shows the 08:00 UTC
-    # recovery wake-up was delivered 8+ hours late, past the post-close window
-    # and into the next trading day's pre-close fail-closed period.
-    # The additional 00:00 UTC signal is a bounded early wake-up for delayed
-    # delivery. If it arrives on time before 15:30 Asia/Shanghai, the existing
-    # market-close guard safely NO_OPs; 08:00 UTC remains the on-time fallback.
+    # GitHub cron is UTC. 00:00 UTC = 08:00 Asia/Shanghai, before the
+    # conservative 08:30 pre-market guard; it can safely build the prior
+    # completed-session snapshot when delivered on time.
+    # 08:00 UTC = 16:00 Asia/Shanghai remains the post-close fallback.
+    # A delayed run arriving overnight is also safe: the snapshot as-of date
+    # is derived from the exchange calendar and independently freshness-checked.
+    # Trading-day recovery is blocked from 08:30 through 15:29 to prevent
+    # pre-open, intraday or unsettled-close quote contamination.
     # Both wake-ups share the same gap detector, recovery gate and outputs.
     - cron: "0 0 * * 1-5"
     - cron: "0 8 * * 1-5"
@@ -101,23 +102,23 @@ jobs:
               validate_manual_recovery_window()
           except RuntimeError as exc:
               # An automatically delayed/early cron wakeup is not a data loss.
-              # No recovery work can safely start before A-share post-close.
+              # No recovery work can safely start while pre-open/live quotes may contaminate the snapshot.
               # Manual dispatch still fails closed on an unsafe window.
               if (
                   os.environ.get("GITHUB_EVENT_NAME") == "schedule"
-                  and str(exc) == "FULL_REBASE_REQUIRES_POST_CLOSE_1530_ON_TRADING_DAY"
+                  and str(exc) == "FULL_REBASE_REQUIRES_MARKET_CLOSED_WINDOW"
               ):
                   with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
                       handle.write("skip=true\n")
-                  print("NO_OP_DEFERRED_PRE_CLOSE: automatic recovery waits for a settled session")
+                  print("NO_OP_DEFERRED_MARKET_SESSION: automatic recovery waits for a market-closed window")
               else:
                   raise
           PY
-      - name: Record safe pre-close recovery no-op
+      - name: Record safe market-session recovery no-op
         if: steps.recovery_window.outputs.skip == 'true'
         run: |
-          echo "## FMDL Recovery: NO_OP_DEFERRED_PRE_CLOSE" >> "$GITHUB_STEP_SUMMARY"
-          echo "No market rebase attempted; pre-close quote contamination prevented." >> "$GITHUB_STEP_SUMMARY"
+          echo "## FMDL Recovery: NO_OP_DEFERRED_MARKET_SESSION" >> "$GITHUB_STEP_SUMMARY"
+          echo "No market rebase attempted; the pre-market, live-session or close-settlement guard prevented quote contamination." >> "$GITHUB_STEP_SUMMARY"
       - name: Assess multi-session recovery need
         if: steps.recovery_window.outputs.skip != 'true'
         id: assess
@@ -351,7 +352,7 @@ jobs:
           - The normal daily incremental path remains authoritative for ordinary one-session updates.
           - A weekday 16:00 Asia/Shanghai watch checks the exchange calendar and starts Full Rebase only when at least two completed sessions are missing.
           - Manual workflow_dispatch remains available as an emergency recovery entrypoint and uses the same conditional gap gate.
-          - On A-share trading days, recovery is fail-closed before 15:30 Asia/Shanghai so intraday spot data cannot be mislabeled as a completed close.
+          - On A-share trading days, recovery is allowed overnight before 08:30 and after 15:30 Asia/Shanghai; it is blocked from 08:30 through 15:29 to prevent pre-open, intraday and unsettled-close spot contamination. The post-refresh freshness validator independently enforces the latest completed-session as-of date.
           - A single completed-session Market Current is frozen before all 24 shards.
           - Unresolved symbols preserve their prior LKG and remain quarantined.
           - Factors are rebuilt only after the recovery history candidate passes.
