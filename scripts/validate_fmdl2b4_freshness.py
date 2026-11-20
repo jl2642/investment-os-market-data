@@ -68,6 +68,7 @@ def validate_manual_recovery_window(current: datetime | None = None) -> dict:
         "status": "PASS" if not errors else "FAIL",
         "business_time": local_now.isoformat(),
         "today_is_trade_day": today_is_trade_day,
+        "manual_recovery_earliest": MANUAL_RECOVERY_EARLIEST.isoformat(timespec="minutes"),
         "market_session_guard_start": PRE_MARKET_RECOVERY_CUTOFF.isoformat(timespec="minutes"),
         "market_session_guard_end": MANUAL_RECOVERY_EARLIEST.isoformat(timespec="minutes"),
         "recovery_safe_windows": ["00:00-08:29", "15:30-23:59"],
