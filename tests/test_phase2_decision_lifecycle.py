@@ -293,3 +293,90 @@ def test_phase2_workflow_does_not_freeze_holding_count() -> None:
     ).read_text(encoding="utf-8")
     assert 'held_subject_count"] == 22' not in workflow
     assert 'surface["executive"]["portfolio_holding_count"]' in workflow
+
+
+def test_formal_buy_hurdle_cross_routes_fresh_d2_without_buy_promotion() -> None:
+    """The 10% formal gate and 15% preferred entry have distinct meanings."""
+    for sid, mark, preferred, formal in (
+        ("300230.SZ", 4.01, 3.94, 4.061538461538461),
+        ("301175.SZ", 5.36, 5.33, 5.5681818181818175),
+    ):
+        candidate = rec(sid, "BUY_BELOW", price=mark, entry=preferred)
+        candidate["formal_buy_entry_price"] = formal
+        candidate["portfolio_implication"] = "NEW_CAPITAL_CANDIDATE"
+        lifecycle, queue = build(
+            recommendation=recommendation(candidate),
+            surface=surface(),
+            market_rows={sid: {"price": mark, "as_of_date": "2026-11-20"}},
+            market_date="2026-11-20",
+            now=NOW,
+        )
+        subject = lifecycle["subjects"][0]
+        assert subject["lifecycle_state"] == "FLAT_PRICE_REUNDERWRITE"
+        assert subject["current_action"] == "BUY_BELOW"
+        assert subject["ready_for_user_decision"] is False
+        assert subject["mechanical_trigger_keys"] == ["BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"]
+        assert len(queue["records"]) == 1
+        row = queue["records"][0]
+        assert row["review_type"] == "REUNDERWRITE_REQUIRED"
+        assert row["next_step"] == "FRESH_D2_BEFORE_ANY_BUY"
+        assert row["orders"] == 0
+        assert lifecycle["controls"]["automatic_buy_sell"] is False
+        assert lifecycle["orders"] == 0
+
+
+def test_formal_buy_hurdle_not_crossed_does_not_create_research_queue() -> None:
+    candidate = rec("301175.SZ", "BUY_BELOW", price=5.59, entry=5.33)
+    candidate["formal_buy_entry_price"] = 5.5681818181818175
+    lifecycle, queue = build(
+        recommendation=recommendation(candidate),
+        surface=surface(),
+        market_rows={"301175.SZ": {"price": 5.59, "as_of_date": "2026-11-13"}},
+        market_date="2026-11-13",
+        now=NOW,
+    )
+    assert lifecycle["subjects"][0]["lifecycle_state"] == "FLAT_WAIT_BUY_BELOW"
+    assert queue["records"] == []
+
+
+def test_formal_gate_review_is_idempotent_until_signal_changes() -> None:
+    candidate = rec("300230.SZ", "BUY_BELOW", price=4.01, entry=3.94)
+    candidate["formal_buy_entry_price"] = 4.061538461538461
+    kwargs = {
+        "recommendation": recommendation(candidate),
+        "surface": surface(),
+        "market_rows": {"300230.SZ": {"price": 4.01, "as_of_date": "2026-11-20"}},
+        "market_date": "2026-11-20",
+        "now": NOW,
+    }
+    first, first_queue = build(prior={"lifecycle_id": "PREVIOUS", "subjects": []}, **kwargs)
+    again, second_queue = build(prior=first, **kwargs)
+    assert len(first_queue["records"]) == len(second_queue["records"]) == 1
+    assert first_queue["records"][0]["transition"] == "NEW_TRIGGER"
+    assert second_queue["records"][0]["transition"] == "PERSISTING"
+    assert again["subjects"][0]["new_trigger_keys"] == []
+    assert again["orders"] == 0
+
+
+def test_held_position_and_missing_formal_gate_do_not_open_new_buy_route() -> None:
+    candidate = rec("300230.SZ", "BUY_BELOW", price=4.01, entry=3.94)
+    candidate["formal_buy_entry_price"] = 4.061538461538461
+    _, held_queue = build(
+        recommendation=recommendation(candidate),
+        surface=surface(holding("300230.SZ", 4.01)),
+        market_rows={"300230.SZ": {"price": 4.01, "as_of_date": "2026-11-20"}},
+        market_date="2026-11-20",
+        now=NOW,
+    )
+    assert not any(x["trigger_key"] == "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
+                   for x in held_queue["records"])
+
+    candidate.pop("formal_buy_entry_price")
+    _, no_formal_queue = build(
+        recommendation=recommendation(candidate),
+        surface=surface(),
+        market_rows={"300230.SZ": {"price": 4.01, "as_of_date": "2026-11-20"}},
+        market_date="2026-11-20",
+        now=NOW,
+    )
+    assert no_formal_queue["records"] == []

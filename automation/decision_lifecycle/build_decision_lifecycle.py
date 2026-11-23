@@ -229,9 +229,15 @@ def build(
                 "next_step": "PORTFOLIO_AND_EXECUTION_VALIDATION",
             })
 
+        formal_buy_entry_price = num(rec.get("formal_buy_entry_price"))
         price_trigger = False
-        if latest_price is not None and entry_price is not None:
-            if action == "BUY_BELOW" and not held and latest_price <= entry_price:
+        if latest_price is not None:
+            if (
+                action == "BUY_BELOW"
+                and not held
+                and entry_price is not None
+                and latest_price <= entry_price
+            ):
                 price_trigger = True
                 key = "BUY_BELOW_PRICE_CONDITION_MET"
                 trigger_keys.append(key)
@@ -242,7 +248,38 @@ def build(
                     "reason": f"Latest price {latest_price:.4f} is at/below entry threshold {entry_price:.4f}.",
                     "next_step": "FRESH_D2_BEFORE_ANY_BUY",
                 })
-            elif held and action == "HOLD" and rec.get("top_blocker") == "PRICE_BLOCKED" and latest_price <= entry_price:
+            elif (
+                action == "BUY_BELOW"
+                and not held
+                and formal_buy_entry_price is not None
+                and formal_buy_entry_price > 0
+                and latest_price <= formal_buy_entry_price
+            ):
+                # The preferred 15% entry is a stronger price target, not the
+                # formal 10% new-capital hurdle.  Crossing the latter without
+                # reaching the preferred entry must still reach the D2 queue.
+                # This is a review event only: no BUY promotion or orders.
+                price_trigger = True
+                key = "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
+                trigger_keys.append(key)
+                review_reasons.append({
+                    "type": "REUNDERWRITE_REQUIRED",
+                    "key": key,
+                    "priority": "HIGH",
+                    "reason": (
+                        f"Latest price {latest_price:.4f} is at/below formal "
+                        f"buy hurdle {formal_buy_entry_price:.4f}; fresh D2 "
+                        "must revalidate valuation, bear downside and thesis."
+                    ),
+                    "next_step": "FRESH_D2_BEFORE_ANY_BUY",
+                })
+            elif (
+                held
+                and action == "HOLD"
+                and rec.get("top_blocker") == "PRICE_BLOCKED"
+                and entry_price is not None
+                and latest_price <= entry_price
+            ):
                 price_trigger = True
                 key = "HOLD_PRICE_REOPEN_CONDITION_MET"
                 trigger_keys.append(key)
