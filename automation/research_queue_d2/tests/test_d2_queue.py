@@ -770,3 +770,66 @@ def test_d2_operating_evidence_restore_keeps_newly_merged_semantic_artifacts(tmp
     git("restore", f"--source={prior_sha}", "--worktree", "--overlay", str(evidence.relative_to(repo)))
     assert prior.exists()
     assert verified.exists(), "prior-authority restore erased the newer decision-grade research artifact"
+
+
+def test_d2_consumer_respects_s2_route_priority_for_price_cross() -> None:
+    """A rank-10 formal price cross wins the one fresh slot after backlog."""
+    d1 = {
+        "routing_summary": {
+            "route_security_ids": ["301175.SZ", "002148.SZ", "300760.SZ"],
+        },
+        "research_objects": [
+            {
+                "security_id": "002148.SZ",
+                "d1_rank": 2,
+                "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+            },
+            {
+                "security_id": "300760.SZ",
+                "d1_rank": 3,
+                "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE",
+            },
+            {
+                "security_id": "301175.SZ",
+                "d1_rank": 10,
+                "d1_disposition": "ADVANCE_TO_D2_AI_BOOK_AUTO_REUNDERWRITE",
+                "ai_book_auto_reunderwrite": True,
+                "fresh_d2_required": True,
+            },
+            {
+                "security_id": "920663.BJ",
+                "d1_rank": 1,
+                "d1_disposition": "WATCH_EXISTING_D2_NO_REFRESH",
+            },
+        ],
+    }
+    ordered = d2.routed_objects(d1)
+    assert [x["security_id"] for x in ordered] == [
+        "301175.SZ", "002148.SZ", "300760.SZ"
+    ]
+    # Existing two pending tasks consume two bounded slots; the single
+    # reserved fresh slot must not silently replace the formal cross with rank 2.
+    assert ordered[:1][0]["security_id"] == "301175.SZ"
+
+
+def test_d2_consumer_fallback_rank_and_no_unrouted_admission() -> None:
+    d1 = {
+        "routing_summary": {"route_security_ids": ["WATCH.SZ", "C.SZ"]},
+        "research_objects": [
+            {"security_id": "B.SZ", "d1_rank": 2,
+             "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE"},
+            {"security_id": "A.SZ", "d1_rank": 1,
+             "d1_disposition": "ADVANCE_TO_D2_FAST_TRIAGE"},
+            {"security_id": "C.SZ", "d1_rank": 9,
+             "d1_disposition": "ADVANCE_TO_D2_AI_BOOK_AUTO_REUNDERWRITE"},
+            {"security_id": "WATCH.SZ", "d1_rank": 0,
+             "d1_disposition": "WATCH_EXISTING_D2_NO_REFRESH"},
+        ],
+    }
+    assert [x["security_id"] for x in d2.routed_objects(d1)] == [
+        "C.SZ", "A.SZ", "B.SZ"
+    ]
+    d1.pop("routing_summary")
+    assert [x["security_id"] for x in d2.routed_objects(d1)] == [
+        "A.SZ", "B.SZ", "C.SZ"
+    ]
