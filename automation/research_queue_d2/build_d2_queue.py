@@ -74,12 +74,29 @@ def latest_d1_evidence() -> dict[str, Any]:
 
 
 def routed_objects(d1: dict[str, Any]) -> list[dict[str, Any]]:
+    """Consume S2's *chosen D2 route priority*, not incidental D1 display rank.
+
+    S2 may reserve its top D2 slot for an AI-book formal-price-cross
+    reunderwrite while placing that row in the final D1 display slot. A D2
+    queue with two carried-forward obligations has only one fresh slot. If we
+    sort solely by d1_rank the formal trigger is repeatedly starved.
+    """
     routed: list[dict[str, Any]] = []
     for row in d1.get("research_objects", []):
         disposition = str(row.get("d1_disposition", ""))
         if disposition.startswith("ADVANCE_TO_D2"):
             routed.append(row)
-    return sorted(routed, key=lambda item: (int(item.get("d1_rank", 999999)), str(item.get("security_id", ""))))
+    route_ids = (d1.get("routing_summary") or {}).get("route_security_ids") or []
+    route_order = {str(sid): index for index, sid in enumerate(route_ids)}
+    return sorted(
+        routed,
+        key=lambda item: (
+            0 if str(item.get("security_id") or "") in route_order else 1,
+            route_order.get(str(item.get("security_id") or ""), 999999),
+            int(item.get("d1_rank", 999999)),
+            str(item.get("security_id") or ""),
+        ),
+    )
 
 
 def baseline_sources(evidence: dict[str, Any], security_id: str) -> list[dict[str, Any]]:
