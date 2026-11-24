@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-24T21:17:40+00:00",
+  "generated_at_utc": "2026-11-24T22:04:43+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-11-10",
     "market_date": "2026-11-24",
-    "recommendation_generated_at_utc": "2026-11-24T21:05:16+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_bbc2e701e1973f95",
+    "recommendation_generated_at_utc": "2026-11-24T21:54:59+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_b72a3911b9e2b579",
     "surface_as_of_date": "2026-11-23",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_9f238fe3af331a45"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_d8061beccbc29a84"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_df17d5344f7c167c",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_f138db6f37b0f87a",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -390,36 +390,6 @@
         "semantic_reunderwrite_required_before_state_change": true
       },
       "top_blocker": "AVOID_NEGATIVE_EXPECTED_RETURN",
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
-      "base_value": null,
-      "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
-      "latest_price": 11.41,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
-      "mechanical_trigger_keys": [],
-      "monitoring_flags": [],
-      "new_trigger_keys": [],
-      "orders": 0,
-      "position_state": "FLAT",
-      "price_as_of": "2026-11-24",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
-      "ready_for_user_decision": false,
-      "security_id": "002148.SZ",
-      "security_name": "北纬科技",
-      "semantic_watch": {
-        "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if the apparent recovery is mainly base effect, transient cycle support, or weak cash conversion.",
-        "semantic_reunderwrite_required_before_state_change": true
-      },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -1340,16 +1310,16 @@
     {
       "accounts": [],
       "base_value": 6.08,
-      "cleared_trigger_keys": [],
-      "current_action": "BUY_BELOW",
+      "cleared_trigger_keys": [
+        "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
+      ],
+      "current_action": "WATCH",
       "entry_price": 5.33,
       "expected_return": 0.14700374531835214,
       "latest_price": 5.34,
-      "lifecycle_state": "FLAT_PRICE_REUNDERWRITE",
+      "lifecycle_state": "FLAT_WATCH",
       "mark_expected_return": 0.14700374531835214,
-      "mechanical_trigger_keys": [
-        "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
-      ],
+      "mechanical_trigger_keys": [],
       "monitoring_flags": [],
       "new_trigger_keys": [],
       "orders": 0,
@@ -1377,7 +1347,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -2652,9 +2622,7 @@
         "BUY_BELOW_PRICE_CONDITION_MET"
       ],
       "monitoring_flags": [],
-      "new_trigger_keys": [
-        "BUY_BELOW_PRICE_CONDITION_MET"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-11-24",
@@ -2685,14 +2653,14 @@
   "summary": {
     "automatic_semantic_trigger_count": 0,
     "financial_context_triage_count": 0,
-    "flat_subject_count": 43,
+    "flat_subject_count": 42,
     "held_subject_count": 23,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 2,
-    "reunderwrite_required_count": 6,
-    "review_queue_count": 16,
-    "semantic_watch_clause_count": 808,
-    "subject_count": 66,
+    "reunderwrite_required_count": 5,
+    "review_queue_count": 15,
+    "semantic_watch_clause_count": 691,
+    "subject_count": 65,
     "user_action_review_count": 8,
     "valuation_reunderwrite_count": 3
   },
