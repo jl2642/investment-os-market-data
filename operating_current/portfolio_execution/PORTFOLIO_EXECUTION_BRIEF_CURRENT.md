@@ -1,14 +1,14 @@
 # 股票投资助手｜Portfolio + Execution + AI Autonomous CURRENT
 
-- 数据水位：2026-11-20
+- 数据水位：2026-11-23
 - Target Weight Engine：true
 - Execution Validator：true
-- AI_AUTONOMOUS_1M NAV：1012493.23
-- AI现金：810419.23（80.0%）
+- AI_AUTONOMOUS_1M NAV：1012740.17
+- AI现金：810621.17（80.0%）
 - AI持仓数：2
-- AI累计收益：1.25%
+- AI累计收益：1.27%
 - AI最大回撤：-1.11%
-- AI部署阶段：第 50 个完整观察交易日 / POLICY_PROPOSAL_REVIEW_REQUIRED
+- AI部署阶段：第 51 个完整观察交易日 / POLICY_PROPOSAL_REVIEW_REQUIRED
 - AI累计 decision-grade D2：41
 - 已进入最终 deployment gate 区间
 - 高现金原因：INSUFFICIENT_ELIGIBLE_DEPLOYABLE_CAPACITY_UNDER_PORTFOLIO_CAPS
