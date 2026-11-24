@@ -3,9 +3,9 @@
 - 数据水位：`2026-11-23`
 - Thesis subjects：`66`
 - 持仓 / 非持仓：`23 / 43`
-- 当前复核队列：`14`
+- 当前复核队列：`15`
 - 需要重新D2：`5`
-- 需要用户动作复核：`7`
+- 需要用户动作复核：`8`
 - 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
 
@@ -24,6 +24,7 @@
 - **招商安泰债券A (217003.OF)** — `REUNDERWRITE_REQUIRED` / `MEDIUM_HIGH`：Holding price 1.3601 is at/below research entry threshold 1.3700. 下一步：`FRESH_D2_AND_PORTFOLIO_FIT_BEFORE_ADD`。
 - **汇川技术 (300124.SZ)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **万华化学 (600309.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
+- **福耀玻璃 (600660.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **工业富联 (601138.SH)** — `USER_ACTION_REVIEW` / `MEDIUM_HIGH`：Current decision-grade holding action is ADD. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 
 ## 语义触发边界
