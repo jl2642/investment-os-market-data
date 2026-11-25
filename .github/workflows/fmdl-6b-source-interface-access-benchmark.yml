@@ -12,13 +12,13 @@ jobs:
   public-read-only-probe:
     if: github.ref == 'refs/heads/sandbox/invos-mod-p2-20261126'
     runs-on: ubuntu-latest
-    timeout-minutes: 9
+    timeout-minutes: 5
     steps:
       - name: Install pinned SDK
         run: python3 -m pip install --disable-pip-version-check --retries 1 --timeout 15 baostock==0.9.4
-      - name: P2 gap closure and financial sample
+      - name: P2 targeted calendar and finance continuation only
         run: |
-          timeout 420 python3 -u - <<'PY'
+          timeout 240 python3 -u - <<'PY'
           import csv,datetime as dt,hashlib,io,json,time,urllib.request,urllib.parse,math,collections
           from zoneinfo import ZoneInfo
           import baostock as bs
@@ -97,30 +97,14 @@ jobs:
           lg=bs.login();emit(test="BAO_LOGIN",code=lg.error_code)
           if lg.error_code!="0":raise SystemExit(1)
           try:
-              # One additional same-date bulk request is necessary to reconstruct the prior 357-code difference set.
-              t=time.monotonic();rs=bs.query_daily_history_k_AStock(date=D);rr=br(rs);bao={sym(r["code"]):r for r in rr};missing=sorted(set(base)-set(bao))
-              emit(test="BULK",code=rs.error_code,rows=len(rr),unique=len(bao),sha256=sha(json.dumps(rr,sort_keys=True).encode()),missing=len(missing),missing_boards=dict(collections.Counter(s.split(".")[-1] for s in missing)),missing_status=dict(collections.Counter(base[s]["data_status"] for s in missing)),seconds=round(time.monotonic()-t,3),same_date=sum(r.get("date")==D for r in rr))
-              emit(test="BAO_BASELINE",**compare(bao))
-              vals=["peTTM","pbMRQ","psTTM","pcfNcfTTM","turn"]
-              emit(test="VALUATION_COVERAGE",total=len(bao),numeric={f:sum(num(r.get(f)) is not None for r in rr) for f in vals},positive={f:sum((num(r.get(f)) or 0)>0 for r in rr) for f in vals})
-              for f,k in [("peTTM","pe_ttm"),("pbMRQ","pb")]:
-                  pairs=[(num(r.get(f)),num(base[s].get(k))) for s,r in bao.items() if s in base];pairs=[(x,y) for x,y in pairs if x is not None and y is not None]
-                  emit(test="VALUATION_BASELINE",field=f,compared=len(pairs),within_1pct=sum(abs(x-y)<=max(.01,abs(y)*.01) for x,y in pairs),within_5pct=sum(abs(x-y)<=max(.01,abs(y)*.05) for x,y in pairs),note="PB MRQ vs canonical PB and denominator conventions not yet reconciled")
-              st=[s for s,r in univ.items() if r.get("is_st","").lower() in ("true","1") and base.get(s,{}).get("data_status")=="TRADED"][:3]
-              suspended=[s for s,r in base.items() if r.get("data_status")=="SUSPENDED"][:3]
-              new=sorted([s for s,r in univ.items() if r.get("list_date","") and "2026-10-01"<=r["list_date"]<=D],key=lambda s:univ[s]["list_date"],reverse=True)[:3]
-              emit(test="BOUNDARY",st=st,suspended=suspended,recent_listing=new)
-              # Max four 100-symbol gap requests on previously missing names.
-              recovered={}
-              for i in range(0,min(len(missing),400),100):
-                  recovered.update(tick(missing[i:i+100]))
-              good={s:r[D] for s,r in recovered.items() if D in r and r[D].get("close") is not None and r[D]["close"]>0}
-              emit(test="GAP",requested=len(missing),returned=len(recovered),dated_positive=len(good),unresolved=len(set(missing)-set(good)),remaining_status=dict(collections.Counter(base[s]["data_status"] for s in set(missing)-set(good))),combined_positive_or_bao_count=len(set(bao)|set(good)),**compare(good,100))
-              small=tick(list(dict.fromkeys(core[:3]+st+suspended+new)),1)
-              emit(test="BOUNDARY_RESULT",rows={s:{"dates":list(r),"vol_zero":all(x.get("volume")==0 for x in r.values()),"baseline":base[s]["data_status"]} for s,r in small.items()},**compare({s:r[D] for s,r in small.items() if D in r},100))
               cn=core[:4];longs=tick(cn,250);longs.update(tick([core[4]],250))
-              cal=br(bs.query_trade_dates(start_date="2025-09-01",end_date=D));expected=[r["calendarDate"] for r in cal if r["isTradingDay"]=="1"][-250:]
-              for s,r in longs.items():emit(test="LONG",symbol=s,rows=len(r),first=min(r),last=max(r),cn_calendar_match=(set(expected)==set(r)) if s.endswith((".SH",".SZ")) else None)
+              try:
+                  rs=bs.query_trade_dates(start_date="2025-09-01",end_date=D);cal=br(rs)
+                  emit(test="CALENDAR_SCHEMA",code=rs.error_code,fields=rs.fields,rows=len(cal))
+                  normalized=[{k.lower().replace("_",""):v for k,v in r.items()} for r in cal]
+                  expected=[r["calendardate"] for r in normalized if r.get("istradingday")=="1"][-250:]
+                  for s,r in longs.items():emit(test="LONG",symbol=s,rows=len(r),first=min(r),last=max(r),cn_calendar_match=(len(expected)==250 and set(expected)==set(r)) if s.endswith((".SH",".SZ")) else None)
+              except Exception as e:emit(test="CALENDAR_ERROR",error=str(e)[:250])
               for s in core[:3]:
                   h=br(bs.query_history_k_data_plus(bcode(s),"date,code,open,high,low,close,volume,amount",start_date="2025-09-01",end_date=D,frequency="d",adjustflag="3")); h={r["date"]:r for r in h}
                   z=longs.get(s,{});rat=[];pricebad=0;volbad=0;volmax=0
