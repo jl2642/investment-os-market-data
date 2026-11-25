@@ -12,13 +12,13 @@ jobs:
   public-read-only-probe:
     if: github.ref == 'refs/heads/sandbox/invos-mod-p2-20261126'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
-      - name: Install pinned SDK
-        run: python3 -m pip install --disable-pip-version-check --retries 1 --timeout 15 baostock==0.9.4
-      - name: P2 targeted calendar and finance continuation only
+      - name: Install pinned public SDK and parquet reader
+        run: python3 -m pip install --disable-pip-version-check --retries 1 --timeout 15 baostock==0.9.4 pandas==2.2.3 pyarrow==19.0.1
+      - name: Targeted anomalies and volume-factor sensitivity
         run: |
-          timeout 240 python3 -u - <<'PY'
+          timeout 360 python3 -u - <<'PY'
           import csv,datetime as dt,hashlib,io,json,time,urllib.request,urllib.parse,math,collections
           from zoneinfo import ZoneInfo
           import baostock as bs
@@ -94,33 +94,54 @@ jobs:
                   emit(test="FINANCE_OR_FACTOR",symbol=s,method=fn.__name__,code=rs.error_code,rows=len(rr),fields=rs.fields,pub_dates=sorted(set(r.get("pubDate","") for r in rr)),stat_dates=sorted(set(r.get("statDate","") for r in rr)),hash=sha(json.dumps(rr,sort_keys=True).encode()),seconds=round(time.monotonic()-t,3))
                   return rr
               except Exception as e:emit(test="FINANCE_OR_FACTOR",symbol=s,method=fn.__name__,error=str(e)[:200]);return []
-          lg=bs.login();emit(test="BAO_LOGIN",code=lg.error_code)
-          if lg.error_code!="0":raise SystemExit(1)
+          
+          import pandas as pd
+          # One immutable historical shard, not a new historical backfill.
           try:
-              cn=core[:4];longs=tick(cn,250);longs.update(tick([core[4]],250))
+              b,t=fetch("https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/datasets/history/repair/FMDL2B4_REBASE_45469058502_A1/shard_00_full_rebase.parquet")
+              if sha(b)!="0e8a3fade9b818e7776607dea389e3d8319563c88c310b545e6c905bdea74f17":raise ValueError("shard hash mismatch")
+              h=pd.read_parquet(io.BytesIO(b));emit(test="SHARD",rows=len(h),fields=list(h.columns),sha256=sha(b))
+              h["trade_date"]=pd.to_datetime(h["trade_date"]).dt.strftime("%Y-%m-%d")
+              bj=h[h.symbol.str.endswith(".BJ")];samples=sorted(bj.symbol.unique())[:20]
+              z=tick(samples,60);diffs=[];cross=collections.Counter();actual=[];relmax=0;absmax=0
+              for s in samples:
+                  k=bj[bj.symbol==s].sort_values("trade_date").dropna(subset=["volume_shares"]).tail(60)
+                  vv={r.trade_date:float(r.volume_shares) for r in k.itertuples()}
+                  q=z.get(s,{})
+                  if len(vv)!=60 or set(vv)!=set(q) or any(r.get("volume") is None for r in q.values()):emit(test="RATIO_EXCLUDE",symbol=s,formal=len(vv),tick=len(q),common=len(set(vv)&set(q)));continue
+                  d=sorted(vv);x=[vv[i] for i in d];y=[q[i]["volume"]*100 for i in d]
+                  if sum(x)<=0 or sum(y)<=0:continue
+                  f=lambda v:3*sum(v[-20:])/sum(v)
+                  p,n=f(x),f(y);diffs.append(abs(p-n));actual.append((s,p,n))
+                  absmax=max(absmax,max(abs(a-b) for a,b in zip(x,y)));relmax=max(relmax,max(abs(a-b)/max(a,1) for a,b in zip(x,y)))
+                  for lo in (1.05,1.1):cross[str(lo)]+=int((lo<=p<=3)!=(lo<=n<=3))
+              rank0=sorted(actual,key=lambda v:(-v[1],v[0]));rank1=sorted(actual,key=lambda v:(-v[2],v[0]))
+              emit(test="FACTOR_REPLAY_SAMPLE",requested=len(samples),comparable=len(actual),max_ratio_delta=max(diffs) if diffs else None,mean_ratio_delta=sum(diffs)/len(diffs) if diffs else None,raw_volume_gate_flips=dict(cross),sample_ratio_rank_changed=sum(x[0]!=y[0] for x,y in zip(rank0,rank1)),max_volume_abs=absmax,max_volume_relative=relmax,scope="single formal repair shard; volume ratio only, other screening inputs frozen conceptually")
+          except Exception as ex:emit(test="FACTOR_REPLAY_ERROR",error=str(ex)[:300])
+          lg=bs.login();emit(test="BAO_LOGIN",code=lg.error_code)
+          if lg.error_code=="0":
               try:
-                  rs=bs.query_trade_dates(start_date="2025-09-01",end_date=D);cal=br(rs)
-                  emit(test="CALENDAR_SCHEMA",code=rs.error_code,fields=rs.fields,rows=len(cal))
-                  normalized=[{k.lower().replace("_",""):v for k,v in r.items()} for r in cal]
-                  expected=[r["calendardate"] for r in normalized if r.get("istradingday")=="1"][-250:]
-                  for s,r in longs.items():emit(test="LONG",symbol=s,rows=len(r),first=min(r),last=max(r),cn_calendar_match=(len(expected)==250 and set(expected)==set(r)) if s.endswith((".SH",".SZ")) else None)
-              except Exception as e:emit(test="CALENDAR_ERROR",error=str(e)[:250])
-              for s in core[:3]:
-                  h=br(bs.query_history_k_data_plus(bcode(s),"date,code,open,high,low,close,volume,amount",start_date="2025-09-01",end_date=D,frequency="d",adjustflag="3")); h={r["date"]:r for r in h}
-                  z=longs.get(s,{});rat=[];pricebad=0;volbad=0;volmax=0
-                  for d in set(h)&set(z):
-                      for f in ("open","high","low","close"):
-                          x=num(h[d].get(f));y=num(z[d].get(f))
-                          if x is not None and y is not None:pricebad+=int(abs(x-y)>.01000001)
-                      x=num(h[d].get("volume"));y=num(z[d].get("volume"))
-                      if x is not None and y is not None:
-                          delta=abs(100*y-x);volbad+=int(delta>0.000001);volmax=max(volmax,delta)
-                          if x:rat.append(delta/x)
-                  emit(test="LONG_CROSS",symbol=s,common=len(set(h)&set(z)),pricebad=pricebad,volume_exact_mismatch=volbad,volume_max_shares=volmax,volume_max_relative=max(rat) if rat else None)
-                  for fn in (bs.query_profit_data,bs.query_balance_data,bs.query_cash_flow_data):
-                      sample(s,fn,code=bcode(s),year=2026,quarter=3)
-              sample(core[0],bs.query_adjust_factor,code=bcode(core[0]),start_date="2025-09-01",end_date=D)
-          finally:bs.logout()
+                  # Retry only two previously failed distinct endpoints, record actual error message.
+                  for name,s,kw in [("query_cash_flow_data","300750.SZ",dict(year=2026,quarter=3)),("query_adjust_factor","605090.SH",dict(start_date="2025-09-01",end_date=D))]:
+                      try:
+                          rs=getattr(bs,name)(code=bcode(s),**kw);r=br(rs)
+                          emit(test="PREVIOUS_FAILURE_RETRY",method=name,symbol=s,code=rs.error_code,message=rs.error_msg,rows=len(r),fields=rs.fields,hash=sha(json.dumps(r,sort_keys=True).encode()))
+                      except Exception as ex:emit(test="PREVIOUS_FAILURE_RETRY",method=name,error=str(ex)[:200])
+                  # Prior aggregate logs do not retain symbol IDs. Exactly one bulk call needed for anomaly identification.
+                  rs=bs.query_daily_history_k_AStock(date=D);rows=br(rs);bao={sym(r["code"]):r for r in rows}
+                  exceptions=[]
+                  for s,r in bao.items():
+                      if s not in base or base[s].get("data_status")!="TRADED":continue
+                      bad=[f for f in ("open","high","low") if num(r.get(f)) is not None and num(base[s].get(f)) is not None and abs(num(r[f])-num(base[s][f]))>.01000001]
+                      if bad:exceptions.append((s,bad))
+                  emit(test="OHLC_EXCEPTION_IDS",count=len(exceptions),symbols=[s for s,_ in exceptions],bulk_hash=sha(json.dumps(rows,sort_keys=True).encode()))
+                  ss=[s for s,_ in exceptions]+["002717.SZ","689009.SH"];z=tick(ss,1)
+                  for s in ss:
+                      a=bao.get(s,{});b=base[s];t=z.get(s,{})
+                      c=t.get(D,{})
+                      match=lambda x,y,fs: {f: (abs(num(x.get(f))-num(y.get(f)))<=.01000001 if num(x.get(f)) is not None and num(y.get(f)) is not None else None) for f in fs}
+                      emit(test="ANOMALY_DETAIL",symbol=s,formal_status=b["data_status"],universe_status=univ[s].get("listing_status"),bao_status=a.get("tradestatus"),bao_date=a.get("date"),tick_dates=list(t),tick_has_positive_volume=bool(c.get("volume") and c["volume"]>0),bao_vs_formal=match(a,b,["open","high","low","close"]),tick_vs_formal=match(c,b,["open","high","low","close"]),tick_vs_bao=match(c,a,["open","high","low","close"]),formal_ohlc_equals_close=all(num(b.get(f))==num(b.get("close")) for f in ("open","high","low")),bao_ohlc_equals_close=all(num(a.get(f))==num(a.get("close")) for f in ("open","high","low")))
+              finally:bs.logout()
           emit(test="END",orders=0,production_write=False,trade_authority="NONE")
           
           PY
