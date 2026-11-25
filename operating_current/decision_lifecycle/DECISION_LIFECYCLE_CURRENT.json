@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-25T20:21:48+00:00",
+  "generated_at_utc": "2026-11-25T20:54:57+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-11-10",
     "market_date": "2026-11-25",
-    "recommendation_generated_at_utc": "2026-11-25T20:12:01+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_cf32294c6a7b755c",
+    "recommendation_generated_at_utc": "2026-11-25T20:47:40+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_9a4ea673544c1109",
     "surface_as_of_date": "2026-11-24",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_80908d3fe5eacc0d"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_60df8f6da40b76e0"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_84c36264f4538fd5",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_ef070c8423a017c8",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -1026,20 +1026,18 @@
     {
       "accounts": [],
       "base_value": 4.5,
-      "cleared_trigger_keys": [],
-      "current_action": "BUY_BELOW",
+      "cleared_trigger_keys": [
+        "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
+      ],
+      "current_action": "WATCH",
       "entry_price": 3.94,
       "expected_return": 0.13533834586466176,
       "latest_price": 3.99,
-      "lifecycle_state": "FLAT_PRICE_REUNDERWRITE",
+      "lifecycle_state": "FLAT_WATCH",
       "mark_expected_return": 0.13533834586466176,
-      "mechanical_trigger_keys": [
-        "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
-      ],
+      "mechanical_trigger_keys": [],
       "monitoring_flags": [],
-      "new_trigger_keys": [
-        "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-11-25",
@@ -1064,7 +1062,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
+      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -1651,9 +1649,7 @@
         "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
       ],
       "monitoring_flags": [],
-      "new_trigger_keys": [
-        "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-11-25",
@@ -2055,36 +2051,6 @@
         "semantic_reunderwrite_required_before_state_change": true
       },
       "top_blocker": null,
-      "trade_authority": "NONE"
-    },
-    {
-      "accounts": [],
-      "base_value": null,
-      "cleared_trigger_keys": [],
-      "current_action": "WATCH",
-      "entry_price": null,
-      "expected_return": null,
-      "latest_price": 4.05,
-      "lifecycle_state": "FLAT_WATCH",
-      "mark_expected_return": null,
-      "mechanical_trigger_keys": [],
-      "monitoring_flags": [],
-      "new_trigger_keys": [],
-      "orders": 0,
-      "position_state": "FLAT",
-      "price_as_of": "2026-11-25",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "probability_weighted_value": null,
-      "ready_for_user_decision": false,
-      "security_id": "601158.SH",
-      "security_name": "重庆水务",
-      "semantic_watch": {
-        "automatic_keyword_inference_authorized": false,
-        "catalysts": [],
-        "kill_thesis": "Reject D2 promotion if balance-sheet, cash-conversion or normalized-return evidence does not support the defensive label.",
-        "semantic_reunderwrite_required_before_state_change": true
-      },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
       "trade_authority": "NONE"
     },
     {
@@ -2617,9 +2583,7 @@
     {
       "accounts": [],
       "base_value": 14.04,
-      "cleared_trigger_keys": [
-        "BUY_BELOW_PRICE_CONDITION_MET"
-      ],
+      "cleared_trigger_keys": [],
       "current_action": "WATCH",
       "entry_price": 12.21,
       "expected_return": -0.042166666666666686,
@@ -2659,14 +2623,14 @@
   "summary": {
     "automatic_semantic_trigger_count": 0,
     "financial_context_triage_count": 0,
-    "flat_subject_count": 42,
+    "flat_subject_count": 41,
     "held_subject_count": 23,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 2,
-    "reunderwrite_required_count": 6,
-    "review_queue_count": 16,
-    "semantic_watch_clause_count": 691,
-    "subject_count": 65,
+    "reunderwrite_required_count": 5,
+    "review_queue_count": 15,
+    "semantic_watch_clause_count": 570,
+    "subject_count": 64,
     "user_action_review_count": 8,
     "valuation_reunderwrite_count": 3
   },
