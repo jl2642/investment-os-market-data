@@ -1,27 +1,81 @@
-name: FMDL 6B Source Interface and Access Benchmark
-run-name: "FMDL 6B Source Interface and Access Benchmark (retired)"
-
-# S1 retirement: historical acceptance evidence stays in Git, but unrelated PRs no longer rebuild it.
+name: INVOS-MOD-001 isolated data access probe 20261126
 on:
+  push:
+    branches: [sandbox/invos-mod-p2-20261126]
   workflow_dispatch:
-  pull_request:
-    paths:
-      - ".github/workflows/fmdl-6b-source-interface-access-benchmark.yml"
-
 permissions:
   contents: read
-
-env:
-  TRADE_AUTHORITY: NONE
-
 jobs:
-  retired:
+  public-read-only-probe:
+    if: github.ref == 'refs/heads/sandbox/invos-mod-p2-20261126'
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
-      - name: Explain retirement
+      - name: TickFlow no-key bounded history access
+        shell: bash
         run: |
-          echo "Historical FMDL-6B source-access benchmark acceptance workflow; bounded US runtime is not rebuilt by unrelated control-plane PRs."
-          echo "Whole-system maturity is read from investment_os_runtime/00_CONTROL/SYSTEM_CURRENT.json."
-          echo "This workflow is not an active runtime or product-health signal."
-          echo "orders=0"
-          echo "trade_authority=NONE"
+          python3 - <<'PY'
+          import datetime as dt, hashlib, json, time, urllib.parse, urllib.request
+          from zoneinfo import ZoneInfo
+          samples = ["605090.SH", "600519.SH", "300750.SZ", "00700.HK", "AAPL.US"]
+          expected = {"2026-11-18","2026-11-19","2026-11-20","2026-11-23","2026-11-24"}
+          start = int(dt.datetime(2026,11,17,16,tzinfo=dt.timezone.utc).timestamp()*1000)
+          end = int(dt.datetime(2026,11,25,8,tzinfo=dt.timezone.utc).timestamp()*1000)
+          def get(path, params):
+              url = "https://free-api.tickflow.org" + path + "?" + urllib.parse.urlencode(params)
+              t = time.monotonic()
+              try:
+                  with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"INVOS-MOD-001-bounded-read-only/1.0","Accept":"application/json"}),timeout=15) as r:
+                      body = r.read(2_000_000)
+                      j = json.loads(body)
+                      print(json.dumps({"endpoint":path,"http":r.status,"seconds":round(time.monotonic()-t,3),"bytes":len(body),"sha256":hashlib.sha256(body).hexdigest(),"business_code":j.get("code"),"keys":list(j)}))
+                      return j.get("data")
+              except Exception as e:
+                  print(json.dumps({"endpoint":path,"error_type":type(e).__name__,"error":str(e)[:300],"seconds":round(time.monotonic()-t,3)}))
+                  return None
+          def validate(s,x):
+              if not isinstance(x,dict):
+                  print(json.dumps({"symbol":s,"status":"NO_DATA_OR_WRONG_SCHEMA"})); return
+              fields = ["timestamp","open","high","low","close","volume"]
+              ts=x.get("timestamp",[])
+              lengths={f:len(x[f]) if isinstance(x.get(f),list) else None for f in fields}
+              if not isinstance(ts,list) or not ts or any(v!=len(ts) for v in lengths.values()):
+                  print(json.dumps({"symbol":s,"status":"BAD_COLUMNS","lengths":lengths,"keys":list(x)})); return
+              zone=ZoneInfo("America/New_York" if s.endswith(".US") else "Asia/Shanghai")
+              dates=[dt.datetime.fromtimestamp(float(t)/1000,dt.timezone.utc).astimezone(zone).date().isoformat() for t in ts]
+              bad=0
+              for o,h,l,c,v in zip(x["open"],x["high"],x["low"],x["close"],x["volume"]):
+                  try:
+                      o,h,l,c,v=map(float,(o,h,l,c,v))
+                      bad+=int(not(0<l<=min(o,c)<=max(o,c)<=h and v>=0))
+                  except Exception: bad+=1
+              print(json.dumps({"symbol":s,"rows":len(ts),"local_dates":dates,"missing_expected":sorted(expected-set(dates)),"outside_expected":sorted(set(dates)-expected),"duplicate_dates":len(dates)-len(set(dates)),"bad_ohlcv":bad,"status":"SCHEMA_SAMPLE_PASS" if set(dates)==expected and not bad and len(dates)==5 else "SAMPLE_REVIEW_REQUIRED"}))
+          params={"period":"1d","start_time":start,"end_time":end,"adjust":"none"}
+          print(json.dumps({"test_id":"T02/T07/T12-access-only","environment":"GitHub-hosted Linux","as_of":"2026-11-24","permission":"no-key free API","request_budget":4,"order_authority":"NONE"}))
+          for s in (samples[1],samples[3],samples[4]):
+              validate(s,get("/v1/klines",{**params,"symbol":s}))
+          data=get("/v1/klines/batch",{**params,"symbols":",".join(samples)})
+          for s in samples:
+              validate(s,data.get(s) if isinstance(data,dict) else None)
+          print("ACCESS_AND_SCHEMA_PROBE_ONLY; NO_COVERAGE_OR_PRODUCTION_PASS")
+          PY
+      - name: BaoStock bounded public history access
+        shell: bash
+        run: |
+          timeout 90 python3 -m pip install --disable-pip-version-check --retries 1 --timeout 15 baostock==0.9.4 || { echo "BAOSTOCK_INSTALL_BLOCKED"; exit 0; }
+          timeout 90 python3 - <<'PY' || echo "BAOSTOCK_PROBE_BLOCKED_OR_TIMEOUT"
+          import baostock as bs, json, time, hashlib
+          t=time.monotonic()
+          login=bs.login()
+          print(json.dumps({"provider":"BaoStock","version":"0.9.4","login_code":login.error_code,"seconds":round(time.monotonic()-t,3)}))
+          if login.error_code!="0": raise SystemExit(1)
+          try:
+              for code in ["sh.605090","sh.600519","sz.300750"]:
+                  t=time.monotonic()
+                  rs=bs.query_history_k_data_plus(code,"date,code,open,high,low,close,volume,amount,adjustflag,tradestatus",start_date="2026-11-18",end_date="2026-11-24",frequency="d",adjustflag="3")
+                  rows=[]
+                  while rs.error_code=="0" and rs.next(): rows.append(rs.get_row_data())
+                  print(json.dumps({"provider":"BaoStock","symbol":code,"code":rs.error_code,"rows":len(rows),"dates":[row[0] for row in rows],"fields":rs.fields,"sha256":hashlib.sha256(json.dumps(rows,ensure_ascii=False,separators=(",",":")).encode()).hexdigest(),"seconds":round(time.monotonic()-t,3),"status":"ACCESS_SAMPLE_ONLY"}))
+          finally: bs.logout()
+          PY
+          echo "NO_PRODUCTION_WRITE; ORDERS=0; TRADE_AUTHORITY=NONE"
