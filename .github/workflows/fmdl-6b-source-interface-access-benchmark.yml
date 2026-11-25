@@ -2,149 +2,141 @@ name: INVOS-MOD-001 isolated data access probe 20261126
 on:
   push:
     branches: [sandbox/invos-mod-p2-20261126]
-  workflow_dispatch:
+    paths: ['.github/workflows/fmdl-6b-source-interface-access-benchmark.yml']
 permissions:
   contents: read
+concurrency:
+  group: invos-mod-p2-probe
+  cancel-in-progress: false
 jobs:
   public-read-only-probe:
     if: github.ref == 'refs/heads/sandbox/invos-mod-p2-20261126'
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
-      - name: Install pinned public SDK
+      - name: Install pinned SDK
         run: python3 -m pip install --disable-pip-version-check --retries 1 --timeout 15 baostock==0.9.4
-      - name: P2 bounded same-session quality and scale comparison
-        shell: bash
+      - name: P2 gap closure and financial sample
         run: |
-          timeout 360 python3 -u - <<'PY'
-          import csv,datetime as dt,hashlib,io,json,time,urllib.request,urllib.parse,math
+          timeout 420 python3 -u - <<'PY'
+          import csv,datetime as dt,hashlib,io,json,time,urllib.request,urllib.parse,math,collections
           from zoneinfo import ZoneInfo
           import baostock as bs
-          D="2026-11-24"; short=["2026-11-18","2026-11-19","2026-11-20","2026-11-23",D]
-          core=["605090.SH","600519.SH","300750.SZ","00700.HK","AAPL.US"]
+          D="2026-11-24"; core=["605090.SH","600519.SH","300750.SZ","00700.HK","AAPL.US"]
           def emit(**x): print(json.dumps(x,ensure_ascii=False,default=str),flush=True)
-          def fetch(url, limit=8_000_000):
+          def sha(b):return hashlib.sha256(b).hexdigest()
+          def fetch(url):
               t=time.monotonic()
-              with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"INVOS-MOD-001-bounded-read-only/1.0","Accept":"*/*"}),timeout=25) as r:
-                  b=r.read(limit+1)
-                  if len(b)>limit: raise ValueError("payload cap")
-                  return b, r.status, round(time.monotonic()-t,3)
-          def sha(b): return hashlib.sha256(b).hexdigest()
-          def sym(x):
-              s=str(x).upper().strip()
-              if "." in s:
-                  a,b=s.split(".",1)
-                  if a in ("SH","SZ","BJ","BSE"): return b+"."+("BJ" if a=="BSE" else a)
-                  return a+"."+("BJ" if b=="BSE" else b)
-              return s
+              with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"INVOS-MOD-001-bounded-read-only/1.0"}),timeout=30) as r:
+                  b=r.read(12_000_001)
+                  if len(b)>12_000_000:raise ValueError("payload cap")
+                  return b,round(time.monotonic()-t,3)
+          def readbase(path,digest):
+              b,t=fetch("https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/outputs/current/"+path)
+              if sha(b)!=digest:raise ValueError("baseline hash mismatch")
+              z={r["symbol"]:r for r in csv.DictReader(io.StringIO(b.decode("utf-8-sig")))}
+              emit(test="BASE",path=path,rows=len(z),sha256=sha(b));return z
+          base=readbase("DAILY_MARKET_SNAPSHOT.csv","5876ebcdd8a99c411a4552c6e2178bde7d52b8f89844ac6a11f62fb87179e988")
+          univ=readbase("A_SHARE_UNIVERSE.csv","ab6c9ea596da0c29ec87dc8c7c54bc5a41db340783fd1cec58c9ed551488d054")
           def num(x):
               try:
-                  n=float(x);return n if math.isfinite(n) else None
-              except: return None
-          base={}; expected_hash="5876ebcdd8a99c411a4552c6e2178bde7d52b8f89844ac6a11f62fb87179e988"
-          try:
-              b,h,t=fetch("https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/outputs/current/DAILY_MARKET_SNAPSHOT.csv")
-              if sha(b)!=expected_hash: raise ValueError("baseline hash mismatch "+sha(b))
-              rr=csv.DictReader(io.StringIO(b.decode("utf-8-sig"))); rows=list(rr)
-              emit(test="BASELINE",rows=len(rows),fields=rr.fieldnames,sha256=sha(b),seconds=t)
-              base={sym(r.get("symbol") or r.get("canonical_symbol") or r.get("code")):r for r in rows}
-          except Exception as e: emit(test="BASELINE",error=str(e)[:250])
-          def board(s): return s.rsplit(".",1)[-1]
-          bse=sorted(s for s in base if board(s)=="BJ")[:2]
-          st=[s for s,r in base.items() if "ST" in str(r.get("name") or r.get("security_name") or "").upper() and board(s) in ("SH","SZ")][:1]
-          susp=[s for s,r in base.items() if str(r.get("trade_status") or r.get("trading_status") or r.get("is_suspended") or "").upper() in ("SUSPENDED","TRUE","1") and board(s) in ("SH","SZ")][:1]
-          extra=["601318.SH","601398.SH","600036.SH","600030.SH","688981.SH","688012.SH","000001.SZ","000858.SZ","002594.SZ","300059.SZ","510300.SH","159915.SZ","MSFT.US","0700.HK"]
-          # 0700.HK is not used; keep known canonical HK five-digit 00941.HK.
-          extra[-1]="00941.HK"
-          samples=list(dict.fromkeys(core+bse+st+susp+extra))[:20]
-          emit(test="FROZEN_SAMPLE",core=core,expanded=samples,bse=bse,st=st,suspension_candidate=susp,as_of=D,limits={"tickflow_requests_max":9,"baostock_history_requests_max":12,"bulk_daily_dates_max":1},price_tolerance_cn=0.01,volume_exact=True)
-          def tick(symbols,mode="none",long=False):
-              is_us=all(s.endswith(".US") for s in symbols)
-              # All non-US use UTC+8; US use New York; groups never mix across cutoff zones.
-              zone=ZoneInfo("America/New_York" if is_us else "Asia/Shanghai")
-              end=dt.datetime(2026,11,25,0,tzinfo=zone)-dt.timedelta(milliseconds=1)
-              start=dt.datetime(2025,9,1 if long else 1,tzinfo=zone) if long else dt.datetime(2026,11,18,0,tzinfo=zone)
-              params={"symbols":",".join(symbols),"period":"1d","adjust":mode,"start_time":int(start.timestamp()*1000),"end_time":int(end.timestamp()*1000)}
-              try:
-                  b,h,t=fetch("https://free-api.tickflow.org/v1/klines/batch?"+urllib.parse.urlencode(params))
-                  data=json.loads(b).get("data",{})
-                  emit(test="T02_T07_T12",provider="TickFlow",mode=mode,long=long,requested=len(symbols),received=len(data),http=h,seconds=t,bytes=len(b),sha256=sha(b),missing=sorted(set(symbols)-set(data)))
-                  out={}
-                  for s in symbols:
-                      x=data.get(s,{})
-                      if not isinstance(x,dict): continue
-                      ts=x.get("timestamp",[]); fs=["open","high","low","close","volume","amount"]
-                      if not ts or any(not isinstance(x.get(f),list) or len(x[f])!=len(ts) for f in fs[:5]): 
-                          emit(test="SCHEMA",symbol=s,status="NO_DATA_OR_BAD_SCHEMA",keys=list(x));continue
-                      dates=[dt.datetime.fromtimestamp(float(t)/1000,dt.timezone.utc).astimezone(zone).date().isoformat() for t in ts]
-                      bad=0; zero=0; rr={}
-                      for i,d in enumerate(dates):
-                          z={f:num(x[f][i]) if isinstance(x.get(f),list) and len(x[f])==len(ts) else None for f in fs}
-                          o,h,l,c,v=[z[f] for f in fs[:5]]
-                          if v==0:zero+=1
-                          if None in (o,h,l,c,v) or not (0<l<=min(o,c)<=max(o,c)<=h and v>=0):bad+=1
-                          rr[d]=z
-                      emit(test="SERIES",symbol=s,mode=mode,long=long,rows=len(ts),first=min(dates),last=max(dates),missing_short=sorted(set(short)-set(dates)),outside_short=sorted(set(dates)-set(short)) if not long else [],future=sum(d>D for d in dates),duplicates=len(dates)-len(rr),invalid=bad,zero_volume=zero)
-                      if not bad and len(dates)==len(rr) and max(dates)<=D:out[s]=rr
-                  return out
-              except Exception as e:emit(test="T02_T07_T12",provider="TickFlow",mode=mode,long=long,requested=len(symbols),error=str(e)[:300]);return {}
-          def bs_result(rs):
+                  v=float(x);return v if math.isfinite(v) else None
+              except:return None
+          def sym(x):
+              a,b=x.split(".");return b+"."+a.upper()
+          def br(rs):
               rows=[]
               while rs.error_code=="0" and rs.next():rows.append(dict(zip(rs.fields,rs.get_row_data())))
               return rows
-          def compare(a,b,keys):
-              matches=set(a)&set(b); mism={f:0 for f in keys}; maxdiff={f:0 for f in keys}; cnt={f:0 for f in keys}; ratios=[]
-              for d in matches:
-                  for f in keys:
-                      x=num(a[d].get(f));y=num(b[d].get(f))
-                      if x is None or y is None:continue
-                      cnt[f]+=1;delta=abs(x-y);maxdiff[f]=max(maxdiff[f],delta)
-                      tol=0.01000001 if f in ("open","high","low","close") else (0.000001 if f=="volume" else max(1,abs(y)*0.0001))
-                      mism[f]+=int(delta>tol)
-                      if f=="volume" and y!=0:ratios.append(x/y)
-              return dict(common=len(matches),left_only=len(set(a)-set(b)),right_only=len(set(b)-set(a)),compared=cnt,mismatch=mism,max_abs={f:round(v,6) for f,v in maxdiff.items()},volume_ratio_range=[min(ratios),max(ratios)] if ratios else [])
-          nonus=[s for s in samples if not s.endswith(".US")]; us=[s for s in samples if s.endswith(".US")]
-          raw={}
-          for group in (nonus[:5],nonus[5:15],nonus[15:],us):
-              if group:raw.update(tick(group))
-          # 250-session sample: request a slightly longer date range, then take latest 250 completed rows.
-          longraw={};longadj={}
-          for group in ([s for s in core if not s.endswith(".US")],["AAPL.US"]):
-              longraw.update(tick(group,long=True));longadj.update(tick(group,mode="forward",long=True))
-          fields="date,code,open,high,low,close,volume,amount,adjustflag,tradestatus"
-          login=bs.login();emit(test="BAOSTOCK_LOGIN",code=login.error_code,version=getattr(bs,"__version__","0.9.4"))
-          if login.error_code=="0":
+          def bcode(s):a,b=s.split(".");return b.lower()+"."+a
+          def tick(ss,count=1,adjust="none"):
+              if not ss:return {}
+              zone=ZoneInfo("America/New_York" if all(s.endswith(".US") for s in ss) else "Asia/Shanghai")
+              end=int((dt.datetime(2026,11,25,tzinfo=zone)-dt.timedelta(milliseconds=1)).timestamp()*1000)
+              params={"symbols":",".join(ss),"period":"1d","adjust":adjust,"count":count,"end_time":end}
               try:
-                  for s in list(dict.fromkeys(core[:3]+bse+st+susp+["510300.SH","159915.SZ"]))[:9]:
-                      c,ex=s.split(".");code=ex.lower()+"."+c;t=time.monotonic()
-                      try:
-                          rs=bs.query_history_k_data_plus(code,fields,start_date="2025-09-01" if s in core else short[0],end_date=D,frequency="d",adjustflag="3");rows=bs_result(rs); data={r["date"]:r for r in rows}
-                          emit(test="BAOSTOCK_SERIES",symbol=s,code=rs.error_code,rows=len(rows),first=min(data) if data else None,last=max(data) if data else None,seconds=round(time.monotonic()-t,3),sha256=sha(json.dumps(rows,sort_keys=True).encode()),suspended=sum(r.get("tradestatus")=="0" for r in rows))
-                          tickdata=longraw.get(s) if s in core else raw.get(s)
-                          if tickdata and data:
-                              td={d:tickdata[d] for d in sorted(tickdata)[-250:]};bd={d:data[d] for d in sorted(data)[-250:]}
-                              emit(test="CROSS_PROVIDER_RAW",symbol=s,**compare(td,bd,["open","high","low","close","volume","amount"]))
-                          if s in core and s in longadj:
-                              rs=bs.query_history_k_data_plus(code,fields,start_date="2025-09-01",end_date=D,frequency="d",adjustflag="2");ad=bs_result(rs);ad={r["date"]:r for r in ad}; tk=longadj[s]; common=sorted(set(ad)&set(tk))[-250:];diff=[]
-                              for p,d in zip(common,common[1:]):
-                                  a,b,c1,d1=[num(z) for z in (ad[p]["close"],ad[d]["close"],tk[p]["close"],tk[d]["close"])]
-                                  if None not in (a,b,c1,d1) and a>0 and c1>0:diff.append(abs(b/a-d1/c1))
-                              emit(test="T04_ADJUSTED_RETURN",symbol=s,matched_days=len(common),compared_returns=len(diff),max_return_diff=max(diff) if diff else None,over_10bp=sum(x>0.001 for x in diff),sha256=sha(json.dumps(ad,sort_keys=True).encode()))
-                      except Exception as e:emit(test="BAOSTOCK_SERIES",symbol=s,error=str(e)[:250])
-                  if hasattr(bs,"query_daily_history_k_AStock"):
-                      t=time.monotonic()
-                      try:
-                          rs=bs.query_daily_history_k_AStock(date=D);rows=bs_result(rs); keys=set(sym(r.get("code")) for r in rows);hit=keys&set(base)
-                          emit(test="T01_DAILY_BULK",code=rs.error_code,rows=len(rows),unique=len(keys),baseline=len(base),intersection=len(hit),missing=len(set(base)-keys),extra=len(keys-set(base)),board_counts={x:sum(board(s)==x for s in keys) for x in ("SH","SZ","BJ")},seconds=round(time.monotonic()-t,3),sha256=sha(json.dumps(rows,sort_keys=True).encode()),fields=rs.fields)
-                          allb={sym(r.get("code")):r for r in rows}
-                          for s in core[:3]+bse:
-                              if s in allb and s in base:emit(test="T01_BASELINE_BAO",symbol=s,**compare({D:allb[s]},{D:base[s]},["open","high","low","close","volume","amount"]))
-                      except Exception as e:emit(test="T01_DAILY_BULK",error=str(e)[:300])
-                  else:emit(test="T01_DAILY_BULK",status="SDK_FUNCTION_ABSENT")
-              finally:bs.logout()
-          for s,z in raw.items():
-              if D in z and s in base:
-                  emit(test="BASELINE_TICK",symbol=s,**compare({D:z[D]},{D:base[s]},["open","high","low","close","volume","amount"]))
-          emit(test="END",scope="sample and one documented daily bulk call only",production_write=False,orders=0,trade_authority="NONE")
+                  b,t=fetch("https://free-api.tickflow.org/v1/klines/batch?"+urllib.parse.urlencode(params));data=json.loads(b).get("data",{})
+                  out={};invalid=0;dups=0;future=0
+                  for s in ss:
+                      a=data.get(s,{})
+                      if not isinstance(a,dict):continue
+                      ts=a.get("timestamp",[]);fs=["open","high","low","close","volume","amount"]
+                      if not ts or any(not isinstance(a.get(f),list) or len(a[f])!=len(ts) for f in fs[:5]):continue
+                      rr={}
+                      for i,v in enumerate(ts):
+                          date=dt.datetime.fromtimestamp(v/1000,dt.timezone.utc).astimezone(zone).date().isoformat()
+                          row={f:num(a[f][i]) if isinstance(a.get(f),list) and len(a[f])==len(ts) else None for f in fs}
+                          o,h,l,c,vv=[row[f] for f in fs[:5]]
+                          # Zero/blank suspended bars tracked separately; no synthetic filling.
+                          if None in (o,h,l,c,vv) or not (0<l<=min(o,c)<=max(o,c)<=h and vv>=0):invalid+=1
+                          dups+=int(date in rr);future+=int(date>D);rr[date]=row
+                      out[s]=rr
+                  emit(test="TICK_BATCH",requested=len(ss),received=len(out),count=count,adjust=adjust,seconds=t,hash=sha(b),lengths=dict(collections.Counter(len(x) for x in out.values())),invalid=invalid,duplicates=dups,future=future)
+                  return out
+              except Exception as e:emit(test="TICK_BATCH",requested=len(ss),count=count,error=str(e)[:200]);return {}
+          def compare(rows,scale=1):
+              fields={"open":"open","high":"high","low":"low","close":"close","volume":"volume_shares","amount":"turnover_cny"}
+              cnt=collections.Counter();bad=collections.Counter();maxrel=collections.defaultdict(float)
+              for s,r in rows.items():
+                  if s not in base or base[s].get("data_status")!="TRADED":continue
+                  for f,k in fields.items():
+                      x=num(r.get(f));y=num(base[s].get(k))
+                      if x is None or y is None:continue
+                      if f=="volume":x*=scale
+                      cnt[f]+=1;diff=abs(x-y);maxrel[f]=max(maxrel[f],diff/max(abs(y),1))
+                      tol=0.01000001 if f in ("open","high","low","close") else (max(1,abs(y)*0.0001) if f=="amount" else 0.000001)
+                      bad[f]+=int(diff>tol)
+              return dict(compared=dict(cnt),mismatch=dict(bad),max_relative=dict(maxrel))
+          def sample(s,fn,**kw):
+              t=time.monotonic()
+              try:
+                  rs=fn(**kw);rr=br(rs)
+                  emit(test="FINANCE_OR_FACTOR",symbol=s,method=fn.__name__,code=rs.error_code,rows=len(rr),fields=rs.fields,pub_dates=sorted(set(r.get("pubDate","") for r in rr)),stat_dates=sorted(set(r.get("statDate","") for r in rr)),hash=sha(json.dumps(rr,sort_keys=True).encode()),seconds=round(time.monotonic()-t,3))
+                  return rr
+              except Exception as e:emit(test="FINANCE_OR_FACTOR",symbol=s,method=fn.__name__,error=str(e)[:200]);return []
+          lg=bs.login();emit(test="BAO_LOGIN",code=lg.error_code)
+          if lg.error_code!="0":raise SystemExit(1)
+          try:
+              # One additional same-date bulk request is necessary to reconstruct the prior 357-code difference set.
+              t=time.monotonic();rs=bs.query_daily_history_k_AStock(date=D);rr=br(rs);bao={sym(r["code"]):r for r in rr};missing=sorted(set(base)-set(bao))
+              emit(test="BULK",code=rs.error_code,rows=len(rr),unique=len(bao),sha256=sha(json.dumps(rr,sort_keys=True).encode()),missing=len(missing),missing_boards=dict(collections.Counter(s.split(".")[-1] for s in missing)),missing_status=dict(collections.Counter(base[s]["data_status"] for s in missing)),seconds=round(time.monotonic()-t,3),same_date=sum(r.get("date")==D for r in rr))
+              emit(test="BAO_BASELINE",**compare(bao))
+              vals=["peTTM","pbMRQ","psTTM","pcfNcfTTM","turn"]
+              emit(test="VALUATION_COVERAGE",total=len(bao),numeric={f:sum(num(r.get(f)) is not None for r in rr) for f in vals},positive={f:sum((num(r.get(f)) or 0)>0 for r in rr) for f in vals})
+              for f,k in [("peTTM","pe_ttm"),("pbMRQ","pb")]:
+                  pairs=[(num(r.get(f)),num(base[s].get(k))) for s,r in bao.items() if s in base];pairs=[(x,y) for x,y in pairs if x is not None and y is not None]
+                  emit(test="VALUATION_BASELINE",field=f,compared=len(pairs),within_1pct=sum(abs(x-y)<=max(.01,abs(y)*.01) for x,y in pairs),within_5pct=sum(abs(x-y)<=max(.01,abs(y)*.05) for x,y in pairs),note="PB MRQ vs canonical PB and denominator conventions not yet reconciled")
+              st=[s for s,r in univ.items() if r.get("is_st","").lower() in ("true","1") and base.get(s,{}).get("data_status")=="TRADED"][:3]
+              suspended=[s for s,r in base.items() if r.get("data_status")=="SUSPENDED"][:3]
+              new=sorted([s for s,r in univ.items() if r.get("list_date","") and "2026-10-01"<=r["list_date"]<=D],key=lambda s:univ[s]["list_date"],reverse=True)[:3]
+              emit(test="BOUNDARY",st=st,suspended=suspended,recent_listing=new)
+              # Max four 100-symbol gap requests on previously missing names.
+              recovered={}
+              for i in range(0,min(len(missing),400),100):
+                  recovered.update(tick(missing[i:i+100]))
+              good={s:r[D] for s,r in recovered.items() if D in r and r[D].get("close") is not None and r[D]["close"]>0}
+              emit(test="GAP",requested=len(missing),returned=len(recovered),dated_positive=len(good),unresolved=len(set(missing)-set(good)),remaining_status=dict(collections.Counter(base[s]["data_status"] for s in set(missing)-set(good))),combined_positive_or_bao_count=len(set(bao)|set(good)),**compare(good,100))
+              small=tick(list(dict.fromkeys(core[:3]+st+suspended+new)),1)
+              emit(test="BOUNDARY_RESULT",rows={s:{"dates":list(r),"vol_zero":all(x.get("volume")==0 for x in r.values()),"baseline":base[s]["data_status"]} for s,r in small.items()},**compare({s:r[D] for s,r in small.items() if D in r},100))
+              cn=core[:4];longs=tick(cn,250);longs.update(tick([core[4]],250))
+              cal=br(bs.query_trade_dates(start_date="2025-09-01",end_date=D));expected=[r["calendarDate"] for r in cal if r["isTradingDay"]=="1"][-250:]
+              for s,r in longs.items():emit(test="LONG",symbol=s,rows=len(r),first=min(r),last=max(r),cn_calendar_match=(set(expected)==set(r)) if s.endswith((".SH",".SZ")) else None)
+              for s in core[:3]:
+                  h=br(bs.query_history_k_data_plus(bcode(s),"date,code,open,high,low,close,volume,amount",start_date="2025-09-01",end_date=D,frequency="d",adjustflag="3")); h={r["date"]:r for r in h}
+                  z=longs.get(s,{});rat=[];pricebad=0;volbad=0;volmax=0
+                  for d in set(h)&set(z):
+                      for f in ("open","high","low","close"):
+                          x=num(h[d].get(f));y=num(z[d].get(f))
+                          if x is not None and y is not None:pricebad+=int(abs(x-y)>.01000001)
+                      x=num(h[d].get("volume"));y=num(z[d].get("volume"))
+                      if x is not None and y is not None:
+                          delta=abs(100*y-x);volbad+=int(delta>0.000001);volmax=max(volmax,delta)
+                          if x:rat.append(delta/x)
+                  emit(test="LONG_CROSS",symbol=s,common=len(set(h)&set(z)),pricebad=pricebad,volume_exact_mismatch=volbad,volume_max_shares=volmax,volume_max_relative=max(rat) if rat else None)
+                  for fn in (bs.query_profit_data,bs.query_balance_data,bs.query_cash_flow_data):
+                      sample(s,fn,code=bcode(s),year=2026,quarter=3)
+              sample(core[0],bs.query_adjust_factor,code=bcode(core[0]),start_date="2025-09-01",end_date=D)
+          finally:bs.logout()
+          emit(test="END",orders=0,production_write=False,trade_authority="NONE")
           
           PY
