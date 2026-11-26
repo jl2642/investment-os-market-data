@@ -1,0 +1,83 @@
+name: R1 one-off market coverage acceptance
+on:
+  push:
+    branches: [audit/r1-live-market-20261126]
+    paths: ['.github/workflows/r1-live-market-once.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            pipeline
+            ingestion
+            config
+            schemas
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Read prior accepted identity and snapshot without mutating them
+        run: |
+          set -Eeuo pipefail
+          git fetch --depth=1 --filter=blob:none --no-tags origin 59c71bd5097af14a1785bc7e1625038bf9cc6cb4 e6b28834da585720bbcd59b14726c4b5b34ac1b1
+          mkdir -p /tmp/r1-old /tmp/r1-bad outputs/current
+          for pair in '59c71bd5097af14a1785bc7e1625038bf9cc6cb4 /tmp/r1-old' 'e6b28834da585720bbcd59b14726c4b5b34ac1b1 /tmp/r1-bad'; do
+            read -r ref dst <<< "$pair"
+            for file in A_SHARE_UNIVERSE.csv DAILY_MARKET_SNAPSHOT.csv CURRENT_RELEASE.json; do
+              git show "$ref:outputs/current/$file" > "$dst/$file"
+            done
+          done
+          cp /tmp/r1-old/A_SHARE_UNIVERSE.csv outputs/current/
+      - name: Reuse existing normalizer and quality contract against immutable accepted cohorts
+        run: |
+          python - <<'PY'
+          import pandas as pd, json, hashlib
+          from pathlib import Path
+          from pipeline.quality import evaluate_snapshot
+          def read(path):
+              root=Path(path)
+              release=json.loads((root/'CURRENT_RELEASE.json').read_text())
+              for key,name in [('a_share_universe','A_SHARE_UNIVERSE.csv'),('daily_market_snapshot','DAILY_MARKET_SNAPSHOT.csv')]:
+                  assert hashlib.sha256((root/name).read_bytes()).hexdigest()==release['current_files'][key]['sha256']
+              return pd.read_csv(root/'A_SHARE_UNIVERSE.csv',encoding='utf-8-sig',dtype={'source_symbol':str}),pd.read_csv(root/'DAILY_MARKET_SNAPSHOT.csv',encoding='utf-8-sig')
+          for folder,label in [('/tmp/r1-old','2026-11-24'),('/tmp/r1-bad','2026-11-25')]:
+              u,s=read(folder)
+              q=evaluate_snapshot(s,universe=u,root=Path.cwd())
+              print('FROZEN_REPLAY',json.dumps({'date':label,'coverage':q.metrics['universe_coverage_ratio'],'rows':len(s),'priced':q.metrics['priced_universe_symbol_count'],'hard_failures':q.hard_failures},sort_keys=True),flush=True)
+              assert ('minimum_active_universe_coverage' in q.hard_failures)==(label=='2026-11-25')
+          PY
+      - name: One bounded candidate build using registered providers only
+        id: live
+        run: |
+          set +e
+          python -m pipeline.build_candidate > /tmp/r1-live.log 2>&1
+          rc=$?
+          echo "CANDIDATE_EXIT=$rc"
+          python - <<'PY'
+          import json, pandas as pd
+          from pathlib import Path
+          p=Path('outputs/candidate/FMDL_1BC_RUN_REPORT.json')
+          if not p.exists():
+              print('LIVE_REPORT_UNAVAILABLE')
+              print(Path('/tmp/r1-live.log').read_text()[-3000:])
+              raise SystemExit(2)
+          r=json.loads(p.read_text())
+          u=pd.read_csv('outputs/candidate/A_SHARE_UNIVERSE.csv',encoding='utf-8-sig')
+          s=pd.read_csv('outputs/candidate/DAILY_MARKET_SNAPSHOT.csv',encoding='utf-8-sig')
+          old=pd.read_csv('/tmp/r1-old/A_SHARE_UNIVERSE.csv',encoding='utf-8-sig')
+          prior=set(old.symbol); current=set(u.symbol)
+          valid=s.data_status.eq('TRADED')&pd.to_numeric(s.close,errors='coerce').gt(0)&s.record_quality.isin(['VALID','PARTIAL'])
+          priced=set(s.loc[valid,'symbol'])
+          result={'date':r['as_of_date'],'provider':r['market_wide_provider'],'rows':len(s),'priced':len(priced),'price_coverage':r['snapshot']['metrics']['universe_coverage_ratio'],'prior_universe':len(prior),'prior_priced':len(prior&priced),'prior_missing_from_candidate':len(prior-current),'new_symbols':len(current-prior),'new_priced':len((current-prior)&priced),'unknown_status':int(u.listing_status.eq('UNKNOWN').sum()),'universe_hard_failures':r['universe']['hard_failures'],'snapshot_hard_failures':r['snapshot']['hard_failures'],'soft_warnings':r['snapshot']['soft_warnings'],'rate_limit_short_circuit':any('explicit_rate_limit_no_immediate_retry' in x for x in r['source_warnings']),'session_timestamp_inferred':True,'production_write':False,'trade_authority':'NONE'}
+          print('LIVE_CANDIDATE',json.dumps(result,ensure_ascii=False,sort_keys=True),flush=True)
+          assert r['as_of_date']=='2026-11-26', 'wrong session for one-off acceptance'
+          assert not result['universe_hard_failures'] and not result['snapshot_hard_failures']
+          assert len(prior&priced)/len(prior)>=.95,'prior identity coverage below existing floor'
+          PY
+          test "$?" = 0 && test "$rc" = 0
