@@ -25,9 +25,9 @@ jobs:
           python - <<'PY'
           import os,json,subprocess,time
           repo=os.environ['GITHUB_REPOSITORY']
-          expected='375ce044854bd69cf0cace403468cfe525905d18'
+          expected='95f0174c4ae0b4c1590ed0712022df29a2a2e8b8'
           main='06e90fe3e85477e9f8d98339cfee247d4e40efc5'
-          ids=[45854804784,45854804830,45854804877,45854804908,45854804797,45854804770,45854804769]
+          ids=[45857327728,45857327837,45857328195,45857327804,45857327721,45857327858,45857327906]
           def get(path):
               return json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/{path}'],text=True))
           for tick in range(55):
@@ -56,7 +56,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq .commit.sha)" = '06e90fe3e85477e9f8d98339cfee247d4e40efc5'
-          gh pr merge 536 --repo "$GITHUB_REPOSITORY" --squash --match-head-commit 375ce044854bd69cf0cace403468cfe525905d18 --subject 'fix: recover qualified identity continuity reference after 11/25 incident'
+          gh pr merge 536 --repo "$GITHUB_REPOSITORY" --squash --match-head-commit 95f0174c4ae0b4c1590ed0712022df29a2a2e8b8 --subject 'fix: recover qualified identity continuity reference after 11/25 incident'
           merge="$(gh api "repos/$GITHUB_REPOSITORY/pulls/536" --jq .merge_commit_sha)"
           test -n "$merge"
           test "$(gh api "repos/$GITHUB_REPOSITORY/pulls/536" --jq .merged)" = true
