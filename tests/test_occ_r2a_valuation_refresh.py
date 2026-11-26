@@ -123,3 +123,15 @@ def test_blocked_ev_metrics_remain_numeric_nan_for_comparison_audit() -> None:
     assert pd.api.types.is_numeric_dtype(left["ev_sales_ttm"])
     audit = core.comparison_audit(left, right)
     assert int(audit["mismatch_count"].sum()) == 0
+
+
+def test_valuation_callback_excludes_nonproduction_market_runs():
+    from pathlib import Path
+    import yaml
+    workflow=yaml.load(Path(".github/workflows/occ-r2a-financial-valuation-live.yml").read_text(),Loader=yaml.BaseLoader)
+    assert workflow["on"]["workflow_run"]["branches"] == ["main"]
+    for job in ("deterministic-validation", "production"):
+        condition=workflow["jobs"][job]["if"]
+        assert "github.event.workflow_run.head_branch == 'main'" in condition
+        assert "github.event.workflow_run.event != 'pull_request'" in condition
+        assert "github.event.workflow_run.conclusion == 'success'" in condition
