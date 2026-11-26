@@ -12,13 +12,13 @@ jobs:
   public-read-only-probe:
     if: github.ref == 'refs/heads/sandbox/invos-mod-p2-20261126'
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 7
     steps:
-      - name: Bounded P2 remaining sample verification
+      - name: Bounded corporate action and 251 close replay
         env:
           HITHINK_FINANCE_API_KEY: ${{ secrets.HITHINK_FINANCE_API_KEY }}
         run: |
-          timeout 180 python3 -u - <<'PY'
+          timeout 150 python3 -u - <<'PY'
           import os,json,datetime as dt,urllib.request,urllib.parse,urllib.error,time,hashlib,ssl,sys
           from zoneinfo import ZoneInfo
           from pathlib import Path
@@ -61,30 +61,99 @@ jobs:
                   result.append({"symbol":g["thscode"],"rows":len(vv),"fields":sorted(set().union(*(set(x) for x in vv))) if vv else [],"dates":sorted(set(filter(None,(date(x.get("date_ms") or x.get("period_end_ms")) for x in vv)))),"disclosure_dates":sorted(set(filter(None,(date(x.get("report_date_ms")) for x in vv)))),"null_fields":sorted({k for x in vv for k,val in x.items() if val is None})})
               emit(test="GROUPS",label=label,groups=result,missing=sorted(set(expected)-{x["symbol"] for x in result}))
           
-          # Bounded four-symbol 71-session window, not whole-market download.
-          syms=["605090.SH","600519.SH","300750.SZ","920001.BJ"]
-          for mode in ("none","forward"):
-              d=api("gap_sample_"+mode,"/api/a-share/prices/historical-batch",{"thscodes":",".join(syms),"interval":"1d","start":ms(2026,8,8),"end":ms(2026,11,25)-1,"adjust":mode})
-              summary("gap_sample_"+mode,d,syms)
-              for g in rows(d):
-                  if g.get("thscode") not in syms:continue
-                  rr=g.get("item",[]);ds=[date(x.get("date_ms")) for x in rr]
-                  emit(test="GAP_SAMPLE",symbol=g["thscode"],mode=mode,rows=len(rr),first=min(ds) if ds else None,last=max(ds) if ds else None,duplicates=len(ds)-len(set(ds)),future=sum(x>"2026-11-24" for x in ds if x),invalid=sum(not(0<x["low_price"]<=min(x["open_price"],x["close_price"])<=max(x["open_price"],x["close_price"])<=x["high_price"] and x["volume"]>=0) for x in rr if all(isinstance(x.get(f),(int,float)) for f in ("low_price","open_price","close_price","high_price","volume"))))
-          # Actual financial fields, only selected public issuers and report periods. Compare via summary numbers rather than raw data.
-          for name,fields in [("income-statements",["operating_income","parent_holder_net_profit","basic_eps"]),("balance-sheets",["assets_total","total_debt","holder_equity_total"]),("cash-flow-statements",["act_cash_flow_net","pay_fixed_assets_etc_cash"])]:
-              d=api("numeric_"+name,"/api/a-share/financials/"+name+"-batch",{"thscodes":",".join(syms[:3]),"period":"quarterly","limit":2})
-              for g in rows(d):
-                  if g.get("thscode") not in syms[:3]:continue
-                  for r in g.get("item",[]):
-                      # Summaries at report scale (million CNY), not a raw dump.
-                      if date(r.get("period_end_ms"))!="2026-09-30":continue
-                      emit(test="FINANCIAL_Q3",symbol=g["thscode"],statement=name,period=date(r.get("period_end_ms")),disclosure=date(r.get("report_date_ms")),amount_million_cny={f:round(r[f]/1e6,3) if isinstance(r.get(f),(int,float)) else None for f in fields if f!="basic_eps"},eps=r.get("basic_eps") if "basic_eps" in fields else None)
-          # Explicit state conflicts from E12. Date and no synthetic carry forward.
-          edge=["002717.SZ","689009.SH","000010.SZ","920067.BJ","688827.SH"]
-          d=api("edge_history","/api/a-share/prices/historical-batch",{"thscodes":",".join(edge),"interval":"1d","start":ms(2026,11,18),"end":ms(2026,11,25)-1,"adjust":"none"})
-          for g in rows(d):
-              if g.get("thscode") not in edge:continue
-              rr=g.get("item",[]);emit(test="EDGE",symbol=g["thscode"],dates=[date(r.get("date_ms")) for r in rr],nonzero_volume_dates=[date(r.get("date_ms")) for r in rr if isinstance(r.get("volume"),(int,float)) and r["volume"]>0])
+          
+          import math,statistics,collections
+          D="2026-11-24"
+          ss=["605090.SH","600519.SH","300750.SZ","920001.BJ"]
+          p={"thscodes":",".join(ss),"interval":"1d","start":ms(2025,11,1),"end":ms(2026,11,25)-1}
+          def bars(mode):
+              d=api("251_"+mode,"/api/a-share/prices/historical-batch",{**p,"adjust":mode})
+              return {g["thscode"]:{date(r["date_ms"]):r for r in g.get("item",[]) if date(r.get("date_ms"))} for g in rows(d) if g.get("thscode") in ss}
+          u=bars("none");f=bars("forward")
+          for s in ss:
+              x=u.get(s,{});y=f.get(s,{});common=sorted(set(x)&set(y))
+              event=api("events_"+s,"/api/a-share/corporate-actions/adjustment-factors",{"thscode":s,"from":"2025-11-01","to":D})
+              ev=rows(event);by=collections.defaultdict(list);bad=0;unmapped=0
+              for z in ev:
+                  ed=date(z.get("ex_date_ms"))
+                  if not ed or ed>D:bad+=1;continue
+                  eff=next((d for d in sorted(x) if d>=ed),None)
+                  if eff:by[eff].append(z)
+                  else:unmapped+=1
+              # Replay documented multiplier on actual raw close and event data, not the installed provider package.
+              # No future events are included; multiple same-day events are explicitly flagged.
+              calc={};mul=1.;prior=None;skipped=0
+              for d in sorted(x):
+                  if d in by:
+                      for z in by[d]:
+                          try:
+                              dps=float(z.get("dividend_per_share") or 0);bonus=float(z.get("per_share_bonus") or 0);r=float(z.get("allotment_ratio") or 0);p0=float(z.get("allotment_price") or 0)
+                              if prior is None or prior-dps+r*p0<=0:skipped+=1;continue
+                              mul*=prior*(1+bonus+r)/(prior-dps+r*p0)
+                          except Exception:skipped+=1
+                  calc[d]=mul;prior=float(x[d]["close_price"])
+              denom=mul;inconsistent=0;maxspread=0.;maxreturn=0.;retbad=0;maxclose=0.;last=None
+              for d in common:
+                  try:
+                      ratios=[float(y[d][k])/float(x[d][k]) for k in ("open_price","high_price","low_price","close_price")]
+                      spread=max(ratios)-min(ratios);maxspread=max(spread,max(ratios)-min(ratios));inconsistent+=int(spread>0.0001)
+                      c=float(x[d]["close_price"])*calc[d]/denom;v=float(y[d]["close_price"]);maxclose=max(maxclose,abs(c-v))
+                      if last:
+                          dr=abs(c/last[0]-v/last[1]);maxreturn=max(maxreturn,dr);retbad+=int(dr>0.001)
+                      last=(c,v)
+                  except Exception:pass
+              emit(test="ADJUST_REPLAY",symbol=s,raw_rows=len(x),forward_rows=len(y),matched_days=len(common),first=min(common) if common else None,last=max(common) if common else None,events=len(ev),event_dates=sorted(by),duplicate_effective_dates=sum(len(v)>1 for v in by.values()),future_or_invalid_event_dates=bad,unmapped_events=unmapped,skipped_event_count=skipped,provider_ohlc_ratio_spread_over_1bp=inconsistent,max_ratio_spread=maxspread,max_close_abs_diff_vs_replay=maxclose,max_adj_return_abs_diff=maxreturn,return_diff_over_10bp=retbad,raw_251_ready=len(x)>=251,scope="bounded sample formula replay; event announcements and rights issue completeness not independently verified")
+          emit(test="AUTH_END",orders=0,production_write=False,trade_authority="NONE")
+          
+          PY
+      - name: Formal shard volume ratio and overseas sample
+        if: always()
+        run: |
+          python3 -m pip install --only-binary=:all: --disable-pip-version-check --retries 0 --timeout 15 duckdb
+          timeout 150 python3 -u - <<'PY'
+          import duckdb,urllib.request,urllib.parse,hashlib,os,json,datetime as dt,statistics,collections,math,tempfile
+          from zoneinfo import ZoneInfo
+          def emit(**x):print(json.dumps(x,default=str),flush=True)
+          base="https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/"
+          path="datasets/history/repair/FMDL2B4_REBASE_45469058502_A1/shard_00_full_rebase.parquet"
+          try:
+              with urllib.request.urlopen(base+path,timeout=30) as r:b=r.read(8_000_001)
+              if hashlib.sha256(b).hexdigest()!="0e8a3fade9b818e7776607dea389e3d8319563c88c310b545e6c905bdea74f17":raise ValueError("SHARD_HASH_MISMATCH")
+              with tempfile.TemporaryDirectory() as tmp:
+                  p=tmp+"/sample.parquet";open(p,"wb").write(b);c=duckdb.connect(":memory:")
+                  c.execute("CREATE VIEW hist AS SELECT * FROM read_parquet('"+p+"')")
+                  fields=[x[0] for x in c.execute("DESCRIBE hist").fetchall()]
+                  emit(test="FORMAL_SHARD",rows=c.execute("SELECT count(*) FROM hist").fetchone()[0],fields=fields,sha256=hashlib.sha256(b).hexdigest())
+                  ss=[r[0] for r in c.execute("SELECT DISTINCT symbol FROM hist WHERE symbol LIKE '%.BJ' ORDER BY symbol LIMIT 20").fetchall()]
+                  end=int(dt.datetime(2026,11,25,tzinfo=ZoneInfo("Asia/Shanghai")).timestamp()*1000)-1
+                  if not ss:raise ValueError("NO_BJ_SAMPLES")
+                  url="https://free-api.tickflow.org/v1/klines/batch?"+urllib.parse.urlencode({"symbols":",".join(ss),"period":"1d","adjust":"none","count":60,"end_time":end})
+                  with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"INVOS-MOD-001-bounded-test/1.0"}),timeout=25) as r:raw=r.read(2_000_001)
+                  j=json.loads(raw).get("data",{});cmp=[];flip=collections.Counter();max_abs=0;max_rel=0;exclusions=collections.Counter()
+                  for s in ss:
+                      old=c.execute("SELECT CAST(trade_date AS DATE),volume_shares FROM hist WHERE symbol=? AND volume_shares IS NOT NULL ORDER BY trade_date DESC LIMIT 60",[s]).fetchall()
+                      a={str(d):float(v) for d,v in old}
+                      z=j.get(s,{})
+                      ts=z.get("timestamp",[]);vol=z.get("volume",[])
+                      n={dt.datetime.fromtimestamp(t/1000,ZoneInfo("Asia/Shanghai")).date().isoformat():float(v)*100 for t,v in zip(ts,vol)}
+                      if len(a)!=60 or len(n)!=60 or set(a)!=set(n):exclusions["date_or_length_mismatch"]+=1;continue
+                      d=sorted(a);u=[a[i] for i in d];v=[n[i] for i in d]
+                      if sum(u)<=0 or sum(v)<=0:exclusions["nonpositive_mean"]+=1;continue
+                      x=3*sum(u[-20:])/sum(u);y=3*sum(v[-20:])/sum(v);cmp.append((s,x,y))
+                      for lo in (1.05,1.1):flip[str(lo)]+=int((lo<=x<=3)!=(lo<=y<=3))
+                      max_abs=max(max_abs,max(abs(aa-bb) for aa,bb in zip(u,v)));max_rel=max(max_rel,max(abs(aa-bb)/max(aa,1) for aa,bb in zip(u,v)))
+                  r1=sorted(cmp,key=lambda t:(-t[1],t[0]));r2=sorted(cmp,key=lambda t:(-t[2],t[0]))
+                  emit(test="FACTOR_REPLAY",requested=len(ss),returned=len(j),comparable=len(cmp),exclusions=dict(exclusions),max_ratio_delta=max((abs(x-y) for _,x,y in cmp),default=None),volume_gate_flips=dict(flip),sample_rank_changes=sum(a[0]!=b[0] for a,b in zip(r1,r2)),max_volume_shares_delta=max_abs,max_relative_volume_delta=max_rel,sha256=hashlib.sha256(raw).hexdigest(),scope="single immutable shard, volume-ratio only; not full ranking")
+          except Exception as e:emit(test="FACTOR_REPLAY_ERROR",error_type=type(e).__name__,error=str(e)[:200])
+          # Verify at least 251 close observations for the two prior overseas sample symbols.
+          for s,zone in [("00700.HK","Asia/Hong_Kong"),("AAPL.US","America/New_York")]:
+              try:
+                  tz=ZoneInfo(zone);end=int(dt.datetime(2026,11,25,tzinfo=tz).timestamp()*1000)-1
+                  url="https://free-api.tickflow.org/v1/klines/batch?"+urllib.parse.urlencode({"symbols":s,"period":"1d","adjust":"none","count":251,"end_time":end})
+                  with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"INVOS-MOD-001-bounded-test/1.0"}),timeout=25) as r:raw=r.read(2_000_001)
+                  x=json.loads(raw).get("data",{}).get(s,{});ds=[dt.datetime.fromtimestamp(t/1000,tz).date().isoformat() for t in x.get("timestamp",[])]
+                  emit(test="OVERSEAS_251",symbol=s,rows=len(ds),first=min(ds) if ds else None,last=max(ds) if ds else None,duplicate=len(ds)-len(set(ds)),future=sum(d>"2026-11-24" for d in ds),weekend=sum(dt.date.fromisoformat(d).weekday()>4 for d in ds),sha256=hashlib.sha256(raw).hexdigest(),scope="local timezone and weekend only; not independent full holiday calendar")
+              except Exception as e:emit(test="OVERSEAS_251",symbol=s,error_type=type(e).__name__)
           emit(test="END",orders=0,production_write=False,trade_authority="NONE")
           
           PY
