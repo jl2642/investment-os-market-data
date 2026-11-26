@@ -15,6 +15,26 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CATEGORIES = ["财务报告", "信息变更"]
 
 
+def accepted_baseline_start(pointer: dict, context: dict) -> str:
+    """Start at the accepted PIT cutoff, inclusive, not its later publish date."""
+    if (pointer.get("status") != "PASS"
+        or pointer.get("domain_id") != "FINANCIAL_STATEMENT_CONTEXT"
+        or pointer.get("qc_status") != "PASS_FINANCIAL_BASELINE_REBUILT"
+        or context.get("status") != "PASS"
+        or context.get("qc_status") != pointer.get("qc_status")
+        or pointer.get("trade_authority") != "NONE"
+        or context.get("trade_authority") != "NONE"):
+        raise ValueError("FINANCIAL_BASELINE_NOT_ACCEPTED")
+    cutoff = date.fromisoformat(context["market_as_of_date"])
+    if cutoff.isoformat() != pointer.get("data_watermark"):
+        raise ValueError("FINANCIAL_BASELINE_WATERMARK_MISMATCH")
+    if date.fromisoformat(context["financial_report_period_watermark"]) > cutoff:
+        raise ValueError("FUTURE_REPORT_PERIOD")
+    if not pointer.get("source_commit_sha") or not context.get("releases", {}).get("statement_release_id"):
+        raise ValueError("FINANCIAL_BASELINE_LINEAGE_MISSING")
+    return cutoff.isoformat()
+
+
 def notice_columns(frame: pd.DataFrame) -> dict[str, str | None]:
     return {
         name: bc.first_existing(frame.columns, candidates)
