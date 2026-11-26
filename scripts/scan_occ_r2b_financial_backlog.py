@@ -118,6 +118,8 @@ def _scan_slot(day: date, category: str, universe: set[str]) -> tuple[list[dict]
     """An invalid response must not count as an empty successful notice day."""
     frame = None
     confirmed_empty_after_adapter_error = False
+    empty_confirmation_attempted = False
+    adapter_error_before_confirmation = None
     rows: list[dict] = []
     try:
         frame = ak.stock_notice_report(symbol=category, date=day.strftime("%Y%m%d"))
@@ -136,6 +138,8 @@ def _scan_slot(day: date, category: str, universe: set[str]) -> tuple[list[dict]
         error_message = str(exc)[:300]
         rows = []
         if isinstance(exc, KeyError) and exc.args == ("代码",):
+            empty_confirmation_attempted = True
+            adapter_error_before_confirmation = repr(exc)
             try:
                 if confirm_provider_empty(day, category):
                     state = "SUCCESS_EMPTY"
@@ -150,6 +154,8 @@ def _scan_slot(day: date, category: str, universe: set[str]) -> tuple[list[dict]
         "category": category,
         "source_state": state,
         "confirmed_empty_after_adapter_error": confirmed_empty_after_adapter_error,
+        "empty_confirmation_attempted": empty_confirmation_attempted,
+        "adapter_error_before_confirmation": adapter_error_before_confirmation,
         "source_row_count": int(len(frame)) if isinstance(frame, pd.DataFrame) else 0,
         "financial_event_count": int(len(rows)),
         "error_type": error_type,
@@ -177,7 +183,8 @@ def scan_live(start: date, end: date, universe: set[str], categories: list[str])
     # Explicit rate limits are not retried; do not turn a provider outage into a retry storm.
     # If all slots failed, do not rescan a fully unavailable source.
     retryable = [(i, day, category) for i, day, category in failed
-                 if attempts[i]["error_type"] not in {"Push2RateLimitError", "RateLimitError"}
+                 if not attempts[i]["empty_confirmation_attempted"]
+                 and attempts[i]["error_type"] not in {"Push2RateLimitError", "RateLimitError"}
                  and "429" not in (attempts[i]["error_message"] or "")
                  and "rate limit" not in (attempts[i]["error_message"] or "").lower()
                  and "限流" not in (attempts[i]["error_message"] or "")]
@@ -228,7 +235,8 @@ def main() -> int:
         "start_date": start.isoformat(),
         "end_date": end.isoformat(),
         "notice_attempt_count": int(len(attempts)),
-        "notice_provider_call_count": int(attempts["attempt_count"].sum()),
+        "notice_provider_call_count": int(attempts["attempt_count"].sum() + attempts["empty_confirmation_attempted"].sum()),
+        "notice_empty_confirmation_call_count": int(attempts["empty_confirmation_attempted"].sum()),
         "notice_recovered_slot_count": int(((attempts["attempt_count"] == 2) & success).sum()),
         "notice_unresolved_slot_count": int((~success).sum()),
         "notice_confirmed_empty_after_adapter_error_count": int(attempts["confirmed_empty_after_adapter_error"].sum()),
