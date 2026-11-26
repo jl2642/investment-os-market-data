@@ -166,3 +166,50 @@ def test_transient_error_retains_existing_retry(monkeypatch) -> None:
     assert len(calls) == 2
     assert sleeps == [2]
     assert result.retries == 1
+
+
+def test_identity_continuity_rejects_replacement_with_equal_row_count():
+    from pathlib import Path
+    from pipeline.quality import evaluate_universe
+    spot = pd.DataFrame([{"代码": "600000", "名称": "浦发银行", "最新价": 10.0,
+                          "昨收": 10.0, "涨跌幅": 0.0, "成交量": 100, "成交额": 1000.0}])
+    result = normalize_a_share_bundle(_bundle(_call("stock_zh_a_spot", spot, volume_unit="SHARES")),
+        as_of_date=date(2026, 7, 16), source_timestamp="2026-07-16T17:30:00+08:00")
+    prior = result.universe.copy()
+    prior["symbol"] = ["000001.SZ", "000002.SZ", "000003.SZ"]
+    q = evaluate_universe(result.universe, root=Path(__file__).resolve().parents[1], lkg_frame=prior)
+    assert q.metrics["lkg_row_ratio"] == 1
+    assert q.metrics["lkg_identity_retention"] == 0
+    assert "minimum_lkg_row_ratio" in q.hard_failures
+
+
+def test_incident_identity_reference_is_exact_and_fail_closed(tmp_path, monkeypatch):
+    import hashlib
+    import pytest
+    from pipeline import build_candidate as mod
+
+    root = tmp_path / "outputs/current"
+    root.mkdir(parents=True)
+    u = root / "A_SHARE_UNIVERSE.csv"
+    s = root / "DAILY_MARKET_SNAPSHOT.csv"
+    u.write_bytes(b"symbol,source_symbol,as_of_date\n600000.SH,600000,2026-11-25\n")
+    s.write_bytes(b"bad snapshot")
+    payload = b"symbol,source_symbol,as_of_date\n600000.SH,600000,2026-11-24\n"
+    digest = lambda b: hashlib.sha256(b).hexdigest()
+    monkeypatch.setattr(mod, "_R1_BAD_UNIVERSE_SHA", digest(u.read_bytes()))
+    monkeypatch.setattr(mod, "_R1_BAD_SNAPSHOT_SHA", digest(s.read_bytes()))
+    monkeypatch.setattr(mod, "_R1_PRIOR_UNIVERSE_SHA", digest(payload))
+    monkeypatch.setattr(mod.subprocess, "check_output", lambda *a, **k: payload)
+    prior, lineage = mod.resolve_identity_lkg(tmp_path)
+    assert lineage["mode"] == "R1_QUALIFIED_IDENTITY_DENOMINATOR"
+    assert prior.iloc[0]["as_of_date"] == "2026-11-24"
+    s.write_bytes(b"wrong snapshot")
+    with pytest.raises(RuntimeError, match="PAIR_MISMATCH"):
+        mod.resolve_identity_lkg(tmp_path)
+    s.write_bytes(b"bad snapshot")
+    monkeypatch.setattr(mod.subprocess, "check_output", lambda *a, **k: b"wrong bytes")
+    with pytest.raises(RuntimeError, match="HASH_MISMATCH"):
+        mod.resolve_identity_lkg(tmp_path)
+    u.write_bytes(payload)
+    prior, lineage = mod.resolve_identity_lkg(tmp_path)
+    assert lineage["mode"] == "CURRENT"
