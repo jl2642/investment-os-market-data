@@ -5,21 +5,23 @@
   "hard_failures": [],
   "soft_warnings": [
     "market_cap_fill_ratio",
-    "valuation_fill_ratio",
-    "maximum_unexplained_absolute_return_pct"
+    "valuation_fill_ratio"
   ],
   "metrics": {
-    "row_count": 5539,
-    "universe_coverage_ratio": 1.0,
-    "traded_row_count": 5534,
+    "row_count": 5581,
+    "universe_coverage_ratio": 0.9996416412829242,
+    "snapshot_symbol_coverage_ratio": 1.0,
+    "priced_universe_symbol_count": 5579,
+    "unpriced_universe_symbol_count": 2,
+    "traded_row_count": 5579,
     "positive_close_ratio_for_traded_rows": 1.0,
     "negative_volume_rows": 0,
     "negative_turnover_rows": 0,
-    "maximum_return_reconciliation_difference_pp": 0.0004999999999963922,
+    "maximum_return_reconciliation_difference_pp": 0.0004999999999999449,
     "market_cap_fill_ratio": 0.0,
     "valuation_fill_ratio": 0.0,
-    "zero_turnover_ratio": 0.0009026900162484203,
-    "maximum_absolute_return_pct": 396.887,
+    "zero_turnover_ratio": 0.0007167174341515857,
+    "maximum_absolute_return_pct": 30.0,
     "schema_error_examples": []
   },
   "gate_results": [
@@ -33,7 +35,7 @@
     {
       "gate_id": "minimum_active_universe_coverage",
       "severity": "HARD",
-      "actual": 1.0,
+      "actual": 0.9996416412829242,
       "expected": ">=0.95",
       "passed": true
     },
@@ -68,7 +70,7 @@
     {
       "gate_id": "return_reconciliation",
       "severity": "HARD",
-      "actual": 0.0004999999999963922,
+      "actual": 0.0004999999999999449,
       "expected": "<=0.05",
       "passed": true
     },
@@ -89,14 +91,14 @@
     {
       "gate_id": "maximum_unexplained_absolute_return_pct",
       "severity": "SOFT",
-      "actual": 396.887,
+      "actual": 30.0,
       "expected": "<=35.0",
-      "passed": false
+      "passed": true
     },
     {
       "gate_id": "maximum_zero_turnover_ratio",
       "severity": "SOFT",
-      "actual": 0.0009026900162484203,
+      "actual": 0.0007167174341515857,
       "expected": "<=0.15",
       "passed": true
     }
