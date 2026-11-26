@@ -116,3 +116,46 @@ def test_scan_does_not_repeat_complete_outage(monkeypatch):
     _, attempts = scan.scan_live(day, day, set(), ["a","b"])
     assert calls == ["a","b"]
     assert attempts["source_state"].tolist() == ["FAILED","FAILED"]
+
+
+@pytest.mark.parametrize("payload,expected", [
+    ({"success":True,"data":{"total_hits":0,"list":[]}},True),
+    ({"success":1,"data":{"total_hits":0,"list":[]}},True),
+    ({"success":True,"data":{"total_hits":1,"list":[]}},False),
+    ({"success":True,"data":{"total_hits":0,"list":[{"title":"notice"}]}},False),
+    ({"success":False,"data":{"total_hits":0,"list":[]}},False),
+    ({"data":{"total_hits":0,"list":[]}},False),
+    ({"success":True,"data":{"total_hits":0}},False),
+])
+def test_empty_provider_confirmation_requires_explicit_zero(monkeypatch,payload,expected):
+    from scripts import scan_occ_r2b_financial_backlog as scan
+    class Response:
+        def raise_for_status(self): pass
+        def json(self): return payload
+    def get(url,params,timeout):
+        assert params["begin_time"]==params["end_time"]=="2026-11-15"
+        assert params["f_node"]=="1"
+        return Response()
+    monkeypatch.setattr(scan.requests,"get",get)
+    assert scan.confirm_provider_empty(pd.Timestamp("2026-11-15").date(),"财务报告") is expected
+
+
+@pytest.mark.parametrize("confirmed", [True, False])
+def test_adapter_keyerror_is_empty_only_after_source_confirmation(monkeypatch,confirmed):
+    from scripts import scan_occ_r2b_financial_backlog as scan
+    day=pd.Timestamp("2026-11-15").date()
+    calls=[]
+    def fetch(symbol,date):
+        calls.append(symbol)
+        if symbol=="财务报告":
+            raise KeyError("代码")
+        return pd.DataFrame()
+    monkeypatch.setattr(scan.ak,"stock_notice_report",fetch)
+    monkeypatch.setattr(scan,"confirm_provider_empty",lambda d,c: confirmed)
+    monkeypatch.setattr(scan.time,"sleep",lambda s: pytest.fail("no repeat of confirmed or unresolved adapter error"))
+    _,attempts=scan.scan_live(day,day,set(),["财务报告","信息变更"])
+    assert calls==["财务报告","信息变更"]
+    assert attempts.iloc[0]["source_state"]==("SUCCESS_EMPTY" if confirmed else "FAILED")
+    assert bool(attempts.iloc[0]["empty_confirmation_attempted"])
+    assert bool(attempts.iloc[0]["confirmed_empty_after_adapter_error"])==confirmed
+    assert "代码" in attempts.iloc[0]["adapter_error_before_confirmation"]
