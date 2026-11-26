@@ -1,4 +1,4 @@
-name: OCC-R2A exact assets isolated replay (one-off)
+name: OCC-R2A full-universe exact continuation acceptance (one-off)
 on:
   push:
     branches: [audit/occ-r2a-exact-replay-20261126]
@@ -12,119 +12,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: c1d2d5a426fa755f5f6ccf3e06656de60d83744d
           fetch-depth: 1
           sparse-checkout: |
             scripts
             config
+            tests
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install existing valuation dependencies
-        run: pip install 'pandas>=2.2,<3' 'pyarrow>=17,<24'
-      - name: Fetch pinned accepted releases only
+        run: pip install 'pandas>=2.2,<3' 'pyarrow>=17,<24' pytest
+      - name: Validate exact continuation logic
+        run: pytest -q tests/test_occ_r2a_exact_continuation.py
+      - name: Fetch only accepted immutable releases
+        run: git fetch --no-tags --depth=1 --filter=blob:none origin 562ac7ad33d470c2e40c2418ec8e0764ca3f8b20 b8c927db10b7452b38b96691c2d1a356b1fbafe5 4a95886613628e8c28bd45ddbccc8efc9161a0aa
+      - name: Reuse accepted inputs to calculate full-market exact-formula candidate
         run: |
-          set -Eeuo pipefail
-          git fetch --no-tags --depth=1 --filter=blob:none origin 562ac7ad33d470c2e40c2418ec8e0764ca3f8b20 b8c927db10b7452b38b96691c2d1a356b1fbafe5 e6b28834da585720bbcd59b14726c4b5b34ac1b1
-      - name: Replay accepted baseline and 11-25 prices without provider calls or publishing
-        run: |
-          python - <<'PY'
-          import io, json, hashlib, subprocess, time
-          import pandas as pd
-          import numpy as np
-          from scripts import fmdl3dc_core as val
-          from scripts import fmdl3db_core as capcore
-          V='562ac7ad33d470c2e40c2418ec8e0764ca3f8b20'
-          F='b8c927db10b7452b38b96691c2d1a356b1fbafe5'
-          M='e6b28834da585720bbcd59b14726c4b5b34ac1b1'
-          D='2026-11-25'
-          def blob(ref,path,sha=None):
-              b=subprocess.check_output(['git','show',f'{ref}:{path}'])
-              if sha: assert hashlib.sha256(b).hexdigest()==sha, path
-              return b
-          def js(ref,path): return json.loads(blob(ref,path))
-          def pq(ref,path,sha=None): return pd.read_parquet(io.BytesIO(blob(ref,path,sha)))
-          def csv(ref,path,sha=None): return pd.read_csv(io.BytesIO(blob(ref,path,sha)),encoding='utf-8-sig',dtype={'symbol':str})
-          def manifest_map(ref,path):
-              return {r['path']:r['sha256'] for r in js(ref,path)['files']}
-          croot='outputs/capitalization/current/'
-          vroot='outputs/valuation/engine/current/'
-          caprel=js(V,croot+'FMDL3DB_RELEASE.json')
-          vrel=js(V,vroot+'FMDL3DC_RELEASE.json')
-          fctx=js(F,'outputs/occ_r2/financial/current/FINANCIAL_CONTEXT_RELEASE.json')
-          frel=js(F,'outputs/financial_factors/engine/current/FMDL3CB_RELEASE.json')
-          vctx=js(V,'outputs/occ_r2/valuation/current/FINANCIAL_VALUATION_CONTEXT_RELEASE.json')
-          assert fctx['status']==vctx['status']=='PASS'
-          assert vctx['source_lineage']['financial_source_commit']==F
-          assert frel['release_id']==vrel['source_releases']['factor_engine_release_id']==fctx['releases']['financial_factor_release_id']
-          assert caprel['release_id']==vrel['source_releases']['capitalization_release_id']
-          cm=manifest_map(V,croot+'FMDL3DB_MANIFEST.json')
-          vm=manifest_map(V,vroot+'FMDL3DC_MANIFEST.json')
-          cap=pq(V,caprel['capitalization_current_path'],cm['FMDL3DB_CAPITALIZATION_CURRENT.parquet'])
-          ledger=pq(V,caprel['effective_share_ledger_path'],cm['FMDL3DB_EFFECTIVE_SHARE_LEDGER.parquet'])
-          accepted=pq(V,vrel['valuation_current_path'],vm['FMDL3DC_VALUATION_CURRENT.parquet'])
-          profile=csv(F,frel['sector_profile_path'])
-          derived=pd.concat([pq(F,p) for p in frel['derived_input_shards']],ignore_index=True)
-          reg=pd.read_csv('config/fmdl3da_valuation_metric_registry.csv',encoding='utf-8-sig')
-          cfg=json.load(open('config/fmdl3dc_engine.json'))
-          mr=js(M,'outputs/current/CURRENT_RELEASE.json')
-          assert mr['as_of_date']==D and mr['status'] in {'PUBLISHED','PUBLISHED_WITH_WARNINGS'}
-          u=csv(M,mr['current_files']['a_share_universe']['path'],mr['current_files']['a_share_universe']['sha256'])
-          s=csv(M,mr['current_files']['daily_market_snapshot']['path'],mr['current_files']['daily_market_snapshot']['sha256'])
-          for df in (u,s,cap,accepted): assert not df.symbol.duplicated().any()
-          assert set(u.symbol)==set(s.symbol)
-          assert set(cap.symbol)==set(accepted.symbol)
-          assert len(ledger)==caprel['metrics']['effective_share_ledger_row_count']
-          start=time.monotonic()
-          detail,calc=val.build_outputs(cap,profile,derived,reg,cfg)
-          a=accepted.set_index('symbol').sort_index()
-          b=calc.set_index('symbol').sort_index()
-          mismatches={}
-          for mid,(x,y) in val.METRIC_COLUMN_MAP.items():
-              mismatches[mid]={'state':int((a[y]!=b[y]).sum()),'value':int((~np.isclose(a[x].astype(float),b[x].astype(float),rtol=1e-12,atol=1e-12,equal_nan=True)).sum())}
-          print('BASELINE_REPLAY',json.dumps({'rows':len(calc),'detail':len(detail),'mismatches':mismatches,'elapsed_seconds':round(time.monotonic()-start,3)},sort_keys=True),flush=True)
-          assert all(not q['state'] and not q['value'] for q in mismatches.values())
-          ui=u.set_index('symbol'); si=s.set_index('symbol'); ci=cap.set_index('symbol')
-          common=set(ci.index)&set(si.index)
-          new=set(si.index)-set(ci.index); missing=set(ci.index)-set(si.index)
-          def status_counts(ids):
-              idx=sorted(ids)
-              if not idx: return {}
-              return {str(k):int(v) for k,v in si.loc[idx,'data_status'].fillna('UNKNOWN').value_counts().items()}
-          positive=pd.to_numeric(si.close,errors='coerce').gt(0)
-          eligible=positive & si.record_quality.isin(['VALID','PARTIAL']) & ~si.data_status.isin(['NO_DATA','NOT_LISTED'])
-          known_shares=ledger.loc[ledger.source_effective_date.astype(str)<=D].sort_values(['symbol','source_effective_date','source_row_hash']).drop_duplicates('symbol',keep='last').set_index('symbol')
-          known_future=ledger.loc[(ledger.source_effective_date.astype(str)>'2026-11-18')&(ledger.source_effective_date.astype(str)<=D)]
-          selected_ids=sorted(common & set(eligible[eligible].index)&set(known_shares.index))
-          print('COHORT',json.dumps({'market_rows':len(s),'prior_exact_rows':len(cap),'common':len(common),'new_market_symbols':len(new),'new_market_status':status_counts(new),'new_price_eligible':len(new&set(eligible[eligible].index)),'missing_from_market':len(missing),'common_unpriced_or_unaccepted':len(common-set(eligible[eligible].index)),'common_unpriced_status':status_counts(common-set(eligible[eligible].index)),'known_share_events_after_baseline_rows':len(known_future),'known_share_events_after_baseline_symbols':known_future.symbol.nunique(),'shadow_price_and_share_eligible':len(selected_ids),'full_market_positive_accepted_price':int(eligible.sum())},sort_keys=True),flush=True)
-          # Shadow only: known share events from the accepted ledger, not a claim
-          # that all intervening share or financial events are already discovered.
-          shadow=ci.loc[selected_ids].copy()
-          market=si.loc[selected_ids]
-          shares=known_shares.loc[selected_ids]
-          shadow['price_as_of_date']=D
-          shadow['close']=pd.to_numeric(market.close,errors='raise')
-          shadow['price_row_hash']=market.row_hash
-          shadow['price_data_status']=market.data_status
-          shadow['price_record_quality']=market.record_quality
-          shadow['share_effective_date']=shares.source_effective_date
-          for col in ['total_shares','float_a_shares','limited_a_shares']:
-              shadow[col]=shares[col]
-          shadow['share_source_row_hash']=shares.source_row_hash
-          shadow['share_source_id']=shares.source_id
-          shadow['total_market_cap_cny']=shadow.close*shadow.total_shares
-          shadow['float_market_cap_cny']=shadow.close*shadow.float_a_shares
-          shadow['capitalization_state']=np.where(market.data_status.eq('SUSPENDED'),'VALID_WITH_WARNING','VALID')
-          shadow=shadow.reset_index()
-          shadow['lineage_id']=shadow.apply(lambda r:capcore.stable_hash({'symbol':r.symbol,'price_as_of_date':D,'price_row_hash':r.price_row_hash,'share_effective_date':r.share_effective_date,'share_source_row_hash':r.share_source_row_hash,'contract_version':'1.0.0'}),axis=1)
-          assert (shadow.share_effective_date.astype(str)<=D).all()
-          start=time.monotonic()
-          dt,ct=val.build_outputs(shadow,profile,derived,reg,cfg)
-          assert set(ct.trade_authority)=={'NONE'}
-          assert not ct.symbol.duplicated().any()
-          assert set(ct.market_as_of_date)=={D}
-          avail=pd.to_datetime(dt.denominator_available_from,utc=True,errors='coerce')
-          cutoff=pd.Timestamp(D+' 15:00:00',tz='Asia/Shanghai').tz_convert('UTC')
-          assert not (avail>cutoff).any()
-          print('SHADOW_ONLY',json.dumps({'rows':len(ct),'metric_rows':len(dt),'valid_counts':{str(k):int(v) for k,v in dt.loc[dt.decision_grade].groupby('metric_id').size().items()},'elapsed_seconds':round(time.monotonic()-start,3),'financial_event_completeness':'UNPROVEN','share_event_completeness':'UNPROVEN','production_ready':False,'orders':0,'production_write':False,'trade_authority':'NONE'},sort_keys=True),flush=True)
-          PY
+          python -m scripts.run_occ_r2a_exact_continuation \
+            --market-commit 4a95886613628e8c28bd45ddbccc8efc9161a0aa \
+            --financial-commit b8c927db10b7452b38b96691c2d1a356b1fbafe5 \
+            --exact-commit 562ac7ad33d470c2e40c2418ec8e0764ca3f8b20 \
+            --output /tmp/exact-candidate
+      - name: Preserve actual candidate and explicit blocking decision
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-universe-exact-continuation-20261126
+          path: /tmp/exact-candidate/
+          if-no-files-found: error
+          retention-days: 30
