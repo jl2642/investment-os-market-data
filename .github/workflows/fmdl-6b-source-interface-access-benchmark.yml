@@ -12,130 +12,108 @@ jobs:
   public-read-only-probe:
     if: github.ref == 'refs/heads/sandbox/invos-mod-p2-20261126'
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 6
     steps:
-      - name: Reacquire only two bounded prior test exports to identify missing IDs and event keys
+      - name: Fetch exact reviewed adapter and formal contract without credentials
+        run: |
+          python3 -u - <<'PY'
+          import os,hashlib,urllib.request
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"invos_p5";p.mkdir(exist_ok=True)
+          def fetch(commit,name,sha,dest):
+              with urllib.request.urlopen("https://raw.githubusercontent.com/jl2642/investment-os-market-data/"+commit+"/"+name,timeout=25) as r:b=r.read(2000001)
+              assert hashlib.sha1(("blob "+str(len(b))+"\0").encode()+b).hexdigest()==sha
+              f=p/dest;f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(b)
+          fetch("7effd2768d12cf3fac7da63989de2334aa7db236","ingestion/hithink_daily_shadow.py","33d345ab1d62e2250dc6087f5ce3b9f7d46b4a39","adapter.py")
+          for name,sha in {"pipeline/common.py":"fe995d3f45dff0fcf4b558fe61371b3bd0714236","pipeline/quality.py":"ae8ce39b049d326a54100675cdd3f2d75c5b2a9d","schemas/daily_market_snapshot.schema.json":"6ba47c24f3771c7e67b18b953edf84c7fa738dd1","schemas/a_share_universe.schema.json":"3408affa409de8a30f3bf817637e5447c1e9466c","config/quality_gates.json":"d69b46da46cf9b3b32bd5e216ec0fbff2597546c"}.items():fetch("9ca05b86ee9ad26e16215c0ab305f7c7ab593c55",name,sha,name)
+          print("PINNED_ADAPTER_AND_FORMAL_CONTRACTS_VERIFIED",flush=True)
+          
+          PY
+      - name: Actual bounded adapter fetch
         env:
           HITHINK_FINANCE_API_KEY: ${{ secrets.HITHINK_FINANCE_API_KEY }}
         run: |
           timeout 100 python3 -u - <<'PY'
-          import os,sys,json,time,hashlib,urllib.request,urllib.parse,urllib.error
+          import os,sys,json,time
           from pathlib import Path
-          def emit(**x):print(json.dumps(x),flush=True)
-          key=os.environ.get("HITHINK_FINANCE_API_KEY","")
-          if not key:emit(test="AUTH",status="SECRET_MISSING");sys.exit(2)
-          class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self,*args):return None
-          opener=urllib.request.build_opener(NoRedirect())
-          p=Path(os.environ["RUNNER_TEMP"])/"invos_mod_p2_e18";p.mkdir(exist_ok=True)
-          for name,cap in [("daily-k-10d",16*1024*1024),("adjustment-factors",8*1024*1024)]:
-              t=time.monotonic()
-              try:
-                  with opener.open(urllib.request.Request("https://fuyao.aicubes.cn/api/dump/market-dumps/"+name+"/download-url",headers={"X-api-key":key,"User-Agent":"INVOS-MOD-001-bounded-test/1.0"}),timeout=20) as r:res=json.loads(r.read(65536))
-                  code=res.get("code")
-                  if code!=0:emit(test="BOUNDED_DUMP",label=name,code=code,status="NO_TICKET");continue
-                  url=res.get("data",{}).get("presigned_url","")
-                  if urllib.parse.urlsplit(url).scheme!="https":raise ValueError("URL_SCHEME")
-                  # No credential follows the object store request; never print the signed URL or raw exception.
-                  dest=p/(name+".parquet");h=hashlib.sha256();n=0
-                  with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"INVOS-MOD-001-bounded-test/1.0"}),timeout=30) as r,dest.open("wb") as f:
-                      while True:
-                          b=r.read(1024*1024)
-                          if not b:break
-                          n+=len(b)
-                          if n>cap:raise ValueError("BYTE_CAP")
-                          h.update(b);f.write(b)
-                  with dest.open("rb") as f:
-                      valid=f.read(4)==b"PAR1";f.seek(-4,2);valid=valid and f.read(4)==b"PAR1"
-                  if not valid:dest.unlink(missing_ok=True)
-                  emit(test="BOUNDED_DUMP",label=name,code=0,valid=valid,bytes=n,sha256=h.hexdigest(),seconds=round(time.monotonic()-t,3))
-              except Exception as e:
-                  (p/(name+".parquet")).unlink(missing_ok=True);emit(test="BOUNDED_DUMP",label=name,status="ERROR",error_type=type(e).__name__)
+          p=Path(os.environ["RUNNER_TEMP"])/"invos_p5";sys.path.insert(0,str(p))
+          from adapter import read_incremental_dump,SourceUnavailable
+          t=time.monotonic()
+          try:
+              r=read_incremental_dump(os.environ.get("HITHINK_FINANCE_API_KEY",""),p/"daily.parquet")
+              print(json.dumps({"test":"LIVE_DOWNLOAD",**r,"seconds":round(time.monotonic()-t,3)}),flush=True)
+          except SourceUnavailable as e:print(json.dumps({"test":"LIVE_DOWNLOAD","status":"FAIL","reason":str(e)}),flush=True);raise SystemExit(2)
           
           PY
-      - name: Inspect identities and execute reviewed upstream adjustment component without API key
+      - name: Fault tests and actual formal snapshot quality evaluation
         run: |
-          python3 -m pip install --only-binary=:all: --disable-pip-version-check --retries 0 --timeout 15 duckdb pytest
+          python3 -m pip install --only-binary=:all: --disable-pip-version-check --retries 0 --timeout 15 duckdb pandas jsonschema
           timeout 150 python3 -u - <<'PY'
-          import csv,io,datetime as dt,os,sys,json,hashlib,urllib.request,collections,math
+          import os,sys,json,urllib.request,urllib.error,hashlib,io,datetime as dt,time
           from pathlib import Path
-          from zoneinfo import ZoneInfo
-          import duckdb
-          def emit(**x):print(json.dumps(x,default=str),flush=True)
-          p=Path(os.environ["RUNNER_TEMP"])/"invos_mod_p2_e18"
-          c=duckdb.connect(":memory:");D="2026-11-24";zone=ZoneInfo("Asia/Shanghai")
-          def get(url,cap):
-              with urllib.request.urlopen(url,timeout=30) as r:b=r.read(cap+1)
-              if len(b)>cap:raise ValueError("CAP")
-              return b
-          def view(name,path):c.execute("CREATE OR REPLACE VIEW "+name+" AS SELECT * FROM read_parquet('"+str(path).replace("'","''")+"')")
-          def dateexpr(col):return "CAST(to_timestamp("+col+"/1000) AT TIME ZONE 'Asia/Shanghai' AS DATE)"
+          p=Path(os.environ["RUNNER_TEMP"])/"invos_p5";sys.path.insert(0,str(p))
+          import duckdb,pandas as pd
+          from adapter import *
+          from pipeline.common import stable_row_hash,clean_scalar
+          from pipeline.quality import evaluate_snapshot,evaluate_universe
+          def emit(**r):print(json.dumps(r,default=str),flush=True)
+          D="2026-11-24";s="600519.SH";s2="600185.SH";s3="300750.SZ"
+          def bar(symbol=s,day=D,**kwargs):
+              return dict(thscode=symbol,date_ms=int(dt.datetime.fromisoformat(day).replace(tzinfo=ZONE).timestamp()*1000),adjusted="none",currency="CNY",interval="1d",open_price=10,high_price=11,low_price=9,close_price=10,volume=1000,turnover=10000,**kwargs)
+          def meta(symbol):
+              return dict(symbol=symbol,as_of_date=D,prev_close=10,pct_change=0,data_status="TRADED",open=10,high=11,low=9,close=10,volume_shares=1000,turnover_cny=10000,record_quality="VALID",source_primary="legacy")
+          q,c=normalize_rows([bar(),bar(),bar(s2,"2026-11-25"),dict(bar(s3),high_price=1)],{D},{s,s2,s3})
+          assert len(q)==0 and c["duplicate_key"]==1 and c["outside_session"]==1 and c["invalid_bar"]==1
+          calls=[]
+          def fb(ids):calls.append(ids);return {s:meta(s),s3:{**meta(s3),"as_of_date":"2026-11-23"}}
+          a,b=resolve_day(q,D,{x:meta(x) for x in (s,s2,s3)},fb,{s2})
+          assert len(calls)==1 and b=={"needs_legacy":2,"confirmed_suspension":1,"legacy":1,"unresolved":1} and a[s2]["close"] is None and s3 not in a
+          q,_=normalize_rows([bar()],{D},{s});a,b=resolve_day(q,D,{s:meta(s)},lambda ids: (_ for _ in ()).throw(AssertionError("unnecessary fallback")))
+          assert b=={"primary":1} and a[s]["source_primary"].startswith("hithink")
+          assert raw_gap_plan(q,[D],[s,s2],{(s2,D)})=={"raw_ready":1,"confirmed_no_trade":1,"status_conflict":0,"missing":0,"history_append_authorized":False,"adjustment_mode":"none"}
+          for kind in ("timeout","429","403"):
+              tries=[]
+              def fail(req,timeout):
+                  tries.append(1)
+                  if kind=="timeout":raise TimeoutError()
+                  raise urllib.error.HTTPError(req.full_url,int(kind),"",{},None)
+              try:read_incremental_dump("synthetic-test-only",p/"fault.parquet",sleep=lambda _:None,opener=fail)
+              except SourceUnavailable:pass
+              else:raise AssertionError("failure not raised")
+              assert len(tries)==(1 if kind=="403" else 2)
+          emit(test="FAULT_TESTS",status="PASS",cases=["duplicate","wrong_date","invalid_ohlc","partial_fallback","stale_fallback_rejected","confirmed_suspension","no_fallback_for_valid_row","raw_gap_no_qfq","timeout_retry","429_retry","403_no_retry"])
+          # Frozen accepted baseline. This is a shadow integration test, not a live fallback fetch.
           baseurl="https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/outputs/current/"
-          raw=get(baseurl+"DAILY_MARKET_SNAPSHOT.csv",4000000)
-          assert hashlib.sha256(raw).hexdigest()=="5876ebcdd8a99c411a4552c6e2178bde7d52b8f89844ac6a11f62fb87179e988"
-          base={r["symbol"]:r for r in csv.DictReader(io.StringIO(raw.decode("utf-8-sig")))}
-          rawu=get(baseurl+"A_SHARE_UNIVERSE.csv",4000000)
-          assert hashlib.sha256(rawu).hexdigest()=="ab6c9ea596da0c29ec87dc8c7c54bc5a41db340783fd1cec58c9ed551488d054"
-          univ={r["symbol"]:r for r in csv.DictReader(io.StringIO(rawu.decode("utf-8-sig")))}
-          if (p/"daily-k-10d.parquet").exists():
-              view("daily",p/"daily-k-10d.parquet")
-              dates=c.execute("SELECT min("+dateexpr("date_ms")+"),max("+dateexpr("date_ms")+"),count(*) FROM daily").fetchone()
-              seen={x[0] for x in c.execute("SELECT DISTINCT thscode FROM daily WHERE "+dateexpr("date_ms")+"=DATE '2026-11-24'").fetchall()}
-              missing=sorted(set(base)-seen)
-              extra=sorted(seen-set(base))
-              if seen:
-                  emit(test="T01_MISSING_ID",base=len(base),matched=len(seen&set(base)),extra=len(extra),missing=[{"symbol":s,"formal_status":base[s].get("data_status"),"is_suspended":univ.get(s,{}).get("is_suspended"),"security_type":univ.get(s,{}).get("security_type"),"is_st":univ.get(s,{}).get("is_st"),"list_date":univ.get(s,{}).get("list_date")} for s in missing],window=[str(dates[0]),str(dates[1])],rows=dates[2],note="no raw quote output; original E15 file was not retained, current export may be revised")
-              else:emit(test="T01_MISSING_ID",status="FROZEN_DATE_NOT_INCLUDED")
-          else:emit(test="T01_MISSING_ID",status="NO_FILE")
-          if (p/"adjustment-factors.parquet").exists():
-              view("events",p/"adjustment-factors.parquet")
-              q=c.execute("SELECT thscode,"+dateexpr("ex_date_ms")+" AS d,count(*) AS n,count(DISTINCT (dividend_per_share,per_share_bonus,allotment_ratio,allotment_price,currency)) AS variants FROM events GROUP BY thscode,d HAVING count(*)>1 ORDER BY thscode,d").fetchall()
-              z=c.execute("SELECT count(*) FILTER (WHERE "+dateexpr("ex_date_ms")+">DATE '2026-11-24'),count(*) FILTER (WHERE "+dateexpr("ex_date_ms")+" IS NULL),count(*) FILTER (WHERE dividend_per_share IS NULL OR per_share_bonus IS NULL OR allotment_ratio IS NULL OR allotment_price IS NULL) FROM events").fetchone()
-              emit(test="T04_EVENT_KEYS",duplicate_groups=[{"symbol":s,"date":str(d),"rows":n,"distinct_event_payloads":v} for s,d,n,v in q],future_after_frozen_date=z[0],null_dates=z[1],rows_with_null_event_field=z[2],note="same-day variants not automatically duplicates; future events must be excluded in frozen replay")
-          else:emit(test="T04_EVENT_KEYS",status="NO_FILE")
-          # Fetch only reviewed upstream source files pinned to exact commit, validate Git blob digests before executing.
-          ref="63ecb1d2ea56b7c083a1f2280977b5ebf75b2a6e"
-          files={"marketdb/calculations/adjustment.py":"df9e5d60ada6953b14452aff94f4c4c14137aa2f","marketdb/calculations/__init__.py":"0aa6413d510dbec24c0a927b3472d34a5b465a29","marketdb/batch.py":"376dce8fd29ebf31e74854f13040e273a7fc3fe5","marketdb/schema.py":"241cb47e4f845da85317c54a17123957a8c746e2","marketdb/__init__.py":"e15ea3720cd1d350a612666ce601a4f572da68b6","marketdb/db.py":"eef62c4625af1cda8e1ae15831a29c2f79bba9a0","marketdb/_version.py":"cd12bdb87d94650bb60bf2167d32a2f88ef6a68b","marketdb/sql/schema.sql":"b55af9d65384276a0872747654bf0bbddb5eeb2f","marketdb/sql/views.sql":"1e292ad0611ec63b2c6fcfc6a16c29edc7c3f1d0","tests/conftest.py":"d15e549be28a63f1689d75761b0969d7d6bf25aa","tests/test_adjustment.py":"4fd74c36930e219d344559f389b4c28a880d06b6"}
-          root=p/"upstream";root.mkdir(exist_ok=True)
-          for name,want in files.items():
-              b=get("https://raw.githubusercontent.com/Hithink-Tech-Org/Financial-API/"+ref+"/python/"+name,100000)
-              assert hashlib.sha1(("blob "+str(len(b))+"\0").encode()+b).hexdigest()==want
-              f=root/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(b)
-          b=get("https://raw.githubusercontent.com/Hithink-Tech-Org/Financial-API/"+ref+"/LICENSE",20000)
-          assert hashlib.sha1(("blob "+str(len(b))+"\0").encode()+b).hexdigest()=="b5c8de1300abe6bf17213830d090d91e43805f22"
-          (root/"LICENSE").write_bytes(b)
-          sys.path.insert(0,str(root))
-          import pytest
-          ret=pytest.main(["-q","-p","no:cacheprovider",str(root/"tests/test_adjustment.py")])
-          emit(test="UPSTREAM_TEST",pinned_commit=ref,verified_files=len(files)+1,pytest_exit_code=int(ret),scope="exact upstream 3 adjustment tests; not entire CLI")
-          from marketdb.schema import init_schema
-          from marketdb.calculations.adjustment import rebuild_adjustment_factors
-          db=duckdb.connect(":memory:");init_schema(db)
-          # Additional deliberate synthetic test of duplicate keys and point-in-time freeze, no live financial data.
-          db.execute("INSERT INTO raw_kline_daily(thscode,date,open,high,low,close,volume,turnover) VALUES ('TEST',DATE '2026-11-23',100,101,99,100,1000,100000),('TEST',DATE '2026-11-24',95,96,94,95,1000,95000)")
-          db.execute("INSERT INTO raw_adjustment_events(thscode,ex_date,dividend_per_share,per_share_bonus,allotment_ratio,allotment_price) VALUES ('TEST',DATE '2026-11-24',5,0,0,0),('TEST',DATE '2026-11-26',2,0,0,0)")
-          duplicate_rejected=False
-          try:db.execute("INSERT INTO raw_adjustment_events(thscode,ex_date,dividend_per_share,per_share_bonus,allotment_ratio,allotment_price) VALUES ('TEST',DATE '2026-11-24',0,0.1,0,0)")
-          except duckdb.ConstraintException:duplicate_rejected=True
-          n=rebuild_adjustment_factors(db);q=db.execute("SELECT date,forward_factor,backward_factor FROM calc_adjust_factor_daily ORDER BY date").fetchall()
-          emit(test="UPSTREAM_EDGE",rows=n,duplicate_same_day_insert_rejected=duplicate_rejected,future_event_no_factor_at_frozen_date=(len(q)==2 and abs(q[0][1]-.95)<1e-9 and abs(q[1][1]-1)<1e-9),scope="synthetic exact upstream function; no full market or independent live corporate-action confirmation")
-          # Actual event sample with both a prior close and a later raw close available in existing 10-day export, no duplicate group.
-          if (p/"daily-k-10d.parquet").exists() and (p/"adjustment-factors.parquet").exists():
-              pairs=c.execute("WITH k AS (SELECT thscode,"+dateexpr("date_ms")+" d,open_price,high_price,low_price,close_price,volume,turnover FROM daily WHERE "+dateexpr("date_ms")+"<=DATE '2026-11-24'), e AS (SELECT thscode,"+dateexpr("ex_date_ms")+" d,dividend_per_share,per_share_bonus,allotment_ratio,allotment_price FROM events WHERE "+dateexpr("ex_date_ms")+"<=DATE '2026-11-24' QUALIFY count(*) OVER(PARTITION BY thscode,"+dateexpr("ex_date_ms")+")=1) SELECT e.* FROM e JOIN k ON e.thscode=k.thscode AND e.d=k.d WHERE EXISTS(SELECT 1 FROM k k2 WHERE k2.thscode=e.thscode AND k2.d<e.d) ORDER BY e.thscode,e.d LIMIT 8").fetchall()
-              tested=0;fail=0
-              for s,d,div,bonus,rights,rprice in pairs:
-                  db=duckdb.connect(":memory:");init_schema(db)
-                  k=c.execute("SELECT "+dateexpr("date_ms")+",open_price,high_price,low_price,close_price,volume,turnover FROM daily WHERE thscode=? AND "+dateexpr("date_ms")+"<=DATE '2026-11-24' ORDER BY date_ms",[s]).fetchall()
-                  db.executemany("INSERT INTO raw_kline_daily(thscode,date,open,high,low,close,volume,turnover) VALUES (?,?,?,?,?,?,?,?)",[(s,*r) for r in k])
-                  db.execute("INSERT INTO raw_adjustment_events(thscode,ex_date,dividend_per_share,per_share_bonus,allotment_ratio,allotment_price) VALUES (?,?,?,?,?,?)",[s,d,div,bonus,rights,rprice])
-                  prev=[r[4] for r in k if r[0]<d][-1];expected=prev*(1+(bonus or 0)+(rights or 0))/(prev-(div or 0)+(rights or 0)*(rprice or 0))
-                  rebuild_adjustment_factors(db);row=db.execute("SELECT backward_factor FROM calc_adjust_factor_daily WHERE date=?",[d]).fetchone()
-                  ok=row and abs(row[0]-expected)<1e-9
-                  tested+=1;fail+=int(not ok)
-              emit(test="UPSTREAM_LIVE_EVENT",sample_events=tested,formula_failures=fail,scope="official component applied to bounded live event pairs and independent arithmetic; event completeness and exchange-source amounts unverified")
+          def frozen(name,sha):
+              with urllib.request.urlopen(baseurl+name,timeout=25) as r:b=r.read(4000000)
+              assert hashlib.sha256(b).hexdigest()==sha
+              return pd.read_csv(io.BytesIO(b),dtype={"symbol":str,"source_symbol":str})
+          snap=frozen("DAILY_MARKET_SNAPSHOT.csv","5876ebcdd8a99c411a4552c6e2178bde7d52b8f89844ac6a11f62fb87179e988");univ=frozen("A_SHARE_UNIVERSE.csv","ab6c9ea596da0c29ec87dc8c7c54bc5a41db340783fd1cec58c9ed551488d054")
+          def records(frame):return [{k:clean_scalar(v) for k,v in r.items()} for r in frame.to_dict("records")]
+          md={r["symbol"]:r for r in records(snap)}
+          conn=duckdb.connect(":memory:")
+          f=str(p/"daily.parquet").replace("'","''")
+          res=conn.execute("SELECT * FROM read_parquet('"+f+"')");cols=[x[0] for x in res.description];rows=[dict(zip(cols,r)) for r in res.fetchall()]
+          # Calendar frozen from the already confirmed 10-day session range up through comparison date.
+          sessions=["2026-11-12","2026-11-13","2026-11-16","2026-11-17","2026-11-18","2026-11-19","2026-11-20","2026-11-23","2026-11-24"]
+          t=time.monotonic();q,counts=normalize_rows(rows,sessions,md);susp={"002717.SZ","600185.SH","600567.SH","688121.SH","688496.SH"}
+          a,b=resolve_day(q,D,md,lambda ids:{k:md[k] for k in ids},susp)
+          for row in a.values():row["row_hash"]=stable_row_hash(row)
+          out=pd.DataFrame(list(a.values()),columns=snap.columns)
+          # Adjust only shadow universe status for the five independently established frozen-date suspensions.
+          u=univ.copy()
+          for i,r in u.iterrows():
+              if r["symbol"] in susp:
+                  u.loc[i,"is_suspended"]=True;u.loc[i,"listing_status"]="SUSPENDED";u.loc[i,"record_quality"]="PARTIAL"
+                  u.loc[i,"row_hash"]=stable_row_hash({k:clean_scalar(v) for k,v in u.loc[i].to_dict().items()})
+          assert len(out)==len(snap) and set(out.symbol)==set(snap.symbol)
+          qa=evaluate_snapshot(out,universe=u,root=p);old=evaluate_snapshot(snap,universe=univ,root=p);uq=evaluate_universe(u,root=p,lkg_frame=univ)
+          emit(test="FORMAL_SNAPSHOT_SHADOW",rows=len(out),routes=b,normalization=counts,seconds=round(time.monotonic()-t,3),new_hard_gates=qa.hard_failures,old_hard_gates=old.hard_failures,universe_hard_gates=uq.hard_failures,old_qa=old.qa_status,new_qa=qa.qa_status,old_traded=old.metrics["traded_row_count"],new_traded=qa.metrics["traded_row_count"],scope="actual frozen-day integration, same-session legacy metadata and fallback, no production efficiency or live fallback claim")
+          assert not qa.hard_failures and not uq.hard_failures
+          emit(test="SHORT_GAP_INVENTORY",**raw_gap_plan(q,sessions,list(md),{(s,D) for s in susp}),scope="raw only; historical qfq continuity and factor screening not executed")
           emit(test="END",production_write=False,orders=0,trade_authority="NONE")
           
           PY
-      - name: Remove ephemeral downloads and upstream source
+      - name: Remove all transient data
         if: always()
-        run: rm -rf "$RUNNER_TEMP/invos_mod_p2_e18"
+        run: rm -rf "$RUNNER_TEMP/invos_p5"
