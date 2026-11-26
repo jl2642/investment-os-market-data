@@ -14,149 +14,128 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
-      - name: Single-symbol long adjustment retry only
+      - name: Reacquire only two bounded prior test exports to identify missing IDs and event keys
         env:
           HITHINK_FINANCE_API_KEY: ${{ secrets.HITHINK_FINANCE_API_KEY }}
         run: |
-          timeout 110 python3 -u - <<'PY'
-          import os,json,datetime as dt,urllib.request,urllib.parse,urllib.error,time,hashlib,ssl,sys
-          from zoneinfo import ZoneInfo
+          timeout 100 python3 -u - <<'PY'
+          import os,sys,json,time,hashlib,urllib.request,urllib.parse,urllib.error
           from pathlib import Path
-          def emit(**r):print(json.dumps(r,ensure_ascii=False),flush=True)
+          def emit(**x):print(json.dumps(x),flush=True)
           key=os.environ.get("HITHINK_FINANCE_API_KEY","")
-          if not key:
-              emit(test="AUTH",status="SECRET_NOT_AVAILABLE");sys.exit(2)
-          emit(test="AUTH",status="SECRET_PRESENT")
-          # Authentication is confined to the exact HTTPS origin. No redirect may forward credentials.
+          if not key:emit(test="AUTH",status="SECRET_MISSING");sys.exit(2)
           class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self,req,fp,code,msg,headers,newurl):return None
+              def redirect_request(self,*args):return None
           opener=urllib.request.build_opener(NoRedirect())
-          origin="https://fuyao.aicubes.cn"; zone=ZoneInfo("Asia/Shanghai")
-          def ms(y,m,d):return int(dt.datetime(y,m,d,tzinfo=zone).timestamp()*1000)
-          def date(v):
-              try:return dt.datetime.fromtimestamp(int(v)/1000,zone).date().isoformat()
-              except:return None
-          def api(label,path,params={}):
+          p=Path(os.environ["RUNNER_TEMP"])/"invos_mod_p2_e18";p.mkdir(exist_ok=True)
+          for name,cap in [("daily-k-10d",16*1024*1024),("adjustment-factors",8*1024*1024)]:
               t=time.monotonic()
               try:
-                  url=origin+path+("?"+urllib.parse.urlencode(params) if params else "")
-                  req=urllib.request.Request(url,headers={"X-api-key":key,"Accept":"application/json","User-Agent":"INVOS-MOD-001-bounded-test/1.0"})
-                  with opener.open(req,timeout=25) as r:
-                      raw=r.read(4_000_001);http=r.status
-                  if len(raw)>4_000_000:raise ValueError("cap")
-                  j=json.loads(raw);code=j.get("code");d=j.get("data")
-                  emit(test="API",label=label,http=http,code=code if isinstance(code,int) else None,seconds=round(time.monotonic()-t,3),response_bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),data_type=type(d).__name__)
-                  if code!=0 or not isinstance(d,dict):return None
-                  return d
-              except urllib.error.HTTPError as e:emit(test="API",label=label,http=e.code,status="HTTP_ERROR");return None
-              except Exception as e:emit(test="API",label=label,error_type=type(e).__name__);return None
-          def rows(d):return d.get("item",[]) if isinstance(d,dict) and isinstance(d.get("item"),list) else []
-          def summary(label,d,expected):
-              groups=rows(d);result=[]
-              for g in groups:
-                  if not isinstance(g,dict) or g.get("thscode") not in expected:continue
-                  v=g.get("item",[])
-                  if not isinstance(v,list):continue
-                  vv=[x for x in v if isinstance(x,dict)]
-                  result.append({"symbol":g["thscode"],"rows":len(vv),"fields":sorted(set().union(*(set(x) for x in vv))) if vv else [],"dates":sorted(set(filter(None,(date(x.get("date_ms") or x.get("period_end_ms")) for x in vv)))),"disclosure_dates":sorted(set(filter(None,(date(x.get("report_date_ms")) for x in vv)))),"null_fields":sorted({k for x in vv for k,val in x.items() if val is None})})
-              emit(test="GROUPS",label=label,groups=result,missing=sorted(set(expected)-{x["symbol"] for x in result}))
-          
-          
-          
-          # Retry only one symbol with the previously failed long-window endpoint; independent comparison on same dates.
-          import math
-          s="600519.SH";p={"thscode":s,"interval":"1d","start":ms(2025,11,1),"end":ms(2026,11,25)-1}
-          def series(d):return {date(r["date_ms"]):r for r in rows(d) if date(r.get("date_ms"))}
-          x=series(api("retry_maotai_raw","/api/a-share/prices/historical",{**p,"adjust":"none"}))
-          y=series(api("retry_maotai_forward","/api/a-share/prices/historical",{**p,"adjust":"forward"}))
-          ev=rows(api("retry_maotai_events","/api/a-share/corporate-actions/adjustment-factors",{"thscode":s,"from":"2025-11-01","to":"2026-11-24"}))
-          ds=sorted(set(x)&set(y));by={date(r["ex_date_ms"]):r for r in ev};calc={};m=1.;prev=None;skipped=0
-          for d in sorted(x):
-              if d in by:
-                  z=by[d];div=float(z.get("dividend_per_share") or 0);bonus=float(z.get("per_share_bonus") or 0)
-                  if prev is None or prev<=div:skipped+=1
-                  else:m*=prev*(1+bonus)/(prev-div)
-              calc[d]=m;prev=float(x[d]["close_price"])
-          spreads=[];returns=[];level=[];last=None
-          for d in ds:
-              k=[float(y[d][f])/float(x[d][f]) for f in ("open_price","high_price","low_price","close_price")]
-              spreads.append(max(k)-min(k));c=float(x[d]["close_price"])*calc[d]/m;v=float(y[d]["close_price"])
-              level.append(abs(c-v))
-              if last:returns.append(abs(c/last[0]-v/last[1]))
-              last=(c,v)
-          emit(test="RETRY_ADJUST",symbol=s,raw=len(x),forward=len(y),matched=len(ds),events=len(ev),event_dates=sorted(by),unmapped=len(set(by)-set(x)),skipped=skipped,ratio_spread_over_1bp=sum(v>.0001 for v in spreads) if spreads else None,return_diff_over_10bp=sum(v>.001 for v in returns) if returns else None,max_return_diff=max(returns,default=None),max_close_difference=max(level,default=None),status="COMPARISON_EXECUTED" if len(ds)>=251 and ev else "INCOMPLETE",scope="single bounded sample; formula replay not official package deployment")
-          emit(test="AUTH_END",orders=0,production_write=False,trade_authority="NONE")
+                  with opener.open(urllib.request.Request("https://fuyao.aicubes.cn/api/dump/market-dumps/"+name+"/download-url",headers={"X-api-key":key,"User-Agent":"INVOS-MOD-001-bounded-test/1.0"}),timeout=20) as r:res=json.loads(r.read(65536))
+                  code=res.get("code")
+                  if code!=0:emit(test="BOUNDED_DUMP",label=name,code=code,status="NO_TICKET");continue
+                  url=res.get("data",{}).get("presigned_url","")
+                  if urllib.parse.urlsplit(url).scheme!="https":raise ValueError("URL_SCHEME")
+                  # No credential follows the object store request; never print the signed URL or raw exception.
+                  dest=p/(name+".parquet");h=hashlib.sha256();n=0
+                  with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"INVOS-MOD-001-bounded-test/1.0"}),timeout=30) as r,dest.open("wb") as f:
+                      while True:
+                          b=r.read(1024*1024)
+                          if not b:break
+                          n+=len(b)
+                          if n>cap:raise ValueError("BYTE_CAP")
+                          h.update(b);f.write(b)
+                  with dest.open("rb") as f:
+                      valid=f.read(4)==b"PAR1";f.seek(-4,2);valid=valid and f.read(4)==b"PAR1"
+                  if not valid:dest.unlink(missing_ok=True)
+                  emit(test="BOUNDED_DUMP",label=name,code=0,valid=valid,bytes=n,sha256=h.hexdigest(),seconds=round(time.monotonic()-t,3))
+              except Exception as e:
+                  (p/(name+".parquet")).unlink(missing_ok=True);emit(test="BOUNDED_DUMP",label=name,status="ERROR",error_type=type(e).__name__)
           
           PY
-      - name: Existing bounded cross-market capture comparison
-        if: always()
+      - name: Inspect identities and execute reviewed upstream adjustment component without API key
         run: |
-          timeout 110 python3 -u - <<'PY'
-          import urllib.request,urllib.parse,hashlib,json,datetime as dt,math,time
+          python3 -m pip install --only-binary=:all: --disable-pip-version-check --retries 0 --timeout 15 duckdb pytest
+          timeout 150 python3 -u - <<'PY'
+          import csv,io,datetime as dt,os,sys,json,hashlib,urllib.request,collections,math
+          from pathlib import Path
           from zoneinfo import ZoneInfo
-          def emit(**x):print(json.dumps(x),flush=True)
-          def get(u,cap=3000000):
-              t=time.monotonic()
-              with urllib.request.urlopen(urllib.request.Request(u,headers={"User-Agent":"INVOS-MOD-001-bounded-test/1.0"}),timeout=25) as r:b=r.read(cap+1)
-              if len(b)>cap:raise ValueError("cap")
-              return b,round(time.monotonic()-t,3)
-          u="https://raw.githubusercontent.com/jl2642/investment-os-market-data/7e9fd3e5183b44e349276f01522f0b55be50ef4f/investment_os_runtime/40_EVIDENCE_AND_LINEAGE/CROSS_MARKET_LIMITED/ROUND3_2026-11-24_B1_2605adeecc/ROUND3_RUN_EVIDENCE.json"
-          b,t=get(u)
-          # Verify the exact Git blob ID (not confuse Git SHA1 with raw SHA256).
-          if hashlib.sha1(("blob "+str(len(b))+"\0").encode()+b).hexdigest()!="1aad56cbba87ab81a0e96b36a0a06e45e73c64c0":raise ValueError("formal evidence blob mismatch")
-          j=json.loads(b);D="2026-11-24"
-          for market,p,zone in [("HK","hk","Asia/Hong_Kong"),("US","us","America/New_York")]:
-              good={r["symbol"]:r for r in j[p+"_market_successes"]};fail={r["symbol"]:r for r in j[p+"_market_failures"]};ids=list(dict.fromkeys(list(good)+list(fail)));mapping={s+"."+market:s for s in ids}
-              tz=ZoneInfo(zone);end=int(dt.datetime(2026,11,25,tzinfo=tz).timestamp()*1000)-1
-              data={};requests=0;errors=0
-              for i in range(0,len(mapping),100):
-                  batch=list(mapping)[i:i+100];requests+=1
-                  try:
-                      raw,sec=get("https://free-api.tickflow.org/v1/klines/batch?"+urllib.parse.urlencode({"symbols":",".join(batch),"period":"1d","adjust":"none","count":1,"end_time":end}))
-                      resp=json.loads(raw).get("data",{});data.update(resp)
-                      emit(test="CROSS_BATCH",market=market,requested=len(batch),returned=len(resp),seconds=sec,sha256=hashlib.sha256(raw).hexdigest())
-                  except Exception as ex:errors+=1;emit(test="CROSS_BATCH",market=market,error_type=type(ex).__name__)
-              same={};stale=0;bad=0
-              for k,v in data.items():
-                  if k not in mapping:continue
-                  try:
-                      d=dt.datetime.fromtimestamp(v["timestamp"][-1]/1000,tz).date().isoformat();price=float(v["close"][-1])
-                      if d==D and math.isfinite(price) and price>0:same[mapping[k]]=price
-                      elif d!=D:stale+=1
-                      else:bad+=1
-                  except:bad+=1
-              common=set(good)&set(same);mismatch=[s for s in common if abs(float(good[s]["close"])-same[s])>.0100001]
-              emit(test="CROSS_SCOPE",market=market,formal_attempted=len(ids),formal_success=len(good),formal_failed=len(fail),source_returned=len(data),same_day_positive=len(same),stale=stale,invalid=bad,common_success=len(common),close_match_1cent=len(common)-len(mismatch),close_mismatch=len(mismatch),max_relative_delta=max((abs(float(good[s]["close"])-same[s])/float(good[s]["close"]) for s in common if float(good[s]["close"])>0),default=None),prior_failures_recovered=len(set(fail)&set(same)),requests=requests,request_errors=errors,note="finite formal sample only; raw code mapping, price cross-check not exchange official; volume units not assumed")
-          emit(test="CROSS_END",orders=0,production_write=False,trade_authority="NONE")
-          
-          PY
-      - name: Same-date valuation comparison to immutable formal release
-        if: always()
-        run: |
-          python3 -m pip install --only-binary=:all: --disable-pip-version-check --retries 0 --timeout 15 duckdb baostock==0.9.4
-          timeout 100 python3 -u - <<'PY'
-          import baostock as bs,duckdb,urllib.request,hashlib,tempfile,json,math
+          import duckdb
           def emit(**x):print(json.dumps(x,default=str),flush=True)
-          url="https://raw.githubusercontent.com/jl2642/investment-os-market-data/562ac7ad33d470c2e40c2418ec8e0764ca3f8b20/outputs/valuation/engine/current/FMDL3DC_VALUATION_CURRENT.parquet"
-          with urllib.request.urlopen(url,timeout=20) as r:b=r.read(2000000)
-          assert hashlib.sha256(b).hexdigest()=="5befdc50e863bb0d857b38f9c1de8dfa1af27276a0b3c81616306eff81b998d8"
-          with tempfile.TemporaryDirectory() as tmp:
-              p=tmp+"/val.parquet";open(p,"wb").write(b);c=duckdb.connect(":memory:");c.execute("CREATE VIEW val AS SELECT * FROM read_parquet('"+p+"')")
-              lg=bs.login();emit(test="VALUATION_LOGIN",code=lg.error_code)
-              if lg.error_code=="0":
-                  try:
-                      for s in ["605090.SH","600519.SH","300750.SZ","000010.SZ"]:
-                          a,k=s.split(".");r=bs.query_history_k_data_plus(k.lower()+"."+a,"date,code,close,peTTM,pbMRQ,psTTM",start_date="2026-11-18",end_date="2026-11-18",frequency="d",adjustflag="3");rows=[]
-                          while r.error_code=="0" and r.next():rows.append(dict(zip(r.fields,r.get_row_data())))
-                          q=c.execute("SELECT market_as_of_date,pe_ttm,pe_ttm_state,pb,pb_state,ps_ttm,ps_ttm_state FROM val WHERE symbol=?",[s]).fetchone()
-                          if not q or not rows:emit(test="VALUATION_SAME_DATE",symbol=s,status="NO_COMPARABLE",code=r.error_code);continue
-                          z=rows[0];out={}
-                          for field,i,ext in [("PE",1,"peTTM"),("PB",3,"pbMRQ"),("PS",5,"psTTM")]:
-                              try:
-                                  x=float(q[i]);y=float(z[ext]);out[field]={"formal_state":q[i+1],"formal":round(x,6),"external":round(y,6),"relative_delta":round(abs(x-y)/max(abs(x),0.000001),8)}
-                              except:out[field]={"formal_state":q[i+1],"external_numeric":bool(z.get(ext)),"compared":False}
-                          emit(test="VALUATION_SAME_DATE",symbol=s,date=str(q[0]),external_date=z["date"],code=r.error_code,metrics=out,note="same session not necessarily same denominator; negative earnings not converted to valid PE")
-                  finally:bs.logout()
-          emit(test="END",orders=0,production_write=False,trade_authority="NONE")
+          p=Path(os.environ["RUNNER_TEMP"])/"invos_mod_p2_e18"
+          c=duckdb.connect(":memory:");D="2026-11-24";zone=ZoneInfo("Asia/Shanghai")
+          def get(url,cap):
+              with urllib.request.urlopen(url,timeout=30) as r:b=r.read(cap+1)
+              if len(b)>cap:raise ValueError("CAP")
+              return b
+          def view(name,path):c.execute("CREATE OR REPLACE VIEW "+name+" AS SELECT * FROM read_parquet('"+str(path).replace("'","''")+"')")
+          def dateexpr(col):return "CAST(to_timestamp("+col+"/1000) AT TIME ZONE 'Asia/Shanghai' AS DATE)"
+          baseurl="https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/outputs/current/"
+          raw=get(baseurl+"DAILY_MARKET_SNAPSHOT.csv",4000000)
+          assert hashlib.sha256(raw).hexdigest()=="5876ebcdd8a99c411a4552c6e2178bde7d52b8f89844ac6a11f62fb87179e988"
+          base={r["symbol"]:r for r in csv.DictReader(io.StringIO(raw.decode("utf-8-sig")))}
+          rawu=get(baseurl+"A_SHARE_UNIVERSE.csv",4000000)
+          assert hashlib.sha256(rawu).hexdigest()=="ab6c9ea596da0c29ec87dc8c7c54bc5a41db340783fd1cec58c9ed551488d054"
+          univ={r["symbol"]:r for r in csv.DictReader(io.StringIO(rawu.decode("utf-8-sig")))}
+          if (p/"daily-k-10d.parquet").exists():
+              view("daily",p/"daily-k-10d.parquet")
+              dates=c.execute("SELECT min("+dateexpr("date_ms")+"),max("+dateexpr("date_ms")+"),count(*) FROM daily").fetchone()
+              seen={x[0] for x in c.execute("SELECT DISTINCT thscode FROM daily WHERE "+dateexpr("date_ms")+"=DATE '2026-11-24'").fetchall()}
+              missing=sorted(set(base)-seen)
+              extra=sorted(seen-set(base))
+              if seen:
+                  emit(test="T01_MISSING_ID",base=len(base),matched=len(seen&set(base)),extra=len(extra),missing=[{"symbol":s,"formal_status":base[s].get("data_status"),"is_suspended":univ.get(s,{}).get("is_suspended"),"security_type":univ.get(s,{}).get("security_type"),"is_st":univ.get(s,{}).get("is_st"),"list_date":univ.get(s,{}).get("list_date")} for s in missing],window=[str(dates[0]),str(dates[1])],rows=dates[2],note="no raw quote output; original E15 file was not retained, current export may be revised")
+              else:emit(test="T01_MISSING_ID",status="FROZEN_DATE_NOT_INCLUDED")
+          else:emit(test="T01_MISSING_ID",status="NO_FILE")
+          if (p/"adjustment-factors.parquet").exists():
+              view("events",p/"adjustment-factors.parquet")
+              q=c.execute("SELECT thscode,"+dateexpr("ex_date_ms")+" AS d,count(*) AS n,count(DISTINCT (dividend_per_share,per_share_bonus,allotment_ratio,allotment_price,currency)) AS variants FROM events GROUP BY thscode,d HAVING count(*)>1 ORDER BY thscode,d").fetchall()
+              z=c.execute("SELECT count(*) FILTER (WHERE "+dateexpr("ex_date_ms")+">DATE '2026-11-24'),count(*) FILTER (WHERE "+dateexpr("ex_date_ms")+" IS NULL),count(*) FILTER (WHERE dividend_per_share IS NULL OR per_share_bonus IS NULL OR allotment_ratio IS NULL OR allotment_price IS NULL) FROM events").fetchone()
+              emit(test="T04_EVENT_KEYS",duplicate_groups=[{"symbol":s,"date":str(d),"rows":n,"distinct_event_payloads":v} for s,d,n,v in q],future_after_frozen_date=z[0],null_dates=z[1],rows_with_null_event_field=z[2],note="same-day variants not automatically duplicates; future events must be excluded in frozen replay")
+          else:emit(test="T04_EVENT_KEYS",status="NO_FILE")
+          # Fetch only reviewed upstream source files pinned to exact commit, validate Git blob digests before executing.
+          ref="63ecb1d2ea56b7c083a1f2280977b5ebf75b2a6e"
+          files={"marketdb/calculations/adjustment.py":"df9e5d60ada6953b14452aff94f4c4c14137aa2f","marketdb/calculations/__init__.py":"0aa6413d510dbec24c0a927b3472d34a5b465a29","marketdb/batch.py":"376dce8fd29ebf31e74854f13040e273a7fc3fe5","marketdb/schema.py":"241cb47e4f845da85317c54a17123957a8c746e2","marketdb/__init__.py":"e15ea3720cd1d350a612666ce601a4f572da68b6","marketdb/db.py":"eef62c4625af1cda8e1ae15831a29c2f79bba9a0","marketdb/_version.py":"cd12bdb87d94650bb60bf2167d32a2f88ef6a68b","marketdb/sql/schema.sql":"b55af9d65384276a0872747654bf0bbddb5eeb2f","marketdb/sql/views.sql":"1e292ad0611ec63b2c6fcfc6a16c29edc7c3f1d0","tests/conftest.py":"d15e549be28a63f1689d75761b0969d7d6bf25aa","tests/test_adjustment.py":"4fd74c36930e219d344559f389b4c28a880d06b6"}
+          root=p/"upstream";root.mkdir(exist_ok=True)
+          for name,want in files.items():
+              b=get("https://raw.githubusercontent.com/Hithink-Tech-Org/Financial-API/"+ref+"/python/"+name,100000)
+              assert hashlib.sha1(("blob "+str(len(b))+"\0").encode()+b).hexdigest()==want
+              f=root/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(b)
+          b=get("https://raw.githubusercontent.com/Hithink-Tech-Org/Financial-API/"+ref+"/LICENSE",20000)
+          assert hashlib.sha1(("blob "+str(len(b))+"\0").encode()+b).hexdigest()=="b5c8de1300abe6bf17213830d090d91e43805f22"
+          (root/"LICENSE").write_bytes(b)
+          sys.path.insert(0,str(root))
+          import pytest
+          ret=pytest.main(["-q","-p","no:cacheprovider",str(root/"tests/test_adjustment.py")])
+          emit(test="UPSTREAM_TEST",pinned_commit=ref,verified_files=len(files)+1,pytest_exit_code=int(ret),scope="exact upstream 3 adjustment tests; not entire CLI")
+          from marketdb.schema import init_schema
+          from marketdb.calculations.adjustment import rebuild_adjustment_factors
+          db=duckdb.connect(":memory:");init_schema(db)
+          # Additional deliberate synthetic test of duplicate keys and point-in-time freeze, no live financial data.
+          db.execute("INSERT INTO raw_kline_daily(thscode,date,open,high,low,close,volume,turnover) VALUES ('TEST',DATE '2026-11-23',100,101,99,100,1000,100000),('TEST',DATE '2026-11-24',95,96,94,95,1000,95000)")
+          db.execute("INSERT INTO raw_adjustment_events(thscode,ex_date,dividend_per_share,per_share_bonus,allotment_ratio,allotment_price) VALUES ('TEST',DATE '2026-11-24',5,0,0,0),('TEST',DATE '2026-11-26',2,0,0,0)")
+          duplicate_rejected=False
+          try:db.execute("INSERT INTO raw_adjustment_events(thscode,ex_date,dividend_per_share,per_share_bonus,allotment_ratio,allotment_price) VALUES ('TEST',DATE '2026-11-24',0,0.1,0,0)")
+          except duckdb.ConstraintException:duplicate_rejected=True
+          n=rebuild_adjustment_factors(db);q=db.execute("SELECT date,forward_factor,backward_factor FROM calc_adjust_factor_daily ORDER BY date").fetchall()
+          emit(test="UPSTREAM_EDGE",rows=n,duplicate_same_day_insert_rejected=duplicate_rejected,future_event_no_factor_at_frozen_date=(len(q)==2 and abs(q[0][1]-.95)<1e-9 and abs(q[1][1]-1)<1e-9),scope="synthetic exact upstream function; no full market or independent live corporate-action confirmation")
+          # Actual event sample with both a prior close and a later raw close available in existing 10-day export, no duplicate group.
+          if (p/"daily-k-10d.parquet").exists() and (p/"adjustment-factors.parquet").exists():
+              pairs=c.execute("WITH k AS (SELECT thscode,"+dateexpr("date_ms")+" d,open_price,high_price,low_price,close_price,volume,turnover FROM daily WHERE "+dateexpr("date_ms")+"<=DATE '2026-11-24'), e AS (SELECT thscode,"+dateexpr("ex_date_ms")+" d,dividend_per_share,per_share_bonus,allotment_ratio,allotment_price FROM events WHERE "+dateexpr("ex_date_ms")+"<=DATE '2026-11-24' QUALIFY count(*) OVER(PARTITION BY thscode,"+dateexpr("ex_date_ms")+")=1) SELECT e.* FROM e JOIN k ON e.thscode=k.thscode AND e.d=k.d WHERE EXISTS(SELECT 1 FROM k k2 WHERE k2.thscode=e.thscode AND k2.d<e.d) ORDER BY e.thscode,e.d LIMIT 8").fetchall()
+              tested=0;fail=0
+              for s,d,div,bonus,rights,rprice in pairs:
+                  db=duckdb.connect(":memory:");init_schema(db)
+                  k=c.execute("SELECT "+dateexpr("date_ms")+",open_price,high_price,low_price,close_price,volume,turnover FROM daily WHERE thscode=? AND "+dateexpr("date_ms")+"<=DATE '2026-11-24' ORDER BY date_ms",[s]).fetchall()
+                  db.executemany("INSERT INTO raw_kline_daily(thscode,date,open,high,low,close,volume,turnover) VALUES (?,?,?,?,?,?,?,?)",[(s,*r) for r in k])
+                  db.execute("INSERT INTO raw_adjustment_events(thscode,ex_date,dividend_per_share,per_share_bonus,allotment_ratio,allotment_price) VALUES (?,?,?,?,?,?)",[s,d,div,bonus,rights,rprice])
+                  prev=[r[4] for r in k if r[0]<d][-1];expected=prev*(1+(bonus or 0)+(rights or 0))/(prev-(div or 0)+(rights or 0)*(rprice or 0))
+                  rebuild_adjustment_factors(db);row=db.execute("SELECT backward_factor FROM calc_adjust_factor_daily WHERE date=?",[d]).fetchone()
+                  ok=row and abs(row[0]-expected)<1e-9
+                  tested+=1;fail+=int(not ok)
+              emit(test="UPSTREAM_LIVE_EVENT",sample_events=tested,formula_failures=fail,scope="official component applied to bounded live event pairs and independent arithmetic; event completeness and exchange-source amounts unverified")
+          emit(test="END",production_write=False,orders=0,trade_authority="NONE")
           
           PY
+      - name: Remove ephemeral downloads and upstream source
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/invos_mod_p2_e18"
