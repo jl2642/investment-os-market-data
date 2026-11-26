@@ -39,7 +39,9 @@ def test_eastmoney_normalization_maps_markets_and_lots() -> None:
     assert universe.loc["300001.SZ", "board"] == "CHINEXT"
     assert universe.loc["832000.BJ", "board"] == "BSE"
     assert snapshot.loc["600000.SH", "volume_shares"] == 100_000
-    assert snapshot.loc["832000.BJ", "data_status"] == "SUSPENDED"
+    assert snapshot.loc["832000.BJ", "data_status"] == "NO_DATA"
+    assert universe.loc["832000.BJ", "listing_status"] == "UNKNOWN"
+    assert not universe.loc["832000.BJ", "is_suspended"]
 
 
 def test_sina_normalization_strips_exchange_prefix_and_preserves_shares() -> None:
@@ -55,4 +57,7 @@ def test_sina_normalization_strips_exchange_prefix_and_preserves_shares() -> Non
     snapshot = result.snapshot.set_index("symbol")
     assert snapshot.loc["600000.SH", "volume_shares"] == 100_000
     assert snapshot.loc["600000.SH", "source_primary"] == "akshare.stock_zh_a_spot"
+    assert snapshot.loc["832000.BJ", "data_status"] == "NO_DATA"
+    assert pd.isna(snapshot.loc["832000.BJ", "close"])
+    assert result.universe.set_index("symbol").loc["832000.BJ", "listing_status"] == "UNKNOWN"
     assert any("volume_unit_source=SHARES" in item for item in result.warnings)
