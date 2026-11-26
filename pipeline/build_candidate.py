@@ -216,7 +216,7 @@ def main() -> int:
         sources=universe_sources,
         limitations=[
             "Industry and listing-date enrichment depends on optional free exchange endpoints.",
-            "Suspension status is inferred from the selected market-wide spot response.",
+            "Missing/zero spot prices are unresolved NO_DATA, not confirmed suspensions.",
             "FMDL-2, not this data layer, owns investability exclusions.",
         ],
     )
