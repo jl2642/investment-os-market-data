@@ -22,7 +22,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           repo="$GITHUB_REPOSITORY"
-          expected=1b6b1fc5375d3d9565be0db8b68aae2ad918c6e2
+          expected=0fbcd1148645f61f00629eadd8727112256934c8
           actual="$(gh api "repos/$repo/branches/main" --jq .commit.sha)"
           test "$actual" = "$expected"
           gh run list --repo "$repo" --workflow fmdl-daily-production.yml --branch main --limit 20 --json databaseId,status,headSha,event,url > /tmp/r1_runs.json
@@ -33,7 +33,7 @@ jobs:
           if active:
               print('PRODUCTION_ALREADY_ACTIVE',active)
               raise SystemExit(1)
-          existing=[r for r in rows if r['headSha']=='1b6b1fc5375d3d9565be0db8b68aae2ad918c6e2' and r['event'] in ('workflow_dispatch','schedule')]
+          existing=[r for r in rows if r['headSha']=='0fbcd1148645f61f00629eadd8727112256934c8' and r['event'] in ('workflow_dispatch','schedule')]
           if existing:
               print('PRODUCTION_ALREADY_TRIGGERED',existing)
               raise SystemExit(1)
