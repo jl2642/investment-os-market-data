@@ -301,6 +301,10 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.allow_same_date_refresh }}" == "true" ]]; then
             args+=(--allow-same-date-refresh)
           fi
+          # Fetch only the immutable qualified identity reference for the exact known incident.
+          if [[ -f outputs/current/A_SHARE_UNIVERSE.csv ]] && [[ "$(sha256sum outputs/current/A_SHARE_UNIVERSE.csv | cut -d' ' -f1)" == "223efe5f5ffe23c8f4b8477cf703824a1a93820aba352f7ceac11d70b05f589e" ]]; then
+            git fetch origin 59c71bd5097af14a1785bc7e1625038bf9cc6cb4 --no-tags
+          fi
           python pipeline/run_daily.py "${args[@]}" 2>&1 | tee diagnostics/FMDL_DAILY_ACTION_LOG.txt
 
       - name: Resolve transaction mode
