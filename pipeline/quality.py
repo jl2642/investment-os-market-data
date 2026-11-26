@@ -93,13 +93,16 @@ def evaluate_universe(
     identity_ratio = float(frame[["symbol", "name", "exchange", "board"]].notna().all(axis=1).mean()) if row_count else 0.0
     industry_ratio = float(frame["industry_name"].notna().mean()) if row_count else 0.0
     list_date_ratio = float(frame["list_date"].notna().mean()) if row_count else 0.0
-    lkg_ratio = row_count / len(lkg_frame) if lkg_frame is not None and len(lkg_frame) else 1.0
+    # Preserve the existing floor and require actual prior identities, not merely row count.
+    prior_symbols = set(lkg_frame["symbol"]) if lkg_frame is not None and len(lkg_frame) else set()
+    lkg_ratio = row_count / len(lkg_frame) if prior_symbols else 1.0
+    lkg_identity_retention = len(set(frame["symbol"]) & prior_symbols) / len(prior_symbols) if prior_symbols else 1.0
 
     _gate(results, gate_id="minimum_row_count", severity="HARD", actual=row_count, expected=f">={cfg['minimum_row_count']['value']}", passed=row_count >= cfg["minimum_row_count"]["value"])
     _gate(results, gate_id="duplicate_natural_key", severity="HARD", actual=duplicate_count, expected="0", passed=duplicate_count == 0)
     _gate(results, gate_id="symbol_valid_ratio", severity="HARD", actual=symbol_ratio, expected=f">={cfg['symbol_valid_ratio']['value']}", passed=symbol_ratio >= cfg["symbol_valid_ratio"]["value"])
     _gate(results, gate_id="required_identity_fill_ratio", severity="HARD", actual=identity_ratio, expected=f">={cfg['required_identity_fill_ratio']['value']}", passed=identity_ratio >= cfg["required_identity_fill_ratio"]["value"])
-    _gate(results, gate_id="minimum_lkg_row_ratio", severity="HARD", actual=lkg_ratio, expected=f">={cfg['minimum_lkg_row_ratio']['value']}", passed=lkg_ratio >= cfg["minimum_lkg_row_ratio"]["value"])
+    _gate(results, gate_id="minimum_lkg_row_ratio", severity="HARD", actual=lkg_ratio, expected=f">={cfg['minimum_lkg_row_ratio']['value']}", passed=min(lkg_ratio, lkg_identity_retention) >= cfg["minimum_lkg_row_ratio"]["value"])
     _gate(results, gate_id="industry_fill_ratio", severity="SOFT", actual=industry_ratio, expected=f">={cfg['industry_fill_ratio']['value']}", passed=industry_ratio >= cfg["industry_fill_ratio"]["value"])
     _gate(results, gate_id="listing_date_fill_ratio", severity="SOFT", actual=list_date_ratio, expected=f">={cfg['listing_date_fill_ratio']['value']}", passed=list_date_ratio >= cfg["listing_date_fill_ratio"]["value"])
 
@@ -111,6 +114,7 @@ def evaluate_universe(
         "industry_fill_ratio": industry_ratio,
         "listing_date_fill_ratio": list_date_ratio,
         "lkg_row_ratio": lkg_ratio,
+        "lkg_identity_retention": lkg_identity_retention,
         "schema_error_examples": schema_errors,
     }
     return _finalize("a_share_universe", results, metrics)
