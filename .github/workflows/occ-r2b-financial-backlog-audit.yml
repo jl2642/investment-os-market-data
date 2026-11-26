@@ -104,6 +104,14 @@ jobs:
           git add -A -- outputs/occ_r2/financial_backlog_audit
           git commit -m "data: publish OCC-R2B financial backlog audit"
           git push origin "HEAD:refs/heads/$RESULT_BRANCH"
+      - name: Retain immutable scanner evidence even when coverage fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: occ-r2b-notice-scan-${{ github.run_id }}-a${{ github.run_attempt }}
+          path: outputs/occ_r2/financial_backlog_audit/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Record audit boundary
         if: always()
         run: |
