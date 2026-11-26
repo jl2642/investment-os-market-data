@@ -130,8 +130,14 @@ def evaluate_snapshot(
 
     row_count = len(frame)
     duplicate_count = int(frame.duplicated(subset=["as_of_date", "symbol"]).sum())
-    coverage = len(set(frame["symbol"])) / len(set(universe["symbol"])) if len(universe) else 0.0
+    universe_symbols = set(universe["symbol"])
+    symbol_coverage = len(set(frame["symbol"]) & universe_symbols) / len(universe_symbols) if universe_symbols else 0.0
     traded = frame.loc[frame["data_status"] == "TRADED"].copy()
+    # Apply the existing coverage floor to usable current quotes, not placeholder rows.
+    # Unverified suspensions and NO_DATA do not qualify as price coverage.
+    priced = traded.loc[pd.to_numeric(traded["close"], errors="coerce").gt(0) & traded["record_quality"].isin({"VALID", "PARTIAL"})]
+    priced_symbols = set(priced["symbol"]) & universe_symbols
+    coverage = len(priced_symbols) / len(universe_symbols) if universe_symbols else 0.0
     positive_close_ratio = float((traded["close"] > 0).mean()) if len(traded) else 0.0
     negative_volume_rows = int((frame["volume_shares"].dropna() < 0).sum())
     negative_turnover_rows = int((frame["turnover_cny"].dropna() < 0).sum())
@@ -160,6 +166,9 @@ def evaluate_snapshot(
     metrics = {
         "row_count": row_count,
         "universe_coverage_ratio": coverage,
+        "snapshot_symbol_coverage_ratio": symbol_coverage,
+        "priced_universe_symbol_count": len(priced_symbols),
+        "unpriced_universe_symbol_count": len(universe_symbols - priced_symbols),
         "traded_row_count": len(traded),
         "positive_close_ratio_for_traded_rows": positive_close_ratio,
         "negative_volume_rows": negative_volume_rows,

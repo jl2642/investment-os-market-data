@@ -59,6 +59,11 @@ def _call_with_retry(
         except Exception as exc:
             last_error = exc
             warnings.append(f"attempt_{attempt + 1}: {type(exc).__name__}: {exc}")
+            # AKShare explicitly reports a temporary Push2 rate limit. An immediate
+            # retry can prolong the block; use the already-registered fallback.
+            if type(exc).__name__ == "Push2RateLimitError":
+                warnings.append("explicit_rate_limit_no_immediate_retry")
+                break
             if attempt + 1 < attempts:
                 time.sleep(base_sleep_seconds * (2**attempt))
     if optional:
@@ -67,7 +72,7 @@ def _call_with_retry(
             function=function_name,
             data=pd.DataFrame(),
             warnings=warnings,
-            retries=max(0, attempts - 1),
+            retries=attempt,
             volume_unit=volume_unit,
         )
     raise RuntimeError(
