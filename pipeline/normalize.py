@@ -93,7 +93,7 @@ def normalize_a_share_bundle(
     as_of_text = as_of_date.isoformat()
     source_primary = f"akshare.{bundle.spot.function}"
     volume_multiplier = 100.0 if bundle.spot.volume_unit == "LOTS" else 1.0
-    zero_price_symbols: list[str] = []
+    unpriced_symbols: list[str] = []
 
     for code in all_codes:
         spot_row = spot_map.get(code)
@@ -108,14 +108,16 @@ def normalize_a_share_bundle(
         prev_close = raw_prev_close if raw_prev_close is not None and raw_prev_close > 0 else None
         source_volume = None if spot_row is None else safe_float(spot_row.get("成交量"))
         turnover = None if spot_row is None else safe_float(spot_row.get("成交额"))
-        is_suspended = not valid_trade
-        if spot_row is not None and raw_close is not None and raw_close <= 0:
-            zero_price_symbols.append(canonical_symbol(code))
+        # A missing or zero quote is not independent evidence of suspension.
+        # Neither currently registered spot adapter supplies a confirmed halt flag.
+        # Preserve the security identity; leave listing/trading state unresolved.
+        if not valid_trade:
+            unpriced_symbols.append(canonical_symbol(code))
 
         record_quality = "VALID"
         if master.get("list_date") is None or master.get("industry_name") is None:
             record_quality = "PARTIAL"
-        if is_suspended:
+        if not valid_trade:
             record_quality = "PARTIAL"
         if board == "UNKNOWN":
             record_quality = "SUSPECT"
@@ -132,9 +134,9 @@ def normalize_a_share_bundle(
             "security_type": "COMMON_STOCK",
             "list_date": master.get("list_date"),
             "delist_date": None,
-            "listing_status": "SUSPENDED" if is_suspended else "ACTIVE",
+            "listing_status": "ACTIVE" if valid_trade else "UNKNOWN",
             "is_st": "ST" in name.upper(),
-            "is_suspended": bool(is_suspended),
+            "is_suspended": False,
             "industry_code": None,
             "industry_name": master.get("industry_name"),
             "industry_source": master.get("industry_source"),
@@ -146,7 +148,7 @@ def normalize_a_share_bundle(
         universe_row["row_hash"] = stable_row_hash(universe_row)
         universe_rows.append(universe_row)
 
-        data_status = "TRADED" if valid_trade else ("SUSPENDED" if spot_row is not None or code in masters else "NO_DATA")
+        data_status = "TRADED" if valid_trade else "NO_DATA"
         snapshot_row: dict[str, Any] = {
             "as_of_date": as_of_text,
             "symbol": canonical_symbol(code),
@@ -178,8 +180,7 @@ def normalize_a_share_bundle(
     warnings.extend(bundle.trade_calendar.warnings)
     if bundle.spot.volume_unit == "SHARES":
         warnings.append("volume_unit_source=SHARES; no lot multiplier applied")
-    if zero_price_symbols:
-        warnings.append(
-            "source_zero_price_rows_classified_as_suspended=" + ",".join(zero_price_symbols)
-        )
+    if unpriced_symbols:
+        warnings.append(f"unpriced_rows_not_confirmed_suspended={len(unpriced_symbols)}")
+        warnings.append("unpriced_symbol_examples=" + ",".join(unpriced_symbols[:20]))
     return NormalizedBundle(universe=universe, snapshot=snapshot, warnings=warnings)

@@ -5,6 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import io
+import hashlib
+import subprocess
 from pathlib import Path
 import sys
 from typing import Any
@@ -19,6 +22,38 @@ from ingestion.akshare import fetch_a_share_bundle  # noqa: E402
 from pipeline.common import file_sha256, iso_shanghai, latest_completed_trade_date, now_shanghai, write_json  # noqa: E402
 from pipeline.normalize import normalize_a_share_bundle  # noqa: E402
 from pipeline.quality import DatasetQuality, evaluate_snapshot, evaluate_universe  # noqa: E402
+
+
+# Incident-scoped recovery of the identity denominator, not a market rollback.
+# The 11/25 snapshot fails the existing 95% priced coverage contract.
+# Immutable prior accepted 11/24 identity bytes were replayed against 11/26.
+_R1_BAD_UNIVERSE_SHA = "223efe5f5ffe23c8f4b8477cf703824a1a93820aba352f7ceac11d70b05f589e"
+_R1_BAD_SNAPSHOT_SHA = "d8e9c8859a0fe1a7f58b456647dda545e22c28b5848c2891d0b0e39e97385fbf"
+_R1_PRIOR_COMMIT = "59c71bd5097af14a1785bc7e1625038bf9cc6cb4"
+_R1_PRIOR_UNIVERSE_SHA = "ab6c9ea596da0c29ec87dc8c7c54bc5a41db340783fd1cec58c9ed551488d054"
+
+
+def resolve_identity_lkg(root: Path) -> tuple[pd.DataFrame | None, dict[str, Any]]:
+    current = root / "outputs/current/A_SHARE_UNIVERSE.csv"
+    if not current.exists():
+        return None, {"mode": "NO_LOCAL_CURRENT"}
+    digest = file_sha256(current)
+    if digest != _R1_BAD_UNIVERSE_SHA:
+        return pd.read_csv(current, dtype={"source_symbol": str}), {"mode": "CURRENT", "universe_sha256": digest}
+    snapshot = root / "outputs/current/DAILY_MARKET_SNAPSHOT.csv"
+    if not snapshot.exists() or file_sha256(snapshot) != _R1_BAD_SNAPSHOT_SHA:
+        raise RuntimeError("R1_INCIDENT_BASELINE_PAIR_MISMATCH")
+    payload = subprocess.check_output(
+        ["git", "show", f"{_R1_PRIOR_COMMIT}:outputs/current/A_SHARE_UNIVERSE.csv"], cwd=root
+    )
+    if hashlib.sha256(payload).hexdigest() != _R1_PRIOR_UNIVERSE_SHA:
+        raise RuntimeError("R1_PRIOR_QUALIFIED_IDENTITY_HASH_MISMATCH")
+    prior = pd.read_csv(io.BytesIO(payload), dtype={"source_symbol": str})
+    if prior["symbol"].duplicated().any() or set(prior["as_of_date"]) != {"2026-11-24"}:
+        raise RuntimeError("R1_PRIOR_QUALIFIED_IDENTITY_INVALID")
+    return prior, {"mode": "R1_QUALIFIED_IDENTITY_DENOMINATOR", "source_commit": _R1_PRIOR_COMMIT,
+                   "universe_sha256": _R1_PRIOR_UNIVERSE_SHA, "rejected_universe_sha256": digest,
+                   "rejected_snapshot_sha256": _R1_BAD_SNAPSHOT_SHA}
 
 
 def _write_csv(frame: pd.DataFrame, path: Path) -> None:
@@ -188,8 +223,7 @@ def main() -> int:
     _write_csv(normalized.universe, universe_path)
     _write_csv(normalized.snapshot, snapshot_path)
 
-    lkg_path = root / "outputs/current/A_SHARE_UNIVERSE.csv"
-    lkg_frame = pd.read_csv(lkg_path, dtype={"source_symbol": str}) if lkg_path.exists() else None
+    lkg_frame, identity_lkg = resolve_identity_lkg(root)
     universe_quality = evaluate_universe(normalized.universe, root=root, lkg_frame=lkg_frame)
     snapshot_quality = evaluate_snapshot(normalized.snapshot, universe=normalized.universe, root=root)
     write_json(candidate_dir / "A_SHARE_UNIVERSE_QUALITY.json", _quality_payload(universe_quality))
@@ -216,7 +250,8 @@ def main() -> int:
         sources=universe_sources,
         limitations=[
             "Industry and listing-date enrichment depends on optional free exchange endpoints.",
-            "Suspension status is inferred from the selected market-wide spot response.",
+            "Missing/zero spot prices are unresolved NO_DATA, not confirmed suspensions.",
+            "Identity continuity reference: " + json.dumps(identity_lkg, sort_keys=True),
             "FMDL-2, not this data layer, owns investability exclusions.",
         ],
     )
@@ -260,6 +295,7 @@ def main() -> int:
         "universe": _quality_payload(universe_quality),
         "snapshot": _quality_payload(snapshot_quality),
         "source_warnings": normalized.warnings,
+        "identity_lkg": identity_lkg,
         "candidate_files": [
             str(universe_path.relative_to(root)),
             str(snapshot_path.relative_to(root)),

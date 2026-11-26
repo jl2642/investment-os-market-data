@@ -93,13 +93,16 @@ def evaluate_universe(
     identity_ratio = float(frame[["symbol", "name", "exchange", "board"]].notna().all(axis=1).mean()) if row_count else 0.0
     industry_ratio = float(frame["industry_name"].notna().mean()) if row_count else 0.0
     list_date_ratio = float(frame["list_date"].notna().mean()) if row_count else 0.0
-    lkg_ratio = row_count / len(lkg_frame) if lkg_frame is not None and len(lkg_frame) else 1.0
+    # Preserve the existing floor and require actual prior identities, not merely row count.
+    prior_symbols = set(lkg_frame["symbol"]) if lkg_frame is not None and len(lkg_frame) else set()
+    lkg_ratio = row_count / len(lkg_frame) if prior_symbols else 1.0
+    lkg_identity_retention = len(set(frame["symbol"]) & prior_symbols) / len(prior_symbols) if prior_symbols else 1.0
 
     _gate(results, gate_id="minimum_row_count", severity="HARD", actual=row_count, expected=f">={cfg['minimum_row_count']['value']}", passed=row_count >= cfg["minimum_row_count"]["value"])
     _gate(results, gate_id="duplicate_natural_key", severity="HARD", actual=duplicate_count, expected="0", passed=duplicate_count == 0)
     _gate(results, gate_id="symbol_valid_ratio", severity="HARD", actual=symbol_ratio, expected=f">={cfg['symbol_valid_ratio']['value']}", passed=symbol_ratio >= cfg["symbol_valid_ratio"]["value"])
     _gate(results, gate_id="required_identity_fill_ratio", severity="HARD", actual=identity_ratio, expected=f">={cfg['required_identity_fill_ratio']['value']}", passed=identity_ratio >= cfg["required_identity_fill_ratio"]["value"])
-    _gate(results, gate_id="minimum_lkg_row_ratio", severity="HARD", actual=lkg_ratio, expected=f">={cfg['minimum_lkg_row_ratio']['value']}", passed=lkg_ratio >= cfg["minimum_lkg_row_ratio"]["value"])
+    _gate(results, gate_id="minimum_lkg_row_ratio", severity="HARD", actual=lkg_ratio, expected=f">={cfg['minimum_lkg_row_ratio']['value']}", passed=min(lkg_ratio, lkg_identity_retention) >= cfg["minimum_lkg_row_ratio"]["value"])
     _gate(results, gate_id="industry_fill_ratio", severity="SOFT", actual=industry_ratio, expected=f">={cfg['industry_fill_ratio']['value']}", passed=industry_ratio >= cfg["industry_fill_ratio"]["value"])
     _gate(results, gate_id="listing_date_fill_ratio", severity="SOFT", actual=list_date_ratio, expected=f">={cfg['listing_date_fill_ratio']['value']}", passed=list_date_ratio >= cfg["listing_date_fill_ratio"]["value"])
 
@@ -111,6 +114,7 @@ def evaluate_universe(
         "industry_fill_ratio": industry_ratio,
         "listing_date_fill_ratio": list_date_ratio,
         "lkg_row_ratio": lkg_ratio,
+        "lkg_identity_retention": lkg_identity_retention,
         "schema_error_examples": schema_errors,
     }
     return _finalize("a_share_universe", results, metrics)
@@ -130,8 +134,14 @@ def evaluate_snapshot(
 
     row_count = len(frame)
     duplicate_count = int(frame.duplicated(subset=["as_of_date", "symbol"]).sum())
-    coverage = len(set(frame["symbol"])) / len(set(universe["symbol"])) if len(universe) else 0.0
+    universe_symbols = set(universe["symbol"])
+    symbol_coverage = len(set(frame["symbol"]) & universe_symbols) / len(universe_symbols) if universe_symbols else 0.0
     traded = frame.loc[frame["data_status"] == "TRADED"].copy()
+    # Apply the existing coverage floor to usable current quotes, not placeholder rows.
+    # Unverified suspensions and NO_DATA do not qualify as price coverage.
+    priced = traded.loc[pd.to_numeric(traded["close"], errors="coerce").gt(0) & traded["record_quality"].isin({"VALID", "PARTIAL"})]
+    priced_symbols = set(priced["symbol"]) & universe_symbols
+    coverage = len(priced_symbols) / len(universe_symbols) if universe_symbols else 0.0
     positive_close_ratio = float((traded["close"] > 0).mean()) if len(traded) else 0.0
     negative_volume_rows = int((frame["volume_shares"].dropna() < 0).sum())
     negative_turnover_rows = int((frame["turnover_cny"].dropna() < 0).sum())
@@ -160,6 +170,9 @@ def evaluate_snapshot(
     metrics = {
         "row_count": row_count,
         "universe_coverage_ratio": coverage,
+        "snapshot_symbol_coverage_ratio": symbol_coverage,
+        "priced_universe_symbol_count": len(priced_symbols),
+        "unpriced_universe_symbol_count": len(universe_symbols - priced_symbols),
         "traded_row_count": len(traded),
         "positive_close_ratio_for_traded_rows": positive_close_ratio,
         "negative_volume_rows": negative_volume_rows,
