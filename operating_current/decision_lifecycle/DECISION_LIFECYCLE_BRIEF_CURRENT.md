@@ -1,10 +1,10 @@
 # 股票投资助手｜Decision Lifecycle Watch CURRENT
 
 - 数据水位：`2026-11-26`
-- Thesis subjects：`65`
-- 持仓 / 非持仓：`23 / 42`
-- 当前复核队列：`16`
-- 需要重新D2：`5`
+- Thesis subjects：`64`
+- 持仓 / 非持仓：`23 / 41`
+- 当前复核队列：`15`
+- 需要重新D2：`4`
 - 需要用户动作复核：`9`
 - 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
@@ -14,7 +14,6 @@
 - **美的集团 (000333.SZ)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 94.5100 has exhausted the current valuation margin; mark-to-weighted-value expected return is 2.69%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **兰州银行 (001227.SZ)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade new-capital action is BUY. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **富国天利增长债券C (017534.OF)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。
-- **永利股份 (300230.SZ)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 3.9700 is at/below formal buy hurdle 4.0615; fresh D2 must revalidate valuation, bear downside and thesis. 下一步：`FRESH_D2_BEFORE_ANY_BUY`。
 - **招商银行 (600036.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 43.3800 has exhausted the current valuation margin; mark-to-weighted-value expected return is 3.73%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **国电南瑞 (600406.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **海尔智家 (600690.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 22.5500 has exhausted the current valuation margin; mark-to-weighted-value expected return is 4.21%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
