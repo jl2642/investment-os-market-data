@@ -62,3 +62,57 @@ def test_backlog_rejects_wrong_or_unaccepted_financial_baseline(field, value):
     context[field] = value
     with pytest.raises(ValueError):
         accepted_baseline_start(pointer, context)
+
+
+def test_scan_recovers_only_failed_slots_and_counts_invalid_responses(monkeypatch):
+    from scripts import scan_occ_r2b_financial_backlog as scan
+    day = pd.Timestamp("2026-11-25").date()
+    calls = []
+    valid = pd.DataFrame([{"代码":"600000","公告标题":"2026年第三季度报告","公告日期":"2026-11-25","网址":"same"}])
+    def fetch(symbol, date):
+        calls.append(symbol)
+        if symbol == "财务报告" and calls.count(symbol) == 1:
+            return None
+        return valid
+    monkeypatch.setattr(scan.ak, "stock_notice_report", fetch)
+    monkeypatch.setattr(scan.time, "sleep", lambda s: None)
+    events, attempts = scan.scan_live(day, day, {"600000.SH"}, ["财务报告","信息变更"])
+    assert calls == ["财务报告","信息变更","财务报告"]
+    assert len(events) == 1
+    assert attempts["source_state"].tolist() == ["SUCCESS","SUCCESS"]
+    assert attempts["attempt_count"].tolist() == [2,1]
+    assert attempts.iloc[0]["initial_error_type"] == "TypeError"
+
+
+def test_scan_rejects_nonempty_schema_drift_and_does_not_retry_rate_limit(monkeypatch):
+    from scripts import scan_occ_r2b_financial_backlog as scan
+    day = pd.Timestamp("2026-11-25").date()
+    calls = []
+    def fetch(symbol, date):
+        calls.append(symbol)
+        if symbol == "limited":
+            raise RuntimeError("HTTP 429 rate limit")
+        if symbol == "drift":
+            return pd.DataFrame([{"unexpected":1}])
+        return pd.DataFrame()
+    monkeypatch.setattr(scan.ak, "stock_notice_report", fetch)
+    monkeypatch.setattr(scan.time, "sleep", lambda s: None)
+    events, attempts = scan.scan_live(day, day, {"600000.SH"}, ["limited","drift","empty"])
+    assert calls == ["limited","drift","empty","drift"]
+    assert len(events) == 0
+    assert attempts["source_state"].tolist() == ["FAILED","FAILED","SUCCESS_EMPTY"]
+    assert attempts["attempt_count"].tolist() == [1,2,1]
+
+
+def test_scan_does_not_repeat_complete_outage(monkeypatch):
+    from scripts import scan_occ_r2b_financial_backlog as scan
+    day = pd.Timestamp("2026-11-25").date()
+    calls = []
+    def fetch(symbol, date):
+        calls.append(symbol)
+        raise RuntimeError("connection closed")
+    monkeypatch.setattr(scan.ak, "stock_notice_report", fetch)
+    monkeypatch.setattr(scan.time, "sleep", lambda s: pytest.fail("complete outage must not retry"))
+    _, attempts = scan.scan_live(day, day, set(), ["a","b"])
+    assert calls == ["a","b"]
+    assert attempts["source_state"].tolist() == ["FAILED","FAILED"]

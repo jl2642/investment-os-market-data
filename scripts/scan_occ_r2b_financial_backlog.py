@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Iterable
@@ -87,34 +88,71 @@ def daterange(start: date, end: date) -> Iterable[date]:
         value += timedelta(days=1)
 
 
+def _scan_slot(day: date, category: str, universe: set[str]) -> tuple[list[dict], dict]:
+    """An invalid response must not count as an empty successful notice day."""
+    frame = None
+    rows: list[dict] = []
+    try:
+        frame = ak.stock_notice_report(symbol=category, date=day.strftime("%Y%m%d"))
+        if not isinstance(frame, pd.DataFrame):
+            raise TypeError("NOTICE_RESPONSE_NOT_DATAFRAME")
+        if not frame.empty:
+            cols = notice_columns(frame)
+            if not cols["code"] or not cols["title"]:
+                raise ValueError("NOTICE_RESPONSE_REQUIRED_COLUMNS_MISSING")
+        rows = normalize_notice_frame(frame, day=day, category=category, universe=universe)
+        state = "SUCCESS_EMPTY" if frame.empty else "SUCCESS"
+        error_type = error_message = None
+    except Exception as exc:
+        state = "FAILED"
+        error_type = type(exc).__name__
+        error_message = str(exc)[:300]
+        rows = []
+    return rows, {
+        "date": day.isoformat(),
+        "category": category,
+        "source_state": state,
+        "source_row_count": int(len(frame)) if isinstance(frame, pd.DataFrame) else 0,
+        "financial_event_count": int(len(rows)),
+        "error_type": error_type,
+        "error_message": error_message,
+        "trade_authority": "NONE",
+    }
+
+
 def scan_live(start: date, end: date, universe: set[str], categories: list[str]) -> tuple[pd.DataFrame, pd.DataFrame]:
     events: dict[str, dict] = {}
     attempts: list[dict] = []
+    failed: list[tuple[int, date, str]] = []
     for day in daterange(start, end):
         for category in categories:
-            try:
-                frame = ak.stock_notice_report(symbol=category, date=day.strftime("%Y%m%d"))
-                state = "SUCCESS_EMPTY" if not isinstance(frame, pd.DataFrame) or frame.empty else "SUCCESS"
-                error_type = None
-                error_message = None
-            except Exception as exc:
-                frame = pd.DataFrame()
-                state = "FAILED"
-                error_type = type(exc).__name__
-                error_message = str(exc)[:300]
-            normalized = normalize_notice_frame(frame, day=day, category=category, universe=universe)
-            for row in normalized:
+            rows, attempt = _scan_slot(day, category, universe)
+            attempt["attempt_count"] = 1
+            attempt["initial_error_type"] = attempt["error_type"]
+            attempt["initial_error_message"] = attempt["error_message"]
+            if attempt["source_state"] == "FAILED":
+                failed.append((len(attempts), day, category))
+            attempts.append(attempt)
+            for row in rows:
                 events[row["event_id"]] = row
-            attempts.append({
-                "date": day.isoformat(),
-                "category": category,
-                "source_state": state,
-                "source_row_count": int(len(frame)) if isinstance(frame, pd.DataFrame) else 0,
-                "financial_event_count": int(len(normalized)),
-                "error_type": error_type,
-                "error_message": error_message,
-                "trade_authority": "NONE",
-            })
+    # Recover only failed date/category slots once, after the first pass.
+    # Explicit rate limits are not retried; do not turn a provider outage into a retry storm.
+    # If all slots failed, do not rescan a fully unavailable source.
+    retryable = [(i, day, category) for i, day, category in failed
+                 if attempts[i]["error_type"] not in {"Push2RateLimitError", "RateLimitError"}
+                 and "429" not in (attempts[i]["error_message"] or "")
+                 and "rate limit" not in (attempts[i]["error_message"] or "").lower()
+                 and "限流" not in (attempts[i]["error_message"] or "")]
+    if retryable and len(failed) < len(attempts):
+        time.sleep(3)
+        for i, day, category in retryable:
+            rows, attempt = _scan_slot(day, category, universe)
+            attempt["attempt_count"] = 2
+            attempt["initial_error_type"] = attempts[i]["initial_error_type"]
+            attempt["initial_error_message"] = attempts[i]["initial_error_message"]
+            attempts[i] = attempt
+            for row in rows:
+                events[row["event_id"]] = row
     event_frame = pd.DataFrame(list(events.values()))
     if len(event_frame):
         event_frame = event_frame.sort_values(["effective_at", "symbol", "event_id"]).reset_index(drop=True)
@@ -152,6 +190,9 @@ def main() -> int:
         "start_date": start.isoformat(),
         "end_date": end.isoformat(),
         "notice_attempt_count": int(len(attempts)),
+        "notice_provider_call_count": int(attempts["attempt_count"].sum()),
+        "notice_recovered_slot_count": int(((attempts["attempt_count"] == 2) & success).sum()),
+        "notice_unresolved_slot_count": int((~success).sum()),
         "notice_source_success_ratio": success_ratio,
         "financial_event_count": int(len(events)),
         "affected_symbol_count": affected_symbols,
