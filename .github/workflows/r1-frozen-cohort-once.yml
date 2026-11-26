@@ -1,0 +1,93 @@
+name: R1 frozen failed production cohort reconciliation
+on:
+  push:
+    branches: [audit/r1-live-market-20261126]
+    paths: ['.github/workflows/r1-frozen-cohort-once.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            pipeline
+            config
+            schemas
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas jsonschema
+      - name: Reconcile immutable published and quarantined candidate data without provider calls
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch --depth=1 --filter=blob:none --no-tags origin 59c71bd5097af14a1785bc7e1625038bf9cc6cb4 e6b28834da585720bbcd59b14726c4b5b34ac1b1
+          mkdir -p /tmp/r1-old /tmp/r1-bad /tmp/r1-candidate
+          for pair in '59c71bd5097af14a1785bc7e1625038bf9cc6cb4 /tmp/r1-old' 'e6b28834da585720bbcd59b14726c4b5b34ac1b1 /tmp/r1-bad'; do
+            read -r ref dst <<< "$pair"
+            for file in A_SHARE_UNIVERSE.csv DAILY_MARKET_SNAPSHOT.csv CURRENT_RELEASE.json; do
+              git show "$ref:outputs/current/$file" > "$dst/$file"
+            done
+          done
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/15134052026/zip" > /tmp/r1-prod.zip
+          python - <<'PY'
+          import zipfile,hashlib,json,pandas as pd
+          from pathlib import Path
+          from pipeline.quality import evaluate_universe,evaluate_snapshot
+          z=Path('/tmp/r1-prod.zip')
+          assert hashlib.sha256(z.read_bytes()).hexdigest()=='2fa1577f51bfc2f52962f4fcec962fdeb3ca54014e92c641590581257f10db78'
+          with zipfile.ZipFile(z) as arc:
+              for name in ['A_SHARE_UNIVERSE.csv','DAILY_MARKET_SNAPSHOT.csv','A_SHARE_UNIVERSE_MANIFEST.json','DAILY_MARKET_SNAPSHOT_MANIFEST.json','FMDL_1BC_RUN_REPORT.json']:
+                  path='outputs/candidate/'+name
+                  assert path in arc.namelist(),path
+                  (Path('/tmp/r1-candidate')/name).write_bytes(arc.read(path))
+          def read(folder,candidate=False):
+              p=Path(folder)
+              for key,file in [('a_share_universe','A_SHARE_UNIVERSE'),('daily_market_snapshot','DAILY_MARKET_SNAPSHOT')]:
+                  expected=json.loads((p/(file+'_MANIFEST.json')).read_text())['file']['sha256'] if candidate else json.loads((p/'CURRENT_RELEASE.json').read_text())['current_files'][key]['sha256']
+                  assert hashlib.sha256((p/(file+'.csv')).read_bytes()).hexdigest()==expected
+              u=pd.read_csv(p/'A_SHARE_UNIVERSE.csv',dtype={'source_symbol':str})
+              s=pd.read_csv(p/'DAILY_MARKET_SNAPSHOT.csv')
+              assert not u.symbol.duplicated().any() and not s.symbol.duplicated().any()
+              assert set(u.symbol)==set(s.symbol)
+              return u,s
+          old,os=read('/tmp/r1-old')
+          bad,bs=read('/tmp/r1-bad')
+          cur,cs=read('/tmp/r1-candidate',True)
+          assert set(cur.as_of_date)=={'2026-11-26'}
+          def priced(s):
+              return set(s.loc[s.data_status.eq('TRADED')&pd.to_numeric(s.close,errors='coerce').gt(0)&s.record_quality.isin(['VALID','PARTIAL']),'symbol'])
+          o,b,c=set(old.symbol),set(bad.symbol),set(cur.symbol)
+          op,bp,cp=priced(os),priced(bs),priced(cs)
+          missing=b-c
+          dropped=bad[bad.symbol.isin(missing)]
+          print('COHORT_RECONCILIATION',json.dumps({
+              'old_count':len(o),'bad_count':len(b),'current_count':len(c),
+              'prior_good_missing':sorted(o-c),'prior_good_overlap':len(o&c),'prior_good_priced_current':len(o&cp),
+              'bad_missing':len(missing),'bad_missing_previously_priced':len(missing&bp),
+              'bad_missing_new_vs_old':len(missing-o),'bad_missing_prior_good':len(missing&o),
+              'bad_missing_status_counts':dropped.listing_status.value_counts().to_dict(),
+              'bad_missing_board_counts':dropped.board.value_counts().to_dict(),
+              'bad_missing_examples':dropped[['symbol','name','listing_status','list_date']].head(20).fillna('').to_dict('records'),
+              'bad_prior_good_unpriced':len(o-bp),'recovered_prior_good_prices':len((o-bp)&cp),
+              'new_current_symbols':sorted(c-o),'current_unpriced':sorted(c-cp),
+              'source':'immutable failed production candidate; no new provider calls',
+              'trade_authority':'NONE','production_write':False},ensure_ascii=False,sort_keys=True),flush=True)
+          root=Path.cwd()
+          prev_q=evaluate_snapshot(os,universe=old,root=root)
+          bad_q=evaluate_snapshot(bs,universe=bad,root=root)
+          current_q=evaluate_snapshot(cs,universe=cur,root=root)
+          prior_u=evaluate_universe(cur,root=root,lkg_frame=old)
+          bad_u=evaluate_universe(cur,root=root,lkg_frame=bad)
+          print('QUALITY_REPLAY',json.dumps({'prior_good_snapshot_hard':prev_q.hard_failures,'bad_snapshot_hard':bad_q.hard_failures,'current_snapshot_hard':current_q.hard_failures,'current_vs_prior_good_hard':prior_u.hard_failures,'current_vs_bad_hard':bad_u.hard_failures,'prior_good_identity_retention':len(o&c)/len(o),'prior_good_count_ratio':prior_u.metrics['lkg_row_ratio'],'bad_count_ratio':bad_u.metrics['lkg_row_ratio']},sort_keys=True),flush=True)
+          assert not prev_q.hard_failures and 'minimum_active_universe_coverage' in bad_q.hard_failures
+          assert not current_q.hard_failures and not prior_u.hard_failures and 'minimum_lkg_row_ratio' in bad_u.hard_failures
+          assert len(o&c)/len(o)>=.97
+          PY
