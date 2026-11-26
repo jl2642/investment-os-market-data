@@ -1,0 +1,45 @@
+name: R1 one-time dispatch of existing production
+on:
+  push:
+    branches: [audit/r1-production-dispatch-20261126]
+    paths: ['.github/workflows/r1-production-dispatch-once.yml']
+permissions:
+  actions: write
+  contents: read
+concurrency:
+  group: r1-production-dispatch-once-20261126
+  cancel-in-progress: false
+jobs:
+  dispatch:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check canonical main and avoid duplicate production runs
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          repo="$GITHUB_REPOSITORY"
+          expected=1b6b1fc5375d3d9565be0db8b68aae2ad918c6e2
+          actual="$(gh api "repos/$repo/branches/main" --jq .commit.sha)"
+          test "$actual" = "$expected"
+          gh run list --repo "$repo" --workflow fmdl-daily-production.yml --branch main --limit 20 --json databaseId,status,headSha,event,url > /tmp/r1_runs.json
+          python - <<'PY'
+          import json
+          rows=json.load(open('/tmp/r1_runs.json'))
+          active=[r for r in rows if r['status']!='completed']
+          if active:
+              print('PRODUCTION_ALREADY_ACTIVE',active)
+              raise SystemExit(1)
+          existing=[r for r in rows if r['headSha']=='1b6b1fc5375d3d9565be0db8b68aae2ad918c6e2' and r['event'] in ('workflow_dispatch','schedule')]
+          if existing:
+              print('PRODUCTION_ALREADY_TRIGGERED',existing)
+              raise SystemExit(1)
+          PY
+      - name: Dispatch only the existing daily production with default gates
+        run: |
+          set -Eeuo pipefail
+          gh workflow run fmdl-daily-production.yml --repo "$GITHUB_REPOSITORY" --ref main -f force_run=false -f allow_same_date_refresh=false
+          echo 'DISPATCH_ACCEPTED: existing fmdl-daily-production.yml on main; default gates; no other workflow requested'
