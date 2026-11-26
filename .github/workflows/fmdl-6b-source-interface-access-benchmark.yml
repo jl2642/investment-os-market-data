@@ -12,108 +12,145 @@ jobs:
   public-read-only-probe:
     if: github.ref == 'refs/heads/sandbox/invos-mod-p2-20261126'
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 7
     steps:
-      - name: Fetch exact reviewed adapter and formal contract without credentials
+      - name: Fetch pinned adapter and original functions
         run: |
           python3 -u - <<'PY'
           import os,hashlib,urllib.request
           from pathlib import Path
-          p=Path(os.environ["RUNNER_TEMP"])/"invos_p5";p.mkdir(exist_ok=True)
+          p=Path(os.environ["RUNNER_TEMP"])/"invos_w1_end";p.mkdir(exist_ok=True)
           def fetch(commit,name,sha,dest):
-              with urllib.request.urlopen("https://raw.githubusercontent.com/jl2642/investment-os-market-data/"+commit+"/"+name,timeout=25) as r:b=r.read(2000001)
+              with urllib.request.urlopen("https://raw.githubusercontent.com/jl2642/investment-os-market-data/"+commit+"/"+name,timeout=20) as r:b=r.read(2000001)
               assert hashlib.sha1(("blob "+str(len(b))+"\0").encode()+b).hexdigest()==sha
               f=p/dest;f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(b)
           fetch("7effd2768d12cf3fac7da63989de2334aa7db236","ingestion/hithink_daily_shadow.py","33d345ab1d62e2250dc6087f5ce3b9f7d46b4a39","adapter.py")
-          for name,sha in {"pipeline/common.py":"fe995d3f45dff0fcf4b558fe61371b3bd0714236","pipeline/quality.py":"ae8ce39b049d326a54100675cdd3f2d75c5b2a9d","schemas/daily_market_snapshot.schema.json":"6ba47c24f3771c7e67b18b953edf84c7fa738dd1","schemas/a_share_universe.schema.json":"3408affa409de8a30f3bf817637e5447c1e9466c","config/quality_gates.json":"d69b46da46cf9b3b32bd5e216ec0fbff2597546c"}.items():fetch("9ca05b86ee9ad26e16215c0ab305f7c7ab593c55",name,sha,name)
-          print("PINNED_ADAPTER_AND_FORMAL_CONTRACTS_VERIFIED",flush=True)
+          for name,sha in {"scripts/run_incremental_history_refresh.py":"be73bd44fe46298dcd53c262b18aad5bd85167b6","scripts/run_basic_factor_engine.py":"d6ad3f25c9f03cd308a0885c866407308594a660","scripts/run_b4_factor_refresh.py":"ab0d80915b48f13ed4e5bf9a52a2ce844b74e78f","scripts/run_screening_funnel.py":"8ba3f8efffce68c2cc5e2105b5b54af2142088b5","scripts/run_screening_funnel_v2.py":"c0234cd303015255e1b3d5a427ee4187b47e1044","config/fmdl2_incremental_refresh.json":"4baa53e1f63058b774e335b0749841aa7b413aae","config/fmdl2_factor_registry.json":"7436b3ec1db67e337eeefb1d218fecd2c6c04c57","config/fmdl2_factor_engine.json":"4f4a6fb2ea14e50237a1c694adbb0567ae4e7824","config/fmdl2_screening_funnel.json":"22ea41d184ea62e9c22e6bb86fda7571baa7f64b"}.items():fetch("9ca05b86ee9ad26e16215c0ab305f7c7ab593c55",name,sha,name)
+          print("PINNED_FORMAL_FUNCTIONS_VERIFIED",flush=True)
           
           PY
-      - name: Actual bounded adapter fetch
+      - name: One independent metadata probe and bounded replay input
         env:
           HITHINK_FINANCE_API_KEY: ${{ secrets.HITHINK_FINANCE_API_KEY }}
         run: |
-          timeout 100 python3 -u - <<'PY'
-          import os,sys,json,time
+          timeout 110 python3 -u - <<'PY'
+          import os,sys,json,time,datetime as dt,urllib.request,urllib.parse
           from pathlib import Path
-          p=Path(os.environ["RUNNER_TEMP"])/"invos_p5";sys.path.insert(0,str(p))
-          from adapter import read_incremental_dump,SourceUnavailable
-          t=time.monotonic()
+          p=Path(os.environ["RUNNER_TEMP"])/"invos_w1_end";sys.path.insert(0,str(p))
+          from adapter import read_incremental_dump,NoRedirect,ZONE
+          key=os.environ.get("HITHINK_FINANCE_API_KEY","")
+          def emit(**x):print(json.dumps(x,default=str),flush=True)
           try:
-              r=read_incremental_dump(os.environ.get("HITHINK_FINANCE_API_KEY",""),p/"daily.parquet")
-              print(json.dumps({"test":"LIVE_DOWNLOAD",**r,"seconds":round(time.monotonic()-t,3)}),flush=True)
-          except SourceUnavailable as e:print(json.dumps({"test":"LIVE_DOWNLOAD","status":"FAIL","reason":str(e)}),flush=True);raise SystemExit(2)
+              t=time.monotonic();r=read_incremental_dump(key,p/"daily.parquet");emit(test="BOUNDED_DOWNLOAD",**r,seconds=time.monotonic()-t)
+          except Exception as e:emit(test="BOUNDED_DOWNLOAD",error=type(e).__name__)
+          # One bounded snapshot request; no all-market intraday fetch. Its global timestamp is not a per-row date.
+          ss=["605090.SH","600519.SH","300750.SZ","002717.SZ","689009.SH","920001.BJ"]
+          try:
+              t=time.monotonic();url="https://fuyao.aicubes.cn/api/a-share/prices/snapshot?"+urllib.parse.urlencode({"thscodes":",".join(ss)})
+              with urllib.request.build_opener(NoRedirect()).open(urllib.request.Request(url,headers={"X-api-key":key,"User-Agent":"InvestmentOS-P5-shadow/1.0"}),timeout=20) as r:b=r.read(200000)
+              j=json.loads(b);d=j.get("data") or {};rows=d.get("item") or [];stamp=d.get("timestamp")
+              ts=dt.datetime.fromtimestamp(stamp/1000,ZONE) if isinstance(stamp,(float,int)) else None
+              now=dt.datetime.now(ZONE)
+              fields=("prev_price","price_change_ratio_pct","last_price","open_price","high_price","low_price","volume","turnover")
+              emit(test="INDEPENDENT_METADATA",code=j.get("code"),returned=len(rows),numeric_complete=sum(all(isinstance(r.get(k),(int,float)) for k in fields) for r in rows),global_timestamp=ts,runner_time=now,per_row_date_count=sum(any(k in r for k in ("date_ms","trade_date","as_of_date","timestamp")) for r in rows),per_row_name_count=sum(bool(r.get("name")) for r in rows),frozen_date_20261125_match=bool(ts and ts.date().isoformat()=="2026-11-25"),seconds=time.monotonic()-t,scope="snapshot response only; no whole-market metadata or completed-session guarantee")
+          except Exception as e:emit(test="INDEPENDENT_METADATA",error=type(e).__name__)
           
           PY
-      - name: Fault tests and actual formal snapshot quality evaluation
+      - name: Existing continuity factor and screening replay
         run: |
-          python3 -m pip install --only-binary=:all: --disable-pip-version-check --retries 0 --timeout 15 duckdb pandas jsonschema
+          python3 -m pip install --only-binary=:all: --disable-pip-version-check --retries 0 --timeout 15 duckdb pandas
           timeout 150 python3 -u - <<'PY'
-          import os,sys,json,urllib.request,urllib.error,hashlib,io,datetime as dt,time
+          import os,sys,json,urllib.request,hashlib,io,ast,math,time
+          from collections import Counter
           from pathlib import Path
-          p=Path(os.environ["RUNNER_TEMP"])/"invos_p5";sys.path.insert(0,str(p))
-          import duckdb,pandas as pd
-          from adapter import *
-          from pipeline.common import stable_row_hash,clean_scalar
-          from pipeline.quality import evaluate_snapshot,evaluate_universe
-          def emit(**r):print(json.dumps(r,default=str),flush=True)
-          D="2026-11-24";s="600519.SH";s2="600185.SH";s3="300750.SZ"
-          def bar(symbol=s,day=D,**kwargs):
-              return dict(thscode=symbol,date_ms=int(dt.datetime.fromisoformat(day).replace(tzinfo=ZONE).timestamp()*1000),adjusted="none",currency="CNY",interval="1d",open_price=10,high_price=11,low_price=9,close_price=10,volume=1000,turnover=10000,**kwargs)
-          def meta(symbol):
-              return dict(symbol=symbol,as_of_date=D,prev_close=10,pct_change=0,data_status="TRADED",open=10,high=11,low=9,close=10,volume_shares=1000,turnover_cny=10000,record_quality="VALID",source_primary="legacy")
-          q,c=normalize_rows([bar(),bar(),bar(s2,"2026-11-25"),dict(bar(s3),high_price=1)],{D},{s,s2,s3})
-          assert len(q)==0 and c["duplicate_key"]==1 and c["outside_session"]==1 and c["invalid_bar"]==1
-          calls=[]
-          def fb(ids):calls.append(ids);return {s:meta(s),s3:{**meta(s3),"as_of_date":"2026-11-23"}}
-          a,b=resolve_day(q,D,{x:meta(x) for x in (s,s2,s3)},fb,{s2})
-          assert len(calls)==1 and b=={"needs_legacy":2,"confirmed_suspension":1,"legacy":1,"unresolved":1} and a[s2]["close"] is None and s3 not in a
-          q,_=normalize_rows([bar()],{D},{s});a,b=resolve_day(q,D,{s:meta(s)},lambda ids: (_ for _ in ()).throw(AssertionError("unnecessary fallback")))
-          assert b=={"primary":1} and a[s]["source_primary"].startswith("hithink")
-          assert raw_gap_plan(q,[D],[s,s2],{(s2,D)})=={"raw_ready":1,"confirmed_no_trade":1,"status_conflict":0,"missing":0,"history_append_authorized":False,"adjustment_mode":"none"}
-          for kind in ("timeout","429","403"):
-              tries=[]
-              def fail(req,timeout):
-                  tries.append(1)
-                  if kind=="timeout":raise TimeoutError()
-                  raise urllib.error.HTTPError(req.full_url,int(kind),"",{},None)
-              try:read_incremental_dump("synthetic-test-only",p/"fault.parquet",sleep=lambda _:None,opener=fail)
-              except SourceUnavailable:pass
-              else:raise AssertionError("failure not raised")
-              assert len(tries)==(1 if kind=="403" else 2)
-          emit(test="FAULT_TESTS",status="PASS",cases=["duplicate","wrong_date","invalid_ohlc","partial_fallback","stale_fallback_rejected","confirmed_suspension","no_fallback_for_valid_row","raw_gap_no_qfq","timeout_retry","429_retry","403_no_retry"])
-          # Frozen accepted baseline. This is a shadow integration test, not a live fallback fetch.
-          baseurl="https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/outputs/current/"
-          def frozen(name,sha):
-              with urllib.request.urlopen(baseurl+name,timeout=25) as r:b=r.read(4000000)
-              assert hashlib.sha256(b).hexdigest()==sha
-              return pd.read_csv(io.BytesIO(b),dtype={"symbol":str,"source_symbol":str})
-          snap=frozen("DAILY_MARKET_SNAPSHOT.csv","5876ebcdd8a99c411a4552c6e2178bde7d52b8f89844ac6a11f62fb87179e988");univ=frozen("A_SHARE_UNIVERSE.csv","ab6c9ea596da0c29ec87dc8c7c54bc5a41db340783fd1cec58c9ed551488d054")
-          def records(frame):return [{k:clean_scalar(v) for k,v in r.items()} for r in frame.to_dict("records")]
-          md={r["symbol"]:r for r in records(snap)}
-          conn=duckdb.connect(":memory:")
-          f=str(p/"daily.parquet").replace("'","''")
-          res=conn.execute("SELECT * FROM read_parquet('"+f+"')");cols=[x[0] for x in res.description];rows=[dict(zip(cols,r)) for r in res.fetchall()]
-          # Calendar frozen from the already confirmed 10-day session range up through comparison date.
-          sessions=["2026-11-12","2026-11-13","2026-11-16","2026-11-17","2026-11-18","2026-11-19","2026-11-20","2026-11-23","2026-11-24"]
-          t=time.monotonic();q,counts=normalize_rows(rows,sessions,md);susp={"002717.SZ","600185.SH","600567.SH","688121.SH","688496.SH"}
-          a,b=resolve_day(q,D,md,lambda ids:{k:md[k] for k in ids},susp)
-          for row in a.values():row["row_hash"]=stable_row_hash(row)
-          out=pd.DataFrame(list(a.values()),columns=snap.columns)
-          # Adjust only shadow universe status for the five independently established frozen-date suspensions.
-          u=univ.copy()
-          for i,r in u.iterrows():
-              if r["symbol"] in susp:
-                  u.loc[i,"is_suspended"]=True;u.loc[i,"listing_status"]="SUSPENDED";u.loc[i,"record_quality"]="PARTIAL"
-                  u.loc[i,"row_hash"]=stable_row_hash({k:clean_scalar(v) for k,v in u.loc[i].to_dict().items()})
-          assert len(out)==len(snap) and set(out.symbol)==set(snap.symbol)
-          qa=evaluate_snapshot(out,universe=u,root=p);old=evaluate_snapshot(snap,universe=univ,root=p);uq=evaluate_universe(u,root=p,lkg_frame=univ)
-          emit(test="FORMAL_SNAPSHOT_SHADOW",rows=len(out),routes=b,normalization=counts,seconds=round(time.monotonic()-t,3),new_hard_gates=qa.hard_failures,old_hard_gates=old.hard_failures,universe_hard_gates=uq.hard_failures,old_qa=old.qa_status,new_qa=qa.qa_status,old_traded=old.metrics["traded_row_count"],new_traded=qa.metrics["traded_row_count"],scope="actual frozen-day integration, same-session legacy metadata and fallback, no production efficiency or live fallback claim")
-          assert not qa.hard_failures and not uq.hard_failures
-          emit(test="SHORT_GAP_INVENTORY",**raw_gap_plan(q,sessions,list(md),{(s,D) for s in susp}),scope="raw only; historical qfq continuity and factor screening not executed")
+          import pandas as pd,duckdb
+          p=Path(os.environ["RUNNER_TEMP"])/"invos_w1_end";sys.path.insert(0,str(p))
+          from adapter import normalize_rows,resolve_day,FIELDS
+          from scripts import run_basic_factor_engine as eng,run_screening_funnel_v2 as scr
+          def emit(**x):print(json.dumps(x,default=str),flush=True)
+          def get(name,sha,cap=8000000):
+              url="https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/"+name
+              with urllib.request.urlopen(url,timeout=25) as r:b=r.read(cap+1)
+              assert len(b)<=cap and hashlib.sha256(b).hexdigest()==sha
+              return b
+          def csv(name,sha):return pd.read_csv(io.BytesIO(get(name,sha)),dtype={"symbol":str})
+          def conf(n):return json.loads((p/"config"/n).read_text())
+          # Compile actual unmodified functions from pinned source; avoid unused AKShare and writer imports.
+          ns={"pd":pd,"math":math,"Any":object}
+          for name,defs in [("run_incremental_history_refresh.py",{"_number","continuity_passes"}),("run_b4_factor_refresh.py",{"_normalize_composite_lineage","_history_state_for_factor"})]:
+              tree=ast.parse((p/"scripts"/name).read_text());node=ast.Module(body=[x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name in defs],type_ignores=[])
+              assert len(node.body)==len(defs)
+              exec(compile(node,name,"exec"),ns)
+          D="2026-11-24"
+          snap=csv("outputs/current/DAILY_MARKET_SNAPSHOT.csv","5876ebcdd8a99c411a4552c6e2178bde7d52b8f89844ac6a11f62fb87179e988")
+          u=csv("outputs/current/A_SHARE_UNIVERSE.csv","ab6c9ea596da0c29ec87dc8c7c54bc5a41db340783fd1cec58c9ed551488d054")
+          hs=csv("outputs/history/current/HISTORY_CURRENT_STATUS.csv","88ccf7bd3c1c54d0d642513d5053ded88377e4241e10a3822cdfd0ade3dd07f3")
+          raw=get("datasets/history/repair/FMDL2B4_REBASE_45469058502_A1/shard_00_full_rebase.parquet","0e8a3fade9b818e7776607dea389e3d8319563c88c310b545e6c905bdea74f17")
+          (p/"shard.parquet").write_bytes(raw)
+          c=duckdb.connect(":memory:")
+          hist=c.execute("SELECT * FROM read_parquet(?)",[str(p/"shard.parquet")]).df()
+          if not (p/"daily.parquet").exists():raise RuntimeError("NO_PROVIDER_DUMP")
+          cur=c.execute("SELECT * FROM read_parquet(?) WHERE CAST(to_timestamp(date_ms/1000) AT TIME ZONE 'Asia/Shanghai' AS DATE)=DATE '2026-11-24'",[str(p/"daily.parquet")]);cols=[x[0] for x in cur.description];rawrows=[dict(zip(cols,r)) for r in cur.fetchall()]
+          def records(frame):return [{k:(None if pd.isna(v) else v) for k,v in r.items()} for r in frame.to_dict("records")]
+          md={r["symbol"]:r for r in records(snap)};um={r["symbol"]:r for r in records(u)};hm={r["symbol"]:r for r in records(hs)}
+          syms=set(hist.symbol)&set(md)&set(um)&set(hm)
+          q,_=normalize_rows(rawrows,{D},syms)
+          a,routes=resolve_day(q,D,{s:md[s] for s in syms},lambda ids:{s:md[s] for s in ids},{s for s in syms if s in {"002717.SZ","600185.SH","600567.SH","688121.SH","688496.SH"}})
+          cfg=conf("fmdl2_incremental_refresh.json");reg=conf("fmdl2_factor_registry.json");fcfg=conf("fmdl2_factor_engine.json");scfg=conf("fmdl2_screening_funnel.json")
+          hist["trade_date"]=pd.to_datetime(hist["trade_date"])
+          calendar=pd.DatetimeIndex(sorted(hist.trade_date.dropna().unique()))
+          counts=Counter();bases=[[],[]];details=[[],[]]
+          t=time.monotonic()
+          for s,g in hist.groupby("symbol",sort=True):
+              if s not in syms:continue
+              g=g.sort_values("trade_date").copy();new=g.copy()
+              last=g[g.trade_date==pd.Timestamp(D)];prev=g[g.trade_date==pd.Timestamp("2026-11-23")]
+              row=a.get(s,{})
+              if row.get("source_primary","").startswith("hithink") and len(last)==len(prev)==1 and md[s]["data_status"]=="TRADED":
+                  # Existing continuity function guards the only permitted raw-to-current-qfq equivalence.
+                  counts["attempted"]+=1
+                  ok,_,_=ns["continuity_passes"](pd.Series(row),float(prev.iloc[0]["close"]),cfg)
+                  oldok,_,_=ns["continuity_passes"](pd.Series(md[s]),float(prev.iloc[0]["close"]),cfg)
+                  # Keep legacy series on event/continuity mismatch, or if existing current qfq close does not equal raw close.
+                  if ok and oldok and abs(float(last.iloc[0]["close"])-float(md[s]["close"]))<=.0100001:
+                      ix=last.index[0]
+                      for k in FIELDS:new.loc[ix,k]=row[k]
+                      new.loc[ix,"provider_id"]="hithink_raw_daily"
+                      new.loc[ix,"adjustment_mode"]=cfg["daily_fast_path"]["snapshot_adjustment_mode"]
+                      new.loc[ix,"record_quality"]=cfg["daily_fast_path"]["snapshot_record_quality"]
+                      counts["replaced"]+=1
+                  else:counts["preserved_continuity_or_anchor"]+=1
+              else:counts["preserved_no_eligible_pair"]+=1
+              h=hm[s];status={"state":ns["_history_state_for_factor"](str(h.get("refresh_state")),str(h.get("provider_id"))),"provider_id":h.get("provider_id")}
+              events=int(h.get("refresh_state") in {"READY_SUSPENDED_NO_APPEND","REPAIR_REQUIRED"})
+              for i,frame in enumerate((g,new)):
+                  norm,lineage=ns["_normalize_composite_lineage"](frame)
+                  base,detail=eng.compute_symbol_factor_values(norm,um[s],status,reg,fcfg,calendar,D,events)
+                  if lineage=="UNVALIDATED_COMPOSITE_LINEAGE":
+                      for z in [base,*detail]:z["factor_record_quality"]="SUSPECT";z["confidence_grade"]="D"
+                  bases[i].append(base);details[i].extend(detail)
+          emit(test="CONTINUITY_REPLAY",shard_rows=len(hist),shard_symbols=len(syms),routes=routes,counts=dict(counts),scope="one historical repair shard; exact original continuity/lineage functions; retained old rows on conflict")
+          assert counts["replaced"]>0
+          d0=pd.DataFrame(details[0]);d1=pd.DataFrame(details[1]);comp=d0.merge(d1,on=["symbol","factor_id"],suffixes=("_old","_new"));v0=pd.to_numeric(comp.factor_value_old,errors="coerce");v1=pd.to_numeric(comp.factor_value_new,errors="coerce")
+          diff=(v0-v1).abs();compared=v0.notna()&v1.notna();availability=int((v0.notna()!=v1.notna()).sum())
+          emit(test="FACTOR_REPLAY",symbols=len(bases[0]),factors=len(reg["factors"]),pairs=len(comp),numeric_pairs=int(compared.sum()),availability_changed=availability,above_numeric_tol=int((diff>1e-8).sum()),quality_changed=int((pd.DataFrame(bases[0]).factor_record_quality!=pd.DataFrame(bases[1]).factor_record_quality).sum()),seconds=time.monotonic()-t,scope="single shard, not full market")
+          def screen(i):
+              d=eng.add_cross_sectional_fields(pd.DataFrame(details[i]),fcfg)
+              w=eng.build_wide_table(pd.DataFrame(bases[i]),d)
+              w=w.merge(u[["symbol","name","exchange","listing_status","industry_name"]],on="symbol",how="left",validate="one_to_one")
+              cl=w.apply(lambda x:scr.classify_investability(x,scfg),axis=1)
+              w["investability_status"]=[x[0] for x in cl];w["investability_reason_codes"]=["|".join(x[1]) for x in cl]
+              results=[scr.evaluate_sleeve(w,s,sl,scfg) for s,sl in scfg["sleeves"].items()]
+              non=[r for r in results if not r.empty]
+              d=pd.concat(non,ignore_index=True) if non else pd.DataFrame(columns=["as_of_date","symbol","sleeve_id","sleeve_score"])
+              ll=scr.build_longlist(d,w,scfg)
+              return w,d,ll
+          w0,z0,l0=screen(0);w1,z1,l1=screen(1)
+          a=set(zip(z0.symbol,z0.sleeve_id));b=set(zip(z1.symbol,z1.sleeve_id))
+          emit(test="SCREEN_REPLAY",sample_size=len(w0),old_sleeve_hits=len(a),new_sleeve_hits=len(b),membership_symmetric_diff=len(a^b),old_longlist=len(l0),new_longlist=len(l1),longlist_membership_diff=len(set(l0.symbol)^set(l1.symbol)),investability_changes=int((w0.set_index("symbol").investability_status!=w1.set_index("symbol").investability_status).sum()),scope="same 1-shard cross-section, exact original v2 functions, not formal full-market publication")
           emit(test="END",production_write=False,orders=0,trade_authority="NONE")
           
           PY
-      - name: Remove all transient data
+      - name: Remove transient inputs
         if: always()
-        run: rm -rf "$RUNNER_TEMP/invos_p5"
+        run: rm -rf "$RUNNER_TEMP/invos_w1_end"
