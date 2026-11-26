@@ -127,11 +127,12 @@ def test_blocked_ev_metrics_remain_numeric_nan_for_comparison_audit() -> None:
 
 def test_valuation_callback_excludes_nonproduction_market_runs():
     from pathlib import Path
-    import yaml
-    workflow=yaml.load(Path(".github/workflows/occ-r2a-financial-valuation-live.yml").read_text(),Loader=yaml.BaseLoader)
-    assert workflow["on"]["workflow_run"]["branches"] == ["main"]
-    for job in ("deterministic-validation", "production"):
-        condition=workflow["jobs"][job]["if"]
+    workflow=Path(".github/workflows/occ-r2a-financial-valuation-live.yml").read_text()
+    trigger=workflow.split("  workflow_run:",1)[1].split("  workflow_dispatch:",1)[0]
+    assert "    branches: [main]" in trigger
+    validation=workflow.split("  deterministic-validation:",1)[1].split("    runs-on:",1)[0]
+    production=workflow.split("  production:",1)[1].split("    needs:",1)[0]
+    for condition in (validation, production):
         assert "github.event.workflow_run.head_branch == 'main'" in condition
         assert "github.event.workflow_run.event != 'pull_request'" in condition
         assert "github.event.workflow_run.conclusion == 'success'" in condition
