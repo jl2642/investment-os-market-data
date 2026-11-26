@@ -9,6 +9,7 @@ from typing import Iterable
 
 import akshare as ak
 import pandas as pd
+import requests
 
 from scripts import fmdl3ebc_core as bc
 
@@ -88,9 +89,35 @@ def daterange(start: date, end: date) -> Iterable[date]:
         value += timedelta(days=1)
 
 
+def confirm_provider_empty(day: date, category: str) -> bool:
+    """Confirm AKShare's empty-result KeyError from its existing Eastmoney endpoint.
+
+    A weekend, KeyError, missing payload or HTTP failure alone is not evidence of
+    no filings. Only an explicit zero hit count and empty list qualify.
+    """
+    category_ids = {"财务报告": "1", "信息变更": "4"}
+    if category not in category_ids:
+        return False
+    response = requests.get(
+        "https://np-anotice-stock.eastmoney.com/api/security/ann",
+        params={"sr": "-1", "page_size": "100", "page_index": "1",
+                "ann_type": "A", "client_source": "web", "f_node": category_ids[category],
+                "s_node": "0", "begin_time": day.isoformat(), "end_time": day.isoformat()},
+        timeout=20,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    if not isinstance(payload, dict) or payload.get("success") not in (True, 1):
+        return False
+    data = payload.get("data")
+    return (isinstance(data, dict) and type(data.get("total_hits")) is int
+            and data["total_hits"] == 0 and data.get("list") == [])
+
+
 def _scan_slot(day: date, category: str, universe: set[str]) -> tuple[list[dict], dict]:
     """An invalid response must not count as an empty successful notice day."""
     frame = None
+    confirmed_empty_after_adapter_error = False
     rows: list[dict] = []
     try:
         frame = ak.stock_notice_report(symbol=category, date=day.strftime("%Y%m%d"))
@@ -108,10 +135,21 @@ def _scan_slot(day: date, category: str, universe: set[str]) -> tuple[list[dict]
         error_type = type(exc).__name__
         error_message = str(exc)[:300]
         rows = []
+        if isinstance(exc, KeyError) and exc.args == ("代码",):
+            try:
+                if confirm_provider_empty(day, category):
+                    state = "SUCCESS_EMPTY"
+                    error_type = error_message = None
+                    frame = pd.DataFrame()
+                    confirmed_empty_after_adapter_error = True
+            except Exception:
+                # Retain the original error and fail closed if confirmation fails.
+                pass
     return rows, {
         "date": day.isoformat(),
         "category": category,
         "source_state": state,
+        "confirmed_empty_after_adapter_error": confirmed_empty_after_adapter_error,
         "source_row_count": int(len(frame)) if isinstance(frame, pd.DataFrame) else 0,
         "financial_event_count": int(len(rows)),
         "error_type": error_type,
@@ -193,6 +231,7 @@ def main() -> int:
         "notice_provider_call_count": int(attempts["attempt_count"].sum()),
         "notice_recovered_slot_count": int(((attempts["attempt_count"] == 2) & success).sum()),
         "notice_unresolved_slot_count": int((~success).sum()),
+        "notice_confirmed_empty_after_adapter_error_count": int(attempts["confirmed_empty_after_adapter_error"].sum()),
         "notice_source_success_ratio": success_ratio,
         "financial_event_count": int(len(events)),
         "affected_symbol_count": affected_symbols,
