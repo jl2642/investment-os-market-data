@@ -12,136 +12,136 @@ jobs:
   public-read-only-probe:
     if: github.ref == 'refs/heads/sandbox/invos-mod-p2-20261126'
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 9
     steps:
-      - name: Install pinned public SDK and parquet reader
-        run: python3 -m pip install --disable-pip-version-check --retries 1 --timeout 15 baostock==0.9.4 pandas==2.2.3 pyarrow==19.0.1
-      - name: Targeted anomalies and volume-factor sensitivity
+      - name: Authorized bounded Hithink read-only test
+        env:
+          HITHINK_FINANCE_API_KEY: ${{ secrets.HITHINK_FINANCE_API_KEY }}
         run: |
           timeout 360 python3 -u - <<'PY'
-          import csv,datetime as dt,hashlib,io,json,time,urllib.request,urllib.parse,math,collections
+          import os,json,datetime as dt,urllib.request,urllib.parse,urllib.error,time,hashlib,ssl,sys
           from zoneinfo import ZoneInfo
-          import baostock as bs
-          D="2026-11-24"; core=["605090.SH","600519.SH","300750.SZ","00700.HK","AAPL.US"]
-          def emit(**x): print(json.dumps(x,ensure_ascii=False,default=str),flush=True)
-          def sha(b):return hashlib.sha256(b).hexdigest()
-          def fetch(url):
-              t=time.monotonic()
-              with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"INVOS-MOD-001-bounded-read-only/1.0"}),timeout=30) as r:
-                  b=r.read(12_000_001)
-                  if len(b)>12_000_000:raise ValueError("payload cap")
-                  return b,round(time.monotonic()-t,3)
-          def readbase(path,digest):
-              b,t=fetch("https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/outputs/current/"+path)
-              if sha(b)!=digest:raise ValueError("baseline hash mismatch")
-              z={r["symbol"]:r for r in csv.DictReader(io.StringIO(b.decode("utf-8-sig")))}
-              emit(test="BASE",path=path,rows=len(z),sha256=sha(b));return z
-          base=readbase("DAILY_MARKET_SNAPSHOT.csv","5876ebcdd8a99c411a4552c6e2178bde7d52b8f89844ac6a11f62fb87179e988")
-          univ=readbase("A_SHARE_UNIVERSE.csv","ab6c9ea596da0c29ec87dc8c7c54bc5a41db340783fd1cec58c9ed551488d054")
-          def num(x):
-              try:
-                  v=float(x);return v if math.isfinite(v) else None
+          from pathlib import Path
+          def emit(**r):print(json.dumps(r,ensure_ascii=False),flush=True)
+          key=os.environ.get("HITHINK_FINANCE_API_KEY","")
+          if not key:
+              emit(test="AUTH",status="SECRET_NOT_AVAILABLE");sys.exit(2)
+          emit(test="AUTH",status="SECRET_PRESENT")
+          # Authentication is confined to the exact HTTPS origin. No redirect may forward credentials.
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self,req,fp,code,msg,headers,newurl):return None
+          opener=urllib.request.build_opener(NoRedirect())
+          origin="https://fuyao.aicubes.cn"; zone=ZoneInfo("Asia/Shanghai")
+          def ms(y,m,d):return int(dt.datetime(y,m,d,tzinfo=zone).timestamp()*1000)
+          def date(v):
+              try:return dt.datetime.fromtimestamp(int(v)/1000,zone).date().isoformat()
               except:return None
-          def sym(x):
-              a,b=x.split(".");return b+"."+a.upper()
-          def br(rs):
-              rows=[]
-              while rs.error_code=="0" and rs.next():rows.append(dict(zip(rs.fields,rs.get_row_data())))
-              return rows
-          def bcode(s):a,b=s.split(".");return b.lower()+"."+a
-          def tick(ss,count=1,adjust="none"):
-              if not ss:return {}
-              zone=ZoneInfo("America/New_York" if all(s.endswith(".US") for s in ss) else "Asia/Shanghai")
-              end=int((dt.datetime(2026,11,25,tzinfo=zone)-dt.timedelta(milliseconds=1)).timestamp()*1000)
-              params={"symbols":",".join(ss),"period":"1d","adjust":adjust,"count":count,"end_time":end}
-              try:
-                  b,t=fetch("https://free-api.tickflow.org/v1/klines/batch?"+urllib.parse.urlencode(params));data=json.loads(b).get("data",{})
-                  out={};invalid=0;dups=0;future=0
-                  for s in ss:
-                      a=data.get(s,{})
-                      if not isinstance(a,dict):continue
-                      ts=a.get("timestamp",[]);fs=["open","high","low","close","volume","amount"]
-                      if not ts or any(not isinstance(a.get(f),list) or len(a[f])!=len(ts) for f in fs[:5]):continue
-                      rr={}
-                      for i,v in enumerate(ts):
-                          date=dt.datetime.fromtimestamp(v/1000,dt.timezone.utc).astimezone(zone).date().isoformat()
-                          row={f:num(a[f][i]) if isinstance(a.get(f),list) and len(a[f])==len(ts) else None for f in fs}
-                          o,h,l,c,vv=[row[f] for f in fs[:5]]
-                          # Zero/blank suspended bars tracked separately; no synthetic filling.
-                          if None in (o,h,l,c,vv) or not (0<l<=min(o,c)<=max(o,c)<=h and vv>=0):invalid+=1
-                          dups+=int(date in rr);future+=int(date>D);rr[date]=row
-                      out[s]=rr
-                  emit(test="TICK_BATCH",requested=len(ss),received=len(out),count=count,adjust=adjust,seconds=t,hash=sha(b),lengths=dict(collections.Counter(len(x) for x in out.values())),invalid=invalid,duplicates=dups,future=future)
-                  return out
-              except Exception as e:emit(test="TICK_BATCH",requested=len(ss),count=count,error=str(e)[:200]);return {}
-          def compare(rows,scale=1):
-              fields={"open":"open","high":"high","low":"low","close":"close","volume":"volume_shares","amount":"turnover_cny"}
-              cnt=collections.Counter();bad=collections.Counter();maxrel=collections.defaultdict(float)
-              for s,r in rows.items():
-                  if s not in base or base[s].get("data_status")!="TRADED":continue
-                  for f,k in fields.items():
-                      x=num(r.get(f));y=num(base[s].get(k))
-                      if x is None or y is None:continue
-                      if f=="volume":x*=scale
-                      cnt[f]+=1;diff=abs(x-y);maxrel[f]=max(maxrel[f],diff/max(abs(y),1))
-                      tol=0.01000001 if f in ("open","high","low","close") else (max(1,abs(y)*0.0001) if f=="amount" else 0.000001)
-                      bad[f]+=int(diff>tol)
-              return dict(compared=dict(cnt),mismatch=dict(bad),max_relative=dict(maxrel))
-          def sample(s,fn,**kw):
+          def api(label,path,params={}):
               t=time.monotonic()
               try:
-                  rs=fn(**kw);rr=br(rs)
-                  emit(test="FINANCE_OR_FACTOR",symbol=s,method=fn.__name__,code=rs.error_code,rows=len(rr),fields=rs.fields,pub_dates=sorted(set(r.get("pubDate","") for r in rr)),stat_dates=sorted(set(r.get("statDate","") for r in rr)),hash=sha(json.dumps(rr,sort_keys=True).encode()),seconds=round(time.monotonic()-t,3))
-                  return rr
-              except Exception as e:emit(test="FINANCE_OR_FACTOR",symbol=s,method=fn.__name__,error=str(e)[:200]);return []
-          
-          import pandas as pd
-          # One immutable historical shard, not a new historical backfill.
-          try:
-              b,t=fetch("https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/datasets/history/repair/FMDL2B4_REBASE_45469058502_A1/shard_00_full_rebase.parquet")
-              if sha(b)!="0e8a3fade9b818e7776607dea389e3d8319563c88c310b545e6c905bdea74f17":raise ValueError("shard hash mismatch")
-              h=pd.read_parquet(io.BytesIO(b));emit(test="SHARD",rows=len(h),fields=list(h.columns),sha256=sha(b))
-              h["trade_date"]=pd.to_datetime(h["trade_date"]).dt.strftime("%Y-%m-%d")
-              bj=h[h.symbol.str.endswith(".BJ")];samples=sorted(bj.symbol.unique())[:20]
-              z=tick(samples,60);diffs=[];cross=collections.Counter();actual=[];relmax=0;absmax=0
-              for s in samples:
-                  k=bj[bj.symbol==s].sort_values("trade_date").dropna(subset=["volume_shares"]).tail(60)
-                  vv={r.trade_date:float(r.volume_shares) for r in k.itertuples()}
-                  q=z.get(s,{})
-                  if len(vv)!=60 or set(vv)!=set(q) or any(r.get("volume") is None for r in q.values()):emit(test="RATIO_EXCLUDE",symbol=s,formal=len(vv),tick=len(q),common=len(set(vv)&set(q)));continue
-                  d=sorted(vv);x=[vv[i] for i in d];y=[q[i]["volume"]*100 for i in d]
-                  if sum(x)<=0 or sum(y)<=0:continue
-                  f=lambda v:3*sum(v[-20:])/sum(v)
-                  p,n=f(x),f(y);diffs.append(abs(p-n));actual.append((s,p,n))
-                  absmax=max(absmax,max(abs(a-b) for a,b in zip(x,y)));relmax=max(relmax,max(abs(a-b)/max(a,1) for a,b in zip(x,y)))
-                  for lo in (1.05,1.1):cross[str(lo)]+=int((lo<=p<=3)!=(lo<=n<=3))
-              rank0=sorted(actual,key=lambda v:(-v[1],v[0]));rank1=sorted(actual,key=lambda v:(-v[2],v[0]))
-              emit(test="FACTOR_REPLAY_SAMPLE",requested=len(samples),comparable=len(actual),max_ratio_delta=max(diffs) if diffs else None,mean_ratio_delta=sum(diffs)/len(diffs) if diffs else None,raw_volume_gate_flips=dict(cross),sample_ratio_rank_changed=sum(x[0]!=y[0] for x,y in zip(rank0,rank1)),max_volume_abs=absmax,max_volume_relative=relmax,scope="single formal repair shard; volume ratio only, other screening inputs frozen conceptually")
-          except Exception as ex:emit(test="FACTOR_REPLAY_ERROR",error=str(ex)[:300])
-          lg=bs.login();emit(test="BAO_LOGIN",code=lg.error_code)
-          if lg.error_code=="0":
+                  url=origin+path+("?"+urllib.parse.urlencode(params) if params else "")
+                  req=urllib.request.Request(url,headers={"X-api-key":key,"Accept":"application/json","User-Agent":"INVOS-MOD-001-bounded-test/1.0"})
+                  with opener.open(req,timeout=25) as r:
+                      raw=r.read(4_000_001);http=r.status
+                  if len(raw)>4_000_000:raise ValueError("cap")
+                  j=json.loads(raw);code=j.get("code");d=j.get("data")
+                  emit(test="API",label=label,http=http,code=code if isinstance(code,int) else None,seconds=round(time.monotonic()-t,3),response_bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),data_type=type(d).__name__)
+                  if code!=0 or not isinstance(d,dict):return None
+                  return d
+              except urllib.error.HTTPError as e:emit(test="API",label=label,http=e.code,status="HTTP_ERROR");return None
+              except Exception as e:emit(test="API",label=label,error_type=type(e).__name__);return None
+          def rows(d):return d.get("item",[]) if isinstance(d,dict) and isinstance(d.get("item"),list) else []
+          def summary(label,d,expected):
+              groups=rows(d);result=[]
+              for g in groups:
+                  if not isinstance(g,dict) or g.get("thscode") not in expected:continue
+                  v=g.get("item",[])
+                  if not isinstance(v,list):continue
+                  vv=[x for x in v if isinstance(x,dict)]
+                  result.append({"symbol":g["thscode"],"rows":len(vv),"fields":sorted(set().union(*(set(x) for x in vv))) if vv else [],"dates":sorted(set(filter(None,(date(x.get("date_ms") or x.get("period_end_ms")) for x in vv)))),"disclosure_dates":sorted(set(filter(None,(date(x.get("report_date_ms")) for x in vv)))),"null_fields":sorted({k for x in vv for k,val in x.items() if val is None})})
+              emit(test="GROUPS",label=label,groups=result,missing=sorted(set(expected)-{x["symbol"] for x in result}))
+          syms=["605090.SH","600519.SH","300750.SZ","920001.BJ"]
+          p={"thscodes":",".join(syms),"interval":"1d","start":ms(2026,11,18),"end":ms(2026,11,25)-1,"adjust":"none"}
+          d=api("historical-batch","/api/a-share/prices/historical-batch",p)
+          if d is None:
+              emit(test="AUTH",status="FIRST_READ_UNVERIFIED_STOP");sys.exit(3)
+          summary("historical-batch",d,syms)
+          # Four public-company financial samples. No trading, no billing calls.
+          for name in ("income-statements","balance-sheets","cash-flow-statements"):
+              d=api(name,"/api/a-share/financials/"+name+"-batch",{"thscodes":",".join(syms),"period":"quarterly","limit":4})
+              summary(name,d,syms)
+          d=api("valuations","/api/a-share/valuations/snapshot",{"thscodes":",".join(syms)})
+          r=[x for x in rows(d) if isinstance(x,dict) and x.get("thscode") in syms]
+          emit(test="VALUATION",rows=len(r),timestamp_date=date(d.get("timestamp")) if d else None,numeric={f:sum(isinstance(x.get(f),(int,float)) for x in r) for f in ("pe_ttm","pe_mrq","pb_mrq","ps_ttm","pcf_ttm")},symbols=[x["thscode"] for x in r])
+          # Only incremental dump and adjustment dump are downloaded; full history ticket availability only.
+          tmp=Path(os.environ["RUNNER_TEMP"])/"invos_mod_ephemeral";tmp.mkdir(exist_ok=True)
+          for label,cap in (("daily-k-10d",64*1024*1024),("adjustment-factors",24*1024*1024),("daily-k",0)):
+              d=api(label,"/api/dump/market-dumps/"+label+"/download-url")
+              url=d.get("presigned_url") if d else None
+              if not isinstance(url,str) or urllib.parse.urlsplit(url).scheme!="https":
+                  emit(test="DUMP",label=label,status="NO_VALID_TICKET");continue
+              emit(test="DUMP",label=label,status="TICKET_AVAILABLE")
+              if not cap:continue
+              # Presigned download URL is never printed. No API key in object-store request.
+              dest=tmp/(label+".parquet");t=time.monotonic()
               try:
-                  # Retry only two previously failed distinct endpoints, record actual error message.
-                  for name,s,kw in [("query_cash_flow_data","300750.SZ",dict(year=2026,quarter=3)),("query_adjust_factor","605090.SH",dict(start_date="2025-09-01",end_date=D))]:
-                      try:
-                          rs=getattr(bs,name)(code=bcode(s),**kw);r=br(rs)
-                          emit(test="PREVIOUS_FAILURE_RETRY",method=name,symbol=s,code=rs.error_code,message=rs.error_msg,rows=len(r),fields=rs.fields,hash=sha(json.dumps(r,sort_keys=True).encode()))
-                      except Exception as ex:emit(test="PREVIOUS_FAILURE_RETRY",method=name,error=str(ex)[:200])
-                  # Prior aggregate logs do not retain symbol IDs. Exactly one bulk call needed for anomaly identification.
-                  rs=bs.query_daily_history_k_AStock(date=D);rows=br(rs);bao={sym(r["code"]):r for r in rows}
-                  exceptions=[]
-                  for s,r in bao.items():
-                      if s not in base or base[s].get("data_status")!="TRADED":continue
-                      bad=[f for f in ("open","high","low") if num(r.get(f)) is not None and num(base[s].get(f)) is not None and abs(num(r[f])-num(base[s][f]))>.01000001]
-                      if bad:exceptions.append((s,bad))
-                  emit(test="OHLC_EXCEPTION_IDS",count=len(exceptions),symbols=[s for s,_ in exceptions],bulk_hash=sha(json.dumps(rows,sort_keys=True).encode()))
-                  ss=[s for s,_ in exceptions]+["002717.SZ","689009.SH"];z=tick(ss,1)
-                  for s in ss:
-                      a=bao.get(s,{});b=base[s];t=z.get(s,{})
-                      c=t.get(D,{})
-                      match=lambda x,y,fs: {f: (abs(num(x.get(f))-num(y.get(f)))<=.01000001 if num(x.get(f)) is not None and num(y.get(f)) is not None else None) for f in fs}
-                      emit(test="ANOMALY_DETAIL",symbol=s,formal_status=b["data_status"],universe_status=univ[s].get("listing_status"),bao_status=a.get("tradestatus"),bao_date=a.get("date"),tick_dates=list(t),tick_has_positive_volume=bool(c.get("volume") and c["volume"]>0),bao_vs_formal=match(a,b,["open","high","low","close"]),tick_vs_formal=match(c,b,["open","high","low","close"]),tick_vs_bao=match(c,a,["open","high","low","close"]),formal_ohlc_equals_close=all(num(b.get(f))==num(b.get("close")) for f in ("open","high","low")),bao_ohlc_equals_close=all(num(a.get(f))==num(a.get("close")) for f in ("open","high","low")))
-              finally:bs.logout()
-          emit(test="END",orders=0,production_write=False,trade_authority="NONE")
+                  h=hashlib.sha256();n=0
+                  with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"INVOS-MOD-001-bounded-test/1.0"}),timeout=45) as r, dest.open("wb") as f:
+                      while True:
+                          chunk=r.read(1024*1024)
+                          if not chunk:break
+                          n+=len(chunk)
+                          if n>cap:raise ValueError("cap")
+                          h.update(chunk);f.write(chunk)
+                  with dest.open("rb") as f:
+                      first=f.read(4);f.seek(-4,2);last=f.read(4)
+                  ok=first==last==b"PAR1"
+                  emit(test="DUMP",label=label,status="PARQUET_MAGIC_OK" if ok else "NOT_PARQUET",bytes=n,sha256=h.hexdigest(),seconds=round(time.monotonic()-t,3))
+                  if not ok:dest.unlink(missing_ok=True)
+              except Exception as e:
+                  dest.unlink(missing_ok=True);emit(test="DUMP",label=label,status="DOWNLOAD_FAILED",error_type=type(e).__name__)
+          emit(test="END_AUTH",orders=0,production_write=False,trade_authority="NONE")
           
           PY
+      - name: Inspect downloaded parquet without credentials
+        run: |
+          python3 -m pip install --only-binary=:all: --disable-pip-version-check --retries 0 --timeout 15 duckdb
+          timeout 90 python3 -u - <<'PY'
+          import os,duckdb,json,csv,hashlib,urllib.request,io
+          from pathlib import Path
+          def emit(**r):print(json.dumps(r,default=str),flush=True)
+          p=Path(os.environ["RUNNER_TEMP"])/"invos_mod_ephemeral"
+          c=duckdb.connect(":memory:")
+          for label in ("daily-k-10d","adjustment-factors"):
+              f=p/(label+".parquet")
+              if not f.exists():emit(test="PARQUET",label=label,status="NO_FILE");continue
+              try:
+                  c.execute("CREATE OR REPLACE VIEW src AS SELECT * FROM read_parquet('"+str(f).replace("'","''")+"')")
+                  cols=[x[0] for x in c.execute("DESCRIBE src").fetchall()]
+                  if label=="daily-k-10d":
+                      out=c.execute("SELECT count(*), count(DISTINCT thscode), count(DISTINCT date_ms), min(date_ms), max(date_ms), count(*)-count(DISTINCT (thscode,date_ms)), count(*) FILTER (WHERE close_price<=0 OR low_price>least(open_price,close_price) OR high_price<greatest(open_price,close_price) OR volume<0), count(*) FILTER (WHERE volume IS NULL) FROM src").fetchone()
+                      emit(test="PARQUET",label=label,fields=cols,rows=out[0],symbols=out[1],dates=out[2],min_ms=out[3],max_ms=out[4],duplicate=out[5],invalid=out[6],null_volume=out[7])
+                      b=urllib.request.urlopen("https://raw.githubusercontent.com/jl2642/investment-os-market-data/59c71bd5097af14a1785bc7e1625038bf9cc6cb4/outputs/current/DAILY_MARKET_SNAPSHOT.csv",timeout=25).read(4000000)
+                      if hashlib.sha256(b).hexdigest()!="5876ebcdd8a99c411a4552c6e2178bde7d52b8f89844ac6a11f62fb87179e988":raise ValueError("BASELINE_HASH_MISMATCH")
+                      base={r["symbol"]:r for r in csv.DictReader(io.StringIO(b.decode("utf-8-sig")))}
+                      data=c.execute("SELECT thscode,open_price,high_price,low_price,close_price,volume,turnover FROM src WHERE CAST(to_timestamp(date_ms/1000) AT TIME ZONE 'Asia/Shanghai' AS DATE)=DATE '2026-11-24'").fetchall()
+                      comp=[0]*6;bad=[0]*6;covered=set();fields=["open","high","low","close","volume_shares","turnover_cny"]
+                      for row in data:
+                          s=row[0];covered.add(s);r=base.get(s)
+                          if not r or r["data_status"]!="TRADED":continue
+                          for i,(x,k) in enumerate(zip(row[1:],fields)):
+                              try:y=float(r[k]);x=float(x)
+                              except:continue
+                              comp[i]+=1;tol=.01000001 if i<4 else (0.000001 if i==4 else max(1,abs(y)*.0001))
+                              bad[i]+=int(abs(x-y)>tol)
+                      missing=set(base)-covered
+                      emit(test="BASELINE_COMPARE",source_rows=len(data),baseline=len(base),matched=len(covered&set(base)),extra=len(covered-set(base)),missing=len(missing),missing_boards={k:sum(s.endswith("."+k) for s in missing) for k in ("SH","SZ","BJ")},compared=dict(zip(fields,comp)),mismatch=dict(zip(fields,bad)))
+                  else:
+                      o=c.execute("SELECT count(*),count(DISTINCT thscode),min(ex_date_ms),max(ex_date_ms),count(*)-count(DISTINCT (thscode,ex_date_ms)) FROM src").fetchone()
+                      emit(test="PARQUET",label=label,fields=cols,rows=o[0],symbols=o[1],min_ms=o[2],max_ms=o[3],duplicate_symbol_date=o[4])
+              except Exception as e:emit(test="PARQUET",label=label,status="VALIDATION_ERROR",error_type=type(e).__name__)
+          
+          PY
+      - name: Remove ephemeral data
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/invos_mod_ephemeral"
