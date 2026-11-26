@@ -65,7 +65,21 @@ jobs:
           set -Eeuo pipefail
           git fetch origin refs/heads/operating-current:refs/remotes/origin/operating-current --force --no-tags
           git show origin/operating-current:operating_current/domains/A_SHARE_FULL_MARKET.json | python -c "import json,sys; row=json.load(sys.stdin); assert row.get('status')=='PASS'; vals=[('SOURCE_BRANCH',str(row.get('source_branch') or '')),('SOURCE_COMMIT',str(row.get('source_commit_sha') or '')),('SOURCE_WATERMARK',str(row.get('data_watermark') or ''))]; assert all(v for _,v in vals); print('\\n'.join(k+'='+v for k,v in vals))" > /tmp/occ-r2b-source.env
-          python -c "import json; row=json.load(open('outputs/financials/statements/current/FMDL3B4_RELEASE.json',encoding='utf-8')); print('START_DATE='+str(row['published_at'])[:10])" >> /tmp/occ-r2b-source.env
+          git show origin/operating-current:operating_current/domains/FINANCIAL_STATEMENT_CONTEXT.json > /tmp/occ-r2b-financial-pointer.json
+          FIN_BRANCH="$(python -c 'import json; d=json.load(open("/tmp/occ-r2b-financial-pointer.json")); assert d["status"]=="PASS" and d["qc_status"]=="PASS_FINANCIAL_BASELINE_REBUILT" and d["trade_authority"]=="NONE"; print(d["source_branch"])')"
+          FIN_COMMIT="$(python -c 'import json; print(json.load(open("/tmp/occ-r2b-financial-pointer.json"))["source_commit_sha"])')"
+          git fetch origin "refs/heads/$FIN_BRANCH:refs/remotes/origin/occ-r2b-financial-source" --force --no-tags
+          test "$(git rev-parse refs/remotes/origin/occ-r2b-financial-source)" = "$FIN_COMMIT"
+          git show "$FIN_COMMIT:outputs/occ_r2/financial/current/FINANCIAL_CONTEXT_RELEASE.json" > /tmp/occ-r2b-financial-context.json
+          python - <<'PY' >> /tmp/occ-r2b-source.env
+          import json
+          from scripts.scan_occ_r2b_financial_backlog import accepted_baseline_start
+          pointer = json.load(open("/tmp/occ-r2b-financial-pointer.json"))
+          context = json.load(open("/tmp/occ-r2b-financial-context.json"))
+          print("START_DATE=" + accepted_baseline_start(pointer, context))
+          print("FINANCIAL_SOURCE_COMMIT=" + pointer["source_commit_sha"])
+          print("FINANCIAL_STATEMENT_RELEASE_ID=" + context["releases"]["statement_release_id"])
+          PY
           cat /tmp/occ-r2b-source.env >> "$GITHUB_ENV"
           cat /tmp/occ-r2b-source.env
       - name: Restore accepted completed-session universe
