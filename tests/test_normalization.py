@@ -61,3 +61,108 @@ def test_sina_normalization_strips_exchange_prefix_and_preserves_shares() -> Non
     assert pd.isna(snapshot.loc["832000.BJ", "close"])
     assert result.universe.set_index("symbol").loc["832000.BJ", "listing_status"] == "UNKNOWN"
     assert any("volume_unit_source=SHARES" in item for item in result.warnings)
+
+
+def test_missing_zero_and_master_only_quotes_are_not_suspensions() -> None:
+    spot = pd.DataFrame([
+        {"代码": "600000", "名称": "浦发银行", "最新价": 10.0, "昨收": 10.0,
+         "涨跌幅": 0.0, "成交量": 100, "成交额": 1000.0},
+        {"代码": "300001", "名称": "特锐德", "最新价": 0.0, "昨收": 20.0,
+         "涨跌幅": 0.0, "成交量": 0, "成交额": 0.0},
+    ])
+    result = normalize_a_share_bundle(
+        _bundle(_call("stock_zh_a_spot", spot, volume_unit="SHARES")),
+        as_of_date=date(2026, 7, 16),
+        source_timestamp="2026-07-16T17:30:00+08:00",
+    )
+    u = result.universe.set_index("symbol")
+    s = result.snapshot.set_index("symbol")
+    for symbol in ("300001.SZ", "832000.BJ"):
+        assert s.loc[symbol, "data_status"] == "NO_DATA"
+        assert pd.isna(s.loc[symbol, "close"])
+        assert u.loc[symbol, "listing_status"] == "UNKNOWN"
+        assert not u.loc[symbol, "is_suspended"]
+    assert s.loc["600000.SH", "data_status"] == "TRADED"
+
+
+def test_price_coverage_gate_rejects_placeholder_rows() -> None:
+    from pathlib import Path
+    from pipeline.quality import evaluate_snapshot
+
+    spot = pd.DataFrame([
+        {"代码": "600000", "名称": "浦发银行", "最新价": 10.0, "昨收": 10.0,
+         "涨跌幅": 0.0, "成交量": 100, "成交额": 1000.0},
+        {"代码": "300001", "名称": "特锐德", "最新价": 20.0, "昨收": 20.0,
+         "涨跌幅": 0.0, "成交量": 100, "成交额": 2000.0},
+    ])
+    result = normalize_a_share_bundle(
+        _bundle(_call("stock_zh_a_spot", spot, volume_unit="SHARES")),
+        as_of_date=date(2026, 7, 16),
+        source_timestamp="2026-07-16T17:30:00+08:00",
+    )
+    root = Path(__file__).resolve().parents[1]
+    quality = evaluate_snapshot(result.snapshot, universe=result.universe, root=root)
+    assert quality.metrics["snapshot_symbol_coverage_ratio"] == 1.0
+    assert quality.metrics["universe_coverage_ratio"] == 2 / 3
+    assert quality.metrics["unpriced_universe_symbol_count"] == 1
+    assert "minimum_active_universe_coverage" in quality.hard_failures
+    # Even legacy inferred SUSPENDED labels must not disguise absent quotes.
+    legacy = result.snapshot.copy()
+    legacy.loc[legacy["symbol"] == "832000.BJ", "data_status"] = "SUSPENDED"
+    quality = evaluate_snapshot(legacy, universe=result.universe, root=root)
+    assert "minimum_active_universe_coverage" in quality.hard_failures
+
+    spot.loc[len(spot)] = {"代码": "832000", "名称": "北交样本", "最新价": 10.0, "昨收": 10.0,
+                         "涨跌幅": 0.0, "成交量": 100, "成交额": 1000.0}
+    complete = normalize_a_share_bundle(
+        _bundle(_call("stock_zh_a_spot", spot, volume_unit="SHARES")),
+        as_of_date=date(2026, 7, 16),
+        source_timestamp="2026-07-16T17:30:00+08:00",
+    )
+    quality = evaluate_snapshot(complete.snapshot, universe=complete.universe, root=root)
+    assert quality.metrics["universe_coverage_ratio"] == 1.0
+    assert "minimum_active_universe_coverage" not in quality.hard_failures
+
+
+def test_explicit_rate_limit_uses_fallback_without_immediate_retry(monkeypatch) -> None:
+    from ingestion.akshare import client
+
+    class Push2RateLimitError(Exception):
+        pass
+
+    calls = {"primary": 0, "fallback": 0}
+
+    def primary():
+        calls["primary"] += 1
+        raise Push2RateLimitError("temporary provider limit")
+
+    def fallback():
+        calls["fallback"] += 1
+        return pd.DataFrame([{"代码": "sh600000"}])
+
+    monkeypatch.setattr(client.ak, "stock_zh_a_spot_em", primary)
+    monkeypatch.setattr(client.ak, "stock_zh_a_spot", fallback)
+    monkeypatch.setattr(client.time, "sleep", lambda seconds: (_ for _ in ()).throw(AssertionError("rate limit must not sleep/retry")))
+    result = client._fetch_market_wide_spot()
+    assert calls == {"primary": 1, "fallback": 1}
+    assert result.function == "stock_zh_a_spot"
+    assert "explicit_rate_limit_no_immediate_retry" in result.warnings
+
+
+def test_transient_error_retains_existing_retry(monkeypatch) -> None:
+    from ingestion.akshare import client
+
+    calls = []
+    sleeps = []
+
+    def source():
+        calls.append(True)
+        if len(calls) == 1:
+            raise RuntimeError("transient")
+        return pd.DataFrame([{"代码": "600000"}])
+
+    monkeypatch.setattr(client.time, "sleep", sleeps.append)
+    result = client._call_with_retry("test", source, attempts=2, base_sleep_seconds=2)
+    assert len(calls) == 2
+    assert sleeps == [2]
+    assert result.retries == 1
