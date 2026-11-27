@@ -386,9 +386,19 @@ def test_strategy_fresh_holding_research_and_explicit_exit_not_blocked():
     ]:
         status = "AVOID_INVALIDATION_TRIGGERED" if action == "EXIT" else "PASS_NEW_CAPITAL"
         comp = {"rows": [{"security_id": sid, "existing_position": True, "holding_unit_costs": [80],
-             "comparison_status": status, "metrics": {"current_price": 70,
+             "comparison_status": status, "metrics": {"current_price": 52 if action == "ADD" else 70,
              "price_as_of": date, "entry_price": 65, "bear_value": 50, "probability_weighted_value": fair}}]}
         rec = {"records": [{"security_id": sid, "action": action}]}
         _, result = rebase_decisions(comp, rec, {"marks": [{"security_id": sid, "mark": 51.8,
             "as_of_date": "2026-11-26"}]}, {"queue": []})
         assert result["records"][0]["action"] == expected
+
+
+def test_strategy_new_drawdown_level_routes_fresh_d2_even_inside_30_days():
+    from automation.investment_pipeline.rebase_decision_to_marks import holding_reunderwrite_required
+    m = {"underwriting_price_as_of": "2026-11-20", "current_market_price_as_of": "2026-11-26",
+         "underwriting_price": 76, "current_market_price": 74}
+    assert holding_reunderwrite_required(m, {"holding_unit_costs": [100]})
+    # Re-underwritten at the new price: same loss episode must not reopen immediately.
+    m["underwriting_price"] = 74
+    assert not holding_reunderwrite_required(m, {"holding_unit_costs": [100]})
