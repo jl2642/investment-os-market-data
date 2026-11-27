@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-11-26",
-  "generated_at_utc": "2026-11-27T04:32:46+00:00",
+  "generated_at_utc": "2026-11-27T06:47:16+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_f91cd48023f71e56",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_fe64ec90dd2f0140",
   "records": [
     {
       "accounts": [
@@ -79,8 +79,44 @@
       "security_id": "159352.SZ",
       "security_name": "A500ETF南方",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
+    },
+    {
+      "accounts": [],
+      "current_action": "BUY_BELOW",
+      "entry_price": 3.94,
+      "latest_price": 3.97,
+      "next_step": "FRESH_D2_BEFORE_ANY_BUY",
+      "orders": 0,
+      "price_as_of": "2026-11-26",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "HIGH",
+      "reason": "Latest price 3.9700 is at/below formal buy hurdle 4.0615; fresh D2 must revalidate valuation, bear downside and thesis.",
+      "review_type": "REUNDERWRITE_REQUIRED",
+      "security_id": "300230.SZ",
+      "security_name": "永利股份",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
+    },
+    {
+      "accounts": [],
+      "current_action": "BUY_BELOW",
+      "entry_price": 3.94,
+      "latest_price": 3.97,
+      "next_step": "FRESH_D2_BEFORE_ANY_BUY",
+      "orders": 0,
+      "price_as_of": "2026-11-26",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "HIGH",
+      "reason": "A previously non-BUY semantic decision cannot acquire BUY authority from price rebasing.",
+      "review_type": "REUNDERWRITE_REQUIRED",
+      "security_id": "300230.SZ",
+      "security_name": "永利股份",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "NON_BUY_PRICE_CROSS_REUNDERWRITE"
     },
     {
       "accounts": [
@@ -99,7 +135,7 @@
       "security_id": "300750.SZ",
       "security_name": "宁德时代",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
     },
     {
@@ -120,7 +156,7 @@
       "security_id": "510500.SH",
       "security_name": "中证500ETF南方",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
     },
     {
@@ -228,26 +264,6 @@
         "SIMULATION"
       ],
       "current_action": "HOLD",
-      "entry_price": 63.4565217391,
-      "latest_price": 41.0,
-      "next_step": "FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT",
-      "orders": 0,
-      "price_as_of": "2026-11-26",
-      "price_source": "A_SHARE_FULL_MARKET",
-      "priority": "HIGH",
-      "reason": "Old underwriting and material price/cost deterioration require fresh issuer evidence; loss alone is not an exit.",
-      "review_type": "REUNDERWRITE_REQUIRED",
-      "security_id": "601138.SH",
-      "security_name": "工业富联",
-      "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
-      "trigger_key": "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
-    },
-    {
-      "accounts": [
-        "SIMULATION"
-      ],
-      "current_action": "HOLD",
       "entry_price": 32.21,
       "latest_price": 23.75,
       "next_step": "FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT",
@@ -260,7 +276,7 @@
       "security_id": "601899.SH",
       "security_name": "紫金矿业",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
     },
     {
@@ -280,7 +296,7 @@
       "security_id": "605090.SH",
       "security_name": "九丰能源",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
     },
     {
@@ -318,7 +334,7 @@
       "security_id": "920663.BJ",
       "security_name": "明阳科技",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "BUY_BELOW_PRICE_CONDITION_MET"
     },
     {
@@ -336,7 +352,7 @@
       "security_id": "920663.BJ",
       "security_name": "明阳科技",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "NON_BUY_PRICE_CROSS_REUNDERWRITE"
     },
     {
@@ -420,8 +436,8 @@
       "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
-  "review_count": 21,
+  "review_count": 22,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_cdf321308bbb27cf",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_db4d90bd4f3ba3c2",
   "trade_authority": "NONE"
 }
