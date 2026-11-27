@@ -1,8 +1,8 @@
 {
   "as_of_date": "2026-11-26",
-  "generated_at_utc": "2026-11-27T06:47:16+00:00",
+  "generated_at_utc": "2026-11-27T19:34:46+00:00",
   "orders": 0,
-  "queue_id": "TRIGGER_REVIEW_QUEUE_fe64ec90dd2f0140",
+  "queue_id": "TRIGGER_REVIEW_QUEUE_ca3eea48acd28eda",
   "records": [
     {
       "accounts": [
@@ -97,7 +97,7 @@
       "security_id": "300230.SZ",
       "security_name": "永利股份",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE"
     },
     {
@@ -115,7 +115,7 @@
       "security_id": "300230.SZ",
       "security_name": "永利股份",
       "trade_authority": "NONE",
-      "transition": "NEW_TRIGGER",
+      "transition": "PERSISTING",
       "trigger_key": "NON_BUY_PRICE_CROSS_REUNDERWRITE"
     },
     {
@@ -258,6 +258,26 @@
       "trade_authority": "NONE",
       "transition": "PERSISTING",
       "trigger_key": "POSITION_ACTION_TRIM"
+    },
+    {
+      "accounts": [
+        "SIMULATION"
+      ],
+      "current_action": "HOLD",
+      "entry_price": 63.4565217391,
+      "latest_price": 41.0,
+      "next_step": "FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT",
+      "orders": 0,
+      "price_as_of": "2026-11-26",
+      "price_source": "A_SHARE_FULL_MARKET",
+      "priority": "HIGH",
+      "reason": "Old underwriting and material price/cost deterioration require fresh issuer evidence; loss alone is not an exit.",
+      "review_type": "REUNDERWRITE_REQUIRED",
+      "security_id": "601138.SH",
+      "security_name": "工业富联",
+      "trade_authority": "NONE",
+      "transition": "NEW_TRIGGER",
+      "trigger_key": "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
     },
     {
       "accounts": [
@@ -436,8 +456,8 @@
       "trigger_key": "POSITION_ACTION_ADD"
     }
   ],
-  "review_count": 22,
+  "review_count": 23,
   "schema_version": "1.0.0",
-  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_db4d90bd4f3ba3c2",
+  "source_lifecycle_id": "DECISION_LIFECYCLE_CURRENT_9307092dbd6befb6",
   "trade_authority": "NONE"
 }

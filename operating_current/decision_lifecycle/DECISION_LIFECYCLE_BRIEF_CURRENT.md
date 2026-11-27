@@ -3,8 +3,8 @@
 - 数据水位：`2026-11-26`
 - Thesis subjects：`64`
 - 持仓 / 非持仓：`23 / 41`
-- 当前复核队列：`22`
-- 需要重新D2：`13`
+- 当前复核队列：`23`
+- 需要重新D2：`14`
 - 需要用户动作复核：`7`
 - 组合风险复核：`2`
 - 自动交易：`false`；Orders：`0`；trade_authority：`NONE`
@@ -24,6 +24,7 @@
 - **海尔智家 (600690.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Latest price 22.5500 has exhausted the current valuation margin; mark-to-weighted-value expected return is 4.21%. 下一步：`FRESH_D2_FOR_HOLD_TRIM_OR_EXIT`。
 - **长江电力 (600900.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
 - **中国移动 (600941.SH)** — `USER_ACTION_REVIEW` / `HIGH`：Current decision-grade holding action is TRIM. 下一步：`PORTFOLIO_AND_EXECUTION_VALIDATION`。
+- **工业富联 (601138.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Old underwriting and material price/cost deterioration require fresh issuer evidence; loss alone is not an exit. 下一步：`FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT`。
 - **紫金矿业 (601899.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Old underwriting and material price/cost deterioration require fresh issuer evidence; loss alone is not an exit. 下一步：`FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT`。
 - **九丰能源 (605090.SH)** — `REUNDERWRITE_REQUIRED` / `HIGH`：Old underwriting and material price/cost deterioration require fresh issuer evidence; loss alone is not an exit. 下一步：`FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT`。
 - **九丰能源 (605090.SH)** — `PORTFOLIO_REVIEW_REQUIRED` / `HIGH`：Current account weight is at/above the governed 15% concentration flag. 下一步：`PHASE3_TARGET_WEIGHT_AND_SIZING_REVIEW`。

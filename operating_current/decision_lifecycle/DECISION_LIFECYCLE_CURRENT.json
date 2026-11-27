@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-27T06:47:16+00:00",
+  "generated_at_utc": "2026-11-27T19:34:46+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-11-10",
     "market_date": "2026-11-26",
-    "recommendation_generated_at_utc": "2026-11-27T06:40:54+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_99dc24c9d981dc96",
+    "recommendation_generated_at_utc": "2026-11-27T19:24:07+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_4bfec7f46fb8c142",
     "surface_as_of_date": "2026-11-26",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_64946135c1018d2d"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_7b4ba9c2d4c44358"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_db4d90bd4f3ba3c2",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_9307092dbd6befb6",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -1040,10 +1040,7 @@
         "NON_BUY_PRICE_CROSS_REUNDERWRITE"
       ],
       "monitoring_flags": [],
-      "new_trigger_keys": [
-        "BUY_BELOW_FORMAL_HURDLE_REUNDERWRITE",
-        "NON_BUY_PRICE_CROSS_REUNDERWRITE"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-11-26",
@@ -2022,9 +2019,7 @@
         "SIMULATION"
       ],
       "base_value": 72.45,
-      "cleared_trigger_keys": [
-        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
-      ],
+      "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 63.4565217391,
       "expected_return": 0.7798780487804877,
@@ -2034,12 +2029,15 @@
       "mechanical_trigger_keys": [
         "DRAWDOWN_MONITOR_ACTIVE",
         "DRAWDOWN_STEP_25_REUNDERWRITE",
-        "DRAWDOWN_STEP_35_REUNDERWRITE"
+        "DRAWDOWN_STEP_35_REUNDERWRITE",
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-11-26",
@@ -2063,7 +2061,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": "RESEARCH_REFRESH_PENDING",
+      "top_blocker": "HOLDING_REUNDERWRITE_REQUIRED",
       "trade_authority": "NONE"
     },
     {
@@ -2645,8 +2643,8 @@
     "held_subject_count": 23,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 2,
-    "reunderwrite_required_count": 13,
-    "review_queue_count": 22,
+    "reunderwrite_required_count": 14,
+    "review_queue_count": 23,
     "semantic_watch_clause_count": 570,
     "subject_count": 64,
     "user_action_review_count": 7,
