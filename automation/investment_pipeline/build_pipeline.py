@@ -366,9 +366,10 @@ def _ai_book_near_gate_refresh_ids(
     for rec in recommendation.get("records", []):
         sid = str(rec.get("security_id") or "")
         if (rec.get("research_freshness") == "HOLDING_REUNDERWRITE_REQUIRED"
-                and rec.get("portfolio_implication") == "EXISTING_POSITION"
-                and rec.get("price_basis") == "PORTFOLIO_MARKS_CURRENT"
-                and rec.get("current_market_price_as_of")):
+                and (rec.get("portfolio_implication") == "EXISTING_POSITION" or rec.get("ai_existing_position"))
+                and rec.get("price_basis") in {"PORTFOLIO_MARKS_CURRENT", "A_SHARE_FULL_MARKET"}
+                and rec.get("current_market_price_as_of")
+                and (rec.get("price_basis") != "A_SHARE_FULL_MARKET" or rec.get("current_market_price_as_of") == market_date)):
             # Protected holding re-underwriting is independent of AI cash.
             # One bounded refresh slot below; no candidate promotion.
             ranked.append((-3.0 if rec.get("underwriting_action") == "ADD" else -2.0, sid))
@@ -495,7 +496,7 @@ def build_d1(
         if rec.get("security_id")
     }
     # Reserve at most one preferred fresh-D2 slot; preserve the other
-    # diversified slots. A holding refresh must not masquerade as AI new capital.
+    # diversified slots. A holding refresh must not masquerade as new capital.
     near_gate_ids = near_gate_ids[:1]
     for sid in near_gate_ids:
         rec = recommendation_by_id.get(sid, {})
@@ -509,9 +510,10 @@ def build_d1(
             # into the current market top-30 or reuse old D2 as new BUY.
             if (
                 rec.get("research_freshness") == "HOLDING_REUNDERWRITE_REQUIRED"
-                and rec.get("portfolio_implication") == "EXISTING_POSITION"
-                and rec.get("price_basis") == "PORTFOLIO_MARKS_CURRENT"
+                and (rec.get("portfolio_implication") == "EXISTING_POSITION" or rec.get("ai_existing_position"))
+                and rec.get("price_basis") in {"PORTFOLIO_MARKS_CURRENT", "A_SHARE_FULL_MARKET"}
                 and rec.get("current_market_price_as_of")
+                and (rec.get("price_basis") != "A_SHARE_FULL_MARKET" or rec.get("current_market_price_as_of") == market_date)
             ):
                 row = {
                     "security_id": sid,
