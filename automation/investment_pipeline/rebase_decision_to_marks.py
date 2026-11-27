@@ -4,6 +4,7 @@ import argparse
 import csv
 import hashlib
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -131,7 +132,7 @@ def _action_for_status(
     existing: bool,
     previous_action: str | None = None,
 ) -> str:
-    if status in {"RESEARCH_REFRESH_PENDING", "PRICE_FRESHNESS_BLOCKED"}:
+    if status in {"RESEARCH_REFRESH_PENDING", "PRICE_FRESHNESS_BLOCKED", "HOLDING_REUNDERWRITE_REQUIRED"}:
         return "HOLD" if existing else "WATCH"
     if status == "AVOID_INVALIDATION_TRIGGERED":
         return "EXIT" if existing else "AVOID"
@@ -163,10 +164,27 @@ def _blocker_for_status(status: str) -> str | None:
         "RESEARCH_REFRESH_PENDING",
         "PRICE_FRESHNESS_BLOCKED",
         "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
+        "HOLDING_REUNDERWRITE_REQUIRED",
         "CAPITAL_NOT_COMPETITIVE",
     }:
         return status
     return "CAPITAL_NOT_COMPETITIVE"
+
+
+def holding_reunderwrite_required(metrics: dict[str, Any], row: dict[str, Any]) -> bool:
+    """Price-age is a conservative proxy, never evidence of thesis failure."""
+    try:
+        age = (date.fromisoformat(str(metrics.get("current_market_price_as_of"))[:10])
+               - date.fromisoformat(str(metrics.get("underwriting_price_as_of"))[:10])).days
+    except (TypeError, ValueError):
+        return False
+    anchor = _num(metrics.get("underwriting_price"))
+    mark = _num(metrics.get("current_market_price"))
+    if age < 30 or not anchor or not mark:
+        return False
+    costs = [_num(v) for v in row.get("holding_unit_costs", [])]
+    deep_loss = any(c and c > 0 and mark / c <= 0.80 for c in costs)
+    return mark / anchor <= 0.85 or deep_loss
 
 
 def rebase_decisions(
@@ -222,23 +240,34 @@ def rebase_decisions(
                     "A_SHARE_FULL_MARKET" if market_rows is not None else "PORTFOLIO_MARKS_CURRENT"
                 )
                 row["comparison_status"] = _recompute_comparison_status(row, metrics)
-                # A legacy BUY_BELOW crossing its price gate is a research
-                # trigger, never a new decision-grade BUY authorization.
+                # Repricing must never manufacture BUY authority from an old
+                # non-BUY semantic thesis, even if S2's numeric action changed.
+                semantic_action = str(metrics.get("underwriting_action") or previous_actions.get(sid) or "").upper()
                 if (
                     market_rows is not None
                     and not existing
-                    and previous_actions.get(sid) == "BUY_BELOW"
+                    and (semantic_action != "BUY" or previous_actions.get(sid) != "BUY")
                     and row["comparison_status"] == "PASS_NEW_CAPITAL"
                 ):
                     row["comparison_status"] = "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+                if (
+                    existing
+                    and previous_actions.get(sid) in {"HOLD", "ADD"}
+                    and row["comparison_status"] not in {
+                        "AVOID_INVALIDATION_TRIGGERED", "EVIDENCE_BLOCKED",
+                        "UNDERWRITING_PENDING", "UNDERWRITING_INCOMPLETE",
+                    }
+                    and holding_reunderwrite_required(metrics, row)
+                ):
+                    row["comparison_status"] = "HOLDING_REUNDERWRITE_REQUIRED"
                 repriced = True
         if missing_current_market or (market_rows is not None and not existing and not repriced):
             row["comparison_status"] = "PRICE_FRESHNESS_BLOCKED"
         if sid in pending:
             row["comparison_status"] = "RESEARCH_REFRESH_PENDING"
             row["research_freshness"] = "RESEARCH_REFRESH_PENDING"
-        elif row.get("comparison_status") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS":
-            row["research_freshness"] = "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+        elif row.get("comparison_status") in {"FRESH_D2_REQUIRED_ON_PRICE_CROSS", "HOLDING_REUNDERWRITE_REQUIRED"}:
+            row["research_freshness"] = row["comparison_status"]
         else:
             row["research_freshness"] = "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH"
         comp_by_id[sid] = row
@@ -279,6 +308,7 @@ def rebase_decisions(
         comp = comp_by_id.get(sid, {})
         metrics = comp.get("metrics") or {}
         if metrics:
+            rec["underwriting_action"] = metrics.get("underwriting_action")
             rec["underwriting_price"] = metrics.get("underwriting_price", metrics.get("current_price"))
             rec["underwriting_price_as_of"] = metrics.get("underwriting_price_as_of", metrics.get("price_as_of"))
             rec["original_expected_return"] = metrics.get("original_expected_return", metrics.get("expected_return"))
@@ -320,6 +350,7 @@ def rebase_decisions(
             "RESEARCH_REFRESH_PENDING",
             "PRICE_FRESHNESS_BLOCKED",
             "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
+        "HOLDING_REUNDERWRITE_REQUIRED",
             "CAPITAL_NOT_COMPETITIVE",
         }
         reasons = [
