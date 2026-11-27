@@ -371,7 +371,7 @@ def _ai_book_near_gate_refresh_ids(
                 and rec.get("current_market_price_as_of")):
             # Protected holding re-underwriting is independent of AI cash.
             # One bounded refresh slot below; no candidate promotion.
-            ranked.append((-2.0, sid))
+            ranked.append((-3.0 if rec.get("underwriting_action") == "ADD" else -2.0, sid))
             continue
         if rec.get("portfolio_implication") != "NEW_CAPITAL_CANDIDATE":
             continue
@@ -494,14 +494,16 @@ def build_d1(
         for rec in (recommendation or {}).get("records", [])
         if rec.get("security_id")
     }
-    # High-cash feedback is allowed to replace only the last D1 slot, preserving
-    # the bounded batch size and avoiding a new unbounded research queue.
+    # Reserve at most one preferred fresh-D2 slot; preserve the other
+    # diversified slots. A holding refresh must not masquerade as AI new capital.
+    near_gate_ids = near_gate_ids[:1]
     for sid in near_gate_ids:
-        if sid in {str(row.get("security_id") or "") for row in selected}:
+        rec = recommendation_by_id.get(sid, {})
+        holding_refresh = rec.get("research_freshness") == "HOLDING_REUNDERWRITE_REQUIRED"
+        if not holding_refresh and sid in {str(row.get("security_id") or "") for row in selected}:
             break
-        row = opportunity_by_id.get(sid)
+        row = None if holding_refresh else opportunity_by_id.get(sid)
         if row is None:
-            rec = recommendation_by_id.get(sid, {})
             market_date = str((opportunity.get("source_snapshot") or {}).get("data_watermark") or "")
             # Explicit evidence-backed recovery; never pretend it was screened
             # into the current market top-30 or reuse old D2 as new BUY.
@@ -555,7 +557,10 @@ def build_d1(
                     },
                 }
         if row is not None:
-            if selected:
+            index = next((i for i, old in enumerate(selected) if str(old.get("security_id") or "") == sid), None)
+            if index is not None:
+                selected[index] = row
+            elif selected:
                 selected[-1] = row
             else:
                 selected.append(row)
@@ -576,7 +581,9 @@ def build_d1(
         priority = str(row.get("research_priority") or "")
         sid = str(row.get("security_id") or "")
         if sid in route_set:
-            if sid in near_gate_set:
+            if sid in near_gate_set and row.get("primary_sleeve") == "HOLDING_REUNDERWRITE":
+                disposition = "ADVANCE_TO_D2_HOLDING_REUNDERWRITE"
+            elif sid in near_gate_set:
                 disposition = "ADVANCE_TO_D2_AI_BOOK_AUTO_REUNDERWRITE"
             else:
                 disposition = "ADVANCE_TO_D2_FAST_TRIAGE"
@@ -589,7 +596,8 @@ def build_d1(
         else:
             disposition = "REJECT_FOR_NOW_LOW_RESEARCH_PRIORITY"
 
-        ai_refresh = sid in near_gate_set and sid in route_set
+        fresh_refresh = sid in near_gate_set and sid in route_set
+        ai_refresh = fresh_refresh and row.get("primary_sleeve") != "HOLDING_REUNDERWRITE"
         research_objects.append(
             {
                 "security_id": row.get("security_id"),
@@ -607,8 +615,8 @@ def build_d1(
                 ),
                 "first_rejection": _first_rejection(row),
                 "d2_questions": _d2_questions(row),
-                "semantic_refresh_required": ai_refresh,
-                "fresh_d2_required": ai_refresh,
+                "semantic_refresh_required": fresh_refresh,
+                "fresh_d2_required": fresh_refresh,
                 "ai_book_auto_reunderwrite": ai_refresh,
                 "existing_decision_grade_d2": sid in completed_d2_ids,
                 "ai_book_reunderwrite_reason": (
