@@ -475,13 +475,17 @@ jobs:
             --semantic-d2-dir investment_os_runtime/40_EVIDENCE_AND_LINEAGE/RESEARCH_QUEUE_D2 \
             --output-dir "$S2_OUTPUT"
 
+          # Bind the prior virtual book solely for research freshness. Never
+          # feed AI holdings into protected-account position identity.
+          git show origin/operating-current:operating_current/ai_autonomous/AI_AUTONOMOUS_1M_CURRENT.json > "$S2_RUNTIME/AI_AUTONOMOUS_1M_CURRENT.json"
           python automation/investment_pipeline/rebase_decision_to_marks.py \
             --comparison "$S2_OUTPUT/CAPITAL_COMPARISON_CURRENT.json" \
             --recommendation "$S2_OUTPUT/RECOMMENDATION_CURRENT.json" \
             --portfolio-marks "$S2_RUNTIME/PORTFOLIO_MARKS_CURRENT.json" \
             --raw-d2 "$S2_RUNTIME/D2_CURRENT.json" \
             --market-snapshot "$S2_RUNTIME/FULL_MARKET_SNAPSHOT.csv" \
-            --market-watermark "$MARKET_WATERMARK"
+            --market-watermark "$MARKET_WATERMARK" \
+            --ai-book "$S2_RUNTIME/AI_AUTONOMOUS_1M_CURRENT.json"
 
           python - <<'PY'
           import json, os
