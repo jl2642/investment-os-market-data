@@ -523,7 +523,7 @@ def build_d1(
                     "research_priority": "A_IMMEDIATE_RESEARCH",
                     "primary_sleeve": "HOLDING_REUNDERWRITE",
                     "market_signal": {
-                        "source": "FORMAL_PORTFOLIO_MARK",
+                        "source": "FORMAL_FULL_MARKET_MARK" if rec.get("price_basis") == "A_SHARE_FULL_MARKET" else "FORMAL_PORTFOLIO_MARK",
                         "price_as_of": rec.get("current_market_price_as_of"),
                         "current_price": rec.get("current_price"),
                     },
