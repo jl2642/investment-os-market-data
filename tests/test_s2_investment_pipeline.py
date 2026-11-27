@@ -1048,3 +1048,24 @@ def test_strategy_stale_holding_refresh_is_bounded_and_independent_of_cash():
     assert row["candidate_membership_required"] is False
     assert row["d1_disposition"] == "ADVANCE_TO_D2_HOLDING_REUNDERWRITE"
     assert row["ai_book_auto_reunderwrite"] is False
+
+
+def test_strategy_ai_only_holding_refresh_uses_full_market_mark_and_no_new_capital_route():
+    from automation.investment_pipeline.build_pipeline import build_d1
+    sid = "001227.SZ"
+    opportunity = {"state_id": "OPP", "source_snapshot": {"data_watermark": "2026-11-26"}, "rows": []}
+    record = {"security_id": sid, "security_name": "AI holding", "action": "WATCH",
+        "portfolio_implication": "NEW_CAPITAL_CANDIDATE", "ai_existing_position": True,
+        "research_freshness": "HOLDING_REUNDERWRITE_REQUIRED", "price_basis": "A_SHARE_FULL_MARKET",
+        "current_market_price_as_of": "2026-11-26", "underwriting_price_as_of": "2026-09-24",
+        "current_price": 2.12}
+    d1 = build_d1(opportunity, ai_book={"cash": 700000, "current_nav": 1000000},
+                  recommendation={"records": [record]})
+    row = d1["research_objects"][0]
+    assert row["security_id"] == sid
+    assert row["d1_disposition"] == "ADVANCE_TO_D2_HOLDING_REUNDERWRITE"
+    assert row["fresh_d2_required"] and not row["ai_book_auto_reunderwrite"]
+    record["current_market_price_as_of"] = "2026-11-25"
+    stale = build_d1(opportunity, ai_book={"cash": 700000, "current_nav": 1000000},
+                     recommendation={"records": [record]})
+    assert not stale["routing_summary"]["route_security_ids"]
