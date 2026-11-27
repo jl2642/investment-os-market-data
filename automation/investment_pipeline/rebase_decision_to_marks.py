@@ -180,11 +180,17 @@ def holding_reunderwrite_required(metrics: dict[str, Any], row: dict[str, Any]) 
         return False
     anchor = _num(metrics.get("underwriting_price"))
     mark = _num(metrics.get("current_market_price"))
-    if age < 30 or not anchor or not mark:
+    if age < 0 or not anchor or anchor <= 0 or not mark or mark <= 0:
         return False
-    costs = [_num(v) for v in row.get("holding_unit_costs", [])]
-    deep_loss = any(c and c > 0 and mark / c <= 0.80 for c in costs)
-    return mark / anchor <= 0.85 or deep_loss
+    costs = [c for c in (_num(v) for v in row.get("holding_unit_costs", [])) if c and c > 0]
+    # A fresh D2 establishes a new anchor. If the loss has crossed a new
+    # threshold since that anchor, re-open D2 even within 30 days.
+    worsening_step = any(
+        anchor / cost > 1.0 - level and mark / cost <= 1.0 - level
+        for cost in costs for level in (0.25, 0.35, 0.50)
+    )
+    deep_loss = any(mark / cost <= 0.80 for cost in costs)
+    return worsening_step or (age >= 30 and (mark / anchor <= 0.85 or deep_loss))
 
 
 def rebase_decisions(
@@ -242,7 +248,10 @@ def rebase_decisions(
                 row["comparison_status"] = _recompute_comparison_status(row, metrics)
                 # Repricing must never manufacture BUY authority from an old
                 # non-BUY semantic thesis, even if S2's numeric action changed.
-                semantic_action = str(metrics.get("underwriting_action") or previous_actions.get(sid) or "").upper()
+                semantic_action = str(
+                    metrics.get("underwriting_action") if "underwriting_action" in metrics
+                    else previous_actions.get(sid) or ""
+                ).upper()
                 if (
                     market_rows is not None
                     and not existing
