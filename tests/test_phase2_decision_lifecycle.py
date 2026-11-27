@@ -380,3 +380,29 @@ def test_held_position_and_missing_formal_gate_do_not_open_new_buy_route() -> No
         now=NOW,
     )
     assert no_formal_queue["records"] == []
+
+
+
+def test_strategy_deeper_loss_reopens_review_without_sell():
+    sid = "601138.SH"
+    def step(loss, prior=None):
+        row = holding(sid, 41, flags=["DRAWDOWN_GE_15PCT"])
+        row["unrealized_pnl_pct"] = loss
+        return build(recommendation=recommendation(rec(sid, "HOLD", price=41)),
+                     surface=surface(row), prior=prior, now=NOW)
+    first, _ = step(-0.20)
+    next_state, queue = step(-0.36, first)
+    keys = {x["trigger_key"] for x in queue["records"]}
+    assert {"DRAWDOWN_STEP_25_REUNDERWRITE", "DRAWDOWN_STEP_35_REUNDERWRITE"} <= keys
+    assert all(x["current_action"] == "HOLD" and x["orders"] == 0 for x in queue["records"])
+    _, repeated = step(-0.36, next_state)
+    assert not any(x["trigger_key"].startswith("DRAWDOWN_STEP_") for x in repeated["records"])
+
+
+def test_strategy_persisting_stale_hold_research_is_review_only():
+    sid = "601138.SH"
+    row = rec(sid, "HOLD", price=41)
+    row["research_freshness"] = "HOLDING_REUNDERWRITE_REQUIRED"
+    life, queue = build(recommendation=recommendation(row), surface=surface(holding(sid, 41)), now=NOW)
+    assert any(x["trigger_key"] == "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE" for x in queue["records"])
+    assert life["subjects"][0]["current_action"] == "HOLD"
