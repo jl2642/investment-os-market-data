@@ -1046,3 +1046,5 @@ def test_strategy_stale_holding_refresh_is_bounded_and_independent_of_cash():
     row = result["research_objects"][0]
     assert row["fresh_d2_required"] and row["semantic_refresh_required"]
     assert row["candidate_membership_required"] is False
+    assert row["d1_disposition"] == "ADVANCE_TO_D2_HOLDING_REUNDERWRITE"
+    assert row["ai_book_auto_reunderwrite"] is False
