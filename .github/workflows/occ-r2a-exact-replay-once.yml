@@ -1,4 +1,4 @@
-name: OCC-R2A full-universe exact continuation acceptance (one-off)
+name: OCC-R2A bounded event catchup of accepted financial and share baselines
 on:
   push:
     branches: [audit/occ-r2a-exact-replay-20261126]
@@ -6,39 +6,45 @@ on:
 permissions:
   contents: read
 jobs:
-  replay:
+  catchup:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: c1d2d5a426fa755f5f6ccf3e06656de60d83744d
+          ref: 6bc40b751214c6190a9a0df05e0a2e7a26a4f05f
           fetch-depth: 1
           sparse-checkout: |
             scripts
             config
             tests
+            requirements.txt
+          sparse-checkout-cone-mode: false
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install existing valuation dependencies
-        run: pip install 'pandas>=2.2,<3' 'pyarrow>=17,<24' pytest
-      - name: Validate exact continuation logic
-        run: pytest -q tests/test_occ_r2a_exact_continuation.py
-      - name: Fetch only accepted immutable releases
-        run: git fetch --no-tags --depth=1 --filter=blob:none origin 562ac7ad33d470c2e40c2418ec8e0764ca3f8b20 b8c927db10b7452b38b96691c2d1a356b1fbafe5 4a95886613628e8c28bd45ddbccc8efc9161a0aa
-      - name: Reuse accepted inputs to calculate full-market exact-formula candidate
+      - name: Install existing financial and share dependencies
+        run: pip install -r requirements.txt
+      - name: Verify candidate code and existing PIT helpers
         run: |
-          python -m scripts.run_occ_r2a_exact_continuation \
+          python -m py_compile scripts/prepare_occ_r2a_event_catchup.py
+          pytest -q tests/test_occ_r2a_exact_continuation.py tests/test_fmdl3db_engine.py tests/test_fmdl3b2_cninfo_query_resolution.py
+      - name: Fetch immutable accepted assets only
+        run: git fetch --no-tags --depth=1 --filter=blob:none origin 562ac7ad33d470c2e40c2418ec8e0764ca3f8b20 b8c927db10b7452b38b96691c2d1a356b1fbafe5 4a95886613628e8c28bd45ddbccc8efc9161a0aa 73f0dd62a356b8b49791e9f36e49200665a7bd81
+      - name: Capture only affected financial and share event assets
+        run: |
+          python -m scripts.prepare_occ_r2a_event_catchup \
             --market-commit 4a95886613628e8c28bd45ddbccc8efc9161a0aa \
             --financial-commit b8c927db10b7452b38b96691c2d1a356b1fbafe5 \
             --exact-commit 562ac7ad33d470c2e40c2418ec8e0764ca3f8b20 \
-            --output /tmp/exact-candidate
-      - name: Preserve actual candidate and explicit blocking decision
+            --audit-commit 73f0dd62a356b8b49791e9f36e49200665a7bd81 \
+            --output /tmp/event-catchup
+      - name: Preserve actual catchup results even on partial failure
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: full-universe-exact-continuation-20261126
-          path: /tmp/exact-candidate/
-          if-no-files-found: error
+          name: exact-event-catchup-20261126
+          path: /tmp/event-catchup/
+          if-no-files-found: warn
           retention-days: 30
