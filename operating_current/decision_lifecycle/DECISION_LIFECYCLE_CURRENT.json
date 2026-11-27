@@ -15,17 +15,17 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-27T04:19:31+00:00",
+  "generated_at_utc": "2026-11-27T04:32:46+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-11-10",
     "market_date": "2026-11-26",
-    "recommendation_generated_at_utc": "2026-11-26T20:19:48+00:00",
-    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_ca7c9c98ddbcf7e0",
+    "recommendation_generated_at_utc": "2026-11-27T04:22:49+00:00",
+    "recommendation_state_id": "RECOMMENDATION_CURRENT_MARK_REBASED_890e931830aaeece",
     "surface_as_of_date": "2026-11-26",
-    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_ea737828ce65d4d3"
+    "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_fc517ff5b3181f63"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_d52334218d712c8a",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_cdf321308bbb27cf",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -77,7 +77,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 82.0,
-      "expected_return": 0.030911408540471585,
+      "expected_return": 0.026875462913977355,
       "latest_price": 94.51,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.026875462913977355,
@@ -469,7 +469,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 4.25,
-      "expected_return": 0.2165476190476192,
+      "expected_return": 0.18549883990719285,
       "latest_price": 4.31,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.18549883990719285,
@@ -710,7 +710,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 1.38,
-      "expected_return": 0.03914795624640188,
+      "expected_return": 0.04012101130879486,
       "latest_price": 1.3883,
       "lifecycle_state": "HELD_CONCENTRATION_REVIEW",
       "mark_expected_return": 0.04012101130879486,
@@ -752,17 +752,20 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 1.2,
-      "expected_return": 0.3120155038759691,
+      "expected_return": 0.31712062256809337,
       "latest_price": 1.028,
       "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
       "mark_expected_return": 0.31712062256809337,
       "mechanical_trigger_keys": [
-        "DRAWDOWN_MONITOR_ACTIVE"
+        "DRAWDOWN_MONITOR_ACTIVE",
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": null,
@@ -783,7 +786,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "HOLDING_REUNDERWRITE_REQUIRED",
       "trade_authority": "NONE"
     },
     {
@@ -794,7 +797,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 2.0,
-      "expected_return": 0.13011923276308957,
+      "expected_return": 0.12139917695473246,
       "latest_price": 1.944,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.12139917695473246,
@@ -830,7 +833,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 1.95,
-      "expected_return": 0.14994606256742182,
+      "expected_return": 0.13828083288841442,
       "latest_price": 1.873,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.13828083288841442,
@@ -868,7 +871,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 1.37,
-      "expected_return": 0.0615931299970387,
+      "expected_return": 0.06458797327394206,
       "latest_price": 1.347,
       "lifecycle_state": "HELD_PRICE_REUNDERWRITE",
       "mark_expected_return": 0.06458797327394206,
@@ -907,7 +910,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 14.5,
-      "expected_return": 0.11581001951854253,
+      "expected_return": 0.12680683311432306,
       "latest_price": 15.22,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.12680683311432306,
@@ -984,7 +987,7 @@
       "cleared_trigger_keys": [],
       "current_action": "ADD",
       "entry_price": 61.39,
-      "expected_return": 0.3517135745739999,
+      "expected_return": 0.3629343629343631,
       "latest_price": 51.8,
       "lifecycle_state": "HELD_ADD_REVIEW",
       "mark_expected_return": 0.3629343629343631,
@@ -996,9 +999,7 @@
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [
-        "DRAWDOWN_STEP_25_REUNDERWRITE"
-      ],
+      "new_trigger_keys": [],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-11-26",
@@ -1152,7 +1153,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 365.0,
-      "expected_return": 1.0979992323193555,
+      "expected_return": 1.1411468024679268,
       "latest_price": 204.22,
       "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
       "mark_expected_return": 1.1411468024679268,
@@ -1160,15 +1161,14 @@
         "DRAWDOWN_MONITOR_ACTIVE",
         "DRAWDOWN_STEP_25_REUNDERWRITE",
         "DRAWDOWN_STEP_35_REUNDERWRITE",
-        "DRAWDOWN_STEP_50_REUNDERWRITE"
+        "DRAWDOWN_STEP_50_REUNDERWRITE",
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
       "new_trigger_keys": [
-        "DRAWDOWN_STEP_25_REUNDERWRITE",
-        "DRAWDOWN_STEP_35_REUNDERWRITE",
-        "DRAWDOWN_STEP_50_REUNDERWRITE"
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
       ],
       "orders": 0,
       "position_state": "HELD",
@@ -1195,7 +1195,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "HOLDING_REUNDERWRITE_REQUIRED",
       "trade_authority": "NONE"
     },
     {
@@ -1447,19 +1447,20 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 7.4,
-      "expected_return": 0.4251941911516379,
+      "expected_return": 0.43342391304347827,
       "latest_price": 5.888,
       "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
       "mark_expected_return": 0.43342391304347827,
       "mechanical_trigger_keys": [
         "DRAWDOWN_MONITOR_ACTIVE",
-        "DRAWDOWN_STEP_25_REUNDERWRITE"
+        "DRAWDOWN_STEP_25_REUNDERWRITE",
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
       "new_trigger_keys": [
-        "DRAWDOWN_STEP_25_REUNDERWRITE"
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
       ],
       "orders": 0,
       "position_state": "HELD",
@@ -1481,7 +1482,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "HOLDING_REUNDERWRITE_REQUIRED",
       "trade_authority": "NONE"
     },
     {
@@ -1492,7 +1493,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 38.0,
-      "expected_return": 0.04166666666666652,
+      "expected_return": 0.03734439834024883,
       "latest_price": 43.38,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.03734439834024883,
@@ -1532,7 +1533,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 43.0,
-      "expected_return": 0.09014675052410892,
+      "expected_return": 0.09820485744456176,
       "latest_price": 47.35,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.09820485744456176,
@@ -1570,7 +1571,7 @@
       "cleared_trigger_keys": [],
       "current_action": "ADD",
       "entry_price": 72.7,
-      "expected_return": 0.23194812849985258,
+      "expected_return": 0.2263458999559922,
       "latest_price": 68.17,
       "lifecycle_state": "HELD_ADD_REVIEW",
       "mark_expected_return": 0.2263458999559922,
@@ -1614,7 +1615,7 @@
       "cleared_trigger_keys": [],
       "current_action": "TRIM",
       "entry_price": 21.0,
-      "expected_return": -0.020325203252032464,
+      "expected_return": -0.019926799511996718,
       "latest_price": 24.59,
       "lifecycle_state": "HELD_TRIM_REVIEW",
       "mark_expected_return": -0.019926799511996718,
@@ -1695,7 +1696,7 @@
       "cleared_trigger_keys": [],
       "current_action": "ADD",
       "entry_price": 55.01,
-      "expected_return": 0.1341430620294013,
+      "expected_return": 0.15379354368046694,
       "latest_price": 54.83,
       "lifecycle_state": "HELD_ADD_REVIEW",
       "mark_expected_return": 0.15379354368046694,
@@ -1739,7 +1740,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 20.0,
-      "expected_return": 0.03982300884955747,
+      "expected_return": 0.042128603104212736,
       "latest_price": 22.55,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.042128603104212736,
@@ -1817,7 +1818,7 @@
       "cleared_trigger_keys": [],
       "current_action": "TRIM",
       "entry_price": 27.26,
-      "expected_return": -0.02866082603254083,
+      "expected_return": -0.023773584905660505,
       "latest_price": 31.8,
       "lifecycle_state": "HELD_TRIM_REVIEW",
       "mark_expected_return": -0.023773584905660505,
@@ -1902,7 +1903,7 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 31.0,
-      "expected_return": 0.20522263140274521,
+      "expected_return": 0.16618075801749277,
       "latest_price": 30.87,
       "lifecycle_state": "HELD_HOLD",
       "mark_expected_return": 0.16618075801749277,
@@ -1941,7 +1942,7 @@
       "cleared_trigger_keys": [],
       "current_action": "TRIM",
       "entry_price": 92.09,
-      "expected_return": -0.10901608853343248,
+      "expected_return": -0.1264815827862874,
       "latest_price": 109.68,
       "lifecycle_state": "HELD_TRIM_REVIEW",
       "mark_expected_return": -0.1264815827862874,
@@ -2021,32 +2022,33 @@
         "SIMULATION"
       ],
       "base_value": 72.45,
-      "cleared_trigger_keys": [],
-      "current_action": "ADD",
+      "cleared_trigger_keys": [
+        "POSITION_ACTION_ADD"
+      ],
+      "current_action": "HOLD",
       "entry_price": 63.4565217391,
-      "expected_return": 0.8423377934864933,
+      "expected_return": 0.7798780487804877,
       "latest_price": 41.0,
-      "lifecycle_state": "HELD_ADD_REVIEW",
+      "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
       "mark_expected_return": 0.7798780487804877,
       "mechanical_trigger_keys": [
         "DRAWDOWN_MONITOR_ACTIVE",
         "DRAWDOWN_STEP_25_REUNDERWRITE",
         "DRAWDOWN_STEP_35_REUNDERWRITE",
-        "POSITION_ACTION_ADD"
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
       "new_trigger_keys": [
-        "DRAWDOWN_STEP_25_REUNDERWRITE",
-        "DRAWDOWN_STEP_35_REUNDERWRITE"
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
       ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-11-26",
       "price_source": "A_SHARE_FULL_MARKET",
       "probability_weighted_value": 72.975,
-      "ready_for_user_decision": true,
+      "ready_for_user_decision": false,
       "security_id": "601138.SH",
       "security_name": "工业富联",
       "semantic_watch": {
@@ -2064,7 +2066,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "HOLDING_REUNDERWRITE_REQUIRED",
       "trade_authority": "NONE"
     },
     {
@@ -2197,17 +2199,20 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 32.21,
-      "expected_return": 0.6124292555507185,
+      "expected_return": 0.5594736842105263,
       "latest_price": 23.75,
       "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
       "mark_expected_return": 0.5594736842105263,
       "mechanical_trigger_keys": [
-        "DRAWDOWN_MONITOR_ACTIVE"
+        "DRAWDOWN_MONITOR_ACTIVE",
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-11-26",
@@ -2232,7 +2237,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "HOLDING_REUNDERWRITE_REQUIRED",
       "trade_authority": "NONE"
     },
     {
@@ -2479,19 +2484,22 @@
       "cleared_trigger_keys": [],
       "current_action": "HOLD",
       "entry_price": 31.0,
-      "expected_return": 0.4619883040935673,
+      "expected_return": 0.4534883720930232,
       "latest_price": 25.8,
       "lifecycle_state": "HELD_CONCENTRATION_REVIEW",
       "mark_expected_return": 0.4534883720930232,
       "mechanical_trigger_keys": [
         "DRAWDOWN_MONITOR_ACTIVE",
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE",
         "PORTFOLIO_CONCENTRATION_ACTIVE"
       ],
       "monitoring_flags": [
         "ACCOUNT_WEIGHT_GE_15PCT",
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-11-26",
@@ -2514,7 +2522,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "HOLDING_REUNDERWRITE_REQUIRED",
       "trade_authority": "NONE"
     },
     {
@@ -2597,24 +2605,30 @@
     {
       "accounts": [],
       "base_value": 14.04,
-      "cleared_trigger_keys": [],
-      "current_action": "BUY",
+      "cleared_trigger_keys": [
+        "NEW_CAPITAL_ACTION_BUY"
+      ],
+      "current_action": "BUY_BELOW",
       "entry_price": 12.21,
       "expected_return": 0.30495004541326076,
       "latest_price": 11.01,
-      "lifecycle_state": "FLAT_BUY_REVIEW",
+      "lifecycle_state": "FLAT_PRICE_REUNDERWRITE",
       "mark_expected_return": 0.30495004541326076,
       "mechanical_trigger_keys": [
-        "NEW_CAPITAL_ACTION_BUY"
+        "BUY_BELOW_PRICE_CONDITION_MET",
+        "NON_BUY_PRICE_CROSS_REUNDERWRITE"
       ],
       "monitoring_flags": [],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "BUY_BELOW_PRICE_CONDITION_MET",
+        "NON_BUY_PRICE_CROSS_REUNDERWRITE"
+      ],
       "orders": 0,
       "position_state": "FLAT",
       "price_as_of": "2026-11-26",
       "price_source": "A_SHARE_FULL_MARKET",
       "probability_weighted_value": 14.3675,
-      "ready_for_user_decision": true,
+      "ready_for_user_decision": false,
       "security_id": "920663.BJ",
       "security_name": "明阳科技",
       "semantic_watch": {
@@ -2632,7 +2646,7 @@
         ],
         "semantic_reunderwrite_required_before_state_change": true
       },
-      "top_blocker": null,
+      "top_blocker": "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
       "trade_authority": "NONE"
     }
   ],
@@ -2643,11 +2657,11 @@
     "held_subject_count": 23,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 2,
-    "reunderwrite_required_count": 11,
-    "review_queue_count": 22,
+    "reunderwrite_required_count": 12,
+    "review_queue_count": 21,
     "semantic_watch_clause_count": 570,
     "subject_count": 64,
-    "user_action_review_count": 9,
+    "user_action_review_count": 7,
     "valuation_reunderwrite_count": 3
   },
   "trade_authority": "NONE"
