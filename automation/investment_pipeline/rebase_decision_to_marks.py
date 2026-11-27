@@ -200,9 +200,11 @@ def rebase_decisions(
     raw_d2: dict[str, Any],
     market_rows: dict[str, dict[str, Any]] | None = None,
     market_watermark: str | None = None,
+    ai_book: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     marks_by_id, watermark = _mark_map(marks)
     pending = _pending_ids(raw_d2)
+    ai_positions = {str(p.get("security_id")): p for p in (ai_book or {}).get("positions", []) if p.get("security_id") and (_num(p.get("quantity")) or 0) > 0}
 
     comparison = json.loads(json.dumps(comparison))
     recommendation = json.loads(json.dumps(recommendation))
@@ -218,6 +220,12 @@ def rebase_decisions(
         # Holdings use exact Portfolio Marks; unheld new-capital candidates MUST
         # be independently priced from the completed-session full-market snapshot.
         existing = bool(row.get("existing_position"))
+        ai_pos = ai_positions.get(sid)
+        row["ai_existing_position"] = ai_pos is not None
+        # Keep protected-account identity distinct; AI-only holdings use
+        # full-market marks and their own virtual cost anchor.
+        if ai_pos is not None:
+            row["holding_unit_costs"] = list(row.get("holding_unit_costs") or []) + [ai_pos.get("average_cost")]
         mark = marks_by_id.get(sid) if existing else (
             market_rows.get(sid) if market_rows is not None else marks_by_id.get(sid)
         )
@@ -260,8 +268,8 @@ def rebase_decisions(
                 ):
                     row["comparison_status"] = "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
                 if (
-                    existing
-                    and previous_actions.get(sid) in {"HOLD", "ADD"}
+                    (existing or ai_pos is not None)
+                    and previous_actions.get(sid) in {"HOLD", "ADD", "BUY", "BUY_BELOW", "WATCH"}
                     and row["comparison_status"] not in {
                         "AVOID_INVALIDATION_TRIGGERED", "EVIDENCE_BLOCKED",
                         "UNDERWRITING_PENDING", "UNDERWRITING_INCOMPLETE",
@@ -272,7 +280,7 @@ def rebase_decisions(
                 repriced = True
         if missing_current_market or (market_rows is not None and not existing and not repriced):
             row["comparison_status"] = "PRICE_FRESHNESS_BLOCKED"
-        if sid in pending:
+        if sid in pending and row.get("comparison_status") != "AVOID_INVALIDATION_TRIGGERED":
             row["comparison_status"] = "RESEARCH_REFRESH_PENDING"
             row["research_freshness"] = "RESEARCH_REFRESH_PENDING"
         elif row.get("comparison_status") in {"FRESH_D2_REQUIRED_ON_PRICE_CROSS", "HOLDING_REUNDERWRITE_REQUIRED"}:
@@ -344,6 +352,7 @@ def rebase_decisions(
         rec["action"] = new_action
         rec["ready_for_user_decision"] = rec["action"] in {"BUY", "ADD", "TRIM", "EXIT"}
         rec["research_freshness"] = comp.get("research_freshness")
+        rec["ai_existing_position"] = bool(comp.get("ai_existing_position"))
         rec["top_blocker"] = _blocker_for_status(status)
         if status == "RESEARCH_REFRESH_PENDING":
             rec["ready_for_user_decision"] = False
@@ -407,6 +416,7 @@ def main() -> int:
     parser.add_argument("--raw-d2", required=True)
     parser.add_argument("--market-snapshot")
     parser.add_argument("--market-watermark")
+    parser.add_argument("--ai-book")
     args = parser.parse_args()
     if bool(args.market_snapshot) != bool(args.market_watermark):
         raise SystemExit("FULL_MARKET_SNAPSHOT_AND_WATERMARK_MUST_BE_SUPPLIED_TOGETHER")
@@ -419,6 +429,7 @@ def main() -> int:
         market_rows=load_full_market_snapshot(args.market_snapshot, args.market_watermark)
         if args.market_snapshot else None,
         market_watermark=args.market_watermark,
+        ai_book=read_json(args.ai_book) if args.ai_book else None,
     )
     write_json(args.comparison, comparison)
     write_json(args.recommendation, recommendation)
