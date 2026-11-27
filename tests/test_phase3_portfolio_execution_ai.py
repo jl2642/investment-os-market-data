@@ -545,3 +545,51 @@ def test_ai_rejects_inconsistent_prior_nav_history() -> None:
             prior_state=first,
             as_of_date="2026-10-12",
         )
+
+
+
+def test_strategy_small_ordinary_buy_is_skipped_but_explicit_add_is_not():
+    sid = "000001.SZ"
+    initial, _ = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "BUY", price=10)),
+        lifecycle=lifecycle(life_row(sid, 10)), prior_state=None, as_of_date="2026-09-01")
+    # A small decline opens a single-lot ordinary rebalance.
+    state, report = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "HOLD", price=9.8)),
+        lifecycle=lifecycle(life_row(sid, 9.8)), prior_state=initial, as_of_date="2026-09-02")
+    assert state["positions"][0]["quantity"] == initial["positions"][0]["quantity"]
+    assert report["new_transaction_count"] == 0
+    assert any(d["status"].startswith("SKIP_SMALL_ORDINARY_REBALANCE") for d in report["diagnostics"])
+    _, add_report = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "ADD", price=9.8)),
+        lifecycle=lifecycle(life_row(sid, 9.8)), prior_state=initial, as_of_date="2026-09-02")
+    assert any(t["side"] == "BUY" for t in add_report["new_transactions"])
+
+
+def test_strategy_small_risk_correction_and_exit_are_not_filtered():
+    sid = "000001.SZ"
+    initial, _ = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "BUY", price=10)),
+        lifecycle=lifecycle(life_row(sid, 10)), prior_state=None, as_of_date="2026-09-01")
+    state, report = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "HOLD", price=10.3)),
+        lifecycle=lifecycle(life_row(sid, 10.3)), prior_state=initial, as_of_date="2026-09-02")
+    assert any(t["side"] == "SELL" for t in report["new_transactions"])
+    assert state["positions"][0]["market_value"] / state["current_nav"] <= 0.10
+    small = copy.deepcopy(initial)
+    p = small["positions"][0]
+    p["quantity"] = 100
+    p["market_value"] = 1000
+    small["cash"] = small["current_nav"] - 1000
+    _, report = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "EXIT", price=10)),
+        lifecycle=lifecycle(life_row(sid, 10)), prior_state=small, as_of_date="2026-09-02")
+    assert any(t["side"] == "SELL" and t["quantity"] == 100 for t in report["new_transactions"])
+
+
+def test_strategy_pending_fresh_d2_does_not_liquidate_ai_position():
+    sid = "920663.BJ"
+    initial, _ = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "BUY", price=11)),
+        lifecycle=lifecycle(life_row(sid, 11)), prior_state=None, as_of_date="2026-09-01")
+    for status in ("FRESH_D2_REQUIRED_ON_PRICE_CROSS", "RESEARCH_REFRESH_PENDING", "HOLDING_REUNDERWRITE_REQUIRED"):
+        r = rec(sid, "WATCH", price=10)
+        r["research_freshness"] = status
+        state, report = apply_ai_virtual_rebalance(recommendation=recommendation(r),
+            lifecycle=lifecycle(life_row(sid, 10)), prior_state=initial, as_of_date="2026-09-02")
+        assert state["positions"][0]["quantity"] == initial["positions"][0]["quantity"]
+        assert report["new_transaction_count"] == 0
+        assert state["orders"] == 0 and state["trade_authority"] == "NONE"
