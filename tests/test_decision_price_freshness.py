@@ -402,3 +402,26 @@ def test_strategy_new_drawdown_level_routes_fresh_d2_even_inside_30_days():
     # Re-underwritten at the new price: same loss episode must not reopen immediately.
     m["underwriting_price"] = 74
     assert not holding_reunderwrite_required(m, {"holding_unit_costs": [100]})
+
+
+def test_strategy_ai_only_holding_stale_research_uses_virtual_cost_not_protected_identity():
+    sid = "001227.SZ"
+    comp = {"rows": [{"security_id": sid, "existing_position": False,
+        "comparison_status": "PASS_NEW_CAPITAL", "metrics": {
+        "current_price": 2.07, "price_as_of": "2026-09-24", "underwriting_action": "BUY",
+        "entry_price": 2.2, "bear_value": 1.70, "probability_weighted_value": 2.45}}]}
+    rec = {"records": [{"security_id": sid, "action": "BUY", "portfolio_implication": "NEW_CAPITAL_CANDIDATE"}]}
+    market = {sid: {"resolved_mark": 2.12, "as_of_date": "2026-11-26"}}
+    result, output = rebase_decisions(comp, rec, {"marks": []}, {"queue": []},
+        market_rows=market, market_watermark="2026-11-26",
+        ai_book={"positions": [{"security_id": sid, "quantity": 100, "average_cost": 2.8}]})
+    row = output["records"][0]
+    assert result["rows"][0]["existing_position"] is False
+    assert row["portfolio_implication"] == "NEW_CAPITAL_CANDIDATE"
+    assert row["ai_existing_position"] is True
+    assert row["research_freshness"] == "HOLDING_REUNDERWRITE_REQUIRED"
+    assert row["action"] == "WATCH"
+    assert not row["ready_for_user_decision"]
+    _, flat = rebase_decisions(comp, rec, {"marks": []}, {"queue": []},
+        market_rows=market, market_watermark="2026-11-26")
+    assert flat["records"][0]["action"] == "BUY"
