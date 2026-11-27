@@ -1030,3 +1030,19 @@ def test_s2_q3_financial_watermark_comes_from_matching_receipt_not_pointer() -> 
     assert 'receipt.get("note")' in workflow
     assert 'domain.get("note")' not in workflow
     assert 'S2_FINANCIAL_NOT_Q3_2026' in workflow
+
+
+
+def test_strategy_stale_holding_refresh_is_bounded_and_independent_of_cash():
+    from automation.investment_pipeline.build_pipeline import build_d1
+    sid = "601138.SH"
+    opportunity = {"state_id": "OPP", "source_snapshot": {"data_watermark": "2026-11-26"}, "rows": []}
+    rec = {"records": [{"security_id": sid, "security_name": "Holding", "action": "HOLD",
+        "portfolio_implication": "EXISTING_POSITION", "research_freshness": "HOLDING_REUNDERWRITE_REQUIRED",
+        "price_basis": "PORTFOLIO_MARKS_CURRENT", "current_market_price_as_of": "2026-11-26",
+        "underwriting_price_as_of": "2026-09-24", "current_price": 41}]}
+    result = build_d1(opportunity, ai_book={"cash": 200000, "current_nav": 1000000}, recommendation=rec)
+    assert result["routing_summary"]["route_security_ids"] == [sid]
+    row = result["research_objects"][0]
+    assert row["fresh_d2_required"] and row["semantic_refresh_required"]
+    assert row["candidate_membership_required"] is False
