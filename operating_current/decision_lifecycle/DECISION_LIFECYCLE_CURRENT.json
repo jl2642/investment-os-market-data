@@ -15,7 +15,7 @@
     "simulation_mutations": 0,
     "trade_authority": "NONE"
   },
-  "generated_at_utc": "2026-11-26T23:27:38+00:00",
+  "generated_at_utc": "2026-11-27T04:19:31+00:00",
   "input_identity": {
     "event_evidence_id": null,
     "financial_statement_watermark": "2026-11-10",
@@ -25,7 +25,7 @@
     "surface_as_of_date": "2026-11-26",
     "surface_id": "S3_PORTFOLIO_PRODUCT_SURFACE_ea737828ce65d4d3"
   },
-  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_9fa223b1a5d2a6fa",
+  "lifecycle_id": "DECISION_LIFECYCLE_CURRENT_d52334218d712c8a",
   "orders": 0,
   "schema_version": "1.0.0",
   "status": "PASS_DECISION_LIFECYCLE",
@@ -990,12 +990,15 @@
       "mark_expected_return": 0.3629343629343631,
       "mechanical_trigger_keys": [
         "DRAWDOWN_MONITOR_ACTIVE",
+        "DRAWDOWN_STEP_25_REUNDERWRITE",
         "POSITION_ACTION_ADD"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "DRAWDOWN_STEP_25_REUNDERWRITE"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-11-26",
@@ -1154,12 +1157,19 @@
       "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
       "mark_expected_return": 1.1411468024679268,
       "mechanical_trigger_keys": [
-        "DRAWDOWN_MONITOR_ACTIVE"
+        "DRAWDOWN_MONITOR_ACTIVE",
+        "DRAWDOWN_STEP_25_REUNDERWRITE",
+        "DRAWDOWN_STEP_35_REUNDERWRITE",
+        "DRAWDOWN_STEP_50_REUNDERWRITE"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "DRAWDOWN_STEP_25_REUNDERWRITE",
+        "DRAWDOWN_STEP_35_REUNDERWRITE",
+        "DRAWDOWN_STEP_50_REUNDERWRITE"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-11-26",
@@ -1442,12 +1452,15 @@
       "lifecycle_state": "HELD_HOLD_DRAWDOWN_MONITOR",
       "mark_expected_return": 0.43342391304347827,
       "mechanical_trigger_keys": [
-        "DRAWDOWN_MONITOR_ACTIVE"
+        "DRAWDOWN_MONITOR_ACTIVE",
+        "DRAWDOWN_STEP_25_REUNDERWRITE"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "DRAWDOWN_STEP_25_REUNDERWRITE"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": null,
@@ -2017,12 +2030,17 @@
       "mark_expected_return": 0.7798780487804877,
       "mechanical_trigger_keys": [
         "DRAWDOWN_MONITOR_ACTIVE",
+        "DRAWDOWN_STEP_25_REUNDERWRITE",
+        "DRAWDOWN_STEP_35_REUNDERWRITE",
         "POSITION_ACTION_ADD"
       ],
       "monitoring_flags": [
         "DRAWDOWN_GE_15PCT"
       ],
-      "new_trigger_keys": [],
+      "new_trigger_keys": [
+        "DRAWDOWN_STEP_25_REUNDERWRITE",
+        "DRAWDOWN_STEP_35_REUNDERWRITE"
+      ],
       "orders": 0,
       "position_state": "HELD",
       "price_as_of": "2026-11-26",
@@ -2625,8 +2643,8 @@
     "held_subject_count": 23,
     "material_event_trigger_count": 0,
     "portfolio_review_required_count": 2,
-    "reunderwrite_required_count": 4,
-    "review_queue_count": 15,
+    "reunderwrite_required_count": 11,
+    "review_queue_count": 22,
     "semantic_watch_clause_count": 570,
     "subject_count": 64,
     "user_action_review_count": 9,
