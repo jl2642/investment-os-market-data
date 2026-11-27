@@ -545,3 +545,123 @@ def test_ai_rejects_inconsistent_prior_nav_history() -> None:
             prior_state=first,
             as_of_date="2026-10-12",
         )
+
+
+
+def test_strategy_small_ordinary_buy_is_skipped_but_explicit_add_is_not():
+    sid = "000001.SZ"
+    initial, _ = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "BUY", price=10)),
+        lifecycle=lifecycle(life_row(sid, 10)), prior_state=None, as_of_date="2026-09-01")
+    # A small decline opens a single-lot ordinary rebalance.
+    state, report = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "HOLD", price=9.8)),
+        lifecycle=lifecycle(life_row(sid, 9.8)), prior_state=initial, as_of_date="2026-09-02")
+    assert state["positions"][0]["quantity"] == initial["positions"][0]["quantity"]
+    assert report["new_transaction_count"] == 0
+    assert any(d["status"].startswith("SKIP_SMALL_ORDINARY_REBALANCE") for d in report["diagnostics"])
+    _, add_report = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "ADD", price=9.8)),
+        lifecycle=lifecycle(life_row(sid, 9.8)), prior_state=initial, as_of_date="2026-09-02")
+    assert any(t["side"] == "BUY" for t in add_report["new_transactions"])
+
+
+def test_strategy_small_risk_correction_and_exit_are_not_filtered():
+    sid = "000001.SZ"
+    initial, _ = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "BUY", price=10)),
+        lifecycle=lifecycle(life_row(sid, 10)), prior_state=None, as_of_date="2026-09-01")
+    state, report = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "HOLD", price=10.3)),
+        lifecycle=lifecycle(life_row(sid, 10.3)), prior_state=initial, as_of_date="2026-09-02")
+    assert any(t["side"] == "SELL" for t in report["new_transactions"])
+    assert state["positions"][0]["market_value"] / state["current_nav"] <= 0.10
+    small = copy.deepcopy(initial)
+    p = small["positions"][0]
+    p["quantity"] = 100
+    p["market_value"] = 1000
+    small["cash"] = small["current_nav"] - 1000
+    _, report = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "EXIT", price=10)),
+        lifecycle=lifecycle(life_row(sid, 10)), prior_state=small, as_of_date="2026-09-02")
+    assert any(t["side"] == "SELL" and t["quantity"] == 100 for t in report["new_transactions"])
+
+
+def test_strategy_pending_fresh_d2_does_not_liquidate_ai_position():
+    sid = "920663.BJ"
+    initial, _ = apply_ai_virtual_rebalance(recommendation=recommendation(rec(sid, "BUY", price=11)),
+        lifecycle=lifecycle(life_row(sid, 11)), prior_state=None, as_of_date="2026-09-01")
+    for status in ("FRESH_D2_REQUIRED_ON_PRICE_CROSS", "RESEARCH_REFRESH_PENDING", "HOLDING_REUNDERWRITE_REQUIRED"):
+        r = rec(sid, "WATCH", price=10)
+        r["research_freshness"] = status
+        state, report = apply_ai_virtual_rebalance(recommendation=recommendation(r),
+            lifecycle=lifecycle(life_row(sid, 10)), prior_state=initial, as_of_date="2026-09-02")
+        assert state["positions"][0]["quantity"] == initial["positions"][0]["quantity"]
+        assert report["new_transaction_count"] == 0
+        assert state["orders"] == 0 and state["trade_authority"] == "NONE"
+
+
+def test_strategy_historical_engine_replay_recent_verified_sessions(capsys):
+    """Re-execute both engines against immutable point-in-time Phase3 snapshots.
+
+    Only the post-session-guard interval is used. No future signals, synthetic
+    prices, retrospective research, or real-account mutations.
+    """
+    import json
+    import subprocess
+    import types
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    anchor = "0fdcb4a17b980205eda6ef504e006378cf62064e"
+    sessions = [
+        ("2026-11-18", "a88cd6acf35acf5c7de5fa39a59f6f44c376afcf"),
+        ("2026-11-19", "b71776e310b51e4e8cb135bc9fe79d92012b56df"),
+        ("2026-11-20", "1446847a577a481dba4d3e78297a95ac8e3d3ecf"),
+        ("2026-11-23", "49f02d6cae2abdb87f395353ae2377506afca214"),
+        ("2026-11-24", "1cf3011bfac1c576aae1e2939cc53707b982625a"),
+        ("2026-11-25", "d932a94aa67f0610ece592c63f5ba16b92748209"),
+        ("2026-11-26", "f25fb05c48ef0431463df5c6ca4007170ea491e3"),
+    ]
+    def read(ref, path):
+        return subprocess.check_output(["git", "show", f"{ref}:{path}"], cwd=root, text=True)
+    def payload(ref, path):
+        return json.loads(read(ref, "operating_current/" + path))
+    # In shallow local clones this historical integration test requires the
+    # operating-current history; production Phase3 CI checks out full history.
+    if subprocess.run(["git", "cat-file", "-e", anchor + "^{commit}"], cwd=root,
+                      capture_output=True).returncode:
+        pytest.skip("Pinned operating-current history not present in shallow clone")
+    previous = payload(anchor, "ai_autonomous/AI_AUTONOMOUS_1M_CURRENT.json")
+    assert previous["nav_history"][-1]["as_of_date"] == "2026-11-17"
+    base = types.ModuleType("strategy_original_engine")
+    exec(compile(read("9ca62244014beb24aa33828d830544176b255a7a",
+                      "automation/portfolio_execution/build_portfolio_execution.py"),
+                 "<pinned original engine>", "exec"), base.__dict__)
+    old = copy.deepcopy(previous)
+    new = copy.deepcopy(previous)
+    initial_count = len(previous["transactions"])
+    observed = []
+    for day, ref in sessions:
+        actual = payload(ref, "ai_autonomous/AI_AUTONOMOUS_1M_CURRENT.json")
+        life = payload(ref, "decision_lifecycle/DECISION_LIFECYCLE_CURRENT.json")
+        recs = payload(ref, "investment_pipeline/RECOMMENDATION_CURRENT.json")
+        assert actual["nav_history"][-1]["as_of_date"] == day
+        assert life["input_identity"]["recommendation_state_id"] == recs["state_id"]
+        assert life["as_of_date"] == day
+        old, old_report = base.apply_ai_virtual_rebalance(recommendation=recs, lifecycle=life,
+            prior_state=old, as_of_date=day)
+        new, report = apply_ai_virtual_rebalance(recommendation=recs, lifecycle=life,
+            prior_state=new, as_of_date=day)
+        assert abs(old["current_nav"] - actual["current_nav"]) < 0.02, (day, old["current_nav"], actual["current_nav"])
+        assert len(old["transactions"]) == len(actual["transactions"]), day
+        assert new["orders"] == 0 and new["trade_authority"] == "NONE"
+        assert new["cash"] / new["current_nav"] >= 0.20 - 1e-8
+        groups = {}
+        for p in new["positions"]:
+            w = p["market_value"] / new["current_nav"]
+            assert w <= 0.10 + 1e-7, (day, p["security_id"], w)
+            groups[p["risk_group"]] = groups.get(p["risk_group"], 0) + w
+        assert max(groups.values(), default=0) <= 0.30 + 1e-7, (day, groups)
+        observed.append({"date": day, "baseline_nav": old["current_nav"], "candidate_nav": new["current_nav"],
+            "baseline_trades": old_report["new_transaction_count"], "candidate_trades": report["new_transaction_count"]})
+    assert len(new["transactions"]) < len(old["transactions"])
+    with capsys.disabled():
+        print("STRATEGY_REPLAY_RECEIPT", json.dumps({"sessions": observed,
+            "baseline_trades": len(old["transactions"]) - initial_count,
+            "candidate_trades": len(new["transactions"]) - initial_count,
+            "baseline_nav": old["current_nav"], "candidate_nav": new["current_nav"]}, sort_keys=True))

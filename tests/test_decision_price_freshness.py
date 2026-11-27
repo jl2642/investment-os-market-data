@@ -343,3 +343,85 @@ def test_fresh_buy_action_is_not_downgraded_by_price_cross_guard():
     assert row["action"] == "BUY"
     assert row["ready_for_user_decision"] is True
     assert row["top_blocker"] is None
+
+
+
+def test_strategy_non_buy_semantic_action_requires_fresh_d2_even_when_numeric_buy():
+    sid = "920663.BJ"
+    for semantic in ("AVOID", "WATCH", "BUY_BELOW"):
+        comp = {"rows": [{"security_id": sid, "existing_position": False,
+            "comparison_status": "PASS_NEW_CAPITAL", "metrics": {
+                "current_price": 15, "price_as_of": "2026-11-02", "underwriting_action": semantic,
+                "entry_price": 12.21, "bear_value": 7.54, "probability_weighted_value": 14.3675}}]}
+        rec = {"records": [{"security_id": sid, "action": "BUY", "ready_for_user_decision": True}]}
+        _, result = rebase_decisions(comp, rec, {"marks": []}, {"queue": []},
+            market_rows={sid: {"resolved_mark": 11.01, "as_of_date": "2026-11-26"}},
+            market_watermark="2026-11-26")
+        assert result["records"][0]["action"] == "BUY_BELOW"
+        assert result["records"][0]["research_freshness"] == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+        assert not result["records"][0]["ready_for_user_decision"]
+
+
+def test_strategy_stale_holding_add_is_frozen_on_cost_loss_or_anchor_decline():
+    sid = "300124.SZ"
+    for old_price, cost in [(70, 50), (55.92, 70.43)]:
+        comp = {"rows": [{"security_id": sid, "existing_position": True,
+            "holding_unit_costs": [cost], "comparison_status": "PASS_NEW_CAPITAL",
+            "metrics": {"current_price": old_price, "price_as_of": "2026-09-09",
+                        "entry_price": 61.39, "bear_value": 50, "probability_weighted_value": 70.6}}]}
+        rec = {"records": [{"security_id": sid, "action": "ADD", "ready_for_user_decision": True}]}
+        _, result = rebase_decisions(comp, rec, {"marks": [{"security_id": sid,
+              "mark": 51.8, "as_of_date": "2026-11-26"}]}, {"queue": []})
+        row = result["records"][0]
+        assert row["action"] == "HOLD"
+        assert row["research_freshness"] == "HOLDING_REUNDERWRITE_REQUIRED"
+        assert not row["ready_for_user_decision"]
+
+
+def test_strategy_fresh_holding_research_and_explicit_exit_not_blocked():
+    sid = "300124.SZ"
+    for action, date, fair, expected in [
+        ("ADD", "2026-11-25", 70.6, "ADD"),
+        ("EXIT", "2026-09-09", 45.0, "EXIT"),
+    ]:
+        status = "AVOID_INVALIDATION_TRIGGERED" if action == "EXIT" else "PASS_NEW_CAPITAL"
+        comp = {"rows": [{"security_id": sid, "existing_position": True, "holding_unit_costs": [80],
+             "comparison_status": status, "metrics": {"current_price": 52 if action == "ADD" else 70,
+             "price_as_of": date, "entry_price": 65, "bear_value": 50, "probability_weighted_value": fair}}]}
+        rec = {"records": [{"security_id": sid, "action": action}]}
+        _, result = rebase_decisions(comp, rec, {"marks": [{"security_id": sid, "mark": 51.8,
+            "as_of_date": "2026-11-26"}]}, {"queue": []})
+        assert result["records"][0]["action"] == expected
+
+
+def test_strategy_new_drawdown_level_routes_fresh_d2_even_inside_30_days():
+    from automation.investment_pipeline.rebase_decision_to_marks import holding_reunderwrite_required
+    m = {"underwriting_price_as_of": "2026-11-20", "current_market_price_as_of": "2026-11-26",
+         "underwriting_price": 76, "current_market_price": 74}
+    assert holding_reunderwrite_required(m, {"holding_unit_costs": [100]})
+    # Re-underwritten at the new price: same loss episode must not reopen immediately.
+    m["underwriting_price"] = 74
+    assert not holding_reunderwrite_required(m, {"holding_unit_costs": [100]})
+
+
+def test_strategy_ai_only_holding_stale_research_uses_virtual_cost_not_protected_identity():
+    sid = "001227.SZ"
+    comp = {"rows": [{"security_id": sid, "existing_position": False,
+        "comparison_status": "PASS_NEW_CAPITAL", "metrics": {
+        "current_price": 2.07, "price_as_of": "2026-09-24", "underwriting_action": "BUY",
+        "entry_price": 2.2, "bear_value": 1.70, "probability_weighted_value": 2.45}}]}
+    rec = {"records": [{"security_id": sid, "action": "BUY", "portfolio_implication": "NEW_CAPITAL_CANDIDATE"}]}
+    market = {sid: {"resolved_mark": 2.12, "as_of_date": "2026-11-26"}}
+    result, output = rebase_decisions(comp, rec, {"marks": []}, {"queue": []},
+        market_rows=market, market_watermark="2026-11-26",
+        ai_book={"positions": [{"security_id": sid, "quantity": 100, "average_cost": 2.8}]})
+    row = output["records"][0]
+    assert result["rows"][0]["existing_position"] is False
+    assert row["portfolio_implication"] == "NEW_CAPITAL_CANDIDATE"
+    assert row["ai_existing_position"] is True
+    assert row["research_freshness"] == "HOLDING_REUNDERWRITE_REQUIRED"
+    assert row["action"] == "WATCH"
+    assert not row["ready_for_user_decision"]
+    _, flat = rebase_decisions(comp, rec, {"marks": []}, {"queue": []},
+        market_rows=market, market_watermark="2026-11-26")
+    assert flat["records"][0]["action"] == "BUY"

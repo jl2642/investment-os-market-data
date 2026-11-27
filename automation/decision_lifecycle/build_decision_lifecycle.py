@@ -365,6 +365,39 @@ def build(
                 "next_step": "REUNDERWRITE_ON_FIRST_CROSS_OR_NEW_EVIDENCE",
             })
 
+        if rec.get("research_freshness") == "HOLDING_REUNDERWRITE_REQUIRED":
+            key = "HOLDING_RESEARCH_AGE_AND_LOSS_REUNDERWRITE"
+            trigger_keys.append(key)
+            review_reasons.append({
+                "type": "REUNDERWRITE_REQUIRED", "key": key, "priority": "HIGH",
+                "reason": "Old underwriting and material price/cost deterioration require fresh issuer evidence; loss alone is not an exit.",
+                "next_step": "FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT",
+            })
+        elif rec.get("research_freshness") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS" and not held:
+            key = "NON_BUY_PRICE_CROSS_REUNDERWRITE"
+            trigger_keys.append(key)
+            review_reasons.append({
+                "type": "REUNDERWRITE_REQUIRED", "key": key, "priority": "HIGH",
+                "reason": "A previously non-BUY semantic decision cannot acquire BUY authority from price rebasing.",
+                "next_step": "FRESH_D2_BEFORE_ANY_BUY",
+            })
+
+        # Persistent threshold levels permit a new review as losses deepen,
+        # rather than repeatedly emitting the same first-15%-cross event.
+        loss_rates = [num(row.get("unrealized_pnl_pct")) for row in rows]
+        loss_rates = [v for v in loss_rates if v is not None]
+        worst_loss = min(loss_rates, default=0.0)
+        for level in (25, 35, 50):
+            if held and worst_loss <= -level / 100.0:
+                key = f"DRAWDOWN_STEP_{level}_REUNDERWRITE"
+                trigger_keys.append(key)
+                if key not in prior_keys.get(sid, set()):
+                    review_reasons.append({
+                        "type": "REUNDERWRITE_REQUIRED", "key": key, "priority": "HIGH",
+                        "reason": f"Holding loss reached {level}%; re-test thesis, no mechanical sell.",
+                        "next_step": "FRESH_D2_BEFORE_HOLD_ADD_TRIM_OR_EXIT",
+                    })
+
         current_set = set(trigger_keys)
         prior_set = prior_keys.get(sid, set())
         new_keys = sorted(current_set - prior_set) if not baseline else []
