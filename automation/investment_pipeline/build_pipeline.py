@@ -228,7 +228,9 @@ def _d2_questions(row: dict[str, Any]) -> list[str]:
         "Build an explicit valuation range and identify what expectations are embedded in the current price.",
         "Define the first-rejection test and the evidence that would invalidate the thesis.",
     ]
-    if sleeve == "PRICE_CROSS_REUNDERWRITE":
+    if sleeve == "HOLDING_REUNDERWRITE":
+        specific = ["Re-test the existing thesis against latest filings and cash flow; decide HOLD, ADD, TRIM or EXIT without treating losses as automatic exit."]
+    elif sleeve == "PRICE_CROSS_REUNDERWRITE":
         specific = [
             "Validate the original thesis against fresh issuer disclosures after the formal price gate was crossed.",
             "Recalculate normalized earnings, scenarios and risk-adjusted margin of safety before BUY promotion.",
@@ -258,6 +260,8 @@ def _d2_questions(row: dict[str, Any]) -> list[str]:
 
 def _first_rejection(row: dict[str, Any]) -> str:
     sleeve = str(row.get("primary_sleeve") or "")
+    if sleeve == "HOLDING_REUNDERWRITE":
+        return "Reject old ADD authority until current issuer evidence and normalized valuation are re-underwritten."
     if sleeve == "PRICE_CROSS_REUNDERWRITE":
         return (
             "Reject renewed BUY promotion unless new primary evidence supports normalized earnings, "
@@ -350,8 +354,7 @@ def _ai_book_near_gate_refresh_ids(
         nav = _num(ai_book.get("current_nav"))
         cash = _num(ai_book.get("cash"))
         cash_weight = cash / nav if nav and cash is not None and nav > 0 else None
-    if cash_weight is None or cash_weight <= AI_HIGH_CASH_THRESHOLD:
-        return []
+    high_cash = cash_weight is not None and cash_weight > AI_HIGH_CASH_THRESHOLD
 
     opportunity_ids = {
         str(row.get("security_id") or "")
@@ -362,6 +365,14 @@ def _ai_book_near_gate_refresh_ids(
     ranked: list[tuple[float, str]] = []
     for rec in recommendation.get("records", []):
         sid = str(rec.get("security_id") or "")
+        if (rec.get("research_freshness") == "HOLDING_REUNDERWRITE_REQUIRED"
+                and rec.get("portfolio_implication") == "EXISTING_POSITION"
+                and rec.get("price_basis") == "PORTFOLIO_MARKS_CURRENT"
+                and rec.get("current_market_price_as_of")):
+            # Protected holding re-underwriting is independent of AI cash.
+            # One bounded refresh slot below; no candidate promotion.
+            ranked.append((-2.0, sid))
+            continue
         if rec.get("portfolio_implication") != "NEW_CAPITAL_CANDIDATE":
             continue
         if str(rec.get("action") or "") != "BUY_BELOW":
@@ -375,7 +386,7 @@ def _ai_book_near_gate_refresh_ids(
             gap <= 0
             and str(rec.get("research_freshness") or "") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
         )
-        near_above = 0 < gap <= AI_NEAR_FORMAL_BUY_GATE_PCT
+        near_above = high_cash and 0 < gap <= AI_NEAR_FORMAL_BUY_GATE_PCT
         if not (crossed or near_above):
             continue
         if sid not in opportunity_ids:
@@ -495,6 +506,29 @@ def build_d1(
             # Explicit evidence-backed recovery; never pretend it was screened
             # into the current market top-30 or reuse old D2 as new BUY.
             if (
+                rec.get("research_freshness") == "HOLDING_REUNDERWRITE_REQUIRED"
+                and rec.get("portfolio_implication") == "EXISTING_POSITION"
+                and rec.get("price_basis") == "PORTFOLIO_MARKS_CURRENT"
+                and rec.get("current_market_price_as_of")
+            ):
+                row = {
+                    "security_id": sid,
+                    "security_name": rec.get("security_name"),
+                    "as_of_date": rec.get("current_market_price_as_of"),
+                    "overall_rank": None,
+                    "research_priority": "A_IMMEDIATE_RESEARCH",
+                    "primary_sleeve": "HOLDING_REUNDERWRITE",
+                    "market_signal": {
+                        "source": "FORMAL_PORTFOLIO_MARK",
+                        "price_as_of": rec.get("current_market_price_as_of"),
+                        "current_price": rec.get("current_price"),
+                    },
+                    "fundamental_context": {
+                        "source": "STALE_HOLDING_THESIS_REQUIRES_FRESH_D2",
+                        "original_underwriting_price_as_of": rec.get("underwriting_price_as_of"),
+                    },
+                }
+            elif (
                 rec.get("research_freshness") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
                 and str(rec.get("current_market_price_as_of") or "") == market_date
                 and str(rec.get("price_basis") or "") == "A_SHARE_FULL_MARKET"
@@ -964,6 +998,7 @@ def _underwriting_metrics(
         "bear_downside": downside,
         "confidence": confidence,
         "price_as_of": u.get("price_as_of"),
+        "underwriting_action": str(u.get("action") or "").upper() or None,
         "normalized_earnings_basis": u.get("normalized_earnings_basis"),
         "kill_thesis": u.get("kill_thesis") or row.get("first_rejection"),
         "catalysts": u.get("catalysts") or [],
@@ -1017,6 +1052,11 @@ def build_capital_comparison(
                 "d2_status": status,
                 "comparison_status": comp,
                 "existing_position": existing,
+                "holding_unit_costs": [
+                    h.get("unit_cost") for p in (real_positions or {}, simulation_positions or {})
+                    for h in p.get("holdings", []) if str(h.get("security_id")) == sid
+                    and h.get("unit_cost") is not None
+                ],
                 "position_accounts": [
                     x
                     for x, flag in (
