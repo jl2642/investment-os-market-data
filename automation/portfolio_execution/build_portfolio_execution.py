@@ -15,6 +15,8 @@ LISTED_LOT = 100
 DEFAULT_SINGLE_NAME_CAP = 0.10
 DEFAULT_GROUP_CAP = 0.30
 AI_CASH_FLOOR = 0.20
+AI_MIN_ORDINARY_REBALANCE_NOTIONAL = 5000.0
+AI_RESEARCH_REVIEW_BLOCKERS = {"RESEARCH_REFRESH_PENDING", "FRESH_D2_REQUIRED_ON_PRICE_CROSS", "HOLDING_REUNDERWRITE_REQUIRED"}
 MAX_AI_POSITIONS = 10
 PROTECTED_POSITION_ACTIONS = {"ADD", "TRIM", "EXIT"}
 DEPLOYMENT_GATES = (10, 20, 30, 40)
@@ -1028,6 +1030,11 @@ def apply_ai_virtual_rebalance(
     state["current_nav"] = prior_nav
 
     targets = ai_target_weights(recommendation, lifecycle, state)
+    recs = recommendation_map(recommendation)
+    initial_group_values: dict[str, float] = {}
+    for sid, pos in positions.items():
+        group = str(targets.get(sid, {}).get("risk_group") or pos.get("risk_group") or "UNKNOWN")
+        initial_group_values[group] = initial_group_values.get(group, 0.0) + float(pos.get("market_value") or 0.0)
     sells: list[tuple[str, float]] = []
     buys: list[tuple[str, float]] = []
     diagnostics: list[dict[str, Any]] = []
@@ -1037,8 +1044,28 @@ def apply_ai_virtual_rebalance(
         if price is None or price <= 0:
             diagnostics.append({"security_id": sid, "status": "BLOCK_NO_PRICE"})
             continue
+        rec = recs.get(sid, {})
+        # Research quarantine is not an investment-thesis rejection. Keep
+        # existing AI shares marked, and do not acquire fresh shares.
+        if rec.get("research_freshness") in AI_RESEARCH_REVIEW_BLOCKERS:
+            target["target_weight"] = current_qty * price / max(prior_nav, 1.0)
+            target["action"] = "RESEARCH_REVIEW_HOLD" if current_qty else "RESEARCH_REVIEW_NO_BUY"
+            diagnostics.append({"security_id": sid, "status": "BLOCK_TRADE_PENDING_FRESH_D2"})
+            continue
         target_qty = float(math.floor((target["target_weight"] * prior_nav / price) / LISTED_LOT) * LISTED_LOT)
         delta = target_qty - current_qty
+        action = str(target.get("action") or "")
+        group = str(target.get("risk_group") or "UNKNOWN")
+        mandatory_sell = delta < 0 and (
+            action in {"TRIM", "EXIT", "AVOID", "NO_CURRENT_ELIGIBLE_THESIS"}
+            or target_qty == 0
+            or current_qty * price > DEFAULT_SINGLE_NAME_CAP * prior_nav + 1e-7
+            or initial_group_values.get(group, 0.0) > DEFAULT_GROUP_CAP * prior_nav + 1e-7
+            or float(state.get("cash") or 0.0) < AI_CASH_FLOOR * prior_nav - 1e-7
+        )
+        if delta and abs(delta) * price < AI_MIN_ORDINARY_REBALANCE_NOTIONAL and current_qty > 0 and not mandatory_sell and action != "ADD":
+            diagnostics.append({"security_id": sid, "status": "SKIP_SMALL_ORDINARY_REBALANCE", "notional": abs(delta) * price})
+            continue
         if delta < 0:
             sells.append((sid, abs(delta)))
         elif delta > 0:
@@ -1137,8 +1164,10 @@ def apply_ai_virtual_rebalance(
         ) * LISTED_LOT
         desired_after_caps = min(desired_qty, cap_qty)
 
+        # Preserve minimum cash after the actual slipped transaction.
+        cash_headroom = max(0.0, float(state.get("cash") or 0.0) - AI_CASH_FLOOR * nav_before_buy)
         affordable_qty = math.floor(
-            float(state.get("cash") or 0.0) / price / LISTED_LOT
+            cash_headroom / (price - AI_CASH_FLOOR * price_raw * slippage_rate) / LISTED_LOT
         ) * LISTED_LOT
         qty = min(desired_after_caps, affordable_qty)
         if qty <= 0:
@@ -1161,6 +1190,9 @@ def apply_ai_virtual_rebalance(
                 "affordable_quantity": affordable_qty,
             })
         notional = qty * price
+        if current_single_value > 0 and notional < AI_MIN_ORDINARY_REBALANCE_NOTIONAL and targets[sid].get("action") != "ADD":
+            diagnostics.append({"security_id": sid, "status": "SKIP_SMALL_ORDINARY_REBALANCE_AFTER_CAPS", "notional": notional})
+            continue
         state["cash"] = float(state.get("cash") or 0.0) - notional
         old = positions.get(sid)
         old_qty = float(old.get("quantity") or 0.0) if old else 0.0

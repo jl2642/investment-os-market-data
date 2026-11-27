@@ -228,7 +228,9 @@ def _d2_questions(row: dict[str, Any]) -> list[str]:
         "Build an explicit valuation range and identify what expectations are embedded in the current price.",
         "Define the first-rejection test and the evidence that would invalidate the thesis.",
     ]
-    if sleeve == "PRICE_CROSS_REUNDERWRITE":
+    if sleeve == "HOLDING_REUNDERWRITE":
+        specific = ["Re-test the existing thesis against latest filings and cash flow; decide HOLD, ADD, TRIM or EXIT without treating losses as automatic exit."]
+    elif sleeve == "PRICE_CROSS_REUNDERWRITE":
         specific = [
             "Validate the original thesis against fresh issuer disclosures after the formal price gate was crossed.",
             "Recalculate normalized earnings, scenarios and risk-adjusted margin of safety before BUY promotion.",
@@ -258,6 +260,8 @@ def _d2_questions(row: dict[str, Any]) -> list[str]:
 
 def _first_rejection(row: dict[str, Any]) -> str:
     sleeve = str(row.get("primary_sleeve") or "")
+    if sleeve == "HOLDING_REUNDERWRITE":
+        return "Reject old ADD authority until current issuer evidence and normalized valuation are re-underwritten."
     if sleeve == "PRICE_CROSS_REUNDERWRITE":
         return (
             "Reject renewed BUY promotion unless new primary evidence supports normalized earnings, "
@@ -350,8 +354,7 @@ def _ai_book_near_gate_refresh_ids(
         nav = _num(ai_book.get("current_nav"))
         cash = _num(ai_book.get("cash"))
         cash_weight = cash / nav if nav and cash is not None and nav > 0 else None
-    if cash_weight is None or cash_weight <= AI_HIGH_CASH_THRESHOLD:
-        return []
+    high_cash = cash_weight is not None and cash_weight > AI_HIGH_CASH_THRESHOLD
 
     opportunity_ids = {
         str(row.get("security_id") or "")
@@ -362,6 +365,15 @@ def _ai_book_near_gate_refresh_ids(
     ranked: list[tuple[float, str]] = []
     for rec in recommendation.get("records", []):
         sid = str(rec.get("security_id") or "")
+        if (rec.get("research_freshness") == "HOLDING_REUNDERWRITE_REQUIRED"
+                and (rec.get("portfolio_implication") == "EXISTING_POSITION" or rec.get("ai_existing_position"))
+                and rec.get("price_basis") in {"PORTFOLIO_MARKS_CURRENT", "A_SHARE_FULL_MARKET"}
+                and rec.get("current_market_price_as_of")
+                and (rec.get("price_basis") != "A_SHARE_FULL_MARKET" or rec.get("current_market_price_as_of") == market_date)):
+            # Protected holding re-underwriting is independent of AI cash.
+            # One bounded refresh slot below; no candidate promotion.
+            ranked.append((-3.0 if rec.get("underwriting_action") == "ADD" else -2.0, sid))
+            continue
         if rec.get("portfolio_implication") != "NEW_CAPITAL_CANDIDATE":
             continue
         if str(rec.get("action") or "") != "BUY_BELOW":
@@ -375,7 +387,7 @@ def _ai_book_near_gate_refresh_ids(
             gap <= 0
             and str(rec.get("research_freshness") or "") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
         )
-        near_above = 0 < gap <= AI_NEAR_FORMAL_BUY_GATE_PCT
+        near_above = high_cash and 0 < gap <= AI_NEAR_FORMAL_BUY_GATE_PCT
         if not (crossed or near_above):
             continue
         if sid not in opportunity_ids:
@@ -483,18 +495,44 @@ def build_d1(
         for rec in (recommendation or {}).get("records", [])
         if rec.get("security_id")
     }
-    # High-cash feedback is allowed to replace only the last D1 slot, preserving
-    # the bounded batch size and avoiding a new unbounded research queue.
+    # Reserve at most one preferred fresh-D2 slot; preserve the other
+    # diversified slots. A holding refresh must not masquerade as new capital.
+    near_gate_ids = near_gate_ids[:1]
     for sid in near_gate_ids:
-        if sid in {str(row.get("security_id") or "") for row in selected}:
+        rec = recommendation_by_id.get(sid, {})
+        holding_refresh = rec.get("research_freshness") == "HOLDING_REUNDERWRITE_REQUIRED"
+        if not holding_refresh and sid in {str(row.get("security_id") or "") for row in selected}:
             break
-        row = opportunity_by_id.get(sid)
+        row = None if holding_refresh else opportunity_by_id.get(sid)
         if row is None:
-            rec = recommendation_by_id.get(sid, {})
             market_date = str((opportunity.get("source_snapshot") or {}).get("data_watermark") or "")
             # Explicit evidence-backed recovery; never pretend it was screened
             # into the current market top-30 or reuse old D2 as new BUY.
             if (
+                rec.get("research_freshness") == "HOLDING_REUNDERWRITE_REQUIRED"
+                and (rec.get("portfolio_implication") == "EXISTING_POSITION" or rec.get("ai_existing_position"))
+                and rec.get("price_basis") in {"PORTFOLIO_MARKS_CURRENT", "A_SHARE_FULL_MARKET"}
+                and rec.get("current_market_price_as_of")
+                and (rec.get("price_basis") != "A_SHARE_FULL_MARKET" or rec.get("current_market_price_as_of") == market_date)
+            ):
+                row = {
+                    "security_id": sid,
+                    "security_name": rec.get("security_name"),
+                    "as_of_date": rec.get("current_market_price_as_of"),
+                    "overall_rank": None,
+                    "research_priority": "A_IMMEDIATE_RESEARCH",
+                    "primary_sleeve": "HOLDING_REUNDERWRITE",
+                    "market_signal": {
+                        "source": "FORMAL_FULL_MARKET_MARK" if rec.get("price_basis") == "A_SHARE_FULL_MARKET" else "FORMAL_PORTFOLIO_MARK",
+                        "price_as_of": rec.get("current_market_price_as_of"),
+                        "current_price": rec.get("current_price"),
+                    },
+                    "fundamental_context": {
+                        "source": "STALE_HOLDING_THESIS_REQUIRES_FRESH_D2",
+                        "original_underwriting_price_as_of": rec.get("underwriting_price_as_of"),
+                    },
+                }
+            elif (
                 rec.get("research_freshness") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
                 and str(rec.get("current_market_price_as_of") or "") == market_date
                 and str(rec.get("price_basis") or "") == "A_SHARE_FULL_MARKET"
@@ -521,7 +559,10 @@ def build_d1(
                     },
                 }
         if row is not None:
-            if selected:
+            index = next((i for i, old in enumerate(selected) if str(old.get("security_id") or "") == sid), None)
+            if index is not None:
+                selected[index] = row
+            elif selected:
                 selected[-1] = row
             else:
                 selected.append(row)
@@ -542,7 +583,9 @@ def build_d1(
         priority = str(row.get("research_priority") or "")
         sid = str(row.get("security_id") or "")
         if sid in route_set:
-            if sid in near_gate_set:
+            if sid in near_gate_set and row.get("primary_sleeve") == "HOLDING_REUNDERWRITE":
+                disposition = "ADVANCE_TO_D2_HOLDING_REUNDERWRITE"
+            elif sid in near_gate_set:
                 disposition = "ADVANCE_TO_D2_AI_BOOK_AUTO_REUNDERWRITE"
             else:
                 disposition = "ADVANCE_TO_D2_FAST_TRIAGE"
@@ -555,7 +598,8 @@ def build_d1(
         else:
             disposition = "REJECT_FOR_NOW_LOW_RESEARCH_PRIORITY"
 
-        ai_refresh = sid in near_gate_set and sid in route_set
+        fresh_refresh = sid in near_gate_set and sid in route_set
+        ai_refresh = fresh_refresh and row.get("primary_sleeve") != "HOLDING_REUNDERWRITE"
         research_objects.append(
             {
                 "security_id": row.get("security_id"),
@@ -573,8 +617,8 @@ def build_d1(
                 ),
                 "first_rejection": _first_rejection(row),
                 "d2_questions": _d2_questions(row),
-                "semantic_refresh_required": ai_refresh,
-                "fresh_d2_required": ai_refresh,
+                "semantic_refresh_required": fresh_refresh,
+                "fresh_d2_required": fresh_refresh,
                 "ai_book_auto_reunderwrite": ai_refresh,
                 "existing_decision_grade_d2": sid in completed_d2_ids,
                 "ai_book_reunderwrite_reason": (
@@ -964,6 +1008,7 @@ def _underwriting_metrics(
         "bear_downside": downside,
         "confidence": confidence,
         "price_as_of": u.get("price_as_of"),
+        "underwriting_action": str(u.get("action") or "").upper() or None,
         "normalized_earnings_basis": u.get("normalized_earnings_basis"),
         "kill_thesis": u.get("kill_thesis") or row.get("first_rejection"),
         "catalysts": u.get("catalysts") or [],
@@ -1017,6 +1062,11 @@ def build_capital_comparison(
                 "d2_status": status,
                 "comparison_status": comp,
                 "existing_position": existing,
+                "holding_unit_costs": [
+                    h.get("unit_cost") for p in (real_positions or {}, simulation_positions or {})
+                    for h in p.get("holdings", []) if str(h.get("security_id")) == sid
+                    and h.get("unit_cost") is not None
+                ],
                 "position_accounts": [
                     x
                     for x, flag in (

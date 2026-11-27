@@ -4,6 +4,7 @@ import argparse
 import csv
 import hashlib
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -131,7 +132,7 @@ def _action_for_status(
     existing: bool,
     previous_action: str | None = None,
 ) -> str:
-    if status in {"RESEARCH_REFRESH_PENDING", "PRICE_FRESHNESS_BLOCKED"}:
+    if status in {"RESEARCH_REFRESH_PENDING", "PRICE_FRESHNESS_BLOCKED", "HOLDING_REUNDERWRITE_REQUIRED"}:
         return "HOLD" if existing else "WATCH"
     if status == "AVOID_INVALIDATION_TRIGGERED":
         return "EXIT" if existing else "AVOID"
@@ -163,10 +164,33 @@ def _blocker_for_status(status: str) -> str | None:
         "RESEARCH_REFRESH_PENDING",
         "PRICE_FRESHNESS_BLOCKED",
         "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
+        "HOLDING_REUNDERWRITE_REQUIRED",
         "CAPITAL_NOT_COMPETITIVE",
     }:
         return status
     return "CAPITAL_NOT_COMPETITIVE"
+
+
+def holding_reunderwrite_required(metrics: dict[str, Any], row: dict[str, Any]) -> bool:
+    """Price-age is a conservative proxy, never evidence of thesis failure."""
+    try:
+        age = (date.fromisoformat(str(metrics.get("current_market_price_as_of"))[:10])
+               - date.fromisoformat(str(metrics.get("underwriting_price_as_of"))[:10])).days
+    except (TypeError, ValueError):
+        return False
+    anchor = _num(metrics.get("underwriting_price"))
+    mark = _num(metrics.get("current_market_price"))
+    if age < 0 or not anchor or anchor <= 0 or not mark or mark <= 0:
+        return False
+    costs = [c for c in (_num(v) for v in row.get("holding_unit_costs", [])) if c and c > 0]
+    # A fresh D2 establishes a new anchor. If the loss has crossed a new
+    # threshold since that anchor, re-open D2 even within 30 days.
+    worsening_step = any(
+        anchor / cost > 1.0 - level and mark / cost <= 1.0 - level
+        for cost in costs for level in (0.25, 0.35, 0.50)
+    )
+    deep_loss = any(mark / cost <= 0.80 for cost in costs)
+    return worsening_step or (age >= 30 and (mark / anchor <= 0.85 or deep_loss))
 
 
 def rebase_decisions(
@@ -176,9 +200,11 @@ def rebase_decisions(
     raw_d2: dict[str, Any],
     market_rows: dict[str, dict[str, Any]] | None = None,
     market_watermark: str | None = None,
+    ai_book: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     marks_by_id, watermark = _mark_map(marks)
     pending = _pending_ids(raw_d2)
+    ai_positions = {str(p.get("security_id")): p for p in (ai_book or {}).get("positions", []) if p.get("security_id") and (_num(p.get("quantity")) or 0) > 0}
 
     comparison = json.loads(json.dumps(comparison))
     recommendation = json.loads(json.dumps(recommendation))
@@ -194,6 +220,12 @@ def rebase_decisions(
         # Holdings use exact Portfolio Marks; unheld new-capital candidates MUST
         # be independently priced from the completed-session full-market snapshot.
         existing = bool(row.get("existing_position"))
+        ai_pos = ai_positions.get(sid)
+        row["ai_existing_position"] = ai_pos is not None
+        # Keep protected-account identity distinct; AI-only holdings use
+        # full-market marks and their own virtual cost anchor.
+        if ai_pos is not None:
+            row["holding_unit_costs"] = list(row.get("holding_unit_costs") or []) + [ai_pos.get("average_cost")]
         mark = marks_by_id.get(sid) if existing else (
             market_rows.get(sid) if market_rows is not None else marks_by_id.get(sid)
         )
@@ -222,23 +254,37 @@ def rebase_decisions(
                     "A_SHARE_FULL_MARKET" if market_rows is not None else "PORTFOLIO_MARKS_CURRENT"
                 )
                 row["comparison_status"] = _recompute_comparison_status(row, metrics)
-                # A legacy BUY_BELOW crossing its price gate is a research
-                # trigger, never a new decision-grade BUY authorization.
+                # Repricing must never manufacture BUY authority from an old
+                # non-BUY semantic thesis, even if S2's numeric action changed.
+                semantic_action = str(
+                    metrics.get("underwriting_action") if "underwriting_action" in metrics
+                    else previous_actions.get(sid) or ""
+                ).upper()
                 if (
                     market_rows is not None
                     and not existing
-                    and previous_actions.get(sid) == "BUY_BELOW"
+                    and (semantic_action != "BUY" or previous_actions.get(sid) != "BUY")
                     and row["comparison_status"] == "PASS_NEW_CAPITAL"
                 ):
                     row["comparison_status"] = "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+                if (
+                    (existing or ai_pos is not None)
+                    and previous_actions.get(sid) in {"HOLD", "ADD", "BUY", "BUY_BELOW", "WATCH"}
+                    and row["comparison_status"] not in {
+                        "AVOID_INVALIDATION_TRIGGERED", "EVIDENCE_BLOCKED",
+                        "UNDERWRITING_PENDING", "UNDERWRITING_INCOMPLETE",
+                    }
+                    and holding_reunderwrite_required(metrics, row)
+                ):
+                    row["comparison_status"] = "HOLDING_REUNDERWRITE_REQUIRED"
                 repriced = True
         if missing_current_market or (market_rows is not None and not existing and not repriced):
             row["comparison_status"] = "PRICE_FRESHNESS_BLOCKED"
-        if sid in pending:
+        if sid in pending and row.get("comparison_status") != "AVOID_INVALIDATION_TRIGGERED":
             row["comparison_status"] = "RESEARCH_REFRESH_PENDING"
             row["research_freshness"] = "RESEARCH_REFRESH_PENDING"
-        elif row.get("comparison_status") == "FRESH_D2_REQUIRED_ON_PRICE_CROSS":
-            row["research_freshness"] = "FRESH_D2_REQUIRED_ON_PRICE_CROSS"
+        elif row.get("comparison_status") in {"FRESH_D2_REQUIRED_ON_PRICE_CROSS", "HOLDING_REUNDERWRITE_REQUIRED"}:
+            row["research_freshness"] = row["comparison_status"]
         else:
             row["research_freshness"] = "CURRENT_OR_PERSISTED_NO_ACTIVE_REFRESH"
         comp_by_id[sid] = row
@@ -279,6 +325,7 @@ def rebase_decisions(
         comp = comp_by_id.get(sid, {})
         metrics = comp.get("metrics") or {}
         if metrics:
+            rec["underwriting_action"] = metrics.get("underwriting_action")
             rec["underwriting_price"] = metrics.get("underwriting_price", metrics.get("current_price"))
             rec["underwriting_price_as_of"] = metrics.get("underwriting_price_as_of", metrics.get("price_as_of"))
             rec["original_expected_return"] = metrics.get("original_expected_return", metrics.get("expected_return"))
@@ -305,6 +352,7 @@ def rebase_decisions(
         rec["action"] = new_action
         rec["ready_for_user_decision"] = rec["action"] in {"BUY", "ADD", "TRIM", "EXIT"}
         rec["research_freshness"] = comp.get("research_freshness")
+        rec["ai_existing_position"] = bool(comp.get("ai_existing_position"))
         rec["top_blocker"] = _blocker_for_status(status)
         if status == "RESEARCH_REFRESH_PENDING":
             rec["ready_for_user_decision"] = False
@@ -320,6 +368,7 @@ def rebase_decisions(
             "RESEARCH_REFRESH_PENDING",
             "PRICE_FRESHNESS_BLOCKED",
             "FRESH_D2_REQUIRED_ON_PRICE_CROSS",
+        "HOLDING_REUNDERWRITE_REQUIRED",
             "CAPITAL_NOT_COMPETITIVE",
         }
         reasons = [
@@ -367,6 +416,7 @@ def main() -> int:
     parser.add_argument("--raw-d2", required=True)
     parser.add_argument("--market-snapshot")
     parser.add_argument("--market-watermark")
+    parser.add_argument("--ai-book")
     args = parser.parse_args()
     if bool(args.market_snapshot) != bool(args.market_watermark):
         raise SystemExit("FULL_MARKET_SNAPSHOT_AND_WATERMARK_MUST_BE_SUPPLIED_TOGETHER")
@@ -379,6 +429,7 @@ def main() -> int:
         market_rows=load_full_market_snapshot(args.market_snapshot, args.market_watermark)
         if args.market_snapshot else None,
         market_watermark=args.market_watermark,
+        ai_book=read_json(args.ai_book) if args.ai_book else None,
     )
     write_json(args.comparison, comparison)
     write_json(args.recommendation, recommendation)
